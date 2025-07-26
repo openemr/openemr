@@ -14,8 +14,12 @@
 namespace Application;
 
 use Application\Controller\IndexController;
+use Application\Controller\SendtoController;
+use Application\Controller\SoapController;
 use Application\Listener\Listener;
 use Application\Listener\ModuleMenuSubscriber;
+use Application\Model\ApplicationTable;
+use Application\Model\SendtoTable;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
@@ -33,7 +37,7 @@ return array(
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        'controller' => \Application\Controller\IndexController::class,
+                        'controller' => IndexController::class,
                         'action'     => 'index',
                     ),
                 ),
@@ -45,7 +49,7 @@ return array(
                 'options' => array(
                     'route'    => '/application',
                     'defaults' => array(
-                        'controller'    => \Application\Controller\IndexController::class,
+                        'controller'    => IndexController::class,
                         'action'        => 'index',
                     ),
                 ),
@@ -73,7 +77,7 @@ return array(
                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                             ),
                             'defaults' => array(
-                                'controller' => \Application\Controller\SendtoController::class,
+                                'controller' => SendtoController::class,
                                 'action'     => 'index',
                             ),
                         ),
@@ -88,7 +92,7 @@ return array(
                                 'val'    => '[0-9]*',
                             ),
                             'defaults' => array(
-                                'controller' => \Application\Controller\SoapController::class,
+                                'controller' => SoapController::class,
                                 'action'     => 'index',
                             ),
                         ),
@@ -115,32 +119,32 @@ return array(
     )
     ,'controllers' => array(
         'factories' => [
-            \Application\Controller\IndexController::class => function (ContainerInterface $container, $requestedName) {
-                return new \Application\Controller\IndexController($container->get(\Application\Model\ApplicationTable::class));
+            IndexController::class => function (ContainerInterface $container, $requestedName) {
+                return new IndexController($container->get(ApplicationTable::class));
             },
-            \Application\Controller\SoapController::class => function (ContainerInterface $container, $requestedName) {
-                return new \Application\Controller\SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class));
+            SoapController::class => function (ContainerInterface $container, $requestedName) {
+                return new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class));
             },
-            \Application\Controller\SendtoController::class => function (ContainerInterface $container, $requestedName) {
-                return new \Application\Controller\SendtoController($container->get(\Application\Model\ApplicationTable::class), $container->get(\Application\Model\SendtoTable::class));
+            SendtoController::class => function (ContainerInterface $container, $requestedName) {
+                return new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class));
             }
         ]
     ),
     'service_manager' => array(
         'factories' => array(
             Listener::class => InvokableFactory::class,
-            \Application\Model\ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
+            ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
-                $table = new \Application\Model\ApplicationTable($dbAdapter);
+                $table = new ApplicationTable($dbAdapter);
                 return $table;
             },
-            \Application\Model\SendtoTable::class => function (ContainerInterface $container, $requestedName) {
+            SendtoTable::class => function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
-                $table = new \Application\Model\SendtoTable($dbAdapter);
+                $table = new SendtoTable($dbAdapter);
                 return $table;
             },
-            \Application\Controller\SendtoController::class => function (ContainerInterface $container, $requestedName) {
-                return new \Application\Controller\SendtoController($container->get(\Application\Model\ApplicationTable::class), $container->get(\Application\Model\SendtoTable::class));
+            SendtoController::class => function (ContainerInterface $container, $requestedName) {
+                return new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class));
             },
             ModuleMenuSubscriber::class => InvokableFactory::class
         ),
@@ -172,7 +176,7 @@ return array(
             }
             // TODO: this used to be the Getvariables functionality.. the whole thing has a leaky abstraction and should be refactored into services instead of jumping to a controller view
             , 'sendToHie'      => function (\Interop\Container\ContainerInterface $container, $requestedName) {
-                return new \Application\Helper\SendToHieHelper($container->get(\Application\Controller\SendtoController::class));
+                return new \Application\Helper\SendToHieHelper($container->get(SendtoController::class));
             }
         ]
     ),

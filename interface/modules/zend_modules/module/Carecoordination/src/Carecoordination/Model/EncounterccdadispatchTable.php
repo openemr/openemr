@@ -17,8 +17,10 @@ namespace Carecoordination\Model;
 
 use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
+use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
+use Laminas\Db\Adapter\AdapterInterface;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
@@ -57,10 +59,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchFiltered = false;
     private $encounterFilterList = [];
 
-    public function __construct($dbAdapter)
+    protected $adapter;
+    protected $applicationTable;
+
+    public function __construct(ApplicationTable $applicationTable)
     {
-        // Explicitly mark as unused to satisfy PHPStan
-        unset($dbAdapter);
+        $this->applicationTable = $applicationTable;
     }
 
     /**
@@ -168,10 +172,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     in_array(
                         trim($r['title']),
                         ['American Indian or Alaska Native',
-                        'Asian',
-                        'Black or African American',
-                        'Native Hawaiian or Other Pacific Islander',
-                        'White']
+                            'Asian',
+                            'Black or African American',
+                            'Native Hawaiian or Other Pacific Islander',
+                            'White']
                     )
                 ) {
                     $option['race']['title'] = $r['title'];
@@ -279,7 +283,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $race = $this->resolveRace($result['race']);
             $provenanceRecord = [
                 'author_id' => $result['provenance_updated_by']
-                ,'time' => $result['date']
+                , 'time' => $result['date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $patient_data = "<patient>" . $provenanceXml . "
@@ -430,7 +434,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         return [
             'author' => $details
-            ,'time' => $time
+            , 'time' => $time
         ];
     }
 
@@ -737,8 +741,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 (new SystemLogger())->errorLogCaller(
                     "Failed to find facility uuid for Carecoordination hie_office_contact, uuid is either missing or office contact has no connected organization",
                     ['fname' => $details['fname'], 'lname' => $details['lname'], 'organization' => $details['organization']
-                    ,
-                    'npi' => $details['facility_npi']]
+                        ,
+                        'npi' => $details['facility_npi']]
                 );
             }
         }
@@ -922,7 +926,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             foreach ($res as $row) {
                 $provenanceRecord = [
                     'author_id' => $row['provenance_updated_by']
-                    ,'time' => $row['date_modified']
+                    , 'time' => $row['date_modified']
                 ];
             }
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
@@ -935,8 +939,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
         }
-
-
 
 
         // Note for NPI: Many times a care team member may not have an NPI so instead of
@@ -1044,7 +1046,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // we go with the user the last modified the record as our provenance author
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             foreach ($split_codes as $single_code) {
@@ -1143,7 +1145,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by'] ?? $row['provider_id']
-                ,'time' => $row['date_modified']
+                , 'time' => $row['date_modified']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $unit = $str = $active = '';
@@ -1234,7 +1236,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // we go with the user the last modified the record as our provenance author
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             foreach ($split_codes as $single_code) {
@@ -1330,7 +1332,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $split_codes = explode(';', $row['code']);
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             foreach ($split_codes as $single_code) {
@@ -1413,7 +1415,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['update_date']
+                , 'time' => $row['update_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
 
@@ -1439,7 +1441,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <administered_formatted>" . xmlEscape($row['administered_formatted']) . "</administered_formatted>
         <note>" . xmlEscape($row['note']) . "</note>
         <route_of_administration>" . xmlEscape(Listener::z_xlt($row['route_of_administration'])) . "</route_of_administration>
-        <route_code>" . (xmlEscape($row['route_code']) ?: xmlEscape($row['route_code_notes']) ) . "</route_code>
+        <route_code>" . (xmlEscape($row['route_code']) ?: xmlEscape($row['route_code_notes'])) . "</route_code>
         <status>completed</status>
         <facility_name>" . xmlEscape($row['name']) . "</facility_name>
         <facility_phone>" . xmlEscape($row['phone']) . "</facility_phone>
@@ -1534,7 +1536,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $row['code_text'] = (new CodeTypesService())->resolveCode($row['code'], $row['code_type'])['code_text'] ?? null;
             }
             $provenanceRecord = [
-            'author_id' => $row['provenance_updated_by'], 'time' => $row['proc_date']
+                'author_id' => $row['provenance_updated_by'], 'time' => $row['proc_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $procedure .= "<procedure>" . $provenanceXml . "
@@ -1639,7 +1641,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['date_modified']
+                , 'time' => $row['date_modified']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
 
@@ -2522,7 +2524,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
@@ -2666,7 +2668,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $status_code = str_replace("SNOMED-CT:", "", $status_code);
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['date']
+                , 'time' => $row['date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $social_history .= "<history_element>" . $provenanceXml . "
@@ -2793,8 +2795,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getCarecoordinationModuleSettingValue($field_name)
     {
         $query = "SELECT field_value FROM modules AS mo "
-        . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
-        . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
+            . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
+            . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($field_name));
         foreach ($res as $result) {
@@ -2818,7 +2820,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['date_modified']
+                , 'time' => $row['date_modified']
             ];
         }
         return $provenanceRecord;
@@ -3304,15 +3306,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getCCDAComponents($type)
     {
-        $components = array();
-        $query = "select * from ccda_components where ccda_type = ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($type));
-
-        foreach ($result as $row) {
-            $components[$row['ccda_components_field']] = $row['ccda_components_name'];
-        }
-
+        $get = new SendtoTable();
+        $components = $get->getCcdaComponents($type);
+        // removed dependency on the ccda_table_mapping table sjp 07/25/25
         return $components;
     }
 
@@ -3632,6 +3628,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * get details from care plan form
+     *
      * @param $pid Patient Internal Identifier.
      * @return string $planofcare  XML which contains the details collected from the patient.
      */
@@ -3687,7 +3684,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', $row['description']);
@@ -3863,7 +3860,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
-                ,'time' => $row['modifydate']
+                , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $tmp = explode(":", $row['code']);
@@ -4000,7 +3997,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                            <date>' . xmlEscape($referral['refer_date']) . '</date>';
             $provenanceRecord = [
                 'author_id' => $referral['provenance_updated_by']
-                ,'time' => $referral['creation_date']
+                , 'time' => $referral['creation_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $referralsXML .= $provenanceXml;
@@ -4067,6 +4064,192 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         return $encounters;
     }
-}
 
-?>
+    public function getPayers($pid): string
+    {
+        $xml = "<payers>";
+        // $types = ['primary', 'secondary', 'tertiary'];
+        $types = ['primary'];
+
+        foreach ($types as $type) {
+            $sql = "
+            SELECT i.*, c.name AS company_name, 
+                   c.uuid as compuuid,
+                   a.line1, a.line2, a.city, a.state, a.zip, a.plus_four, a.country,
+                   a.foreign_id,
+                   p.uuid AS piduuid,
+                   p.fname AS patient_fname, p.mname AS patient_mname, p.lname AS patient_lname,
+                   p.street AS patient_street, p.city AS patient_city, p.state AS patient_state,
+                   p.postal_code AS patient_postal_code, p.DOB AS patient_dob
+            FROM insurance_data i
+            JOIN insurance_companies c ON i.provider = c.id
+            JOIN addresses a ON c.id = a.foreign_id
+            JOIN patient_data p ON i.pid = p.pid
+            WHERE i.type = ? AND i.pid = ?
+            ORDER BY i.date DESC
+        ";
+            $res = sqlStatement($sql, [$type, $pid]);
+            $row = sqlFetchArray($res);
+            if (!$row) {
+                continue; // no data for this type
+            }
+            $cuuid = xmlEscape(UuidRegistry::uuidToString($row['compuuid']));
+            $puuid = xmlEscape(UuidRegistry::uuidToString($row['piduuid']));
+
+            $companyName = xmlEscape($row['company_name']);
+            $companyPhone = xmlEscape($row['phone'] ?: '(000)000-0000');
+            $policyId = xmlEscape($row['policy_number'] ?: 'UNKNOWN');
+            $policyGroup = xmlEscape($row['group_number'] ?: 'UNKNOWN');
+            $startDate = xmlEscape($row['date'] ?: 'UNKNOWN');
+            $endDate = xmlEscape($row['end_date'] ?: 'UNKNOWN');
+
+            $addrLine1 = xmlEscape($row['line1']);
+            $addrLine2 = xmlEscape($row['line2']);
+            $addrCity = xmlEscape($row['city']);
+            $addrState = xmlEscape($row['state']);
+            $addrZip = xmlEscape($row['zip']);
+            $addrCountry = xmlEscape($row['country'] ?: 'US');
+
+            $subFirst = xmlEscape($row['subscriber_fname'] ?: 'UNKNOWN');
+            $subLast = xmlEscape($row['subscriber_lname'] ?: 'UNKNOWN');
+            $subPhone = xmlEscape($row['subscriber_phone'] ?: '(000)000-0000');
+            $subStreet = xmlEscape($row['subscriber_street'] ?: 'UNKNOWN');
+            $subCity = xmlEscape($row['subscriber_city'] ?: 'UNKNOWN');
+            $subState = xmlEscape($row['subscriber_state'] ?: 'UNKNOWN');
+            $subZip = xmlEscape($row['subscriber_postal_code'] ?: '00000');
+
+            $patFirst = xmlEscape($row['patient_fname']);
+            $patLast = xmlEscape($row['patient_lname']);
+            $patMiddle = xmlEscape($row['patient_mname']);
+            $patStreet = xmlEscape($row['patient_street']);
+            $patCity = xmlEscape($row['patient_city']);
+            $patState = xmlEscape($row['patient_state']);
+            $patZip = xmlEscape($row['patient_postal_code']);
+
+            $xml .= <<<XML
+  <payer>
+    <identifiers>
+      <identifier>{$cuuid}</identifier>
+    </identifiers>
+    <policy>
+      <identifiers>
+        <identifier>{$puuid}</identifier>
+         <extension>{$policyGroup}</extension>
+      </identifiers>
+      <code code="SELF" code_system_name="HL7 RoleCode" />
+      <insurance>
+        <code code="PAYOR" code_system_name="HL7 RoleCode" />
+        <performer>
+          <identifiers>
+            <identifier>2.16.840.1.113883.19</identifier>
+          </identifiers>
+          <address>
+            <street_lines>{$addrLine1}</street_lines>
+            <street_lines2>{$addrLine2}</street_lines2>
+            <city>{$addrCity}</city>
+            <state>{$addrState}</state>
+            <zip>{$addrZip}</zip>
+            <country>{$addrCountry}</country>
+            <use>work place</use>
+          </address>
+          <phone>
+            <number>{$companyPhone}</number>
+            <type>work place</type>
+          </phone>
+          <organization>
+            <name>{$companyName}</name>
+            <address>
+              <street_lines>{$addrLine1} {$addrLine2}</street_lines>
+              <city>{$addrCity}</city>
+              <state>{$addrState}</state>
+              <zip>{$addrZip}</zip>
+              <country>{$addrCountry}</country>
+              <use>work place</use>
+            </address>
+            <phone>
+              <number>{$companyPhone}</number>
+              <type>work place</type>
+            </phone>
+          </organization>
+        </performer>
+      </insurance>
+    </policy>
+    <guarantor>
+      <code code="GUAR" code_system_name="HL7 Role" />
+      <identifiers><identifier>{$puuid}</identifier></identifiers>
+      <name>
+        <prefix>Mr.</prefix>
+        <first>{$subFirst}</first>
+        <middle>Subscriber</middle>
+        <last>{$subLast}</last>
+      </name>
+      <address>
+        <street_lines>{$subStreet}</street_lines>
+        <city>{$subCity}</city>
+        <state>{$subState}</state>
+        <zip>{$subZip}</zip>
+        <country>US</country>
+        <use>primary home</use>
+      </address>
+      <phone>
+        <number>{$subPhone}</number>
+        <type>primary home</type>
+      </phone>
+    </guarantor>
+    <participant>
+      <code name="Self" code="SELF" code_system_name="HL7 Role" />
+      <performer>
+        <identifiers>
+          <identifier>{$puuid}</identifier>
+          <extension>{$policyId}</extension>
+        </identifiers>
+        <address>
+          <street_lines>{$patStreet}</street_lines>
+          <city>{$patCity}</city>
+          <state>{$patState}</state>
+          <zip>{$patZip}</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+        <code>
+          <name>Self</name>
+          <code>SELF</code>
+          <code_system_name>HL7 Role</code_system_name>
+        </code>
+      </performer>
+      <name>
+        <first>{$patFirst}</first>
+        <middle>{$patMiddle}</middle>
+        <last>{$patLast}</last>
+      </name>
+    </participant>
+    <policy_holder>
+      <performer>
+        <identifiers>
+          <identifier>2.16.840.1.113883.19</identifier>
+          <extension>{$policyId}</extension>
+        </identifiers>
+        <address>
+          <street_lines>{$subStreet}</street_lines>
+          <city>{$subCity}</city>
+          <state>{$subState}</state>
+          <zip>{$subZip}</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+      </performer>
+    </policy_holder>
+    <authorization>
+      <identifiers><identifier>{$puuid}</identifier></identifiers>
+      <procedure>
+        <code name="Colonoscopy" code="73761001" code_system_name="SNOMED CT" />
+      </procedure>
+    </authorization>
+  </payer>
+
+XML;
+        }
+        $xml .= "</payers>";
+        return $xml;
+    }
+}
