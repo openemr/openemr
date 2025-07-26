@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 #
 # Copyright (C) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
 #
