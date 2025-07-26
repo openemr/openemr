@@ -16,21 +16,21 @@ const enableDebug = false;
 const net = require("net");
 const server = net.createServer();
 const xml2js = require("xml2js");
-const xmlParser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
+const xmlParser = new xml2js.Parser({explicitArray: false, mergeAttrs: true});
 const bbg = require(__dirname + "/oe-blue-button-generate");
 const fs = require("fs");
-const { DataStack } = require("./data-stack/data-stack");
-const { cleanCode } = require("./utils/clean-code/clean-code");
-const { safeTrim } = require("./utils/safe-trim/safe-trim");
-const { headReplace } = require("./utils/head-replace/head-replace");
-const { fDate, templateDate } = require("./utils/date/date");
-const { countEntities } = require("./utils/count-entities/count-entities");
-const { populateTimezones } = require("./utils/timezones/timezones");
+const {DataStack} = require("./data-stack/data-stack");
+const {cleanCode} = require("./utils/clean-code/clean-code");
+const {safeTrim} = require("./utils/safe-trim/safe-trim");
+const {headReplace} = require("./utils/head-replace/head-replace");
+const {fDate, templateDate} = require("./utils/date/date");
+const {countEntities} = require("./utils/count-entities/count-entities");
+const {populateTimezones} = require("./utils/timezones/timezones");
 const {
     getNpiFacility,
     populateDemographics,
 } = require("./utils/demographics/populate-demographics");
-const { populateProvider } = require("./utils/providers/providers");
+const {populateProvider} = require("./utils/providers/providers");
 
 let conn = "";
 let oidFacility = "";
@@ -1999,150 +1999,156 @@ function populateImmunization(pd) {
 }
 
 function populatePayer(pd) {
-    return {
-        "identifiers": [{
-            "identifier": "1fe2cdd0-7aad-11db-9fe1-0800200c9a66"
-        }],
-        "policy": {
-            "identifiers": [{
-                "identifier": "3e676a50-7aac-11db-9fe1-0800200c9a66"
+
+    const safeArray = (v) => Array.isArray(v) ? v : [v];
+    return safeArray(pd.payer).map((payer) => {
+        return {
+            identifiers: [{
+                identifier: payer.identifiers?.identifier || ""
             }],
-            "code": {
-                "code": "SELF",
-                "code_system_name": "HL7 RoleCode"
-            },
-            "insurance": {
-                "code": {
-                    "code": "PAYOR",
-                    "code_system_name": "HL7 RoleCode"
+            policy: {
+                identifiers: [{
+                    identifier: payer.policy?.identifiers?.identifier || "",
+                    extension: payer.policy?.identifiers?.extension || ""
+                }],
+                code: {
+                    code: payer.policy?.code?.code || "SELF",
+                    code_system_name: payer.policy?.code?.code_system_name || "HL7 RoleCode"
                 },
-                "performer": {
-                    "identifiers": [{
-                        "identifier": "2.16.840.1.113883.19"
-                    }],
-                    "address": [{
-                        "street_lines": ["123 Insurance Road"],
-                        "city": "Blue Bell",
-                        "state": "MA",
-                        "zip": "02368",
-                        "country": "US",
-                        "use": "work place"
-                    }],
-                    "phone": [{
-                        "number": "(781)555-1515",
-                        "type": "work place"
-                    }],
-                    "organization": [{
-                        "name": ["Good Health Insurance"],
-                        "address": [{
-                            "street_lines": ["123 Insurance Road"],
-                            "city": "Blue Bell",
-                            "state": "MA",
-                            "zip": "02368",
-                            "country": "US",
-                            "use": "work place"
+                insurance: {
+                    code: {
+                        code: payer.policy?.insurance?.code?.code || "PAYOR",
+                        code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode"
+                    },
+                    performer: {
+                        identifiers: [{
+                            identifier: payer.policy?.insurance?.performer?.identifiers?.identifier || ""
                         }],
-                        "phone": [{
-                            "number": "(781)555-1515",
-                            "type": "work place"
+                        address: [{
+                            street_lines: payer.policy?.insurance?.performer?.address?.street_lines || "",
+                            city: payer.policy?.insurance?.performer?.address?.city || "",
+                            state: payer.policy?.insurance?.performer?.address?.state || "",
+                            zip: payer.policy?.insurance?.performer?.address?.zip || "",
+                            country: payer.policy?.insurance?.performer?.address?.country || "",
+                            use: payer.policy?.insurance?.performer?.address?.use || ""
+                        }],
+                        phone: [{
+                            number: payer.policy?.insurance?.performer?.phone?.number || "",
+                            type: payer.policy?.insurance?.performer?.phone?.type || ""
+                        }],
+                        organization: [{
+                            name: [payer.policy?.insurance?.performer?.organization?.name || ""],
+                            address: [{
+                                street_lines: payer.policy?.insurance?.performer?.organization?.address?.street_lines || "",
+                                city: payer.policy?.insurance?.performer?.organization?.address?.city || "",
+                                state: payer.policy?.insurance?.performer?.organization?.address?.state || "",
+                                zip: payer.policy?.insurance?.performer?.organization?.address?.zip || "",
+                                country: payer.policy?.insurance?.performer?.organization?.address?.country || "",
+                                use: payer.policy?.insurance?.performer?.organization?.address?.use || ""
+                            }],
+                            phone: [{
+                                number: payer.policy?.insurance?.performer?.organization?.phone?.number || "",
+                                type: payer.policy?.insurance?.performer?.organization?.phone?.type || ""
+                            }]
+                        }],
+                        code: [{
+                            code: "PAYOR",
+                            code_system_name: "HL7 RoleCode"
                         }]
+                    }
+                }
+            },
+            guarantor: {
+                code: {
+                    code: "GUAR",
+                    code_system_name: "HL7 Role"
+                },
+                identifiers: [{
+                    identifier: payer.guarantor?.identifiers?.identifier || ""
+                }],
+                name: [{
+                    prefix: payer.guarantor?.name?.prefix || "",
+                    first: payer.guarantor?.name?.first || "",
+                    middle: [payer.guarantor?.name?.middle || ""],
+                    last: payer.guarantor?.name?.last || ""
+                }],
+                address: [{
+                    street_lines: payer.guarantor?.address?.street_lines || "",
+                    city: payer.guarantor?.address?.city || "",
+                    state: payer.guarantor?.address?.state || "",
+                    zip: payer.guarantor?.address?.zip || "",
+                    country: payer.guarantor?.address?.country || "",
+                    use: payer.guarantor?.address?.use || ""
+                }],
+                phone: [{
+                    number: payer.guarantor?.phone?.number || "",
+                    type: payer.guarantor?.phone?.type || ""
+                }]
+            },
+            participant: {
+                code: {
+                    name: payer.participant?.code?.name || "Self",
+                    code: payer.participant?.code?.code || "SELF",
+                    code_system_name: payer.participant?.code?.code_system_name || "HL7 Role"
+                },
+                performer: {
+                    identifiers: [{
+                        identifier: payer.participant?.performer?.identifiers?.identifier || "",
+                        extension: payer.participant?.performer?.identifiers?.extension || ""
                     }],
-                    "code": [{
-                        "code": "PAYOR",
-                        "code_system_name": "HL7 RoleCode"
+                    address: [{
+                        street_lines: payer.participant?.performer?.address?.street_lines || "",
+                        city: payer.participant?.performer?.address?.city || "",
+                        state: payer.participant?.performer?.address?.state || "",
+                        zip: payer.participant?.performer?.address?.zip || "",
+                        country: payer.participant?.performer?.address?.country || "",
+                        use: payer.participant?.performer?.address?.use || ""
+                    }],
+                    code: [{
+                        name: "Self",
+                        code: "SELF",
+                        code_system_name: "HL7 Role"
+                    }]
+                },
+                name: [{
+                    prefix: payer.participant?.name?.prefix || "",
+                    first: payer.participant?.name?.first || "",
+                    middle: [payer.participant?.name?.middle || ""],
+                    last: payer.participant?.name?.last || ""
+                }]
+            },
+            policy_holder: {
+                performer: {
+                    identifiers: [{
+                        identifier: payer.policy_holder?.performer?.identifiers?.identifier || "",
+                        extension: payer.policy_holder?.performer?.identifiers?.extension || ""
+                    }],
+                    address: [{
+                        street_lines: payer.policy_holder?.performer?.address?.street_lines || "",
+                        city: payer.policy_holder?.performer?.address?.city || "",
+                        state: payer.policy_holder?.performer?.address?.state || "",
+                        zip: payer.policy_holder?.performer?.address?.zip || "",
+                        country: payer.policy_holder?.performer?.address?.country || "",
+                        use: payer.policy_holder?.performer?.address?.use || ""
                     }]
                 }
-            }
-        },
-        "guarantor": {
-            "code": {
-                "code": "GUAR",
-                "code_system_name": "HL7 Role"
             },
-            "identifiers": [{
-                "identifier": "329fcdf0-7ab3-11db-9fe1-0800200c9a66"
-            }],
-            "name": [{
-                "prefix": "Mr.",
-                "middle": ["Frankie"],
-                "last": "Everyman",
-                "first": "Adam"
-            }],
-            "address": [{
-                "street_lines": ["17 Daws Rd."],
-                "city": "Blue Bell",
-                "state": "MA",
-                "zip": "02368",
-                "country": "US",
-                "use": "primary home"
-            }],
-            "phone": [{
-                "number": "(781)555-1212",
-                "type": "primary home"
-            }]
-        },
-        "participant": {
-            "code": {
-                "name": "Self",
-                "code": "SELF",
-                "code_system_name": "HL7 Role"
-            },
-            "performer": {
-                "identifiers": [{
-                    "identifier": "14d4a520-7aae-11db-9fe1-0800200c9a66",
-                    "extension": "1138345"
+            authorization: {
+                identifiers: [{
+                    identifier: payer.authorization?.identifiers?.identifier || ""
                 }],
-                "address": [{
-                    "street_lines": ["17 Daws Rd."],
-                    "city": "Blue Bell",
-                    "state": "MA",
-                    "zip": "02368",
-                    "country": "US",
-                    "use": "primary home"
-                }],
-                "code": [{
-                    "name": "Self",
-                    "code": "SELF",
-                    "code_system_name": "HL7 Role"
-                }]
-            },
-            "name": [{
-                "prefix": "Mr.",
-                "middle": ["A."],
-                "last": "Everyman",
-                "first": "Frank"
-            }]
-        },
-        "policy_holder": {
-            "performer": {
-                "identifiers": [{
-                    "identifier": "2.16.840.1.113883.19",
-                    "extension": "1138345"
-                }],
-                "address": [{
-                    "street_lines": ["17 Daws Rd."],
-                    "city": "Blue Bell",
-                    "state": "MA",
-                    "zip": "02368",
-                    "country": "US",
-                    "use": "primary home"
-                }]
-            }
-        },
-        "authorization": {
-            "identifiers": [{
-                "identifier": "f4dce790-8328-11db-9fe1-0800200c9a66"
-            }],
-            "procedure": {
-                "code": {
-                    "name": "Colonoscopy",
-                    "code": "73761001",
-                    "code_system_name": "SNOMED CT"
+                procedure: {
+                    code: {
+                        name: payer.authorization?.procedure?.code?.name || "",
+                        code: payer.authorization?.procedure?.code?.code || "",
+                        code_system_name: payer.authorization?.procedure?.code?.code_system_name || ""
+                    }
                 }
             }
-        }
-    };
+        };
+    });
 }
+
 
 function populateNote(pd) {
     return {
@@ -2903,7 +2909,11 @@ function generateCcda(pd) {
     if (pd.care_team.is_active == 'active') {
         data.care_team = Object.assign(populateCareTeamMembers(pd));
     }
-
+// Payer
+    if (pd.payers && typeof pd.payers === 'object' && Object.keys(pd.payers).length > 0) {
+        const payers = populatePayer(pd.payers);
+        data.payers = Array.isArray(payers) && payers.length > 0 ? payers : [];
+    }
 // ------------------------------------------ End Sections ---------------------------------------- //
 
     // sections data objects
@@ -3067,8 +3077,7 @@ function processConnection(connection) {
                 // send results back to eagerly awaiting CCM for disposal.
                 doc = doc.toString()
                 /* eslint-disable-next-line no-control-regex */
-                .replace(/(\u000b\u001c|\r)/gm, "")
-                .trim();
+                .replace(/(\u000b\u001c|\r)/gm, "").trim();
                 let chunk = "";
                 let numChunks = Math.ceil(doc.length / 1024);
                 for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
@@ -3079,7 +3088,7 @@ function processConnection(connection) {
                 conn.end();
             } catch (error) {
                 console.log("XML parsing error:", error);
-                conn.write("ERROR: Failed json build");
+                //conn.write("ERROR: Failed json build");
                 conn.end();
             }
         }
