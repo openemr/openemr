@@ -79,7 +79,7 @@ class CcdaGenerator
         $date_options = []
     ): GeneratedCcdaResult {
 
-        // we need to make sure we don't accidently stuff in the debug logs any PHI so we'll only report on the presence of certain variables
+        // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
         (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
                 , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components

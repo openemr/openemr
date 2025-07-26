@@ -30,12 +30,11 @@ class ApplicationTable extends AbstractTableGateway
      *
      * @param Adapter $adapter
      */
-    public function __construct(Adapter $adapter = null)
+    public function __construct()
     {
-        if ($adapter === null) {
-            // Fallback to static adapter if none provided
-            $adapter = GlobalAdapterFeature::getStaticAdapter();
-        }
+        // TODO: I can't find any reason why we grab the static adapter instead of injecting a regular DB adapter here...
+
+        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->resultSetPrototype->setArrayObjectPrototype(new Application());

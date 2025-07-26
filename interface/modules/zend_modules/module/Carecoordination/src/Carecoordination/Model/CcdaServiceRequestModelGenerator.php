@@ -272,6 +272,11 @@ class CcdaServiceRequestModelGenerator
         if (in_array('referral', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid);
         }
+
+        if (in_array('payers', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getPayers($pid);
+        }
+
         return $ccd;
     }
 
