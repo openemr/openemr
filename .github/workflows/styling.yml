@@ -47,7 +47,15 @@ jobs:
     - name: Composer Install
       run: composer install --prefer-dist --no-progress
     - name: Check PHP Styling
-      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=github .
+      run: |
+        ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=checkstyle . | tee phpcs-report.xml
+        [[ -f phpcs-report.xml && ! -s phpcs-report.xml ]] && rm phpcs-report.xml
+
+    - name: Annotate PHP Styling Issues
+      if: ${{ failure() && hashFiles('phpcs-report.xml') != '' }}
+      uses: staabm/annotate-pull-request-from-checkstyle@v1
+      with:
+        checkstyle-path: phpcs-report.xml
 
   css_styling:
     runs-on: ubuntu-24.04
