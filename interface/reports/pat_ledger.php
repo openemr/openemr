@@ -174,7 +174,7 @@ function PrintEncFooter(): void
     echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
-function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances): void
+function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances = []): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;

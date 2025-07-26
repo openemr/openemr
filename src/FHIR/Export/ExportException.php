@@ -21,7 +21,7 @@ class ExportException extends \Exception
      */
     private $lastExportedId;
 
-    public function __construct($message = "", $code = 0, $lastExportedId = null, Throwable $previous = null)
+    public function __construct($message = "", $code = 0, $lastExportedId = null, ?Throwable $previous = null)
     {
         $this->lastExportedId = $lastExportedId;
         parent::__construct($message, $code, $previous);

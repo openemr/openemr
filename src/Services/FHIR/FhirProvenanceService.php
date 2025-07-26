@@ -105,7 +105,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param FHIRReference|null $userWHO The user that will be the provenance agent
      * @return FHIRProvenance|null
      */
-    public function createProvenanceForDomainResource(FHIRDomainResource $resource, FHIRReference $userWHO = null)
+    public function createProvenanceForDomainResource(FHIRDomainResource $resource, ?FHIRReference $userWHO = null)
     {
 
         $fhirProvenance = new FHIRProvenance();
@@ -162,7 +162,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $fhirProvenance;
     }
 
-    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, FHIRReference $who = null)
+    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, ?FHIRReference $who = null)
     {
         $agent = new FHIRProvenanceAgent();
         $agentConcept = new FHIRCodeableConcept();

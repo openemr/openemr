@@ -115,9 +115,9 @@ class CouchDB
                     [
                         'ssl' =>
                             [
-                                'cafile' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca",
-                                'local_cert' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-cert",
-                                'local_pk' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-key"
+                                'cafile' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca",
+                                'local_cert' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-cert",
+                                'local_pk' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-key"
                             ]
                     ]
                 );
@@ -128,7 +128,7 @@ class CouchDB
                     [
                         'ssl' =>
                             [
-                                'cafile' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca"
+                                'cafile' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca"
                             ]
                     ]
                 );

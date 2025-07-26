@@ -116,7 +116,7 @@ class EtherFaxClient
      * @param array|null $get
      * @return string
      */
-    private function clientHttpGet($url, array $get = null): string
+    private function clientHttpGet($url, ?array $get = null): string
     {
         // create full uri request
         $uri = EtherFaxClient::EFAX_API_URL . $url;
@@ -235,7 +235,7 @@ class EtherFaxClient
      * @param array|null $post
      * @return bool|string
      */
-    private function clientHttpPost($url, array $post = null): bool|string
+    private function clientHttpPost($url, ?array $post = null): bool|string
     {
         // create full uri
         $uri = EtherFaxClient::EFAX_API_URL . $url;

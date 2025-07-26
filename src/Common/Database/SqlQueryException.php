@@ -21,7 +21,7 @@ class SqlQueryException extends \RuntimeException
      */
     private $sqlStatement;
 
-    public function __construct($sqlStatement = "", $message = "", $code = 0, Throwable $previous = null)
+    public function __construct($sqlStatement = "", $message = "", $code = 0, ?Throwable $previous = null)
     {
         $this->sqlStatement = $sqlStatement;
         parent::__construct($message, $code, $previous);
