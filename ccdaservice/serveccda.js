@@ -11,7 +11,7 @@
 
 "use strict";
 
-const enableDebug = false;
+const enableDebug = true;
 
 const net = require("net");
 const server = net.createServer();
@@ -2066,6 +2066,16 @@ function populatePayer(pd) {
                 identifiers: [{
                     identifier: payer.guarantor?.identifiers?.identifier || ""
                 }],
+                "date_time": {
+                    "low": {
+                        "date": fDate(payer.participant?.time_low, true),
+                        "precision": "day"
+                    },
+                    "high": {
+                        "date": fDate(payer.participant?.time_high, true),
+                        "precision": "day"
+                    }
+                },
                 name: [{
                     prefix: payer.guarantor?.name?.prefix || "",
                     first: payer.guarantor?.name?.first || "",
@@ -2086,6 +2096,16 @@ function populatePayer(pd) {
                 }]
             },
             participant: {
+                "date_time": {
+                    "low": {
+                        "date": fDate(payer.participant?.time_low, true),
+                        "precision": "day"
+                    },
+                    "high": {
+                        "date": fDate(payer.participant?.time_high, true),
+                        "precision": "day"
+                    }
+                },
                 code: {
                     name: payer.participant?.code?.name || "Self",
                     code: payer.participant?.code?.code || "SELF",

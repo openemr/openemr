@@ -4098,10 +4098,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
             $companyName = xmlEscape($row['company_name']);
             $companyPhone = xmlEscape($row['phone'] ?: '(000)000-0000');
-            $policyId = xmlEscape($row['policy_number'] ?: 'UNKNOWN');
-            $policyGroup = xmlEscape($row['group_number'] ?: 'UNKNOWN');
-            $startDate = xmlEscape($row['date'] ?: 'UNKNOWN');
-            $endDate = xmlEscape($row['end_date'] ?: 'UNKNOWN');
+            $policyId = xmlEscape($row['policy_number'] ?: '');
+            $policyGroup = xmlEscape($row['group_number'] ?: '');
+            $startDate = xmlEscape($row['date'] ?: '');
+            $endDate = xmlEscape($row['date_end'] ?: '');
 
             $addrLine1 = xmlEscape($row['line1']);
             $addrLine2 = xmlEscape($row['line2']);
@@ -4110,12 +4110,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $addrZip = xmlEscape($row['zip']);
             $addrCountry = xmlEscape($row['country'] ?: 'US');
 
-            $subFirst = xmlEscape($row['subscriber_fname'] ?: 'UNKNOWN');
-            $subLast = xmlEscape($row['subscriber_lname'] ?: 'UNKNOWN');
+            $subFirst = xmlEscape($row['subscriber_fname'] ?: '');
+            $subLast = xmlEscape($row['subscriber_lname'] ?: '');
             $subPhone = xmlEscape($row['subscriber_phone'] ?: '(000)000-0000');
-            $subStreet = xmlEscape($row['subscriber_street'] ?: 'UNKNOWN');
-            $subCity = xmlEscape($row['subscriber_city'] ?: 'UNKNOWN');
-            $subState = xmlEscape($row['subscriber_state'] ?: 'UNKNOWN');
+            $subStreet = xmlEscape($row['subscriber_street'] ?: '');
+            $subCity = xmlEscape($row['subscriber_city'] ?: '');
+            $subState = xmlEscape($row['subscriber_state'] ?: '');
             $subZip = xmlEscape($row['subscriber_postal_code'] ?: '00000');
 
             $patFirst = xmlEscape($row['patient_fname']);
@@ -4197,6 +4197,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
       </phone>
     </guarantor>
     <participant>
+      <time_low>{$startDate}</time_low>
+      <time_high>{$endDate}</time_high>
       <code name="Self" code="SELF" code_system_name="HL7 Role" />
       <performer>
         <identifiers>
