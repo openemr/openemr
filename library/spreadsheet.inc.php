@@ -682,7 +682,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
             }
         }
 
-        echo "  <td id='td_${i}_${j}' valign='top'";
+        echo "  <td id='td_{$i}_{$j}' valign='top'";
         if ($i >= $num_used_rows || $j >= $num_used_cols) {
             echo " style='display:none'";
         }
@@ -690,14 +690,14 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         echo ">";
 
         /*****************************************************************
-      echo "<span id='div_${i}_${j}' ";
+      echo "<span id='div_{$i}_{$j}' ";
       echo "style='float:right;cursor:pointer;display:none' ";
       echo "onclick='newType($i,$j)'>[";
       echo $typeprompts[$celltype];
       echo "]</span>";
         *****************************************************************/
         echo "<div class='seldiv'>";
-        echo "<select id='sel_${i}_${j}' class='seltype' style='display:none' " .
+        echo "<select id='sel_{$i}_{$j}' class='seltype' style='display:none' " .
         "onchange='newType($i,$j)'>";
         foreach ($celltypes as $key => $value) {
             echo "<option value='" . attr($key) . "'";
@@ -712,7 +712,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         echo "</div>";
         /****************************************************************/
 
-        echo "<span id='vis_${i}_${j}'>"; // new //
+        echo "<span id='vis_{$i}_{$j}'>"; // new //
 
         echo "<input type='hidden' name='cell[$i][$j]' value='" . attr($celltype) . attr($cellvalue) . "' />";
         if ($celltype == '1') {

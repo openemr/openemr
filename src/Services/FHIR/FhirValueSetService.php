@@ -156,7 +156,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
         return [self::USCGI_PROFILE_URI];
     }
 
-    private function addAppointmentCategoriesValueSetForSearch(ProcessingResult $fhirSearchResult, array $fhirSearchParameters, string $puuidBind = null)
+    private function addAppointmentCategoriesValueSetForSearch(ProcessingResult $fhirSearchResult, array $fhirSearchParameters, ?string $puuidBind = null)
     {
         $this->getSearchFieldFactory()->setSearchFieldDefinition('_lastUpdated', $this->getLastModifiedSearchFieldForAppointmentCategories());
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);

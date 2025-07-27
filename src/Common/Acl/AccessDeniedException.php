@@ -25,7 +25,7 @@ class AccessDeniedException extends \Exception
      */
     private $subCategory;
 
-    public function __construct(string $requiredSection, $subCategory = '', $message = "", $code = 0, Throwable $previous = null)
+    public function __construct(string $requiredSection, $subCategory = '', $message = "", $code = 0, ?Throwable $previous = null)
     {
         $this->requiredSection = $requiredSection;
         $this->subCategory = $subCategory;
