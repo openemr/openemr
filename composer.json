@@ -100,6 +100,7 @@
         "phpunit/phpunit": "11.*",
         "rector/rector": "^2.1",
         "squizlabs/php_codesniffer": "^3.13",
+        "staabm/annotate-pull-request-from-checkstyle": "^1.8",
         "symfony/panther": "2.*",
         "zircote/swagger-php": "3.*"
     },

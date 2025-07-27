@@ -19,7 +19,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
+        php-version:
+        - '8.4'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -45,8 +46,19 @@ jobs:
           ${{ runner.os }}-composer-
     - name: Composer Install
       run: composer install --prefer-dist --no-progress
+    # There's no "problem matcher" for phpcs, so we use checkstyle and cs2pr
+    # per https://github.com/shivammathur/setup-php?tab=readme-ov-file#tools-with-checkstyle-support
     - name: Check PHP Styling
-      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+      run: |
+        vendor/bin/phpcs -p -n --extensions=inc,php \
+                               --report-full \
+                               --report-checkstyle=phpcs.checkstyle.xml \
+                               --report-width=120 \
+                               --report=checkstyle \
+                               --standard=ci/phpcs.xml \
+                               .
+    - name: Annotate Checkstyle Results
+      run: vendor/bin/cs2pr --notices-as-warnings phpcs.checkstyle.xml
 
   css_styling:
     runs-on: ubuntu-24.04
@@ -54,7 +66,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        node-version: ['22']
+        node-version:
+        - '22'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -77,6 +90,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-${{ matrix.node-version }}-
           ${{ runner.os }}-node-
+    - name: Stylelint problem matcher
+      uses: xt0rted/stylelint-problem-matcher@v1
     - name: NPM CI
       run: npm ci
     - name: Check CSS Styling
@@ -88,7 +103,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        node-version: ['22']
+        node-version:
+        - '22'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -113,5 +129,8 @@ jobs:
           ${{ runner.os }}-node-
     - name: NPM CI
       run: npm ci
+    # setup-node sets up problem matchers for the default eslint output
+    # so we should not need to do anything special to get the results
+    # as GitHub Actions annotations.
     - name: Check JS Linting
       run: npm run lint:js
