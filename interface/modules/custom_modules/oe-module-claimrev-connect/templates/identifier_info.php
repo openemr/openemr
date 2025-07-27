@@ -28,10 +28,10 @@ if ($benefit->identifiers != null && $benefit->identifiers) {
                                                 <div class="col">
                                                 <?php echo text($ident->referenceQualifierDesc) ?>
                                                 </div>
-                                                <div class="col">                                                
+                                                <div class="col">
                                                 <?php echo text($ident->referenceValue) ?>
                                                 </div>
-                                                <div class="col">                                                
+                                                <div class="col">
                                                 <?php echo text($ident->referenceDesc) ?>
                                                 </div>
                                             </div>

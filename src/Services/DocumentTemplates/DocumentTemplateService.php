@@ -918,7 +918,7 @@ class DocumentTemplateService extends QuestionnaireService
                     if ($portal) {
                         if (!empty($in_edit)) {
                             $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
-                                ' data-history_id=' . attr($in_edit['id']) . ' href="#" 
+                                ' data-history_id=' . attr($in_edit['id']) . ' href="#"
                                 onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ', ' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ')">' . text($btnname) . "</a>\n";
                         } else {
                             $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";

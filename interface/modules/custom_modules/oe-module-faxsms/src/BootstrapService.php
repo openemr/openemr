@@ -50,8 +50,8 @@ class BootstrapService
     public function createVendorGlobals(): void
     {
         sqlInsert(
-            "INSERT INTO `globals` (`gl_name`,`gl_value`) 
-                VALUES ('oefax_enable_fax', '0'), 
+            "INSERT INTO `globals` (`gl_name`,`gl_value`)
+                VALUES ('oefax_enable_fax', '0'),
                        ('oefax_enable_sms', '0'),
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
@@ -125,7 +125,7 @@ class BootstrapService
         $vendor = '_persisted';
         $authId = 0;
         $content = json_encode($settings);
-        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`) 
+        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
             VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
 
         return sqlQuery($sql, array('', $authId, $vendor, $content, $authId, $vendor, $content));

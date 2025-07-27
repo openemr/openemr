@@ -75,7 +75,7 @@ if (count($file_contents) === 0) {
         <table>
             <thead>
                 <tr data-bind="foreach: header">
-                        <th data-bind="text:$data.text, attr: { index: $index}"></th>                
+                        <th data-bind="text:$data.text, attr: { index: $index}"></th>
                 </tr>
             </thead>
             <tbody>
@@ -92,11 +92,11 @@ if (count($file_contents) === 0) {
             </tbody>
         </table>
     </div>
-    
+
     <!-- ko if: mode()=='preview' -->
     <div id="preview" data-bind="with: preview_data">
         <h1><?php echo xlt('Preview Changes'); ?></h1>
-        <input type="button" id="preview" value="<?php echo xla('Commit Changes'); ?>" data-bind="click: commitChanges"></input>        
+        <input type="button" id="preview" value="<?php echo xla('Commit Changes'); ?>" data-bind="click: commitChanges"></input>
         <div>
             <span><?php echo xlt('Unchanged Entries verified'); ?>:</span><span data-bind="text:unchanged()"></span>
         </div>
@@ -164,9 +164,9 @@ if (count($file_contents) === 0) {
             start: ko.observable(1),
             end: ko.observable(20),
             total:ko.observable(file_contents.length),
-            header: header_data,            
+            header: header_data,
             constant_choice: ko.observable(),
-            definition_choice: ko.observable(),            
+            definition_choice: ko.observable(),
             mode: ko.observable("verify"),
             preview_data: {
                 changed: ko.observableArray(),
@@ -206,7 +206,7 @@ if (count($file_contents) === 0) {
     vm_file_display.filedata.definition_choice(vm_file_display.filedata.header()[3]);
     vm_file_display.select_display_contents(1,20);
     ko.applyBindings(vm_file_display);
-    var translations = [];    
+    var translations = [];
     function previewChanges()
     {
         translations = [];
@@ -224,7 +224,7 @@ if (count($file_contents) === 0) {
         vm_file_display.filedata.mode("processing");
         vm_file_display.filedata.processingStatus(<?php echo xlj('Generating preview data. Please Wait'); ?>);
         vm_file_display.filedata.loading(true);
-        
+
         $.post("csv/commit_csv.php",
             {
                 lang_id: <?php echo json_encode($lang_id);?>
@@ -239,7 +239,7 @@ if (count($file_contents) === 0) {
                 vm_file_display.filedata.preview_data.empty(data.empty);
                 vm_file_display.filedata.preview_data.changed.removeAll();
                 vm_file_display.filedata.preview_data.changed(data.changed);
-                vm_file_display.filedata.preview_data.changed_html(data.html_changes);   
+                vm_file_display.filedata.preview_data.changed_html(data.html_changes);
                 vm_file_display.filedata.preview_data.updated.removeAll();
                 vm_file_display.filedata.preview_data.updated(data.updated);
                 vm_file_display.filedata.preview_data.created.removeAll();
@@ -253,7 +253,7 @@ if (count($file_contents) === 0) {
     {
         vm_file_display.filedata.mode("processing");
         vm_file_display.filedata.processingStatus(<?php echo xlj('Committing changes. Please Wait'); ?>);
-        vm_file_display.filedata.loading(true);    
+        vm_file_display.filedata.loading(true);
         $.post("csv/commit_csv.php",
             {
                 lang_id: <?php echo json_encode($lang_id);?>
@@ -267,17 +267,17 @@ if (count($file_contents) === 0) {
                 vm_file_display.filedata.review_data.unchanged(data.unchanged);
                 vm_file_display.filedata.review_data.empty(data.empty);
                 vm_file_display.filedata.review_data.changed.removeAll();
-                vm_file_display.filedata.review_data.changed(data.changed);                
-                vm_file_display.filedata.review_data.changed_html(data.html_changes);                
+                vm_file_display.filedata.review_data.changed(data.changed);
+                vm_file_display.filedata.review_data.changed_html(data.html_changes);
                 vm_file_display.filedata.review_data.updated.removeAll();
                 vm_file_display.filedata.review_data.updated(data.updated);
                 vm_file_display.filedata.review_data.created.removeAll();
                 vm_file_display.filedata.review_data.created(data.created);
-                
+
             }
             ,"json"
         );
-}    
+}
 </script>
 
 

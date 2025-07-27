@@ -21,15 +21,15 @@ if ($receiver != null) {
     <div class="card">
         <div class="card-body">
             <h5 class="card-title"><?php echo xlt("Receiver Information"); ?></h5>
-            <div class="row"> 
+            <div class="row">
                 <div class="col">
-                    <?php echo xlt($companyProviderCaption); ?>                        
+                    <?php echo xlt($companyProviderCaption); ?>
                 </div>
                 <div class="col">
                     <?php echo text($companyProviderName) ?>
                 </div>
                 <div class="col">
-                    <?php echo xlt("ID"); ?>                        
+                    <?php echo xlt("ID"); ?>
                 </div>
                 <div class="col">
                     <?php echo text($receiver->identifier) ?>

@@ -68,7 +68,7 @@ class DiagnosticStudyPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**

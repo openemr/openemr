@@ -87,7 +87,7 @@ function postcalendar_adminapi_addCategories($args)
     $sequence = pnVarPrepForStore($sequence);
     $aco = pnVarPrepForStore($aco);
 
-    $sql = "INSERT INTO $pntable[postcalendar_categories] 
+    $sql = "INSERT INTO $pntable[postcalendar_categories]
                                 (pc_catid,pc_catname,pc_constant_id,pc_catdesc,pc_catcolor,
                                 pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration,
     							pc_dailylimit,pc_end_date_flag,pc_end_date_type,

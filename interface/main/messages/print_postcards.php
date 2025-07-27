@@ -31,7 +31,7 @@ if ($prefs['postcard_top']) {
 }
 
 $postcard_message = $postcard_top . "\n" . xl('Please call our office to schedule') . "\n" . xl('your next appointment at') . " " . $facility['phone'] . ".
-	\n\n" . $facility['street'] . "\n   
+	\n\n" . $facility['street'] . "\n
 	" . $facility['city'] . ", " . $facility['state'] . "  " . $facility['postal_code'];
 $postcard_message = "\n\n" . $postcard_message . "\n\n";
 

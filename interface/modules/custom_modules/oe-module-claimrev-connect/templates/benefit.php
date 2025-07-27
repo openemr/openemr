@@ -19,10 +19,10 @@ foreach ($benefits as $benefit) {
 <div class="card">
     <div class="card-body">
         <h5 class="card-title"> <?php echo xlt("Benefit"); ?> - <?php echo text($benefit->benefitInformationDesc); ?> </h5>
-        
-        <div class="row"> 
+
+        <div class="row">
             <div class="col">
-                <strong> <?php echo xlt("Service Type");?></strong>                
+                <strong> <?php echo xlt("Service Type");?></strong>
             </div>
             <div class="col">
                 <ul>
@@ -33,9 +33,9 @@ foreach ($benefits as $benefit) {
                         <?php
                     }
                     ?>
-                </ul>                
+                </ul>
             </div>
-            
+
         </div>
     <?php
             PrintProperty::displayProperty("Coverage Level", $benefit->coverageLevel);
@@ -64,7 +64,7 @@ foreach ($benefits as $benefit) {
             include 'messages.php';
     ?>
 
-     
+
 
     </div>
 </div>

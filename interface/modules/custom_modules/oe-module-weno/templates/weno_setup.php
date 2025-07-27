@@ -218,7 +218,7 @@ $vendors = $boot->getVendorGlobals();
 *** The Weno Primary Admin Section.
 - All values must be entered and validated.
 - If validation fails because either email and/or password are invalid an alert will be shown stating such.
-- If the encryption key is deemed invalid then an alert will show and the Encryption Reset button is enabled. First try re-entering the key but if that doesn't work then clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are required by the user. You may look on the key as an API token which may be a more familiar term to the reader. 
+- If the encryption key is deemed invalid then an alert will show and the Encryption Reset button is enabled. First try re-entering the key but if that doesn't work then clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are required by the user. You may look on the key as an API token which may be a more familiar term to the reader.
 - The optional User Setting Credentials Subsection is a short cut to save time by entering the Weno User credentials for the user. This is the same as the Weno User ID in the Config Users Settings.\n
 *** The Map Weno User Id`s (Required)  Section.
 - This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.

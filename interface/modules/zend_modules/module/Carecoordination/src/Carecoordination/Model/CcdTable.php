@@ -59,10 +59,10 @@ class CcdTable extends AbstractTableGateway
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status)
     {
         $appTable   = new ApplicationTable();
-        $query = "UPDATE documents 
+        $query = "UPDATE documents
               SET audit_master_id = ?,
                   imported = ?,
-                  audit_master_approval_status=? 
+                  audit_master_approval_status=?
               WHERE id = ?";
         $appTable->zQuery($query, array($audit_master_id,
                                     1,

@@ -35,10 +35,10 @@ if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
             ?>
                             <dl class="row">
                                 <dt class="col">
-                    <?php echo xlt("Name"); ?>                                  
+                    <?php echo xlt("Name"); ?>
                                 </dt>
                                 <dd class="col">
-                    <?php echo text($relatedEntity->firstName);?> <?php echo text($relatedEntity->middleName);?> <?php echo text($relatedEntity->lastOrganizationName);?> <?php echo text($relatedEntity->suffix);?>                                     
+                    <?php echo text($relatedEntity->firstName);?> <?php echo text($relatedEntity->middleName);?> <?php echo text($relatedEntity->lastOrganizationName);?> <?php echo text($relatedEntity->suffix);?>
                                 </dd>
                             <dl>
             <?php
@@ -47,10 +47,10 @@ if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
             ?>
                             <dl class="row">
                                 <dt class="col">
-                                    
+
                                 </dt>
                                 <dd class="col">
-                    <?php echo text($relatedEntity->identifier);?>                                     
+                    <?php echo text($relatedEntity->identifier);?>
                                 </dd>
                             <dl>
             <?php
@@ -58,28 +58,28 @@ if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
         ?>
                     <dl class="row">
                         <dt class="col">
-            <?php echo xlt("Address"); ?>                                
+            <?php echo xlt("Address"); ?>
                         </dt>
                         <dd class="col">
                             <div class="row">
                                 <div class="col">
-                    <?php echo text($relatedEntity->address->address1);?>  
-                                </div>
-                            </div> 
-                            <div class="row">
-                                <div class="col">
-                    <?php echo text($relatedEntity->address->address2);?>  
+                    <?php echo text($relatedEntity->address->address1);?>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                    <?php echo text($relatedEntity->address->city);?>  
+                    <?php echo text($relatedEntity->address->address2);?>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                    <?php echo text($relatedEntity->address->city);?>
                                 </div>
                                 <div class="col">
-                    <?php echo text($relatedEntity->address->state);?>  
+                    <?php echo text($relatedEntity->address->state);?>
                                 </div>
                                 <div class="col">
-                    <?php echo text($relatedEntity->address->zip);?>  
+                    <?php echo text($relatedEntity->address->zip);?>
                                 </div>
                             </div>
                         </dd>
@@ -89,11 +89,11 @@ if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
             ?>
                             <dl class="row">
                                 <dt class="col">
-                    <?php echo xlt("Taxonomy Code"); ?>  
-                                    
+                    <?php echo xlt("Taxonomy Code"); ?>
+
                                 </dt>
                                 <dd class="col">
-                                    (<?php echo text($relatedEntity->taxonomyProviderCode);?>) <?php echo text($relatedEntity->taxonomyCode);?>                                        
+                                    (<?php echo text($relatedEntity->taxonomyProviderCode);?>) <?php echo text($relatedEntity->taxonomyCode);?>
                                 </dd>
                             <dl>
             <?php
@@ -101,9 +101,9 @@ if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
         if ($relatedEntity->contacts != null && $relatedEntity->contacts) {
             foreach ($relatedEntity->contacts as $c) {
                 ?>
-                                <dl class="row">                                    
+                                <dl class="row">
                                     <dt class="col">
-                        <?php echo xlt("Contact Name"); ?>                                           
+                        <?php echo xlt("Contact Name"); ?>
                                     </dt>
                                     <dt class="col">
                         <?php echo text($c->contactName); ?>
@@ -117,12 +117,12 @@ if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
                                                     <dt class="col">
                                 <?php echo text($c->contactValue); ?>
                                                     </dt>
-                                                </dl>  
+                                                </dl>
                     <?php
                 }
                 ?>
-  
-                                    
+
+
                                     </dt>
                                 </dl>
                 <?php

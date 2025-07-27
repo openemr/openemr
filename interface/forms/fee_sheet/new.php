@@ -922,7 +922,7 @@ function formatModifier(e) {
             modArray.pop();
         }
     });
-    
+
     let modString = modArray.join(":");
     e.value = checkLastChar(modString);
 }
