@@ -1,0 +1,39 @@
+/* This file contains intentional stylelint violations for testing */
+
+.bad-class-name {
+    COLOR: red;
+    BACKGROUND-COLOR: blue;
+    margin:0px;
+    padding:0px;
+    border:1px solid black;
+    font-size:12px;
+}
+
+.another_bad_class {
+    color: #FF0000;
+    background: url('bad-image.jpg');
+    display:block;
+    position:absolute;
+    top:0px;
+    left:0px;
+    width:100px;
+    height:100px;
+}
+
+#bad_id {
+    color: #ffffff;
+    background-color: #000000;
+    font-family: Arial;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.redundant {
+    color: red;
+    color: blue;
+}
+
+.missing-semicolon {
+    color: red
+    background: blue;
+}

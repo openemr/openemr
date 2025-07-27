@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "270039180d7b3e8e0dfa58c60aaacb6c",
+    "content-hash": "e16fe6018bf842e59034e97c2f30c225",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -13157,6 +13157,58 @@
                 }
             ],
             "time": "2025-06-17T22:17:01+00:00"
+        },
+        {
+            "name": "staabm/annotate-pull-request-from-checkstyle",
+            "version": "1.8.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/staabm/annotate-pull-request-from-checkstyle.git",
+                "reference": "082e7f859860f6e79094b6ec86606bd6d0fe9014"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/staabm/annotate-pull-request-from-checkstyle/zipball/082e7f859860f6e79094b6ec86606bd6d0fe9014",
+                "reference": "082e7f859860f6e79094b6ec86606bd6d0fe9014",
+                "shasum": ""
+            },
+            "require": {
+                "ext-libxml": "*",
+                "ext-simplexml": "*",
+                "php": "^5.3 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16.1"
+            },
+            "bin": [
+                "cs2pr"
+            ],
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Markus Staab"
+                }
+            ],
+            "keywords": [
+                "Github Actions",
+                "continous integration",
+                "dev"
+            ],
+            "support": {
+                "issues": "https://github.com/staabm/annotate-pull-request-from-checkstyle/issues",
+                "source": "https://github.com/staabm/annotate-pull-request-from-checkstyle/tree/1.8.5"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/staabm",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-05-08T15:56:45+00:00"
         },
         {
             "name": "staabm/side-effects-detector",
