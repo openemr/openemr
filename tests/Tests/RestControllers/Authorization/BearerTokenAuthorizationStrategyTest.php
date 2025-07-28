@@ -2,24 +2,17 @@
 
 namespace OpenEMR\Tests\RestControllers\Authorization;
 
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha384;
 use League\OAuth2\Server\CryptKey;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\ServerBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
@@ -48,6 +41,10 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $this->assertFalse(BearerTokenAuthorizationStrategy::is_api_request("/apis/default/fhir/Patient"), "Expected is_api_request to return false for fhir API path");
     }
 
+    /**
+     * @return void
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function testShouldProcessRequest(): void
     {
         $strategy = new BearerTokenAuthorizationStrategy();
@@ -58,39 +55,6 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     {
         $this->assertTrue(BearerTokenAuthorizationStrategy::is_portal_request("/default/apis/portal/Patient"), "Expected is_api_request to return true for portal API path");
         $this->assertFalse(BearerTokenAuthorizationStrategy::is_portal_request("/default/apis/fhir/Patient"), "Expected is_api_request to return false for fhir API path");
-    }
-
-    private function createMockAccessTokenEntity(string $tokenId)
-    {
-        $configuration = Configuration::forAsymmetricSigner(
-        // You may use RSA or ECDSA and all their variations (256, 384, and 512)
-            new Sha384(),
-            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
-            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
-            // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
-        );
-
-        $now   = new \DateTimeImmutable();
-        $token = $configuration->builder()
-            // Configures the issuer (iss claim)
-            ->issuedBy(self::ISSUER)
-            // Configures the audience (aud claim)
-            ->permittedFor(self::AUDIENCE)
-            // Configures the id (jti claim)
-            ->identifiedBy($tokenId)
-            // Configures the time that the token was issue (iat claim)
-            ->issuedAt($now)
-            // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($now)
-            // Configures the expiration time of the token (exp claim)
-            ->expiresAt($now->modify('+60 seconds'))
-            // Configures a new claim, called "uid"
-            ->withClaim('uid', 1)
-            // Configures a new header, called "foo"
-            ->withHeader('foo', 'bar')
-            // Builds a new token
-            ->getToken($configuration->signer(), $configuration->signingKey());
-        $jwt = $token->toString(); // The string representation of the object is a JWT string
     }
 
     private function getTestClientEntityForUser(string $userUuid): ClientEntity
@@ -141,6 +105,12 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
             ->willReturn(date("Y-m-d H:i:s", strtotime("+1 hour"))); // Simulating a valid token expiration time
         return $accessTokenRepository;
     }
+
+    /**
+     * @param array $user
+     * @return UserService
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     private function getMockUserServiceForUser(array $user): UserService
     {
         $mockUserService = $this->createMock(UserService::class);

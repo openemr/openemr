@@ -21,7 +21,8 @@ use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
-use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Supports REST interactions with the FHIR practitioner resource
@@ -30,9 +31,9 @@ class FhirPractitionerRestController
 {
     use SystemLoggerAwareTrait;
 
-    private $fhirPractitionerService;
-    private $fhirService;
-    private $fhirValidate;
+    private FhirPractitionerService $fhirPractitionerService;
+    private FhirResourcesService $fhirService;
+    private FhirValidationService $fhirValidate;
 
     public function __construct()
     {
@@ -49,14 +50,14 @@ class FhirPractitionerRestController
 
     /**
      * Creates a new FHIR practitioner resource
-     * @param $fhirJson The FHIR practitioner resource
-     * @returns 201 if the resource is created, 400 if the resource is invalid
+     * @param array $fhirJson The FHIR practitioner resource
+     * @returns Response 201 if the resource is created, 400 if the resource is invalid
      */
-    public function post($fhirJson)
+    public function post($fhirJson) : Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
-            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
+            return RestControllerHelper::handleFhirProcessingResult($fhirValidate, null, 400);
         }
 
         $object = FhirPractitionerSerializer::deserialize($fhirJson);
@@ -67,9 +68,9 @@ class FhirPractitionerRestController
 
     /**
      * Updates an existing FHIR practitioner resource
-     * @param $fhirId The FHIR practitioner resource id (uuid)
-     * @param $fhirJson The updated FHIR practitioner resource (complete resource)
-     * @returns 200 if the resource is created, 400 if the resource is invalid
+     * @param string $fhirId The FHIR practitioner resource id (uuid)
+     * @param array $fhirJson The updated FHIR practitioner resource (complete resource)
+     * @returns ResponseInterface 200 if the resource is created, 400 if the resource is invalid
      */
     public function patch($fhirId, $fhirJson)
     {
@@ -86,7 +87,7 @@ class FhirPractitionerRestController
 
     /**
      * Queries for a single FHIR practitioner resource by FHIR id
-     * @param $fhirId The FHIR practitioner resource id (uuid)
+     * @param string $fhirId The FHIR practitioner resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
     public function getOne($fhirId)
@@ -109,7 +110,7 @@ class FhirPractitionerRestController
      * - name (title, first name, middle name, last name)
      * - phone (phone, work, cell)
      * - telecom (email, phone)
-     * @return FHIR bundle with query results, if found
+     * @return Response FHIR bundle with query results, if found
      */
     public function getAll($searchParams)
     {

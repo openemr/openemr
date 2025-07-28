@@ -28,14 +28,14 @@ class FhirOrganizationRestControllerTest extends TestCase
     /**
      * @var FhirOrganizationRestController
      */
-    private $fhirOrganizationController;
+    private FhirOrganizationRestController $fhirOrganizationController;
 
     /*
      * FacilityFixtureManager
      */
-    private $fixtureManager;
+    private FacilityFixtureManager $fixtureManager;
 
-    private $fhirFixture;
+    private array $fhirFixture;
 
     protected function setUp(): void
     {

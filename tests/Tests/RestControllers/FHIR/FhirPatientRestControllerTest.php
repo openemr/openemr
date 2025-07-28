@@ -17,9 +17,9 @@ class FhirPatientRestControllerTest extends TestCase
     use JsonResponseHandlerTrait;
     use FhirResponseAssertionTrait;
 
-    private $fhirPatientController;
-    private $fixtureManager;
-    private $fhirFixture;
+    private FhirPatientRestController $fhirPatientController;
+    private FixtureManager $fixtureManager;
+    private array $fhirFixture;
 
 
     protected function setUp(): void

@@ -27,10 +27,10 @@ class FhirPractitionerRestControllerTest extends TestCase
     /**
      * @var FhirPractitionerRestController
      */
-    private $fhirPractitionerController;
+    private FhirPractitionerRestController $fhirPractitionerController;
 
-    private $fixtureManager;
-    private $fhirFixture;
+    private PractitionerFixtureManager $fixtureManager;
+    private array $fhirFixture;
 
     protected function setUp(): void
     {

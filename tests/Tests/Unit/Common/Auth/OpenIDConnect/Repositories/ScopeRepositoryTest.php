@@ -11,7 +11,9 @@
 
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
+use Google\Service\AppHub\Scope;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
@@ -160,5 +162,29 @@ class ScopeRepositoryTest extends TestCase
         $this->assertContains('user/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
         $this->assertContains('system/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
         $this->assertContains('system/allergy.write', $smartScopes, "system/allergy.write should be in smart scopes");
+    }
+
+    public function testGetScopeByIdentifierWithReadV2Scopes() : void {
+        $request = HttpRestRequest::create("/test");
+        $request->set("scope", "patient/Patient.rs");
+        $scopeRepository = new ScopeRepository($request);
+        $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.r");
+        $this->assertNotEmpty($scope, "patient/Patient.r scope should be valid scope with patient/Patient.rs request scope");
+        $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.rs");
+        $this->assertNotEmpty($scope, "patient/Patient.rs scope should be valid scope with patient/Patient.rs request scope");
+        $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.read");
+        $this->assertNotEmpty($scope, "patient/Patient.read scope should be valid scope with patient/Patient.rs request scope for backwards compatability");
+    }
+
+    public function testGetScopeByIdentifierWithWriteV2Scopes() : void {
+        $request = HttpRestRequest::create("/test");
+        $request->set("scope", "user/medical_problem.cud");
+        $scopeRepository = new ScopeRepository($request);
+        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.c");
+        $this->assertNotEmpty($scope, "patient/Patient.c scope should be valid scope with user/medical_problem.cud request scope");
+        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.u");
+        $this->assertNotEmpty($scope, "patient/Patient.u scope should be valid scope with user/medical_problem.cud request scope");
+        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.d");
+        $this->assertNotEmpty($scope, "patient/Patient.read scope should be valid scope with user/medical_problem.cud request scope for backwards compatability");
     }
 }

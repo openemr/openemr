@@ -427,8 +427,8 @@ class AuthorizationController
         );
 
         $scopeRepo = $this->getScopeRepository($request, $this->session);
-        $scopeRepo->setRequestScopes($scopeString);
-        foreach ($requestScopes as $scope) {
+        $scopes = explode(" ", $scopeString);
+        foreach ($scopes as $scope) {
             $validScope = $scopeRepo->getScopeEntityByIdentifier($scope);
             if (empty($validScope)) {
                 throw OAuthServerException::invalidScope($scope);

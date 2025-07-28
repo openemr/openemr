@@ -16,6 +16,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use Psr\Http\Message\ResponseInterface;
 
 class PatientRestController
 {
@@ -50,9 +51,9 @@ class PatientRestController
     /**
      * Process a HTTP POST request used to create a patient record.
      * @param $data - array of patient fields.
-     * @return a 201/Created status code and the patient identifier if successful.
+     * @return ResponseInterface 201/Created status code and the patient identifier if successful.
      */
-    public function post($data, HttpRestRequest $request)
+    public function post($data, HttpRestRequest $request) : ResponseInterface
     {
         $processingResult = $this->patientService->insert($data);
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 201);
@@ -62,7 +63,7 @@ class PatientRestController
      * Processes a HTTP PUT request used to update an existing patient record.
      * @param $puuidString - The patient uuid identifier in string format.
      * @param $data - array of patient fields (full resource).
-     * @return a 200/Ok status code and the patient resource.
+     * @return ResponseInterface 200/Ok status code and the patient resource.
      */
     public function put($puuidString, $data, HttpRestRequest $request)
     {

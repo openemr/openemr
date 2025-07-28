@@ -52,7 +52,6 @@ class SkipAuthorizationStrategyTest extends TestCase
         $this->assertTrue($skipAuthorizationStrategy->authorizeRequest($request), "Path should be authorized for skipped path");
         // now assert all the attributes that were populated.
 
-        $this->assertNotNull($request->getRequestUser());
         $this->assertEquals($userId, $request->getRequestUser()['id'], "Expected user ID to be set to 1 for skipped path");
         $this->assertEquals($userUuid, $request->getRequestUser()['uuid'], "Expected user uuid to be set for skipped path");
         $this->assertEquals(null, $request->attributes->get('clientId'), "Expected clientId to be null for skipped path");
