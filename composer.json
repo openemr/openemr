@@ -57,7 +57,7 @@
         "phpseclib/phpseclib": "3.0.46",
         "php81_bc/strftime": "0.7.6",
         "php-http/discovery": "1.20.0",
-        "predis/predis": "3.0.1",
+        "predis/predis": "3.1.0",
         "psr/log": "3.0.2",
         "ramsey/uuid": "4.9.0",
         "ringcentral/ringcentral-php": "3.0.4",
