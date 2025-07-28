@@ -41,7 +41,7 @@
     "autoprefixer": "10.4.21",
     "colors": "1.4.0",
     "del": "6.1.1",
-    "eslint": "9.31.0",
+    "eslint": "9.32.0",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jest": "28.14.0",
     "glob": "11.0.3",
