@@ -96,7 +96,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
     }
 
-    public function testBuildScopeValidatorArrayCombinedScopesReturnsEverything()
+    public function testBuildScopeValidatorArrayCombinedScopesReturnsEverything(): void
     {
         $scopeRepository = $this->scopeRepository;
         $expectedScopes = $scopeRepository->getCurrentSmartScopes();
@@ -125,7 +125,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertNotEmpty($scopeEntity, "system/*.\$export not found in FHIR route map");
     }
 
-    public function testGetCurrentSmartScopes()
+    public function testGetCurrentSmartScopes(): void
     {
         $scopeRepository = $this->scopeRepository;
 
@@ -149,7 +149,7 @@ class ScopeRepositoryTest extends TestCase
 
 
 
-    public function testGetStandardScopes()
+    public function testGetStandardScopes(): void
     {
         $scopeRepository = $this->scopeRepository;
 

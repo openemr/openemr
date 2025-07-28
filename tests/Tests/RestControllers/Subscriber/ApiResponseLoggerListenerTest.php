@@ -24,7 +24,7 @@ class ApiResponseLoggerListenerTest extends TestCase
      * @return void
      * @throws Exception
      */
-    public function testOnRequestTerminatedWithApiLogOption1()
+    public function testOnRequestTerminatedWithApiLogOption1(): void
     {
         $globalsBag = new OEGlobalsBag([
             'api_log_option' => 1, // Set to 1 to skip logging the response
@@ -48,7 +48,7 @@ class ApiResponseLoggerListenerTest extends TestCase
             ->method('recordLogItem')
             ->withAnyParameters()
             ->willReturnCallback(function ($success, $event, $user, $group, $comments, $patientId, $category, $logFrom, $menuItemId, $ccdaDocId, $user_notes, $api)
- use ($session, $request) {
+ use ($session, $request): void {
                 $this->assertEquals(1, $success, 'Success should be 1');
                 $this->assertEquals('api', $event, 'Event should be "api"');
                 $this->assertEquals($session->get('authUser'), $user, 'User should have been set');
@@ -81,7 +81,7 @@ class ApiResponseLoggerListenerTest extends TestCase
      * @return void
      * @throws Exception
      */
-    public function testOnRequestTerminatedWithApiLogOption2()
+    public function testOnRequestTerminatedWithApiLogOption2(): void
     {
         $globalsBag = new OEGlobalsBag([
             'api_log_option' => 2, // Set to 2 to log the response
@@ -111,7 +111,7 @@ class ApiResponseLoggerListenerTest extends TestCase
             ->method('recordLogItem')
             ->withAnyParameters()
             ->willReturnCallback(function ($success, $event, $user, $group, $comments, $patientId, $category, $logFrom, $menuItemId, $ccdaDocId, $user_notes, $api)
- use ($session, $request, $encodedJson) {
+ use ($session, $request, $encodedJson): void {
                 $this->assertEquals(1, $success, 'Success should be 1');
                 $this->assertEquals('api', $event, 'Event should be "api"');
                 $this->assertEquals($session->get('authUser'), $user, 'User should have been set');

@@ -59,7 +59,7 @@ class AuthorizationControllerTest extends TestCase
         $authorizationController->setSystemLogger(new SystemLogger(Level::Emergency));
         return $authorizationController;
     }
-    public function testOauthAuthorizationFlowMissingResponseType()
+    public function testOauthAuthorizationFlowMissingResponseType(): void
     {
         $request = $this->getMockRequest();
         $session = $this->getMockSessionForRequest($request);
@@ -69,7 +69,7 @@ class AuthorizationControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), "Expected 400 Bad Request response");
     }
 
-    public function testOauthAuthorizationFlowMissingClientId()
+    public function testOauthAuthorizationFlowMissingClientId(): void
     {
         $request = $this->getMockRequest();
         $session = $this->getMockSessionForRequest($request);
@@ -80,7 +80,7 @@ class AuthorizationControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), "Expected 400 Bad Request response");
     }
 
-    public function testOauthAuthorizationFlowWithInvalidClientId()
+    public function testOauthAuthorizationFlowWithInvalidClientId(): void
     {
         $request = $this->getMockRequest();
         $session = $this->getMockSessionForRequest($request);
@@ -91,7 +91,7 @@ class AuthorizationControllerTest extends TestCase
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), "Expected 401 Unauthorized response for invalid client id");
     }
-    public function testOauthAuthorizationFlowWithConfidentialClientWillRedirect()
+    public function testOauthAuthorizationFlowWithConfidentialClientWillRedirect(): void
     {
         $clientId = 'test_client_id';
         $redirect_uri = 'https://example.com/fhir';

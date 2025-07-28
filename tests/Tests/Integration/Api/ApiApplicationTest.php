@@ -21,7 +21,7 @@ class ApiApplicationTest extends TestCase
         }
     }
 
-    public function testRunWithSkippedRoute()
+    public function testRunWithSkippedRoute(): void
     {
         // simple test for running the application for now just to do a simple smoke test
         $httpRestRequest = new HttpRestRequest();

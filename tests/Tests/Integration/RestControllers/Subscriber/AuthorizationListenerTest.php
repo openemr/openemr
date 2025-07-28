@@ -11,12 +11,12 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class AuthorizationListenerTest extends TestCase
 {
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents(): void
     {
         $this->markTestIncomplete("Need to implement test for getSubscribedEvents method in AuthorizationListener");
     }
 
-    public function testOnKernelRequestSkipsProcessing()
+    public function testOnKernelRequestSkipsProcessing(): void
     {
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->expects($this->atLeastOnce())
@@ -39,7 +39,7 @@ class AuthorizationListenerTest extends TestCase
         $authListener->onKernelRequest($requestEvent);
     }
 
-    public function testOnKernelRequestProcessesSecondStrategyIfFirstIsSkipped()
+    public function testOnKernelRequestProcessesSecondStrategyIfFirstIsSkipped(): void
     {
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->expects($this->atLeastOnce())
@@ -72,12 +72,12 @@ class AuthorizationListenerTest extends TestCase
         $authListener->onKernelRequest($requestEvent);
     }
 
-    public function testOnRestApiSecurityCheck()
+    public function testOnRestApiSecurityCheck(): void
     {
         $this->markTestIncomplete("Need to implement test for onRestApiSecurityCheck method in AuthorizationListener");
     }
 
-    public function testClearAuthorizationStrategies()
+    public function testClearAuthorizationStrategies(): void
     {
         $authListener = new AuthorizationListener();
         $this->assertGreaterThan(0, $authListener->getAuthorizationStrategies(), "Authorization strategies should be initialized and not empty");
@@ -85,7 +85,7 @@ class AuthorizationListenerTest extends TestCase
         $this->assertEmpty($authListener->getAuthorizationStrategies(), "Authorization strategies should be empty after clearing");
     }
 
-    public function testAddAuthorizationStrategy()
+    public function testAddAuthorizationStrategy(): void
     {
         $this->markTestIncomplete("Need to implement test for addAuthorizationStrategy method in AuthorizationListener");
     }

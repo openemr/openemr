@@ -18,7 +18,7 @@ class OAuth2DiscoveryControllerTest extends TestCase
      * @return void
      * @throws Exception
      */
-    public function testGetDiscoveryResponseWithPasswordGrant()
+    public function testGetDiscoveryResponseWithPasswordGrant(): void
     {
         $globals = new OEGlobalsBag([
             'oauth_password_grant' => 1

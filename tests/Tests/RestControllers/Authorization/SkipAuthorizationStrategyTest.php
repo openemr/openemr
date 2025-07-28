@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFacto
 
 class SkipAuthorizationStrategyTest extends TestCase
 {
-    public function testShouldSkipOptionsMethod()
+    public function testShouldSkipOptionsMethod(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "OPTIONS");
         $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
@@ -23,17 +23,17 @@ class SkipAuthorizationStrategyTest extends TestCase
         $this->assertTrue($skipAuthorizationStrategy->shouldProcessRequest($request), "Options should be skipped when flag is set");
     }
 
-    public function testAddSkipRoute()
+    public function testAddSkipRoute(): void
     {
         $this->markTestIncomplete("Test is incomplete");
     }
 
-    public function testShouldProcessRequest()
+    public function testShouldProcessRequest(): void
     {
         $this->markTestIncomplete("Test is incomplete");
     }
 
-    public function testAuthorizeRequestWithValidSkippedPath()
+    public function testAuthorizeRequestWithValidSkippedPath(): void
     {
         $userId = 1;
         $request = HttpRestRequest::create("/apis/default/fhir/metadata", "GET");

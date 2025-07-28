@@ -26,7 +26,7 @@ class SiteSetupListenerTest extends TestCase
     }
 
     #[Test]
-    public function testOnKernelRequest()
+    public function testOnKernelRequest(): void
     {
         $this->markTestSkipped("Skipping test for onKernelRequest method until we can figure out how to handle the require_once with globals.php allowing only a single test to exercise the SiteListener");
 //        $listener = new SiteSetupListener();
@@ -68,33 +68,33 @@ class SiteSetupListenerTest extends TestCase
 //        $this->assertEquals($site, $_SESSION['site_id'], "Session site_id should match the site set in onKernelRequest");
 //        $this->assertEquals('apiOpenEMR', session_name(), "Session name should be 'apiOpenEMR' after onKernelRequest call");
     }
-    public function testOnKernelRequestFailsInvalidCSRFToken()
+    public function testOnKernelRequestFailsInvalidCSRFToken(): void
     {
         $this->markTestIncomplete("Need to implement test for invalid CSRF token handling in SiteSetupListener");
     }
 
-    public function testOnKernelRequestFailsMissingSiteDirectory()
+    public function testOnKernelRequestFailsMissingSiteDirectory(): void
     {
         $this->markTestIncomplete("Need to implement test for missing site directory handling in SiteSetupListener");
     }
 
-    public function testOnKernelRequestFailsInvalidSiteIdFormat()
+    public function testOnKernelRequestFailsInvalidSiteIdFormat(): void
     {
         $this->markTestIncomplete("Need to implement test for invalid site ID format handling in SiteSetupListener");
     }
 
-    public function testOnKernelRequestFailsNoSiteId()
+    public function testOnKernelRequestFailsNoSiteId(): void
     {
         $this->markTestIncomplete("Need to implement test for no site ID handling in SiteSetupListener");
     }
 
-    public function testOnKernelRequestValidCSRFToken()
+    public function testOnKernelRequestValidCSRFToken(): void
     {
         $this->markTestIncomplete("Need to implement test for valid CSRF token handling in SiteSetupListener");
     }
 
     #[Test]
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents(): void
     {
         $events = SiteSetupListener::getSubscribedEvents();
         $this->assertArrayHasKey(KernelEvents::REQUEST, $events);

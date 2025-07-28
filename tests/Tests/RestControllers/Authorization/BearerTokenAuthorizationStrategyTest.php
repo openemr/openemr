@@ -42,19 +42,19 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $session->set("site_id", "default");
         return $session;
     }
-    public function testIs_api_request()
+    public function testIs_api_request(): void
     {
         $this->assertTrue(BearerTokenAuthorizationStrategy::is_api_request("/apis/default/api/Patient"), "Expected is_api_request to return true for portal API path");
         $this->assertFalse(BearerTokenAuthorizationStrategy::is_api_request("/apis/default/fhir/Patient"), "Expected is_api_request to return false for fhir API path");
     }
 
-    public function testShouldProcessRequest()
+    public function testShouldProcessRequest(): void
     {
         $strategy = new BearerTokenAuthorizationStrategy();
         $this->assertTrue($strategy->shouldProcessRequest($this->createMock(HttpRestRequest::class)), "Expected shouldProcessRequest to return true for any request");
     }
 
-    public function testIs_portal_request()
+    public function testIs_portal_request(): void
     {
         $this->assertTrue(BearerTokenAuthorizationStrategy::is_portal_request("/default/apis/portal/Patient"), "Expected is_api_request to return true for portal API path");
         $this->assertFalse(BearerTokenAuthorizationStrategy::is_portal_request("/default/apis/fhir/Patient"), "Expected is_api_request to return false for fhir API path");
@@ -151,7 +151,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         return $mockUserService;
     }
 
-    public function testAuthorizeRequest()
+    public function testAuthorizeRequest(): void
     {
         // TODO: refactor BearerTokenAuthorizationStrategy This class is doing too much as evidenced by ALL of the dependency mocking
         $user = [
@@ -193,7 +193,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $this->assertEquals($userUuid, $session->get('userId'), "Expected user UUID to be set in session");
     }
 
-    public function testAuthorizeRequestWithFhirRequest()
+    public function testAuthorizeRequestWithFhirRequest(): void
     {
         $user = [
             'id' => 1,
@@ -231,7 +231,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $this->assertTrue($strategy->authorizeRequest($request));
     }
 
-    public function testGetUuidUserAccountFactory()
+    public function testGetUuidUserAccountFactory(): void
     {
         $strategy = new BearerTokenAuthorizationStrategy();
         $uuidUserAccountClass = $strategy->getUuidUserAccountFactory()(1);

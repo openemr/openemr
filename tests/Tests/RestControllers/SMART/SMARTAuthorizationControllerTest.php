@@ -33,7 +33,7 @@ class SMARTAuthorizationControllerTest extends TestCase
 
     const SMART_FINAL_REDIRECT_URL = "http://localhost:8080/smart/final_redirect";
 
-    public function testGetSmartAuthorizationPath()
+    public function testGetSmartAuthorizationPath(): void
     {
         $this->markTestIncomplete("Test is incomplete");
     }
@@ -60,7 +60,7 @@ class SMARTAuthorizationControllerTest extends TestCase
             $this->createMock(Environment::class)
         );
     }
-    public function testPatientSelectConfirm()
+    public function testPatientSelectConfirm(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $request->request->set("patient_id", "123e4567-e89b-12d3-a456-426614174000"); // Simulate a patient ID in the request
@@ -76,7 +76,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertStringStartsWith(self::SMART_FINAL_REDIRECT_URL, $response->getHeader("Location")[0], "Expected redirect to the final redirect URL");
     }
 
-    public function testPatientSelectConfirmMissingUserIdThrowsException()
+    public function testPatientSelectConfirmMissingUserIdThrowsException(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
@@ -86,7 +86,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->expectExceptionMessage("Unauthorized call");
         $controller->patientSelectConfirm($request);
     }
-    public function testPatientSelectConfirmMissingCsrfFromPostThrowsException()
+    public function testPatientSelectConfirmMissingCsrfFromPostThrowsException(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "POST");
         $session = $this->getMockSessionForRequest($request);
@@ -97,7 +97,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $controller->patientSelectConfirm($request);
     }
 
-    public function testPatientSelectConfirmPatientSearchExceptionHandled()
+    public function testPatientSelectConfirmPatientSearchExceptionHandled(): void
     {
         $clientId = "test_client_id";
         $clientRedirectUri = "http://localhost:8080/redirect";
@@ -132,7 +132,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertEmpty($session->all(), "Expected session to be empty after redirect");
     }
 
-    public function testPatientSelect()
+    public function testPatientSelect(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $request->request->set("user_id", "123e4567-e89b-12d3-a456-426614174000"); // Simulate a user id in the request
@@ -190,22 +190,22 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertEquals($htmlContents, $contents, "Expected response body to match rendered HTML");
     }
 
-    public function testIsValidRoute()
+    public function testIsValidRoute(): void
     {
         $this->markTestIncomplete("Test is incomplete");
     }
 
-    public function test__construct()
+    public function test__construct(): void
     {
         $this->markTestIncomplete("Test is incomplete");
     }
 
-    public function testDispatchRoute()
+    public function testDispatchRoute(): void
     {
         $this->markTestIncomplete("Test is incomplete");
     }
 
-    public function testNeedSMARTAuthorization()
+    public function testNeedSMARTAuthorization(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
@@ -229,7 +229,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertTrue($controller->needSMARTAuthorization(), "SMART Authorization should be needed ");
     }
 
-    public function testNeedSMARTAuthorizationNoScopes()
+    public function testNeedSMARTAuthorizationNoScopes(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
@@ -252,7 +252,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertFalse($controller->needSMARTAuthorization(), "SMART Authorization should NOT be needed ");
     }
 
-    public function testNeedSMARTAuthorizationWithPatientUuidShouldFail()
+    public function testNeedSMARTAuthorizationWithPatientUuidShouldFail(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
@@ -277,7 +277,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertFalse($controller->needSMARTAuthorization(), "SMART Authorization should NOT be needed ");
     }
 
-    public function testEhrLaunchAutoSubmit()
+    public function testEhrLaunchAutoSubmit(): void
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
@@ -317,7 +317,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->assertEquals($contents, $contents, "Expected response body to match rendered json");
     }
 
-    public function testSmartAppStyles()
+    public function testSmartAppStyles(): void
     {
         $this->markTestIncomplete("Having problems mocking the templates so leaving this incomplete for now");
 //        $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");

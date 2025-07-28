@@ -15,7 +15,7 @@ class OAuth2PublicJsonWebKeyControllerTest extends TestCase
      * @return void
      * @throws OAuthServerException
      */
-    public function testGetJsonWebKeyResponse()
+    public function testGetJsonWebKeyResponse(): void
     {
         $publicKeyPath = __DIR__ . '/../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem';
         $controller = new OAuth2PublicJsonWebKeyController($publicKeyPath);

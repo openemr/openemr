@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 class SearchRequestNormalizerTest extends TestCase
 {
-    public function testNormalizeSearchRequest()
+    public function testNormalizeSearchRequest(): void
     {
         $normalizer = new SearchRequestNormalizer(new SystemLogger(Level::Emergency));
         $request = HttpRestRequest::create('https://localhost/apis/default/fhir/Patient/_search', 'POST', [

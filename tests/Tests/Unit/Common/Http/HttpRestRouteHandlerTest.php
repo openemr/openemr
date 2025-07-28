@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class HttpRestRouteHandlerTest extends TestCase
 {
-    public function testCheckSecurityWithNoRequestUserRole()
+    public function testCheckSecurityWithNoRequestUserRole(): void
     {
         $this->markTestIncomplete("This test is incomplete and needs to be implemented properly.");
 //        $kernel = $this->createMock(OEHttpKernel::class);
@@ -25,7 +25,7 @@ class HttpRestRouteHandlerTest extends TestCase
 //        $this->expectException(AccessDeniedException::class, "AccessDeniedException should be thrown when request user role is not set");
     }
 
-    public function testCheckSecurityWithInvalidEventReturned()
+    public function testCheckSecurityWithInvalidEventReturned(): void
     {
         $this->markTestIncomplete("This test is incomplete and needs to be implemented properly.");
 //        $this->expectException(AccessDeniedException::class, "AccessDeniedException should be thrown when request user role is invalid");
@@ -37,7 +37,7 @@ class HttpRestRouteHandlerTest extends TestCase
 //        $this->expectException(AccessDeniedException::class, "AccessDeniedException should be thrown when event is not RestApiSecurityCheckEvent");
     }
 
-    public function testDispatch()
+    public function testDispatch(): void
     {
         $resource = 'test-route';
         $request = HttpRestRequest::create('/' . $resource, 'GET');
@@ -56,9 +56,9 @@ class HttpRestRouteHandlerTest extends TestCase
         $request->setRequestUserRole('users');
         $request->setResource($resource);
         $restRouteHandler = new HttpRestRouteHandler($kernel);
-        $controller =  function (HttpRestRequest $request) {};
+        $controller =  function (HttpRestRequest $request): void {};
         $restRouteHandler->dispatch([
-            'GET /' . $resource . '-2' => function () {}
+            'GET /' . $resource . '-2' => function (): void {}
             ,'GET /' . $resource => $controller
         ], $request);
         $this->assertEquals($controller, $request->attributes->get("_controller"), "Controller should be set correctly for the route");

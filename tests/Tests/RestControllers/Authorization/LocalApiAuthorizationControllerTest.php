@@ -25,7 +25,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         $systemLogger = new SystemLogger(self::LOG_LEVEL);
         return new LocalApiAuthorizationController($systemLogger, new OEGlobalsBag());
     }
-    public function testShouldProcessRequest()
+    public function testShouldProcessRequest(): void
     {
         $controller = $this->getLocalApiAuthorizationController();
         $request = new HttpRestRequest();
@@ -34,7 +34,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         $this->assertTrue($controller->shouldProcessRequest($request), "Expected shouldProcessRequest to return true for local API request");
     }
 
-    public function testShouldProcessRequestFailsWithoutToken()
+    public function testShouldProcessRequestFailsWithoutToken(): void
     {
         $controller = $this->getLocalApiAuthorizationController();
         $request = new HttpRestRequest();
@@ -42,7 +42,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         $this->assertFalse($controller->shouldProcessRequest($request), "Expected shouldProcessRequest to return false without APICSRFTOKEN header");
     }
 
-    public function testAuthorizeRequest()
+    public function testAuthorizeRequest(): void
     {
         $globalsBag = new OEGlobalsBag();
         $controller = new LocalApiAuthorizationController(new SystemLogger(self::LOG_LEVEL), $globalsBag);
@@ -81,7 +81,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         $this->assertEquals($userArray, $request->getRequestUser(), "Expected request user to match session userId");
     }
 
-    public function testAuthorizeRequestWithMissingCSRFHeader()
+    public function testAuthorizeRequestWithMissingCSRFHeader(): void
     {
         $request = new HttpRestRequest();
         $sessionFactory = new MockFileSessionStorageFactory();
@@ -95,7 +95,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         $controller->authorizeRequest($request);
     }
 
-    public function testAuthorizeRequestWithInvalidCSRFHeader()
+    public function testAuthorizeRequestWithInvalidCSRFHeader(): void
     {
         $request = new HttpRestRequest();
         $sessionFactory = new MockFileSessionStorageFactory();
