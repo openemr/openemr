@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * AuthorizationListener is currently functioning as the Policy Decision Point (PEP) for the OpenEMR REST API.
+ * There are currently two Policy Enforcement Points (PEP) in the rest API flow sequence in OpenEMR
+ * 1. The onKernelRequest which is the first PEP that checks the request and authorizes it based on the defined authorization strategies.
+ * 2. The onRestApiSecurityCheck which is the second PEP that checks the request and authorizes it based upon the access token scopes.
+ *
+ * We probably need to refactor this in the future to have a more robust policy decision point (PDP) and policy enforcement point (PEP) system.
+ * This would allow for more flexibility in the authorization process and would allow for more complex authorization scenarios.
+ *
+ *
+ */
+
 namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Acl\AccessDeniedException;

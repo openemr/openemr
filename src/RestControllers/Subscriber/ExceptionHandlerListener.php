@@ -6,6 +6,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -43,7 +44,7 @@ class ExceptionHandlerListener implements EventSubscriberInterface
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
         ];
-        $response = new Response(json_encode($data), $code);
+        $response = new JsonResponse($data, $code);
         $event->setResponse($response);
     }
 }

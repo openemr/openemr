@@ -40,11 +40,9 @@ class PatientFhirApiTest extends TestCase
 
     public function testGetBy_id(): void
     {
-        error_log("Saving FHIR Patient fixture: " . var_export($this->fhirFixture, true));
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
         $this->assertEquals(Response::HTTP_CREATED, $actualResult->getStatusCode(), "FHIR Patient post should have returned a 201 Created response");
         $contents = $this->getJsonContents($actualResult);
-        error_log("Patient post contents: " . var_export($contents, true));
         $fhirId = $contents['uuid'];
 
         $actualResult = $this->testClient->get("/apis/default/fhir/Patient", ['_id' => $fhirId]);
@@ -52,7 +50,6 @@ class PatientFhirApiTest extends TestCase
         $body = $actualResult->getBody()->getContents();
         $this->assertNotEmpty($body, "Patient search by _id should have returned a result");
         $contents = json_decode($body, true);
-        error_log("Patient search by _id contents: " . var_export($contents, true));
         $this->assertArrayhasKey("entry", $contents);
         $this->assertNotEmpty($contents['entry'], "Patient search by _id should have returned a result");
         $this->assertCount(1, $contents['entry'], "Patient search by _id should have returned a single result");

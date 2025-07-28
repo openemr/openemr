@@ -7,6 +7,7 @@ use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -28,6 +29,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class SiteSetupListener implements EventSubscriberInterface
 {
+    use SystemLoggerAwareTrait;
+
     public function __construct()
     {
     }
@@ -66,7 +69,7 @@ class SiteSetupListener implements EventSubscriberInterface
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
 // Auto collect the full absolute directory path for openemr.
-        $webserver_root = dirname(__FILE__, 2);
+        $webserver_root = dirname(__FILE__, 4);
         if (IS_WINDOWS) {
             //convert windows path separators
             $webserver_root = str_replace("\\", "/", $webserver_root);
@@ -98,6 +101,7 @@ class SiteSetupListener implements EventSubscriberInterface
         $request = $event->getRequest();
         if (!($request instanceof HttpRestRequest)) {
             // we only want to process this if the request is an HttpRestRequest
+            error_log("SiteSetupListener::onKernelRequest was not a valid HttpRestRequest, so exiting");
             return;
         }
 
@@ -180,6 +184,13 @@ class SiteSetupListener implements EventSubscriberInterface
         } catch (OAuth2KeyException $e) {
             throw new HttpException(500, $e->getMessage(), $e);
         }
+        $this->getSystemLogger()->debug("SiteSetupListener::onKernelRequest site setup complete", [
+            'siteId' => $siteId,
+            'webroot' => $webroot,
+            'isOauth2Request' => $isOauth2Request,
+            'sessionAllowWrite' => $sessionAllowWrite,
+            'apiBaseUrl' => $request->getApiBaseFullUrl()
+        ]);
     }
 
     private function checkForOauth2Request(HttpRestRequest $request): bool

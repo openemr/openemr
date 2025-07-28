@@ -120,6 +120,33 @@ class HttpRestRequest extends Request implements \Stringable
 
     public static function createFromGlobals(): static
     {
+        // Handle the rewrite command transformation before calling parent
+        // TODO: change this logic if we decide to change up our _REWRITE_COMMAND logic.
+        // our current mod_rewrite rules will set the _REWRITE_COMMAND in the query string which is different than
+        // how php will typically handle clean urls where PATH_INFO is set to come after the script name.
+        // If the _REWRITE_COMMAND is set, we will use it to set the PATH_INFO and REQUEST_URI so we can handle the
+        // request properly in Symfony.
+        if (isset($_GET['_REWRITE_COMMAND'])) {
+            $rewritePath = $_GET['_REWRITE_COMMAND'];
+
+            // Remove the _REWRITE_COMMAND from $_GET so Symfony doesn't see it
+            unset($_GET['_REWRITE_COMMAND']);
+
+            // Set up PATH_INFO for Symfony
+            $_SERVER['PATH_INFO'] = '/' . ltrim($rewritePath, '/');
+
+            // Update REQUEST_URI to reflect the clean path
+            $queryString = http_build_query($_GET);
+            // need to imitate the request the way symfony would parse it.
+            $_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'] . $_SERVER['PATH_INFO'] . ($queryString ? '?' . $queryString : '');
+
+            // Update QUERY_STRING to exclude the _REWRITE_COMMAND
+            $_SERVER['QUERY_STRING'] = $queryString;
+
+            // Set PHP_SELF appropriately
+            $_SERVER['PHP_SELF'] = $_SERVER['SCRIPT_NAME'] . $_SERVER['PATH_INFO'];
+        }
+
         $request = parent::createFromGlobals();
         $request->setPatientRequest(false); // default to false
 
@@ -297,6 +324,26 @@ class HttpRestRequest extends Request implements \Stringable
 
     public function requestHasScope($scope): bool
     {
+        // TODO: would prefer to move this into a Permission Decision Point code (PDP)
+        // need to grab the (permission)
+        // see HttpRestRequestTest for examples of how this is used.  Note if we can't parse the scope, we check
+        // against a literal match of the scope, this handles things like api:fhir, openid, everything else
+        // our setAccessTokenScopes() method will ensure that the scopes are properly formatted
+        $regex = "/^([a-zA-Z0-9]+)\/([a-zA-Z0-9_\-]+|\*)\.(read|write|[cruds]{1}|\\$[a-zA-Z][a-zA-Z0-9\-]*)$/";
+        $scopeParts = [];
+        preg_match($regex, $scope, $scopeParts);
+        if (!empty($scopeParts)) {
+            list ($match, $context, $resource, $permission) = $scopeParts;
+            if (in_array($permission, ["r", "s"])) {
+                if (isset($this->accessTokenScopes[$context . "/" . $resource . ".read"])) {
+                    return true;
+                }
+            } else if (in_array($permission, ['c', 'u', 'd'])) {
+                if (isset($this->accessTokenScopes[$context . "/" . $resource . ".write"])) {
+                    return true;
+                }
+            }
+        }
         return isset($this->accessTokenScopes[$scope]);
     }
 
