@@ -250,7 +250,7 @@ function deIdInsuranceDataTable($con, $pid): void
         if ($result['subscriber_lname'] === '' || $result === null) {
             continue;
         } else {
-            $string = "update insurance_data set 
+            $string = "update insurance_data set
               subscriber_lname = '{$demographic_array['lname']}',
               subscriber_fname = '{$demographic_array['fname']}',
               subscriber_mname = '{$demographic_array['mname']}',
@@ -262,7 +262,7 @@ function deIdInsuranceDataTable($con, $pid): void
               subscriber_city = '{$demographic_array['city']}',
               subscriber_state = '{$demographic_array['state']}',
               subscriber_phone = '{$demographic_array['phone_home']}'
-              
+
               where pid = $pid and type = '{$ty}'; ";
 
             $update = mysqli_query($con, $string) or print("update did not work");
@@ -287,11 +287,11 @@ function deIdFacilityTable($con): void
     $query = "select * from facility";
     $result = mysqli_query($con, $query);
     while ($row = mysqli_fetch_array($result)) {
-        $string = "update facility set 
-          
+        $string = "update facility set
+
               `name`    = 'Facility_{$row['id']}',
               `phone`   = '(000) 000-0000'
-    
+
             where `id` = {$row['id']}";
 
         mysqli_query($con, $string) or print "Error altering facility table \n";
@@ -336,13 +336,13 @@ function deIdUsersTable($con): void
         $string = "update users set ";
 
         if (strpos($row['newcrop_user_role'], 'doctor') !== false) {
-            $string .= "fname = 'Doctor.{$row['id']}', 
+            $string .= "fname = 'Doctor.{$row['id']}',
                        lname = 'Doctor.{$row['id']}' ";
         } elseif (strpos($row['newcrop_user_role'], 'nurse') !== false) {
-            $string .= "fname = 'Nurse.{$row['id']}', 
+            $string .= "fname = 'Nurse.{$row['id']}',
                        lname = 'Nurse.{$row['id']}' ";
         } else {
-            $string .= "fname = 'noNewCrop', 
+            $string .= "fname = 'noNewCrop',
                        lname = 'Nurse{$row['id']}'";
         }
 

@@ -432,7 +432,7 @@ abstract class AppDispatch
         if (empty($vendor) || empty($setup)) {
             return xlt('Error: Missing vendor, user or credential items');
         }
-        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`) 
+        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
             VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
         sqlStatement($sql, array('', $this->authUser, $vendor, $content, $this->authUser, $vendor, $content));
 

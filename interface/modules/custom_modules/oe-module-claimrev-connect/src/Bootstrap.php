@@ -197,7 +197,7 @@ class Bootstrap
             $forceExpandAlways
         );
         ?>
-        
+
         <div> <?php include $path . "/eligibility.php";?> </div>
     </section>
         <?php

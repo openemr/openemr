@@ -256,9 +256,9 @@ function storeCallEvent($callData): void
     try {
         // Use all available columns now that we know the table structure
         sqlStatement(
-            "INSERT INTO ringcentral_call_events 
-             (session_id, telephony_session_id, party_id, extension_id, direction, status, 
-              from_number, from_name, to_number, to_name, event_time, timestamp, raw_data) 
+            "INSERT INTO ringcentral_call_events
+             (session_id, telephony_session_id, party_id, extension_id, direction, status,
+              from_number, from_name, to_number, to_name, event_time, timestamp, raw_data)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 $callData['session_id'],

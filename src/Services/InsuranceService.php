@@ -83,8 +83,8 @@ class InsuranceService extends BaseService
                     SELECT
                     `uuid` AS `insureruuid`,
                     `id` AS `insurerid`
-                    FROM `insurance_companies` 
-                    ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid` 
+                    FROM `insurance_companies`
+                    ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid`
                 LEFT JOIN (
                     SELECT
                     `pid` AS `patient_data_pid`,

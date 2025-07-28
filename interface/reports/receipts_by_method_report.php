@@ -371,7 +371,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
         <div class="form-group col-auto">
             <label for='form_facility'><?php echo xlt('Facility'); ?></label>
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
-        </div>    
+        </div>
     </div>
     <div class="form-row col-md-6">
         <div class="form-group col-auto">
@@ -411,7 +411,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 echo xlt('Procedure/Service');
             }
             ?>
-            </label>   
+            </label>
             <input type='text' name='form_proc_codefull' id='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Click to select optional procedure code'); ?>'
             <?php
@@ -419,7 +419,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 echo "style='display:none'";
             } ?> />
         </div>
-    </div>    
+    </div>
     <div class="form-row col-md-6">
         <div class="form-group col-auto">
             <label for='form_use_edate'>
@@ -461,7 +461,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             </a>
             <?php } ?>
         </div>
-    </div>    
+    </div>
 </div> <!-- end of parameters -->
 
 <?php

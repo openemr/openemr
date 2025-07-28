@@ -218,8 +218,8 @@ function twAddFrameTab(tabsid, label, url) {
     );
     return panelId;
   }
-  
-  
+
+
 }
 
 // Remove the specified tab from the specified tab set.

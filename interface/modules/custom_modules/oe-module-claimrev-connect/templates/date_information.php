@@ -28,7 +28,7 @@ if ($benefit->dates != null && $benefit->dates) {
                                                 <div class="col">
         <?php echo text($dtp->dateDescription) ?>
                                                 </div>
-                                                <div class="col">                        
+                                                <div class="col">
         <?php echo xlt("Start"); ?>: <?php echo text(substr($dtp->startDate, 0, 10));  ?> <?php echo xlt("End"); ?>: <?php echo text(substr($dtp->endDate, 0, 10)); ?>
                                                 </div>
                                             </div>

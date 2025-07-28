@@ -72,7 +72,7 @@ class DocumentsTable extends AbstractTableGateway
     public function getDocument($documentId)
     {
         $obj = new ApplicationTable();
-        $sql = "SELECT * FROM documents AS doc 
+        $sql = "SELECT * FROM documents AS doc
               JOIN categories_to_documents AS cat_doc ON cat_doc.document_id = doc.id
               WHERE doc.id = ?";
         $result = $obj->zQuery($sql, array($documentId));
@@ -114,8 +114,8 @@ class DocumentsTable extends AbstractTableGateway
     {
         $obj = new ApplicationTable();
         foreach ($current_document as $values) {
-            $sql = "UPDATE 
-             `documents` 
+            $sql = "UPDATE
+             `documents`
               SET
               `docdate` = ?,
               `pid` = ?,
@@ -154,10 +154,10 @@ class DocumentsTable extends AbstractTableGateway
     public function deleteDocument($docid): void
     {
         $obj = new ApplicationTable();
-        $sql = "UPDATE 
-           `documents` 
+        $sql = "UPDATE
+           `documents`
            SET
-          `activity` = ? 
+          `activity` = ?
           WHERE `id` = ?";
         $obj->zQuery($sql, array(0, $docid));
     }
@@ -171,7 +171,7 @@ class DocumentsTable extends AbstractTableGateway
     public function updateDocumentCategoryUsingCatname($category_name, $document_id): void
     {
         $obj = new ApplicationTable();
-        $sql = "UPDATE categories_to_documents 
+        $sql = "UPDATE categories_to_documents
             JOIN categories ON `name` = ?
             SET category_id=id
             WHERE document_id = ?";

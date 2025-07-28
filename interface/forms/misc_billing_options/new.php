@@ -97,7 +97,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
-/* ai generated code by google-labs-jules starts */                        
+/* ai generated code by google-labs-jules starts */
                         <span class="text"><?php echo xlt('Select Yes/No where appropriate'); ?><br /><br /></span>
                         <div class="form-group">
                             <label for="employment_related"><?php echo xlt('Box 10 A. Employment related'); ?>:</label>

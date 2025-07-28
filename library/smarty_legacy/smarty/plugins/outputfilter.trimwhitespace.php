@@ -38,7 +38,7 @@ function smarty_outputfilter_trimwhitespace($source, &$smarty)
     $_pre_blocks = $match[0];
     $source = preg_replace("!<pre[^>]*?>.*?</pre>!is",
                            '@@@SMARTY:TRIM:PRE@@@', $source);
-    
+
     // Pull out the textarea blocks
     preg_match_all("!<textarea[^>]*?>.*?</textarea>!is", $source, $match);
     $_textarea_blocks = $match[0];

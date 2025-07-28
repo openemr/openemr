@@ -60,8 +60,8 @@ class NotificationTaskManager
             return false;
         }
 
-        $sql = "INSERT INTO `background_services` 
-                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
+        $sql = "INSERT INTO `background_services`
+                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`)
                 VALUES (?, 'Scheduled Automated Notifications', '0', '0', current_timestamp(), ?, ?, '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php', '100')";
         sqlStatementNoLog($sql, [$name, $total_minutes, $fn]);
 

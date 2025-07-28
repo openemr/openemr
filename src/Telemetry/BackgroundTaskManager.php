@@ -32,8 +32,8 @@ class BackgroundTaskManager
             return;
         }
         // If the task does not exist, create it.
-        $sql = "INSERT INTO `background_services` 
-                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
+        $sql = "INSERT INTO `background_services`
+                (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`)
                 VALUES ('Telemetry_Task', 'Report Scheduled Telemetry', '0', '0', current_timestamp(), ?, 'reportTelemetryTask', '/library/telemetry_reporting_service.php', '100')";
         sqlStatementNoLog($sql, [$total_minutes]);
     }

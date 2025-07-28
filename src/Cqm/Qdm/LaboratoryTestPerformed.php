@@ -68,7 +68,7 @@ class LaboratoryTestPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**

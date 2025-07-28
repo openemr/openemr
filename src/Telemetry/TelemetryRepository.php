@@ -23,7 +23,7 @@ class TelemetryRepository
 
         $sql = "INSERT INTO track_events (event_type, event_label, event_url, event_target, first_event, last_event, label_count)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE 
+            ON DUPLICATE KEY UPDATE
               event_url    = ?,
               event_target = ?,
               last_event   = ?,
