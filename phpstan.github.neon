@@ -17720,10 +17720,6 @@ parameters:
     identifier: isset.variable
     count: 1
     path: src/Common/Layouts/LayoutsUtils.php
-  - message: '#^Variable \$menuItems might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: src/Common/Logging/EventAuditLogger.php
   - message: '#^Variable \$logLevel in empty\(\) is never defined\.$#'
     identifier: empty.variable
     count: 1
