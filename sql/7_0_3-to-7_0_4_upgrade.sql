@@ -171,3 +171,34 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 #IfNotIndex track_events unique_event_label_target
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
+
+#IfNotTable care_teams
+CREATE TABLE `care_teams` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `pid` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `role` varchar(50) NOT NULL,
+  `facility_id` int(11) NOT NULL,
+  `provider_since` date NOT NULL,
+  `status` varchar(20) DEFAULT 'active',
+  `team_name` varchar(255) DEFAULT NULL,
+  `note` text DEFAULT NULL,
+  `date_created` datetime DEFAULT current_timestamp(),
+  `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow list_options list_id care_team_roles
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
+   ('care_team_roles', 'primary_care_provider', 'Primary Care Provider', 10, 'SNOMED-CT:62247001', ''),
+   ('care_team_roles', 'case_manager', 'Case Manager', 20, 'SNOMED-CT:133932002', ''),
+   ('care_team_roles', 'caregiver', 'Caregiver', 30, 'SNOMED-CT:224931005', ''),
+   ('care_team_roles', 'nurse', 'Nurse', 40, 'SNOMED-CT:224565007', ''),
+   ('care_team_roles', 'social_worker', 'Social Worker', 50, 'SNOMED-CT:159033005', ''),
+   ('care_team_roles', 'pharmacist', 'Pharmacist', 60, 'SNOMED-CT:46255001', ''),
+   ('care_team_roles', 'specialist', 'Specialist', 70, 'SNOMED-CT:419772000', ''),
+   ('care_team_roles', 'other', 'Other', 80, 'SNOMED-CT:106292003', '');
+#EndIf
