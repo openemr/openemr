@@ -11,7 +11,7 @@
 
 "use strict";
 
-const enableDebug = true;
+const enableDebug = false;
 
 const net = require("net");
 const server = net.createServer();
@@ -171,42 +171,53 @@ function populateAuthorFromAuthorContainer(pd) {
 }
 
 function populateCareTeamMembers(pd) {
-    let providerArray = [];
-    // primary provider
-    let primaryCareProvider = pd.primary_care_provider || {provider: {}};
-    let providerSince = fDate(primaryCareProvider.provider.provider_since || '');
-    if (pd.primary_care_provider) {
-        let provider = populateCareTeamMember(pd.primary_care_provider.provider);
-        providerArray.push(provider);
-        let count = countEntities(pd.care_team.provider);
-        if (count === 1) {
-            provider = populateCareTeamMember(pd.care_team.provider);
-            providerSince = providerSince || fDate(provider.provider_since);
-            providerArray.push(provider);
-        } else if (count > 1) {
-            for (let i in pd.care_team.provider) {
-                provider = populateCareTeamMember(pd.care_team.provider[i]);
-                providerSince = providerSince || fDate(provider.provider_since);
-                providerArray.push(provider);
+    const providerArray = [];
+    let providerSince = "";
+
+    // Add primary care provider if available
+    if (pd.primary_care_provider?.provider) {
+        const primaryProvider = populateCareTeamMember(pd.primary_care_provider.provider);
+        providerArray.push(primaryProvider);
+
+        // Try to extract earliest provider_since
+        providerSince = fDate(pd.primary_care_provider.provider.provider_since || '');
+    }
+
+    // Process additional care team members (providers, case managers, etc.)
+    const teamMembers = pd.care_team?.provider || [];
+
+    if (Array.isArray(teamMembers)) {
+        for (const member of teamMembers) {
+            const entry = populateCareTeamMember(member);
+            providerArray.push(entry);
+            if (!providerSince && member.provider_since) {
+                providerSince = fDate(member.provider_since);
             }
         }
+    } else if (typeof teamMembers === 'object') {
+        // Single care team member object (not an array)
+        const entry = populateCareTeamMember(teamMembers);
+        providerArray.push(entry);
+        if (!providerSince && teamMembers.provider_since) {
+            providerSince = fDate(teamMembers.provider_since);
+        }
     }
+
     return {
-        "providers":
-            {
-                "provider": providerArray,
-            },
-        "status": "active",
-        "date_time": {
-            "low": {
-                "date": providerSince || fDate(""),
-                "precision": "tz"
+        providers: {
+            provider: providerArray
+        },
+        status: "active",
+        date_time: {
+            low: {
+                date: providerSince || fDate(""),
+                precision: "tz"
             }
         },
-        // we treat this author a bit differently since we are working at the main pd object instead of the sub pd.care_team
-        "author": populateAuthorFromAuthorContainer(pd.care_team)
-    }
+        author: populateAuthorFromAuthorContainer(pd.care_team)
+    };
 }
+
 
 function populateMedication(pd) {
     pd.status = 'Completed'; //@todo invoke prescribed
