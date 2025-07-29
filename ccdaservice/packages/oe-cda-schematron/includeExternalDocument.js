@@ -10,7 +10,7 @@ var path_module = require('path');
 var loadedExternalDocuments = {};
 
 function modifyTest(test, resourceDir) {
-    var matches = /=document\((\'[-_.A-Za-z0-9]+\'|\"[-_.A-Za-z0-9]+\")\)/.exec(test);
+    var matches = /=document(('[-_.A-Za-z0-9]+'|"[-_.A-Za-z0-9]+"))/.exec(test);
     while (matches) {
 
         // String processing to select the non-regular predicate expression
@@ -24,8 +24,7 @@ function modifyTest(test, resourceDir) {
             }
             if (test[i] === ']') {
                 bracketDepth++;
-            }
-            else if (test[i] === '[') {
+            } else if (test[i] === '[') {
                 bracketDepth--;
             }
         }
@@ -39,8 +38,7 @@ function modifyTest(test, resourceDir) {
             }
             if (test[i] === '[') {
                 bracketDepth++;
-            }
-            else if (test[i] === ']') {
+            } else if (test[i] === ']') {
                 bracketDepth--;
             }
         }
@@ -54,14 +52,12 @@ function modifyTest(test, resourceDir) {
             var externalXml = null;
             try {
                 externalXml = fs.readFileSync(path_module.join(resourceDir, filepath), 'utf-8').toString();
+            } catch (err) {
+                throw new Error("No such file '" + filepath + "'");
             }
-            catch (err) {
-                throw new Error('No such file \'' + filepath + '\'');
-            }
-            externalDoc = new DOMParser().parseFromString(externalXml);
+            externalDoc = new DOMParser().parseFromString(externalXml, 'text/xml');
             loadedExternalDocuments[filepath] = externalDoc;
-        }
-        else {
+        } else {
             externalDoc = loadedExternalDocuments[filepath];
         }
 
@@ -82,7 +78,7 @@ function modifyTest(test, resourceDir) {
 
         var externalSelect = xpath.useNamespaces(namespaceMap);
 
-        // Create new predicate from extract values
+        // Create new predicate from extracted values
         var values = [];
         var externalResults = externalSelect(externalXpath, externalDoc);
         for (var i = 0; i < externalResults.length; i++) {
@@ -91,7 +87,7 @@ function modifyTest(test, resourceDir) {
         var lhv = predicate.slice(0, predicate.indexOf('=document('));
         var newPredicate = '(';
         for (var i = 0; i < values.length; i++) {
-            newPredicate += lhv + '=\'' + values[i] + '\'';
+            newPredicate += lhv + "='" + values[i] + "'";
             if (i < values.length - 1) {
                 newPredicate += ' or ';
             }
@@ -101,7 +97,7 @@ function modifyTest(test, resourceDir) {
         // Replace test
         test = test.slice(0, start) + newPredicate + test.slice(end);
 
-        matches = /@[^\\[\]]+=document\((\'[-_.A-Za-z0-9]+\'|\"[-_.A-Za-z0-9]+\")\)/.exec(test);
+        matches = /@[^\\[\]]+=document(('[-_.A-Za-z0-9]+'|"[-_.A-Za-z0-9]+"))/.exec(test);
     }
 
     return test;
