@@ -11656,10 +11656,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/modules/custom_modules/oe-module-faxsms/library/utility.php
-  - message: '#^Variable \$pid might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/messageUI.php
   - message: '#^Variable \$tabTitle on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
