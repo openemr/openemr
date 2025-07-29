@@ -177,13 +177,13 @@ class CdaComponentParseHelpers
 
         $sql = "SELECT pid, fname, lname, DOB, phone_home, phone_cell, phone_biz, street, city, state, postal_code
             FROM patient_data
-            WHERE lname = ? 
-            AND fname = ? 
-            AND DOB = ? 
+            WHERE lname = ?
+            AND fname = ?
+            AND DOB = ?
             AND (phone_home = ? OR phone_cell = ? OR phone_biz = ?)
-            AND street LIKE ? 
-            AND city = ? 
-            AND state = ? 
+            AND street LIKE ?
+            AND city = ?
+            AND state = ?
             AND postal_code = ?";
         $sqlBindArray = [$lastName, $firstName, $dob, $phone, $phone, $phone, "%$address%",
             $patientData['address']['city'], $patientData['address']['state'], $patientData['address']['zip']];

@@ -267,11 +267,11 @@ function cron_getAlertpatientData($type)
     $query = "select $patient_field pd.pid,ope.pc_eid,ope.pc_pid,ope.pc_title,
 			ope.pc_hometext,ope.pc_eventDate,ope.pc_endDate,
 			ope.pc_duration,ope.pc_alldayevent,ope.pc_startTime,ope.pc_endTime
-		from 
-			openemr_postcalendar_events as ope ,patient_data as pd 
-		where 
-			ope.pc_pid=pd.pid $ssql 
-		order by 
+		from
+			openemr_postcalendar_events as ope ,patient_data as pd
+		where
+			ope.pc_pid=pd.pid $ssql
+		order by
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
 
     //echo "<br />".$query;

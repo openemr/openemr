@@ -43,7 +43,7 @@ class CommunicationPerformed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**

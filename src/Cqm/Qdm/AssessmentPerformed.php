@@ -53,14 +53,14 @@ class AssessmentPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**

@@ -62,13 +62,13 @@ class LabCompendiumInstall
         }
 
 
-        $sql = "INSERT INTO procedure_type (name, lab_id, procedure_type, description) 
+        $sql = "INSERT INTO procedure_type (name, lab_id, procedure_type, description)
         VALUES (?, ?, ?, ?)";
 
         $sqlArr = array($compendium->labName, $lab_id, 'grp', 'DORN:' . $compendium->labName . ' Orders');
         $id = sqlInsert($sql, $sqlArr);
 
-        $sql = "INSERT INTO procedure_type (parent,name, lab_id, procedure_type, description) 
+        $sql = "INSERT INTO procedure_type (parent,name, lab_id, procedure_type, description)
                 VALUES (?, ?, ?, ?, ?)";
 
         $sqlArr = array($id, $compendium->labName, $lab_id, 'grp', 'Ordering Tests');
@@ -83,7 +83,7 @@ class LabCompendiumInstall
             $item->loinc = "";
         }
 
-        $sql = "SELECT procedure_type_id FROM procedure_type 
+        $sql = "SELECT procedure_type_id FROM procedure_type
             WHERE lab_id = ? AND parent = ? AND procedure_code = ? AND procedure_type = ? AND standard_code = ?";
         $procOrder = sqlQuery($sql, [$lab_id, $parentId, $item->code, "ord", $item->loinc]);
         if ($procOrder) {
@@ -91,7 +91,7 @@ class LabCompendiumInstall
             $sql = "UPDATE procedure_type SET Activity = ? WHERE procedure_type_id = ?";
             sqlStatement($sql, [1, $id]);
         } else {
-            $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code) 
+            $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code)
             VALUES (?, ?, ?, ?, ?, ?)";
 
             $sqlArr = array($parentId, $item->name ?? '', $lab_id ?? '', 'ord', $item->code ?? '', $item->loinc ?? '');
@@ -110,7 +110,7 @@ class LabCompendiumInstall
 
     public static function loadResult($component, $parentId, $lab_id)
     {
-        $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code) 
+        $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code)
         VALUES (?, ?, ?, ?, ?, ?)";
         $sqlArr = array($parentId, $component->name ?? '', $lab_id ?? '', 'res', $component->code ?? '', $component->loinc ?? '');
         $id = sqlInsert($sql, $sqlArr);

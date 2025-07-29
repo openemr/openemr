@@ -78,7 +78,7 @@ class ProcedurePerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**

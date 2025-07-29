@@ -38,14 +38,14 @@ class EncounterPerformed extends QDMBaseType
      * @property array $facilityLocations
      */
     public $facilityLocations = [
-        
+
     ];
 
     /**
      * @property array $diagnoses
      */
     public $diagnoses = [
-        
+
     ];
 
     /**

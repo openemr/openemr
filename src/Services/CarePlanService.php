@@ -201,7 +201,7 @@ class CarePlanService extends BaseService
                         patient_data
                  ) patients ON fcp.pid = patients.pid
                  LEFT JOIN (
-                     select 
+                     select
                         id AS provider_id
                         ,uuid AS provider_uuid
                         ,npi AS provider_npi

@@ -45,22 +45,22 @@ if (isset($_POST['SubmitButton'])) {
         <div class="row">
             <div class="col">
                 <p>
-                    <?php echo xlt("This tab helps give visibility to files that are in the x12 Tracker table."); ?>    
+                    <?php echo xlt("This tab helps give visibility to files that are in the x12 Tracker table."); ?>
                 </p>
-                            
-            </div>       
+
+            </div>
         </div>
         <div class="row">
             <div class="col">
                 <form method="post" action="x12Tracker.php">
-                    <div class="card">  
+                    <div class="card">
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
                                     <label for="startDate"><?php echo xlt("Created Date Start");?></label>
                                     <input type="date" class="form-control"  id="startDate" name="startDate"  value="<?php echo isset($_POST['startDate']) ? attr($_POST['startDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                                 </div>
-                            </div>                    
+                            </div>
                             <div class="col">
                                 <div class="form-group">
                                     <label for="endDate"><?php echo xlt("Created Date End");?></label>
@@ -68,10 +68,10 @@ if (isset($_POST['SubmitButton'])) {
                                 </div>
                             </div>
                             <div class="col">
-                            
-                            </div>                    
+
+                            </div>
                             <div class="col">
-                                
+
                             </div>
                         </div>
                         <div class="row">
@@ -79,17 +79,17 @@ if (isset($_POST['SubmitButton'])) {
                                 <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit"); ?></button>
                             </div>
                             <div class="col-10">
-                            
+
                             </div>
-                        </div>        
-                    </div> 
+                        </div>
+                    </div>
                 </form>
 
             </div>
         </div>
 
         <div class="row">
-            <div class="col">                
+            <div class="col">
                 <?php
                 if ($datas != null) { ?>
                     <table class="table">
@@ -97,13 +97,13 @@ if (isset($_POST['SubmitButton'])) {
                             <tr>
                                 <th scope="col"><?php echo xlt("Filename"); ?></th>
                                 <th scope="col"><?php echo xlt("Messages"); ?></th>
-                                <th scope="col"><?php echo xlt("Status"); ?></th>                              
+                                <th scope="col"><?php echo xlt("Status"); ?></th>
                             </tr>
                         </thead>
                         <tbody>
                         <?php
                         foreach ($datas as $data) {
-                            ?>  
+                            ?>
                             <tr>
                                 <td>
                                 <?php echo text($data["x12_filename"]); ?>
