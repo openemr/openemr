@@ -18452,3 +18452,23 @@ parameters:
     identifier: arguments.count
     count: 1
     path: tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
+  - message: '#^Trying to mock an undefined method Execute\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method ExecuteNoLog\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method FetchRow\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 3
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method Insert_ID\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method qstr\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
