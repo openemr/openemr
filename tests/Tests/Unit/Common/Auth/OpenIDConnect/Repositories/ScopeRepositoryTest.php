@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
 
@@ -26,31 +27,11 @@ class ScopeRepositoryTest extends TestCase
     {
         $mock = new MockRestConfig();
         $mock::$systemScopesEnabled = true;
-
-        $this->scopeRepository = new ScopeRepository($mock);
-
-        $noopCallback = function (): void { };
-        $standardResources = ['facility, patient'];
-        $fhirResources = ['Patient', 'Observation'];
-        $portalResources = ['patient', 'patient/encounter'];
-
-        $fhirRoutes = $this->makeRoutes('fhir', $fhirResources, $noopCallback);
-        // add in some operations and see if we can test this works properly
-        $fhirRoutes['Get /fhir/Group/:id/$export'] = $noopCallback;
-
-        $this->scopeRepository->setFhirRouteMap($fhirRoutes);
-        $this->scopeRepository->setStandardRouteMap($this->makeRoutes('api', $standardResources, $noopCallback));
-        $this->scopeRepository->setPortalRouteMap($this->makeRoutes('portal', $portalResources, $noopCallback));
-    }
-
-    private function makeRoutes($routePrefix, $resources, $callback)
-    {
-        $routes = [];
-        foreach ($resources as $resource) {
-            $routes['GET /' . $routePrefix . '/' . $resource] = $callback;
-            $routes['GET /' . $routePrefix . '/' . $resource . '/:id'] = $callback;
-        }
-        return $routes;
+        $mock = $this->createMock(ServerConfig::class);
+        $mock->method('areSystemScopesEnabled')
+            ->willReturn(true);
+        $this->scopeRepository = new ScopeRepository();
+        $this->scopeRepository->setServerConfig($mock);
     }
 
     public function testHasFhirApiScopes(): void
@@ -85,6 +66,8 @@ class ScopeRepositoryTest extends TestCase
 
         $diff = array_diff($expectedScopes, $validatorArray);
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr' should return standard scopes");
+        $this->assertContains('user/patient.read', $validatorArray, "user/patient.read should be in standard api scopes");
+        $this->assertContains('user/allergy.read', $validatorArray, "user/allergy.read should be in standard api scopes");
     }
 
     public function testBuildScopeValidatorArrayForStandardPortalApiScopeRequest(): void
@@ -113,6 +96,18 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
     }
 
+    public function testBuildScopeValidatorArrayCombinedScopesReturnsEverything(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+        $expectedScopes = $scopeRepository->getCurrentSmartScopes();
+        $expectedScopes = array_merge($expectedScopes, $scopeRepository->getCurrentStandardScopes());
+
+        $scopeRepository->setRequestScopes("api:oemr api:port api:fhir");
+        $validatorArray = array_keys($scopeRepository->buildScopeValidatorArray());
+        $diff = array_diff($expectedScopes, $validatorArray);
+        $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr api:port api:fhir' should return all scopes");
+    }
+
 
     public function testGetScopeEntityByIdentifierHasExportOperations(): void
     {
@@ -128,5 +123,42 @@ class ScopeRepositoryTest extends TestCase
 
         $scopeEntity = $scopeRepository->getScopeEntityByIdentifier('system/*.$export');
         $this->assertNotEmpty($scopeEntity, "system/*.\$export not found in FHIR route map");
+    }
+
+    public function testGetCurrentSmartScopes(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+
+        // let's see if we get the scope
+        $smartScopes = $scopeRepository->getCurrentSmartScopes();
+        $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
+        $resourceChecks = ['Patient', 'Observation', 'MedicationRequest'];
+        foreach ($resourceChecks as $resource) {
+            $this->assertContains("system/{$resource}.read", $smartScopes, "system/{$resource}.read should be in smart scopes");
+            $this->assertContains("patient/{$resource}.read", $smartScopes, "patient/{$resource}.read should be in smart scopes");
+            $this->assertContains("user/{$resource}.read", $smartScopes, "user/{$resource}.read should be in smart scopes");
+        }
+
+        // now do v2 checks
+        foreach ($resourceChecks as $resource) {
+            $this->assertContains("system/{$resource}.rs", $smartScopes, "system/{$resource}.rs should be in smart scopes");
+            $this->assertContains("patient/{$resource}.rs", $smartScopes, "patient/{$resource}.rs should be in smart scopes");
+            $this->assertContains("user/{$resource}.rs", $smartScopes, "user/{$resource}.rs should be in smart scopes");
+        }
+    }
+
+
+
+    public function testGetStandardScopes(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+
+        // let's see if we get the scope
+        $smartScopes = $scopeRepository->getStandardApiSupportedScopes();
+        $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
+        $this->assertContains('user/patient.read', $smartScopes, "user/patient.read should be in smart scopes");
+        $this->assertContains('user/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
+        $this->assertContains('system/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
+        $this->assertContains('system/allergy.write', $smartScopes, "system/allergy.write should be in smart scopes");
     }
 }

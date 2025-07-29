@@ -13,124 +13,78 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
-use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
-use OpenEMR\RestControllers\RestControllerHelper;
-use Psr\Log\LoggerInterface;
+use OpenEMR\FHIR\Config\ServerConfig;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use InvalidArgumentException;
+
+use function in_array;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    use SystemLoggerAwareTrait;
 
-    private $validationScopes;
+    private array $validationScopes;
 
     /**
-     * @var
+     * @var string
      */
-    private $requestScopes;
+    private string $requestScopes;
 
     /**
      * Session string containing the scopes populated in the current session.
      * @var string
      */
-    private $sessionScopes;
+    private string $sessionScopes;
 
     /**
-     * @var \RestConfig
+     * @var ServerConfig
      */
-    private $restConfig;
+    private ServerConfig $config;
 
     /**
-     * Array(string => callback) Where the string is the route and the callback is the route handler
-     * @var array
+     * @var string[] The array of scopes that are supported by the FHIR server.
      */
-    private $fhirRouteMap = [];
+    private array $fhirScopesList;
 
-    /**
-     * Array(string => callback) Where the string is the route and the callback is the route handler
-     * @var array
-     */
-    private $routeMap = [];
-
-    /**
-     * Array(string => callback) Where the string is the route and the callback is the route handler
-     * @var array
-     */
-    private $portalRouteMap = [];
+    private ?SessionInterface $session = null;
 
     /**
      * ScopeRepository constructor.
-     * @param $restConfig \RestConfig normally we would typesafe this, but RestConfig isn't in the autoloader so we leave it out so we can unit test this class better
+     * @param HttpRestRequest|null $request
+     * @param SessionInterface|null $session
      */
-    public function __construct($restConfig = null)
+    public function __construct(?HttpRestRequest $request = null, ?SessionInterface $session = null)
     {
-        $this->logger = new SystemLogger();
-        $this->requestScopes = isset($_REQUEST['scope']) ? $_REQUEST['scope'] : null;
-        $this->sessionScopes = $_SESSION['scopes'] ?? '';
-        $this->restConfig = $restConfig;
-        if (!empty($restConfig)) {
-            $this->fhirRouteMap = $restConfig::$FHIR_ROUTE_MAP ?? [];
-            $this->routeMap = $restConfig::$ROUTE_MAP ?? [];
-            $this->portalRouteMap = $restConfig::$PORTAL_ROUTE_MAP ?? [];
+        if (!empty($request)) {
+            $this->requestScopes = $request->get('scope', '');
+        } else {
+            $this->requestScopes = '';
         }
+        if (!empty($session)) {
+            $this->sessionScopes = $session->get('scopes', '');
+        } else {
+            $this->sessionScopes = '';
+        }
+        $this->session = $session;
     }
 
-    /**
-     * @return array
-     */
-    public function getFhirRouteMap(): array
+    public function setServerConfig(ServerConfig $config): void
     {
-        return $this->fhirRouteMap;
+        $this->config = $config;
     }
 
-    /**
-     * @param array $fhirRouteMap
-     */
-    public function setFhirRouteMap(array $fhirRouteMap): void
+    public function getServerConfig(): ServerConfig
     {
-        $this->fhirRouteMap = $fhirRouteMap;
-    }
-
-    /**
-     * @return array
-     */
-    public function getStandardRouteMap(): array
-    {
-        return $this->routeMap;
-    }
-
-    /**
-     * @param array $routeMap
-     */
-    public function setStandardRouteMap(array $routeMap): void
-    {
-        $this->routeMap = $routeMap;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPortalRouteMap(): array
-    {
-        return $this->portalRouteMap;
-    }
-
-    /**
-     * @param array $portalRouteMap
-     */
-    public function setPortalRouteMap(array $portalRouteMap): void
-    {
-        $this->portalRouteMap = $portalRouteMap;
+        if (!isset($this->config)) {
+            $this->config = new ServerConfig();
+        }
+        return $this->config;
     }
 
     /**
@@ -140,17 +94,17 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
         if (empty($this->validationScopes)) {
-            $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
+            $this->getSystemLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
         }
 
         if (array_key_exists($identifier, $this->validationScopes) === false && stripos($identifier, 'site:') === false) {
-            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
+            $this->getSystemLogger()->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
                 "scope" => $identifier
-                , 'validationScopes' => $this->validationScopes]);
+                , 'validationScopes' => array_keys($this->validationScopes)]);
             return null;
         }
-        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
+        $this->getSystemLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
 
         $scope = new ScopeEntity();
         $scope->setIdentifier($identifier);
@@ -174,17 +128,17 @@ class ScopeRepository implements ScopeRepositoryInterface
             $clientScopes = $clientEntity->getScopes();
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
-                if (\in_array($scope->getIdentifier(), $clientScopes)) {
+                if (in_array($scope->getIdentifier(), $clientScopes)) {
                     $finalizedScopes[] = $scope;
                     $finalizedScopeNames[] = $scope->getIdentifier();
                 }
             }
         } else {
-            $this->logger->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
+            $this->getSystemLogger()->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
         }
 
         // If a nonce is passed in, add a nonce scope for id token nonce claim
-        if (!empty($_SESSION['nonce'])) {
+        if (!empty($this->session) && !empty($this->session->get('nonce'))) {
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
             $finalizedScopes[] = $scope;
@@ -196,7 +150,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $finalizedScopeNames[] = $siteScope->getIdentifier();
         $finalizedScopes[] = $siteScope;
 
-            $this->logger->debug(
+            $this->getSystemLogger()->debug(
                 "ScopeRepository->finalizeScopes() scopes finalized ",
                 ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
                 ,
@@ -219,11 +173,11 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scope;
     }
 
-    public function setRequestScopes($scopes)
+    public function setRequestScopes($scopes): void
     {
         if (!is_string($scopes)) {
-            (new SystemLogger())->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
-            throw new \InvalidArgumentException("Invalid scope parameter set");
+            $this->getSystemLogger()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
+            throw new InvalidArgumentException("Invalid scope parameter set");
         }
 
         $this->requestScopes = $scopes;
@@ -302,7 +256,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         // There really is no defined standard on how to handle SMART scopes for operations ($operation)
         // hopefully its defined in V2, but for now we are going to implement using the following scopes
         // @see https://chat.fhir.org/#narrow/stream/179170-smart/topic/SMART.20scopes.20and.20custom.20operations/near/156832330
-        if (isset($this->restConfig) && $this->restConfig->areSystemScopesEnabled()) {
+        if ($this->getServerConfig()->areSystemScopesEnabled()) {
             $requiredSmart[] = 'system/Patient.$export';
             $requiredSmart[] = 'system/Group.$export';
             $requiredSmart[] = 'system/*.$bulkdata-status';
@@ -311,23 +265,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $requiredSmart;
     }
 
-    /**
-     * @Method fhirScopes
-     *
-     * Returns all fhir permitted scopes and permissions.
-     * These will be qualified against existing and future routes
-     * with role(patient, user or system facing applications).
-     *
-     * @return array
-     */
-    public function fhirScopes(): array
+    public function fhirScopesV1(): array
     {
-        // Note: we only allow patient/read access for FHIR apps right now, if someone wants write access they have to
-        // have a user/<resource>.write permission as the security context for patient only rights has too much risk
-        // for problems.
-
-        // we've restricted our patient scopes just to what we have in portal.  We will slowly open them up as we
-        // verify the access rights on them.
         $permitted = [
 //            "patient/Account.read",
             "patient/AllergyIntolerance.read",
@@ -426,10 +365,98 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/ValueSet.read",
         ];
 
-        if ($this->restConfig->areSystemScopesEnabled()) {
+        if ($this->getServerConfig()->areSystemScopesEnabled()) {
             return array_merge($permitted, $this->systemScopes());
         }
         return $permitted;
+    }
+
+    public function fhirScopesV2(): array
+    {
+        $resources = [
+            'AllergyIntolerance',
+            'CarePlan',
+            'CareTeam',
+            'Condition',
+            'Coverage',
+            'Device',
+            'DiagnosticReport',
+            'DocumentReference',
+            'Encounter',
+            'Goal',
+            'Immunization',
+            'MedicationDispense',
+            'MedicationRequest',
+            'Observation',
+            'Organization',
+            'Patient',
+            'Practitioner',
+            'PractitionerRole',
+            'Procedure',
+            'Provenance',
+            'QuestionnaireResponse',
+            'RelatedPerson',
+            'ServiceRequest',
+            'Specimen'
+        ];
+        $scopes = [];
+        $systemEnabled = $this->getServerConfig()->areSystemScopesEnabled();
+        foreach ($resources as $resource) {
+            // we'll ignore write for now
+            $scopes[] = "patient/$resource.rs";
+            $scopes[] = "user/$resource.rs";
+            if ($systemEnabled) {
+                $scopes[] = "system/$resource.rs";
+            }
+        }
+        // now add the restrictions
+        $restrictedScopes = [
+            'Condition' => [
+                'category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern'
+                ,'category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis'
+                ,'category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item'
+            ]
+            ,'Observation' => [
+                'category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh'
+                ,'category=http://terminology.hl7.org//CodeSystem-observation-category|social-history'
+                ,'category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory'
+                ,'category=http://terminology.hl7.org/CodeSystem/observation-category|survey'
+                ,'category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs'
+            ]
+            ,'DocumentReference' => [
+                'category=http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note'
+            ]
+        ];
+        foreach ($restrictedScopes as $resource => $restrictions) {
+            foreach ($restrictions as $restriction) {
+                $scopes[] = "patient/$resource.rs?$restriction";
+                $scopes[] = "user/$resource.rs?$restriction";
+                if ($systemEnabled) {
+                    $scopes[] = "system/$resource.rs?$restriction";
+                }
+            }
+        }
+        return $scopes;
+    }
+    /**
+     * @Method fhirScopes
+     *
+     * Returns all fhir permitted scopes and permissions.
+     *
+     * @return array
+     */
+    public function fhirScopes(): array
+    {
+        // Note: we only allow patient/read access for FHIR apps right now, if someone wants write access they have to
+        // have a user/<resource>.write permission as the security context for patient only rights has too much risk
+        // for problems.
+
+        if (!isset($this->fhirScopesList)) {
+            $permitted = $this->fhirScopesV1();
+            $permitted = array_merge($permitted, $this->fhirScopesV2());
+            $this->fhirScopesList = $permitted;
+        }
+        return $this->fhirScopesList;
     }
 
     public function systemScopes(): array
@@ -641,56 +668,11 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Method will qualify current scopes based on active FHIR resources.
      * Allowed permissions are validated from the default scopes and client role.
      *
-     * @param string $role
      * @return array
      */
     public function getCurrentSmartScopes(): array
     {
-        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
-        $gbl = $this->restConfig;
-        $restHelper = new RestControllerHelper();
-        // Collect all currently enabled FHIR resources.
-        // Then assign all permissions the resource is capable.
-        $scopes_api = [];
-        $restAPIs = $restHelper->getCapabilityRESTObject($this->getFhirRouteMap());
-        foreach ($restAPIs->getResource() as $resource) {
-            $resourceType = $resource->getType()->getValue();
-            $interactions = $resource->getInteraction();
-            foreach ($interactions as $interaction) {
-                $scopeRead =  $resourceType . ".read";
-                $scopeWrite = $resourceType . ".write";
-                $interactionCode = $interaction->getCode()->getValue();
-                switch ($interactionCode) {
-                    case 'read':
-                        $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                        break;
-                    case 'search-type':
-                        $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                        break;
-                    case 'insert':
-                    case 'update':
-                        $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                        $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
-                        $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
-                        break;
-                }
-            }
-            foreach ($resource->getOperation() as $operation) {
-                $operationCall = $resourceType . '.' . $operation->getName();
-                $scopes_api['patient/' . $operationCall]  = 'patient/' . $operationCall;
-                $scopes_api['user/' . $operationCall]  = 'user/' . $operationCall;
-                $scopes_api['system/' . $operationCall]  = 'system/' . $operationCall;
-            }
-
-            // if we needed to define scopes based on operations rather than the predefined Bulk-FHIR operations
-            // we would handle them here.  Leaving this commented out just for reference
-            // @var array
-            // $operations = $resource->getOperation();
-        }
+        $this->getSystemLogger()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
 
         $scopesSupported = $this->fhirScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
@@ -698,19 +680,11 @@ class ScopeRepository implements ScopeRepositoryInterface
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         // we need to make sure the 'site:' and any other server context vars are permitted
         $serverScopes = $this->getServerScopes();
-        $scopesSupported = null;
-        // verify scope permissions are allowed for role being used.
-        foreach ($scopes_api as $key => $scope) {
-            if (empty($scopes_dict[$key])) {
-                continue;
-            }
-            $scopesSupported[$key] = $scope;
-        }
-        asort($scopesSupported);
-        $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
-        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
+        $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopes_dict));
+        $this->getSystemLogger()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         $scopesEvent = new RestApiScopeEvent();
+        $scopesEvent->setSystemScopesEnabled($this->getServerConfig()->areSystemScopesEnabled());
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
         $scopesSupportedList = $scopesSupported;
         $scopesEvent->setScopes($scopesSupportedList);
@@ -726,84 +700,11 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function getCurrentStandardScopes(): array
     {
-        (new SystemLogger())->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
-        $restHelper = new RestControllerHelper();
-        // Collect all currently enabled resources.
-        // Then assign all permissions the resource is capable.
-        $scopes_api = [];
-        $restAPIs = $restHelper->getCapabilityRESTObject($this->getStandardRouteMap(), "OpenEMR\\Services");
-        foreach ($restAPIs->getResource() as $resource) {
-            $resourceType = $resource->getType()->getValue();
-            $interactions = $resource->getInteraction();
-            foreach ($interactions as $interaction) {
-                $scopeRead =  $resourceType . ".read";
-                $scopeWrite = $resourceType . ".write";
-                $interactionCode = $interaction->getCode()->getValue();
-                // these values come from this valuset http://hl7.org/fhir/2021Mar/valueset-type-restful-interaction.html
-                // for SMART on FHIR 2.0 we will have more granular permissions than *.read and *.write
-                switch ($interactionCode) {
-                    case 'read':
-                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                        break;
-                    case 'search-type':
-                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                        break;
-                    case 'put':
-                    case 'create':
-                    case 'update':
-                    case 'delete':
-                        $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
-                        $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
-                        break;
-                }
-            }
-        }
-        $scopes_api_portal = [];
-        // TODO: should we put this into the constructor? makes it hard to unit test this...
-        if (!empty($GLOBALS['rest_portal_api'])) {
-            $restAPIs = $restHelper->getCapabilityRESTObject($this->getPortalRouteMap(), "OpenEMR\\Services");
-            foreach ($restAPIs->getResource() as $resource) {
-                $resourceType = $resource->getType()->getValue();
-                $interactions = $resource->getInteraction();
-                foreach ($interactions as $interaction) {
-                    $scopeRead =  $resourceType . ".read";
-                    $scopeWrite = $resourceType . ".write";
-                    $interactionCode = $interaction->getCode()->getValue();
-                    // these values come from this valuset http://hl7.org/fhir/2021Mar/valueset-type-restful-interaction.html
-                    // for SMART on FHIR 2.0 we will have more granular permissions than *.read and *.write
-                    switch ($interactionCode) {
-                        case 'read':
-                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                            break;
-                        case 'search-type':
-                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                            break;
-                        case 'put':
-                        case 'create':
-                        case 'update':
-                        case 'delete':
-                            $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                            break;
-                    }
-                }
-            }
-        }
+        $this->getSystemLogger()->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
-        $scopes_api = array_merge($scopes_api, $scopes_api_portal);
-
         $scopesSupported = $this->apiScopes();
-        $scopes_dict = array_combine($scopesSupported, $scopesSupported);
-        $scopesSupported = null; // this is odd, why do we have this?
-        // verify scope permissions are allowed for role being used.
-        foreach ($scopes_api as $key => $scope) {
-            if (empty($scopes_dict[$key])) {
-                continue;
-            }
-            $scopesSupported[$key] = $scope;
-        }
         asort($scopesSupported);
+        $scopesSupported = array_combine($scopesSupported, $scopesSupported);
         $serverScopes = $this->getServerScopes();
         $scopesSupported = array_keys(array_merge($oidc, $serverScopes, $scopesSupported));
 
@@ -825,10 +726,10 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Returns true if the session or request has a fhir api scope in it
      * @return bool
      */
-    public function hasFhirApiScopes()
+    public function hasFhirApiScopes(): bool
     {
-        $requestScopeString = $this->getRequestScopes();
-        $sessionScopeString = $this->getSessionScopes();
+        $requestScopeString = $this->getRequestScopes() ?? '';
+        $sessionScopeString = $this->getSessionScopes() ?? '';
 
         $isFhir = preg_match('(fhirUser|api:fhir)', $requestScopeString)
             || preg_match('(fhirUser|api:fhir)', $sessionScopeString);
@@ -839,10 +740,11 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Returns true if the session or request has a standard or portal api scope in it
      * @return bool
      */
-    public function hasStandardApiScopes()
+    public function hasStandardApiScopes(): bool
     {
-        $requestScopeString = $this->getRequestScopes();
-        $sessionScopeString = $this->getSessionScopes();
+        // if either of these are empty then we need to set them to strings so that we can do the preg_match
+        $requestScopeString = $this->getRequestScopes() ?? '';
+        $sessionScopeString = $this->getSessionScopes() ?? '';
         $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
             || preg_match('(api:oemr|api:port)', $sessionScopeString);
 
@@ -855,7 +757,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $requestScopeString = $this->getRequestScopes();
         $isFhir = $this->hasFhirApiScopes();
         $isApi = $this->hasStandardApiScopes();
-        (new SystemLogger())->debug(
+        $this->getSystemLogger()->debug(
             "ScopeRepository->buildScopeValidatorArray() ",
             ["requestScopeString" => $requestScopeString, 'isStandardApi' => $isApi, 'isFhirApi' => $isFhir]
         );
@@ -912,12 +814,12 @@ class ScopeRepository implements ScopeRepositoryInterface
         $context = reset($parts);
         $resourcePerm = $parts[1] ?? "";
         $resourcePermParts = explode(".", $resourcePerm);
-        $resource = $resourcePermParts[0] ?? "";
+        $resource = $resourcePermParts[0];
         $permission = $resourcePermParts[1] ?? "";
 
         if (!empty($resource)) {
             $isReadPermission = $permission == "read";
-            if (strpos($permission, "$") !== false) {
+            if (str_contains($permission, "$")) {
                 return $this->lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission);
             } else {
                 return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
@@ -936,16 +838,20 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $description .= " " . xl("for a patient that the user has access to");
             } else if ($context == "system") {
                 $description .= " " . xl("for a patient that exists in the system");
-            };
+            }
         }
         return $description;
     }
 
-    private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission)
+    /**
+     * @param $resource
+     * @param $context
+     * @param $isPatient
+     * @param $isReadPermission
+     * @return string
+     */
+    private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission): string
     {
-
-        $scopesByResource[$resource] = $scopesByResource[$resource] ?? ['permissions' => []];
-
         $description = $isReadPermission ? xl("Read Access: View, search and access") : xl("Write Access: Create or modify");
         $description .= " ";
         switch ($resource) {
@@ -1033,7 +939,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param array $scopes The scopes to be checked to see if we need manual approval
      * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
      */
-    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes)
+    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes): bool
     {
         // note eventually this method could have a db lookup to check against if admins want to vet this
         // possibly we could have an event dispatched here as well if we want someone to provide / extend that kind of functionality
@@ -1041,7 +947,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         // if a public app requests the launch scope we also do not let them through unless they've been manually
         // authorized by an administrator user.
         if (!$is_confidential_client) {
-            if (array_search("launch", $scopes) !== false) {
+            if (in_array("launch", $scopes)) {
                 return true;
             }
         }
@@ -1063,19 +969,34 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         return false;
     }
-    private function hasUserScopes(array $scopes)
+
+    /**
+     * @param array $scopes
+     * @return bool
+     */
+    private function hasUserScopes(array $scopes): bool
     {
         return $this->scopeArrayHasString($scopes, 'user/');
     }
-    private function hasSystemScopes(array $scopes)
+
+    /**
+     * @param array $scopes
+     * @return bool
+     */
+    private function hasSystemScopes(array $scopes): bool
     {
         return $this->scopeArrayHasString($scopes, 'system/');
     }
 
-    private function scopeArrayHasString(array $scopes, $str)
+    /**
+     * @param array $scopes
+     * @param $str
+     * @return bool
+     */
+    private function scopeArrayHasString(array $scopes, $str): bool
     {
         foreach ($scopes as $scope) {
-            if (strpos($scope, $str) !== false) {
+            if (str_contains($scope, $str)) {
                 return true;
             }
         }

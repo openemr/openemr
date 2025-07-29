@@ -79,12 +79,14 @@
         "vlucas/phpdotenv": "5.6.2",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "twilio/sdk": "8.4.1"
+        "twilio/sdk": "8.4.1",
+        "symfony/psr-http-message-bridge": "6.4.13"
     },
     "config": {
         "platform": {
             "php": "8.2",
-            "ext-intl": "8.2"
+            "ext-intl": "8.2",
+            "ext-openssl": "8.2"
         },
         "allow-plugins": {
             "openemr/oe-module-installer-plugin": true,

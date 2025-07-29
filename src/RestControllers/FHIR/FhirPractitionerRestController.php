@@ -13,6 +13,8 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\FhirValidationService;
@@ -21,13 +23,13 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use OpenEMR\Validators\ProcessingResult;
 
-require_once(__DIR__ . '/../../../_rest_config.php');
-
 /**
  * Supports REST interactions with the FHIR practitioner resource
  */
 class FhirPractitionerRestController
 {
+    use SystemLoggerAwareTrait;
+
     private $fhirPractitionerService;
     private $fhirService;
     private $fhirValidate;
@@ -37,6 +39,12 @@ class FhirPractitionerRestController
         $this->fhirService = new FhirResourcesService();
         $this->fhirPractitionerService = new FhirPractitionerService();
         $this->fhirValidate = new FhirValidationService();
+    }
+
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->fhirPractitionerService->setSystemLogger($systemLogger);
+        $this->systemLogger = $systemLogger;
     }
 
     /**

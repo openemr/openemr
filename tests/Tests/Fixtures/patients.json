@@ -22,7 +22,8 @@
 		"drivers_license": "1234567890",
 		"race": "white",
 		"ethnicity": "hisp_or_latin",
-		"language": "latin"
+		"language": "latin",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-8",
@@ -47,7 +48,8 @@
 		"drivers_license": "0234567891",
 		"race": "amer_ind_or_alaska_native",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "deaf"
+		"language": "deaf",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-17",
@@ -72,7 +74,8 @@
 		"drivers_license": "92345678910",
 		"race": "Asian",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "german"
+		"language": "german",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-18",
@@ -97,7 +100,8 @@
 		"drivers_license": "23456789109",
 		"race": "white",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "English"
+		"language": "English",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-22",
@@ -122,7 +126,8 @@
 		"drivers_license": "34567891092",
 		"race": "black_or_afri_amer",
 		"ethnicity": "hisp_or_latin",
-		"language": "latin"
+		"language": "latin",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-25",
@@ -147,7 +152,8 @@
 		"drivers_license": "45678910923",
 		"race": "declne_to_specfy",
 		"ethnicity": "hisp_or_latin",
-		"language": "declne_to_specfy"
+		"language": "declne_to_specfy",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-26",
@@ -172,7 +178,8 @@
 		"drivers_license": "56789109234",
 		"race": "white",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "danish"
+		"language": "danish",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-30",
@@ -197,7 +204,8 @@
 		"drivers_license": "67891092345",
 		"race": "white",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "russian"
+		"language": "russian",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-34",
@@ -222,7 +230,8 @@
 		"drivers_license": "78910923456",
 		"race": "white",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "polish"
+		"language": "polish",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-35",
@@ -247,7 +256,8 @@
 		"drivers_license": "89109234567",
 		"race": "white",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "greek"
+		"language": "greek",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-40",
@@ -272,7 +282,8 @@
 		"drivers_license": "91092345678",
 		"race": "Asian",
 		"ethnicity": "hisp_or_latin",
-		"language": "armenian"
+		"language": "armenian",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-1001",
@@ -297,7 +308,8 @@
 		"drivers_license": "10923456789",
 		"race": "white",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "german"
+		"language": "german",
+        "deceased_date": null
 	},
 	{
 		"pubpid" : "test-fixture-1002",
@@ -322,6 +334,7 @@
 		"drivers_license": "12943276589",
 		"race": "black_or_afri_amer",
 		"ethnicity": "not_hisp_or_latin",
-		"language": "declne_to_specfy"
+		"language": "declne_to_specfy",
+        "deceased_date": null
 	}
 ]

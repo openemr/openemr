@@ -3,7 +3,11 @@
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
+use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -21,6 +25,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
  */
 class ApiTestClient
 {
+    use SystemLoggerAwareTrait;
+
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
     const OAUTH_LOGOUT_ENDPOINT = "/oauth2/default/logout";
@@ -118,6 +124,21 @@ class ApiTestClient
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
             $this->refresh_token = $responseBody->refresh_token ?? null;
+        } else {
+            $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
+            if ($authResponse->getBody()) {
+                $errorBody = json_decode($authResponse->getBody());
+                if (isset($errorBody->error)) {
+                    $errorMessage .= " - " . $errorBody->error;
+                }
+                if (isset($errorBody->error_description)) {
+                    $errorMessage .= ": " . $errorBody->error_description;
+                }
+                if (isset($errorBody->hint)) {
+                    $errorMessage .= ": " . $errorBody->hint;
+                }
+            }
+            error_log($errorMessage);
         }
 
         return $authResponse;
@@ -143,14 +164,18 @@ class ApiTestClient
             throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
         }
         $clientResponseBodyRaw = $clientResponse->getBody();
+
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
+            $this->getSystemLogger()->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
+        $logger = new SystemLogger(Level::Emergency); // suppress logging
+        $clientRepository->setSystemLogger($logger);
         $client = $clientRepository->getClientEntity($this->client_id);
         $clientRepository->saveIsEnabled($client, true);
     }
@@ -239,7 +264,7 @@ class ApiTestClient
      * @param $body - The POST request body (array)
      * @return $postResponse - HTTP response
      */
-    public function post($url, $body, $json = true)
+    public function post($url, $body, $json = true): ResponseInterface
     {
         if ($json) {
             $postResponse = $this->client->post($url, [

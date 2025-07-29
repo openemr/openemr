@@ -41,7 +41,7 @@ class BulkPatientExport311APITest extends TestCase
      * @return string
      * @throws GuzzleException
      */
-    private function getInfernoJWKS(): string
+    private function getInfernoJWKS(): \stdClass
     {
             self::$testClient = new BulkAPITestClient(self::$baseUrl);
             self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
@@ -49,7 +49,7 @@ class BulkPatientExport311APITest extends TestCase
         if ($jwksResponse->getStatusCode() !== 200) {
             throw new RuntimeException("Failed to retrieve JWKS from Inferno. Status code: " . $jwksResponse->getStatusCode());
         }
-            return json_decode($jwksResponse->getBody());
+            return json_decode($jwksResponse->getBody()->getContents());
     }
 //    #[Test]
 //    public function testPatientIds() {

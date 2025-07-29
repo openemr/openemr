@@ -1,27 +1,14 @@
 <?php
 
-/**
- * Useful globals class for Rest
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
-// Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
-require_once __DIR__ . '/vendor/autoload.php';
+namespace OpenEMR\RestControllers\Config;
 
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
+use LogicException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -32,7 +19,8 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // also a handy place to add utility methods
 // TODO before v6 release: refactor http_response_code(); for psr responses.
@@ -78,7 +66,7 @@ class RestConfig
      *
      * @return RestConfig
      */
-    public static function GetInstance(): \RestConfig
+    public static function GetInstance(): self
     {
         if (!self::$IS_INITIALIZED) {
             self::Init();
@@ -313,14 +301,20 @@ class RestConfig
         return null;
     }
 
+    public static function request_authorization_check(HttpRestRequest $request, $section, $value, $aclPermission = ''): void
+    {
+        self::authorization_check($section, $value, $request->getSession()->get("authUser"), $aclPermission);
+    }
+
     public static function authorization_check($section, $value, $user = '', $aclPermission = ''): void
     {
         $result = AclMain::aclCheckCore($section, $value, $user, $aclPermission);
         if (!$result) {
             if (!self::$notRestCall) {
-                http_response_code(401);
+                throw HttpException::fromStatusCode(403, "Organization policy does not have permit access resource");
+            } else {
+                exit(); // not sure why we exit here, but this is how it was before
             }
-            exit();
         }
     }
 
@@ -342,13 +336,11 @@ class RestConfig
             }
             if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
                 (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => $GLOBALS['oauth_scopes']]);
-                http_response_code(401);
-                exit;
+                throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
             }
         } else {
             (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
-            http_response_code(401);
-            exit;
+            throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized Access');
         }
     }
 
@@ -375,105 +367,6 @@ class RestConfig
     public static function is_api_request($resource): bool
     {
         return stripos(strtolower($resource), "/api/") !== false;
-    }
-
-    public static function skipApiAuth($resource): bool
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            // we don't authenticate OPTIONS requests
-            return true;
-        }
-
-        // ensure 1) sane site and 2) ensure the site exists on filesystem before even considering for skip api auth
-        if (empty(self::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', self::$SITE) || !file_exists(__DIR__ . '/sites/' . self::$SITE)) {
-            error_log("OpenEMR Error - api site error, so forced exit");
-            http_response_code(400);
-            exit();
-        }
-        // let the capability statement for FHIR or the SMART-on-FHIR through
-        $resource = str_replace('/' . self::$SITE, '', $resource);
-        if (
-            // TODO: @adunsulag we need to centralize our auth skipping logic... as we have this duplicated in HttpRestRouteHandler
-            // however, at the point of this method we don't have the resource identified and haven't gone through our parsing
-            // routine to handle that logic...
-            $resource === ("/fhir/metadata") ||
-            $resource === ("/fhir/.well-known/smart-configuration") ||
-            // skip list and single instance routes
-            0 === strpos("/fhir/OperationDefinition", $resource)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static function apiLog($response = '', $requestBody = ''): void
-    {
-        $logResponse = $response;
-
-        // only log when using standard api calls (skip when using local api calls from within OpenEMR)
-        //  and when api log option is set
-        if (!$GLOBALS['is_local_api'] && !self::$notRestCall && $GLOBALS['api_log_option']) {
-            if ($GLOBALS['api_log_option'] == 1) {
-                // Do not log the response and requestBody
-                $logResponse = '';
-                $requestBody = '';
-            }
-            if ($response instanceof ResponseInterface) {
-                if (self::shouldLogResponse($response)) {
-                    $body = $response->getBody();
-                    $logResponse = $body->getContents();
-                    $body->rewind();
-                } else {
-                    $logResponse = 'Content not application/json - Skip binary data';
-                }
-            } else {
-                $logResponse = (!empty($logResponse)) ? json_encode($response) : '';
-            }
-
-            // convert pertinent elements to json
-            $requestBody = (!empty($requestBody)) ? json_encode($requestBody) : '';
-
-            // prepare values and call the log function
-            $event = 'api';
-            $category = 'api';
-            $method = $_SERVER['REQUEST_METHOD'];
-            $url = $_SERVER['REQUEST_URI'];
-            $patientId = (int)($_SESSION['pid'] ?? 0);
-            $userId = (int)($_SESSION['authUserID'] ?? 0);
-            $api = [
-                'user_id' => $userId,
-                'patient_id' => $patientId,
-                'method' => $method,
-                'request' => $GLOBALS['resource'],
-                'request_url' => $url,
-                'request_body' => $requestBody,
-                'response' => $logResponse
-            ];
-            if ($patientId === 0) {
-                $patientId = null; //entries in log table are blank for no patient_id, whereas in api_log are 0, which is why above $api value uses 0 when empty
-            }
-            EventAuditLogger::instance()->recordLogItem(1, $event, ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 'api log', $patientId, $category, 'open-emr', null, null, '', $api);
-        }
-    }
-
-    public static function emitResponse($response, $build = false): void
-    {
-        if (headers_sent()) {
-            throw new RuntimeException('Headers already sent.');
-        }
-        $statusLine = sprintf(
-            'HTTP/%s %s %s',
-            $response->getProtocolVersion(),
-            $response->getStatusCode(),
-            $response->getReasonPhrase()
-        );
-        header($statusLine, true);
-        foreach ($response->getHeaders() as $name => $values) {
-            $responseHeader = sprintf('%s: %s', $name, $response->getHeaderLine($name));
-            header($responseHeader, false);
-        }
-        echo $response->getBody();
     }
 
     /**
@@ -548,11 +441,11 @@ class RestConfig
                 $restRequest->setPatientUuidString($patientUuid);
             } else {
                 (new SystemLogger())->error("OpenEMR Error: api had patient launch scope but user did not have access to patient uuid."
-                . " Resources restricted with patient scopes will not return results");
+                    . " Resources restricted with patient scopes will not return results");
             }
         } else {
             (new SystemLogger())->error("OpenEMR Error: api had patient launch scope but no patient was set in the "
-            . " session cache.  Resources restricted with patient scopes will not return results");
+                . " session cache.  Resources restricted with patient scopes will not return results");
         }
         return $restRequest;
     }
@@ -594,7 +487,3 @@ class RestConfig
     {
     }
 }
-
-// Include our routes and init routes global
-//
-require_once(__DIR__ . "/_rest_routes.inc.php");

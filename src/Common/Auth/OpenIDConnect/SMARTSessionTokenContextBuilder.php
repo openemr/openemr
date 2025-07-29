@@ -19,7 +19,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\FHIR\UtilsService;
 
@@ -28,6 +27,7 @@ class SMARTSessionTokenContextBuilder
     private $sessionArray;
 
     private SystemLogger $logger;
+
     public function __construct($sessionArray = array())
     {
         $this->sessionArray = !empty($sessionArray) ? $sessionArray : $_SESSION ?? [];
