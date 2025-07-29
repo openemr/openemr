@@ -10,10 +10,9 @@ var path_module = require('path');
 var loadedExternalDocuments = {};
 
 function modifyTest(test, resourceDir) {
-    
     var matches = /=document\((\'[-_.A-Za-z0-9]+\'|\"[-_.A-Za-z0-9]+\")\)/.exec(test);
     while (matches) {
-        
+
         // String processing to select the non-regular predicate expression
         var equalInd = test.indexOf(matches[0]);
         var start = equalInd;
@@ -30,7 +29,7 @@ function modifyTest(test, resourceDir) {
                 bracketDepth--;
             }
         }
-        
+
         var end = test.length;
         bracketDepth = 0;
         for (var i = start + matches[0].length; i < test.length; i++) {
@@ -45,9 +44,9 @@ function modifyTest(test, resourceDir) {
                 bracketDepth--;
             }
         }
-        
+
         var predicate = test.slice(start, end);
-                
+
         // Load external doc (load from "cache" if already loaded)
         var filepath = matches[1].slice(1, -1);
         var externalDoc;
@@ -65,24 +64,24 @@ function modifyTest(test, resourceDir) {
         else {
             externalDoc = loadedExternalDocuments[filepath];
         }
-        
+
         var externalXpath = test.slice(equalInd + matches[0].length, end);
-                
+
         // Extract namespaces
         var defaultNamespaceKey = /([^(<>.\/)]+):[^(<>.\/)]+/.exec(externalXpath)[1];
         var externalNamespaceMap = externalDoc.lastChild._nsMap;
         var namespaceMap = {};
         for (var key in externalNamespaceMap) {
-            if (externalNamespaceMap.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(externalNamespaceMap, key)) {
                 if (key) {
                     namespaceMap[key] = externalNamespaceMap[key];
                 }
             }
         }
         namespaceMap[defaultNamespaceKey] = externalNamespaceMap[''];
-        
+
         var externalSelect = xpath.useNamespaces(namespaceMap);
-        
+
         // Create new predicate from extract values
         var values = [];
         var externalResults = externalSelect(externalXpath, externalDoc);
@@ -98,12 +97,12 @@ function modifyTest(test, resourceDir) {
             }
         }
         newPredicate += ')';
-        
+
         // Replace test
         test = test.slice(0, start) + newPredicate + test.slice(end);
-        
-        matches = /@[^\[\]]+=document\((\'[-_.A-Za-z0-9]+\'|\"[-_.A-Za-z0-9]+\")\)/.exec(test);
+
+        matches = /@[^\\[\]]+=document\((\'[-_.A-Za-z0-9]+\'|\"[-_.A-Za-z0-9]+\")\)/.exec(test);
     }
-    
+
     return test;
 }

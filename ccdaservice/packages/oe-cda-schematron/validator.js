@@ -32,7 +32,9 @@ function validate(xml, schematron, options) {
     if (xml.trim().indexOf('<')) {
         try {
             xml = fs.readFileSync(xml, 'utf-8').toString();
-        } catch (err) {}
+        } catch (err) {
+            // intentionally empty
+        }
     }
 
     var schematronPath = null;
@@ -41,7 +43,9 @@ function validate(xml, schematron, options) {
             var temp = schematron;
             schematron = fs.readFileSync(schematron, 'utf-8').toString();
             schematronPath = temp;
-        } catch (err) {}
+        } catch (err) {
+            // intentionally empty
+        }
     }
 
     var xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
@@ -66,7 +70,7 @@ function validate(xml, schematron, options) {
     var ignored = [];
 
     for (var pattern in patternRuleMap) {
-        if (patternRuleMap.hasOwnProperty(pattern)) {
+        if (Object.prototype.hasOwnProperty.call(patternRuleMap, pattern)) {
             var patternId = pattern;
             var rules = patternRuleMap[pattern];
             for (var i = 0; i < rules.length; i++) {
