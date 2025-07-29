@@ -64,7 +64,7 @@ function modifyTest(test, resourceDir) {
         var externalXpath = test.slice(equalInd + matches[0].length, end);
 
         // Extract namespaces
-        var match = /^([a-zA-Z_][\w\-\.]*):/.exec(externalXpath);
+        var match = /^([a-zA-Z_][\w\-.]*):/.exec(externalXpath);
         var defaultNamespaceKey = match ? match[1] : '';
         var externalNamespaceMap = externalDoc.lastChild._nsMap;
         var namespaceMap = {};
