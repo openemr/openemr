@@ -48,7 +48,7 @@ var policyActivity = {
                 typeCode: "PRF"
             },
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.88"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.88"),[fieldLevel.effectiveTime, key("time")],
                 fieldLevel.assignedEntity
             ],
             dataKey: "guarantor"
@@ -58,19 +58,20 @@ var policyActivity = {
                 typeCode: "COV"
             },
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.89"), [fieldLevel.effectiveTime, key("time")], {
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.89.2"),
+                [fieldLevel.effectiveTime, key("time")], { /* v4 may require fieldLevel.effectiveTimeIVL_TS */
                     key: "participantRole",
                     attributes: {
                         classCode: "PAT"
                     },
                     content: [
-                        fieldLevel.id,
-                        fieldLevel.usRealmAddress,
-                        fieldLevel.telecom, {
+                        fieldLevel.id,{
                             key: "code",
                             attributes: leafLevel.code,
                             dataKey: "code"
-                        }, {
+                        },
+                        fieldLevel.usRealmAddress,
+                        fieldLevel.telecom,  {
                             key: "playingEntity",
                             content: fieldLevel.usRealmName
                         }

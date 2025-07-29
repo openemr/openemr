@@ -1,0 +1,34 @@
+{
+  "name": "oe-cda-schematron",
+  "version": "2.0.0",
+  "description": "A javascript implementation of schematron testing for XML documents. This specifically resolves a need for a package that allows a quick, reliable install for validating HL7 clinical documents, such as C-CDA.",
+  "main": "validator.js",
+  "scripts": {
+    "test": "grunt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openemr/oe-cda-schematron.git"
+  },
+  "author": "Eric Wadkins, Jerry Padgett",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/openemr/cda-schematron/issues"
+  },
+  "homepage": "https://github.com/openemr/cda-schematron#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-mocha-test": "^0.13.2",
+    "mocha": "^11.7.1"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.8",
+    "compression": "1.8.1",
+    "cqm-execution": "4.4.0",
+    "cqm-models": "4.3.0",
+    "express": "4.21.2",
+    "xpath": "0.0.23"
+  }
+}
