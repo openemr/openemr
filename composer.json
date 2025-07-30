@@ -150,7 +150,8 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpunit/phpunit": "11.*"
+        "phpunit/phpunit": "11.*",
+        "symfony/panther": "2.*"
     },
     "repositories": [
         {
