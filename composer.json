@@ -12,7 +12,6 @@
     },
     "require": {
         "php": ">=8.2.0",
-        "ext-apache2": "*",
         "ext-calendar": "*",
         "ext-ctype": "*",
         "ext-curl": "*",
@@ -112,7 +111,6 @@
     "config": {
         "platform": {
             "php": "8.2",
-            "ext-apache2": "8.2",
             "ext-calendar": "8.2",
             "ext-ctype": "8.2",
             "ext-curl": "8.2",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56017af51d7f9fcc7af37119d3bd9b73",
+    "content-hash": "edd4a64da86dfc2690bc2e8c34948c70",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -13838,7 +13838,6 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.2.0",
-        "ext-apache2": "*",
         "ext-calendar": "*",
         "ext-ctype": "*",
         "ext-curl": "*",
@@ -13870,7 +13869,6 @@
     "platform-dev": {},
     "platform-overrides": {
         "php": "8.2",
-        "ext-apache2": "8.2",
         "ext-calendar": "8.2",
         "ext-ctype": "8.2",
         "ext-curl": "8.2",
