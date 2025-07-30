@@ -13,7 +13,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 class ScopePermissionObject {
 
-    public function __construct(?string $permissionString)
+    public function __construct(?string $permissionString = null)
     {
         $this->read = false;
         $this->create = false;

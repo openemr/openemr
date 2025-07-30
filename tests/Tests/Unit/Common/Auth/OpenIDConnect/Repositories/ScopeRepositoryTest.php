@@ -165,9 +165,8 @@ class ScopeRepositoryTest extends TestCase
     }
 
     public function testGetScopeByIdentifierWithReadV2Scopes() : void {
-        $request = HttpRestRequest::create("/test");
-        $request->set("scope", "patient/Patient.rs");
-        $scopeRepository = new ScopeRepository($request);
+        $scopeRepository = new ScopeRepository();
+        $scopeRepository->setRequestScopes("patient/Patient.rs");
         $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.r");
         $this->assertNotEmpty($scope, "patient/Patient.r scope should be valid scope with patient/Patient.rs request scope");
         $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.rs");
@@ -177,14 +176,16 @@ class ScopeRepositoryTest extends TestCase
     }
 
     public function testGetScopeByIdentifierWithWriteV2Scopes() : void {
-        $request = HttpRestRequest::create("/test");
-        $request->set("scope", "user/medical_problem.cud");
-        $scopeRepository = new ScopeRepository($request);
+        $scopeRepository = new ScopeRepository();
+        $scopeRepository->setRequestScopes("user/medical_problem.cud");
         $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.c");
         $this->assertNotEmpty($scope, "patient/Patient.c scope should be valid scope with user/medical_problem.cud request scope");
         $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.u");
         $this->assertNotEmpty($scope, "patient/Patient.u scope should be valid scope with user/medical_problem.cud request scope");
         $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.d");
         $this->assertNotEmpty($scope, "patient/Patient.read scope should be valid scope with user/medical_problem.cud request scope for backwards compatability");
+
+        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.write");
+        $this->assertNotEmpty($scope, "user/medical_problem.write scope should be valid scope with patient/Patient.rs request scope for backwards compatability");
     }
 }

@@ -13,6 +13,7 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
@@ -29,6 +30,9 @@ class ScopeRepository implements ScopeRepositoryInterface
 {
     use SystemLoggerAwareTrait;
 
+    /**
+     * @var ScopeEntity[] mapped by strings of the ScopeEntity.getScopeLookupKey()
+     */
     private array $validationScopes;
 
     /**
@@ -163,8 +167,8 @@ class ScopeRepository implements ScopeRepositoryInterface
     {
         // TODO: adunsulag, sjpadget Won't refresh token validation fail on multi-site since we won't
         // have the id in the session?
-        if ($_SESSION['site_id']) {
-            $siteScope = "site:" . $_SESSION['site_id'];
+        if ($this->session && $this->session->get('site_id')) {
+            $siteScope = "site:" . $this->session->get('site_id');
         } else {
             $siteScope = "site:default";
         }
@@ -784,6 +788,14 @@ class ScopeRepository implements ScopeRepositoryInterface
             // $scopes[$scope] = ['description' => $this->lookupDescriptionForScope($scope, false)];
             $scopes[$scope] = ['description' => 'OpenId Connect'];
         }
+//        foreach ($mergedScopes as $scopeIdentifier) {
+//            $scope = ScopeEntity::createFromString($scopeIdentifier);
+//            $scopeKey = $scope->getScopeLookupKey();
+//            if (empty($scopes[$scopeKey])) {
+//                $scopes[$scopeKey] = $scope;
+//            }
+//            $scopes[$scopeKey]->addScopePermissions($scope);
+//        }
 
         return $scopes;
     }
@@ -1002,4 +1014,14 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         return false;
     }
+//
+//    private function getValidationScopeIdentifiers(): array
+//    {
+//        $scopeIdentifiers = [];
+//        foreach ($this->scopeArrayHasString() as $scopeEntity) {
+//            // TODO: @adunsulag this isn't giving us all of the permission conditions here...
+//            $scopeIdentifiers[] = $scopeEntity->getIdentifier();
+//        }
+//        return $scopeIdentifiers;
+//    }
 }
