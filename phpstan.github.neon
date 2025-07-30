@@ -18175,4 +18175,275 @@ parameters:
   - message: '#^Trying to mock an undefined method qstr\(\) on class stdClass\.$#'
     identifier: phpunit.mockMethod
     count: 1
+    path: tests/Tests/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/RouteControllerTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\FHIR\\SMART\\SMARTLaunchTokenTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 12
+    path: tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\FHIR\\SMART\\SMARTLaunchTokenTest\:\:assertInstanceOf\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\FHIR\\SMART\\SMARTLaunchTokenTest\:\:assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\FHIR\\SMART\\SMARTLaunchTokenTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\NumberToTextTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/NumberToTextTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\PasswordVerifyTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 34
+    path: tests/Tests/Unit/PasswordVerifyTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Services\\LogoServiceTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Unit/Services/LogoServiceTest.php
+  - message: '#^Call to an undefined static method PHPUnit\\Framework\\TestCase\:\:setUp\(\)\.$#'
+    identifier: staticMethod.notFound
+    count: 1
+    path: tests/Tests/Unit/Services/LogoServiceTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\ZendModules\\FHIR\\Listener\\UuidMappingEventsSubscriberTest\:\:assertContains\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Unit/ZendModules/FHIR/Listener/UuidMappingEventsSubscriberTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\ZendModules\\FHIR\\Listener\\UuidMappingEventsSubscriberTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Unit/ZendModules/FHIR/Listener/UuidMappingEventsSubscriberTest.php
+  - message: '#^Call to an undefined static method PHPUnit\\Framework\\TestCase\:\:setUp\(\)\.$#'
+    identifier: staticMethod.notFound
+    count: 1
+    path: tests/Tests/Unit/ZendModules/FHIR/Listener/UuidMappingEventsSubscriberTest.php
+  - message: '#^Call to an undefined static method PHPUnit\\Framework\\TestCase\:\:tearDown\(\)\.$#'
+    identifier: staticMethod.notFound
+    count: 1
+    path: tests/Tests/Unit/ZendModules/FHIR/Listener/UuidMappingEventsSubscriberTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\library\\SanitizeMultiByteCaseInsensitiveStringEqualsTest\:\:assertFalse\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/library/SanitizeMultiByteCaseInsensitiveStringEqualsTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\library\\SanitizeMultiByteCaseInsensitiveStringEqualsTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 9
+    path: tests/Tests/Unit/library/SanitizeMultiByteCaseInsensitiveStringEqualsTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\PatientValidatorTest\:\:assertArrayHasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Validators/PatientValidatorTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\PatientValidatorTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 5
+    path: tests/Tests/Validators/PatientValidatorTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\PatientValidatorTest\:\:assertFalse\(\)\.$#'
+    identifier: method.notFound
+    count: 3
+    path: tests/Tests/Validators/PatientValidatorTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\PatientValidatorTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 3
+    path: tests/Tests/Validators/PatientValidatorTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\PatientValidatorTest\:\:expectException\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Validators/PatientValidatorTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\ProcessingResultTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 10
+    path: tests/Tests/Validators/ProcessingResultTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\ProcessingResultTest\:\:assertFalse\(\)\.$#'
+    identifier: method.notFound
+    count: 5
+    path: tests/Tests/Validators/ProcessingResultTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\ProcessingResultTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 6
+    path: tests/Tests/Validators/ProcessingResultTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\Rules\\ListOptionRuleTest\:\:assertEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Validators/Rules/ListOptionRuleTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\Rules\\ListOptionRuleTest\:\:assertFalse\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Validators/Rules/ListOptionRuleTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\Rules\\ListOptionRuleTest\:\:assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Validators/Rules/ListOptionRuleTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Validators\\Rules\\ListOptionRuleTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Validators/Rules/ListOptionRuleTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\AllergyIntoleranceFhirApiTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Api/AllergyIntoleranceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\AllergyIntoleranceFhirApiTest\:\:assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/AllergyIntoleranceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\AllergyIntoleranceFhirApiTest\:\:assertArrayhasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/AllergyIntoleranceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\GroupExportFhirApiTest\:\:markTestIncomplete\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/GroupExportFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest:\:\assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest:\:\assertArrayhasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest:\:\fail\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\ProvenanceFhirApiTest:\:\assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/ProvenanceFhirApiTest.php
+# The following lines were generated using Claude.ai on July 29th 2025
+  - message: '#^Call to an undefined static method PHPUnit\\Framework\\TestCase\:\:setUp\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: vendor/phpunit/phpunit/src/Framework/TestCase.php
+  - message: '#^Call to an undefined static method PHPUnit\\Framework\\TestCase\:\:tearDown\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: vendor/phpunit/phpunit/src/Framework/TestCase.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\AllergyIntoleranceFhirApiTest\:\:assertArrayhasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/AllergyIntoleranceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\AllergyIntoleranceFhirApiTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Api/AllergyIntoleranceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\AllergyIntoleranceFhirApiTest\:\:assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/AllergyIntoleranceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\GroupExportFhirApiTest\:\:markTestIncomplete\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/GroupExportFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest\:\:assertArrayhasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest\:\:assertArrayHasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest\:\:assertCount\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest\:\:assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 4
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\PatientFhirApiTest\:\:fail\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/PatientFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Api\\ProvenanceFhirApiTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Api/ProvenanceFhirApiTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Integration\\Api\\ApiApplicationTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Integration/Api/ApiApplicationTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Integration\\Api\\ApiApplicationTest\:\:assertNotNull\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Integration/Api/ApiApplicationTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Integration\\RestControllers\\Subscriber\\AuthorizationListenerTest\:\:atLeastOnce\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Integration/RestControllers/Subscriber/AuthorizationListenerTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Integration\\RestControllers\\Subscriber\\AuthorizationListenerTest\:\:markTestIncomplete\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Integration/RestControllers/Subscriber/AuthorizationListenerTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Auth\\OpenIDConnect\\Repositories\\ScopeRepositoryTest\:\:assertContains\(\)\.$#'
+    identifier: method.notFound
+    count: 12
+    path: tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Auth\\OpenIDConnect\\Repositories\\ScopeRepositoryTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Auth\\OpenIDConnect\\Repositories\\ScopeRepositoryTest\:\:assertNotEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestParsedRouteTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Http/HttpRestParsedRouteTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertArrayHasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertArrayNotHasKey\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertEmpty\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 22
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertFalse\(\)\.$#'
+    identifier: method.notFound
+    count: 7
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertNull\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRequestTest\:\:assertTrue\(\)\.$#'
+    identifier: method.notFound
+    count: 8
+    path: tests/Tests/Unit/Common/Http/HttpRestRequestTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRouteHandlerTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Http/HttpRestRouteHandlerTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRouteHandlerTest\:\:markTestIncomplete\(\)\.$#'
+    identifier: method.notFound
+    count: 2
+    path: tests/Tests/Unit/Common/Http/HttpRestRouteHandlerTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Common\\Http\\HttpRestRouteHandlerTest\:\:once\(\)\.$#'
+    identifier: method.notFound
+    count: 1
+    path: tests/Tests/Unit/Common/Http/HttpRestRouteHandlerTest.php
+  - message: '#^Call to an undefined method OpenEMR\\Tests\\Unit\\Services\\FHIR\\Utils\\SearchRequestNormalizerTest\:\:assertEquals\(\)\.$#'
+    identifier: method.notFound
+    count: 12
+    path: tests/Tests/Unit/Services/FHIR/Utils/SearchRequestNormalizerTest.php
+# End generation of config files using Claude.ai on July 29th 2025
     path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
