@@ -2,7 +2,7 @@
   "dependencies": {
     "bluebird": "3.5.1",
     "compression": "1.8.1",
-    "cqm-execution": "4.4.0",
+    "cqm-execution": "4.3.4",
     "cqm-models": "4.3.0",
     "express": "4.21.2",
     "logform": "1.10.0",

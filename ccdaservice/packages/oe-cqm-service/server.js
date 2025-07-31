@@ -116,7 +116,7 @@ app.post('/calculate', function (request, response) {
   } catch(error) {
     logger.log({ level: 'error', message: `GET /calculate. error in the calculation engine: ${error} headers: ${JSON.stringify(request.headers)}` });
     response.status(500).send({'error in the calculation engine': error});
-    return;
+
   }
 
 });
