@@ -1,0 +1,111 @@
+{% extends "patient/card/card_base.html.twig" %}
+{% block content %}
+    <html>
+    <head>
+        {% block head %}
+            {{ setupHeader(['no_bootstrap','datetime-picker']) }}
+        {% endblock %}
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker({
+                timepicker: false,
+                formatDate: 'Y-m-d',
+                format: 'Y-m-d'
+            });
+        });
+
+        const existingCareTeam = {{ existing_care_team|json_encode }};
+        const userOptions = {{ user_options|js_escape }};
+        const facilityOptions = {{ facility_options|js_escape }};
+        const roleOptions = {{ role_options|js_escape }};
+        const statusOptions = {{ status_options|js_escape }};
+
+        function preloadTeamRows() {
+            if (!existingCareTeam.length) return;
+            existingCareTeam.forEach((member, idx) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><select name="team[${idx}][user_id]" class="form-control form-control-sm">${userOptions}</select></td>
+                    <td><select name="team[${idx}][role]" class="form-control form-control-sm">${roleOptions}</select></td>
+                    <td><select name="team[${idx}][facility_id]" class="form-control form-control-sm">${facilityOptions}</select></td>
+                    <td><input type="text" name="team[${idx}][provider_since]" value="${member.provider_since || ''}" class="datepicker form-control form-control-sm"></td>
+                    <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
+                    <td><input name="team[${idx}][note]" value="${member.note || ''}" class="form-control form-control-sm"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">×</button></td>
+                `;
+                document.querySelector('#care_team_table tbody').appendChild(row);
+                row.querySelector(`select[name="team[${idx}][user_id]"]`).value = member.user_id;
+                row.querySelector(`select[name="team[${idx}][facility_id]"]`).value = member.facility_id;
+                row.querySelector(`select[name="team[${idx}][role]"]`).value = member.role;
+                row.querySelector(`select[name="team[${idx}][status]"]`).value = member.status;
+            });
+
+            if (existingCareTeam[0]?.team_name) {
+                document.getElementById("team_name").value = existingCareTeam[0].team_name;
+            }
+        }
+
+        function addTeamRow() {
+            const idx = document.querySelectorAll('#care_team_table tbody tr').length;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><select name="team[${idx}][user_id]" class="form-control form-control-sm">${userOptions}</select></td>
+                <td><select name="team[${idx}][role]" class="form-control form-control-sm">${roleOptions}</select></td>
+                <td><select name="team[${idx}][facility_id]" class="form-control form-control-sm">${facilityOptions}</select></td>
+                <td><input type="text" name="team[${idx}][provider_since]" class="datepicker-new form-control form-control-sm"></td>
+                <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
+                <td><input name="team[${idx}][note]" class="form-control form-control-sm"></td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">×</button></td>
+            `;
+            document.querySelector('#care_team_table tbody').appendChild(row);
+            $(row).find('.datepicker-new').datetimepicker({
+                timepicker: false,
+                formatDate: 'Y-m-d',
+                format: 'Y-m-d'
+            }).removeClass('datepicker-new').addClass('datepicker');
+        }
+
+        document.addEventListener("DOMContentLoaded", preloadTeamRows);
+    </script>
+    </head>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form method="POST" action="" onsubmit="return confirm('{{ translations.save_care_team_confirm }}');" class="mt-3">
+                    <input type="hidden" name="pid" value="{{ pid }}">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrf_token }}">
+                    <div class="form-group p-0 col-md-3">
+                        <label for="team_name">{{ translations.care_team_name }}</label>
+                        <input type="text" name="team_name" id="team_name" value="{{ team_name }}" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped" id="care_team_table">
+                            <thead class="thead-light bg-light text-dark">
+                            <tr>
+                                <th>{{ translations.member }}</th>
+                                <th>{{ translations.role }}</th>
+                                <th>{{ translations.facility }}</th>
+                                <th>{{ translations.since }}</th>
+                                <th>{{ translations.status }}</th>
+                                <th>{{ translations.note }}</th>
+                                <th>{{ translations.remove }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {# Populated by JS #}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-actions mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="addTeamRow()">
+                            {{ translations.add_team_member }}
+                        </button>
+                        <button type="submit" name="save_care_team" class="btn btn-primary btn-sm" value="true">
+                            {{ translations.save_care_team }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div></html>
+{% endblock %}
