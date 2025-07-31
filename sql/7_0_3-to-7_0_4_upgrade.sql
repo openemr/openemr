@@ -183,7 +183,7 @@ CREATE TABLE `care_teams` (
   `provider_since` date NOT NULL,
   `status` varchar(20) DEFAULT 'active',
   `team_name` varchar(255) DEFAULT NULL,
-  `note` text DEFAULT NULL,
+  `note` text,
   `date_created` datetime DEFAULT current_timestamp(),
   `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
