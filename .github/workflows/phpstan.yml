@@ -42,7 +42,10 @@ jobs:
           ${{ runner.os }}-composer-${{ matrix.php-version }}-
           ${{ runner.os }}-composer-
     - name: Composer Install
-      run: composer install --prefer-dist --no-progress
+      run: |
+        composer install --prefer-dist --no-progress
+        # Hack: temporarily uninstall rector, which interferes with PHPStan
+        composer remove --dev --optimize-autoloader rector/rector
     - name: PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
       uses: actions/cache@v4
