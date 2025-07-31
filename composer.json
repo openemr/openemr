@@ -53,7 +53,7 @@
         "particle/validator": "2.3.5",
         "pear/archive_tar": "1.6.0",
         "phpmailer/phpmailer": "6.10.0",
-        "phpoffice/phpspreadsheet": "4.4.0",
+        "phpoffice/phpspreadsheet": "4.5.0",
         "phpseclib/phpseclib": "3.0.46",
         "php81_bc/strftime": "0.7.6",
         "php-http/discovery": "1.20.0",
@@ -79,7 +79,7 @@
         "vlucas/phpdotenv": "5.6.2",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "twilio/sdk": "8.4.1"
+        "twilio/sdk": "8.7.0"
     },
     "config": {
         "platform": {
