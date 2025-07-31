@@ -63,6 +63,10 @@ use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+if (!isset($pid)) {
+    $pid = $_SESSION['pid'] ?? $_GET['pid'] ?? null;
+}
+
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
@@ -302,7 +306,7 @@ $deceased = is_patient_deceased($pid);
 
 
 // Display image in 'widget style'
-function image_widget($doc_id, $doc_catg)
+function image_widget($doc_id, $doc_catg): void
 {
     global $pid, $web_root;
     $docobj = new Document($doc_id);
