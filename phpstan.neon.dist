@@ -2,6 +2,8 @@ includes:
   - phpstan.neon.php
 
 parameters:
+  bootstrapFiles:
+  - phpstan_panther_alias.php
   level: 1
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan

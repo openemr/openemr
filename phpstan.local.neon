@@ -18400,30 +18400,6 @@ parameters:
     identifier: variable.undefined
     count: 5
     path: templates/super/rules/controllers/review/view.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\AaLoginTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 7
-    path: tests/Tests/E2e/AaLoginTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\AaLoginTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 1
-    path: tests/Tests/E2e/AaLoginTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\AaLoginTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 4
-    path: tests/Tests/E2e/AaLoginTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\BbCreateStaffTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 13
-    path: tests/Tests/E2e/BbCreateStaffTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\BbCreateStaffTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 3
-    path: tests/Tests/E2e/BbCreateStaffTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\BbCreateStaffTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 10
-    path: tests/Tests/E2e/BbCreateStaffTest.php
   - message: '#^Caught class OpenEMR\\Tests\\E2e\\User\\Exception not found\.$#'
     identifier: class.notFound
     count: 1
@@ -18432,118 +18408,10 @@ parameters:
     identifier: class.notFound
     count: 1
     path: tests/Tests/E2e/BbCreateStaffTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\CcCreatePatientTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 13
-    path: tests/Tests/E2e/CcCreatePatientTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\CcCreatePatientTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 3
-    path: tests/Tests/E2e/CcCreatePatientTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\CcCreatePatientTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 10
-    path: tests/Tests/E2e/CcCreatePatientTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\DdOpenPatientTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 21
-    path: tests/Tests/E2e/DdOpenPatientTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\DdOpenPatientTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 5
-    path: tests/Tests/E2e/DdOpenPatientTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\DdOpenPatientTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 16
-    path: tests/Tests/E2e/DdOpenPatientTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\EeCreateEncounterTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 29
-    path: tests/Tests/E2e/EeCreateEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\EeCreateEncounterTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 7
-    path: tests/Tests/E2e/EeCreateEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\EeCreateEncounterTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 22
-    path: tests/Tests/E2e/EeCreateEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\FfOpenEncounterTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 53
-    path: tests/Tests/E2e/FfOpenEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\FfOpenEncounterTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 14
-    path: tests/Tests/E2e/FfOpenEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\FfOpenEncounterTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 41
-    path: tests/Tests/E2e/FfOpenEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\FfOpenEncounterTest\:\:markTestSkipped\(\)\.$#'
-    identifier: method.notFound
+  - message: '#^Missing call to parent\:\:tearDown\(\) method\.$#'
+    identifier: phpunit.callParent
     count: 1
-    path: tests/Tests/E2e/FfOpenEncounterTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\GgUserMenuLinksTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 5
-    path: tests/Tests/E2e/GgUserMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\GgUserMenuLinksTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 1
-    path: tests/Tests/E2e/GgUserMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\GgUserMenuLinksTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 4
-    path: tests/Tests/E2e/GgUserMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\HhMainMenuLinksTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 5
-    path: tests/Tests/E2e/HhMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\HhMainMenuLinksTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 1
-    path: tests/Tests/E2e/HhMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\HhMainMenuLinksTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 4
-    path: tests/Tests/E2e/HhMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\HhMainMenuLinksTest\:\:markTestSkipped\(\)\.$#'
-    identifier: method.notFound
-    count: 1
-    path: tests/Tests/E2e/HhMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\IiPatientContextMainMenuLinksTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 21
-    path: tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\IiPatientContextMainMenuLinksTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 5
-    path: tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\IiPatientContextMainMenuLinksTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 16
-    path: tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\IiPatientContextMainMenuLinksTest\:\:markTestSkipped\(\)\.$#'
-    identifier: method.notFound
-    count: 1
-    path: tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\JjEncounterContextMainMenuLinksTest\:\:assertSame\(\)\.$#'
-    identifier: method.notFound
-    count: 53
-    path: tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\JjEncounterContextMainMenuLinksTest\:\:assertTrue\(\)\.$#'
-    identifier: method.notFound
-    count: 14
-    path: tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\JjEncounterContextMainMenuLinksTest\:\:fail\(\)\.$#'
-    identifier: method.notFound
-    count: 41
-    path: tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php
-  - message: '#^Call to an undefined method OpenEMR\\Tests\\E2e\\JjEncounterContextMainMenuLinksTest\:\:markTestSkipped\(\)\.$#'
-    identifier: method.notFound
-    count: 1
-    path: tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php
+    path: tests/Tests/E2e/BbCreateStaffTest.php
   - message: '#^Method OpenEMR\\Tests\\Fixtures\\BaseFixtureManager\:\:installFixtures\(\) invoked with 2 parameters, 0 required\.$#'
     identifier: arguments.count
     count: 2

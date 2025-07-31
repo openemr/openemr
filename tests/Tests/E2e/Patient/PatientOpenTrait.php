@@ -51,7 +51,6 @@ trait PatientOpenTrait
     {
         // if patient does not already exists, then fail
         if (!$this->isPatientExist($firstname, $lastname, $dob, $sex)) {
-            // @phpstan-ignore method.notFound
             $this->fail('Patient does not exist so FAIL');
         }
 
