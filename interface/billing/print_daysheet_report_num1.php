@@ -204,7 +204,7 @@ if (!isset($_GET["mode"])) {
                 foreach ($all4 as $iter) {
                     // Case statment to tally information by user
                     switch ($iter['user']) {
-                        case $iter['user'] = $user_final_list[0]:
+                        case $user_final_list[0]:
                             $us0_user = $iter['user'];
                             $us0_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -225,7 +225,7 @@ if (!isset($_GET["mode"])) {
                                 $us0_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[1]:
+                        case $user_final_list[1]:
                             $us1_user = $iter['user'];
                             $us1_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -246,7 +246,7 @@ if (!isset($_GET["mode"])) {
                                 $us1_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[2]:
+                        case $user_final_list[2]:
                             $us2_user = $iter['user'];
                             $us2_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -267,7 +267,7 @@ if (!isset($_GET["mode"])) {
                                 $us2_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[3]:
+                        case $user_final_list[3]:
                             $us3_user = $iter['user'];
                             $us3_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -288,7 +288,7 @@ if (!isset($_GET["mode"])) {
                                 $us3_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[4]:
+                        case $user_final_list[4]:
                             $us4_user = $iter['user'];
                             $us4_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -309,7 +309,7 @@ if (!isset($_GET["mode"])) {
                                 $us4_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[5]:
+                        case $user_final_list[5]:
                             $us5_user = $iter['user'];
                             $us5_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -330,7 +330,7 @@ if (!isset($_GET["mode"])) {
                                 $us5_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[6]:
+                        case $user_final_list[6]:
                             $us6_user = $iter['user'];
                             $us6_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -351,7 +351,7 @@ if (!isset($_GET["mode"])) {
                                 $us6_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[7]:
+                        case $user_final_list[7]:
                             $us7_user = $iter['user'];
                             $us7_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -372,7 +372,7 @@ if (!isset($_GET["mode"])) {
                                 $us7_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[8]:
+                        case $user_final_list[8]:
                             $us8_user = $iter['user'];
                             $us8_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -393,7 +393,7 @@ if (!isset($_GET["mode"])) {
                                 $us8_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[9]:
+                        case $user_final_list[9]:
                             $us9_user = $iter['user'];
                             $us9_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -414,7 +414,7 @@ if (!isset($_GET["mode"])) {
                                 $us9_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[10]:
+                        case $user_final_list[10]:
                             $us10_user = $iter['user'];
                             $us10_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -435,7 +435,7 @@ if (!isset($_GET["mode"])) {
                                 $us10_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[11]:
+                        case $user_final_list[11]:
                             $us11_user = $iter['user'];
                             $us11_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -456,7 +456,7 @@ if (!isset($_GET["mode"])) {
                                 $us11_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[12]:
+                        case $user_final_list[12]:
                             $us12_user = $iter['user'];
                             $us12_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -477,7 +477,7 @@ if (!isset($_GET["mode"])) {
                                 $us12_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[13]:
+                        case $user_final_list[13]:
                             $us13_user = $iter['user'];
                             $us13_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -498,7 +498,7 @@ if (!isset($_GET["mode"])) {
                                 $us13_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[14]:
+                        case $user_final_list[14]:
                             $us14_user = $iter['user'];
                             $us14_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -519,7 +519,7 @@ if (!isset($_GET["mode"])) {
                                 $us14_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[15]:
+                        case $user_final_list[15]:
                             $us15_user = $iter['user'];
                             $us15_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -540,7 +540,7 @@ if (!isset($_GET["mode"])) {
                                 $us15_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[16]:
+                        case $user_final_list[16]:
                             $us16_user = $iter['user'];
                             $us16_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -561,7 +561,7 @@ if (!isset($_GET["mode"])) {
                                 $us16_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[17]:
+                        case $user_final_list[17]:
                             $us17_user = $iter['user'];
                             $us17_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -582,7 +582,7 @@ if (!isset($_GET["mode"])) {
                                 $us17_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $user_final_list[18]:
+                        case $user_final_list[18]:
                             $us18_user = $iter['user'];
                             $us18_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -603,7 +603,7 @@ if (!isset($_GET["mode"])) {
                                 $us18_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['user'] = $fuser_final_list[19]:
+                        case $fuser_final_list[19]:
                             $us19_user = $iter['user'];
                             $us19_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -628,7 +628,7 @@ if (!isset($_GET["mode"])) {
 
                     // Case statment to tally information by Provider
                     switch ($iter['provider_id']) {
-                        case $iter['provider_id'] = $provider_final_list[0]:
+                        case $provider_final_list[0]:
                             $pro0_user = $iter['provider_id'];
                             $pro0_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -649,7 +649,7 @@ if (!isset($_GET["mode"])) {
                                 $pro0_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[1]:
+                        case $provider_final_list[1]:
                             $pro1_user = $iter['provider_id'];
                             $pro1_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -670,7 +670,7 @@ if (!isset($_GET["mode"])) {
                                 $pro1_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[2]:
+                        case $provider_final_list[2]:
                             $pro2_user = $iter['provider_id'];
                             $pro2_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -691,7 +691,7 @@ if (!isset($_GET["mode"])) {
                                 $pro2_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[3]:
+                        case $provider_final_list[3]:
                             $pro3_user = $iter['provider_id'];
                             $pro3_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -712,7 +712,7 @@ if (!isset($_GET["mode"])) {
                                 $pro3_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[4]:
+                        case $provider_final_list[4]:
                             $pro4_user = $iter['provider_id'];
                             $pro4_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -733,7 +733,7 @@ if (!isset($_GET["mode"])) {
                                 $pro4_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[5]:
+                        case $provider_final_list[5]:
                             $pro5_user = $iter['provider_id'];
                             $pro5_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -754,7 +754,7 @@ if (!isset($_GET["mode"])) {
                                 $pro5_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[6]:
+                        case $provider_final_list[6]:
                             $pro6_user = $iter['provider_id'];
                             $pro6_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -775,7 +775,7 @@ if (!isset($_GET["mode"])) {
                                 $pro6_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[7]:
+                        case $provider_final_list[7]:
                             $pro7_user = $iter['provider_id'];
                             $pro7_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -796,7 +796,7 @@ if (!isset($_GET["mode"])) {
                                 $pro7_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[8]:
+                        case $provider_final_list[8]:
                             $pro8_user = $iter['provider_id'];
                             $pro8_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -817,7 +817,7 @@ if (!isset($_GET["mode"])) {
                                 $pro8_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[9]:
+                        case $provider_final_list[9]:
                             $pro9_user = $iter['provider_id'];
                             $pro9_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -838,7 +838,7 @@ if (!isset($_GET["mode"])) {
                                 $pro9_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[10]:
+                        case $provider_final_list[10]:
                             $pro10_user = $iter['provider_id'];
                             $pro10_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -859,7 +859,7 @@ if (!isset($_GET["mode"])) {
                                 $pro10_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[11]:
+                        case $provider_final_list[11]:
                             $pro11_user = $iter['provider_id'];
                             $pro11_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -880,7 +880,7 @@ if (!isset($_GET["mode"])) {
                                 $pro11_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[12]:
+                        case $provider_final_list[12]:
                             $pro12_user = $iter['provider_id'];
                             $pro12_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -901,7 +901,7 @@ if (!isset($_GET["mode"])) {
                                 $pro12_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[13]:
+                        case $provider_final_list[13]:
                             $pro13_user = $iter['provider_id'];
                             $pro13_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -922,7 +922,7 @@ if (!isset($_GET["mode"])) {
                                 $pro13_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[14]:
+                        case $provider_final_list[14]:
                             $pro14_user = $iter['provider_id'];
                             $pro14_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -943,7 +943,7 @@ if (!isset($_GET["mode"])) {
                                 $pro14_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[15]:
+                        case $provider_final_list[15]:
                             $pro15_user = $iter['provider_id'];
                             $pro15_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -964,7 +964,7 @@ if (!isset($_GET["mode"])) {
                                 $pro15_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[16]:
+                        case $provider_final_list[16]:
                             $pro16_user = $iter['provider_id'];
                             $pro16_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -985,7 +985,7 @@ if (!isset($_GET["mode"])) {
                                 $pro16_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[17]:
+                        case $provider_final_list[17]:
                             $pro17_user = $iter['provider_id'];
                             $pro17_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -1006,7 +1006,7 @@ if (!isset($_GET["mode"])) {
                                 $pro17_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[18]:
+                        case $provider_final_list[18]:
                             $pro18_user = $iter['provider_id'];
                             $pro18_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
@@ -1027,7 +1027,7 @@ if (!isset($_GET["mode"])) {
                                 $pro18_patref += $iter['pat_code'];
                             }
                             break;
-                        case $iter['provider_id'] = $provider_final_list[19]:
+                        case $provider_final_list[19]:
                             $pro19_user = $iter['provider_id'];
                             $pro19_fee += $iter['fee'];
                             if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
