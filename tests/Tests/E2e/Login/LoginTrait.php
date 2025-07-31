@@ -46,10 +46,8 @@ trait LoginTrait
         $this->crawler = $this->client->submit($form);
         $title = $this->client->getTitle();
         if ($goalPass) {
-            // @phpstan-ignore method.notFound
             $this->assertSame('OpenEMR', $title, 'Login FAILED');
         } else {
-            // @phpstan-ignore method.notFound
             $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should have FAILED');
         }
     }

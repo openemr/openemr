@@ -71,7 +71,6 @@ trait PatientAddTrait
     {
         // if patient already exists, then skip this
         if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
-            // @phpstan-ignore method.notFound
             $this->markTestSkipped('New patient test skipped because this patient already exists.');
         }
 
@@ -128,7 +127,6 @@ trait PatientAddTrait
         $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
 
         // assert the new patient is in the database
-        // @phpstan-ignore method.notFound
         $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
     }
 }

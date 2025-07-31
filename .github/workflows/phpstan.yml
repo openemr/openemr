@@ -42,7 +42,10 @@ jobs:
           ${{ runner.os }}-composer-${{ matrix.php-version }}-
           ${{ runner.os }}-composer-
     - name: Composer Install
-      run: composer install --prefer-dist --no-progress
+      run: |
+        composer install --prefer-dist --no-progress
+        # Hack: temporarily uninstall rector, which interferes with PHPStan
+        composer remove --dev --optimize-autoloader rector/rector
     - name: PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
       uses: actions/cache@v4
@@ -52,6 +55,24 @@ jobs:
         restore-keys: |
           phpstan-result-cache-
     - name: PHPStan Diagnose
-      run: php -d memory_limit=8G vendor/bin/phpstan diagnose
+      run: vendor/bin/phpstan --memory-limit=8G diagnose
     - name: PHPStan Analyze
-      run: php -d memory_limit=8G vendor/bin/phpstan analyze --error-format=github
+      id: phpstan-analyze
+      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+      continue-on-error: true
+    # Generate baseline only if analyze step failed
+    - name: PHPStan Baseline
+      if: steps.phpstan-analyze.outcome == 'failure'
+      run: vendor/bin/phpstan --memory-limit=8G --generate-baseline=baseline.neon
+      continue-on-error: true
+    # Upload baseline only if baseline.neon file exists
+    - name: Upload PHPStan Baseline
+      if: hashFiles('baseline.neon') != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: phpstan-baseline-php${{ matrix.php-version }}
+        path: baseline.neon
+      continue-on-error: true
+    - name: Check PHPStan Results
+      if: steps.phpstan-analyze.outcome == 'failure'
+      run: false

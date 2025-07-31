@@ -44,7 +44,6 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
             //  a high enough version of nodejs)
-            // @phpstan-ignore method.notFound
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
 
