@@ -13760,7 +13760,7 @@ CREATE TABLE `care_teams` (
     `user_id` int(11) NOT NULL,
     `role` varchar(50) NOT NULL,
     `facility_id` int(11) NOT NULL,
-    `provider_since` date NOT NULL,
+    `provider_since` date NULL,
     `status` varchar(20) DEFAULT 'active',
     `team_name` varchar(255) DEFAULT NULL,
     `note` text,

@@ -276,18 +276,18 @@ class CareTeamViewCard extends CardModel
     private static function getTranslations()
     {
         return [
-            'manage_care_team' => xlt("Manage Care Team"),
-            'care_team_name' => xlt("Care Team Name"),
-            'member' => xlt("Member"),
-            'role' => xlt("Role"),
-            'facility' => xlt("Facility"),
-            'since' => xlt("Since"),
-            'status' => xlt("Status"),
-            'note' => xlt("Note"),
-            'remove' => xlt("Remove"),
-            'add_team_member' => xlt("Add Team Member"),
-            'save_care_team' => xlt("Save Care Team"),
-            'save_care_team_confirm' => xlt('Save care team?')
+            'manage_care_team' => xl("Manage Care Team"),
+            'care_team_name' => xl("Care Team Name"),
+            'member' => xl("Member"),
+            'role' => xl("Role"),
+            'facility' => xl("Facility"),
+            'since' => xl("Since"),
+            'status' => xl("Status"),
+            'note' => xl("Note"),
+            'remove' => xl("Remove"),
+            'add_team_member' => xl("Add Team Member"),
+            'save_care_team' => xl("Save Care Team"),
+            'save_care_team_confirm' => xl('Save care team?')
         ];
     }
 }
