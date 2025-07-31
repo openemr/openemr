@@ -33,12 +33,14 @@ class BbCreateStaffTest extends PantherTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         // clean up in case still left over from prior testing
         $this->cleanDatabase();
     }
 
     protected function tearDown(): void
     {
+        parent::tearDown();
         $this->cleanDatabase();
     }
 

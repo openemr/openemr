@@ -18408,10 +18408,6 @@ parameters:
     identifier: class.notFound
     count: 1
     path: tests/Tests/E2e/BbCreateStaffTest.php
-  - message: '#^Missing call to parent\:\:tearDown\(\) method\.$#'
-    identifier: phpunit.callParent
-    count: 1
-    path: tests/Tests/E2e/BbCreateStaffTest.php
   - message: '#^Method OpenEMR\\Tests\\Fixtures\\BaseFixtureManager\:\:installFixtures\(\) invoked with 2 parameters, 0 required\.$#'
     identifier: arguments.count
     count: 2
