@@ -49,7 +49,7 @@ class CareTeamViewCard extends CardModel
         $newOpts = [
             'acl' => ['patients', 'demo'],
             'initiallyCollapsed' => $initiallyCollapsed,
-            'add' => true,
+            'add' => false,
             'edit' => true,
             'collapse' => true,
             'templateFile' => self::TEMPLATE_FILE,

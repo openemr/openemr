@@ -108,7 +108,7 @@ function updateBackgroundService($name, $active, $interval)
  * copied to a temp variable before the while($globalsrow...) loop.
  * @author EMR Direct
  */
-function checkBackgroundServices(): void
+function checkBackgroundServices():void
 {
   //load up any necessary globals
     $bgservices = sqlStatement(
@@ -662,9 +662,10 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                     ['card_abrev' => attr('card_medicalproblems'), 'card_name' => xlt('Medical Problems')],
                                                     ['card_abrev' => attr('card_medication'), 'card_name' => xlt('Medications')],
                                                     ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
-                                                    ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')]
+                                                    ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
+                                                    ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')]
                                                 );
-                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='10'>\n";
+                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='11'>\n";
                                                 foreach ($res as $row) {
                                                     echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                     foreach ($glarr as $glrow) {

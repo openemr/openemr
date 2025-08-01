@@ -1219,6 +1219,33 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ?>
             </div>
             <div class="row">
+                <?php
+                if (!in_array('card_care_team', $hiddenCards)) {
+                    $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
+                    $btnLabel = false;
+                    if ($card->canAdd()) {
+                        $btnLabel = 'Add';
+                    } elseif ($card->canEdit()) {
+                        $btnLabel = 'Edit';
+                    }
+                    $viewArgs = [
+                        'title' => $card->getTitle(),
+                        'id' => $card->getIdentifier(),
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => $card->getBackgroundColorClass(),
+                        'card_text_color' => $card->getTextColorClass(),
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'btnLabel' => $btnLabel,
+                        'btnLink' => 'test',
+                    ];
+                    $_auth = $card->getAcl();
+                    if (!empty($_auth) && AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                        echo "<div class='col-12 m-0 p-0 px-2'>";
+                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                        echo "</div>";
+                    }
+                }
+                ?>
                 <div class="col-md-8 px-2">
                     <?php
                     if ($deceased > 0) :
@@ -1229,10 +1256,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('primary'), SectionEvent::EVENT_HANDLE);
                     $sectionRenderEvents->addCard(new DemographicsViewCard($result, $result2, ['dispatcher' => $ed]));
-
-                    if (!in_array('card_care_team', $hiddenCards)) {
-                        $sectionRenderEvents->addCard(new CareTeamViewCard($pid, ['dispatcher' => $ed]));
-                    }
 
                     if (!$GLOBALS['hide_billing_widget']) {
                         $sectionRenderEvents->addCard(new BillingViewCard($pid, $insco_name, $result['billing_note'], $result3, ['dispatcher' => $ed]));
