@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\RestControllers\Authorization;
 
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
@@ -24,10 +25,12 @@ class OAuth2DiscoveryControllerTest extends TestCase
             'oauth_password_grant' => 1
         ]);
         $baseUrl = 'https://example.com';
-        $scopeRepository = $this->createMock(ScopeRepository::class);
-        $scopeRepository->expects($this->once())
+
+        $claimsRepository = $this->createMock(ClaimRepository::class);
+        $claimsRepository->expects($this->once())
             ->method('getSupportedClaims')
             ->willReturn(['email', 'profile', 'openid']);
+        $scopeRepository = $this->createMock(ScopeRepository::class);
         $scopeRepository->expects($this->once())
             ->method('getCurrentSmartScopes')
             ->willReturn(['patient/Patient.read', 'user/Practitioner.read']);

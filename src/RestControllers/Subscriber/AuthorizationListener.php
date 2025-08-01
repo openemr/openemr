@@ -143,6 +143,9 @@ class AuthorizationListener implements EventSubscriberInterface
             $scopeType = 'patient';
         }
 
+        // TODO: @adunsulag need to check for api:fhir, api:oemr, and api:portal here
+        // if they aren't valid we just deny access to the request based on the request type
+        // no need to do more checking in ScopeRepository
         if ($restRequest->isFhir()) {
             // don't do any checks on our open fhir resources
             if ($this->fhirRestRequestSkipSecurityCheck($restRequest)) {

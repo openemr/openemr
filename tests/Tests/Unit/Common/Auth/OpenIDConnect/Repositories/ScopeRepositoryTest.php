@@ -12,8 +12,12 @@
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
 use Google\Service\AppHub\Scope;
+use Monolog\Level;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
@@ -36,85 +40,105 @@ class ScopeRepositoryTest extends TestCase
         $this->scopeRepository->setServerConfig($mock);
     }
 
-    public function testHasFhirApiScopes(): void
-    {
-        $this->scopeRepository->setRequestScopes('api:oemr');
-        $this->assertFalse($this->scopeRepository->hasFhirApiScopes(), "Standard api request turn off fhir api");
-
-        $this->scopeRepository->setRequestScopes('api:fhir');
-        $this->assertTrue($this->scopeRepository->hasFhirApiScopes(), "api:fhir scope should trigger fhir api");
-    }
-
-    public function testHasStandardApiScopes(): void
-    {
-        $this->scopeRepository->setRequestScopes('api:oemr');
-        $this->assertTrue($this->scopeRepository->hasStandardApiScopes(), "Standard api request turned on");
-
-        $this->scopeRepository->setRequestScopes('api:blah');
-        $this->assertFalse($this->scopeRepository->hasStandardApiScopes(), "Standard api request turned off mispelled 'api:oemr2'");
-
-        $this->scopeRepository->setRequestScopes('api:fhir');
-        $this->assertFalse($this->scopeRepository->hasStandardApiScopes(), "api:fhir scope should turn off standard api");
-    }
-
-    public function testBuildScopeValidatorArrayForStandardApiScopeRequest(): void
-    {
-        // check to make sure we get standard api scopes for the correct test screen
-        $scopeRepository = $this->scopeRepository;
-        $expectedScopes = $scopeRepository->getCurrentStandardScopes();
-
-        $scopeRepository->setRequestScopes("api:oemr");
-        $validatorArray = array_keys($scopeRepository->buildScopeValidatorArray());
-
-        $diff = array_diff($expectedScopes, $validatorArray);
-        $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr' should return standard scopes");
-        $this->assertContains('user/patient.read', $validatorArray, "user/patient.read should be in standard api scopes");
-        $this->assertContains('user/allergy.read', $validatorArray, "user/allergy.read should be in standard api scopes");
-    }
-
-    public function testBuildScopeValidatorArrayForStandardPortalApiScopeRequest(): void
-    {
-        // check to make sure we get standard api scopes for the correct test screen
-        $scopeRepository = $this->scopeRepository;
-        $expectedScopes = $scopeRepository->getCurrentStandardScopes();
-
-        $scopeRepository->setRequestScopes("api:port");
-        $validatorArray = array_keys($scopeRepository->buildScopeValidatorArray());
-
-        $diff = array_diff($expectedScopes, $validatorArray);
-        $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
-    }
-
-    public function testBuildScopeValidatorArrayDefaultReturnsFhirScopes(): void
-    {
-        // check to make sure we get standard api scopes for the correct test screen
-        $scopeRepository = $this->scopeRepository;
-        $expectedScopes = $scopeRepository->getCurrentSmartScopes();
-
-        $scopeRepository->setRequestScopes("");
-        $validatorArray = array_keys($scopeRepository->buildScopeValidatorArray());
-
-        $diff = array_diff($expectedScopes, $validatorArray);
-        $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
-    }
-
     public function testBuildScopeValidatorArrayCombinedScopesReturnsEverything(): void
     {
         $scopeRepository = $this->scopeRepository;
         $expectedScopes = $scopeRepository->getCurrentSmartScopes();
-        $expectedScopes = array_merge($expectedScopes, $scopeRepository->getCurrentStandardScopes());
-
-        $scopeRepository->setRequestScopes("api:oemr api:port api:fhir");
-        $validatorArray = array_keys($scopeRepository->buildScopeValidatorArray());
-        $diff = array_diff($expectedScopes, $validatorArray);
+        $validatorArray = $scopeRepository->buildScopeValidatorArray($expectedScopes);
+//        $this->assertNotEmpty($validatorArray, "Scope validator array should not be empty");
+        $scopes = [];
+        foreach ($validatorArray as $scopeResourceList) {
+            foreach ($scopeResourceList as $scopeEntity) {
+                $scopes[] = $scopeEntity->getIdentifier();
+            }
+        }
+        $diff = array_diff($expectedScopes, $scopes);
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr api:port api:fhir' should return all scopes");
     }
 
+    public function testBuildScopeValidatorArrayMultipleOperations(): void {
+        $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
+            ->onlyMethods(['getAllSupportedScopesList'])
+            ->getMock();
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setServerScopeList($serverScopeListEntity);
+        $validatorArray = $scopeRepository->buildScopeValidatorArray([
+            "user/Patient.read"
+            , 'user/Patient.$export'
+            // these other operations are just for testing right now, not supported in repo
+            , 'user/Patient.$summary'
+            , 'user/Patient.$version'
+        ]);
+        $this->assertArrayHasKey("user/Patient", $validatorArray, "user/Patient should be in scope validator array");
+        $this->assertCount(4, $validatorArray["user/Patient"], "user/Patient should have 4 ScopeEntity objects in scope validator array");
+        $operations = $validatorArray["user/Patient"];
+        $this->assertInstanceOf(ResourceScopeEntityList::class, $operations, "user/Patient should be a ResourceScopeEntityList object in scope validator array");
+        $this->assertEquals('user/Patient.read', $operations[0]->getIdentifier(), "user/Patient.read should be in scope validator array");
+        $this->assertEquals('user/Patient.$export', $operations[1]->getIdentifier(), "user/Patient.\$export should be in scope validator array");
+        $this->assertEquals('user/Patient.$summary', $operations[2]->getIdentifier(), "user/Patient.\$summary should be in scope validator array");
+        $this->assertEquals('user/Patient.$version', $operations[3]->getIdentifier(), "user/Patient.\$version should be in scope validator array");
+    }
+
+    public function testGetScopeEntityByIdentifierWithSubResourceScope() {
+        $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
+            ->onlyMethods(['getAllSupportedScopesList'])
+            ->getMock();
+        $serverScopeListEntity->expects($this->any())
+            ->method('getAllSupportedScopesList')
+            ->willReturn([
+                "user/Patient.cruds"
+                ,'user/medical_problem.cruds'
+            ]);
+        $scopeRepository = $this->scopeRepository;
+        // skip over expected error logs
+        $scopeRepository->setSystemLogger(new SystemLogger(Level::Critical));
+        $scopeRepository->setServerScopeList($serverScopeListEntity);
+
+        $validSubSets = [
+            'c'
+            , 'cr', 'cru', 'crud', 'cruds', 'cu', 'cud', 'cuds', 'cd', 'cds', 'cs'
+            , 'r', 'ru', 'rud', 'ruds', 'rd', 'rds', 'rs'
+            , 'u', 'ud', 'uds', 'd', 'ds'
+            , 'd', 'ds'
+            , 's'
+        ];
+        $invalidSubSets = [
+            'rc', 'rcu', 'rcud', 'rcuds', 'rdc', 'rdcu','rdcus', 'rsc', 'rscu', 'rscud', 'ruc', 'rucd', 'rucds'
+            ,'cur', 'curd', 'curds', 'cudr', 'cudrs', 'cudrsc'
+            ,'cc', 'rr', 'ss', 'dd', 'uu', 'csu'
+            ,'uc', 'ur', 'usc', 'udc'
+            ,'sc', 'sr', 'su', 'sd'
+        ];
+        foreach ($validSubSets as $subset) {
+            $scopeIdentifier = $scopeRepository->getScopeEntityByIdentifier("user/Patient.{$subset}");
+            $this->assertNotEmpty($scopeIdentifier, "user/Patient.{$subset} scope should be valid scope");
+
+            $scopeIdentifier = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.{$subset}");
+            $this->assertNotEmpty($scopeIdentifier, "user/medical_problem.{$subset} scope should be valid scope");
+        }
+        foreach ($invalidSubSets as $subset) {
+            $scopeIdentifier = $scopeRepository->getScopeEntityByIdentifier("user/Patient.{$subset}");
+            $this->assertEmpty($scopeIdentifier, "user/Patient.{$subset} scope should not be valid scope");
+
+            $scopeIdentifier = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.{$subset}");
+            $this->assertEmpty($scopeIdentifier, "user/medical_problem.{$subset} scope should not be valid scope");
+        }
+    }
 
     public function testGetScopeEntityByIdentifierHasExportOperations(): void
     {
         $scopeRepository = $this->scopeRepository;
-        $scopeRepository->setRequestScopes('system/Group.$export system/Patient.$export system/*.$export');
+        $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
+            ->onlyMethods(['getAllSupportedScopesList'])
+            ->getMock();
+        $serverScopeListEntity->expects($this->once())
+            ->method('getAllSupportedScopesList')
+            ->willReturn([
+                'system/Group.$export',
+                'system/Patient.$export',
+                'system/*.$export'
+            ]);
+        $scopeRepository->setServerScopeList($serverScopeListEntity);
 
         // let's see if we get the scope
         $scopeEntity = $scopeRepository->getScopeEntityByIdentifier('system/Group.$export');
@@ -132,6 +156,32 @@ class ScopeRepositoryTest extends TestCase
         $scopeRepository = $this->scopeRepository;
 
         // let's see if we get the scope
+        $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
+            ->onlyMethods(['getAllSupportedScopesList'])
+            ->getMock();
+        $serverScopeListEntity->expects($this->any())
+            ->method('getAllSupportedScopesList')
+            ->willReturn([
+                "patient/Patient.read",
+                "patient/Observation.read",
+                "patient/MedicationRequest.read",
+                "user/Patient.read",
+                "user/Observation.read",
+                "user/MedicationRequest.read",
+                "system/Patient.read",
+                "system/Observation.read",
+                "system/MedicationRequest.read",
+                "patient/Patient.rs",
+                "patient/Observation.rs",
+                "patient/MedicationRequest.rs",
+                "user/Patient.rs",
+                "user/Observation.rs",
+                "user/MedicationRequest.rs",
+                "system/Patient.rs",
+                "system/Observation.rs",
+                "system/MedicationRequest.rs",
+            ]);
+
         $smartScopes = $scopeRepository->getCurrentSmartScopes();
         $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
         $resourceChecks = ['Patient', 'Observation', 'MedicationRequest'];
@@ -149,43 +199,8 @@ class ScopeRepositoryTest extends TestCase
         }
     }
 
-
-
-    public function testGetStandardScopes(): void
-    {
-        $scopeRepository = $this->scopeRepository;
-
-        // let's see if we get the scope
-        $smartScopes = $scopeRepository->getStandardApiSupportedScopes();
-        $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
-        $this->assertContains('user/patient.read', $smartScopes, "user/patient.read should be in smart scopes");
-        $this->assertContains('user/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
-        $this->assertContains('system/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
-        $this->assertContains('system/allergy.write', $smartScopes, "system/allergy.write should be in smart scopes");
-    }
-
-    public function testGetScopeByIdentifierWithReadV2Scopes() : void {
-        $scopeRepository = new ScopeRepository();
-        $scopeRepository->setRequestScopes("patient/Patient.rs");
-        $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.r");
-        $this->assertNotEmpty($scope, "patient/Patient.r scope should be valid scope with patient/Patient.rs request scope");
-        $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.rs");
-        $this->assertNotEmpty($scope, "patient/Patient.rs scope should be valid scope with patient/Patient.rs request scope");
-        $scope = $scopeRepository->getScopeEntityByIdentifier("patient/Patient.read");
-        $this->assertNotEmpty($scope, "patient/Patient.read scope should be valid scope with patient/Patient.rs request scope for backwards compatability");
-    }
-
-    public function testGetScopeByIdentifierWithWriteV2Scopes() : void {
-        $scopeRepository = new ScopeRepository();
-        $scopeRepository->setRequestScopes("user/medical_problem.cud");
-        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.c");
-        $this->assertNotEmpty($scope, "patient/Patient.c scope should be valid scope with user/medical_problem.cud request scope");
-        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.u");
-        $this->assertNotEmpty($scope, "patient/Patient.u scope should be valid scope with user/medical_problem.cud request scope");
-        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.d");
-        $this->assertNotEmpty($scope, "patient/Patient.read scope should be valid scope with user/medical_problem.cud request scope for backwards compatability");
-
-        $scope = $scopeRepository->getScopeEntityByIdentifier("user/medical_problem.write");
-        $this->assertNotEmpty($scope, "user/medical_problem.write scope should be valid scope with patient/Patient.rs request scope for backwards compatability");
+    public function testFinalizeScopes() {
+        // tests we need to handle here
+        $this->markTestIncomplete("ScopeRepository::finalizeScopes() needs to be implemented and tested.");
     }
 }

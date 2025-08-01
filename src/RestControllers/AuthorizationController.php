@@ -40,6 +40,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
@@ -627,17 +628,16 @@ class AuthorizationController
      */
     public function getAuthorizationServer(ScopeRepository $scopeRepository, bool $includeAuthGrantRefreshToken = true): AuthorizationServer
     {
-        $protectedClaims = ['profile', 'email', 'address', 'phone'];
-        $claims = $scopeRepository->getSupportedClaims();
+        $claimRepository = new ClaimRepository();
+        $claims = $claimRepository->getSupportedClaims();
         $customClaim = [];
         foreach ($claims as $claim) {
-            if (in_array($claim, $protectedClaims, true)) {
-                continue;
+            $claimSet = $claimRepository->getClaimSetByScopeIdentifier($claim);
+            if (!empty($claimSet)) {
+                $customClaim[] = $claimSet;
             }
-            $customClaim[] = new ClaimSetEntity($claim, [$claim]);
         }
         if (!empty($this->session->get('nonce'))) {
-            // nonce scope added later. this is for id token nonce claim.
             $customClaim[] = new ClaimSetEntity('nonce', ['nonce']);
         }
 

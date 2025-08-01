@@ -44,9 +44,16 @@ class ScopeEntity implements ScopeEntityInterface
     public function __construct()
     {
         $this->permissions = new ScopePermissionObject();
-        $this->operation = '';
+        $this->operation = null;
+        $this->context = null;
+        $this->resource = null;
     }
 
+    /**
+     * @param string $scopeString
+     * @throws \InvalidArgumentException if the scope string is invalid
+     * @return ScopeEntity
+     */
     public static function createFromString(string $scopeString): ScopeEntity
     {
         $scope = new self();
@@ -54,25 +61,26 @@ class ScopeEntity implements ScopeEntityInterface
 
         // Parse the scope string to set permissions, operation, context, and resource
         // This is a placeholder for actual parsing logic
-        // Example: "patient:read" would set operation to "read" and resource to "patient"
-        if (strpos($scopeString, "/")) {
-            $parts = explode("/", $scopeString);
-            if (count($parts) === 3) {
-                $scope->context = $parts[0];
-                $scope->resource = $parts[1];
-                if ($parts[2][0] === '$') {
-                    // This is a special case for FHIR resources
-                    $scope->operation = $parts[2][0];
-                } else {
-                    $scope->permissions = new ScopePermissionObject($parts[2]);
+        // Example: "patient.read" would set operation to "read" and resource to "patient"
+        // will also handle the site:default scope format
+        $regex = "/^([a-zA-Z_]+)(?:[\/:]([a-zA-Z0-9\*_\-]+)(?:\.([^\?]+))?)?(?:\?(.*))?$/";
+        $matches = [];
+        if (preg_match($regex, $scopeString, $matches)) {
+            // This is a permission scope
+            $scope->context = $matches[1];
+            $scope->resource = $matches[2] ?? null;
+            $operationOrPermission = $matches[3] ?? '';
+            if (str_contains($operationOrPermission, '$')) {
+                $scope->operation = $operationOrPermission;
+            } else if (!empty($operationOrPermission)) {
+                $permissionString = $operationOrPermission;
+                if (!empty($matches[4])) {
+                    $permissionString .= "?" . $matches[4];
                 }
-            } else {
-                throw new \InvalidArgumentException("Invalid scope format: " . $scopeString);
+                $scope->permissions = ScopePermissionObject::createFromString($permissionString);
             }
-        } else if (str_contains($scopeString, ':')) {
-            $parts = explode(':', $scopeString);
-            $scope->context = $parts[0];
-            $scope->resource = $parts[1] ?? '';
+        } else {
+            throw new \InvalidArgumentException("Invalid scope format: " . $scopeString);
         }
 
         return $scope;
@@ -85,7 +93,10 @@ class ScopeEntity implements ScopeEntityInterface
     public function getScopeLookupKey() : string
     {
         if (!empty($this->context)) {
-            return $this->context . '/' . $this->resource;
+            if (!empty($this->resource)) {
+                return $this->context . '/' . $this->resource;
+            }
+            return $this->context; // if no resource, just return context
         } else {
             return $this->getIdentifier();
         }
@@ -146,31 +157,22 @@ class ScopeEntity implements ScopeEntityInterface
         if ($otherPermissions->v1Write) {
             return $otherPermissions->v1Write;
         }
-        $accessDenied = false;
+        $containsScope = true;
         if ($otherPermissions->read && !$this->permissions->read) {
-            $accessDenied = true; // We don't have read permission
+            $containsScope = false; // We don't have read permission
         }
         if ($otherPermissions->create && !$this->permissions->create) {
-            $accessDenied = true; // We don't have create permission
+            $containsScope = false; // We don't have create permission
         }
         if ($otherPermissions->update && !$this->permissions->update) {
-            $accessDenied = true; // We don't have update permission
+            $containsScope = false; // We don't have update permission
         }
         if ($otherPermissions->delete && !$this->permissions->delete) {
-            $accessDenied = true; // We don't have delete permission
+            $containsScope = false; // We don't have delete permission
         }
         if ($otherPermissions->search && !$this->permissions->search) {
-            $accessDenied = true; // We don't have search permission
+            $containsScope = false; // We don't have search permission
         }
-
-        // now everything else we have to make sure its an exact match
-        if ($this->permissions->create === $otherPermissions->create &&
-            $this->permissions->read === $otherPermissions->read &&
-            $this->permissions->update === $otherPermissions->update &&
-            $this->permissions->delete === $otherPermissions->delete &&
-            $this->permissions->search === $otherPermissions->search) {
-            return true; // All permissions match
-        }
-        return false;
+        return $containsScope;
     }
 }

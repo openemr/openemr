@@ -330,7 +330,6 @@ class ApiTestClientTest extends TestCase
 
         // remove the route scope
         $scopeCustom = str_replace(self::API_ROUTE_SCOPE, '', ApiTestClient::ALL_SCOPES);
-
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),

@@ -77,33 +77,33 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
     }
 
-    /**
-     * Retrieve request parameter and populate the site value if the requester hasn't passed it in.  This way
-     * we can handle multi-site.
-     *
-     * @param string                 $parameter
-     * @param ServerRequestInterface $request
-     * @param mixed                  $default
-     *
-     * @return null|string
-     */
-    protected function getRequestParameter($parameter, ServerRequestInterface $request, $default = null)
-    {
-        if ($parameter !== 'scope') {
-            return parent::getRequestParameter($parameter, $request, $default);
-        }
-
-        $requestParameters = (array) $request->getParsedBody();
-        if (isset($requestParameters[$parameter])) {
-            // make sure we are getting the site here
-            if (!preg_match('(site:)', $requestParameters[$parameter])) {
-                return $requestParameters[$parameter] . " site:" . $this->session->get('site_id', 'default');
-            }
-            return $requestParameters[$parameter];
-        } else {
-            return $default;
-        }
-    }
+//    /**
+//     * Retrieve request parameter and populate the site value if the requester hasn't passed it in.  This way
+//     * we can handle multi-site.
+//     *
+//     * @param string                 $parameter
+//     * @param ServerRequestInterface $request
+//     * @param mixed                  $default
+//     *
+//     * @return null|string
+//     */
+//    protected function getRequestParameter($parameter, ServerRequestInterface $request, $default = null)
+//    {
+//        if ($parameter !== 'scope') {
+//            return parent::getRequestParameter($parameter, $request, $default);
+//        }
+//
+//        $requestParameters = (array) $request->getParsedBody();
+//        if (isset($requestParameters[$parameter])) {
+//            // make sure we are getting the site here
+//            if (!preg_match('(site:)', $requestParameters[$parameter])) {
+//                return $requestParameters[$parameter] . " site:" . $this->session->get('site_id', 'default');
+//            }
+//            return $requestParameters[$parameter];
+//        } else {
+//            return $default;
+//        }
+//    }
 
 
     /**
@@ -118,6 +118,8 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     public function validateScopes($scopes, $redirectUri = null)
     {
+        // TODO: @adunsulag I'm not sure this funciton is needed anymore since we now validate against the
+        // entire server supported scopes.
         $this->logger->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
         $scopeRepo = $this->scopeRepository;
         if (\is_array($scopes)) {
@@ -126,11 +128,12 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
 
         // the scopes will either come from the request,
         // or will come from the OLD refresh token which is
-        // exactly what we want to build our requests off of
+        // exactly what we want to build our requests off
 
-        if ($scopeRepo instanceof ScopeRepository) {
-            $scopeRepo->setRequestScopes($scopes);
-        }
+        // TODO: the RefreshTokenGrant requires the sub-scopes to be the EXACT same identifier as the old refresh token
+        // this means that a request for a new access token with something like patient/Patient.r when the refresh token
+        // has patient/Patient.rs will fail.  This is because the scopes are validated against the old refresh token scopes.
+        // if people want this behavior we need to rewrite this method or they can grab a new refresh token with the correct scopes.
         $validScopes = parent::validateScopes($scopes, $redirectUri);
         $this->logger->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
         return $validScopes;

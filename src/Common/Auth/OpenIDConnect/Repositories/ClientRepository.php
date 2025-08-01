@@ -50,6 +50,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $this;
     }
 
+    // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
@@ -75,7 +76,8 @@ class ClientRepository implements ClientRepositoryInterface
         $scopes = explode(" ", $info['scope']);
         $scopeRepo = new ScopeRepository();
 
-        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
+        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes
+            , $GLOBALS['oauth_app_manual_approval'] ?? '0')) {
             $is_client_enabled = 0; // disabled
         } else {
             $is_client_enabled = 1; // enabled

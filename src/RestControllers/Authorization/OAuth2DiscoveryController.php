@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,12 +14,24 @@ class OAuth2DiscoveryController
     private ScopeRepository $scopeRepository;
     private OEGlobalsBag $globalsBag;
     private string $baseUrl;
+    private ClaimRepository $claimRepository;
 
-    public function __construct(ScopeRepository $scopeRepository, OEGlobalsBag $globalsBag, $baseUrl)
+    public function __construct(ClaimRepository $claimRepository, ScopeRepository $scopeRepository, OEGlobalsBag $globalsBag, $baseUrl)
     {
+        $this->setClaimRepository($claimRepository);
         $this->setScopeRepository($scopeRepository);
         $this->globalsBag = $globalsBag;
         $this->baseUrl = $baseUrl;
+    }
+
+    public function setClaimRepository(ClaimRepository $claimRepository): void
+    {
+        $this->claimRepository = $claimRepository;
+    }
+
+    public function getClaimsRepository(): ClaimRepository
+    {
+        return $this->claimRepository;
     }
 
     public function setScopeRepository(ScopeRepository $scopeRepository): void
@@ -39,12 +52,12 @@ class OAuth2DiscoveryController
         }
 // PHP is a fickle beast!
         $scopeRepository = $this->getScopeRepository();
-        $claims_array = $scopeRepository->getSupportedClaims();
+        $claims_array = $this->getClaimsRepository()->getSupportedClaims();
         $claims = json_encode($claims_array, JSON_PRETTY_PRINT);
 
-        $scopes_array_smart = $scopeRepository->getCurrentSmartScopes();
-        $scopes_array = $scopeRepository->getCurrentStandardScopes();
-        $scopes_array = array_merge($scopes_array_smart, $scopes_array);
+        $scopes_array = $scopeRepository->getCurrentSmartScopes();
+//        $scopes_array = $scopeRepository->getCurrentStandardScopes();
+//        $scopes_array = array_merge($scopes_array_smart, $scopes_array);
 
         $scopes = json_encode($scopes_array, JSON_PRETTY_PRINT);
 

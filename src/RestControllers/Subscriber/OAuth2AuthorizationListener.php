@@ -4,6 +4,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 // TODO: Would it be better to call these route guards?
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -125,6 +126,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 
         if (false !== stripos($end_point, '/openid-configuration')) {
             $oauth2DiscoverController = new OAuth2DiscoveryController(
+                new ClaimRepository(),
                 $authServer->getScopeRepository($request, $request->getSession()),
                 $globalsBag,
                 $authServer->authBaseFullUrl
