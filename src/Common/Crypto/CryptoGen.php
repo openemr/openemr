@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CryptoGen class.
+ * CryptoGen class
  *
  *   OpenEMR encryption/decryption strategy:
  *    1. Two separate private key sets are used, one key set in the database and one key set on the drive.
@@ -55,10 +55,6 @@ class CryptoGen
     #  from the drive).
     private array $keyCache = [];
 
-    public function __construct()
-    {
-    }
-
     /**
      * Standard function to encrypt
      *
@@ -67,11 +63,9 @@ class CryptoGen
      * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
      *
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
+    public function encryptStandard(string $value, ?string $customPassword = null, string $keySource = 'drive'): string
     {
-        $encryptedValue = $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
-
-        return $encryptedValue;
+        return $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
     }
 
     /**
@@ -146,7 +140,7 @@ class CryptoGen
      * @return string                      returns the encrypted data.
      * @throws CryptoGenException          if fails, which are critical errors requiring die of script
      */
-    private function coreEncrypt(?string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): string
+    private function coreEncrypt(string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): string
     {
         $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
 
@@ -421,7 +415,7 @@ class CryptoGen
     // Function to decrypt a given string
     // This specific function is only used for backward compatibility
     // TODO: Should be removed in the future.
-    public function aes256Decrypt_mycrypt($sValue)
+    public function aes256Decrypt_mycrypt($sValue): string
     {
         $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
         return rtrim(
