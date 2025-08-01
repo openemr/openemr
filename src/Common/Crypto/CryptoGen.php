@@ -51,6 +51,16 @@ class CryptoGen
     private SystemLogger $systemLogger;
 
     /**
+     * Check if CryptoGen can be safely instantiated.
+     *
+     * @return bool True if database connection is available and CryptoGen can be used
+     */
+    public static function ready(): bool
+    {
+        return isset($GLOBALS['adodb']['db']) && !empty($GLOBALS['adodb']['db']);
+    }
+
+    /**
      * Constructor - Initialize CryptoGen with database-stored encryption strategy.
      *
      * Loads the encryption strategy from the database global setting.
@@ -78,9 +88,9 @@ class CryptoGen
     /**
      * Standard function to encrypt
      *
-     * @param string|null $value          This is the data to encrypt.
-     * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param  string|null $value          This is the data to encrypt.
+     * @param  string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param  string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
      * @return string|null Encrypted data or null if input is null
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): ?string
@@ -107,11 +117,11 @@ class CryptoGen
     /**
      * Standard function to decrypt
      *
-     * @param string|null $value          This is the data to decrypt.
-     * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
-     * @param int|null    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
-     *                                    from outside OpenEMR to ensure bad actor is not trying to use an older version).
+     * @param  string|null $value          This is the data to decrypt.
+     * @param  string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param  string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param  int|null    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
+     *                                     from outside OpenEMR to ensure bad actor is not trying to use an older version).
      * @return false|string|null
      */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string|null
@@ -170,7 +180,7 @@ class CryptoGen
     private function loadStrategyFromDatabase(): EncryptionStrategyInterface
     {
         // Check if we have a database connection and the globals table exists
-        if (!isset($GLOBALS['dbase']) || empty($GLOBALS['dbase'])) {
+        if (!self::ready()) {
             throw new CryptoGenException("Fatal error: No database connection available for loading encryption strategy");
         }
 
