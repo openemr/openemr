@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * @package   OpenEMR Care Team
+ * @link      http://www.open-emr.org
+ *
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Patient\Cards;
 
 use OpenEMR\Common\Acl\AclMain;
@@ -39,17 +48,25 @@ class CareTeamViewCard extends CardModel
 
         $newOpts = [
             'acl' => ['patients', 'demo'],
-            'auth' => $authCheck,
+            'initiallyCollapsed' => $initiallyCollapsed,
+            'add' => true,
+            'edit' => true,
             'collapse' => true,
             'templateFile' => self::TEMPLATE_FILE,
+            'identifier' => self::CARD_ID,
+            'title' => xl('Care Team'),
             'templateVariables' => [
-                'title' => xl('Care Team'),
+                'title' => xl("Care Team"),
                 'id' => self::CARD_ID_EXPAND,
-                'initiallyCollapsed' => $initiallyCollapsed,
+                'btnLabel' => "Edit",
+                'btnLink' => "javascript:$('.editShow').toggleClass('d-none');",
+                'linkMethod' => 'html',
+                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'auth' => $authCheck
             ]
         ];
 
-        return array_merge($opts, $newOpts);
+        return $newOpts; //array_merge($opts, $newOpts);
     }
 
     public function getTemplateVariables(): array

@@ -31,7 +31,7 @@
                     <td><input type="text" name="team[${idx}][provider_since]" value="${member.provider_since || ''}" class="datepicker form-control form-control-sm"></td>
                     <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
                     <td><input name="team[${idx}][note]" value="${member.note || ''}" class="form-control form-control-sm"></td>
-                    <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">×</button></td>
+                    <td><button type="button" class="btn btn-danger btn-sm float-right editShow d-none" onclick="this.closest('tr').remove()">×</button></td>
                 `;
                     document.querySelector('#care_team_table tbody').appendChild(row);
                     row.querySelector(`select[name="team[${idx}][user_id]"]`).value = member.user_id;
@@ -55,7 +55,7 @@
                 <td><input type="text" name="team[${idx}][provider_since]" class="datepicker-new form-control form-control-sm"></td>
                 <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
                 <td><input name="team[${idx}][note]" class="form-control form-control-sm"></td>
-                <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">×</button></td>
+                <td><button type="button" class="btn btn-danger btn-sm float-right" onclick="this.closest('tr').remove()">×</button></td>
             `;
                 document.querySelector('#care_team_table tbody').appendChild(row);
                 $(row).find('.datepicker-new').datetimepicker({
@@ -97,10 +97,10 @@
                         </table>
                     </div>
                     <div class="form-actions mt-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="addTeamRow()">
+                        <button type="button" class="btn btn-outline-secondary btn-sm me-2 editShow d-none" onclick="addTeamRow()">
                             {{ translations.add_team_member|text }}
                         </button>
-                        <button type="submit" name="save_care_team" class="btn btn-primary btn-sm" value="true">
+                        <button type="submit" name="save_care_team" class="btn btn-primary btn-sm editShow d-none" value="true">
                             {{ translations.save_care_team|text }}
                         </button>
                     </div>
