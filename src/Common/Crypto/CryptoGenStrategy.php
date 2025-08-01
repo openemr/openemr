@@ -37,20 +37,20 @@ use OpenEMR\Common\Logging\SystemLogger;
  */
 class CryptoGenStrategy implements EncryptionStrategyInterface
 {
-    # This is the current encrypt/decrypt version
-    # (this will always be a three digit number that we will
-    # increment when updating the encrypt/decrypt methodology
-    # which allows being able to maintain backward compatibility
-    # to decrypt values from prior versions)
-    # Remember to update cryptCheckStandard() and decryptStandard()
-    # when incrementing this.
+    // This is the current encrypt/decrypt version
+    // (this will always be a three digit number that we will
+    // increment when updating the encrypt/decrypt methodology
+    // which allows being able to maintain backward compatibility
+    // to decrypt values from prior versions)
+    // Remember to update cryptCheckStandard() and decryptStandard()
+    // when incrementing this.
     private string $encryptionVersion = "006";
 
     private string $keyVersion = "six";
 
     private array $keyCache = [];
 
-    private SystemLogger $systemLogger;
+    private readonly SystemLogger $systemLogger;
 
     public function __construct()
     {
@@ -67,9 +67,9 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
     /**
      * Encrypt data using the current encryption version (see $encryptionVersion).
      *
-     * @param string|null $value The data to encrypt
-     * @param string|null $customPassword If provided, derives keys from password instead of standard keys
-     * @param string $keySource Source for standard keys ('drive' or 'database')
+     * @param  string|null $value          The data to encrypt
+     * @param  string|null $customPassword If provided, derives keys from password instead of standard keys
+     * @param  string      $keySource      Source for standard keys ('drive' or 'database')
      * @return string|null Encrypted data prefixed with $encryptionVersion, using $keyVersion for key selection, or null if input is null
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): string
@@ -93,10 +93,10 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
     /**
      * Decrypt data encrypted with any supported encryption version.
      *
-     * @param string|null $value The encrypted data to decrypt
-     * @param string|null $customPassword If provided, derives keys from password instead of standard keys
-     * @param string $keySource Source for standard keys ('drive' or 'database')
-     * @param int|null $minimumVersion Minimum encryption version required (for security validation)
+     * @param  string|null $value          The encrypted data to decrypt
+     * @param  string|null $customPassword If provided, derives keys from password instead of standard keys
+     * @param  string      $keySource      Source for standard keys ('drive' or 'database')
+     * @param  int|null    $minimumVersion Minimum encryption version required (for security validation)
      * @return false|string Decrypted data or false on failure
      */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
@@ -129,12 +129,13 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
     /**
      * Check if a value was encrypted using a supported encryption version.
      *
-     * @param string|null $value The value to check
+     * @param  string|null $value The value to check
      * @return bool True if the value has a valid encryption version prefix (001-006)
      */
     public function cryptCheckStandard(?string $value): bool
     {
-        return $value !== null && $value !== '' && $value !== '0' && preg_match('/^00[1-6]/', $value);
+        // Must have data after version prefix
+        return preg_match('/^00[1-6]./', $value ?? '') === 1;
     }
 
     /**
@@ -169,7 +170,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
     private function coreEncrypt(?string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): string
     {
-        $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
+        $keyNumber ??= $this->keyVersion;
 
         $this->validateOpenSSLExtension();
 
@@ -181,15 +182,18 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
             throw new CryptoGenException("OpenEMR Error : Random Bytes error - exiting");
         }
 
+        // Handle null values by treating them as empty strings for backward compatibility
+        $valueToEncrypt = $sValue ?? '';
+
         $processedValue = openssl_encrypt(
-            $sValue,
+            $valueToEncrypt,
             'aes-256-cbc',
             $sSecretKey,
             OPENSSL_RAW_DATA,
             $iv
         );
 
-        $hmacHash = hash_hmac('sha384', $iv . $processedValue, $sSecretKeyHmac, true);
+        $hmacHash = hash_hmac('sha384', $iv . $processedValue, (string) $sSecretKeyHmac, true);
 
         if ($sValue !== "" && ($processedValue === false || $hmacHash === "")) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working (encrypted value is blank or hmac hash is blank).");
@@ -205,7 +209,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
     private function coreDecrypt(string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): false|string
     {
-        $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
+        $keyNumber ??= $this->keyVersion;
 
         if (!extension_loaded('openssl')) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -305,7 +309,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
             return false;
         }
 
-        $raw = base64_decode($sValue, true);
+        $raw = base64_decode((string) $sValue, true);
         if ($raw === false) {
             error_log("OpenEMR Error : Decryption did not work because illegal characters were noted in base64_encoded data.");
             return false;
@@ -352,7 +356,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
             return false;
         }
 
-        $raw = base64_decode($sValue);
+        $raw = base64_decode((string) $sValue);
 
         $ivLength = openssl_cipher_iv_length('aes-256-cbc');
 
@@ -383,9 +387,9 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
     /**
      * Derive encryption and HMAC keys from either stored keys or custom password.
      *
-     * @param string|null $customPassword If provided, uses PBKDF2+HKDF for key derivation
-     * @param string $keyNumber The key version to use (e.g., 'six', 'five')
-     * @param string $keySource Source for standard keys ('drive' or 'database')
+     * @param  string|null $customPassword If provided, uses PBKDF2+HKDF for key derivation
+     * @param  string      $keyNumber      The key version to use (e.g., 'six', 'five')
+     * @param  string      $keySource      Source for standard keys ('drive' or 'database')
      * @return array [encryptionKey, hmacKey, salt] - salt is null for standard keys
      */
     private function deriveKeys(?string $customPassword, string $keyNumber, string $keySource): array
@@ -403,7 +407,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
             throw new CryptoGenException("OpenEMR Error : Random Bytes error - exiting");
         }
 
-        $sPreKey = hash_pbkdf2('sha384', $customPassword, $sSalt, 100000, 32, true);
+        $sPreKey = hash_pbkdf2('sha384', $customPassword, (string) $sSalt, 100000, 32, true);
         return [
             hash_hkdf('sha384', $sPreKey, 32, 'aes-256-encryption', $sSalt),
             hash_hkdf('sha384', $sPreKey, 32, 'sha-384-authentication', $sSalt),
@@ -414,8 +418,8 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
     /**
      * Validate that encryption keys are not empty.
      *
-     * @param string $secretKey The encryption key
-     * @param string $secretKeyHmac The HMAC key
+     * @param  string $secretKey     The encryption key
+     * @param  string $secretKeyHmac The HMAC key
      * @throws CryptoGenException If either key is empty
      */
     private function validateKeys(string $secretKey, string $secretKeyHmac): void
@@ -442,7 +446,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
                     throw new CryptoGenException("OpenEMR Error : Random Bytes error - exiting");
                 }
 
-                sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)", [$label, base64_encode($newKey)]);
+                sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)", [$label, base64_encode((string) $newKey)]);
             }
         } elseif (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)) {
             $newKey = RandomGenUtils::produceRandomBytes(32);
@@ -451,7 +455,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
             }
 
             if (($version === "one") || ($version === "two") || ($version === "three") || ($version === "four")) {
-                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label, base64_encode($newKey));
+                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label, base64_encode((string) $newKey));
             } else {
                 // For newer key versions, we need to encrypt using database keys
                 // Create a temporary instance to handle this without circular dependency
@@ -463,7 +467,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
         if ($keySource === 'database') {
             $sqlKey = sqlQueryNoLog("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
-            $key = base64_decode($sqlKey['value']);
+            $key = base64_decode((string) $sqlKey['value']);
         } elseif (($version === "one") || ($version === "two") || ($version === "three") || ($version === "four")) {
             $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)));
         } else {
@@ -526,7 +530,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
      * It validates the encryption version, extracts the HMAC, IV, and encrypted data,
      * verifies HMAC authentication, and then decrypts the data using AES-256-CBC.
      *
-     * @param string $value The encrypted value to decrypt, prefixed with 3-digit version number
+     * @param string $value     The encrypted value to decrypt, prefixed with 3-digit version number
      * @param string $keyNumber The key number identifier for retrieving encryption keys
      *
      * @return string The decrypted plaintext value, or null if decryption fails
