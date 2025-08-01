@@ -33,7 +33,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.1
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_1_redis:
     # Only run from master branch on the main repository
@@ -58,7 +59,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.1-redis
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_2:
     # Only run from master branch on the main repository
@@ -83,7 +85,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.2
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_2_redis:
     # Only run from master branch on the main repository
@@ -108,7 +111,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.2-redis
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_3:
     # Only run from master branch on the main repository
@@ -133,7 +137,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.3
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_3_redis:
     # Only run from master branch on the main repository
@@ -158,7 +163,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.3-redis
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_4:
     # Only run from master branch on the main repository
@@ -183,7 +189,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.4
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_4_redis:
     # Only run from master branch on the main repository
@@ -208,7 +215,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.4-redis
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_5:
     # Only run from master branch on the main repository
@@ -233,7 +241,8 @@ jobs:
           tags: openemr/dev-php-fpm:8.5
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build_8_5_redis:
     # Only run from master branch on the main repository
@@ -258,4 +267,5 @@ jobs:
           tags: openemr/dev-php-fpm:8.5-redis
           platforms: linux/amd64
           push: true
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
