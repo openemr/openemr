@@ -345,7 +345,7 @@ MSG;
      * @param  $event
      * @return string
      */
-    private function determineRFC3881EventActionCode($event)
+    protected function determineRFC3881EventActionCode($event)
     {
         switch (substr($event, -7)) {
             case '-create':
@@ -376,7 +376,7 @@ MSG;
      *
      * @param $event
      */
-    private function determineRFC3881EventIdDisplayName($event)
+    protected function determineRFC3881EventIdDisplayName($event)
     {
 
         $eventIdDisplayName = $event;
@@ -411,7 +411,7 @@ MSG;
      * @param  $comments
      * @return string
      */
-    private function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
+    protected function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
@@ -452,7 +452,7 @@ MSG;
      * @param  $cafile
      * @return bool|resource
      */
-    private function createTlsConn($host, $port, $localcert, $cafile)
+    protected function createTlsConn($host, $port, $localcert, $cafile)
     {
         $sslopts = array();
         if ($cafile !== null && $cafile != "") {
@@ -697,7 +697,7 @@ MSG;
     /**
      * Record the patient disclosures.
      *
-     * @param $dates    - The date when the disclosures are sent to the thrid party.
+     * @param $dates    - The date when the disclosures are sent to the third party.
      * @param $event    - The type of the disclosure.
      * @param $pid      - The id of the patient for whom the disclosures are recorded.
      * @param $comment  - The recipient name and description of the disclosure.
@@ -715,7 +715,7 @@ MSG;
     }
 
     /**
-     * Edit the disclosures that is recorded.
+     * Edit the disclosure record that is stored in the audit log.
      *
      * @param $dates  - The date when the disclosures are sent to the thrid party.
      * @param $event  - The type of the disclosure.
@@ -892,7 +892,7 @@ MSG;
      * @param  $table
      * @return string
      */
-    private function eventCategoryFinder($sql, $event, $table)
+    protected function eventCategoryFinder($sql, $event, $table)
     {
         if ($event == 'delete') {
             if (strpos($sql, "lists:") === 0) {
@@ -961,7 +961,7 @@ MSG;
     // Goal of this function is to increase performance in logging engine to check
     //  if a user is a breakglass user (in this case, will log all activities if the
     //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
-    private function isBreakglassUser($user)
+    protected function isBreakglassUser($user)
     {
         // return false if $user is empty
         if (empty($user)) {
