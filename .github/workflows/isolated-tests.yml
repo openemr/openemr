@@ -51,7 +51,21 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: Run isolated tests with coverage
-      run: vendor/bin/phpunit -c phpunit-isolated.xml --coverage-clover=clover.xml --coverage-html htmlcov --testdox
+      run: |
+        vendor/bin/phpunit -c phpunit-isolated.xml \
+                           --coverage-filter=apis \
+                           --coverage-filter=gacl \
+                           --coverage-filter=interface \
+                           --coverage-filter=library \
+                           --coverage-filter=modules \
+                           --coverage-filter=oauth2 \
+                           --coverage-filter=portal \
+                           --coverage-filter=sites \
+                           --coverage-filter=src \
+                           --coverage-filter=tests \
+                           --coverage-clover=clover.xml \
+                           --coverage-html=htmlcov \
+                           --testdox
 
     - name: Upload coverage reports
       uses: actions/upload-artifact@v4
