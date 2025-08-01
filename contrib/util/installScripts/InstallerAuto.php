@@ -41,6 +41,8 @@
  *                             will disable cloning / migration since that generally requires root access to the db
  *     development_translations -> If set to anything, will then download and use the development set (updated daily)
  *                                   of translations (indirectly) from the github repository.
+ *     encryption_strategy -> encryption strategy to use (cryptogen)
+ *                             Options: 'cryptogen' for standard encryption, 'null' for no encryption
  *
  *     Examples of use:
  *     1) Install using default configuration settings
@@ -102,6 +104,7 @@ $installSettings['source_site_id']           = 'BLANK';
 $installSettings['clone_database']           = 'BLANK';
 $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
+$installSettings['encryption_strategy']      = 'cryptogen'; // Default encryption strategy
 
 // Collect parameters(if exist) for installation configuration settings
 for ($i = 1; $i < count($argv); $i++) {
