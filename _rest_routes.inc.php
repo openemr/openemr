@@ -1976,6 +1976,14 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
 
+    "GET /oauth2/:site/authorize/google" => function ($site) {
+        (new \OpenEMR\RestControllers\AuthorizationController())->redirectToGoogle();
+    },
+
+    "GET /oauth2/:site/callback/google" => function ($site) {
+        (new \OpenEMR\RestControllers\AuthorizationController())->handleGoogleCallback();
+    },
+
     /**
      *  @OA\Get(
      *      path="/api/patient/{puuid}/encounter/{euuid}",
