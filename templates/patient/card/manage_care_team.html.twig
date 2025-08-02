@@ -85,10 +85,10 @@
                 const idx = document.querySelectorAll('#care_team_table tbody tr').length;
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                <td><select name="team[${idx}][user_id]" class="form-control form-control-sm">${userOptions}</select></td>
+                <td><select name="team[${idx}][user_id]" class="form-control form-control-sm" required>${userOptions}</select></td>
                 <td><select name="team[${idx}][role]" class="form-control form-control-sm">${roleOptions}</select></td>
                 <td><select name="team[${idx}][facility_id]" class="form-control form-control-sm">${facilityOptions}</select></td>
-                <td><input type="text" name="team[${idx}][provider_since]" class="datepicker-new form-control form-control-sm"></td>
+                <td><input type="text" name="team[${idx}][provider_since]" class="datepicker-new form-control form-control-sm"required></td>
                 <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
                 <td><input name="team[${idx}][note]" class="form-control form-control-sm"></td>
                 <td><button type="button" class="btn btn-danger btn-sm float-right" onclick="this.closest('tr').remove()">×</button></td>
