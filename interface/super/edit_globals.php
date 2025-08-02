@@ -390,7 +390,7 @@ function checkBackgroundServices(): void
 
 <body <?php if ($userMode) {
     echo 'style="min-width: 700px;"';
-} ?>>
+      } ?>>
 
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?> mt-2">
         <div class="row">
@@ -854,7 +854,7 @@ function checkBackgroundServices(): void
             // Use the counter ($i) to make the form user friendly for user-specific globals use
             <?php
             if ($userMode) {
-            for ($j = 0; $j <= $i; $j++) { ?>
+                for ($j = 0; $j <= $i; $j++) { ?>
             $("#form_<?php echo $j ?>").change(function () {
                 $("#toggle_<?php echo $j ?>").prop('checked', false);
             });
@@ -864,8 +864,8 @@ function checkBackgroundServices(): void
                     $("#form_<?php echo $j ?>").val(defaultGlobal);
                 }
             });
-            <?php
-            }
+                    <?php
+                }
             }
             ?>
             $('#srch_desc').keypress(function (event) {
