@@ -59,7 +59,7 @@ class CareTeamViewCard extends CardModel
                 'title' => xl("Care Team"),
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
-                'btnLink' => "javascript:$('.editShow').toggleClass('d-none');",
+                'btnLink' => "javascript:toggleEditMode(true);",
                 'linkMethod' => 'html',
                 'initiallyCollapsed' => $initiallyCollapsed ? true : false,
                 'auth' => $authCheck
@@ -256,13 +256,14 @@ class CareTeamViewCard extends CardModel
                 $teamName = $member['team_name'];
             }
         }
-        // Enhanced template data with pre-generated option strings for JavaScript
-        $templateData['user_options'] = '';
+
+        $templateData['user_options'] = "<option value=''></option>";
         foreach ($templateData['users'] as $users) {
             $templateData['user_options'] .= "<option value='" . attr($users['id']) . "'>" . text($users['name']) . "</option>";
         }
 
-        $templateData['facility_options'] = '';
+        $templateData['facility_options'] = "<option value=''></option>";
+        ;
         foreach ($templateData['facilities'] as $facilities) {
             $templateData['facility_options'] .= "<option value='" . attr($facilities['id']) . "'>" . text($facilities['name']) . "</option>";
         }
@@ -304,7 +305,8 @@ class CareTeamViewCard extends CardModel
             'remove' => xl("Remove"),
             'add_team_member' => xl("Add Team Member"),
             'save_care_team' => xl("Save Care Team"),
-            'save_care_team_confirm' => xl('Save care team?')
+            'save_care_team_confirm' => xl('Save care team?'),
+            'cancel' => xl('Cancel')
         ];
     }
 }

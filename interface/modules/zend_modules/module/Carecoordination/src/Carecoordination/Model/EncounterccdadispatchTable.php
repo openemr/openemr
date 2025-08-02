@@ -909,28 +909,28 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $encounter
      * @return string
      */
-    public function getPrimaryCareProvider($pid, $encounter): string
+    public function getPatientCarePlan($pid, $encounter): string
     {
-        // primary from demographics
         $getprovider = $this->getProviderId($pid);
-        // @TODO I don't like this much. Should add date UI in care team assignments.
         $getprovider_status = $this->getPatientProviderStatus($pid) ?? null;
-        $provider_since_date = !empty($getprovider_status['provider_since_date']) ? date('Y-m-d H:i:sO', strtotime($getprovider_status['provider_since_date'])) : date('Y-m-d H:i:sO');
-        $provenanceXml = ""; // if we can't get the provenance information we'll just have to leave it as empty
-        if (!empty($getprovider)) { // from patient_data
+        $provider_since_date = !empty($getprovider_status['provider_since_date'])
+            ? date('Y-m-d H:i:sO', strtotime($getprovider_status['provider_since_date']))
+            : date('Y-m-d H:i:sO');
+
+        $provenanceXml = "";
+        if (!empty($getprovider)) {
             $details = $this->getUserDetails($getprovider);
-            $provenanceSql = "select updated_by AS provenance_updated_by, date AS date_modified FROM patient_data WHERE pid = ?";
-            $provenanceRecord = [];
+            $provenanceSql = "SELECT updated_by AS provenance_updated_by, date AS date_modified FROM patient_data WHERE pid = ?";
             $appTable = new ApplicationTable();
-            $res = $appTable->zQuery($provenanceSql, array($pid));
+            $res = $appTable->zQuery($provenanceSql, [$pid]);
             foreach ($res as $row) {
                 $provenanceRecord = [
-                    'author_id' => $row['provenance_updated_by']
-                    , 'time' => $row['date_modified']
+                    'author_id' => $row['provenance_updated_by'],
+                    'time' => $row['date_modified']
                 ];
             }
-            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
-        } else { // get from CCM setup
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord ?? [], $pid, $encounter);
+        } else {
             $getprovider = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
             if (!empty($getprovider)) {
                 $details = $this->getUserDetails($getprovider);
@@ -940,18 +940,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
         }
 
-
-        // Note for NPI: Many times a care team member may not have an NPI so instead of
-        // an NPI OID use facility/document unique OID with user table reference for extension.
-        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid) ?? '');
-        if (empty($getprovider)) {
-            // Last chance. Get the first care team member as primary.
-            if (!empty($get_care_team_provider[0])) {
-                $getprovider = $get_care_team_provider[0];
-                $details = $this->getUserDetails($getprovider);
-            }
+        // Load full care team from new structured table
+        $careTeam = sqlStatement("SELECT ct.*, lo.title AS role_display, lo.codes AS role_code FROM care_teams ct
+        LEFT JOIN list_options lo ON lo.list_id = 'care_team_roles' AND lo.option_id = ct.role
+        WHERE ct.pid = ? ORDER BY ct.id ASC", [$pid]);
+        $careTeamMembers = [];
+        while ($row = sqlFetchArray($careTeam)) {
+            $careTeamMembers[] = $row;
         }
-        if (!empty($details)) {
+        $team_count = count($careTeamMembers);
+        // If no care team members, we will use the primary care provider as the only member
+        $primary_care_provider = '';
+        if (!empty($details) && $team_count == 0) {
             $primary_care_provider = "
         <primary_care_provider>
           <provider>" . $provenanceXml . "
@@ -960,60 +960,62 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
             <speciality>" . xmlEscape($details['specialty'] ?? '') . "</speciality>
             <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
-            <telecom>" . xmlEscape((($details['phonew1'] ?? '') ? $details['phonew1'] : 0)) . "</telecom>
+            <telecom>" . xmlEscape($details['phonew1'] ?? '') . "</telecom>
             <street>" . xmlEscape($details['street'] ?? '') . "</street>
             <city>" . xmlEscape($details['city'] ?? '') . "</city>
             <state>" . xmlEscape($details['state'] ?? '') . "</state>
             <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
-            <table_id>" . xmlEscape("provider-" . $getprovider ?? '') . "</table_id>
+            <table_id>" . xmlEscape("provider-" . $getprovider) . "</table_id>
             <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
             <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
             <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
             <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
             <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
-            <provider_since>" . xmlEscape($provider_since_date ?: null) . "</provider_since>
+            <provider_since>" . xmlEscape($provider_since_date) . "</provider_since>
+            <role_code>primary</role_code>
+            <role_display>Primary Care Provider</role_display>
           </provider>
         </primary_care_provider>";
         } else {
-            $primary_care_provider = '';
+            $primary_care_provider = '<primary_care_provider></primary_care_provider>';
         }
 
-        $care_team_provider = "<care_team>" . $provenanceXml
-            . "<is_active>" . ($getprovider_status['care_team_status'] ?? false) . "</is_active>";
-        foreach ($get_care_team_provider as $team_member) {
-            if ((int)$getprovider === (int)$team_member) {
-                // primary should be a part of care team but just in case
-                // I've kept primary separate. So either way, primary gets included.
-                // in this case, we don't want to duplicate the provider.
+        // If we have care team members, we will build the care team XML
+        // I've disabled the is active flag from choices until I can decide how to handle it in the UI
+        $care_team_provider = "<care_team>" . $provenanceXml . "<is_active>" . ($getprovider_status['care_team_status'] ?: 'active') . "</is_active>";
+        foreach ($careTeamMembers as $row) {
+            $user_id = $row['user_id'];
+            $details = $this->getUserDetails($user_id);
+            if (empty($details)) {
                 continue;
             }
-            $details2 = $this->getUserDetails($team_member);
-            if (empty($details2)) {
-                continue;
-            }
-            $care_team_provider .= "<provider>
-            <prefix>" . xmlEscape($details2['title']) . "</prefix>
-            <fname>" . xmlEscape($details2['fname']) . "</fname>
-            <lname>" . xmlEscape($details2['lname']) . "</lname>
-            <speciality>" . xmlEscape($details2['specialty']) . "</speciality>
-            <organization>" . xmlEscape($details2['organization']) . "</organization>
-            <telecom>" . xmlEscape(($details2['phonew1'] ?: '')) . "</telecom>
-            <street>" . xmlEscape($details2['street'] ?? '') . "</street>
-            <city>" . xmlEscape($details2['city'] ?? '') . "</city>
-            <state>" . xmlEscape($details2['state'] ?? '') . "</state>
-            <zip>" . xmlEscape($details2['zip'] ?? '') . "</zip>
-            <table_id>" . xmlEscape("provider-" . $team_member) . "</table_id>
-            <npi>" . xmlEscape($details2['npi']) . "</npi>
-            <physician_type>" . xmlEscape($details2['physician_type']) . "</physician_type>
-            <physician_type_code>" . xmlEscape($details2['physician_type_code']) . "</physician_type_code>
-            <taxonomy>" . xmlEscape($details2['taxonomy']) . "</taxonomy>
-            <taxonomy_description>" . xmlEscape($details2['taxonomy_desc']) . "</taxonomy_description>
-            <provider_since>" . xmlEscape($provider_since_date) . "</provider_since>
+            $care_team_provider .= "
+        <provider>
+            <prefix>" . xmlEscape($details['title'] ?? '') . "</prefix>
+            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+            <speciality>" . xmlEscape($details['specialty'] ?? '') . "</speciality>
+            <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
+            <telecom>" . xmlEscape($details['phonew1'] ?? '') . "</telecom>
+            <street>" . xmlEscape($details['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details['state'] ?? '') . "</state>
+            <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
+            <table_id>" . xmlEscape("provider-" . $user_id) . "</table_id>
+            <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
+            <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
+            <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
+            <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
+            <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
+            <provider_since>" . xmlEscape($row['provider_since'] ?? '') . "</provider_since>
+            <role_code>" . xmlEscape(str_replace('SNOMED-CT:', '', $row['role_code']) ?? '') . "</role_code>
+            <role_display>" . xmlEscape($row['role_display'] ?? '') . "</role_display>
+            <status>" . xmlEscape($row['status'] ?? '') . "</status>
           </provider>
-          ";
-        }
-        $care_team_provider .= "</care_team>
         ";
+        }
+        $care_team_provider .= "</care_team>";
+
         return $primary_care_provider . $care_team_provider;
     }
 
