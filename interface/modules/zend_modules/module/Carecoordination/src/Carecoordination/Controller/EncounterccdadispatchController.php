@@ -221,6 +221,11 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
 
                 if ($view && !$downloadccda) {
+                    if (str_starts_with($content, 'ERROR:')) {
+                        echo "<h3>" . $content . "</h3>";
+                        (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+                        die();
+                    }
                     $xml = simplexml_load_string($content);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.

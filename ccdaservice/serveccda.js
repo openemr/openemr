@@ -11,7 +11,7 @@
 
 "use strict";
 
-const enableDebug = false;
+const enableDebug = true;
 
 const net = require("net");
 const server = net.createServer();
@@ -44,9 +44,12 @@ let documentLocation = "";
 
 function populateProviders(all) {
     let providerArray = [];
+    let provider = {};
     // primary provider
-    let provider = populateProvider(all.primary_care_provider.provider, all);
-    providerArray.push(provider);
+    if (all.primary_care_provider && all.primary_care_provider.provider) {
+        provider = populateProvider(all.primary_care_provider.provider, all);
+        providerArray.push(provider);
+    }
     let count = countEntities(all.care_team.provider);
     if (count === 1) {
         provider = populateProvider(all.care_team.provider, all);
@@ -86,12 +89,12 @@ function populateCareTeamMember(provider) {
         //"function_code": provider.physician_type ? "PP" : "",
         "function_code": {
             "xmlns": "urn:hl7-org:sdtc",
-            "name": provider.taxonomy_description || "",
-            "code": cleanCode(provider.taxonomy) || "",
+            "name": provider.role_display || "",
+            "code": cleanCode(provider.role_code) || "",
             "code_system": "2.16.840.1.113883.6.101",
-            "code_system_name": "NUCC Health Care Provider Taxonomy"
+            "code_system_name": "SNOMED CT"
         },
-        "status": "active",
+        "status": provider.status,
         "date_time": {
             "low": {
                 "date": fDate(provider.provider_since) || fDate(""),
@@ -173,15 +176,6 @@ function populateAuthorFromAuthorContainer(pd) {
 function populateCareTeamMembers(pd) {
     const providerArray = [];
     let providerSince = "";
-
-    // Add primary care provider if available
-    if (pd.primary_care_provider?.provider) {
-        const primaryProvider = populateCareTeamMember(pd.primary_care_provider.provider);
-        providerArray.push(primaryProvider);
-
-        // Try to extract earliest provider_since
-        providerSince = fDate(pd.primary_care_provider.provider.provider_since || '');
-    }
 
     // Process additional care team members (providers, case managers, etc.)
     const teamMembers = pd.care_team?.provider || [];
@@ -2536,7 +2530,7 @@ function generateCcda(pd) {
     // Demographics
     let demographic = populateDemographics(pd, npiFacility);
 // This populates documentationOf. We are using providerOrganization also.
-    if (pd.primary_care_provider) {
+    if (pd.care_team) {
         Object.assign(demographic, populateProviders(pd));
     }
     data.demographics = Object.assign(demographic);
@@ -3119,7 +3113,7 @@ function processConnection(connection) {
                 conn.end();
             } catch (error) {
                 console.log("XML parsing error:", error);
-                //conn.write("ERROR: Failed json build");
+                //conn.write("ERROR: " + error.message);
                 conn.end();
             }
         }
