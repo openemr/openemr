@@ -1,0 +1,84 @@
+##
+# OpenEMR has two different kinds of tests:
+# - "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
+# - "Tests": Tests that require a database and initialization before they can run or pass.
+# This workflow runs the kind that does not require initialization.
+
+name: Isolated Tests
+
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  isolated-tests:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        php-version:
+        - '8.2'
+        - '8.3'
+        - '8.4'
+        - '8.5'
+
+    name: PHP ${{ matrix.php-version }} - Isolated Tests
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        coverage: xdebug
+        php-version: ${{ matrix.php-version }}
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+
+    - name: Composer Cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.configurations.php }}-
+          ${{ runner.os }}-composer-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run isolated tests with coverage
+      run: |
+        vendor/bin/phpunit -c phpunit-isolated.xml \
+                           --coverage-filter=apis \
+                           --coverage-filter=gacl \
+                           --coverage-filter=interface \
+                           --coverage-filter=library \
+                           --coverage-filter=modules \
+                           --coverage-filter=oauth2 \
+                           --coverage-filter=portal \
+                           --coverage-filter=sites \
+                           --coverage-filter=src \
+                           --coverage-filter=tests \
+                           --coverage-clover=clover.xml \
+                           --coverage-html=htmlcov \
+                           --testdox
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-isolated-tests-php-${{ matrix.php-version }}
+        path: |
+          clover.xml
+          htmlcov/
