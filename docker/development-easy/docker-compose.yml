@@ -101,7 +101,7 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chrome:134.0-chromedriver-134.0-grid-4.31.0-20250414    # Pinned to Chrome 134 and grid 4.31
+    image: selenium/standalone-chromium:4 # Pins to Selenium Grid major version 4 using the latest compatible version of chrome driver, amd64 & arm64 support
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
