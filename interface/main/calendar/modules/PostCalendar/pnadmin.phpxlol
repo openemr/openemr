@@ -877,7 +877,7 @@ function postcalendar_admin_testSystem()
             $strategyName = CryptoGen::getEncryptionStrategyName();
             if ($strategyName) {
                 array_push($infos, array('Encryption Strategy', $strategyName));
-
+                
                 // Try to get strategy implementation class
                 try {
                     $cryptoGen = new CryptoGen();

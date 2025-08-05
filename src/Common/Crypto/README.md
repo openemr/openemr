@@ -2,6 +2,12 @@
 
 This directory contains OpenEMR's install-time encryption strategy selection system, which allows for flexible encryption implementations while maintaining data integrity and preventing runtime strategy changes.
 
+## Motivation
+
+OpenEMR ships with robust internal encryption (CryptoGenStrategy) for HIPAA compliance, but deployment needs vary. Cloud providers often provide HIPAA-compliant encryption at the infrastructure level (disk encryption, database encryption, network encryption), which may reduce the need for application-layer encryption complexity and performance overhead.
+
+The strategy pattern ensures consistent behavior: while OpenEMR has multiple encryption disable flags for different subsystems (filesystem, CouchDB, etc.), modules may not respect these flags consistently. The crypto strategy system guarantees that all encryption calls—even direct CryptoGen usage—follow the selected approach, whether that's full encryption, cloud-managed encryption via the Null strategy, or custom implementations.
+
 ## Overview
 
 The crypto strategy system is built around the [Strategy Pattern](https://refactoring.guru/design-patterns/strategy) with **install-time selection** to ensure data accessibility and prevent configuration drift.
@@ -9,9 +15,9 @@ The crypto strategy system is built around the [Strategy Pattern](https://refact
 ### Core Components
 
 - **`CryptoGen`** - Main encryption facade that loads strategy from database
-- **`EncryptionStrategyInterface`** - Contract that all strategies must implement (extends `Serializable`)
-- **`CryptoGenStrategy`** - Default AES-256-CBC + HMAC-SHA384 implementation
-- **`NullEncryptionStrategy`** - Identity function (no encryption)
+- **`EncryptionStrategyInterface`** - Contract that all strategies must implement
+- **`CryptoGenStrategy`** - Default AES-256-CBC + HMAC-SHA384 implementation for on-premises HIPAA compliance
+- **`NullEncryptionStrategy`** - Pass-through strategy for cloud deployments with infrastructure-level HIPAA encryption
 - **`EncryptionStrategySelector`** - Tool for strategy discovery and selection during installation
 - **`EncryptionStrategyRegistrationEvent`** - Event for modules to register available strategies
 - **`CryptoGenException`** - Exception for critical crypto errors
@@ -35,10 +41,10 @@ When `CryptoGen` is instantiated, it loads the strategy in this order:
 
 ### Strategy Interface
 
-All encryption strategies must implement `EncryptionStrategyInterface` and `Serializable`:
+All encryption strategies must implement `EncryptionStrategyInterface`:
 
 ```php
-interface EncryptionStrategyInterface extends \Serializable
+interface EncryptionStrategyInterface
 {
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive');
 
@@ -57,8 +63,8 @@ The strategy system integrates with OpenEMR's installation process to allow stra
 1. **Strategy Discovery** - `EncryptionStrategySelector` dispatches `EncryptionStrategyRegistrationEvent::STRATEGY_REGISTRATION`
 2. **Module Registration** - Modules can register available strategies via event listeners
 3. **Strategy Selection** - User/installer selects strategy (default: `cryptogen`)
-4. **Serialization** - Selected strategy is serialized and stored in `globals.encryption_strategy_serialized`
-5. **Runtime Loading** - `CryptoGen` loads and deserializes strategy from database
+4. **Storage** - Selected strategy name is stored in `keys.encryption_strategy_name`
+5. **Runtime Loading** - `CryptoGen` loads strategy by name from keys table
 
 ### Available Installation Options
 
@@ -105,27 +111,19 @@ class CustomEncryptionStrategy implements EncryptionStrategyInterface
         return !empty($value) && str_starts_with($value, 'YOUR_PREFIX');
     }
 
-    // Required serialization methods
-    public function serialize(): string
+    public function getId(): string
     {
-        return serialize(['version' => $this->version]);
+        return 'custom_encryption';
     }
 
-    public function unserialize(string $data): void
+    public function getName(): string
     {
-        $unserialized = unserialize($data);
-        $this->version = $unserialized['version'] ?? '001';
+        return 'Custom Encryption Strategy';
     }
 
-    // Modern PHP serialization methods
-    public function __serialize(): array
+    public function getDescription(): string
     {
-        return ['version' => $this->version];
-    }
-
-    public function __unserialize(array $data): void
-    {
-        $this->version = $data['version'] ?? '001';
+        return 'Advanced encryption for compliance';
     }
 }
 ```
@@ -137,7 +135,7 @@ class CustomEncryptionStrategy implements EncryptionStrategyInterface
 3. **Error handling** - Return `false` from `decryptStandard` on failure
 4. **Unique identification** - `cryptCheckStandard` should identify your encrypted data
 5. **Security** - Use cryptographically secure methods (AES, authenticated encryption, etc.)
-6. **Serialization** - Implement both legacy and modern PHP serialization methods
+6. **Strategy identification** - Implement `getId()`, `getName()`, and `getDescription()` methods
 
 ## Registering Your Strategy for Installation
 
@@ -199,8 +197,8 @@ During web installation, your custom strategy will appear in the encryption stra
 The system validates that:
 1. Strategy ID is unique
 2. Strategy implements `EncryptionStrategyInterface`
-3. Strategy implements `Serializable` interface
-4. Strategy can be serialized and deserialized correctly
+3. Strategy provides proper identification methods (`getId()`, `getName()`, `getDescription()`)
+4. Strategy can encrypt/decrypt data correctly
 
 ## ⚠️ CRITICAL WARNING: Install-Time Strategy Selection
 
@@ -218,18 +216,137 @@ The system validates that:
 ### Install-Time Protection
 
 The new system prevents strategy changes by:
-- **Serializing the strategy** during installation so it remains available even if modules are removed
-- **Loading from database** at runtime instead of allowing dynamic selection
+- **Storing strategy name** in the keys table during installation so it remains available even if modules are removed
+- **Loading from keys table** at runtime instead of allowing dynamic selection
 - **Immutable configuration** that cannot be changed through the UI or events
 
 **Choose your encryption strategy carefully during installation. This decision cannot be easily reversed.**
 
+## Default Strategy: CryptoGenStrategy
+
+CryptoGenStrategy is OpenEMR's default encryption implementation, providing healthcare-compliant security designed to protect patient health information (PHI) and meet regulatory requirements.
+
+### Technical Specifications
+
+- **Algorithm**: AES-256-CBC (Advanced Encryption Standard, 256-bit key, Cipher Block Chaining)
+- **Authentication**: HMAC-SHA384 (Hash-based Message Authentication Code with SHA-384)
+- **Key Derivation** (password-based): PBKDF2 (100,000 iterations) + HKDF
+- **Random Generation**: Cryptographically secure random bytes for IVs and salts
+- **Version Support**: Backward compatibility with 6 encryption versions (001-006)
+
+### Key Management Architecture
+
+CryptoGenStrategy uses a hybrid key storage approach combining filesystem and database storage:
+
+#### **Filesystem Keys** (Default: `keySource = 'drive'`)
+- **Location**: `$GLOBALS['OE_SITE_DIR']/documents/logs_and_misc/methods/`
+- **Format**: Base64-encoded for older versions (001-004), encrypted for newer versions (005-006)
+- **Security**: Newer versions encrypt filesystem keys using database keys for enhanced protection
+- **File Names**: `{version}{subkey}` (e.g., `sixa`, `sixb` for encryption and HMAC keys)
+
+#### **Database Keys** (Alternative: `keySource = 'database'`)
+- **Location**: `keys` table with `name` column as identifier
+- **Format**: Base64-encoded 32-byte random keys
+- **Auto-generation**: Creates keys automatically if missing
+- **Cache**: In-memory caching prevents repeated database queries
+
+### Key Version Evolution
+
+| Version | Year | Key Storage | Key Protection | HMAC Algorithm |
+|---------|------|-------------|----------------|----------------|
+| 001-002 | Early | Filesystem | Plain base64 | SHA-256 |
+| 003-004 | Mid | Filesystem | Plain base64 | SHA-256 |
+| 005-006 | Current | Filesystem + Database | Encrypted with DB keys | SHA-384 |
+
+### Security Features
+
+#### **Authenticated Encryption**
+- Every encrypted value includes HMAC for tamper detection
+- HMAC calculated over IV + encrypted data to prevent manipulation
+- Constant-time comparison prevents timing attacks
+
+#### **Password-Based Encryption**
+- PBKDF2 with 100,000 iterations for slow key derivation
+- HKDF for domain separation (separate encryption and HMAC keys)
+- Unique salt per encryption prevents rainbow table attacks
+
+#### **Version Compatibility**
+- Automatic detection of encryption version from data prefix
+- Graceful decryption of legacy encrypted data
+- Minimum version enforcement for security policies
+
+### Pros and Cons
+
+#### **✅ Advantages**
+
+1. **Healthcare-Compliant Security**
+   - AES-256 meets HIPAA encryption requirements and NIST standards
+   - HMAC-SHA384 ensures data integrity for patient records
+   - Designed for healthcare privacy regulations and audit requirements
+
+2. **Hybrid Key Storage**
+   - Filesystem storage survives database corruption
+   - Database storage enables centralized key management
+   - Newer versions encrypt filesystem keys for defense-in-depth
+
+3. **Backward Compatibility**
+   - Supports 6 encryption versions for smooth upgrades
+   - Legacy data remains accessible after system updates
+   - Gradual migration path for security improvements
+
+4. **Performance Optimized**
+   - Key caching reduces database/filesystem access
+   - Efficient OpenSSL integration
+   - Minimal computational overhead
+
+5. **Flexible Usage**
+   - Standard key-based encryption for system data
+   - Custom password-based encryption for user data
+   - Configurable key sources (drive/database)
+
+#### **⚠️ Considerations**
+
+1. **Key Management Complexity**
+   - Multiple key storage locations require careful backup
+   - Lost filesystem keys render data unrecoverable
+   - Key rotation requires manual intervention
+
+2. **Filesystem Dependencies**
+   - Default mode requires filesystem write access
+   - Docker/container deployments need persistent volumes
+   - File permissions must be properly secured
+
+3. **Database Key Limitations**
+   - Database-only keys eliminate filesystem backup advantage
+   - Requires database connectivity for all encryption operations
+   - No automatic key escrow or recovery mechanisms
+
+4. **Legacy Version Support**
+   - Older versions use weaker HMAC (SHA-256 vs SHA-384)
+   - Cannot force upgrade of existing encrypted data
+   - Security improvements limited by backward compatibility
+
+### When to Use CryptoGenStrategy
+
+**✅ Recommended for:**
+- Standard healthcare organizations and clinics
+- On-premises deployments with file system access
+- Environments requiring HIPAA compliance with proven encryption
+- Organizations needing backward compatibility with existing data
+- Mixed key storage requirements for operational flexibility
+
+**❌ Consider alternatives for:**
+- Cloud-native deployments preferring HSM/KMS integration
+- Organizations with enhanced privacy requirements beyond HIPAA
+- Specialized compliance needs (e.g., international privacy laws)
+- Deployments requiring automatic key rotation policies
+
 ## Best Practices
 
-1. **Stick with the default** - `CryptoGenStrategy` is battle-tested and secure
+1. **Stick with the default** - `CryptoGenStrategy` is healthcare-tested and HIPAA-compliant
 2. **Test extensively** - Any custom strategy must pass comprehensive security testing
 3. **Document everything** - Custom strategies need thorough documentation
-4. **Test serialization** - Ensure strategies serialize/deserialize correctly
+4. **Test thoroughly** - Ensure strategies encrypt/decrypt correctly across all scenarios
 5. **Plan for the long term** - Strategy choice is permanent once data is encrypted
 6. **Regular backups** - Encrypted data is only as safe as your backups
 
@@ -241,13 +358,17 @@ The new system prevents strategy changes by:
 - **Never hardcode keys** - Use proper key management
 - **Validate all inputs** - Prevent injection attacks
 - **Constant-time comparisons** - Prevent timing attacks
-- **Secure serialization** - Don't serialize sensitive data like keys
+- **Stateless design** - Don't store sensitive data in strategy instances
 
 ## Debugging
 
 To debug strategy loading:
 
 ```php
+// Check what strategy name is stored in keys table
+$strategyName = CryptoGen::getEncryptionStrategyName();
+error_log("Stored strategy name: " . ($strategyName ?? 'null'));
+
 // Check what strategy is loaded from database
 $cryptoGen = new CryptoGen();
 error_log("Loaded strategy: " . get_class($cryptoGen->getEncryptionStrategy()));
@@ -259,6 +380,13 @@ foreach ($strategies as $id => $strategy) {
     error_log("Available strategy: {$id} - {$strategy['name']}");
 }
 ```
+
+## Diagnostics
+
+The encryption strategy information is displayed in the Admin->System->Diagnostics page, showing:
+- Strategy name stored in the keys table
+- Implementation class being used
+- Any errors encountered during strategy loading
 
 ## Legacy Support
 

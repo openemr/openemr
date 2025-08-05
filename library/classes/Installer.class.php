@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\Gacl\GaclApi;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 class Installer
 {
@@ -632,13 +633,14 @@ $config = 1; /////////////
                     $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
                     $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
-                        // Override encryption strategy default with installer parameter
-                        if ($fldid === 'encryption_strategy_name' && !empty($this->encryption_strategy)) {
-                            $flddef = $this->encryption_strategy;
+                        // Handle encryption strategy with centralized storage
+                        if ($fldid === 'encryption_strategy_name') {
+                            $strategyToUse = !empty($this->encryption_strategy) ? $this->encryption_strategy : $flddef;
+                            CryptoGen::setEncryptionStrategyName($strategyToUse);
+                        } else {
+                            $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                               "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
                         }
-
-                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
                     }
                 }
             }

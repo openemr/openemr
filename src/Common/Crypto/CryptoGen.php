@@ -61,6 +61,46 @@ class CryptoGen
     }
 
     /**
+     * Get the encryption strategy name from the keys table.
+     *
+     * @return string|null The strategy name, or null if not found
+     */
+    public static function getEncryptionStrategyName(): ?string
+    {
+        if (!self::ready()) {
+            return null;
+        }
+
+        $result = sqlQueryNoLog("SELECT value FROM keys WHERE name = 'encryption_strategy_name'");
+        return $result['value'] ?? null;
+    }
+
+    /**
+     * Set the encryption strategy name in the keys table.
+     *
+     * @param string $strategyName The strategy name to store
+     * @return bool True on success, false on failure
+     */
+    public static function setEncryptionStrategyName(string $strategyName): bool
+    {
+        if (!self::ready()) {
+            return false;
+        }
+
+        try {
+            // Use INSERT ... ON DUPLICATE KEY UPDATE for MySQL compatibility
+            sqlStatementNoLog(
+                "INSERT INTO keys (name, value) VALUES ('encryption_strategy_name', ?) ON DUPLICATE KEY UPDATE value = VALUES(value)",
+                [$strategyName]
+            );
+            return true;
+        } catch (Exception $e) {
+            error_log("CryptoGen: Failed to set encryption strategy name: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Constructor - Initialize CryptoGen with database-stored encryption strategy.
      *
      * Loads the encryption strategy from the database global setting.
@@ -169,7 +209,7 @@ class CryptoGen
 
 
     /**
-     * Load encryption strategy from database global setting.
+     * Load encryption strategy from database keys table.
      *
      * Note: This method is only called once during construction and the result
      * is stored in $this->encryptionStrategy.
@@ -179,30 +219,28 @@ class CryptoGen
      */
     private function loadStrategyFromDatabase(): EncryptionStrategyInterface
     {
-        // Check if we have a database connection and the globals table exists
+        // Check if we have a database connection
         if (!self::ready()) {
             throw new CryptoGenException("Fatal error: No database connection available for loading encryption strategy");
         }
 
         $encryptionStrategySelector = new EncryptionStrategySelector();
 
-        // Query for the encryption strategy name from global setting
-        $result = sqlQueryNoLog("SELECT gl_value FROM globals WHERE gl_name = 'encryption_strategy_name' AND gl_index = 0");
+        // Get the encryption strategy name from keys table
+        $strategyName = self::getEncryptionStrategyName();
 
-        if (empty($result['gl_value'])) {
+        if (empty($strategyName)) {
             $this->systemLogger->debug("CryptoGen: No encryption strategy name stored in database, setting default");
             // Set the default strategy in the database
             $defaultStrategy = $encryptionStrategySelector->getDefaultStrategy();
             $defaultStrategyId = $defaultStrategy->getId();
-            sqlStatementNoLog("INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('encryption_strategy_name', 0, ?)", [$defaultStrategyId]);
+            self::setEncryptionStrategyName($defaultStrategyId);
             $this->systemLogger->debug(
                 sprintf("CryptoGen: Set default encryption strategy in database to '%s'", $defaultStrategyId),
                 ['strategy_name' => $defaultStrategyId]
             );
             return $defaultStrategy;
         }
-
-        $strategyName = $result['gl_value'];
 
         if (!is_string($strategyName)) {
             throw new CryptoGenException("Fatal error: Encryption strategy name from database is not a string");
