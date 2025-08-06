@@ -115,7 +115,7 @@ $form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUE
 
 // Reminders related stuff
 $incl_reminders = isset($_POST['incl_reminders']) ? 1 : 0;
-function fetch_rule_txt($list_id, $option_id) : array|false
+function fetch_rule_txt($list_id, $option_id): array|false
 {
     $rs = sqlQuery(
         'SELECT title, seq from list_options WHERE list_id = ? AND option_id = ? AND activity = 1',
@@ -127,7 +127,7 @@ function fetch_rule_txt($list_id, $option_id) : array|false
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
-function fetch_reminders($pid, $appt_date) : array
+function fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
     $seq_due = array();
