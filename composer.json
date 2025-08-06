@@ -40,7 +40,7 @@
         "ext-zip": "*",
         "ext-zlib": "*",
         "academe/omnipay-authorizenetapi": "3.1.2",
-        "adodb/adodb-php": "5.22.9",
+        "adodb/adodb-php": "5.22.10",
         "aranyasen/hl7": "3.2.1",
         "bacon/bacon-qr-code": "3.0.1",
         "digitickets/lalit": "3.4.0",
