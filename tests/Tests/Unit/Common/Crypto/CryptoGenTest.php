@@ -139,14 +139,6 @@ final class CryptoGenTest extends TestCase
         $this->assertStringStartsWith('006', $result);
     }
 
-    public function testEncryptStandardWithNullValue(): void
-    {
-        $result = $this->cryptoGen->encryptStandard(null);
-        $this->assertNotEmpty($result);
-        $this->assertIsString($result);
-        $this->assertStringStartsWith('006', $result);
-    }
-
     public function testEncryptStandardWithValidValue(): void
     {
         $testValue = 'test encryption data';
@@ -188,12 +180,6 @@ final class CryptoGenTest extends TestCase
     public function testDecryptStandardWithEmptyValue(): void
     {
         $result = $this->cryptoGen->decryptStandard('');
-        $this->assertEquals('', $result);
-    }
-
-    public function testDecryptStandardWithNullValue(): void
-    {
-        $result = $this->cryptoGen->decryptStandard(null);
         $this->assertEquals('', $result);
     }
 
@@ -543,20 +529,12 @@ final class CryptoGenTest extends TestCase
         // Test custom password path
         $result = $this->cryptoGen->aes256DecryptTwo('invalid_base64', 'testpassword');
         $this->assertFalse($result);
-
-        // Test with null value
-        $result = $this->cryptoGen->aes256DecryptTwo(null);
-        $this->assertFalse($result);
     }
 
     public function testAes256DecryptOneWithCustomPassword(): void
     {
         // Test custom password path
         $result = $this->cryptoGen->aes256DecryptOne('invalid_base64', 'testpassword');
-        $this->assertFalse($result);
-
-        // Test with null value
-        $result = $this->cryptoGen->aes256DecryptOne(null);
         $this->assertFalse($result);
     }
 

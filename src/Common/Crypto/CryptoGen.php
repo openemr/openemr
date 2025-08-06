@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CryptoGen class.
+ * CryptoGen class
  *
  *   OpenEMR encryption/decryption strategy:
  *    1. Two separate private key sets are used, one key set in the database and one key set on the drive.
@@ -36,61 +36,61 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 
 class CryptoGen
 {
-    # This is the current encrypt/decrypt version
-    # (this will always be a three digit number that we will
-    #  increment when update the encrypt/decrypt methodology
-    #  which allows being able to maintain backward compatibility
-    #  to decrypt values from prior versions)
-    # Remember to update cryptCheckStandard() and decryptStandard()
-    #  when increment this.
+    /**
+     * This is the current encrypt/decrypt version
+     * (this will always be a three digit number that we will
+     * increment when update the encrypt/decrypt methodology
+     * which allows being able to maintain backward compatibility
+     * to decrypt values from prior versions)
+     * Remember to update cryptCheckStandard() and decryptStandard()
+     * when increment this.
+     */
     private string $encryptionVersion = "006";
-    # This is the current key version. As above, will increment this
-    #  when update the encrypt/decrypt methodology to allow backward
-    #  compatibility.
-    # Remember to update decryptStandard() when increment this.
+    /**
+     * This is the current key version. As above, will increment this
+     * when update the encrypt/decrypt methodology to allow backward
+     * compatibility.
+     * Remember to update decryptStandard() when increment this.
+     */
     private string $keyVersion = "six";
 
-    # Key cache to optimize key collection, which avoids numerous repeat
-    #  calls to collect the key sets (and repeat decryption of the key set
-    #  from the drive).
+    /**
+     * Key cache to optimize key collection, which avoids numerous repeat
+     * calls to collect the key sets (and repeat decryption of the key set
+     * from the drive).
+     */
     private array $keyCache = [];
-
-    public function __construct()
-    {
-    }
 
     /**
      * Standard function to encrypt
      *
-     * @param string|null $value          This is the data to encrypt.
-     * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
-     *
+     * @param  string  $value          This is the data to encrypt.
+     * @param  ?string $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param  string  $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
+     * @return string
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
+    public function encryptStandard(string $value, ?string $customPassword = null, string $keySource = 'drive'): string
     {
-        $encryptedValue = $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
-
-        return $encryptedValue;
+        return $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
     }
 
     /**
      * Standard function to decrypt
      *
-     * @param string|null $value          This is the data to decrypt.
-     * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
-     * @param int|null    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
-     *                                    from outside OpenEMR to ensure bad actor is not trying to use an older version).
+     * @param  string  $value          This is the data to decrypt.
+     * @param  ?string $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param  string  $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param  ?int    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
+     *                                 from outside OpenEMR to ensure bad actor is not trying to use an older version).
      * @return false|string
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
+    public function decryptStandard(string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
         if (empty($value)) {
             return "";
         }
 
-        # Collect the encrypt/decrypt version and remove it from the value
+        // Collect the encrypt/decrypt version and remove it from the value
         $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
         $trimmedValue = mb_substr($value, 3, null, '8bit');
 
@@ -101,7 +101,7 @@ class CryptoGen
             }
         }
 
-        # Map the encrypt/decrypt version to the correct decryption function
+        // Map the encrypt/decrypt version to the correct decryption function
         if ($encryptionVersion == 6) {
             return $this->coreDecrypt($trimmedValue, $customPassword, $keySource, "six");
         } elseif ($encryptionVersion == 5) {
@@ -121,6 +121,9 @@ class CryptoGen
     /**
      * Check if a crypt block is valid to use for the standard method
      * (basically checks if correct values are used)
+     *
+     * @param  ?string $value The value to check.
+     * @return bool          Returns true if valid, false if not.
      */
     public function cryptCheckStandard(?string $value): bool
     {
@@ -139,16 +142,16 @@ class CryptoGen
      * Function to encrypt data
      * Should not be called directly (only called by encryptStandard() function)
      *
-     * @param string|null $sValue          Raw data that will be encrypted.
-     * @param string|null $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param string      $keySource       This is the source of the keys. Options are 'drive' and 'database'
-     * @param string|null $keyNumber       This is the key number/version.
-     * @return string                      returns the encrypted data.
-     * @throws CryptoGenException          if fails, which are critical errors requiring die of script
+     * @param  string  $sValue         Raw data that will be encrypted.
+     * @param  ?string $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param  string  $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param  ?string $keyNumber      This is the key number/version.
+     * @return string                  returns the encrypted data.
+     * @throws CryptoGenException      if fails, which are critical errors requiring die of script
      */
-    private function coreEncrypt(?string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): string
+    private function coreEncrypt(string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): string
     {
-        $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
+        $keyNumber ??= $this->keyVersion;
 
         if (!extension_loaded('openssl')) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -209,15 +212,15 @@ class CryptoGen
      * Function to decrypt data
      * Should not be called directly (only called by decryptStandard() function)
      *
-     * @param string      $sValue         Encrypted data that will be decrypted.
-     * @param string|null $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param string      $keySource      This is the source of the keys. Options are 'drive' and 'database'
-     * @param string|null $keyNumber      This is the key number/version.
+     * @param  string  $sValue         Encrypted data that will be decrypted.
+     * @param  ?string $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param  string  $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param  ?string $keyNumber      This is the key number/version.
      * @return false|string or false      returns the decrypted data or false if failed.
      */
     private function coreDecrypt(string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): false|string
     {
-        $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
+        $keyNumber ??= $this->keyVersion;
 
         if (!extension_loaded('openssl')) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -309,11 +312,11 @@ class CryptoGen
     /**
      * Function to AES256 decrypt a given string, version 2
      *
-     * @param string|null $sValue              Encrypted data that will be decrypted.
-     * @param string|null $customPassword If null, then use standard key. If provide a password, then will derive key from this.
-     * @return false|string alse          returns the decrypted data or false if failed.
+     * @param  string  $sValue         Encrypted data that will be decrypted.
+     * @param  ?string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
+     * @return false|string           the decrypted data or false if failed.
      */
-    public function aes256DecryptTwo(?string $sValue, ?string $customPassword = null): false|string
+    public function aes256DecryptTwo(string $sValue, ?string $customPassword = null): false|string
     {
         if (!extension_loaded('openssl')) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -378,11 +381,11 @@ class CryptoGen
     /**
      * Function to AES256 decrypt a given string, version 1
      *
-     * @param string|null $sValue              Encrypted data that will be decrypted.
-     * @param string|null $customPassword If null, then use standard key. If provide a password, then will derive key from this.
+     * @param  string  $sValue         Encrypted data that will be decrypted.
+     * @param  ?string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
      * @return false|string               returns the decrypted data.
      */
-    public function aes256DecryptOne(?string $sValue, ?string $customPassword = null): false|string
+    public function aes256DecryptOne(string $sValue, ?string $customPassword = null): false|string
     {
         if (!extension_loaded('openssl')) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -418,10 +421,17 @@ class CryptoGen
         );
     }
 
-    // Function to decrypt a given string
-    // This specific function is only used for backward compatibility
-    // TODO: Should be removed in the future.
-    public function aes256Decrypt_mycrypt($sValue)
+    /**
+     * Function to decrypt a given string
+     * This specific function is only used for backward compatibility
+     * TODO: Should be removed in the future.
+     *
+     * @param      string $sValue Encrypted data that will be decrypted.
+     * @return     string         returns the decrypted data.
+     * @throws     CryptoGenException if fails, which are critical errors requiring die of script
+     * @deprecated This function is deprecated and should not be used in new code.
+     */
+    public function aes256Decrypt_mycrypt(string $sValue): string
     {
         $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
         return rtrim(
@@ -453,11 +463,12 @@ class CryptoGen
      *  key set from database, collect key set from drive, decrypt key set from drive using the database
      *  key; caching the key will bypass all these steps).
      *
-     * @param string $version     This is the number/version of they key.
-     * @param string $sub         This is the sublabel of the key
-     * @param string $keySource   This is the source of the standard keys. Options are 'drive' and 'database'
-     *                            The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods
-     *                            The 'database' keys are stored in the 'keys' sql table
+     * @param  string $version   This is the number/version of they key.
+     * @param  string $sub       This is the sublabel of the key
+     * @param  string $keySource This is the source of the standard keys. Options are 'drive' and 'database'
+     *                           The 'drive' keys are stored at
+     *                           sites/<site-dir>/documents/logs_and_misc/methods The 'database' keys are
+     *                           stored in the 'keys' sql table
      * @return string             Returns the key in raw form.
      * @throws CryptoGenException if fails, which are critical errors requiring die of script
      */
@@ -504,7 +515,7 @@ class CryptoGen
         // Collect key
         if ($keySource == 'database') {
             $sqlKey = sqlQueryNoLog("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
-            $key = base64_decode($sqlKey['value']);
+            $key = base64_decode((string) $sqlKey['value']);
         } else { //$keySource == 'drive'
             if (($version == "one") || ($version == "two") || ($version == "three") || ($version == "four")) {
                 // older key versions that did not encrypt the key on the drive
