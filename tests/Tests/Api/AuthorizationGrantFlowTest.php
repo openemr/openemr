@@ -12,6 +12,7 @@ namespace OpenEMR\Tests\Api;
 
 use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -19,6 +20,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
+use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
@@ -57,7 +59,46 @@ class AuthorizationGrantFlowTest extends TestCase {
      * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testSuccessfulAuthorizationGrantFlowWithLoginFlow() {
+        $serverScopes = new ServerScopeListEntity();
+//        $scopes = $serverScopes->getAllSupportedScopesList();
+//        $scopesString = implode(" ", $scopes);
+        $scopesString = ApiTestClient::ALL_SCOPES;
         $redirectUri = "http://localhost:8080/oauth2/callback";
+        $dispatcher = new EventDispatcher();
+        $controller = $this->createMock(ControllerResolverInterface::class);
+        $kernel = new OEHttpKernel($dispatcher, $controller);
+        // set the globals.php kernel which doesn't do much... need to reconicle these two
+        $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
+        list($clientIdentifier, $clientSecret) = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
+
+        // now test the authorization flow
+        $session = $this->getMockSession();
+        $session->set('nonce', 'test_nonce');
+        $loginLocation = $this->requestTestAuthorizeEndpoint($session, $scopesString, $clientIdentifier, $kernel);
+
+        // now attempt the login flow, redirecting to the blank login screen
+        $scopeConfirmationPage = $this->requestTestLoginFlow($loginLocation, $session, $kernel);
+        $this->assertStringEndsWith(AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
+        //$this->assertStringEndsWith(SMARTAuthorizationController::PATIENT_SELECT_PATH, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
+
+        // now for the scope confirmation page
+        $this->requestTestScopeConfirmationPageEndpoint($session, $scopeConfirmationPage, $kernel);
+
+        // now we will simulate the user confirming the scopes by posting to the /auth/code endpoint
+        $location = $this->requestTestAuthorizationCodeEndpoint($session, $scopesString, $kernel, $redirectUri);
+
+        // next step is to grab the code from the redirect URI and exchange it for an access token
+        $this->requestTestTokenEndpoint($location, $redirectUri, $clientIdentifier, $clientSecret
+            , $session, $scopesString, $kernel);
+    }
+
+    /**
+     * @param string $redirectUri
+     * @param string $scopesString
+     * @return array|void
+     */
+    private function requestTestRegistrationEndpoint(OEHttpKernel $kernel, string $redirectUri, string $scopesString)
+    {
         $jsonRequest = [
             "application_type" => "private",
             "redirect_uris" => [
@@ -65,19 +106,13 @@ class AuthorizationGrantFlowTest extends TestCase {
             ],
             "client_name" => "Test Client",
             "token_endpoint_auth_method" => "client_secret_post",
-            "contacts"=> ["test@open-emr.org"],
-            "scope" => ApiTestClient::ALL_SCOPES
+            "contacts" => ["test@open-emr.org"],
+            "scope" => $scopesString
         ];
 
         $session = $this->getMockSession();
         $originalSessionId = $session->getId();
-        $dispatcher = new EventDispatcher();
-        $controller = $this->createMock(ControllerResolverInterface::class);
-        $kernel = new OEHttpKernel($dispatcher, $controller);
-        // set the globals.php kernel which doesn't do much... need to reconicle these two
-        $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
-        $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger(new SystemLogger(Level::Debug));
+        $authController = $this->getAuthorizationController($session, $kernel);
         $registrationRequest = HttpRestRequest::create("/oauth2/default/register", "POST", [], [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode($jsonRequest));
@@ -94,25 +129,32 @@ class AuthorizationGrantFlowTest extends TestCase {
         $this->assertArrayHasKey("client_name", $json, 'Response should contain client_name');
         $clientSecret = $json['client_secret'];
 
+        $this->assertEquals($scopesString, $json['scope'], 'Response should contain the correct scopes');
+
         $this->assertNotEquals($originalSessionId, $session->getId(), "Session ID should have changed after registration due to invalidation");
 
         // enable the client
         $clientRepository = new ClientRepository();
         $clientEntity = $clientRepository->getClientEntity($clientIdentifier);
         $clientRepository->saveIsEnabled($clientEntity, true);
+        return array($clientIdentifier, $clientSecret);
+    }
 
-        // now test the authorization flow
-
+    /**
+     * @param string $scopesString
+     * @param mixed $clientIdentifier
+     * @param OEHttpKernel $kernel
+     * @return array|void
+     */
+    private function requestTestAuthorizeEndpoint(Session $session, string $scopesString, mixed $clientIdentifier, OEHttpKernel $kernel)
+    {
         $request = HttpRestRequest::create("/oauth2/default/authorize", "GET", [
-            "scope" => ApiTestClient::ALL_SCOPES,
+            "scope" => $scopesString,
             "client_id" => $clientIdentifier,
             "response_type" => "code",
             "redirect_uri" => "http://localhost:8080/oauth2/callback",
             "state" => "test_state",
         ]);
-
-        $session = $this->getMockSession();
-        $session->set('nonce', 'test_nonce');
         $originalSessionId = $session->getId();
         $authController = new AuthorizationController($session, $kernel, true);
         $response = $authController->oauthAuthorizationFlow($request);
@@ -120,10 +162,18 @@ class AuthorizationGrantFlowTest extends TestCase {
         $this->assertNotEmpty($response->getHeader('Location'), 'Response header should not be empty');
         $location = $response->getHeader('Location')[0];
         $this->assertStringContainsString('/provider/login', $location, 'Redirect location should contain provider login when skip authorization is not set');
+        return $location;
+    }
 
-
-        // now attempt the login flow, redirecting to the blank login screen
-        $request = HttpRestRequest::create($location);
+    /**
+     * @param array|null $loginLocation
+     * @param Session $session
+     * @param OEHttpKernel $kernel
+     * @return array|void
+     */
+    private function requestTestLoginFlow(string $loginLocation, Session $session, OEHttpKernel $kernel)
+    {
+        $request = HttpRestRequest::create($loginLocation);
         CsrfUtils::setupCsrfKey($session);
         $authController = new AuthorizationController($session, $kernel, true);
         $loginScreenResponse = $authController->userLogin($request);
@@ -131,7 +181,7 @@ class AuthorizationGrantFlowTest extends TestCase {
         $this->assertEquals(Response::HTTP_OK, $loginScreenResponse->getStatusCode(), 'Login screen should return 200 status code');
 
         // now we will simulate a user login
-        $request = HttpRestRequest::create($location, "POST", [
+        $request = HttpRestRequest::create($loginLocation, "POST", [
             "username" => "admin",
             "password" => "pass",
             // this is not to be confused with the other 'role' variables
@@ -142,15 +192,15 @@ class AuthorizationGrantFlowTest extends TestCase {
         $request->overrideGlobals();
         $authController = new AuthorizationController($session, $kernel, true);
         $loginPostResponse = $authController->userLogin($request);
+        $this->assertNotEmpty($loginPostResponse->getHeader('Location'), 'Login POST response should have a Location header');
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $loginPostResponse->getStatusCode(), 'Login POST should redirect');
-        $this->assertStringEndsWith(AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, $loginPostResponse->getHeader('Location')[0], 'Redirect location should end with scope authorize confirm endpoint');
         $this->assertFalse($request->request->has("username"), "Request should have username removed");
         $this->assertFalse($request->request->has("password"), "Request should have password removed");
         $this->assertEquals(0, $session->get("persist_login"), "Session should not have persist_login set");
         $userService = new UserService();
         $user = $userService->getUserByUsername("admin");
         $this->assertEquals([
-           "name" => $user['fname'] . ' ' . $user['lname'],
+            "name" => $user['fname'] . ' ' . $user['lname'],
             "family_name" => $user['lname'],
             "given_name" => "",
             "preferred_username" => $user['username'],
@@ -175,20 +225,48 @@ class AuthorizationGrantFlowTest extends TestCase {
             'api:oemr' => true,
             'api:port' => true,
         ], $session->get('claims'));
+        return $loginPostResponse->getHeader('Location')[0];
+    }
 
-        // now for the scope confirmation page
+    private function getAuthorizationController(Session $session, OEHttpKernel $kernel) : AuthorizationController
+    {
+        $authController = new AuthorizationController($session, $kernel, true);
+        $authController->setSystemLogger(new SystemLogger(Level::Error));
+        return $authController;
+    }
+
+    /**
+     * @param Session $session
+     * @param string $scopeConfirmationPage
+     * @param OEHttpKernel $kernel
+     * @return array
+     */
+    private function requestTestScopeConfirmationPageEndpoint(Session $session, string $scopeConfirmationPage, OEHttpKernel $kernel) : void
+    {
         $originalSessionId = $session->getId();
-        $scopeConfirmationPage = $loginPostResponse->getHeader('Location')[0];
         $request = HttpRestRequest::create($scopeConfirmationPage);
         $authController = new AuthorizationController($session, $kernel, true);
         $scopeConfirmationResponse = $authController->scopeAuthorizeConfirm($request);
         $this->assertEquals(Response::HTTP_OK, $scopeConfirmationResponse->getStatusCode(), 'Scope confirmation page should return 200 status code');
+    }
 
-        // now we will simulate the user confirming the scopes by posting to the /auth/code endpoint
+    /**
+     * @param Session $session
+     * @param string $scopesString
+     * @param OEHttpKernel $kernel
+     * @param string $redirectUri
+     * @return string
+     */
+    private function requestTestAuthorizationCodeEndpoint(Session $session, string $scopesString
+        , OEHttpKernel $kernel, string $redirectUri) : string
+    {
+        $scope = explode(" ", $scopesString);
+        $scopeArray = array_combine($scope, $scope);
+        $originalSessionId = $session->getId();
         $request = HttpRestRequest::create("/oauth2/default" . AuthorizationController::DEVICE_CODE_ENDPOINT, "POST", [
             "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session),
-            // just mimic accepting ALL the scopes
-            "scope" => ApiTestClient::ALL_SCOPES,
+            // this is an array of scopes [scopeIdentifier] => scopeIdentifier
+            "scope" => $scopeArray,
             'proceed' => "1",
         ]);
         $authController = new AuthorizationController($session, $kernel, true);
@@ -200,8 +278,22 @@ class AuthorizationGrantFlowTest extends TestCase {
         $this->assertStringContainsString('code=', $location, 'Redirect location should contain code parameter');
         $this->assertStringContainsString('state=test_state', $location, 'Redirect location should contain state parameter');
         $this->assertNotEquals($originalSessionId, $session->getId(), "Session ID should have changed after authorization due to invalidation");
+        return $location;
+    }
 
-        // next step is to grab the code from the redirect URI and exchange it for an access token
+    /**
+     * @param string $location
+     * @param string $redirectUri
+     * @param string $clientIdentifier
+     * @param string $clientSecret
+     * @param Session $session
+     * @param string $scopesString
+     * @param OEHttpKernel $kernel
+     * @return void
+     */
+    private function requestTestTokenEndpoint(string $location, string $redirectUri, string $clientIdentifier
+        , string $clientSecret, Session $session, string $scopesString, OEHttpKernel $kernel): void
+    {
         $redirectUrlParts = parse_url($location);
         parse_str($redirectUrlParts['query'], $queryParams);
         $this->assertArrayHasKey('code', $queryParams, 'Redirect URL should contain code parameter');
@@ -209,6 +301,7 @@ class AuthorizationGrantFlowTest extends TestCase {
         $this->assertNotEmpty($code, 'Code should not be empty');
         $this->assertArrayHasKey('state', $queryParams, 'Redirect URL should contain state parameter');
         $this->assertEquals('test_state', $queryParams['state'], 'State parameter should match the original state');
+
 
         // now verify the code was saved to the database
         $trustedUserService = new TrustedUserService();
@@ -221,19 +314,21 @@ class AuthorizationGrantFlowTest extends TestCase {
             "grant_type" => "authorization_code",
             "code" => $code,
             "redirect_uri" => $redirectUri,
-            "client_id" => $clientIdentifier,
-            "client_secret" => "$clientSecret", // assuming this is the client secret
-            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session),
-            "scope" => ApiTestClient::ALL_SCOPES,
-            "state" => "test_state"
+//            "client_id" => $clientIdentifier,
+//            "client_secret" => "$clientSecret", // assuming this is the client secret
+//            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session),
+//            "scope" => $scopesString,
+//            "state" => "test_state"
+        ], [], [], [
+            'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode($clientIdentifier . ':' . $clientSecret),
         ]);
         $session = $this->getMockSession();
         $originalSessionId = $session->getId();
-        $authController = new AuthorizationController($session, $kernel, true);
+        $authController = $this->getAuthorizationController($session, $kernel);
+        $authController->setSystemLogger(new SystemLogger(Level::Debug));
         $tokenResponse = $authController->oauthAuthorizeToken($tokenRequest);
         $this->assertEquals(Response::HTTP_OK, $tokenResponse->getStatusCode(), 'Token request should return 200 status code');
         $contents = $tokenResponse->getBody()->getContents();
-        var_dump($tokenResponse);
         $this->assertNotEmpty($contents, 'Token response body should not be empty');
         $json = json_decode($contents, true);
         $this->assertArrayHasKey('access_token', $json, 'Token response should contain access_token');

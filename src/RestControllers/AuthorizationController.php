@@ -440,7 +440,7 @@ class AuthorizationController
             ['scopeString' => $scopeString]
         );
 
-        $scopeRepo = $this->getScopeRepository($request, $this->session);
+        $scopeRepo = $this->getScopeRepository($this->session);
         $scopes = explode(" ", $scopeString);
         foreach ($scopes as $scope) {
             $validScope = $scopeRepo->getScopeEntityByIdentifier($scope);
@@ -570,7 +570,7 @@ class AuthorizationController
         $logger->debug("AuthorizationController->oauthAuthorizationFlow() request query params ", ["queryParams" => $request->getQueryParams()]);
 
         $this->grantType = 'authorization_code';
-        $server = $this->getAuthorizationServer($this->getScopeRepository($httpRequest, $this->session));
+        $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
         try {
             // Validate the HTTP request and return an AuthorizationRequest object.
             $logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
@@ -695,6 +695,7 @@ class AuthorizationController
                 new DateInterval('PT1M'), // auth code. should be short turn around.
                 $expectedAudience
             );
+            $grant->setSystemLogger($this->getSystemLogger());
 
             $grant->setRefreshTokenTTL(new DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
@@ -951,12 +952,12 @@ class AuthorizationController
         return $this->clientRepository;
     }
 
-    public function getScopeRepository(HttpRestRequest $request, SessionInterface $session): ScopeRepository
+    public function getScopeRepository(SessionInterface $session): ScopeRepository
     {
         if (isset($this->scopeRepository)) {
             return $this->scopeRepository;
         } else {
-            $scopeRepository = new ScopeRepository($request, $session);
+            $scopeRepository = new ScopeRepository($session);
             $scopeRepository->setSystemLogger($this->getSystemLogger());
             return $scopeRepository;
         }
@@ -1009,7 +1010,7 @@ class AuthorizationController
         $scopesByResource = [];
         $otherScopes = [];
         $hiddenScopes = [];
-        $scopeRepository = $this->getScopeRepository($request, $session);
+        $scopeRepository = $this->getScopeRepository($session);
         $fhirRequiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
         foreach ($scopes as $scope) {
             // if there are any other scopes we want hidden we can put it here.
@@ -1145,13 +1146,12 @@ class AuthorizationController
      */
     public function authorizeUser(HttpRestRequest $request): ResponseInterface
     {
-        $this->getSystemLogger()->debug("AuthorizationController->authorizeUser() starting authorization");
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
         try {
-            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $request->get('scope'));
+            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $request->request->all('scope'));
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
-            $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session), $include_refresh_token);
+            $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
             $user = new UserEntity();
             $user->setIdentifier($this->session->get('user_id'));
             $authRequest->setUser($user);
@@ -1303,7 +1303,8 @@ class AuthorizationController
                 // TODO: @adunsulag should we throw an exception here?
             }
 
-            $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() restored session user from code ", ['session' => $this->session->all()]);
+            $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() restored session user from code "
+                , ['session' => $this->session->all()]);
         }
         $leagueRequest = $this->convertHttpRestRequestToServerRequest($request);
         // TODO: explore why we create the request again...
@@ -1311,7 +1312,7 @@ class AuthorizationController
             $leagueRequest = $this->createServerRequest();
         }
         // Finally time to init the server.
-        $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session));
+        $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
         try {
             if (($this->grantType === 'authorization_code') && empty($this->session->get('csrf'))) {
                 // the saved session was not populated as expected
@@ -1323,6 +1324,7 @@ class AuthorizationController
             if ($this->grantType === self::GRANT_TYPE_PASSWORD) {
                 $this->saveTrustedUserForPasswordGrant($request, $result);
             }
+            $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() responded to access token request");
             $this->session->invalidate();
             return $result;
         } catch (OAuthServerException $exception) {
@@ -1731,7 +1733,7 @@ class AuthorizationController
         $scopesById = array_combine($scopes, $scopes);
         $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $scopesById);
         $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
-        $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session), $include_refresh_token);
+        $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
 
         // make sure we get our serialized session data
         $this->serializeUserSession($authRequest, $session);

@@ -38,11 +38,6 @@ class ScopeRepository implements ScopeRepositoryInterface
     private array $validationScopes;
 
     /**
-     * @var string
-     */
-    private string $requestScopes;
-
-    /**
      * Session string containing the scopes populated in the current session.
      * @var string
      */
@@ -53,7 +48,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     private ServerConfig $config;
 
-    private ?SessionInterface $session = null;
+    private ?SessionInterface $session;
 
     private ClaimSetRepositoryInterface $claimRepository;
 
@@ -64,13 +59,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param HttpRestRequest|null $request
      * @param SessionInterface|null $session
      */
-    public function __construct(?HttpRestRequest $request = null, ?SessionInterface $session = null)
+    public function __construct(?SessionInterface $session = null)
     {
-        if (!empty($request)) {
-            $this->requestScopes = $request->get('scope', '');
-        } else {
-            $this->requestScopes = '';
-        }
         if (!empty($session)) {
             $this->sessionScopes = $session->get('scopes', '');
         } else {
@@ -156,6 +146,12 @@ class ScopeRepository implements ScopeRepositoryInterface
         ClientEntityInterface $clientEntity,
         $userIdentifier = null
     ): array {
+        $this->getSystemLogger()->debug("Attempting to finalize scopes", [
+            'scopes' => $scopes,
+            'grantType' => $grantType,
+            'clientEntity' => $clientEntity,
+            'userIdentifier' => $userIdentifier
+        ]);
         $finalizedScopes = [];
         $scopeListNames = [];
         $finalizedScopeNames = [];
@@ -195,11 +191,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             'initialScopes' => $scopeListNames]
         );
         return $finalizedScopes;
-    }
-
-    public function getRequestScopes()
-    {
-        return $this->requestScopes;
     }
 
     public function getSessionScopes()
@@ -356,96 +347,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             }
             ,default => throw new InvalidArgumentException("Unknown operation for scope: " . $scope->getOperation())
         };
-        return $description;
-    }
-
-    /**
-     * @param $resource
-     * @param $context
-     * @param $isPatient
-     * @param $isReadPermission
-     * @return string
-     */
-    private function lookupDescriptionForResourceScope(ScopeEntity $scope, $isPatient): string
-    {
-        $description = $isReadPermission ? xl("Read Access: View, search and access") : xl("Write Access: Create or modify");
-        $description .= " ";
-        switch ($resource) {
-            case 'AllergyIntolerance':
-                $description .= xl("allergies/adverse reactions");
-                break;
-            case 'Appointment':
-                $description .= xl("appointments");
-                break;
-            case 'Observation':
-                $description .= xl("observations including laboratory,vitals, and social history records");
-                break;
-            case 'CarePlan':
-                $description .= xl("care plan information including treatment information and notes");
-                break;
-            case 'CareTeam':
-                $description .= xl("care team information including practitioners, organizations, persons, and related individuals");
-                break;
-            case 'Condition':
-                $description .= xl("conditions including health concerns, problems, and encounter diagnoses");
-                break;
-            case 'Device':
-                $description .= xl("implantable medical device records");
-                break;
-            case 'DiagnosticReport':
-                $description .= xl("diagnostic reports including laboratory,cardiology,radiology, and pathology reports");
-                break;
-            case 'DocumentReference':
-                $description .= xl("clinical and non-clinical documents");
-                break;
-            case 'Encounter':
-                $description .= xl("encounter information");
-                break;
-            case 'Goal':
-                $description .= xl("goals");
-                break;
-            case 'Immunization':
-                $description .= xl("immunization history");
-                break;
-            case 'MedicationRequest':
-                $description .= xl("planned and prescribed medication history including self-reported medications");
-                break;
-            case 'Medication':
-                $description .= xl("drug information related to planned and prescribed medication history");
-                break;
-            case 'Organization':
-                $description .= xl("companies, facilities, insurances, and other organizations");
-                break;
-            case 'Patient':
-                $description .= xl("patient basic demographics including names,communication preferences,race,ethnicity,birth sex,previous names and other administrative information");
-                break;
-            case 'Practitioner':
-                $description .= xl("provider basic demographic information and other administrative information");
-                break;
-            case 'PractitionerRole':
-                $description .= xl("practitioner role for a practitioner (including speciality, location, contact information)");
-                break;
-            case 'Procedure':
-                $description .= xl("procedures");
-                break;
-            case 'Location':
-                $description .= xl("locations associated with a patient, provider, or organization");
-                break;
-            case 'Provenance':
-                $description .= xl("provenance information (including person(s) responsible for the information, author organizations, and transmitter organizations)");
-                break;
-            case 'ValueSet':
-                $description .= xl("value set records");
-                break;
-            default:
-                $description .= xl("medical records for this resource type");
-                break;
-        }
-        if ($context == "user") {
-            $description .= ". " . xl("Application is requesting access to all patient data for this resource you have access to");
-        } else if ($context == "system") {
-            $description .= ". " . xl("Application is requesting access to all data in entire system for this resource");
-        }
         return $description;
     }
 
