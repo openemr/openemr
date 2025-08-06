@@ -162,14 +162,18 @@ class ScopeRepository implements ScopeRepositoryInterface
         $clientScopes = [];
         // we only let scopes that the client initially registered with through instead of whatever they request in
         // their grant.
-        // TODO: We need to handle subset permissions... ise user/Patient.cruds is supported but user/Patient.r is requested...
         if ($clientEntity instanceof ClientEntity) {
             $clientScopes = $clientEntity->getScopes();
+            $clientValidatorArray = $this->buildScopeValidatorArray($clientScopes);
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
-                if (in_array($scope->getIdentifier(), $clientScopes)) {
-                    $finalizedScopes[] = $scope;
-                    $finalizedScopeNames[] = $scope->getIdentifier();
+                if ($scope instanceof ScopeEntity) {
+                    $lookupKey = $scope->getScopeLookupKey();
+                    if (isset($clientValidatorArray[$lookupKey])
+                        && $clientValidatorArray[$lookupKey]->containsScope($scope)) {
+                        $finalizedScopes[] = $scope;
+                        $finalizedScopeNames[] = $scope->getIdentifier();
+                    }
                 }
             }
         } else {
@@ -184,17 +188,12 @@ class ScopeRepository implements ScopeRepositoryInterface
             $finalizedScopeNames[] = "nonce";
         }
 
-        // Need a site id for our apis
-//        $siteScope = $this->getSiteScope();
-//        $finalizedScopeNames[] = $siteScope->getIdentifier();
-//        $finalizedScopes[] = $siteScope;
-
-            $this->getSystemLogger()->debug(
-                "ScopeRepository->finalizeScopes() scopes finalized ",
-                ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
-                ,
-                'initialScopes' => $scopeListNames]
-            );
+        $this->getSystemLogger()->debug(
+            "ScopeRepository->finalizeScopes() scopes finalized ",
+            ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
+            ,
+            'initialScopes' => $scopeListNames]
+        );
         return $finalizedScopes;
     }
 
@@ -218,12 +217,12 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function fhirRequiredSmartScopes(): array
     {
-        return $this->serverScopeList->requiredSmartOnFhirScopes();
+        return $this->getServerScopeList()->requiredSmartOnFhirScopes();
     }
 
     public function fhirScopesV1(): array
     {
-        return $this->serverScopeList->fhirResourceScopesV1();
+        return $this->getServerScopeList()->fhirResourceScopesV1();
     }
 
     public function fhirScopesV2(): array
@@ -276,7 +275,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopePermissionArray;
     }
 
-    public function lookupDescriptionForScope($scope, bool $isPatient)
+    public function lookupDescriptionForScope($scope, bool $isPatient) : string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
@@ -297,37 +296,66 @@ class ScopeRepository implements ScopeRepositoryInterface
         if (isset($requiredSmart[$scope])) {
             return $requiredSmart[$scope];
         }
-
-        $parts = explode("/", $scope);
-        $context = reset($parts);
-        $resourcePerm = $parts[1] ?? "";
-        $resourcePermParts = explode(".", $resourcePerm);
-        $resource = $resourcePermParts[0];
-        $permission = $resourcePermParts[1] ?? "";
-
-        if (!empty($resource)) {
-            $isReadPermission = $permission == "read";
-            if (str_contains($permission, "$")) {
-                return $this->lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission);
-            } else {
-                return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
-            }
+        $scope = ScopeEntity::createFromString($scope);
+        if (empty($scope->getResource())) {
+            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope);
+        } else if (!empty($scope->getOperation())) {
+            return $this->lookupDescriptionForResourceOperation($scope);
         } else {
-            return null;
+            return $this->lookupDescriptionForSmartScope($scope);
         }
     }
 
-    private function lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission)
+    private function lookupDescriptionForSmartScope(ScopeEntity $scope): string
     {
-        $description = null;
-        if ($resource == "DocumentReference" && $permission == '$docref') {
-            $description = xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD");
-            if ($context == 'user') {
-                $description .= " " . xl("for a patient that the user has access to");
-            } else if ($context == "system") {
-                $description .= " " . xl("for a patient that exists in the system");
-            }
+        $permissions = $scope->getPermissions();
+        $permissionStrings = [];
+        if ($permissions->v1Read) {
+            $permissionStrings[] = xl("View, search and access");
+        } else if ($permissions->v1Write) {
+            $permissionStrings[] = xl("Create or modify");
         }
+        if ($permissions->create) {
+            $permissionStrings[] = xl("Create new records");
+        }
+        if ($permissions->update) {
+            $permissionStrings[] = xl("Update existing records");
+        }
+        if ($permissions->delete) {
+            $permissionStrings[] = xl("Delete records");
+        }
+        if ($permissions->search) {
+            $permissionStrings[] = xl("Search existing records");
+        }
+        if ($permissions->search) {
+            $permissionStrings[] = xl("Access or retrieve an existing record");
+        }
+        $description = xl('Permission to do the following actions') . " " . implode(" ", $permissionStrings);
+        $description .= " " . xl("on the following resources") . " " . $this->getServerScopeList()->lookupDescriptionForResourceScope($scope->getResource(), $scope->getContext());
+
+        return $description;
+    }
+
+    private function lookupDescriptionForResourceOperation(ScopeEntity $scope)
+    {
+        $resource = $scope->getResource();
+        $description = match($scope->getOperation()) {
+            '$export' => match($scope->getResource()) {
+                '*' => xl("Permission to export the entire system dataset that is exportable"),
+                'Patient' => xl("Permission to export Patient Compartment resources"),
+                'Group' => xl("Permission to export Patient Compartment resources connected to a Patient Group"),
+                default => xl("Permission to export all resources of type") . " " . $resource,
+            }
+            ,'$bulkdata-status' => match($scope->getResource()) {
+                '*' => xl("Permission to check the job status of a bulkdata export"),
+                default => xl("Permission to check the job status of a bulkdata export for resource type") . " " . $resource,
+            }
+            ,'$docref' => match($scope->getResource()) {
+                'DocumentReference' => xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD"),
+                default => xl("Create a document reference for resource type") . " " . $resource,
+            }
+            ,default => throw new InvalidArgumentException("Unknown operation for scope: " . $scope->getOperation())
+        };
         return $description;
     }
 
@@ -338,7 +366,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param $isReadPermission
      * @return string
      */
-    private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission): string
+    private function lookupDescriptionForResourceScope(ScopeEntity $scope, $isPatient): string
     {
         $description = $isReadPermission ? xl("Read Access: View, search and access") : xl("Write Access: Create or modify");
         $description .= " ";

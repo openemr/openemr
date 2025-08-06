@@ -15,6 +15,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
@@ -291,5 +292,10 @@ class ClientRepository implements ClientRepositoryInterface
             throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
         }
         return true;
+    }
+
+    public function remove(ClientEntity $clientEntity, bool $noLog = false)
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM oauth_clients WHERE client_id = ?", [$clientEntity->getIdentifier()], $noLog);
     }
 }

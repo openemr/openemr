@@ -139,7 +139,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
             return $this->convertPsrResponse($authServer->oauthAuthorizationFlow($request));
         }
 
-        if (false !== stripos($end_point, '/device/code')) {
+        if (false !== stripos($end_point, AuthorizationController::DEVICE_CODE_ENDPOINT)) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->authorizeUser($request));
         }

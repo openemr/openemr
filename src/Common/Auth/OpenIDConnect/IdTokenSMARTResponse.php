@@ -33,6 +33,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
+// TODO: Look at renaming this class to OEIdTokenResponse since it applies to all OpenEMR OAuth2 responses
 class IdTokenSMARTResponse extends IdTokenResponse
 {
     const SCOPE_SMART_LAUNCH = 'launch';
@@ -60,21 +61,17 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private $contextForNewTokens;
 
-    /**
-     * @var Environment The twig environment.
-     */
-    private $twig;
+    private SessionInterface $session;
 
     public function __construct(
         SessionInterface $session,
         IdentityProviderInterface $identityProvider,
-        ClaimExtractor $claimExtractor,
-        Environment $twig
+        ClaimExtractor $claimExtractor
     ) {
         $this->isAuthorizationGrant = false;
         $this->logger = new SystemLogger();
-        $this->contextBuilder = new SMARTSessionTokenContextBuilder($session, $twig);
-        $this->twig = $twig;
+        $this->session = $session;
+        $this->contextBuilder = new SMARTSessionTokenContextBuilder($session);
         parent::__construct($identityProvider, $claimExtractor);
     }
 
@@ -181,12 +178,20 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $builder = new Builder(new JoseEncoder(), $claimsFormatter);
 
         // Add required id_token claims
-        return $builder
+        $builder = $builder
             ->permittedFor($accessToken->getClient()->getIdentifier())
             ->issuedBy($GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/oauth2/" . $_SESSION['site_id'])
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());
+        if ($this->session->has("nonce")) {
+            $nonce = $this->session->get("nonce");
+            $this->logger->debug("IdTokenSMARTResponse->getBuilder() nonce found in session", ["nonce" => $nonce]);
+            $builder = $builder->withClaim('nonce', $nonce);
+        } else {
+            $this->logger->debug("IdTokenSMARTResponse->getBuilder() no nonce found in session");
+        }
+        return $builder;
     }
 
     /**

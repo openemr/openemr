@@ -13,7 +13,9 @@ namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
 use Google\Service\AppHub\Scope;
 use Monolog\Level;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -199,8 +201,52 @@ class ScopeRepositoryTest extends TestCase
         }
     }
 
-    public function testFinalizeScopes() {
+    public function testFinalizeScopesWithValidSubScopeWillPass() {
+        // verify a client with a full scope, will still pass if a request is made for a sub scope
+        $scopeRepository = $this->scopeRepository;
+        $requestedScopes = [
+            ScopeEntity::createFromString("patient/Patient.rs")
+            ,ScopeEntity::createFromString("patient/Patient.cud")
+            ,ScopeEntity::createFromString("patient/Patient.ruds")
+            ,ScopeEntity::createFromString("launch/patient")
+            ,ScopeEntity::createFromString("launch")
+            ,ScopeEntity::createFromString("api:fhir")
+            ,ScopeEntity::createFromString("api:portal")
+            ,ScopeEntity::createFromString("api:oemr")
+            ,ScopeEntity::createFromString("openid")
+        ];
+        $client = new ClientEntity();
+        $client->setScopes([
+            "patient/Patient.cruds"
+        ]);
+        $allowedScopes = $scopeRepository->finalizeScopes($requestedScopes, "authorization_code", $client);
+        $this->assertCount(3, $allowedScopes, "Should have 3 scopes in allowed scopes");
+        $this->assertEquals("patient/Patient.rs", $allowedScopes[0]->getIdentifier(), "Allowed scope should be patient/Patient.rs");
+        $this->assertEquals("patient/Patient.cud", $allowedScopes[1]->getIdentifier(), "Allowed scope should be patient/Patient.cud");
+        $this->assertEquals("patient/Patient.ruds", $allowedScopes[2]->getIdentifier(), "Allowed scope should be patient/Patient.ruds");
+    }
+
+    public function finalizeScopesWithInvalidSubScopeWillFail()
+    {
         // tests we need to handle here
         $this->markTestIncomplete("ScopeRepository::finalizeScopes() needs to be implemented and tested.");
+
+        // verify a client with a full scope, will still fail if a request is made for an invalid sub scope
+        $scopeRepository = $this->scopeRepository;
+        $requestedScopes = [
+            ScopeEntity::createFromString("patient/Patient.cud")
+        ];
+        $client = new ClientEntity();
+        $client->setScopes([
+            "patient/Patient.rs"
+            ,"patient/Patient.r"
+            ,"patient/Patient.s"
+            ,"openid"
+            ,"api:fhir"
+            ,"api:oemr"
+            ,"api:portal"
+        ]);
+        $allowedScopes = $scopeRepository->finalizeScopes($requestedScopes, "authorization_code", $client);
+        $this->assertEmpty($allowedScopes, "Allowed scope should be empty for patient/Patient.rs as its not a subset of Patient/Patient.cud");
     }
 }
