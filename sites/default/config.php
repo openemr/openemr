@@ -7,7 +7,8 @@ use OpenEMR\Common\Crypto\CryptoGen;
 //  they will be encrypted while stored in globals object in memory (to not allow overriding of the global if bad actor
 //  somehow gets access to globals).
 // note that need to skip this block of code during upgrading (or else will have database issues since no keys table)
-if (empty($GLOBALS['ongoing_sql_upgrade'])) {
+// Also skip if database connection isn't available yet (e.g., during bootstrap/testing)
+if (empty($GLOBALS['ongoing_sql_upgrade']) && CryptoGen::ready()) {
     $cryptoGen = new CryptoGen();
     // Print command for spooling to printers, used by statements.inc.php
     //   This is the command to be used for printing (without the filename).

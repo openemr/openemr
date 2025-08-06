@@ -1,8 +1,7 @@
 <?php
 
 /**
- *
- * Installer class.
+ * Installer class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,6 +15,7 @@
  */
 
 use OpenEMR\Gacl\GaclApi;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 class Installer
 {
@@ -53,6 +53,7 @@ class Installer
     public $error_message;
     public $debug_message;
     public $dbh;
+    public string $encryption_strategy;
 
     public function __construct($cgi_variables)
     {
@@ -81,6 +82,8 @@ class Installer
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
         $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
         $this->new_theme                = isset($cgi_variables['new_theme']) ? ($cgi_variables['new_theme']) : '';
+        $this->encryption_strategy      = isset($cgi_variables['encryption_strategy']) ? ($cgi_variables['encryption_strategy']) : 'cryptogen';
+
         // Make this true for IPPF.
         $this->ippf_specific = false;
 
@@ -630,8 +633,14 @@ $config = 1; /////////////
                     $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
                     $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
-                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
+                        // Handle encryption strategy with centralized storage
+                        if ($fldid === 'encryption_strategy_name') {
+                            $strategyToUse = !empty($this->encryption_strategy) ? $this->encryption_strategy : $flddef;
+                            CryptoGen::setEncryptionStrategyName($strategyToUse);
+                        } else {
+                            $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                               "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
+                        }
                     }
                 }
             }
