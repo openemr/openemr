@@ -16092,14 +16092,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: modules/sms_email_reminder/sms_tmb4.php
-  - message: '#^Variable \$gbl might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: oauth2/provider/jwk.php
-  - message: '#^Variable \$oauthjwk might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: oauth2/provider/jwk.php
   - message: '#^Class OpenEMR\\Common\\Auth\\AuthHash constructor invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
