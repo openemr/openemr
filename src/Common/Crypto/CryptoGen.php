@@ -35,27 +35,17 @@ namespace OpenEMR\Common\Crypto;
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 class CryptoGen implements CryptoInterface
 {
     /**
-     * This is the current encrypt/decrypt version
-     * (this will always be a three digit number that we will
-     * increment when update the encrypt/decrypt methodology
-     * which allows being able to maintain backward compatibility
-     * to decrypt values from prior versions)
-     * Remember to update cryptCheckStandard() and decryptStandard()
-     * when increment this.
+     * This is the current key version.
+     * Remember to update the encryptStandard() and decryptStandard()
+     * methods when incrementing this.
      */
-    private string $encryptionVersion = "006";
-    /**
-     * This is the current key version. As above, will increment this
-     * when update the encrypt/decrypt methodology to allow backward
-     * compatibility.
-     * Remember to update decryptStandard() when increment this.
-     */
-    private string $keyVersion = "six";
+    private KeyVersion $keyVersion = KeyVersion::SIX;
 
     /**
      * Key cache to optimize key collection, which avoids numerous repeat
@@ -74,7 +64,7 @@ class CryptoGen implements CryptoInterface
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): string
     {
-        return $this->encryptionVersion . $this->coreEncrypt($value ?? '', $keySource, $this->keyVersion, $customPassword ?? '');
+        return $this->keyVersion->toPaddedString() . $this->coreEncrypt($value ?? '', $keySource, $this->keyVersion, $customPassword ?? '');
     }
 
     /**
@@ -94,11 +84,14 @@ class CryptoGen implements CryptoInterface
         }
 
         // Collect the encrypt/decrypt version and remove it from the value
-        $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
-        $trimmedValue = mb_substr($value, 3, null, '8bit');
+        [$versionHeader, $trimmedValue] = [mb_substr($value, 0, 3, '8bit'), mb_substr($value, 3, null, '8bit')];
+        $encryptionVersionInt = intval($versionHeader);
+        $encryptionVersion = KeyVersion::from($encryptionVersionInt);
 
-        if (!empty($minimumVersion)) {
-            if ($encryptionVersion < $minimumVersion) {
+        // Check minimum version if provided
+        if ($minimumVersion !== null) {
+            $minimumVersionEnum = KeyVersion::from($minimumVersion);
+            if ($encryptionVersion < $minimumVersionEnum) {
                 error_log("OpenEMR Error : Decryption is not working because the encrypt/decrypt version is lower than allowed.");
                 return false;
             }
@@ -107,25 +100,9 @@ class CryptoGen implements CryptoInterface
         $customPassword ??= '';
 
         // Map the encrypt/decrypt version to the correct decryption function
-        try {
-            return match ($encryptionVersion) {
-                6 => $this->coreDecrypt($trimmedValue, $keySource, "six", $customPassword),
-                5 => $this->coreDecrypt($trimmedValue, $keySource, "five", $customPassword),
-                4 => $this->coreDecrypt($trimmedValue, $keySource, "four", $customPassword),
-                2, 3 => $this->aes256DecryptTwo($trimmedValue, $customPassword),
-                1 => $this->aes256DecryptOne($trimmedValue, $customPassword),
-                default => (function () {
-                    error_log("OpenEMR Error : Decryption is not working because of unknown encrypt/decrypt version.");
-                    return false;
-                })()
-            };
-        } catch (CryptoGenException $e) {
-            // Log the exception message with call stack for debugging
-            $stackTrace = debug_backtrace();
-            $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
-            error_log(errorLogEscape("OpenEMR Error: Decryption failed!") . "\n" . errorLogEscape($formattedStackTrace));
-            return false;
-        }
+        return $encryptionVersion->usesLegacyDecryption()
+            ? $this->coreDecryptLegacy($trimmedValue, $customPassword, $encryptionVersion)
+            : $this->coreDecrypt($trimmedValue, $keySource, $encryptionVersion, $customPassword);
     }
 
     /**
@@ -142,16 +119,15 @@ class CryptoGen implements CryptoInterface
     /**
      * Core encryption function
      *
-     * @param string $value           Raw data to be encrypted
-     * @param string $keySource       The source of the keys. Options are 'drive' and 'database'
-     * @param string $keyVersion      The key number/version
-     * @param string $customPassword  If empty, standard keys are used. If provided, keys are derived from this password
+     * @param string     $value           Raw data to be encrypted
+     * @param string     $keySource       The source of the keys. Options are 'drive' and 'database'
+     * @param KeyVersion $keyVersion      The key number/version
+     * @param string     $customPassword  If empty, standard keys are used. If provided, keys are derived from this password
      * @return string The encrypted data
      * @throws CryptoGenException If encryption fails due to critical errors
      */
-    private function coreEncrypt(string $value, string $keySource, string $keyVersion, string $customPassword = ''): string
+    private function coreEncrypt(string $value, string $keySource, KeyVersion $keyVersion, string $customPassword = ''): string
     {
-
         if (!extension_loaded('openssl')) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working because missing openssl extension.");
         }
@@ -208,16 +184,15 @@ class CryptoGen implements CryptoInterface
     /**
      * Core decryption function
      *
-     * @param string $value           Encrypted data to be decrypted
-     * @param string $keySource       The source of the keys. Options are 'drive' and 'database'
-     * @param string $keyVersion      The key number/version
-     * @param string $customPassword  If empty, standard keys are used. If provided, keys are derived from this password
+     * @param string     $value           Encrypted data to be decrypted
+     * @param string     $keySource       The source of the keys. Options are 'drive' and 'database'
+     * @param KeyVersion $keyVersion      The key number/version
+     * @param string     $customPassword  If empty, standard keys are used. If provided, keys are derived from this password
      * @return string The decrypted data, or false if decryption fails
      * @throws CryptoGenException If decryption fails due to critical errors
      */
-    private function coreDecrypt(string $value, string $keySource, string $keyVersion, string $customPassword = ''): string
+    private function coreDecrypt(string $value, string $keySource, KeyVersion $keyVersion, string $customPassword = ''): string
     {
-
         if (!extension_loaded('openssl')) {
             $errorMessage = "OpenEMR Error : Decryption is not working because missing openssl extension.";
             error_log($errorMessage);
@@ -305,6 +280,21 @@ class CryptoGen implements CryptoInterface
     }
 
     /**
+     * Decrypts AES256 encrypted data using legacy algorithms (versions 1-3)
+     *
+     * @param KeyVersion $keyVersion      The version of the AES256 decryption algorithm to use
+     * @param string     $value          Data to decrypt
+     * @param string     $customPassword  If null, uses standard key. If provided, derives key from this password
+     * @return ?string The decrypted data, or null if decryption fails
+     */
+    private function coreDecryptLegacy(KeyVersion $keyVersion, string $value, string $customPassword): ?string
+    {
+        return $keyVersion === KeyVersion::ONE
+            ? $this->aes256DecryptOne($value, $customPassword)
+            : $this->aes256DecryptTwo($value, $customPassword);
+    }
+
+    /**
      * Decrypts AES256 encrypted data using version 2 algorithm
      *
      * @param ?string $value           Data to decrypt
@@ -321,8 +311,8 @@ class CryptoGen implements CryptoInterface
         if (empty($customPassword)) {
             // Collect the encryption keys.
             // The first key is for encryption. Then second key is for the HMAC hash
-            $secretKey = $this->collectCryptoKey("two", "a", "drive");
-            $secretKeyHmac = $this->collectCryptoKey("two", "b", "drive");
+            $secretKey = $this->collectCryptoKey(KeyVersion::TWO, "a", "drive");
+            $secretKeyHmac = $this->collectCryptoKey(KeyVersion::TWO, "b", "drive");
         } else {
             // Turn the password into a hash(note use binary) to use as the keys
             $secretKey = hash("sha256", $customPassword, true);
@@ -381,8 +371,8 @@ class CryptoGen implements CryptoInterface
 
         // Collect the key or use custom password
         $secretKey = empty($customPassword)
-            ? $this->collectCryptoKey("one", "", "drive")  // Collect the key. If it does not exist, then create it
-            : hash("sha256", $customPassword);             // Turn the password into a hash to use as the key
+            ? $this->collectCryptoKey(KeyVersion::ONE, "", "drive")  // Collect the key. If it does not exist, then create it
+            : hash("sha256", $customPassword); // Turn the password into a hash to use as the key
 
         if (empty($secretKey)) {
             error_log("OpenEMR Error : Decryption is not working because key is blank.");
@@ -442,22 +432,22 @@ class CryptoGen implements CryptoInterface
      * key set from database, collect key set from drive, decrypt key set from drive using the database
      * key; caching the key will bypass all these steps).
      *
-     * @param string $keyVersion  The key number/version
-     * @param string $sub         The key sublabel
-     * @param string $keySource   The source of the standard keys
+     * @param KeyVersion $keyVersion    The key version
+     * @param string     $sub           The key sublabel
+     * @param string     $keySource     The source of the standard keys
      * @return string The key in raw form
      * @throws CryptoGenException If key collection fails due to critical errors
      */
-    private function collectCryptoKey(string $keyVersion, string $sub, string $keySource): string
+    private function collectCryptoKey(KeyVersion $keyVersion, string $sub, string $keySource): string
     {
+        // Build the main label
+        $label = $keyVersion->toString() . $sub;
+
         // Check if key is in the cache first (and return it if it is)
-        $cacheLabel = $keyVersion . $sub . $keySource;
+        $cacheLabel = $label . $keySource;
         if (!empty($this->keyCache[$cacheLabel])) {
             return $this->keyCache[$cacheLabel];
         }
-
-        // Build the main label
-        $label = $keyVersion . $sub;
 
         // If the key does not exist, then create it
         $key = ($keySource === "database")
@@ -504,19 +494,18 @@ class CryptoGen implements CryptoInterface
      * For older key versions (one through four), the key is stored as base64-encoded plaintext.
      * For newer versions, the key is encrypted using the standard encryption method before storage.
      *
-     * @param string $keyPath     The file path where the key file should be created
-     * @param string $keyVersion  The key version identifier that determines storage format
+     * @param string     $keyPath     The file path where the key file should be created
+     * @param KeyVersion $keyVersion  The key version that determines storage format
      * @throws CryptoGenException If random byte generation fails
      * @return string
      */
-    private function createNewDriveKey(string $keyPath, string $keyVersion): string
+    private function createNewDriveKey(string $keyPath, KeyVersion $keyVersion): string
     {
         $newKey = RandomGenUtils::produceRandomBytes(32);
         if (empty($newKey)) {
             throw new CryptoGenException("OpenEMR Error : Random Bytes error - exiting");
         }
-        $usesLegacyStorage = in_array($keyVersion, ["one", "two", "three", "four"]);
-        $fileContents = $usesLegacyStorage
+        $fileContents = $keyVersion->usesLegacyStorage()
             ? base64_encode($newKey) // older key versions that did not encrypt the key on the drive
             : $this->encryptStandard($newKey, null, 'database');
         file_put_contents($keyPath, $fileContents);
@@ -526,12 +515,12 @@ class CryptoGen implements CryptoInterface
     /**
      * Collect key from drive
      *
-     * @param string $label       Key label
-     * @param string $keyVersion  Key version
+     * @param string     $label       Key label
+     * @param KeyVersion $keyVersion  Key version
      * @return string The key in raw form
      * @throws CryptoGenException If key creation fails
      */
-    private function collectDriveKey(string $label, string $keyVersion): string
+    private function collectDriveKey(string $label, KeyVersion $keyVersion): string
     {
         $keyPath = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label;
         if (file_exists($keyPath)) {
