@@ -1098,6 +1098,13 @@ $GLOBALS_METADATA = array(
             xl('Warn if not enough data to graph')
         ),
 
+        'issues_auto_tab' => array(
+            xl('Automatically Open Pt Issues on Demographics Screen'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Pt. Issues will auto open when checked.  Opening a new pt will close all tabs related to previous pt.')
+        ),
+
     ),
     // Report Tab
     //
