@@ -243,7 +243,7 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'coreEncrypt');
         $reflection->setAccessible(true);
 
-        $result = $reflection->invoke($this->cryptoGen, 'test data');
+        $result = $reflection->invoke($this->cryptoGen, 'test data', 'drive', 'six', '');
         $this->assertIsString($result);
     }
 
@@ -254,7 +254,7 @@ final class CryptoGenTest extends TestCase
         $reflection->setAccessible(true);
 
         // This is hard to test without extensive mocking, so we test normal operation
-        $result = $reflection->invoke($this->cryptoGen, 'test data');
+        $result = $reflection->invoke($this->cryptoGen, 'test data', 'drive', 'six', '');
         $this->assertIsString($result);
     }
 
@@ -263,8 +263,9 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'coreDecrypt');
         $reflection->setAccessible(true);
 
-        $result = $reflection->invoke($this->cryptoGen, 'invalid_base64_!!!');
-        $this->assertFalse($result);
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('base64_encoded data');
+        $reflection->invoke($this->cryptoGen, 'invalid_base64_!!!', 'drive', 'six', '');
     }
 
     public function testAes256DecryptTwoWithValidData(): void
@@ -627,13 +628,18 @@ final class CryptoGenTest extends TestCase
         $reflection->setAccessible(true);
 
         // Test when key directory doesn't exist and can't be created
-        $badSiteDir = '/root/nonexistent/path';
+        $badSiteDir = '/dev/null/cannot/exist';
         $GLOBALS['OE_SITE_DIR'] = $badSiteDir;
+        // Check if the bad path exists and fail the test if it does
+        if (is_dir($badSiteDir)) {
+            $this->fail("Test cannot run: bad site directory {$badSiteDir} already exists. Please remove it first.");
+        }
 
         $this->expectException(CryptoGenException::class);
 
         try {
-            $reflection->invoke($this->cryptoGen, 'test', 'a', 'drive');
+            // suppress `mkdir(): Not a directory` warning.
+            @$reflection->invoke($this->cryptoGen, 'test', 'a', 'drive');
         } finally {
             // Restore test site dir
             $GLOBALS['OE_SITE_DIR'] = $this->testSiteDir;
@@ -723,13 +729,21 @@ final class CryptoGenTest extends TestCase
         $reflection->setAccessible(true);
 
         // Test with malformed base64
-        $result = $reflection->invoke($this->cryptoGen, 'not_valid_base64_!');
-        $this->assertFalse($result);
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('base64_encoded data');
+        $reflection->invoke($this->cryptoGen, 'not_valid_base64_!', 'drive', 'six', '');
+    }
+
+    public function testCoreDecryptErrorPathsTooShort(): void
+    {
+        $reflection = new ReflectionMethod($this->cryptoGen, 'coreDecrypt');
+        $reflection->setAccessible(true);
 
         // Test with too short data
         $shortData = base64_encode('short');
-        $result = $reflection->invoke($this->cryptoGen, $shortData);
-        $this->assertFalse($result);
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('HMAC Authentication');
+        $reflection->invoke($this->cryptoGen, $shortData, 'drive', 'six', '');
     }
 
     public function testCollectCryptoKeyVersionVariations(): void
@@ -737,13 +751,13 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
-        // Test default parameters
-        $key1 = $reflection->invoke($this->cryptoGen);
+        // Test with all required parameters
+        $key1 = $reflection->invoke($this->cryptoGen, 'one', '', 'drive');
         $this->assertIsString($key1);
         $this->assertEquals(32, strlen($key1));
 
         // Test with sub parameter
-        $key2 = $reflection->invoke($this->cryptoGen, 'one', 'test');
+        $key2 = $reflection->invoke($this->cryptoGen, 'one', 'test', 'drive');
         $this->assertIsString($key2);
         $this->assertEquals(32, strlen($key2));
 
@@ -1030,8 +1044,9 @@ final class CryptoGenTest extends TestCase
         $mockEncrypted = base64_encode($salt . $hmac . $iv . $data);
 
         // This should exercise the custom password decryption path
-        $result = $reflection->invoke($this->cryptoGen, $mockEncrypted, 'testpass');
-        $this->assertFalse($result); // Will fail HMAC validation but covers the code
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('HMAC Authentication');
+        $reflection->invoke($this->cryptoGen, $mockEncrypted, 'drive', 'six', 'testpass');
     }
 
     public function testRandomBytesFailureHandling(): void
