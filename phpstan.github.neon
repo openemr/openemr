@@ -13248,10 +13248,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/summary/demographics.php
-  - message: '#^Variable \$pid might not be defined\.$#'
-    identifier: variable.undefined
-    count: 48
-    path: interface/patient_file/summary/demographics.php
   - message: '#^Variable \$query might not be defined\.$#'
     identifier: variable.undefined
     count: 1
