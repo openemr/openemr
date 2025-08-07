@@ -13756,18 +13756,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/reports/amc_tracking.php
-  - message: '#^Variable \$canceledAppointments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/appointments_report.php
-  - message: '#^Variable \$csvfields might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/appointments_report.php
-  - message: '#^Variable \$rems might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/appointments_report.php
   - message: '#^Variable \$rems_out might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -13775,10 +13763,6 @@ parameters:
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 3
-    path: interface/reports/appointments_report.php
-  - message: '#^Variable \$totalAppointments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
     path: interface/reports/appointments_report.php
   - message: '#^Variable \$code_types might not be defined\.$#'
     identifier: variable.undefined
@@ -18452,3 +18436,23 @@ parameters:
     identifier: arguments.count
     count: 1
     path: tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
+  - message: '#^Trying to mock an undefined method Execute\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method ExecuteNoLog\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method FetchRow\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 3
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method Insert_ID\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Trying to mock an undefined method qstr\(\) on class stdClass\.$#'
+    identifier: phpunit.mockMethod
+    count: 1
+    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php

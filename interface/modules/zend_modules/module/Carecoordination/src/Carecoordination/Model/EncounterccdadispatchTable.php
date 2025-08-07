@@ -4075,7 +4075,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         foreach ($types as $type) {
             $sql = "
-            SELECT i.*, c.name AS company_name, 
+            SELECT i.*, c.name AS company_name,
                    c.uuid as compuuid,
                    a.line1, a.line2, a.city, a.state, a.zip, a.plus_four, a.country,
                    a.foreign_id,
