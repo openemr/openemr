@@ -140,6 +140,13 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopeIdentifier;
     }
 
+    /**
+     * @param ScopeEntity[] $scopes
+     * @param $grantType
+     * @param ClientEntityInterface $clientEntity
+     * @param $userIdentifier
+     * @return array|\League\OAuth2\Server\Entities\ScopeEntityInterface[]
+     */
     public function finalizeScopes(
         array $scopes,
         $grantType,
@@ -147,7 +154,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $userIdentifier = null
     ): array {
         $this->getSystemLogger()->debug("Attempting to finalize scopes", [
-            'scopes' => $scopes,
+            'scopeCount' => count($scopes),
             'grantType' => $grantType,
             'clientEntity' => $clientEntity,
             'userIdentifier' => $userIdentifier

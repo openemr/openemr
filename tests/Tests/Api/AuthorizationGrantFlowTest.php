@@ -314,25 +314,20 @@ class AuthorizationGrantFlowTest extends TestCase {
             "grant_type" => "authorization_code",
             "code" => $code,
             "redirect_uri" => $redirectUri,
-//            "client_id" => $clientIdentifier,
-//            "client_secret" => "$clientSecret", // assuming this is the client secret
-//            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session),
-//            "scope" => $scopesString,
-//            "state" => "test_state"
         ], [], [], [
             'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode($clientIdentifier . ':' . $clientSecret),
         ]);
         $session = $this->getMockSession();
         $originalSessionId = $session->getId();
         $authController = $this->getAuthorizationController($session, $kernel);
-        $authController->setSystemLogger(new SystemLogger(Level::Debug));
         $tokenResponse = $authController->oauthAuthorizeToken($tokenRequest);
         $this->assertEquals(Response::HTTP_OK, $tokenResponse->getStatusCode(), 'Token request should return 200 status code');
-        $contents = $tokenResponse->getBody()->getContents();
+        $contents = $tokenResponse->getBody()->__toString();
         $this->assertNotEmpty($contents, 'Token response body should not be empty');
         $json = json_decode($contents, true);
         $this->assertArrayHasKey('access_token', $json, 'Token response should contain access_token');
         $this->assertArrayHasKey('id_token', $json, 'Token response should contain id_token');
         $this->assertArrayHasKey('refresh_token', $json, 'Token response should contain refresh_token');
+        $this->assertNotEquals($originalSessionId, $session->getId(), "Session ID should be a new session");
     }
 }

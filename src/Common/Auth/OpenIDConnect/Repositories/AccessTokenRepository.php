@@ -21,9 +21,12 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @var SMARTSessionTokenContextBuilder
      */
@@ -81,7 +84,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function revokeAccessToken($tokenId)
     {
-        (new SystemLogger())->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
+        $this->getSystemLogger()->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
         // Some logic to revoke the refresh token in a database
         $sql = "UPDATE api_token SET revoked = 1 WHERE token = ?";
         QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);
@@ -117,6 +120,10 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         }
         $accessToken->setUserIdentifier($userIdentifier);
 
+        $this->getSystemLogger()->debug("AccessTokenRepository->getNewToken() creating new access token", [
+            'clientId' => $clientEntity->getIdentifier(),
+            'userIdentifier' => $userIdentifier
+        ]);
         return $accessToken;
     }
 

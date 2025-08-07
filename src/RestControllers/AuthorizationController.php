@@ -657,7 +657,7 @@ class AuthorizationController
         // OpenID Connect Response Type
         $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() creating server");
         $responseType = new IdTokenSMARTResponse($this->session, new IdentityRepository(), new ClaimExtractor($customClaim));
-
+        $responseType->setSystemLogger($this->getSystemLogger());
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';
         }
@@ -670,7 +670,7 @@ class AuthorizationController
 
         $authServer = new AuthorizationServer(
             $this->getClientRepository(),
-            new AccessTokenRepository(),
+            $this->getTokenRepository(),
             $scopeRepository,
             new CryptKey($this->privateKey, $this->passphrase),
             $this->oaEncryptionKey,
@@ -691,7 +691,7 @@ class AuthorizationController
             ];
             $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
-                new RefreshTokenRepository($includeAuthGrantRefreshToken),
+                $this->getRefreshTokenRepository($includeAuthGrantRefreshToken),
                 new DateInterval('PT1M'), // auth code. should be short turn around.
                 $expectedAudience
             );
@@ -704,7 +704,7 @@ class AuthorizationController
             );
         }
         if ($this->grantType === 'refresh_token') {
-            $grant = new CustomRefreshTokenGrant($this->session, new RefreshTokenRepository());
+            $grant = new CustomRefreshTokenGrant($this->session, $this->getRefreshTokenRepository());
             $grant->setRefreshTokenTTL(new DateInterval('P3M'));
             $authServer->enableGrantType(
                 $grant,
@@ -716,7 +716,7 @@ class AuthorizationController
             $grant = new CustomPasswordGrant(
                 $this->session,
                 new UserRepository(),
-                new RefreshTokenRepository($includeAuthGrantRefreshToken)
+                $this->getRefreshTokenRepository($includeAuthGrantRefreshToken)
             );
             $grant->setRefreshTokenTTL(new DateInterval('P3M'));
             $authServer->enableGrantType(
@@ -1487,7 +1487,7 @@ class AuthorizationController
                         $result['active'] = false;
                         $result['status'] = 'revoked';
                     }
-                    $tokenRepository = new AccessTokenRepository();
+                    $tokenRepository = $this->getTokenRepository();
                     if ($tokenRepository->isAccessTokenRevokedInDatabase($result['jti'])) {
                         $result['active'] = false;
                         $result['status'] = 'revoked';
@@ -1524,7 +1524,7 @@ class AuthorizationController
                     $result['active'] = false;
                     $result['status'] = 'revoked';
                 }
-                $tokenRepository = new RefreshTokenRepository();
+                $tokenRepository = $this->getRefreshTokenRepository();
                 if ($tokenRepository->isRefreshTokenRevoked($result['jti'])) {
                     $result['active'] = false;
                     $result['status'] = 'revoked';
@@ -1867,5 +1867,26 @@ class AuthorizationController
         $userUuid = $user['uuid'];
         $this->session->start();
         return $userUuid;
+    }
+
+    /**
+     * @return AccessTokenRepository
+     */
+    private function getTokenRepository(): AccessTokenRepository
+    {
+        $tokenRepository = new AccessTokenRepository();
+        $tokenRepository->setSystemLogger($this->getSystemLogger());
+        return $tokenRepository;
+    }
+
+    /**
+     * @param bool $includeAuthGrantRefreshToken
+     * @return RefreshTokenRepository
+     */
+    private function getRefreshTokenRepository(bool $includeAuthGrantRefreshToken = true): RefreshTokenRepository
+    {
+        $repo = new RefreshTokenRepository($includeAuthGrantRefreshToken);
+        $repo->setSystemLogger($this->getSystemLogger());
+        return $repo;
     }
 }
