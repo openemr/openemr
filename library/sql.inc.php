@@ -98,7 +98,6 @@ if (!$GLOBALS['dbh']) {
         echo "Check that you can ping the server " . text($host) . ".<p>";
     }//if local
     HelpfulDie("Could not connect to server!", getSqlLastError());
-    exit;
 }//if no connection
 
 /**
@@ -547,7 +546,7 @@ function sqlNumRows($r)
 * @param string $statement
 * @param string $sqlerr
 */
-function HelpfulDie($statement, $sqlerr = ''): void
+function HelpfulDie($statement, $sqlerr = ''): never
 {
 
     echo "<h2><font color='red'>" . xlt('Query Error') . "</font></h2>";
@@ -582,7 +581,7 @@ function HelpfulDie($statement, $sqlerr = ''): void
 
     error_log(errorLogEscape($logMsg));
 
-    exit;
+    exit(1);
 }
 
 /**
@@ -817,7 +816,7 @@ function privStatement($sql, $params = null)
 
         error_log("Executing as user:" . errorLogEscape(getPrivDB()->user) . " Statement failed:" . errorLogEscape($sql) . ":" . errorLogEscape($GLOBALS['last_mysql_error'])
             . "==>" . errorLogEscape($backtrace[1]["file"]) . " at " . errorLogEscape($backtrace[1]["line"]) . ":" . errorLogEscape($backtrace[1]["function"]));
-        exit;
+        exit(1);
     }
 
     return $recordset;
