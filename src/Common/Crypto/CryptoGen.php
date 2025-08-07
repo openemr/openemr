@@ -32,9 +32,10 @@ namespace OpenEMR\Common\Crypto;
 
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
-class CryptoGen
+class CryptoGen implements CryptoInterface
 {
     /**
      * This is the current encrypt/decrypt version
@@ -69,7 +70,7 @@ class CryptoGen
      * @param string  $keySource      The source of the standard keys. Options are 'drive' and 'database'
      * @return string The encrypted data
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
+    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): string
     {
         $encryptedValue = $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
 
