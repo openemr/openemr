@@ -152,6 +152,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
         return $currentActionStatus;
     }
 
+
+
     /**
      * @param $modId
      * @param $currentActionStatus

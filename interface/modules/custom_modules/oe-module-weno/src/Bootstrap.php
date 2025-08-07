@@ -176,7 +176,7 @@ class Bootstrap
      */
     public function renderWenoSection(pRenderEvent $event): void
     {
-        if (!$this->isWenoUser || !$this->isAuthorized) {
+        if (!$this->isAuthorized) {
             return;
         }
 
