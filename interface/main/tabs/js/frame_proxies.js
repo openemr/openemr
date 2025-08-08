@@ -47,6 +47,40 @@ left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
         tabCloseByName('rev');
     });
 
+    if (AutoIssuesTab) {
+        loadPatientIssues("leftNav");
+
+
+//**ERX
+        left_nav.setPatientErx = function () {
+            navigateTab(webroot_url + "/interface/eRx.php", "er1");
+
+
+        };
+
+//Close the open tabs to previous pt.
+        left_nav.closeErx = function () {
+            tabCloseByName('er1');
+            tabCloseByName('er2');
+            tabCloseByName('er3');
+            tabCloseByName('enc2');
+            tabCloseByName('imm1');
+            tabCloseByName('imm2');
+            tabCloseByName('imm3');
+
+        };
+
+//This function has been added to refresh open eRx tabs with a newly selected patient.  At this time
+//the tabRefreshByName function is not working with eRx.
+        left_nav.refreshErx = function () {
+
+            tabRefreshByName('er1');
+            tabRefreshByName('er2');
+            tabRefreshByName('er3');
+            tabRefreshByName('enc2');
+
+        }
+    }
     /* close therapy group tabs */
     tabCloseByName('gdg');
     attendant_type = 'patient';
