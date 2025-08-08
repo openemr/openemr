@@ -126,6 +126,8 @@ jobs:
       fail-fast: false
       matrix:
         configurations: ${{ fromJson(needs.collect.outputs.configurations) }}
+      # hypothesis: If we limit the parallelism of these jobs, we won't get the sporadic timeout in the e2e tests.
+      max-parallel: 7  # half of the current 14 test configs
     env:
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
