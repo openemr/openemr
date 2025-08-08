@@ -729,15 +729,13 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
         }
     } // End specific code type search
 
-    if (isset($res)) {
-        if ($count) {
-            // just return the count
-            $ret = sqlFetchArray($res);
-            return $ret['count'];
-        }
-        // return the data
-        return $res;
+    if ($count) {
+        // just return the count
+        $ret = sqlFetchArray($res);
+        return $ret['count'];
     }
+    // return the data
+    return $res;
 }
 
 /**
