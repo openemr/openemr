@@ -6,7 +6,7 @@
  * @category  Test
  * @package   OpenEMR\Tests\Unit\Common\Crypto
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright 2025 OpenCoreEMR
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   GNU General Public License 3
  * @link      http://www.open-emr.org
  */
