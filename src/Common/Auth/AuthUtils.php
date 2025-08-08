@@ -345,7 +345,8 @@ class AuthUtils
         }
 
         // Check to ensure user is in a group (and collect the group name)
-        $authGroup = UserService::getAuthGroupForUser($username);
+        $userService = new UserService();
+        $authGroup = $userService->getAuthGroupForUser($username);
         if (empty($authGroup)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
@@ -1494,7 +1495,8 @@ class AuthUtils
         }
 
         // Ensure that the user is in an auth group
-        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        $userService = new UserService();
+        $authGroup = $userService->getAuthGroupForUser($user['username']);
         if (empty($authGroup)) {
             EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' does not belong to a group ");
             return false;

@@ -23,19 +23,11 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Request;
 
-class HttpRestRequest implements ServerRequestInterface, \Stringable
+class HttpRestRequest extends Request implements \Stringable
 {
-    /**
-     * @var ServerRequestInterface
-     */
-    private $innerServerRequest;
-
-    /**
-     * @var \RestConfig
-     */
-    private $restConfig;
-
     /**
      * The Resource that is being requested in this http rest call.
      * @var string
@@ -108,7 +100,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
     /**
      * @var boolean
      */
-    private $isLocalApi;
+    private $isLocalApi = false;
 
     /**
      * The kind of REST api request this object represents
@@ -126,43 +118,47 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      */
     private $apiBaseFullUrl;
 
-    public function __construct($restConfig, $server)
+    public static function createFromGlobals(): static
     {
-        $this->restConfig = $restConfig;
-        $this->requestSite = $restConfig::$SITE;
+        // Handle the rewrite command transformation before calling parent
+        // TODO: change this logic if we decide to change up our _REWRITE_COMMAND logic.
+        // our current mod_rewrite rules will set the _REWRITE_COMMAND in the query string which is different than
+        // how php will typically handle clean urls where PATH_INFO is set to come after the script name.
+        // If the _REWRITE_COMMAND is set, we will use it to set the PATH_INFO and REQUEST_URI so we can handle the
+        // request properly in Symfony.
+        if (isset($_GET['_REWRITE_COMMAND'])) {
+            $rewritePath = $_GET['_REWRITE_COMMAND'];
 
+            // Remove the _REWRITE_COMMAND from $_GET so Symfony doesn't see it
+            unset($_GET['_REWRITE_COMMAND']);
 
-        $headers = $this->parseHeadersFromServer($server);
-        $body = null;
-        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? '');
-        if ($method == "POST" || $method == "PUT") {
-            $body = file_get_contents("php://input") ?? null;
+            // Set up PATH_INFO for Symfony
+            $_SERVER['PATH_INFO'] = '/' . ltrim($rewritePath, '/');
+
+            // Update REQUEST_URI to reflect the clean path
+            $queryString = http_build_query($_GET);
+            // need to imitate the request the way symfony would parse it.
+            $_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'] . $_SERVER['PATH_INFO'] . ($queryString ? '?' . $queryString : '');
+
+            // Update QUERY_STRING to exclude the _REWRITE_COMMAND
+            $_SERVER['QUERY_STRING'] = $queryString;
+
+            // Set PHP_SELF appropriately
+            $_SERVER['PHP_SELF'] = $_SERVER['SCRIPT_NAME'] . $_SERVER['PATH_INFO'];
         }
-        // we use the URI from the restConfig to handle our ServerRequestInterface
-        $requestUri = $this->restConfig::getRequestEndPoint();
-        $this->requestSite = $this->restConfig::$SITE;
-        $requestUri = str_replace('/' . $this->requestSite, '', $requestUri);
-        // we use this to handle our ServerRequestInterface
-        $this->innerServerRequest =  new ServerRequest(
-            $method,
-            $requestUri ?? "",
-            $headers,
-            $body,
-            '1.1',
-            $server
-        );
 
-        $queryParams = $_GET ?? [];
-        // remove the OpenEMR queryParams that our rewrite command injected so we don't mess stuff up.
-        if (isset($queryParams['_REWRITE_COMMAND'])) {
-            unset($queryParams['_REWRITE_COMMAND']);
-        }
-        $this->innerServerRequest = $this->innerServerRequest->withQueryParams($queryParams);
-        $this->setPatientRequest(false); // default to false
+        $request = parent::createFromGlobals();
+        $request->setPatientRequest(false); // default to false
 
-        if (!empty($headers['APICSRFTOKEN'])) {
-            $this->setIsLocalApi(true);
+        if (!empty($request->headers->has('APICSRFTOKEN'))) {
+            $request->setIsLocalApi(true);
         }
+        return $request;
+    }
+
+    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    {
+        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
     }
 
     /**
@@ -170,51 +166,48 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      */
     public function getRequestBody()
     {
-        $stream = $this->innerServerRequest->getBody(); // Nyholm points things at the end of the stream, so we need to rewind it.
-        $stream->rewind();
-        return $stream->getContents();
+        return $this->content;
     }
 
     public function getRequestBodyJSON()
     {
-        $stream = $this->innerServerRequest->getBody(); // Nyholm points things at the end of the stream, so we need to rewind it.
-        $stream->rewind();
-        $contentEncoding = $this->getHeader("Content-Encoding");
+        $contentEncoding = $this->encodings;
         // let's decode the gzip content if we can
         if (!empty($contentEncoding) && $contentEncoding[0] === "gzip") {
-            $stream = new GzipDecodeStream($stream);
+            $stream = new GzipDecodeStream($this->getContent(true));
+        } else {
+            $stream = $this->getContent(true);
         }
         return json_decode($stream->getContents(), true);
     }
 
     public function setRequestMethod($requestMethod)
     {
-        $this->innerServerRequest = $this->innerServerRequest->withMethod($requestMethod);
+        $this->method = $requestMethod;
     }
 
     public function setQueryParams($queryParams)
     {
-        $this->innerServerRequest = $this->innerServerRequest->withQueryParams($queryParams);
+        $this->query = new InputBag($queryParams);
     }
 
     public function getQueryParams()
     {
-        return $this->innerServerRequest->getQueryParams();
+        return $this->query->all();
     }
 
-    public function getQueryParam($key)
+    public function getQueryParam($key): bool|float|int|null|string
     {
-        $params = $this->getQueryParams();
-        return $params[$key] ?? null;
+        return $this->query->get($key);
     }
 
     /**
      * Return an array of HTTP request headers
      * @return array|string[][]
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
-        return $this->innerServerRequest->getHeaders();
+        return $this->headers->all();
     }
 
     /**
@@ -224,7 +217,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      */
     public function getHeader($headerName)
     {
-        return $this->innerServerRequest->getHeader($headerName);
+        return $this->headers->all($headerName) ?? [];
     }
 
     /**
@@ -232,27 +225,9 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      * @param $headerName The name of the header to check
      * @return bool true if the header exists, false otherwise.
      */
-    public function hasHeader($headerName)
+    public function hasHeader($headerName): bool
     {
-        return $this->innerServerRequest->hasHeader($headerName);
-        return !empty($this->headers[$headerName]);
-    }
-
-    /**
-     * @return \RestConfig
-     */
-    public function getRestConfig(): \RestConfig
-    {
-        return $this->restConfig;
-    }
-
-    /**
-     * Return the Request URI (matches the $_SERVER['REQUEST_URI'])
-     * @return mixed|string
-     */
-    public function getRequestURI()
-    {
-        return $this->innerServerRequest->getUri();
+        return $this->headers->has($headerName);
     }
 
     /**
@@ -265,7 +240,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
     {
         $this->resource = null;
         $this->requestPath = null;
-        $this->innerServerRequest = $this->innerServerRequest->withUri(new Uri($requestURI));
+        $this->requestUri = $requestURI;
     }
 
     /**
@@ -347,8 +322,28 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         return array_values($this->accessTokenScopes);
     }
 
-    public function requestHasScope($scope)
+    public function requestHasScope($scope): bool
     {
+        // TODO: would prefer to move this into a Permission Decision Point code (PDP)
+        // need to grab the (permission)
+        // see HttpRestRequestTest for examples of how this is used.  Note if we can't parse the scope, we check
+        // against a literal match of the scope, this handles things like api:fhir, openid, everything else
+        // our setAccessTokenScopes() method will ensure that the scopes are properly formatted
+        $regex = "/^([a-zA-Z0-9]+)\/([a-zA-Z0-9_\-]+|\*)\.(read|write|[cruds]{1}|\\$[a-zA-Z][a-zA-Z0-9\-]*)$/";
+        $scopeParts = [];
+        preg_match($regex, $scope, $scopeParts);
+        if (!empty($scopeParts)) {
+            list ($match, $context, $resource, $permission) = $scopeParts;
+            if (in_array($permission, ["r", "s"])) {
+                if (isset($this->accessTokenScopes[$context . "/" . $resource . ".read"])) {
+                    return true;
+                }
+            } else if (in_array($permission, ['c', 'u', 'd'])) {
+                if (isset($this->accessTokenScopes[$context . "/" . $resource . ".write"])) {
+                    return true;
+                }
+            }
+        }
         return isset($this->accessTokenScopes[$scope]);
     }
 
@@ -404,9 +399,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      */
     public function setRequestSite(string $requestSite): void
     {
-        // while here parse site from endpoint
-        $resource = str_replace('/' . $requestSite, '', $this->innerServerRequest->getUri()->getPath());
-        $this->innerServerRequest->withUri(new Uri($resource));
+        // TODO: @adunsulag should we update the request URI to remove the site from the path?
         $this->requestSite = $requestSite;
     }
 
@@ -537,11 +530,12 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
     }
 
     /**
+     * @deprecated use getMethod() instead
      * @return string
      */
     public function getRequestMethod(): ?string
     {
-        return $this->innerServerRequest->getMethod();
+        return $this->getMethod();
     }
 
 
@@ -550,8 +544,27 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         return $this->patientRequest === true;
     }
 
+    public function isFhirRequest(): bool
+    {
+        return stripos(strtolower($this->getPathInfo()), "/fhir/") !== false;
+    }
+
+    public function isPortalRequest(): bool
+    {
+        return stripos(strtolower($this->getPathInfo()), "/portal/") !== false;
+    }
+
+    public function isStandardApiRequest(): bool
+    {
+        return stripos(strtolower($this->getPathInfo()), "/api/") !== false;
+    }
+
     public function isFhir()
     {
+        if (!isset($this->apiType) && $this->isFhirRequest()) {
+            // if we don't have an api type set, then we assume its a fhir request
+            $this->setApiType('fhir');
+        }
         return $this->getApiType() === 'fhir';
     }
 
@@ -574,12 +587,32 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
 
     public function setRequestPath(string $requestPath)
     {
-        $this->innerServerRequest = $this->innerServerRequest->withUri($this->innerServerRequest->getUri()->withPath($requestPath));
+        // TODO: @adunsulag is there a better way to do this?
+        $this->pathInfo = $requestPath;
+        $this->server->set('PATH_INFO', $requestPath);
+    }
+
+    public function getRequestPathWithoutSite()
+    {
+        // This will return the request path without the site prefix
+        $pathInfo = $this->getPathInfo();
+        if (empty($pathInfo)) {
+            return null; // no path info available
+        }
+        if (empty($this->requestSite)) {
+            return $pathInfo; // no site prefix set, return full path
+        }
+
+        $endOfPath = strpos($pathInfo, '/', 1);
+        if ($endOfPath === false) {
+            return $pathInfo; // no site prefix found
+        }
+        return substr($pathInfo, $endOfPath);
     }
 
     public function getRequestPath(): ?string
     {
-        return $this->innerServerRequest->getUri()->getPath();
+        return $this->getPathInfo();
     }
 
     /**
@@ -600,89 +633,72 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         $this->apiBaseFullUrl = $apiBaseFullUrl;
     }
 
-    public function getProtocolVersion()
-    {
-        return $this->innerServerRequest->getProtocolVersion();
-    }
 
     public function withProtocolVersion($version)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withProtocolVersion($version);
+        $clonedRequest->server->set("SERVER_PROTOCOL", 'HTTP/' . $version);
         return $clonedRequest;
     }
 
     public function getHeaderLine($name)
     {
-        return $this->innerServerRequest->getHeaderLine($name);
+        return implode(",", $this->getHeader($name));
     }
 
     public function withHeader($name, $value)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withHeader($name, $value);
+        $clonedRequest->headers->set($name, $value, true);
         return $clonedRequest;
     }
 
     public function withAddedHeader($name, $value)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withAddedHeader($name, $value);
+        $clonedRequest->headers->set($name, $value);
         return $clonedRequest;
     }
 
     public function withoutHeader($name)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withoutHeader($name);
+        $clonedRequest->headers->remove($name);
         return $clonedRequest;
     }
 
     public function getBody()
     {
-        return $this->innerServerRequest->getBody();
+        return $this->getContent();
     }
 
     public function withBody(StreamInterface $body)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withBody($body);
+        $clonedRequest->content = $body;
         return $clonedRequest;
-    }
-
-    public function getRequestTarget(): string
-    {
-        return $this->innerServerRequest->getRequestTarget();
-    }
-
-    public function withRequestTarget($requestTarget)
-    {
-        $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withRequestTarget($requestTarget);
-        return $clonedRequest;
-    }
-
-    public function getMethod()
-    {
-        return $this->innerServerRequest->getMethod();
     }
 
     public function withMethod($method)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withRequestTarget($method);
+        $clonedRequest->method = $method;
         return $clonedRequest;
     }
 
-    public function getUri()
+    public function getUri(): string
     {
-        return $this->innerServerRequest->getUri();
+        return $this->requestUri;
     }
 
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withUri($uri, $preserveHost);
+        if (!$preserveHost) {
+            $clonedRequest->headers->set('HOST', $uri->getHost());
+        }
+        $clonedRequest->server->set('REQUEST_URI', $uri->getPath() . '?' . $uri->getQuery());
+        $clonedRequest->prepareRequestUri();
         $clonedRequest->resource = null;
         $clonedRequest->requestPath = null;
         return $clonedRequest;
@@ -690,99 +706,73 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
 
     public function getServerParams()
     {
-        return $this->innerServerRequest->getServerParams();
+        return $this->server->all();
     }
 
     public function getCookieParams()
     {
-        return $this->innerServerRequest->getCookieParams();
+        return $this->cookies->all();
     }
 
     public function withCookieParams(array $cookies)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withCookieParams($cookies);
+        $clonedRequest->cookies = new InputBag($cookies);
         return $clonedRequest;
     }
 
     public function withQueryParams(array $query)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withQueryParams($query);
+        $clonedRequest->query = new InputBag($query);
         return $clonedRequest;
     }
 
     public function getUploadedFiles()
     {
-        return $this->innerServerRequest->getUploadedFiles();
+        return $this->files->all();
     }
 
     public function withUploadedFiles(array $uploadedFiles)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withUploadedFiles($uploadedFiles);
+        $clonedRequest->files = new InputBag($uploadedFiles);
         return $clonedRequest;
     }
 
     public function getParsedBody()
     {
-        return $this->innerServerRequest->getParsedBody();
+        return $this->getPayload()->all();
     }
 
     public function withParsedBody($data)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withParsedBody($data);
+        $clonedRequest->request = new InputBag($data);
         return $clonedRequest;
     }
 
     public function getAttributes()
     {
-        return $this->innerServerRequest->getAttributes();
+        return $this->attributes->all();
     }
 
     public function getAttribute($name, $default = null)
     {
-        return $this->innerServerRequest->getAttribute($name, $default);
+        return $this->attributes->get($name, $default);
     }
 
     public function withAttribute($name, $value)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withAttribute($name, $value);
+        $clonedRequest->attributes->set($name, $value);
         return $clonedRequest;
     }
 
     public function withoutAttribute($name)
     {
         $clonedRequest = clone $this;
-        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withoutAttribute($name);
+        $clonedRequest->attributes->remove($name);
         return $clonedRequest;
-    }
-    private function parseHeadersFromServer($server)
-    {
-        $headers = array();
-        foreach ($server as $key => $value) {
-            $prefix = substr($key, 0, 5);
-
-            if ($prefix != 'HTTP_') {
-                continue;
-            }
-
-            $serverHeader = strtolower(substr($key, 5));
-            $uppercasedServerHeader = ucwords(str_replace('_', ' ', $serverHeader));
-
-            $header = str_replace(' ', '-', $uppercasedServerHeader);
-            if (empty($headers[$header])) {
-                $headers[$header] = [];
-            }
-            $headers[$header][] = $value;
-        }
-        return $headers;
-    }
-
-    public function __toString()
-    {
-        return self::class; // just returning the class name for now, at some point we can return a summary of the full request
     }
 }

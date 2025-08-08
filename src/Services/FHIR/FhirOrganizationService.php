@@ -3,9 +3,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
@@ -37,6 +36,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
     use MappedServiceTrait;
+    use SystemLoggerAwareTrait;
 
     const ORGANIZATION_TYPE_INSURANCE = "Ins";
     const ORGANIZATION_TYPE_PAYER = "Pay";
@@ -62,6 +62,17 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         // TODO: ask @brady.miller if we need x12 clearinghouses here for our organization list... eventually yes, but for ONC?
         // TODO: @adunsulag look at adding Pharmacies on here as well... @see C_Pharmacy class
         $this->addMappedService(new FhirOrganizationProcedureProviderService());
+    }
+
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $mappedServices = $this->getMappedServices();
+        foreach ($mappedServices as $service) {
+            if ($service instanceof FhirServiceBase) {
+                $service->setSystemLogger($systemLogger);
+            }
+        }
+        $this->systemLogger = $systemLogger;
     }
 
     /**
@@ -101,7 +112,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         try {
             $fhirSearchResult = $this->searchAllServicesWithSupportedFields($fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $this->getSystemLogger()->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -141,6 +152,11 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         return $this->facilityService->insert($fhirResource);
     }
 
+    /**
+     * @param $fhirResourceId string
+     * @param $fhirResource FHIROrganization
+     * @return ProcessingResult
+     */
     public function update($fhirResourceId, $fhirResource): ProcessingResult
     {
 
@@ -153,7 +169,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
                 return $service->update($fhirResourceId, $fhirResource);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
+            $this->getSystemLogger()->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
         }
         $processingResult = new ProcessingResult();
         $processingResult->setValidationMessages(['_id' => 'Invalid fhir resource id']);

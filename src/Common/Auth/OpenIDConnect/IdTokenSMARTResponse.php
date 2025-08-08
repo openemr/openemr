@@ -21,7 +21,9 @@ use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use LogicException;
+use Nyholm\Psr7\Stream;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\Services\PatientService;
@@ -30,17 +32,18 @@ use OpenIDConnectServer\IdTokenResponse;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
+// TODO: Look at renaming this class to OEIdTokenResponse since it applies to all OpenEMR OAuth2 responses
 class IdTokenSMARTResponse extends IdTokenResponse
 {
+    use SystemLoggerAwareTrait;
+
     const SCOPE_SMART_LAUNCH = 'launch';
     const SCOPE_OFFLINE_ACCESS = 'offline_access';
     const SCOPE_SMART_LAUNCH_PATIENT = 'launch/patient';
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var boolean
@@ -59,20 +62,16 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private $contextForNewTokens;
 
-    /**
-     * @var Environment The twig environment.
-     */
-    private $twig;
+    private SessionInterface $session;
 
     public function __construct(
+        SessionInterface $session,
         IdentityProviderInterface $identityProvider,
-        ClaimExtractor $claimExtractor,
-        Environment $twig
+        ClaimExtractor $claimExtractor
     ) {
         $this->isAuthorizationGrant = false;
-        $this->logger = new SystemLogger();
-        $this->contextBuilder = new SMARTSessionTokenContextBuilder($_SESSION, $twig);
-        $this->twig = $twig;
+        $this->session = $session;
+        $this->contextBuilder = new SMARTSessionTokenContextBuilder($session);
         parent::__construct($identityProvider, $claimExtractor);
     }
 
@@ -94,6 +93,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         // @see https://github.com/thephpleague/oauth2-server/issues/1005 for the oauth2 discussion on why they are
         // not handling oauth2 offline_access with refresh_tokens.
         if ($this->hasScope($this->accessToken->getScopes(), self::SCOPE_OFFLINE_ACCESS)) {
+            $this->getSystemLogger()->debug("IdTokenSMARTResponse->generateHttpResponse() no offline_access scope, calling parent method");
             return parent::generateHttpResponse($response);
         }
 
@@ -113,13 +113,11 @@ class IdTokenSMARTResponse extends IdTokenResponse
         }
 
         $response = $response
-            ->withStatus(200)
+            ->withStatus(Response::HTTP_OK)
             ->withHeader('pragma', 'no-cache')
             ->withHeader('cache-control', 'no-store')
-            ->withHeader('content-type', 'application/json; charset=UTF-8');
-
-        $response->getBody()->write($responseParams);
-
+            ->withHeader('content-type', 'application/json; charset=UTF-8')
+            ->withBody(Stream::create($responseParams));
         return $response;
     }
 
@@ -128,7 +126,6 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $extraParams = parent::getExtraParams($accessToken);
 
         $scopes = $accessToken->getScopes();
-        $this->logger->debug("IdTokenSMARTResponse->getExtraParams() params from parent ", ["params" => $extraParams]);
 
         $contextParams = $this->getContextForNewAccessTokens($scopes);
         $extraParams = array_merge($extraParams, $contextParams);
@@ -136,7 +133,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         // I would think this would be better put in the id_token but to be spec compliant we have to have this here
         $extraParams['scope'] = $this->getScopeString($accessToken->getScopes());
 
-        $this->logger->debug("IdTokenSMARTResponse->getExtraParams() final params", ["params" => $extraParams]);
+        $this->getSystemLogger()->debug("IdTokenSMARTResponse->getExtraParams() final params", ["params" => $extraParams]);
         return $extraParams;
     }
 
@@ -179,12 +176,20 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $builder = new Builder(new JoseEncoder(), $claimsFormatter);
 
         // Add required id_token claims
-        return $builder
+        $builder = $builder
             ->permittedFor($accessToken->getClient()->getIdentifier())
             ->issuedBy($GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/oauth2/" . $_SESSION['site_id'])
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());
+        if ($this->session->has("nonce")) {
+            $nonce = $this->session->get("nonce");
+            $this->getSystemLogger()->debug("IdTokenSMARTResponse->getBuilder() nonce found in session", ["nonce" => $nonce]);
+            $builder = $builder->withClaim('nonce', $nonce);
+        } else {
+            $this->getSystemLogger()->debug("IdTokenSMARTResponse->getBuilder() no nonce found in session");
+        }
+        return $builder;
     }
 
     /**
@@ -198,7 +203,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
     /**
      * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
-     * context saved in the repositoryor will build a new context from the passed in scopes.
+     * context saved in the repository or will build a new context from the passed in scopes.
      * @param $scopes The scopes in the access token that determines what context variables to use in the access token
      * @return array The built context session.
      */
