@@ -58,7 +58,8 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr api:port api:fhir' should return all scopes");
     }
 
-    public function testBuildScopeValidatorArrayMultipleOperations(): void {
+    public function testBuildScopeValidatorArrayMultipleOperations(): void
+    {
         $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
             ->onlyMethods(['getAllSupportedScopesList'])
             ->getMock();
@@ -81,7 +82,8 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals('user/Patient.$version', $operations[3]->getIdentifier(), "user/Patient.\$version should be in scope validator array");
     }
 
-    public function testGetScopeEntityByIdentifierWithSubResourceScope() {
+    public function testGetScopeEntityByIdentifierWithSubResourceScope()
+    {
         $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
             ->onlyMethods(['getAllSupportedScopesList'])
             ->getMock();
@@ -201,7 +203,8 @@ class ScopeRepositoryTest extends TestCase
         }
     }
 
-    public function testFinalizeScopesWithValidSubScopeWillPass() {
+    public function testFinalizeScopesWithValidSubScopeWillPass()
+    {
         // verify a client with a full scope, will still pass if a request is made for a sub scope
         $scopeRepository = $this->scopeRepository;
         $requestedScopes = [

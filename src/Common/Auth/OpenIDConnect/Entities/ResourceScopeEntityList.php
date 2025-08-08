@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ResourceScopeEntityList.php
  * @package openemr
@@ -13,7 +14,8 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use ArrayObject;
 
-class ResourceScopeEntityList extends ArrayObject {
+class ResourceScopeEntityList extends ArrayObject
+{
     use EntityTrait;
 
     public function __construct(string $identifier, object|array $array = [], int $flags = 0, string $iteratorClass = "ArrayIterator")

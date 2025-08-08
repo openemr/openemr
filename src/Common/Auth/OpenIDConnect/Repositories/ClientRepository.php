@@ -77,8 +77,13 @@ class ClientRepository implements ClientRepositoryInterface
         $scopes = explode(" ", $info['scope']);
         $scopeRepo = new ScopeRepository();
 
-        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes
-            , $GLOBALS['oauth_app_manual_approval'] ?? '0')) {
+        if (
+            $scopeRepo->hasScopesThatRequireManualApproval(
+                $is_confidential_client == 1,
+                $scopes,
+                $GLOBALS['oauth_app_manual_approval'] ?? '0'
+            )
+        ) {
             $is_client_enabled = 0; // disabled
         } else {
             $is_client_enabled = 1; // enabled
@@ -146,7 +151,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $list;
     }
 
-    public function getClientEntity($clientIdentifier)
+    public function getClientEntity($clientIdentifier): ClientEntity|false
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 

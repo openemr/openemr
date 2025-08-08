@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ScopePermissionObject.php
  * @package openemr
@@ -12,8 +13,8 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 
-class ScopePermissionObject {
-
+class ScopePermissionObject
+{
     use EntityTrait;
 
     public function __construct(?string $identifier = null)
@@ -44,8 +45,7 @@ class ScopePermissionObject {
                 $obj->v1Read = true;
             } elseif ($permissionString === 'write') {
                 $obj->v1Write = true;
-            }
-            else {
+            } else {
                 $matches = [];
                 $parts = explode("?", $permissionString);
                 $permission = $parts[0];
@@ -77,7 +77,8 @@ class ScopePermissionObject {
     }
 
     // generated using chatgpt July 31st 2025
-    public static function isOrderedCrudString($input) {
+    public static function isOrderedCrudString($input)
+    {
 
         // we could go with a regex, but let's do it manually for clarity
 //        $matches = [];
@@ -118,7 +119,8 @@ class ScopePermissionObject {
 
     private array $constraints = [];
 
-    public function getPermissionsAsArray() {
+    public function getPermissionsAsArray()
+    {
         return [
             'create' => $this->create,
             'read' => $this->read,
@@ -135,7 +137,7 @@ class ScopePermissionObject {
         return $this->constraints;
     }
 
-    public function addConstraints(array $constraints) : void
+    public function addConstraints(array $constraints): void
     {
         foreach ($constraints as $key => $value) {
             if (!empty($this->constraints[$key])) {

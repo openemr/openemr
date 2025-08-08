@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ScopePermissionObjectTest.php
  * @package openemr
@@ -13,8 +14,8 @@ namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Entities;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopePermissionObject;
 use PHPUnit\Framework\TestCase;
 
-class ScopePermissionObjectTest extends TestCase {
-
+class ScopePermissionObjectTest extends TestCase
+{
     public function test__constructNoParameter()
     {
         $scopePermissionObject = new ScopePermissionObject();
@@ -58,7 +59,8 @@ class ScopePermissionObjectTest extends TestCase {
         $this->assertEquals(true, $scopePermissionObject->v1Write);
     }
 
-    public function testCreateFromStringWithValidPermissionString() {
+    public function testCreateFromStringWithValidPermissionString()
+    {
         $validSubSets = [
             'c'
             , 'cr', 'cru', 'crud', 'cruds', 'cu', 'cud', 'cuds', 'cd', 'cds', 'cs'
@@ -103,8 +105,7 @@ class ScopePermissionObjectTest extends TestCase {
         foreach ($invalidSubSets as $invalidSubset) {
             try {
                 $scopePermissionObject = ScopePermissionObject::createFromString($invalidSubset);
-            }
-            catch (\InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 $this->assertStringContainsString('Invalid permission string', $e->getMessage(), "Expected exception for invalid permission string: " . $invalidSubset);
                 continue; // Continue to the next invalid subset
             }
@@ -196,7 +197,8 @@ class ScopePermissionObjectTest extends TestCase {
         $this->assertEquals(['category' => 'bar', 'patient' => '1'], $scopePermissionObject->getConstraints(), 'Constraints should match after adding constraints for identifier: ' . $identifier);
     }
 
-    public function testAddConstraintsWithDuplicateKey() {
+    public function testAddConstraintsWithDuplicateKey()
+    {
         $identifier = 'rs?category=bar';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
         $this->assertNotEmpty($scopePermissionObject->getConstraints(), 'Constraints should be not empty for identifier: ' . $identifier);

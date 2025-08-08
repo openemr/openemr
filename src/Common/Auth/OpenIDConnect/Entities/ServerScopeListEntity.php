@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ServerScopeListEntity.php
  * @package openemr
@@ -10,8 +11,8 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
-class ServerScopeListEntity {
-
+class ServerScopeListEntity
+{
     private bool $systemScopesEnabled = false;
 
     private array $v1ResourceFhirScopes = [];
@@ -252,7 +253,8 @@ class ServerScopeListEntity {
         return $this->v1ApiScopes;
     }
 
-    public function getV2ApiScopes() : array {
+    public function getV2ApiScopes(): array
+    {
         if (empty($this->v2ApiScopes)) {
             // if the scope format changes... we want to keep these separate
             // yet, its not as efficient to do so many implodes.
@@ -305,7 +307,7 @@ class ServerScopeListEntity {
         return $this->v2ApiScopes;
     }
 
-    public function getOpenIDConnectScopes() : array
+    public function getOpenIDConnectScopes(): array
     {
         return [
             "openid",
@@ -326,7 +328,8 @@ class ServerScopeListEntity {
         ];
     }
 
-    public function getAllSupportedScopesList() : array {
+    public function getAllSupportedScopesList(): array
+    {
 
         $oidcScopes = $this->getOpenIDConnectScopes();
         $requiredSmartScopes = $this->requiredSmartOnFhirScopes();
@@ -360,7 +363,8 @@ class ServerScopeListEntity {
         }
     }
 
-    public function lookupDescriptionForFullScopeString($scope) {
+    public function lookupDescriptionForFullScopeString($scope)
+    {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
             "fhirUser" => xl("Identity Information - Permission to retrieve information about the current logged-in user"),
@@ -400,7 +404,7 @@ class ServerScopeListEntity {
     public function lookupDescriptionForResourceScope($resource, $context): string
     {
         $description = "";
-        $description .= match($resource) {
+        $description .= match ($resource) {
             // FHIR resources
             'AllergyIntolerance' => xl("allergies/adverse reactions"),
             'Appointment' => xl("appointments"),

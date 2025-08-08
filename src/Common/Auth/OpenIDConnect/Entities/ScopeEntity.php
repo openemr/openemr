@@ -16,7 +16,6 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\ScopeTrait;
 
-
 class ScopeEntity implements ScopeEntityInterface
 {
     use EntityTrait;
@@ -86,11 +85,12 @@ class ScopeEntity implements ScopeEntityInterface
         return $scope;
     }
 
-    public function getPermissions() : ScopePermissionObject {
+    public function getPermissions(): ScopePermissionObject
+    {
         return $this->permissions;
     }
 
-    public function getScopeLookupKey() : string
+    public function getScopeLookupKey(): string
     {
         if (!empty($this->context)) {
             if (!empty($this->resource)) {
@@ -107,7 +107,8 @@ class ScopeEntity implements ScopeEntityInterface
         return $this->context;
     }
 
-    public function getResource() {
+    public function getResource()
+    {
         return $this->resource;
     }
 
@@ -116,7 +117,8 @@ class ScopeEntity implements ScopeEntityInterface
         return $this->operation;
     }
 
-    public function addScopePermissions(ScopeEntity $otherScope) {
+    public function addScopePermissions(ScopeEntity $otherScope)
+    {
         if ($this->getScopeLookupKey() != $otherScope->getScopeLookupKey()) {
             throw new \InvalidArgumentException("Cannot add permissions from different scopes");
         }

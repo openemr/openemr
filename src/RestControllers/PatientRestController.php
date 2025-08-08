@@ -53,7 +53,7 @@ class PatientRestController
      * @param $data - array of patient fields.
      * @return ResponseInterface 201/Created status code and the patient identifier if successful.
      */
-    public function post($data, HttpRestRequest $request) : ResponseInterface
+    public function post($data, HttpRestRequest $request): ResponseInterface
     {
         $processingResult = $this->patientService->insert($data);
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 201);

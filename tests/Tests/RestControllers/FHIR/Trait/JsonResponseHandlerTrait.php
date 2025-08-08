@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait JsonResponseHandlerTrait
 {
-    protected function getJsonContents(Response $response) : array
+    protected function getJsonContents(Response $response): array
     {
         $contents = $response->getContent();
         $this->assertNotEmpty($contents, "Response body should not be empty");

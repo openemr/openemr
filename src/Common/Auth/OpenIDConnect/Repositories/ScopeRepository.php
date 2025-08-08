@@ -115,7 +115,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         try {
             $scopeIdentifier = ScopeEntity::createFromString($identifier);
             $scopeLookupKey = $scopeIdentifier->getScopeLookupKey();
-            if (!(
+            if (
+                !(
                     isset($this->validationScopes[$scopeLookupKey])
                     && $this->validationScopes[$scopeLookupKey]->containsScope($scopeIdentifier)
                 )
@@ -125,8 +126,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                 ]);
                 $scopeIdentifier = null;
             }
-        }
-        catch (InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             $this->getSystemLogger()->error("ScopeRepository->getScopeEntityByIdentifier() invalid scope format for identifier", [
                 "scope" => $identifier,
                 "exception" => $exception->getMessage()
@@ -172,8 +172,10 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $scopeListNames[] = $scope->getIdentifier();
                 if ($scope instanceof ScopeEntity) {
                     $lookupKey = $scope->getScopeLookupKey();
-                    if (isset($clientValidatorArray[$lookupKey])
-                        && $clientValidatorArray[$lookupKey]->containsScope($scope)) {
+                    if (
+                        isset($clientValidatorArray[$lookupKey])
+                        && $clientValidatorArray[$lookupKey]->containsScope($scope)
+                    ) {
                         $finalizedScopes[] = $scope;
                         $finalizedScopeNames[] = $scope->getIdentifier();
                     }
@@ -205,7 +207,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->sessionScopes;
     }
 
-    public function getClaimRepository() {
+    public function getClaimRepository()
+    {
         if (!isset($this->claimRepository)) {
             $this->claimRepository = new ClaimRepository();
         }
@@ -273,7 +276,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopePermissionArray;
     }
 
-    public function lookupDescriptionForScope($scope, bool $isPatient) : string
+    public function lookupDescriptionForScope($scope, bool $isPatient): string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
@@ -337,20 +340,24 @@ class ScopeRepository implements ScopeRepositoryInterface
     private function lookupDescriptionForResourceOperation(ScopeEntity $scope)
     {
         $resource = $scope->getResource();
-        $description = match($scope->getOperation()) {
-            '$export' => match($scope->getResource()) {
+        $description = match ($scope->getOperation()) {
+            '$export' => match ($scope->getResource()) {
                 '*' => xl("Permission to export the entire system dataset that is exportable"),
                 'Patient' => xl("Permission to export Patient Compartment resources"),
                 'Group' => xl("Permission to export Patient Compartment resources connected to a Patient Group"),
                 default => xl("Permission to export all resources of type") . " " . $resource,
             }
-            ,'$bulkdata-status' => match($scope->getResource()) {
+            ,'$bulkdata-status' => match ($scope->getResource()) {
                 '*' => xl("Permission to check the job status of a bulkdata export"),
                 default => xl("Permission to check the job status of a bulkdata export for resource type") . " " . $resource,
             }
-            ,'$docref' => match($scope->getResource()) {
+            ,'$docref' => match ($scope->getResource()) {
                 'DocumentReference' => xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD"),
                 default => xl("Create a document reference for resource type") . " " . $resource,
+            }
+            ,'$swap-insurance' => match ($scope->getResource()) {
+                'insurance' => xl("Permission to swap the insurance position for a patient (such as primary and secondary insurance)"),
+                default => xl("Permission to swap the insurance for resource type") . " " . $resource,
             }
             ,default => throw new InvalidArgumentException("Unknown operation for scope: " . $scope->getOperation())
         };

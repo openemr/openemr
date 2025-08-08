@@ -203,7 +203,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
     /**
      * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
-     * context saved in the repositoryor will build a new context from the passed in scopes.
+     * context saved in the repository or will build a new context from the passed in scopes.
      * @param $scopes The scopes in the access token that determines what context variables to use in the access token
      * @return array The built context session.
      */

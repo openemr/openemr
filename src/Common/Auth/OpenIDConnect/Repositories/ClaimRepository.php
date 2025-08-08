@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ClaimRepository.php
  * @package openemr
@@ -14,8 +15,8 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use InvalidArgumentException;
 
-class ClaimRepository implements ClaimSetRepositoryInterface {
-
+class ClaimRepository implements ClaimSetRepositoryInterface
+{
     const SUPPORTED_CLAIMS = [
         'profile',
         'email',
@@ -50,7 +51,7 @@ class ClaimRepository implements ClaimSetRepositoryInterface {
         return self::SUPPORTED_CLAIMS;
     }
 
-    public function getClaimSetByScopeIdentifier($scopeIdentifier) : ?ClaimSetEntity
+    public function getClaimSetByScopeIdentifier($scopeIdentifier): ?ClaimSetEntity
     {
         $protectedClaims = self::PROTECTED_CLAIMS;
         if (in_array($scopeIdentifier, $protectedClaims, true)) {

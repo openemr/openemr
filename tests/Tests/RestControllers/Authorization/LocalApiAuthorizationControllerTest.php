@@ -102,6 +102,7 @@ class LocalApiAuthorizationControllerTest extends TestCase
         $sessionStorage = $sessionFactory->createStorage($request);
         $session = new Session($sessionStorage);
         $session->start();
+        CsrfUtils::setupCsrfKey($session);
         $request->setSession($session);
         $request->headers->set("APICSRFTOKEN", "test-token");
         $controller = $this->getLocalApiAuthorizationController();

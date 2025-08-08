@@ -53,7 +53,7 @@ class FhirPractitionerRestController
      * @param array $fhirJson The FHIR practitioner resource
      * @returns Response 201 if the resource is created, 400 if the resource is invalid
      */
-    public function post($fhirJson) : Response
+    public function post($fhirJson): Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {

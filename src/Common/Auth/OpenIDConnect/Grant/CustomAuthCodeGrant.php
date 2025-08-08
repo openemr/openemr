@@ -49,7 +49,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
      * @return AuthorizationRequest
      * @throws OAuthServerException
      */
-    public function validateAuthorizationRequest(ServerRequestInterface $request) : AuthorizationRequest
+    public function validateAuthorizationRequest(ServerRequestInterface $request): AuthorizationRequest
     {
         // This function will force audience check if using launch scenario (ie. SMART).
         //  In non-launch scenario, it will only check audience if it has been provided in the request.
@@ -95,7 +95,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
         string $redirectUri,
         ClientEntityInterface $client,
         ServerRequestInterface $request
-    ) : void {
+    ): void {
         try {
             // make sure we log the error so we have more details on what is going on here
             parent::validateRedirectUri($redirectUri, $client, $request);
@@ -108,7 +108,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
         }
     }
 
-    protected function validateClient(ServerRequestInterface $request) : ClientEntityInterface
+    protected function validateClient(ServerRequestInterface $request): ClientEntityInterface
     {
         $this->getSystemLogger()->debug("CustomAuthCodeGrant::validateClient start");
         $client = parent::validateClient($request);
@@ -135,7 +135,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
      * @param $request
      * @throws OAuthServerException
      */
-    private function validateCodeChallengeMethod($request) : void
+    private function validateCodeChallengeMethod($request): void
     {
 
         $codeChallenge = $this->getQueryStringParameter('code_challenge', $request);

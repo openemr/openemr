@@ -244,7 +244,7 @@ class AuthorizationController
         }
     }
 
-    public function getPublicKeyLocation() : string
+    public function getPublicKeyLocation(): string
     {
         return $this->publicKey;
     }
@@ -1303,8 +1303,10 @@ class AuthorizationController
                 // TODO: @adunsulag should we throw an exception here?
             }
 
-            $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() restored session user from code "
-                , ['session' => $this->session->all()]);
+            $this->getSystemLogger()->debug(
+                "AuthorizationController->oauthAuthorizeToken() restored session user from code ",
+                ['session' => $this->session->all()]
+            );
         }
         $leagueRequest = $this->convertHttpRestRequestToServerRequest($request);
         // TODO: explore why we create the request again...
@@ -1874,7 +1876,7 @@ class AuthorizationController
      */
     private function getTokenRepository(): AccessTokenRepository
     {
-        $tokenRepository = new AccessTokenRepository();
+        $tokenRepository = new AccessTokenRepository($this->session);
         $tokenRepository->setSystemLogger($this->getSystemLogger());
         return $tokenRepository;
     }

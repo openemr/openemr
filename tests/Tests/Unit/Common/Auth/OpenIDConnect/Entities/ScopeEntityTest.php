@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ScopeEntityTest.php
  * @package openemr
@@ -14,16 +15,16 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopePermissionObject;
 use PHPUnit\Framework\TestCase;
 
-class ScopeEntityTest extends TestCase {
-
+class ScopeEntityTest extends TestCase
+{
     public function testContainsScopeWithFullPermissions()
     {
         $entityScope = ScopeEntity::createFromString('patient/Patient.cruds');
 
         for ($i = 0; $i < 5; $i++) {
-            for ($j = $i+1; $j <= 5; $j++) {
+            for ($j = $i + 1; $j <= 5; $j++) {
                 $checkPermission = substr('cruds', $i, $j);
-                $scopeSubstr = 'patient/Patient.' .$checkPermission;
+                $scopeSubstr = 'patient/Patient.' . $checkPermission;
                 $scope = ScopeEntity::createFromString($scopeSubstr);
                 $this->assertTrue($entityScope->containsScope($scope), "Scope should be contained in the entity scope");
             }
@@ -32,13 +33,15 @@ class ScopeEntityTest extends TestCase {
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.write')), "write permission should be contained in cruds permission");
     }
 
-    public function testContainsScopeLimitedReadScope() {
+    public function testContainsScopeLimitedReadScope()
+    {
         $entityScope = ScopeEntity::createFromString('patient/Patient.rs');
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.read')), "read permission should be contained in rs permission");
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.r')), "r(read) permission should be contained in rs permission");
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.s')), "s(search) permission should be contained in rs permission");
     }
-    public function testContainsScopeLimitedWriteScope() {
+    public function testContainsScopeLimitedWriteScope()
+    {
         $entityScope = ScopeEntity::createFromString('patient/Patient.cud');
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.write')), "write permission should be contained in cud permission");
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.c')), "create permission should be contained in cud permission");
@@ -83,7 +86,8 @@ class ScopeEntityTest extends TestCase {
         $this->assertEmpty($entity->getOperation());
     }
 
-    public function testCreateFromStringScopeWithFullCRUDSPermission() {
+    public function testCreateFromStringScopeWithFullCRUDSPermission()
+    {
         $entity = ScopeEntity::createFromString('patient/Patient.cruds');
         $this->assertEquals('patient/Patient.cruds', $entity->getIdentifier());
         $this->assertEquals("patient", $entity->getContext(), "context should be 'patient'");
@@ -93,7 +97,8 @@ class ScopeEntityTest extends TestCase {
         $this->assertInstanceOf(ScopePermissionObject::class, $entity->getPermissions());
     }
 
-    public function testCreateFromStringScopeWithUnderscore() {
+    public function testCreateFromStringScopeWithUnderscore()
+    {
         $entity = ScopeEntity::createFromString('patient/medical_problem.cruds');
         $this->assertEquals('patient/medical_problem.cruds', $entity->getIdentifier());
         $this->assertEquals("patient", $entity->getContext(), "context should be 'patient'");
@@ -111,7 +116,8 @@ class ScopeEntityTest extends TestCase {
         $this->assertInstanceOf(ScopePermissionObject::class, $entity->getPermissions());
     }
 
-    public function testCreateFromStringScopeWithColon() {
+    public function testCreateFromStringScopeWithColon()
+    {
         $entity = ScopeEntity::createFromString('api:oemr');
         $this->assertEquals('api:oemr', $entity->getIdentifier());
         $this->assertEquals("api", $entity->getContext(), "context should be 'api'");
@@ -121,7 +127,8 @@ class ScopeEntityTest extends TestCase {
         $this->assertInstanceOf(ScopePermissionObject::class, $entity->getPermissions());
     }
 
-    public function testCreateFromStringScopeWithNumbers() {
+    public function testCreateFromStringScopeWithNumbers()
+    {
         $entity = ScopeEntity::createFromString('patient/patient2.cruds');
         $this->assertEquals('patient/patient2.cruds', $entity->getIdentifier());
         $this->assertEquals("patient", $entity->getContext(), "context should be 'patient'");
@@ -131,7 +138,8 @@ class ScopeEntityTest extends TestCase {
         $this->assertInstanceOf(ScopePermissionObject::class, $entity->getPermissions());
     }
 
-    public function testCreateFromStringScopeWithDashes() {
+    public function testCreateFromStringScopeWithDashes()
+    {
         $entity = ScopeEntity::createFromString('patient/medical-problem.cruds');
         $this->assertEquals('patient/medical-problem.cruds', $entity->getIdentifier());
         $this->assertEquals("patient", $entity->getContext(), "context should be 'patient'");
@@ -141,7 +149,8 @@ class ScopeEntityTest extends TestCase {
         $this->assertInstanceOf(ScopePermissionObject::class, $entity->getPermissions());
     }
 
-    public function testCreateFromStringScopeWithCondition() {
+    public function testCreateFromStringScopeWithCondition()
+    {
         $scope = 'patient/Condition.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern';
         $entity = ScopeEntity::createFromString($scope);
         $this->assertEquals($scope, $entity->getIdentifier());

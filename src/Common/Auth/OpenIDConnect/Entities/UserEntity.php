@@ -59,27 +59,27 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $fhirUser = '';
             $userRole = $uuidToUser->getUserRole();
             $fhirUserResource = "Person";
-            if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
-                // need to find out if its a practitioner or not
-                $practitionerService = new PractitionerService();
-                // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
-                // from the more generic Person resource.
-                if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
-                    $fhirUserResource = "Practitioner";
-                }
-            } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
-                $fhirUserResource = "Patient";
-            } else {
-                (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+        if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
+            // need to find out if its a practitioner or not
+            $practitionerService = new PractitionerService();
+            // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
+            // from the more generic Person resource.
+            if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
+                $fhirUserResource = "Practitioner";
             }
+        } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
+            $fhirUserResource = "Patient";
+        } else {
+            (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+        }
             $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/" . $fhirUserResource . "/" . $this->identifier;
 
             (new SystemLogger())->debug("UserEntity->getClaims() fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 
             $user = $uuidToUser->getUserAccount();
-            if (empty($user)) {
-                $user = false;
-            }
+        if (empty($user)) {
+            $user = false;
+        }
             $claims = [
                 'name' => $user['fullname'],
                 'family_name' => $user['lastname'],
@@ -117,7 +117,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 //            ];
 //        }
 
-        return $claims;
+            return $claims;
     }
 
     public function getIdentifier()
