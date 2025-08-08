@@ -35,6 +35,7 @@ class OAuth2DiscoveryControllerTest extends TestCase
             ->method('getCurrentSmartScopes')
             ->willReturn(['patient/Patient.read', 'user/Practitioner.read']);
         $oauth2DiscoveryController = new OAuth2DiscoveryController(
+            $claimsRepository,
             $scopeRepository,
             $globals,
             $baseUrl

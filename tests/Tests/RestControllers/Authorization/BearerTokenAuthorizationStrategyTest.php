@@ -47,8 +47,9 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
      */
     public function testShouldProcessRequest(): void
     {
-        $strategy = new BearerTokenAuthorizationStrategy();
-        $this->assertTrue($strategy->shouldProcessRequest($this->createMock(HttpRestRequest::class)), "Expected shouldProcessRequest to return true for any request");
+        $request = $this->createMock(HttpRestRequest::class);
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+        $this->assertTrue($strategy->shouldProcessRequest($request), "Expected shouldProcessRequest to return true for any request");
     }
 
     public function testIs_portal_request(): void
@@ -121,6 +122,13 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         return $mockUserService;
     }
 
+    public function getBearerTokenAuthorizationStrategy(HttpRestRequest $request): BearerTokenAuthorizationStrategy
+    {
+        $session = new Session((new MockFileSessionStorageFactory())->createStorage($request));
+        $strategy = new BearerTokenAuthorizationStrategy($session);
+        return $strategy;
+    }
+
     public function testAuthorizeRequest(): void
     {
         // TODO: refactor BearerTokenAuthorizationStrategy This class is doing too much as evidenced by ALL of the dependency mocking
@@ -133,8 +141,9 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $testClient = $this->getTestClientEntityForUser($userUuid);
         $tokenId = "some-valid-token-id";
         $accessToken = $this->getAccessTokenForUser($tokenId, $userUuid, $testClient);
-
-        $strategy = new BearerTokenAuthorizationStrategy();
+        $accessToken->addScope(ScopeEntity::createFromString("api:oemr"));
+        $request = $this->getAuthorizeHttpRestRequestForUrlAndToken($accessToken, '/apis/default/api/patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $accessTokenRepository = $this->getMockAccessTokenRepository($accessToken, ['openid', 'profile', 'email', 'api:oemr']);
         $strategy->setAccessTokenRepository($accessTokenRepository);
         $cryptKey = new CryptKey(self::KEY_PATH_PUBLIC, null, false);
@@ -146,7 +155,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
             ->willReturn(true); // Simulating that the user is trusted
         $strategy->setTrustedUserService($trustedUserService);
 
-        $request = $this->getAuthorizeHttpRestRequestForUrlAndToken($accessToken, '/apis/default/api/patient');
+
         $strategy->setUuidUserAccountFactory(function () use ($user) {
             $mock = $this->createMock(UuidUserAccount::class);
             $mock->method('getUserAccount')->willReturn($user);
@@ -175,7 +184,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $tokenId = "some-valid-token-id";
         $accessToken = $this->getAccessTokenForUser($tokenId, $user['uuid'], $testClient);
 
-        $strategy = new BearerTokenAuthorizationStrategy();
+        $request = $this->getAuthorizeHttpRestRequestForUrlAndToken($accessToken, '/apis/default/fhir/Patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $accessTokenRepository = $this->getMockAccessTokenRepository($accessToken, ['openid', 'profile', 'email', 'api:oemr']);
         $strategy->setAccessTokenRepository($accessTokenRepository);
         $cryptKey = new CryptKey(self::KEY_PATH_PUBLIC, null, false);
@@ -187,7 +197,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
             ->willReturn(true); // Simulating that the user is trusted
         $strategy->setTrustedUserService($trustedUserService);
 
-        $request = $this->getAuthorizeHttpRestRequestForUrlAndToken($accessToken, '/apis/default/fhir/Patient');
+
         $strategy->setUuidUserAccountFactory(function () use ($user) {
             $mock = $this->createMock(UuidUserAccount::class);
             $mock->method('getUserAccount')->willReturn($user);
@@ -203,7 +213,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
 
     public function testGetUuidUserAccountFactory(): void
     {
-        $strategy = new BearerTokenAuthorizationStrategy();
+        $request = $this->createMock(HttpRestRequest::class);
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $uuidUserAccountClass = $strategy->getUuidUserAccountFactory()(1);
         $this->assertInstanceOf(UuidUserAccount::class, $uuidUserAccountClass, "Expected UuidUserAccount instance");
     }

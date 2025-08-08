@@ -22,6 +22,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -39,8 +40,11 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     private $contextForNewTokens;
 
-    public function __construct()
+    private SessionInterface $session;
+
+    public function __construct(SessionInterface $session)
     {
+        $this->session = $session;
         $this->contextForNewTokens = null;
     }
 
@@ -136,7 +140,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     /**
      * Retrieves a token record for given database token id.
-     * @param $id The database identifier for the token (see table api_token.id
+     * @param string $id The database identifier for the token (see table api_token.id
      * @return array|null
      */
     public function getTokenById($id)
@@ -166,7 +170,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     {
         if (empty($this->builder)) {
             // TODO: @adunsulag replace the $_SESSION with a session service that can be injected
-            $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);
+            $this->builder = new SMARTSessionTokenContextBuilder($this->session);
         }
         return $this->builder;
     }

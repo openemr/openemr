@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
+use Google\Service\Bigquery\SessionInfo;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
@@ -16,6 +17,7 @@ use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use LogicException;
@@ -37,11 +39,14 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
-    public function __construct(?SystemLogger $logger = null)
+    private SessionInterface $session;
+
+    public function __construct(SessionInterface $session, ?SystemLogger $logger = null)
     {
         if ($logger) {
             $this->setSystemLogger($logger);
         }
+        $this->session = $session;
     }
 
     public function getTrustedUserService(): TrustedUserService
@@ -120,7 +125,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     {
         // This method is intended to create and return an instance of AccessTokenRepository.
         // Implementation details would depend on the specific requirements of the application.
-        return new AccessTokenRepository();
+        return new AccessTokenRepository($this->session);
     }
 
     public function shouldProcessRequest(HttpRestRequest $request): bool

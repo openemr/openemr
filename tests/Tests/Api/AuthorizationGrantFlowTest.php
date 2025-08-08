@@ -1,4 +1,5 @@
 <?php
+
 /*
  * AuthorizationGrantFlowTest.php
  * @package openemr
@@ -30,8 +31,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-class AuthorizationGrantFlowTest extends TestCase {
-
+class AuthorizationGrantFlowTest extends TestCase
+{
     private array $clientsToCleanup = [];
 
     protected function tearDown(): void
@@ -58,11 +59,12 @@ class AuthorizationGrantFlowTest extends TestCase {
      * @throws \League\OAuth2\Server\Exception\OAuthServerException
      * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    public function testSuccessfulAuthorizationGrantFlowWithLoginFlow() {
+    public function testSuccessfulAuthorizationGrantFlowWithLoginFlow()
+    {
         $serverScopes = new ServerScopeListEntity();
-//        $scopes = $serverScopes->getAllSupportedScopesList();
-//        $scopesString = implode(" ", $scopes);
-        $scopesString = ApiTestClient::ALL_SCOPES;
+        $scopes = $serverScopes->getAllSupportedScopesList();
+        $scopesString = implode(" ", $scopes);
+//        $scopesString = ApiTestClient::ALL_SCOPES;
         $redirectUri = "http://localhost:8080/oauth2/callback";
         $dispatcher = new EventDispatcher();
         $controller = $this->createMock(ControllerResolverInterface::class);
@@ -77,9 +79,12 @@ class AuthorizationGrantFlowTest extends TestCase {
         $loginLocation = $this->requestTestAuthorizeEndpoint($session, $scopesString, $clientIdentifier, $kernel);
 
         // now attempt the login flow, redirecting to the blank login screen
-        $scopeConfirmationPage = $this->requestTestLoginFlow($loginLocation, $session, $kernel);
-        $this->assertStringEndsWith(AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
-        //$this->assertStringEndsWith(SMARTAuthorizationController::PATIENT_SELECT_PATH, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
+        $patientSelectPage = $this->requestTestLoginFlow($loginLocation, $session, $kernel);
+//        $this->assertStringEndsWith(AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
+        $this->assertStringEndsWith(SMARTAuthorizationController::PATIENT_SELECT_PATH, $patientSelectPage, 'Redirect location should end with SMART on FHIR patient select path');
+
+        // now do the patient selection flow
+        $scopeConfirmationPage = $this->requestTestPatientSelectionFlow($patientSelectPage, $session, $kernel);
 
         // now for the scope confirmation page
         $this->requestTestScopeConfirmationPageEndpoint($session, $scopeConfirmationPage, $kernel);
@@ -88,8 +93,15 @@ class AuthorizationGrantFlowTest extends TestCase {
         $location = $this->requestTestAuthorizationCodeEndpoint($session, $scopesString, $kernel, $redirectUri);
 
         // next step is to grab the code from the redirect URI and exchange it for an access token
-        $this->requestTestTokenEndpoint($location, $redirectUri, $clientIdentifier, $clientSecret
-            , $session, $scopesString, $kernel);
+        $this->requestTestTokenEndpoint(
+            $location,
+            $redirectUri,
+            $clientIdentifier,
+            $clientSecret,
+            $session,
+            $scopesString,
+            $kernel
+        );
     }
 
     /**
@@ -169,9 +181,9 @@ class AuthorizationGrantFlowTest extends TestCase {
      * @param array|null $loginLocation
      * @param Session $session
      * @param OEHttpKernel $kernel
-     * @return array|void
+     * @return string
      */
-    private function requestTestLoginFlow(string $loginLocation, Session $session, OEHttpKernel $kernel)
+    private function requestTestLoginFlow(string $loginLocation, Session $session, OEHttpKernel $kernel): string
     {
         $request = HttpRestRequest::create($loginLocation);
         CsrfUtils::setupCsrfKey($session);
@@ -228,7 +240,7 @@ class AuthorizationGrantFlowTest extends TestCase {
         return $loginPostResponse->getHeader('Location')[0];
     }
 
-    private function getAuthorizationController(Session $session, OEHttpKernel $kernel) : AuthorizationController
+    private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
         $authController = new AuthorizationController($session, $kernel, true);
         $authController->setSystemLogger(new SystemLogger(Level::Error));
@@ -241,7 +253,7 @@ class AuthorizationGrantFlowTest extends TestCase {
      * @param OEHttpKernel $kernel
      * @return array
      */
-    private function requestTestScopeConfirmationPageEndpoint(Session $session, string $scopeConfirmationPage, OEHttpKernel $kernel) : void
+    private function requestTestScopeConfirmationPageEndpoint(Session $session, string $scopeConfirmationPage, OEHttpKernel $kernel): void
     {
         $originalSessionId = $session->getId();
         $request = HttpRestRequest::create($scopeConfirmationPage);
@@ -257,9 +269,12 @@ class AuthorizationGrantFlowTest extends TestCase {
      * @param string $redirectUri
      * @return string
      */
-    private function requestTestAuthorizationCodeEndpoint(Session $session, string $scopesString
-        , OEHttpKernel $kernel, string $redirectUri) : string
-    {
+    private function requestTestAuthorizationCodeEndpoint(
+        Session $session,
+        string $scopesString,
+        OEHttpKernel $kernel,
+        string $redirectUri
+    ): string {
         $scope = explode(" ", $scopesString);
         $scopeArray = array_combine($scope, $scope);
         $originalSessionId = $session->getId();
@@ -291,9 +306,15 @@ class AuthorizationGrantFlowTest extends TestCase {
      * @param OEHttpKernel $kernel
      * @return void
      */
-    private function requestTestTokenEndpoint(string $location, string $redirectUri, string $clientIdentifier
-        , string $clientSecret, Session $session, string $scopesString, OEHttpKernel $kernel): void
-    {
+    private function requestTestTokenEndpoint(
+        string $location,
+        string $redirectUri,
+        string $clientIdentifier,
+        string $clientSecret,
+        Session $session,
+        string $scopesString,
+        OEHttpKernel $kernel
+    ): void {
         $redirectUrlParts = parse_url($location);
         parse_str($redirectUrlParts['query'], $queryParams);
         $this->assertArrayHasKey('code', $queryParams, 'Redirect URL should contain code parameter');
@@ -329,5 +350,29 @@ class AuthorizationGrantFlowTest extends TestCase {
         $this->assertArrayHasKey('id_token', $json, 'Token response should contain id_token');
         $this->assertArrayHasKey('refresh_token', $json, 'Token response should contain refresh_token');
         $this->assertNotEquals($originalSessionId, $session->getId(), "Session ID should be a new session");
+    }
+
+    private function requestTestPatientSelectionFlow(string $patientSelectPage, Session $session, OEHttpKernel $kernel)
+    {
+        // we will grab the patient selection page and then simulate the user selecting a patient
+        $request = HttpRestRequest::create($patientSelectPage);
+        $authController = $this->getAuthorizationController($session, $kernel);
+        $patientSelectionResponse = $authController->dispatchSMARTAuthorizationEndpoint($patientSelectPage, $request);
+        $this->assertEquals(Response::HTTP_OK, $patientSelectionResponse->getStatusCode(), 'Patient selection page should return 200 status code');
+        //$this->assertStringContainsString(SMARTAuthorizationController::PATIENT_SELECT_PATH, $patientSelectionResponse->getContent(), 'Patient selection page should contain patient select path');
+
+        // now we will make a post request to select a patient
+        $patientSelectionSubmissionPage = $authController->authBaseFullUrl . SMARTAuthorizationController::PATIENT_SELECT_CONFIRM_ENDPOINT;
+        $request = HttpRestRequest::create($patientSelectionSubmissionPage, "POST", [
+            "csrf_token" => CsrfUtils::collectCsrfToken('oauth2', $session),
+            "patient_id" => "1", // assuming patient with ID 1 exists
+            "proceed" => "1",
+        ]);
+        $authController = $this->getAuthorizationController($session, $kernel);
+        $patientSelectionSubmissionResponse = $authController->dispatchSMARTAuthorizationEndpoint($patientSelectionSubmissionPage, $request);
+        $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $patientSelectionSubmissionResponse->getStatusCode(), 'Patient selection submission should redirect');
+        $scopeConfirmationPage = $patientSelectionSubmissionResponse->getHeader('Location')[0];
+        $this->assertStringEndsWith(AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
+        return $scopeConfirmationPage;
     }
 }
