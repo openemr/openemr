@@ -8,7 +8,7 @@
  * @package   OpenEMR\Tests\Fixtures
  * @link      http://www.open-emr.org
  * @link      https://opencoreemr.com/
- * @copyright Copyright (c) 2025 OpenCoreEMR
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
