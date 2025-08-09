@@ -197,7 +197,7 @@ class CryptoGen implements CryptoInterface
 
         $completedValue = $hmacHash . $iv . $processedValue;
         if (isset($salt)) {
-            // customPassword mode, so prepend the encrypted value with the salt
+            // customPassword mode, so prepend the completed value with the salt
             $completedValue = $salt . $completedValue;
         }
 
@@ -519,7 +519,16 @@ class CryptoGen implements CryptoInterface
         $fileContents = $usesLegacyStorage
             ? base64_encode($newKey) // older key versions that did not encrypt the key on the drive
             : $this->encryptStandard($newKey, null, 'database');
-        file_put_contents($keyPath, $fileContents);
+
+        $keyDirectory = dirname($keyPath);
+        if (!is_dir($keyDirectory) && !mkdir($keyDirectory, 0755, true) && !is_dir($keyDirectory)) {
+            throw new CryptoGenException("Unable to create key directory");
+        }
+
+        if (file_put_contents($keyPath, $fileContents) === false) {
+            throw new CryptoGenException("Unable to create key in drive");
+        }
+
         return $newKey;
     }
 
