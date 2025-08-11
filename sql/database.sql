@@ -13789,13 +13789,6 @@ INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
 --
 -- 2023 Performance Period Measures
 
-DELETE FROM list_options WHERE list_id = "ecqm_2023_reporting";
-DELETE FROM list_options WHERE list_id = 'lists' AND option_id = "ecqm_2023_reporting";
-DELETE FROM list_options WHERE list_id = "ecqm_2024_reporting";
-DELETE FROM list_options WHERE list_id = 'lists' AND option_id = "ecqm_2024_reporting";
-DELETE FROM list_options WHERE list_id = "ecqm_2025_reporting";
-DELETE FROM list_options WHERE list_id = 'lists' AND option_id = "ecqm_2025_reporting";
-
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('lists','ecqm_2023_reporting','eCQM 2023 Performance Period',0,1,0, '');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('ecqm_2023_reporting','CMS1028v1','Severe Obstetric Complications',10,0,'Patients with severe obstetric complications which occur during the inpatient delivery hospitalization.');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('ecqm_2023_reporting','CMS104v11','Discharged on Antithrombotic Therapy',20,0,'Ischemic stroke patients prescribed or continuing to take antithrombotic therapy at hospital discharge');
@@ -14018,9 +14011,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 -- Periods List
-
-DELETE FROM list_options WHERE list_id = "ecqm_reporting_period";
-DELETE FROM list_options WHERE list_id = 'lists' AND option_id = "ecqm_reporting_period";
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','ecqm_reporting_period','eCQM Reporting Periods',0,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2022','2022 Reporting Period',10,0,0);
