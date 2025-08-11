@@ -140,12 +140,14 @@ class Measure extends AbstractType
                     foreach ($stratifications as $stratification) {
                         $this->addStratificationToArray($stratification, $population_set->population_set_id, $population_set_array);
                     }
-                } // Handle if it's an object that's iterable
+                }
+                // Handle if it's an object that's iterable
                 elseif (is_object($stratifications) && is_iterable($stratifications)) {
                     foreach ($stratifications as $stratification) {
                         $this->addStratificationToArray($stratification, $population_set->population_set_id, $population_set_array);
                     }
-                } // Handle if it's a single object
+                }
+                // Handle if it's a single object
                 elseif (is_object($stratifications)) {
                     $this->addStratificationToArray($stratifications, $population_set->population_set_id, $population_set_array);
                 }

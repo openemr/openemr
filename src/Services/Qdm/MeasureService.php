@@ -18,7 +18,7 @@ class MeasureService
     public static function fetchMeasureSourceOptions()
     {
         $reporting_year = $GLOBALS['cqm_performance_period'] ?? '2023';
-        $reporting_year = $reporting_year . '_reporting_period';
+        $reporting_year .= '_reporting_period';
 
         return [
             'openemr/oe-cqm-parsers' => "/ccdaservice/node_modules/oe-cqm-parsers/$reporting_year/json_measures",
