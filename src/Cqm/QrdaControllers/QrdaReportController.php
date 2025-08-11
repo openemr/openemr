@@ -76,6 +76,23 @@ class QrdaReportController
     }
 
     /**
+     * NEW METHOD: Get consolidated QRDA III report for preview/processing
+     *
+     * @param mixed $pids Patient IDs
+     * @param array $measures Measures to include
+     * @param array $options Additional options
+     * @return string XML content
+     */
+    public function getConsolidatedCategoryIIIReport($pids = null, $measures = [], $options = []): string
+    {
+        if (empty($measures)) {
+            $measures = $this->reportMeasures;
+        }
+
+        return $this->reportService->generateConsolidatedCategoryIIIXml($pids, $measures);
+    }
+
+    /**
      * @param $pids
      * @param $measures
      * @return void
@@ -196,7 +213,7 @@ class QrdaReportController
                 if (
                     is_dir($filename_path) &&
                     (
-                        !($filename == "." || $filename == "..")
+                    !($filename == "." || $filename == "..")
                     )
                 ) {
                     $dir_in_dir = opendir($filename_path);
@@ -225,8 +242,18 @@ class QrdaReportController
         exit;
     }
 
-    public function downloadQrdaIII($pids, $measures = '', $options = []): void
+    /**
+     * Modified downloadQrdaIII to support a consolidated option
+     */
+    public function downloadQrdaIII($pids, $measures = '', $options = [], $consolidated = false): void
     {
+        if ($consolidated) {
+            // Use a new consolidated download
+            $this->downloadConsolidatedQrdaIII($pids, $measures, $options);
+            return;
+        }
+
+        // Your existing individual download logic
         if (empty($measures)) {
             $measures = $this->reportMeasures;
         } elseif (!is_array($measures) && $measures === 'all') {
@@ -271,6 +298,90 @@ class QrdaReportController
         header("Content-Length: " . filesize($file));
         flush();
         readfile($file);
+        flush();
+        exit;
+    }
+
+    /**
+     * NEW METHOD: Download consolidated QRDA III containing all measures
+     *
+     * @param mixed $pids Patient IDs (if empty, uses all patients)
+     * @param array $measures Measures to include (if empty, uses all active)
+     * @param array $options Additional options
+     */
+    public function downloadConsolidatedQrdaIII($pids = null, $measures = [], $options = []): void
+    {
+        try {
+            // Use all active measures if none specified
+            if (empty($measures)) {
+                $measures = $this->reportMeasures;
+            } elseif (!is_array($measures) && $measures === 'all') {
+                $measures = $this->reportMeasures;
+            }
+
+            // Generate consolidated QRDA III XML
+            $xml = $this->reportService->generateConsolidatedCategoryIIIXml($pids, $measures);
+
+            // Generate filename
+            $filename = $this->reportService->getConsolidatedFilename();
+
+            // Create directory for saving locally
+            $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
+            if (!is_dir($directory)) {
+                if (!mkdir($directory, 0775, true) && !is_dir($directory)) {
+                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
+                }
+            }
+
+            // Save file locally
+            $filePath = $directory . DIRECTORY_SEPARATOR . $filename;
+            file_put_contents($filePath, $xml);
+
+            // Log the event
+            EventAuditLogger::instance()->newEvent(
+                "qrda3-consolidated-export",
+                $_SESSION['authUser'],
+                $_SESSION['authProvider'],
+                1,
+                "QRDA III Consolidated download - " . count($measures) . " measures"
+            );
+
+            // Stream download to browser
+            $this->streamXmlDownload($filename, $xml);
+        } catch (\Exception $e) {
+            error_log("Consolidated QRDA III download failed: " . $e->getMessage());
+
+            // Send error response
+            http_response_code(500);
+            echo "Error generating consolidated QRDA III report: " . $e->getMessage();
+            exit;
+        }
+    }
+
+    /**
+     * Helper method to stream XML download
+     *
+     * @param string $filename
+     * @param string $content
+     */
+    private function streamXmlDownload($filename, $content): void
+    {
+        // Clean any output
+        ob_clean();
+
+        // Set download headers
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Cache-Control: private", false);
+        header('Content-type: application/xml');
+        header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+        header("Content-Transfer-Encoding: binary");
+        header("Content-Length: " . strlen($content));
+
+        // Output content
+        flush();
+        echo $content;
         flush();
         exit;
     }

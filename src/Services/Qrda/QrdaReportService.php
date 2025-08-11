@@ -5,7 +5,7 @@
  * Several methods borrowed or refactored from Ken's CQM Tool.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -171,5 +171,63 @@ class QrdaReportService
         }
 
         return $xml ?? '';
+    }
+
+    /**
+     * NEW METHOD: Generate consolidated QRDA Category III XML for all measures
+     *
+     * @param mixed $pid Patient ID(s) - if empty, uses all patients
+     * @param array $measures Array of measures - if empty, uses all active measures
+     * @return string Consolidated QRDA III XML
+     */
+    public function generateConsolidatedCategoryIIIXml($pid = null, $measures = []): string
+    {
+        // Determine request type based on patient parameter
+        if (empty($pid)) {
+            $request = new QdmRequestAll();
+        } elseif (is_array($pid)) {
+            $request = new QdmRequestSome($pid);
+        } else {
+            $request = new QdmRequestOne($pid);
+        }
+
+        // Resolve measures - use active measures if none specified
+        if (empty($measures)) {
+            $activeMeasures = $this->fetchCurrentMeasures('active');
+            $measures = $this->resolveMeasuresPath($activeMeasures);
+        } else {
+            $measures = $this->resolveMeasuresPath($measures);
+        }
+
+        // Ensure CQM service is running
+        if (empty($this->client->getHealth()['uptime'] ?? null)) {
+            $msg = xlt("Can not complete report request. Node Service is not running.");
+            throw new \RuntimeException($msg);
+        }
+
+        // Generate consolidated report
+        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
+        $xml = $exportService->exportConsolidated($measures);
+
+        return $xml ?? '';
+    }
+
+    /**
+     * Get the filename for consolidated QRDA III download
+     *
+     * @param string $reportingPeriod
+     * @return string
+     */
+    public function getConsolidatedFilename($reportingPeriod = null): string
+    {
+        if (!$reportingPeriod) {
+            $reportingPeriod = trim($GLOBALS['cqm_performance_period'] ?? '2023');
+        }
+
+        $orgName = $GLOBALS['openemr_name'] ?? 'OpenEMR_Practice';
+        $orgName = preg_replace('/[^a-zA-Z0-9]/', '_', $orgName);
+        $timestamp = date('Ymd_His');
+
+        return "{$orgName}_QRDA_III_Consolidated_{$reportingPeriod}_{$timestamp}.xml";
     }
 }

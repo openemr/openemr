@@ -90,22 +90,25 @@ class Measure extends AbstractType
         $this->calculation_method = 'EPISODE_OF_CARE';
         // CMS22v10 is EPISODE_OF_CARE, which seems to be default in measure file, but these measures
         // require PATIENT
+
+        // refactored to be more generic across all measures years
+        // need to look into this more
         if (
-            $measure['cms_id'] == 'CMS122v10' ||
-            $measure['cms_id'] == 'CMS69v10' ||
-            $measure['cms_id'] == 'CMS124v10' ||
-            $measure['cms_id'] == 'CMS125v10' ||
-            $measure['cms_id'] == 'CMS127v10' ||
-            $measure['cms_id'] == 'CMS130v10' ||
-            $measure['cms_id'] == 'CMS138v10' ||
-            $measure['cms_id'] == 'CMS147v11' ||
-            $measure['cms_id'] == 'CMS165v10'
+            str_starts_with($measure['cms_id'], 'CMS69') ||
+            str_starts_with($measure['cms_id'], 'CMS122') ||
+            str_starts_with($measure['cms_id'], 'CMS124') ||
+            str_starts_with($measure['cms_id'], 'CMS125') ||
+            str_starts_with($measure['cms_id'], 'CMS127') ||
+            str_starts_with($measure['cms_id'], 'CMS130') ||
+            str_starts_with($measure['cms_id'], 'CMS138') ||
+            str_starts_with($measure['cms_id'], 'CMS147') ||
+            str_starts_with($measure['cms_id'], 'CMS165')
         ) {
             $this->calculation_method = 'PATIENT';
         }
 
         //$this->_measure = $measure;
-        $this->population_sets  = [];
+        $this->population_sets = [];
         if ($measure['population_sets']) {
             foreach ($measure['population_sets'] as $population_set) {
                 $this->population_sets[] = new PopulationSet($population_set);
@@ -117,52 +120,66 @@ class Measure extends AbstractType
     {
         $hashIdsSeen = [];
         $population_set_array = [];
+
         foreach ($this->population_sets as $population_set) {
             // got a duplicate population set so we skip
-            // we do it this way since we can't compare object references like ruby include? can do.
             if (!empty($hashIdsSeen[$population_set->population_set_id])) {
                 continue;
             }
 
-            // TODO: do we need to convert population_set
             $population_set_hash = ["population_set_id" => $population_set->population_set_id];
             $hashIdsSeen[$population_set->population_set_id] = $population_set->population_set_id;
-
             $population_set_array[] = $population_set_hash;
-            foreach ($population_set->stratifications as $stratification) {
-                $population_set_stratification_hash = [
-                    'population_set_id' => $population_set->population_set_id
-                    // TODO: change this if we move stratification to an object
-                    ,'stratification_id' => $stratification['stratification_id']
-                ];
-                $population_set[] = $population_set_stratification_hash;
+
+            // SAFE: Check if stratifications exists and handle different data types
+            if (property_exists($population_set, 'stratifications') && $population_set->stratifications !== null) {
+                $stratifications = $population_set->stratifications;
+
+                // Handle if it's an array
+                if (is_array($stratifications)) {
+                    foreach ($stratifications as $stratification) {
+                        $this->addStratificationToArray($stratification, $population_set->population_set_id, $population_set_array);
+                    }
+                } // Handle if it's an object that's iterable
+                elseif (is_object($stratifications) && is_iterable($stratifications)) {
+                    foreach ($stratifications as $stratification) {
+                        $this->addStratificationToArray($stratification, $population_set->population_set_id, $population_set_array);
+                    }
+                } // Handle if it's a single object
+                elseif (is_object($stratifications)) {
+                    $this->addStratificationToArray($stratifications, $population_set->population_set_id, $population_set_array);
+                }
             }
         }
+
         return $population_set_array;
+    }
 
-        /*
-         *     # A measure may have 1 or more population sets that may have 1 or more stratifications
-        # This method returns an array of hashes with the population_set and stratification_id for every combindation
-        def population_sets_and_stratifications_for_measure
-        population_set_array = []
-        population_sets.each do |population_set|
-        population_set_hash = { population_set_id: population_set.population_set_id }
-        next if population_set_array.include? population_set_hash
+    private function addStratificationToArray($stratification, $population_set_id, &$population_set_array)
+    {
+        $stratification_id = null;
 
-        population_set_array << population_set_hash
-        population_set.stratifications.each do |stratification|
-          population_set_stratification_hash = { population_set_id: population_set.population_set_id,
-                                                 stratification_id: stratification.stratification_id }
-          population_set_array << population_set_stratification_hash
-        end
-        end
-        population_set_array
-        end
-         */
+        if (is_array($stratification)) {
+            $stratification_id = $stratification['stratification_id'] ??
+                $stratification['id'] ??
+                $stratification['hqmf_id'] ?? null;
+        } elseif (is_object($stratification)) {
+            $stratification_id = $stratification->stratification_id ??
+                $stratification->id ??
+                $stratification->hqmf_id ?? null;
+        }
+
+        if ($stratification_id !== null) {
+            $population_set_stratification_hash = [
+                'population_set_id' => $population_set_id,
+                'stratification_id' => $stratification_id
+            ];
+            $population_set_array[] = $population_set_stratification_hash;
+        }
     }
 
     /**
-     * @param  string $population_set_key
+     * @param string $population_set_key
      * @return PopulationSet[]
      */
     public function population_set_for_key(string $population_set_key): ?array

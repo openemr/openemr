@@ -7,7 +7,7 @@ namespace OpenEMR\Cqm\Qdm;
  *
  * This is a class generated with Laminas\Code\Generator.
  *
- * @QDM Version 5.5
+ * @QDM Version 5.6
  * @author Ken Chapple <ken@mi-squared.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
@@ -50,17 +50,22 @@ class AssessmentPerformed extends QDMBaseType
     public $result = null;
 
     /**
+     * @property BaseTypes\Code $interpretation
+     */
+    public $interpretation = null;
+
+    /**
      * @property array $components
      */
     public $components = [
-
+        
     ];
 
     /**
      * @property array $relatedTo
      */
     public $relatedTo = [
-
+        
     ];
 
     /**
