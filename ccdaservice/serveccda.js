@@ -11,7 +11,7 @@
 
 "use strict";
 
-const enableDebug = true;
+const enableDebug = false;
 
 const net = require("net");
 const server = net.createServer();

@@ -10,6 +10,7 @@
 
 namespace OpenEMR\Services\Qdm;
 
+use OpenEMR\Cqm\Generator;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
@@ -127,5 +128,13 @@ class QdmBuilder
         // Take just the map of models, re-index into simple array without PID as index
         $models = array_values($qdm_patients_map);
         return $models;
+    }
+
+    public function _action_generate_models()
+    {
+        $generator = new Generator();
+        $generator->execute();
+        echo '';
+        exit;
     }
 }

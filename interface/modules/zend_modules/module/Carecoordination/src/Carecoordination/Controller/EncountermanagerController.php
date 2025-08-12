@@ -57,6 +57,9 @@ class EncountermanagerController extends AbstractActionController
         $this->listenerObject = new Listener();
     }
 
+    /**
+     * @return ViewModel
+     */
     public function indexAction()
     {
         $request = $this->getRequest();
@@ -93,6 +96,7 @@ class EncountermanagerController extends AbstractActionController
         $downloadccda = $request->getPost('downloadccda') ?: $request->getQuery()->downloadccda;
         $downloadqrda = $request->getPost('downloadqrda') ?: $request->getQuery()->downloadqrda;
         $downloadqrda3 = $request->getPost('downloadqrda3') ?: $request->getQuery()->downloadqrda3;
+        $downloadqrda3_consolidated = $request->getPost('downloadqrda3_consolidated') ?: $request->getQuery()->downloadqrda3_consolidated;
         $latest_ccda = $request->getPost('latestccda') ?: $this->getRequest()->getQuery('latest_ccda');
         $reportController = new QrdaReportController();
         $reportService = new QrdaReportService();
@@ -101,7 +105,12 @@ class EncountermanagerController extends AbstractActionController
         foreach ($m_resolved as $k => $m) {
             $measures[$k]['measure_path'] = $m;
         }
-        if (($downloadccda == 'download_ccda') || ($downloadqrda == 'download_qrda') || ($downloadqrda3 == 'download_qrda3')) {
+        if (
+            ($downloadccda == 'download_ccda')
+            || ($downloadqrda == 'download_qrda')
+            || ($downloadqrda3 == 'download_qrda3')
+            || ($downloadqrda3_consolidated == 'download_qrda3_consolidated')
+        ) {
             $pids = '';
             if ($request->getQuery('pid_ccda')) {
                 $pid = $request->getQuery('pid_ccda');
@@ -148,6 +157,14 @@ class EncountermanagerController extends AbstractActionController
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda3' => $downloadqrda3
+                );
+            }
+            if ($downloadqrda3_consolidated == 'download_qrda3_consolidated') {
+                $send_params = array(
+                    'action' => 'index',
+                    'pids' => $pids,
+                    'view' => 1,
+                    'downloadqrda3_consolidated' => $downloadqrda3_consolidated
                 );
             }
             $this->forward()->dispatch(EncounterccdadispatchController::class, $send_params);
@@ -210,6 +227,7 @@ class EncountermanagerController extends AbstractActionController
 
     /**
      * Action handle for previewing a ccda document.  Given the id of a document in
+     *
      * @return ViewModel
      */
     public function previewDocumentAction()
@@ -271,11 +289,18 @@ class EncountermanagerController extends AbstractActionController
         return $view;
     }
 
+    /**
+     * @param $content
+     * @return false|string
+     */
     public function buildCCDAHtml($content)
     {
         return $this->getEncountermanagerTable()->getCcdaAsHTML($content);
     }
 
+    /**
+     * @return ViewModel
+     */
     public function downloadAction()
     {
         $id = $this->getRequest()->getQuery('id');
@@ -327,6 +352,9 @@ class EncountermanagerController extends AbstractActionController
         return $view;
     }
 
+    /**
+     * @return JsonModel|ViewModel
+     */
     public function downloadallAction()
     {
         $pids = $this->params('pids');
@@ -422,6 +450,10 @@ class EncountermanagerController extends AbstractActionController
     }
 
     // note this gets called from the frontend javascript (see public/js/application/sendTo.js::send()
+
+    /**
+     * @return \Laminas\Stdlib\ResponseInterface
+     */
     public function transmitCCDAction()
     {
         $combination = $this->getRequest()->getQuery('combination');
