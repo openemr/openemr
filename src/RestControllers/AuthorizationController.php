@@ -154,6 +154,8 @@ class AuthorizationController
 
     private OEHttpKernel $kernel;
 
+    private ServerConfig $serverConfig;
+
     /**
      * @param SessionInterface $session
      * @param OEHttpKernel $kernel
@@ -960,9 +962,17 @@ class AuthorizationController
             return $this->scopeRepository;
         } else {
             $scopeRepository = new ScopeRepository($session);
+            $scopeRepository->setServerConfig($this->getServerConfig());
             $scopeRepository->setSystemLogger($this->getSystemLogger());
             return $scopeRepository;
         }
+    }
+
+    public function getServerConfig() : ServerConfig {
+        if (!isset($this->serverConfig)) {
+            $this->serverConfig = new ServerConfig();
+        }
+        return $this->serverConfig;
     }
 
     public function setScopeRepository(ScopeRepository $scopeRepository): void

@@ -41,12 +41,11 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private SessionInterface $session;
 
-    public function __construct(SessionInterface $session, ?SystemLogger $logger = null)
+    public function __construct(?SystemLogger $logger = null)
     {
         if ($logger) {
             $this->setSystemLogger($logger);
         }
-        $this->session = $session;
     }
 
     public function getTrustedUserService(): TrustedUserService
@@ -77,15 +76,6 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     public function getPublicKey(): CryptKey
     {
         return $this->publicKey;
-    }
-
-    public function getAccessTokenRepository(): AccessTokenRepository
-    {
-        if (!isset($this->accessTokenRepository)) {
-            // Initialize the access token repository if not already set.
-            $this->accessTokenRepository = $this->createAccessTokenRepository();
-        }
-        return $this->accessTokenRepository;
     }
 
     public function setAccessTokenRepository(AccessTokenRepository $accessTokenRepository): void
@@ -121,11 +111,11 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $this->uuidUserAccountFactory;
     }
 
-    protected function createAccessTokenRepository(): AccessTokenRepository
+    protected function createAccessTokenRepository(SessionInterface $session): AccessTokenRepository
     {
         // This method is intended to create and return an instance of AccessTokenRepository.
         // Implementation details would depend on the specific requirements of the application.
-        return new AccessTokenRepository($this->session);
+        return new AccessTokenRepository($session);
     }
 
     public function shouldProcessRequest(HttpRestRequest $request): bool
@@ -140,8 +130,9 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
      */
     public function authorizeRequest(HttpRestRequest $request): bool
     {
+        $session = $request->getSession();
         // verify the access token
-        $repository = $this->getAccessTokenRepository();
+        $repository = $this->createAccessTokenRepository($session);
         $tokenRaw = $this->verifyAccessToken($repository, $request);
         // collect token attributes
         $attributes = $tokenRaw->getAttributes();
@@ -178,7 +169,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
         // TODO: @adunsulag this seems redundant since the access token should already be verified on the expiration date
         // we should look at removing this and see if it causes any issues
-        if (!$this->authenticateUserToken($request, $tokenId, $clientId, $userId)) {
+        if (!$this->authenticateUserToken($request, $repository, $tokenId, $clientId, $userId)) {
             $this->getSystemLogger()->error("dispatch.php api call with invalid token");
             throw new UnauthorizedHttpException("Bearer", "OpenEMR Error: API call failed due to invalid token or expired token.");
         }
@@ -258,7 +249,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         }
     }
 
-    private function authenticateUserToken(HttpRestRequest $request, $tokenId, $clientId, $userId): bool
+    private function authenticateUserToken(HttpRestRequest $request, AccessTokenRepository $accessTokenRepo, $tokenId, $clientId, $userId): bool
     {
         $ips = $request->getClientIps();
         $ip = [
@@ -266,7 +257,6 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         ];
 
         // check for token
-        $accessTokenRepo = $this->getAccessTokenRepository();
         $authTokenExpiration = $accessTokenRepo->getTokenExpiration($tokenId, $clientId, $userId);
         if (empty($authTokenExpiration)) {
             EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for client[" . $clientId . "] and user " . $userId . ".");
