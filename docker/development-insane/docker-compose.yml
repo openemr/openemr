@@ -678,7 +678,7 @@ services:
     - 9443:9443
   selenium:
     restart: always
-    image: selenium/standalone-chromium:135.0-chromedriver-135.0-grid-4.31.0-20250404 # Pinned to Chromium 135 and grid 4.31
+    image: selenium/standalone-chromium:4.34.0
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)

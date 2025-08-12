@@ -40,7 +40,7 @@ updates:
       # Don't update major versions automatically
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-        
+
   # JavaScript dependencies
   - package-ecosystem: "npm"
     directory: "/"
@@ -100,7 +100,7 @@ updates:
         versions: ["5.x", "6.x"] # Stay on Bootstrap 4 for compatibility
       - dependency-name: "angular"
         versions: [">1.8.x"] # Legacy AngularJS, don't update
-          
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -114,3 +114,44 @@ updates:
       prefix: "ci"
       include: "scope"
     open-pull-requests-limit: 5
+
+  # Docker selenium docker updates in 3 places in the repo as a group
+  # Docker selenium docker update in /ci
+  - package-ecosystem: "docker"
+    directory: "/ci"
+    schedule:
+      interval: "weekly"
+    groups:
+      selenium-updates:
+        patterns:
+          - "selenium/standalone-chromium"
+    labels:
+      - "dependencies"
+      - "selenium"
+      - "docker"
+  # Docker selenium docker update in /docker/development-easy
+  - package-ecosystem: "docker"
+    directory: "/docker/development-easy"
+    schedule:
+      interval: "weekly"
+    groups:
+      selenium-updates:
+        patterns:
+          - "selenium/standalone-chromium"
+    labels:
+      - "dependencies"
+      - "selenium"
+      - "docker"
+  # Docker selenium docker update in /docker/development-insane
+  - package-ecosystem: "docker"
+    directory: "/docker/development-insane"
+    schedule:
+      interval: "weekly"
+    groups:
+      selenium-updates:
+        patterns:
+          - "selenium/standalone-chromium"
+    labels:
+      - "dependencies"
+      - "selenium"
+      - "docker"
