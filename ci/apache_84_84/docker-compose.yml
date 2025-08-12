@@ -1,5 +1,5 @@
 x-includes:
-  selenium-template: "docker-compose-shared-selenium.yml"
+  selenium-template: "compose-shared-selenium.yml"
   webserver-template: "compose-shared-apache.yml"
   database-template: "compose-shared-mysql.yml"
 

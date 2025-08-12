@@ -77,7 +77,7 @@ The CI system uses Docker Compose's multi-file composition (otherwise known as c
 #### How It Works
 
 1. **Shared Configuration Files**:
-   - `docker-compose-shared-selenium.yml`: Contains the Selenium Grid configuration for running E2E tests. It is always included.
+   - `compose-shared-selenium.yml`: Contains the Selenium Grid configuration for running E2E tests. It is always included.
    - `compose-shared-apache.yml`: Contains the base configuration for Apache-based setups with database specific items not included.
    - `compose-shared-nginx.yml`: Contains the base configuration for Nginx-based setups with database specific items not included.
    - `compose-shared-mariadb.yml`: Contains MariaDB specific items.
@@ -93,7 +93,7 @@ The CI system uses Docker Compose's multi-file composition (otherwise known as c
    # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     selenium-template: "docker-compose-shared-selenium.yml"  # Show the Selenium Grid template
+     selenium-template: "compose-shared-selenium.yml"  # Show the Selenium Grid template
      webserver-template: "compose-shared-apache.yml"  # Show the web server template (Apache or Nginx)
      database-template: "compose-shared-mariadb.yml"  # Show the database template (MariaDB or MySQL)
 
@@ -128,7 +128,7 @@ To add a new test configuration:
    # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     selenium-template: "docker-compose-shared-selenium.yml"  # Show the Selenium Grid template
+     selenium-template: "compose-shared-selenium.yml"  # Show the Selenium Grid template
      webserver-template: "compose-shared-apache.yml"  # Show the Apache web server template
      database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
 
@@ -144,7 +144,7 @@ To add a new test configuration:
    # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     selenium-template: "docker-compose-shared-selenium.yml"  # Show the Selenium Grid template
+     selenium-template: "compose-shared-selenium.yml"  # Show the Selenium Grid template
      webserver-template: "compose-shared-apache.yml"  # Show the Apache web server template
      database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
 
@@ -160,7 +160,7 @@ To add a new test configuration:
    # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     selenium-template: "docker-compose-shared-selenium.yml"  # Show the Selenium Grid template
+     selenium-template: "compose-shared-selenium.yml"  # Show the Selenium Grid template
      webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
 
@@ -176,7 +176,7 @@ To add a new test configuration:
    # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     selenium-template: "docker-compose-shared-selenium.yml"  # Show the Selenium Grid template
+     selenium-template: "compose-shared-selenium.yml"  # Show the Selenium Grid template
      webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
 
@@ -192,7 +192,7 @@ To add a new test configuration:
 #### Modifying Shared Configurations
 
 When updating the shared configuration files:
-- Changes to `docker-compose-shared-selenium.yml`, ```compose-shared-apache.yml`, `compose-shared-nginx.yml`, `compose-shared-mariadb.yml`, and  `compose-shared-mysql.yml` will affect all test environments that use them
+- Changes to `compose-shared-selenium.yml`, ```compose-shared-apache.yml`, `compose-shared-nginx.yml`, `compose-shared-mariadb.yml`, and  `compose-shared-mysql.yml` will affect all test environments that use them
 - Make sure your changes are backward compatible or update the individual environment files as needed
 - Test the changes across multiple environments to ensure they work correctly
 
@@ -214,20 +214,20 @@ If tests are failing in CI but passing locally, check:
 
 You can view the fully merged configuration file with the following `config` command:
 ```bash
-docker compose -f "ci/docker-compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" config
+docker compose -f "ci/compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" config
 ```
 
 You can also run the same Docker Compose setup locally:
 ```bash
-docker compose -f "ci/docker-compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
+docker compose -f "ci/compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
 ```
 
 You can go directly into the OpenEMR testing container:
 ```bash
-docker compose -f "ci/docker-compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
+docker compose -f "ci/compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
 ```
 
 You can shut down the Docker Compose setup:
 ```bash
-docker compose -f "ci/docker-compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
+docker compose -f "ci/compose-shared-selenium.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
 ```
