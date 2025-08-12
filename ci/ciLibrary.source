@@ -165,7 +165,7 @@ build_test_e2e() {
     fi
 
     echo 'Showing the chromedriver version…'
-    _exec chromedriver --version
+    dc exec selenium "chromedriver --version"
 
     echo 'Running E2E tests…'
     set +e
