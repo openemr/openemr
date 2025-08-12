@@ -1,10 +1,7 @@
 
-{% extends "interface/smart/admin-client/token-tools.html.twig.html.twig" %}
+{% extends "interface/smart/admin-client/token-tools.html.twig" %}
 {% block toolContents %}
-<div class="alert alert-info">
-    {{"JWT not found in system"|text }}
-</div>
-<form method="POST" action="{{ actionUrl|attr_url}}">
+<form method="POST" action="{{ actionUrl}}">
     {% include "interface/smart/admin-client/partials/textarea.html.twig" with {key: 'token', 'setting': tokenSettings} %}
     <input type="submit" class="btn btn-sm btn-primary" value="{{ "Parse Token"|xla }}" />
 
@@ -30,6 +27,5 @@
         </li>
     </ul>
     <pre>{{ encodedParts|text }}</pre>
-    <?php
-        }}
+    {% endif %}
 {% endblock %}

@@ -563,7 +563,6 @@ class ClientAdminController
             ,'services' => $servicesList
             ,'nav' => $this->getDefaultNavData()
         ];
-
         return $this->renderTwigPage("interface/smart/admin-client/edit", "interface/smart/admin-client/edit.html.twig", $data);
     }
 
@@ -765,7 +764,7 @@ class ClientAdminController
                     ['title' => xl('Back to Client List'), 'url' => $this->getActionUrl(['list'])]
                 ]
             ]
-            ,'message' => $request->query->get('message', '')
+            ,'requestMessage' => $request->query->get('message', '')
             ,'actionUrl' => $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION])
             ,'tokenSettings' => [
                 'value' => ''
@@ -796,15 +795,18 @@ class ClientAdminController
                 if (!empty($databaseRecord)) {
                     $parts['client_id'] = $databaseRecord['client_id'];
                     $parts['status'] = $databaseRecord['revoked'] != 0 ? 'revoked' : $parts['status'];
-                }
 
-                $queryParams = ['token' => $databaseRecord['id'], 'clientId' => $databaseRecord['client_id']];
-                if ($parts['token_type'] == 'refresh_token') {
-                    $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_REFRESH_TOKEN], ['queryParams' => $queryParams]);
+                    $queryParams = ['token' => $databaseRecord['id'], 'clientId' => $databaseRecord['client_id']];
+                    if ($parts['token_type'] == 'refresh_token') {
+                        $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_REFRESH_TOKEN], ['queryParams' => $queryParams]);
+                    } else {
+                        $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_ACCESS_TOKEN], ['queryParams' => $queryParams]);
+                    }
+                    $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
                 } else {
-                    $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_ACCESS_TOKEN], ['queryParams' => $queryParams]);
+                    $message = xl("JWT not found in system");
+                    $parts = [];
                 }
-                $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
             }
         } catch (Exception $exception) {
             $this->getSystemLogger()->errorLogCaller("caught exception parsing token", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
@@ -819,7 +821,7 @@ class ClientAdminController
                     ['title' => xl('Back to Client List'), 'url' => $this->getActionUrl(['list'])]
                 ]
             ]
-            ,'message' => $message
+            ,'requestMessage' => $message
             ,'actionUrl' => $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION])
             ,'tokenSettings' => $textSetting
             ,'databaseRecord' => $databaseRecord
@@ -829,7 +831,7 @@ class ClientAdminController
         return $this->renderTwigPage("interface/smart/admin-client/token-parse", "interface/smart/admin-client/token-parse.html.twig", $params);
     }
 
-    private function getDatabaseRecordForToken($tokenId, $tokenType): array
+    private function getDatabaseRecordForToken($tokenId, $tokenType): ?array
     {
         if ($tokenType == 'refresh_token') {
             $repo = new RefreshTokenRepository();
