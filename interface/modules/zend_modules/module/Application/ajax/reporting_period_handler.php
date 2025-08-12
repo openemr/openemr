@@ -117,7 +117,7 @@ function handleGetMeasuresForPeriod()
 
     try {
         // QrdaReportController
-        if (empty($measures) && class_exists('\OpenEMR\Cqm\QrdaControllers\QrdaReportController')) {
+        if (count($measures ?: []) === 0 && class_exists('\OpenEMR\Cqm\QrdaControllers\QrdaReportController')) {
             try {
                 $reportController = new QrdaReportController();
                 $controllerMeasures = $reportController->reportMeasures ?? [];

@@ -78,7 +78,7 @@ class QrdaReportService
     {
         $resolved = [];
         $result = [];
-        if (empty($measures)) {
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $measures = $this->fetchCurrentMeasures('active');
         }
         if (is_array($measures)) {
@@ -170,7 +170,7 @@ class QrdaReportService
             throw new \RuntimeException($msg);
         }
 
-        return $xml ?? '';
+        return $xml;
     }
 
     /**
@@ -192,7 +192,7 @@ class QrdaReportService
         }
 
         // Resolve measures - use active measures if none specified
-        if (empty($measures)) {
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $activeMeasures = $this->fetchCurrentMeasures('active');
             $measures = $this->resolveMeasuresPath($activeMeasures);
         } else {
@@ -207,9 +207,7 @@ class QrdaReportService
 
         // Generate consolidated report
         $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-        $xml = $exportService->exportConsolidated($measures);
-
-        return $xml ?? '';
+        return $exportService->exportConsolidated($measures);
     }
 
     /**

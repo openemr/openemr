@@ -36,7 +36,8 @@ class QrdaReportController
      */
     public function getCategoryIReport($pid, $measures, $type = 'xml', $options = [])
     {
-        if (empty($measures)) {
+        // Handle different measure parameter types
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $measures = $this->reportMeasures;
         }
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
@@ -64,7 +65,8 @@ class QrdaReportController
 
     public function getCategoryIIIReport($pid, $measures, $options = []): string
     {
-        if (empty($measures)) {
+        // Handle different measure parameter types
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $measures = $this->reportMeasures;
         }
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
@@ -78,14 +80,15 @@ class QrdaReportController
     /**
      * NEW METHOD: Get consolidated QRDA III report for preview/processing
      *
-     * @param mixed $pids Patient IDs
+     * @param mixed $pids     Patient IDs
      * @param array $measures Measures to include
-     * @param array $options Additional options
+     * @param array $options  Additional options
      * @return string XML content
      */
     public function getConsolidatedCategoryIIIReport($pids = null, $measures = [], $options = []): string
     {
-        if (empty($measures)) {
+        // Handle different measure parameter types
+        if ($measures === [] || $measures === '' || $measures === null) {
             $measures = $this->reportMeasures;
         }
 
@@ -100,7 +103,8 @@ class QrdaReportController
     public function downloadQrdaIAsZip($pids, $measures = '', $type = 'xml', $options = []): void
     {
         $bypid = false;
-        if (empty($measures)) {
+        // Handle different measure parameter types
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $measures = $this->reportMeasures;
         } elseif (!is_array($measures) && $measures === 'all') {
             $measures = '';
@@ -149,7 +153,9 @@ class QrdaReportController
 
                 // delete existing to make reporting easier with last exported reports, current.
                 $glob = glob("$local_directory/*.*");
-                array_map('unlink', $glob);
+                if ($glob !== false) {
+                    array_map('unlink', $glob);
+                }
                 // create reports
                 foreach ($pids as $pid) {
                     $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
@@ -178,7 +184,7 @@ class QrdaReportController
             }
             $zip_measure = 'measures';
             if (count($measures ?? []) === 1) {
-                $zip_measure = $measures[0];
+                $zip_measure = is_array($measures[0]) ? $measures[0]['measure_id'] : $measures[0];
             }
             $zip_name = "QRDA1_" . $zip_measure . "_" . time() . ".zip";
         } elseif ($bypid) {
@@ -254,7 +260,7 @@ class QrdaReportController
         }
 
         // Your existing individual download logic
-        if (empty($measures)) {
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $measures = $this->reportMeasures;
         } elseif (!is_array($measures) && $measures === 'all') {
             $measures = $this->reportMeasures;
@@ -305,15 +311,15 @@ class QrdaReportController
     /**
      * NEW METHOD: Download consolidated QRDA III containing all measures
      *
-     * @param mixed $pids Patient IDs (if empty, uses all patients)
+     * @param mixed $pids     Patient IDs (if empty, uses all patients)
      * @param array $measures Measures to include (if empty, uses all active)
-     * @param array $options Additional options
+     * @param array $options  Additional options
      */
     public function downloadConsolidatedQrdaIII($pids = null, $measures = [], $options = []): void
     {
         try {
-            // Use all active measures if none specified
-            if (empty($measures)) {
+            // Handle different measure parameter types
+            if ($measures === [] || $measures === '' || $measures === null) {
                 $measures = $this->reportMeasures;
             } elseif (!is_array($measures) && $measures === 'all') {
                 $measures = $this->reportMeasures;

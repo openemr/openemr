@@ -103,11 +103,11 @@ class QdmBuilder
                             // to the correct patient's QDM model
                             $qdmPatient = $qdm_patients_map[$qdmRecord->getPid()];
                             if (($qdmPatient ?? null) !== null) {
-                                $qdmPatient->add_data_element($qdmModel ?? '');
+                                $qdmPatient->add_data_element($qdmModel);
                             } else {
                                 // If we don't have a QDM Patient model for this PID it's usually from a patient delete data model leftovers
                                 // care plans, medications etc. that were not deleted.
-                                //error_log("QDM Builder Warning: No QDM Patient model found  on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
+                                error_log("QDM Builder Warning: No QDM Patient model found  on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
                             }
                         } else {
                             error_log("QDM Builder Warning: NULL returned by makeQdmModel() on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
