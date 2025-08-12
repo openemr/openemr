@@ -337,6 +337,8 @@ class AuthorizationController
                 if ($data->has($key)) {
                     if (in_array($key, array('contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'))) {
                         $params[$key] = implode('|', $data->all($key));
+                    } else if (in_array($key, array('dsi_source_attributes'))) {
+                        $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
                         $params[$key] = json_encode($data->getString($key));
                     } else {

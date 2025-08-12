@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Login screen.
+ * register-app.php Handles the registration of a new OpenEMR OAuth2 application.  This is just a front-end GUI for the
+ * /oauth2/<site>/registeration endpoint.
+ * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -69,12 +71,14 @@ switch ($GLOBALS['login_page_layout']) {
 // TODO: adunsulag find out where our openemr name comes from
 $openemr_name = $openemr_name ?? '';
 
-$scopeRepo = new ScopeRepository();
-$scopes = $scopeRepo->getCurrentSmartScopes();
-// TODO: adunsulag there's gotta be a better way for this url...
 $serverConfig = new ServerConfig();
 $fhirRegisterURL = $serverConfig->getRegistrationUrl();
 $audienceUrl = $serverConfig->getFhirUrl();
+
+$scopeRepo = new ScopeRepository();
+$scopeRepo->setServerConfig($serverConfig);
+$scopes = $scopeRepo->getCurrentSmartScopes();
+// TODO: adunsulag there's gotta be a better way for this url...
 
 
 $dsiService = new DecisionSupportInterventionService();

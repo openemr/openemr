@@ -175,7 +175,7 @@ class ServerConfig
     }
     public function getRegistrationUrl(): string
     {
-        return $this->getOauthAuthorizationUrl() . "/register";
+        return $this->getOauthAuthorizationUrl() . "/registration";
     }
     public function getIntrospectionUrl(): string
     {
