@@ -60,7 +60,7 @@ _exec() {
 }
 
 dockers_env_start() {
-    dc up --wait --wait-timeout 300
+    dc up --detach --wait --wait-timeout 300
 }
 
 selenium_video_start() {
