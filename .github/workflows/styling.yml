@@ -22,7 +22,7 @@ jobs:
         php-version: ['8.4']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Install PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -57,7 +57,7 @@ jobs:
         node-version: ['22']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Install npm package
       uses: actions/setup-node@v4
       with:
@@ -91,7 +91,7 @@ jobs:
         node-version: ['22']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Install npm package
       uses: actions/setup-node@v4
       with:
