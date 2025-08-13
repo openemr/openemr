@@ -118,9 +118,9 @@ updates:
   # Docker selenium docker updates in 3 places in the repo as a group
   - package-ecosystem: "docker-compose"
     directories:
-      - "ci/compose-shared-selenium.yml"
-      - "docker/development-easy/docker-compose.yml"
-      - "docker/development-insane/docker-compose.yml"
+      - "docker/development-easy/"
+      - "docker/development-insane/"
+      - "ci/"
     schedule:
       interval: "weekly"
     allow:
