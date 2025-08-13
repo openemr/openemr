@@ -116,45 +116,11 @@ updates:
     open-pull-requests-limit: 5
 
   # Docker selenium docker updates in 3 places in the repo as a group
-  # Docker selenium docker update in /ci
   - package-ecosystem: "docker-compose"
-    directory: "/ci"
-    schedule:
-      interval: "weekly"
-    allow:
-      - dependency-name: "selenium/standalone-chromium"
-    ignore:
-      - dependency-name: "selenium/standalone-chromium"
-        versions: [">=50"]
-    groups:
-      selenium-updates:
-        patterns:
-          - "selenium/standalone-chromium"
-    labels:
-      - "dependencies"
-      - "selenium"
-      - "docker"
-  # Docker selenium docker update in /docker/development-easy
-  - package-ecosystem: "docker-compose"
-    directory: "/docker/development-easy"
-    schedule:
-      interval: "weekly"
-    allow:
-      - dependency-name: "selenium/standalone-chromium"
-    ignore:
-      - dependency-name: "selenium/standalone-chromium"
-        versions: [">=50"]
-    groups:
-      selenium-updates:
-        patterns:
-          - "selenium/standalone-chromium"
-    labels:
-      - "dependencies"
-      - "selenium"
-      - "docker"
-  # Docker selenium docker update in /docker/development-insane
-  - package-ecosystem: "docker-compose"
-    directory: "/docker/development-insane"
+    directories:
+      - "ci/compose-shared-selenium.yml"
+      - "docker/development-easy/docker-compose.yml"
+      - "docker/development-insane/docker-compose.yml"
     schedule:
       interval: "weekly"
     allow:
