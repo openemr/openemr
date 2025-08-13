@@ -136,3 +136,15 @@ updates:
       - "dependencies"
       - "selenium"
       - "docker"
+
+  # Configuration to explicitly monitor the Docker images you're using
+  - package-ecosystem: "docker"
+    # Point this to the root of your repository or the directory where your
+    # Docker Compose files are located. Dependabot will look for
+    # image references there. This basically prevents breakage of above
+    # docker-compose updates (since looking for a Dockerfile for some unknown
+    # reason)
+    directories:
+      - "/"
+    schedule:
+      interval: "weekly"
