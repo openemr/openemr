@@ -2,6 +2,7 @@
 
 /**
  * FhirMetaDataRestController
+ * TODO: @adunsulag we should probably rename this to be FhirCapabilityStatementRestController
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -17,11 +18,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
 use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
@@ -35,15 +36,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
  */
 class FhirMetaDataRestController
 {
-    private $fhirService;
-    private $fhirValidate;
-    private $restHelper;
+    private RestControllerHelper $restHelper;
     private ServerConfig $config;
 
     public function __construct()
     {
-        $this->fhirService = new FhirResourcesService();
-        $this->fhirValidate = new FhirValidationService();
         $this->config = new ServerConfig();
         $this->restHelper = new RestControllerHelper($this->config->getFhirUrl());
     }
@@ -67,7 +64,7 @@ class FhirMetaDataRestController
         $resturl->setValue($this->config->getFhirUrl());
         $implementation = new FHIRCapabilityStatementImplementation();
         $implementation->setUrl($resturl);
-        $implementation->setDescription("OpenEMR FHIR API");
+        $implementation->setDescription(new FHIRString("OpenEMR FHIR API"));
         $capabilityStatement->setImplementation($implementation);
         $dateTime = new FHIRDateTime();
         $dateTime->setValue(date("Y-m-d", time()));
@@ -81,7 +78,7 @@ class FhirMetaDataRestController
         $composerStr = file_get_contents($this->config->getWebServerRoot() . "/composer.json");
         $composerObj = json_decode($composerStr, true);
         $software = new FHIRCapabilityStatementSoftware();
-        $software->setName("OpenEMR");
+        $software->setName(new FHIRString("OpenEMR"));
         $software->setVersion($composerObj["version"]);
         $capabilityStatement->setSoftware($software);
 
@@ -99,14 +96,15 @@ class FhirMetaDataRestController
     private function getRestSecurity(): FHIRCapabilityStatementSecurity
     {
         $service = new FHIRCodeableConcept();
-        $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)");
+        $service->text = new FHIRString(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"));
 
         $coding = new FHIRCoding();
-        $coding->setSystem(new FHIRUrl("http://hl7.org/fhir/restful-security-service"));
-        $coding->setCode("SMART-on-FHIR");
+        $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/restful-security-service"));
+        $coding->setCode(new FHIRCode("SMART-on-FHIR"));
+        $coding->setDisplay(new FHIRString("SMART-on-FHIR"));
 
         $service->addCoding($coding)
-                ->setText(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"));
+                ->setText(new FHIRString(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)")));
 
         $security = new FHIRCapabilityStatementSecurity();
         $security->addService($service);
@@ -121,28 +119,6 @@ class FhirMetaDataRestController
      */
     private function addOauthSecurityExtensions(FHIRCapabilityStatementSecurity $statement): void
     {
-        $oauthExtension = new FHIRExtension();
-        $oauthExtension->setUrl(new FHIRUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris"));
-        $oauthUrls = [
-            // @see http://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html
-            // and @see http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#declaring-support-for-oauth2-endpoints
-            // token and authorize are required because we don't use implicit grant flow.
-            'token' => $this->config->getTokenUrl()
-            ,'authorize' => $this->config->getAuthorizeUrl()
-            ,'register' => $this->config->getRegistrationUrl()
-            ,'introspect' => $this->config->getIntrospectionUrl()
-            // TODO: if we have these URIs we can provide them
-//            ,'manage' => $authServer->getManageUrl()
-//            ,'revoke' => ''
-        ];
-        foreach ($oauthUrls as $url => $valueUri) {
-            $oauthEndpointExtension = new FHIRExtension();
-            $oauthEndpointExtension->setUrl($url);
-            $oauthEndpointExtension->setValueUri($valueUri);
-            $oauthExtension->addExtension($oauthEndpointExtension);
-        }
-        $statement->addExtension($oauthExtension);
-
         // now add our SMART capabilities
         foreach (Capability::FHIR_SUPPORTED_CAPABILITIES as $smartCapability) {
             $extension = new FHIRExtension();
