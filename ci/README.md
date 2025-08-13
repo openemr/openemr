@@ -211,6 +211,7 @@ If tests are failing in CI but passing locally, check:
   - Replace `apache_84_114` with the configuration directory you want to test.
   - Replace `compose-shared-apache.yml` and `compose-shared-mariadb.yml` with the `x-includes` values that are included in the main docker-compose.yml file.
   - Run the below commands from the base openemr directory.
+  - Note that for future: the first entry (-f) in the command needs to be in ci/ (if it has a subdirectory then it breaks things)
 
 You can view the fully merged configuration file with the following `config` command:
 ```bash

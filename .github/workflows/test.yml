@@ -141,6 +141,7 @@ jobs:
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
+      # Note that the first entry in the COMPOSE_FILE needs to be in ci/ (if it has a subdirectory then it breaks things)
       COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
     - name: Checkout Code
