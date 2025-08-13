@@ -164,6 +164,9 @@ build_test_e2e() {
         echo 'Video directory not found in video container.'
     fi
 
+    echo 'Showing the chromedriver version…'
+    dc exec selenium chromedriver --version
+
     echo 'Running E2E tests…'
     set +e
     _exec php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e --testdox

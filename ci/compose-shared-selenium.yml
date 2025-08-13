@@ -1,6 +1,6 @@
 services:
   selenium:
-    image: selenium/standalone-chrome:134.0-chromedriver-134.0-grid-4.31.0-20250414    # Pinned to Chrome 134 and grid 4.31
+    image: selenium/standalone-chromium:4.34.0
     # Services with profiles don't start by default.
     profiles:
     - selenium
