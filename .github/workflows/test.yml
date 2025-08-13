@@ -32,6 +32,15 @@ jobs:
       run: |
         shopt -s nullglob
         dirs=( ci/*/docker-compose.yml )
+        # Remove compose-shared-* from the list
+        filtered_dirs=()
+        for dir in "${dirs[@]}"; do
+          dirname=$(basename "$(dirname "$dir")")
+          if [[ ! $dirname == compose-shared-* ]]; then
+            filtered_dirs+=("$dir")
+          fi
+        done
+        dirs=("${filtered_dirs[@]}")
         if (( "${#dirs[@]}" == 0 )); then
           echo 'No docker-compose.yml files found in ci subdirectories.' >&2
           exit 1

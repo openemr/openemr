@@ -214,20 +214,20 @@ If tests are failing in CI but passing locally, check:
 
 You can view the fully merged configuration file with the following `config` command:
 ```bash
-docker compose -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" config
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" config
 ```
 
 You can also run the same Docker Compose setup locally:
 ```bash
-docker compose -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
 ```
 
 You can go directly into the OpenEMR testing container:
 ```bash
-docker compose -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
 ```
 
 You can shut down the Docker Compose setup:
 ```bash
-docker compose -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
 ```
