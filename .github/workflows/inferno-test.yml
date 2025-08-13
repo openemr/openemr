@@ -42,7 +42,7 @@ jobs:
         php-version: ['8.4']
         node-version: ['22']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
         token: ${{ secrets.INFERNO_PAT }}

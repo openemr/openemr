@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Collect Docker Dirs
       id: docker-dirs
       ##
@@ -135,7 +135,7 @@ jobs:
       COMPOSE_FILE: "ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:

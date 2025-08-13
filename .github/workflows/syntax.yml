@@ -18,7 +18,7 @@ jobs:
         php: ['8.2', '8.3', '8.4', '8.5']
     name: PHP ${{ matrix.php }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
