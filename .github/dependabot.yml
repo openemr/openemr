@@ -121,6 +121,11 @@ updates:
     directory: "/ci"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "selenium/standalone-chromium"
+    ignore:
+      - dependency-name: "selenium/standalone-chromium"
+        versions: [">=50"]
     groups:
       selenium-updates:
         patterns:
@@ -134,6 +139,11 @@ updates:
     directory: "/docker/development-easy"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "selenium/standalone-chromium"
+    ignore:
+      - dependency-name: "selenium/standalone-chromium"
+        versions: [">=50"]
     groups:
       selenium-updates:
         patterns:
@@ -147,6 +157,11 @@ updates:
     directory: "/docker/development-insane"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "selenium/standalone-chromium"
+    ignore:
+      - dependency-name: "selenium/standalone-chromium"
+        versions: [">=50"]
     groups:
       selenium-updates:
         patterns:
