@@ -117,7 +117,7 @@ updates:
 
   # Docker selenium docker updates in 3 places in the repo as a group
   # Docker selenium docker update in /ci
-  - package-ecosystem: "docker"
+  - package-ecosystem: "docker-compose"
     directory: "/ci"
     schedule:
       interval: "weekly"
@@ -130,7 +130,7 @@ updates:
       - "selenium"
       - "docker"
   # Docker selenium docker update in /docker/development-easy
-  - package-ecosystem: "docker"
+  - package-ecosystem: "docker-compose"
     directory: "/docker/development-easy"
     schedule:
       interval: "weekly"
@@ -143,7 +143,7 @@ updates:
       - "selenium"
       - "docker"
   # Docker selenium docker update in /docker/development-insane
-  - package-ecosystem: "docker"
+  - package-ecosystem: "docker-compose"
     directory: "/docker/development-insane"
     schedule:
       interval: "weekly"
