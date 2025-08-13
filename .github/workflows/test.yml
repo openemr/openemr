@@ -209,13 +209,6 @@ jobs:
       run: |
         . ci/ciLibrary.source
         dockers_env_start
-    - name: Debug container failure
-      if: failure()
-      run: |
-        echo "=== Container Status ==="
-        docker compose -p ci ps -a
-        echo "=== OpenEMR Container Logs ==="
-        docker compose -p ci logs openemr
     - name: Wait for MySQL to initialize
       if: ${{ matrix.configurations.database == 'mysql' }}
       run: |
