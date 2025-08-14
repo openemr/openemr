@@ -112,17 +112,17 @@ class ScopePermissionObjectTest extends TestCase
         }
     }
 
-    public function testCreateFromStringWithReadWritePermission()
+    public function testCreateFromStringWithReadPermission()
     {
         $identifier = 'read';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
         $this->assertEquals($identifier, $scopePermissionObject->getIdentifier());
         $this->assertEmpty($scopePermissionObject->getConstraints());
-        $this->assertEquals(false, $scopePermissionObject->read, "Read permission should be false for identifier: " . $identifier);
+        $this->assertEquals(true, $scopePermissionObject->read, "Read permission should be true for 'read' due to backwards compatibility");
         $this->assertEquals(false, $scopePermissionObject->create);
         $this->assertEquals(false, $scopePermissionObject->update);
         $this->assertEquals(false, $scopePermissionObject->delete);
-        $this->assertEquals(false, $scopePermissionObject->search, "Search permission should be false for identifier: " . $identifier);
+        $this->assertEquals(true, $scopePermissionObject->search, "Search permission should be true for 'read' due to backwards compatibility");
         $this->assertEquals(true, $scopePermissionObject->v1Read, "v1Read permission should be true for identifier: " . $identifier);
         $this->assertEquals(false, $scopePermissionObject->v1Write);
     }
@@ -134,12 +134,12 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals($identifier, $scopePermissionObject->getIdentifier());
         $this->assertEmpty($scopePermissionObject->getConstraints());
         $this->assertEquals(false, $scopePermissionObject->read);
-        $this->assertEquals(false, $scopePermissionObject->create);
-        $this->assertEquals(false, $scopePermissionObject->update);
-        $this->assertEquals(false, $scopePermissionObject->delete);
+        $this->assertEquals(true, $scopePermissionObject->create, "Create permission should be true for 'write' due to backwards compatibility");
+        $this->assertEquals(true, $scopePermissionObject->update, "Update permission should be true for 'write' due to backwards compatibility");
+        $this->assertEquals(true, $scopePermissionObject->delete, "Delete permission should be true for 'write' due to backwards compatibility");
         $this->assertEquals(false, $scopePermissionObject->search);
         $this->assertEquals(false, $scopePermissionObject->v1Read);
-        $this->assertEquals(true, $scopePermissionObject->v1Write, "v1Write permission should be true for identifier: " . $identifier);
+        $this->assertEquals(true, $scopePermissionObject->v1Write, "v1Write permission should be true for 'write' permission");
     }
 
     public function testGetConstraintsWithEmptyConstraints()

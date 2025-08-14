@@ -4,16 +4,17 @@ namespace OpenEMR\RestControllers\Authorization;
 
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\UserService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SkipAuthorizationStrategy implements IAuthorizationStrategy
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @var string[] List of routes to skip authorization for
      */
-    private $skipRoutes = [];
+    private array $skipRoutes = [];
 
     private bool $skipOptionsMethod = true;
 
@@ -67,10 +68,10 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
         // if we have a session we can set the userId and tokenId attributes
         $session = $request->getSession();
         // userId is populated by the bearer token authorization strategy
-        $userId = $session->get('authUserId', null);
+        $userId = $session->get('authUserId');
         $userRole = UuidUserAccount::USER_ROLE_SYSTEM; // Default to system role if no userId is set
         if (!empty($userId)) {
-            // TODO: how do we want to handle patient accounts?  This doesn't accomodate that.
+            // TODO: how do we want to handle patient accounts?  This doesn't accommodate that.
             $userService = $this->getUserService();
             $user = $userService->getUser($userId);
             $userRole = UuidUserAccount::USER_ROLE_USERS;

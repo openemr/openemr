@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Tests\Unit\Common\Http;
 
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use PHPUnit\Framework\TestCase;
 
@@ -258,31 +260,40 @@ class HttpRestRequestTest extends TestCase
     public function testRequestHasScopeReadAccessWithBackwardsCompatability(): void
     {
         $request = HttpRestRequest::create("/api/fhir/Patient/123");
-        $request->setAccessTokenScopes([
-            'patient/Patient.read'
-        ]);
-        $this->assertTrue($request->requestHasScope('patient/Patient.r'));
-        $this->assertTrue($request->requestHasScope('patient/Patient.s'));
-        $this->assertTrue($request->requestHasScope('patient/Patient.read'));
-        $this->assertFalse($request->requestHasScope('patient/Patient.rs'), "HTTPRestRequest->requestHasScope should not support multi-operation scopes");
-        $this->assertFalse($request->requestHasScope('patient/Patient.sr'), "HTTPRestRequest->requestHasScope should not support multi-operation scopes");
-        $this->assertFalse($request->requestHasScope('patient/Patient.reads'), "HTTPRestRequest->requestHasScope should only support the read operation, not as a prefix");
+        $scopeResourceList = [];
+        $scopeResourceList['patient/Patient'] = new ResourceScopeEntityList('patient/Patient');
+        $scopeResourceList['patient/Patient'][] = ScopeEntity::createFromString("patient/Patient.read");
+        $request->setAccessTokenScopeValidationArray($scopeResourceList);
+        $this->assertTrue($request->requestHasScope('patient/Patient.r'), 'patient/Patient.r should be a valid scope for Patient.read access');
+        $this->assertTrue($request->requestHasScope('patient/Patient.s'),'patient/Patient.s should be a valid scope for Patient.read access');
+        $this->assertTrue($request->requestHasScope('patient/Patient.read'), 'patient/Patient.read should be a valid scope for Patient.read access');
+        $this->assertTrue($request->requestHasScope('patient/Patient.rs'), "HTTPRestRequest->requestHasScope should be valid for Patient.read access");
     }
 
     public function testRequestHasScopeWriteAccessWithBackwardsCompatability(): void
     {
         $request = HttpRestRequest::create("/api/fhir/Patient/123");
-        $request->setAccessTokenScopes([
-            'patient/Patient.write'
-        ]);
-        $this->assertTrue($request->requestHasScope('patient/Patient.c'));
-        $this->assertTrue($request->requestHasScope('patient/Patient.u'));
-        $this->assertTrue($request->requestHasScope('patient/Patient.d'));
-        $this->assertTrue($request->requestHasScope('patient/Patient.write'));
+        $scopeResourceList = [];
+        $scopeResourceList['patient/Patient'] = new ResourceScopeEntityList('patient/Patient');
+        $scopeResourceList['patient/Patient'][] = ScopeEntity::createFromString("patient/Patient.write");
+        $request->setAccessTokenScopeValidationArray($scopeResourceList);
+        $this->assertTrue($request->requestHasScope('patient/Patient.c'), "patient/Patient.c should be a valid scope for Patient.write access");
+        $this->assertTrue($request->requestHasScope('patient/Patient.u'), "patient/Patient.u should be a valid scope for Patient.write access");
+        $this->assertTrue($request->requestHasScope('patient/Patient.d'), "patient/Patient.d should be a valid scope for Patient.write access");
+        $this->assertTrue($request->requestHasScope('patient/Patient.write'), "patient/Patient.write should be a valid scope for Patient.write access");
 
-        // requests will only get single character scopes, so we'll make that explicit by denying on the request object multi-operation scopes
-        $this->assertFalse($request->requestHasScope('patient/Patient.cu'), "HTTPRestRequest->requestHasScope should not support multi-operation scopes");
-        $this->assertFalse($request->requestHasScope('patient/Patient.cd'), "HTTPRestRequest->requestHasScope should not support multi-operation scopes");
-        $this->assertFalse($request->requestHasScope('patient/Patient.cud'), "HTTPRestRequest->requestHasScope should not support multi-operation scopes");
+        // requests will typically just get a single operation... but we can still support multiple operations
+        $this->assertTrue($request->requestHasScope('patient/Patient.cu'), "HTTPRestRequest->requestHasScope should be valid for Patient.write access");
+        $this->assertTrue($request->requestHasScope('patient/Patient.cd'), "HTTPRestRequest->requestHasScope should be valid for Patient.write access");
+        $this->assertTrue($request->requestHasScope('patient/Patient.cud'), "HTTPRestRequest->requestHasScope should be valid for Patient.write access");
+    }
+
+    public function testRequestHasScopeThrowsInvalidArgumentExceptionForInvalidScope(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid permission string: sr");
+
+        $request = HttpRestRequest::create("/api/fhir/Patient/123");
+        $request->requestHasScope('patient/Patient.sr');
     }
 }

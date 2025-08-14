@@ -34,7 +34,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class AuthorizationListener implements EventSubscriberInterface
 {
     private SystemLogger $logger;
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents() : array
     {
         return [
             KernelEvents::REQUEST => [['onKernelRequest', 50]],
@@ -88,9 +88,12 @@ class AuthorizationListener implements EventSubscriberInterface
             // the order of these strategies is important, as they will be checked in the order they are added.
             $this->addAuthorizationStrategy(new LocalApiAuthorizationController($this->getLogger(), $this->getGlobalsBag()));
             $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+            $skipAuthorizationStrategy->setSystemLogger($this->getLogger());
             $skipAuthorizationStrategy->addSkipRoute('/fhir/metadata');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/OperationDefinition');
+            $skipAuthorizationStrategy->addSkipRoute('/api/version');
+            $skipAuthorizationStrategy->addSkipRoute('/api/product');
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
@@ -143,14 +146,17 @@ class AuthorizationListener implements EventSubscriberInterface
             $scopeType = 'patient';
         }
 
-        // TODO: @adunsulag need to check for api:fhir, api:oemr, and api:portal here
-        // if they aren't valid we just deny access to the request based on the request type
-        // no need to do more checking in ScopeRepository
+        // SkipAuthorizationStrategy or LocalApiAuthorizationController will set these properties and we can skip further checks.
+        // TODO: @adunsulag should we just use skipAuthorization instead of isLocalApi?
+        if ($restRequest->isLocalApi() || $restRequest->attributes->get('skipAuthorization', false) === true) {
+            // If the request has been marked to skip authorization, we return the event without further checks.
+            $this->getLogger()->debug("Skipping authorization for request", ['request' => $restRequest]);
+            return $event;
+        }
+
+        // we check the request type against the user role... this is fairly cumbersome and complicated
+        // TODO: @adunsulag can we look at simplifying this role / request type check?
         if ($restRequest->isFhir()) {
-            // don't do any checks on our open fhir resources
-            if ($this->fhirRestRequestSkipSecurityCheck($restRequest)) {
-                return $event;
-            }
             // we do NOT want logged in patients writing data at this point so we fail
             // TODO: when we have better auditing and provider merge/verification mechanisms look at opening up patient write access to data.
             if ($restRequest->isPatientWriteRequest() && $restRequest->getRequestUserRole() == 'patient') {
@@ -158,14 +164,6 @@ class AuthorizationListener implements EventSubscriberInterface
                 throw new AccessDeniedException("patient", "demo", "Patient user role is not allowed to write FHIR resources.");
             }
         } elseif (($restRequest->isStandardApiRequest()) || ($restRequest->isPortalRequest())) {
-            // don't do any checks on our open non-fhir resources
-            if (
-                $restRequest->getResource() == 'version'
-                || $restRequest->getResource() == 'product'
-                || $restRequest->isLocalApi() // skip security check if its a local api
-            ) {
-                return $event;
-            }
             // ensure correct user role type for the non-fhir routes
             if (($restRequest->isStandardApiRequest()) && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
                 // TODO: should we allow system role to access oemr api?
@@ -186,7 +184,7 @@ class AuthorizationListener implements EventSubscriberInterface
         }
         // check access token scopes
         if (!$restRequest->requestHasScope($scope)) {
-            throw new AccessDeniedException($scopeType, $restRequest->getResource(), "scope " . $scope . " not in access token");
+            throw new AccessDeniedException($scopeType, $restRequest->getResource() ?? '', "scope " . $scope . " not in access token");
         }
         return $event;
     }

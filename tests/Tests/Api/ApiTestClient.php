@@ -73,7 +73,7 @@ class ApiTestClient
      * If the request succeeds the token is set in the HTTP Authorization header.
      *
      * Credentials are optionally provided using the $credentials array. Supported
-     * keys include username and password. If credentials are not provided they will be parsed
+     * keys include username,password,scopes. If credentials are not provided they will be parsed
      * from environment variables or fallback to a reasonable default if the environment variable
      * does not exist.
      *
@@ -100,10 +100,12 @@ class ApiTestClient
             $this->getClient($authURL, $client);
         }
 
+        $scopes = $credentials['scopes'] ?? self::ALL_SCOPES;
+
         $authBody = [
             "grant_type" => "password",
             "client_id" => $this->client_id,
-            "scope" => self::ALL_SCOPES,
+            "scope" => $scopes,
             "user_role" => "users",
             "username" => $credentials["username"],
             "password" => $credentials["password"]

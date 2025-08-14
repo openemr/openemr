@@ -17,6 +17,23 @@ use PHPUnit\Framework\TestCase;
 
 class ScopeEntityTest extends TestCase
 {
+
+    public function testContainsScopeWithBackwardsCompatabileReadPermission()
+    {
+        $entityScope = ScopeEntity::createFromString('patient/Patient.read');
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.read')), "read permission should be contained in read permission");
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.r')), "r(read) permission should be contained in read permission");
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.s')), "s(search) permission should be contained in read permission");
+    }
+
+    public function testContainsScopeWithBackwardsCompatabileWritePermission() {
+        $entityScope = ScopeEntity::createFromString('patient/Patient.write');
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.write')), "write permission should be contained in write permission");
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.c')), "create permission should be contained in write permission");
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.u')), "update permission should be contained in write permission");
+        $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.d')), "delete permission should be contained in write permission");
+    }
+
     public function testContainsScopeWithFullPermissions()
     {
         $entityScope = ScopeEntity::createFromString('patient/Patient.cruds');

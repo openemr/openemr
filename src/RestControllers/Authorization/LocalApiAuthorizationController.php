@@ -2,7 +2,6 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\UserService;
 use Symfony\Component\HttpFoundation\Response;
 use OpenEMR\Common\Auth\UuidUserAccount;
@@ -11,21 +10,15 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 // TODO: Rename this to LocalApiAuthorizationStrategy
 class LocalApiAuthorizationController implements IAuthorizationStrategy
 {
-    /**
-     * @var null | callable (string) :=> UuidUserAccount
-     */
-    private $uuidUserAccountFactory = null;
-
     private UserService $userService;
 
-    public function __construct(private SystemLogger $logger, private OEGlobalsBag $globalsBag)
+    public function __construct(private readonly SystemLogger $logger, private readonly OEGlobalsBag $globalsBag)
     {
     }
 
@@ -40,7 +33,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
     }
 
     /**
-     * @param Request $request
+     * @param HttpRestRequest $request
      * @return bool
      * @throw UnauthorizedHttpException if the request is not authorized
      */
@@ -67,7 +60,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
             $this->logger->error(self::class . " CSRF failed", ["resource" => $request->getPathInfo()]);
             throw new UnauthorizedHttpException("APICSRFTOKEN", "OpenEMR Error: internal api failed because csrf token did not match");
         }
-        $userId = $session->get('authUserID', null);
+        $userId = $session->get('authUserID');
         if (empty($userId)) {
             // unable to identify the user
             $this->logger->error("OpenEMR Error - api user account could not be identified, so forced exit", ['userId' => $userId]);
@@ -89,6 +82,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
         $request->attributes->set('userId', $userUuid);
         $request->attributes->set('clientId', null);
         $request->attributes->set('tokenId', $csrfToken);
+        $request->attributes->set('skipAuthorization', true);
         $request->setAccessTokenId($csrfToken);
         $request->setRequestUserRole($userRole);
         $request->setRequestUser($userUuid, $user);

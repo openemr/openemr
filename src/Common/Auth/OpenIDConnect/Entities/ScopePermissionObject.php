@@ -42,9 +42,16 @@ class ScopePermissionObject
         $obj = new self($permissionString);
         if (!empty($permissionString)) {
             if ($permissionString === 'read') {
+                // 'read' -> 'rs'
                 $obj->v1Read = true;
+                $obj->read = true;
+                $obj->search = true;
             } elseif ($permissionString === 'write') {
+                // write -> 'cud'
                 $obj->v1Write = true;
+                $obj->create = true;
+                $obj->update = true;
+                $obj->delete = true;
             } else {
                 $matches = [];
                 $parts = explode("?", $permissionString);
