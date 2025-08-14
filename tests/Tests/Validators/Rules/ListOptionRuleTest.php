@@ -33,6 +33,7 @@ class ListOptionRuleTest extends TestCase
         $rule = new ListOptionRule('yesno');
         $messageStack = new MessageStack();
         $rule->setMessageStack($messageStack);
+        $rule->setParameters('field_key', 'Human Name'); // normally this would be done by a framework
         $this->assertFalse($rule->validate('somethingelse'), 'somethingelse is not a valid option id for the yesno list');
         $this->assertNotEmpty($messageStack->getFailures(), "Failures should have been added to the message stack");
     }
