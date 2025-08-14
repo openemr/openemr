@@ -40,6 +40,9 @@ updates:
       # Don't update major versions automatically
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # submodules are causing problems, so ignore them
+      - dependency-name: "*/onc-certification-g10-test-kit"
+      - dependency-name: "*/inferno-files"
 
   # JavaScript dependencies
   - package-ecosystem: "npm"
