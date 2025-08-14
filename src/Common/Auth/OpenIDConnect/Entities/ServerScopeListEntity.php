@@ -341,28 +341,6 @@ class ServerScopeListEntity
         return array_keys(array_combine($allScopes, $allScopes));
     }
 
-
-    public function lookupDescriptionForScope($scope, bool $isPatient)
-    {
-        $parts = explode("/", $scope);
-        $context = reset($parts);
-        $resourcePerm = $parts[1] ?? "";
-        $resourcePermParts = explode(".", $resourcePerm);
-        $resource = $resourcePermParts[0];
-        $permission = $resourcePermParts[1] ?? "";
-
-        if (!empty($resource)) {
-            $isReadPermission = $permission == "read";
-            if (str_contains($permission, "$")) {
-                return $this->lookupDescriptionForResourceOperation($resource, $context, $isPatient);
-            } else {
-                return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
-            }
-        } else {
-            return null;
-        }
-    }
-
     public function lookupDescriptionForFullScopeString($scope)
     {
         $requiredSmart = [
@@ -380,20 +358,6 @@ class ServerScopeListEntity
             return $requiredSmart[$scope];
         }
         return "";
-    }
-
-    public function lookupDescriptionForResourceOperation($resource, $context, $operation)
-    {
-        $description = null;
-        if ($resource == "DocumentReference" && $operation == '$docref') {
-            $description = xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD");
-            if ($context == 'user') {
-                $description .= " " . xl("for a patient that the user has access to");
-            } else if ($context == "system") {
-                $description .= " " . xl("for a patient that exists in the system");
-            }
-        }
-        return $description;
     }
 
     /**

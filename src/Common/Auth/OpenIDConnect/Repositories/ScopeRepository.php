@@ -19,13 +19,13 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use InvalidArgumentException;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 
 use function in_array;
 
@@ -37,12 +37,6 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @var ResourceScopeEntityList[] mapped by strings of the ScopeEntity.getScopeLookupKey()
      */
     private array $validationScopes;
-
-    /**
-     * Session string containing the scopes populated in the current session.
-     * @var string
-     */
-    private string $sessionScopes;
 
     /**
      * @var ServerConfig
@@ -57,16 +51,10 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     /**
      * ScopeRepository constructor.
-     * @param HttpRestRequest|null $request
      * @param SessionInterface|null $session
      */
     public function __construct(?SessionInterface $session = null)
     {
-        if (!empty($session)) {
-            $this->sessionScopes = $session->get('scopes', '');
-        } else {
-            $this->sessionScopes = '';
-        }
         $this->session = $session;
     }
 
@@ -146,7 +134,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param $grantType
      * @param ClientEntityInterface $clientEntity
      * @param $userIdentifier
-     * @return array|\League\OAuth2\Server\Entities\ScopeEntityInterface[]
+     * @return array|ScopeEntityInterface[]
      */
     public function finalizeScopes(
         array $scopes,
@@ -171,15 +159,13 @@ class ScopeRepository implements ScopeRepositoryInterface
             $clientValidatorArray = $this->buildScopeValidatorArray($clientScopes);
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
-                if ($scope instanceof ScopeEntity) {
-                    $lookupKey = $scope->getScopeLookupKey();
-                    if (
-                        isset($clientValidatorArray[$lookupKey])
-                        && $clientValidatorArray[$lookupKey]->containsScope($scope)
-                    ) {
-                        $finalizedScopes[] = $scope;
-                        $finalizedScopeNames[] = $scope->getIdentifier();
-                    }
+                $lookupKey = $scope->getScopeLookupKey();
+                if (
+                    isset($clientValidatorArray[$lookupKey])
+                    && $clientValidatorArray[$lookupKey]->containsScope($scope)
+                ) {
+                    $finalizedScopes[] = $scope;
+                    $finalizedScopeNames[] = $scope->getIdentifier();
                 }
             }
         } else {
@@ -203,12 +189,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $finalizedScopes;
     }
 
-    public function getSessionScopes()
-    {
-        return $this->sessionScopes;
-    }
-
-    public function getClaimRepository()
+    public function getClaimRepository() : ClaimSetRepositoryInterface
     {
         if (!isset($this->claimRepository)) {
             $this->claimRepository = new ClaimRepository();
@@ -220,16 +201,6 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function fhirRequiredSmartScopes(): array
     {
         return $this->getServerScopeList()->requiredSmartOnFhirScopes();
-    }
-
-    public function fhirScopesV1(): array
-    {
-        return $this->getServerScopeList()->fhirResourceScopesV1();
-    }
-
-    public function fhirScopesV2(): array
-    {
-        return $this->fhirScopesV2();
     }
 
     /**
@@ -270,7 +241,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopeValidatorFactory->buildScopeValidatorArray($currentServerScopes);
     }
 
-    public function lookupDescriptionForScope($scope, bool $isPatient): string
+    public function lookupDescriptionForScope($scope): string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
@@ -334,7 +305,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     private function lookupDescriptionForResourceOperation(ScopeEntity $scope)
     {
         $resource = $scope->getResource();
-        $description = match ($scope->getOperation()) {
+        return match ($scope->getOperation()) {
             '$export' => match ($scope->getResource()) {
                 '*' => xl("Permission to export the entire system dataset that is exportable"),
                 'Patient' => xl("Permission to export Patient Compartment resources"),
@@ -355,17 +326,16 @@ class ScopeRepository implements ScopeRepositoryInterface
             }
             ,default => throw new InvalidArgumentException("Unknown operation for scope: " . $scope->getOperation())
         };
-        return $description;
     }
 
     /**
      * Checks if the given scopes array requires any manual approval by an administrator before an oauth2 client can be authorized
      * @param bool $is_confidential_client Whether the client is confidential (can keep a secret safe) or a public app
      * @param array $scopes The scopes to be checked to see if we need manual approval
-     * @param string $oauthAppManualApprovalSetting The OAuthManualApproval setting from the globals table
+     * @param string $oauthManualApprovalSetting The OAuthManualApproval setting from the globals table
      * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
      */
-    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes, $oauthManualApprovalSetting = '0'): bool
+    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes, string $oauthManualApprovalSetting = '0'): bool
     {
         // note eventually this method could have a db lookup to check against if admins want to vet this
         // possibly we could have an event dispatched here as well if we want someone to provide / extend that kind of functionality

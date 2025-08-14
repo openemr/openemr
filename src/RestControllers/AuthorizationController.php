@@ -1030,7 +1030,7 @@ class AuthorizationController
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
             } else if (in_array($scope, $fhirRequiredSmartScopes)) {
-                $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope, $userRole == UuidUserAccount::USER_ROLE_PATIENT);
+                $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
                 continue;
             }
 
@@ -1043,7 +1043,7 @@ class AuthorizationController
             if (!empty($resource)) {
                 $scopesByResource[$resource] = $scopesByResource[$resource] ?? ['permissions' => []];
 
-                $scopesByResource[$resource]['permissions'][$scope] = $scopeRepository->lookupDescriptionForScope($scope, $userRole == UuidUserAccount::USER_ROLE_PATIENT);
+                $scopesByResource[$resource]['permissions'][$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
         // TODO: @adunsulag need to fire off an event here so that api writers can grab descriptions or update them for their scopes
