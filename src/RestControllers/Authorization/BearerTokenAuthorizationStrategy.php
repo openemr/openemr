@@ -114,7 +114,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $this->uuidUserAccountFactory;
     }
 
-    public function getAccessTokenRepositoryForSession(SessionInterface $session): AccessTokenRepository {
+    public function getAccessTokenRepositoryForSession(SessionInterface $session): AccessTokenRepository
+    {
         if (!isset($this->accessTokenRepository)) {
             // If the access token repository is not set, we can create it here.
             // This is a placeholder for the actual repository logic.
