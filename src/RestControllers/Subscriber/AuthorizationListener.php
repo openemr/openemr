@@ -183,6 +183,7 @@ class AuthorizationListener implements EventSubscriberInterface
             // Resource scope check
             $scope = $scopeType . '/' . $event->getResource() . '.' . $event->getPermission();
         }
+
         // check access token scopes
         if (!$restRequest->requestHasScope($scope)) {
             throw new AccessDeniedException($scopeType, $restRequest->getResource() ?? '', "scope " . $scope . " not in access token");
@@ -206,20 +207,6 @@ class AuthorizationListener implements EventSubscriberInterface
         // This method is intended to clear all authorization strategies.
         // Implementation details would depend on the specific requirements of the application.
         $this->authorizationStrategies = [];
-    }
-
-    private function fhirRestRequestSkipSecurityCheck(HttpRestRequest $restRequest): bool
-    {
-        // if someone is hitting the local api and have a valid CSRF token we skip the security check.
-        // TODO: @adunsulag need to verify this assumption is correct
-        if ($restRequest->isLocalApi()) {
-            return true;
-        }
-
-        $resource = $restRequest->getResource();
-        // capability statement, smart well knowns, and operation definitions are skipped.
-        $skippedChecks = ['metadata', '.well-known', 'OperationDefinition'];
-        return in_array($resource, $skippedChecks);
     }
 
     private function shouldProcessRequest(Request $request): bool
