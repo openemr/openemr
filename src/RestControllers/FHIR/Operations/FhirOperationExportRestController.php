@@ -552,6 +552,7 @@ class FhirOperationExportRestController
 
     /**
      * Checks if the current user agent has access to the resource.
+     * TODO: @adunsulag we need to write tests cases for these methods.
      * @param $resource The resource being checked
      * @return bool true if the user agent has access, false otherwise
      */
@@ -559,7 +560,7 @@ class FhirOperationExportRestController
     {
 
         $permission = 'system/' . $resource . '.read';
-        $hasAccess = \in_array($permission, $this->request->getAccessTokenScopes());
+        $hasAccess = $this->request->requestHasScope($permission);
         $this->logger->debug(
             "FhirExportRestController->hasAccessToResource() Checking resource access",
             ['permission' => $permission, 'hasAccess' => $hasAccess]
