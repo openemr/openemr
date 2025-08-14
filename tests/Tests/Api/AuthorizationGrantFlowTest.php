@@ -59,7 +59,7 @@ class AuthorizationGrantFlowTest extends TestCase
      * @throws \League\OAuth2\Server\Exception\OAuthServerException
      * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    public function testSuccessfulAuthorizationGrantFlowWithLoginFlow()
+    public function testSuccessfulAuthorizationGrantFlowWithLoginFlow() : void
     {
         $serverScopes = new ServerScopeListEntity();
         $scopes = $serverScopes->getAllSupportedScopesList();
@@ -107,9 +107,9 @@ class AuthorizationGrantFlowTest extends TestCase
     /**
      * @param string $redirectUri
      * @param string $scopesString
-     * @return array|void
+     * @return array
      */
-    private function requestTestRegistrationEndpoint(OEHttpKernel $kernel, string $redirectUri, string $scopesString)
+    private function requestTestRegistrationEndpoint(OEHttpKernel $kernel, string $redirectUri, string $scopesString) : array
     {
         $jsonRequest = [
             "application_type" => "private",
@@ -156,9 +156,9 @@ class AuthorizationGrantFlowTest extends TestCase
      * @param string $scopesString
      * @param mixed $clientIdentifier
      * @param OEHttpKernel $kernel
-     * @return array|void
+     * @return string
      */
-    private function requestTestAuthorizeEndpoint(Session $session, string $scopesString, mixed $clientIdentifier, OEHttpKernel $kernel)
+    private function requestTestAuthorizeEndpoint(Session $session, string $scopesString, mixed $clientIdentifier, OEHttpKernel $kernel) : string
     {
         $request = HttpRestRequest::create("/oauth2/default/authorize", "GET", [
             "scope" => $scopesString,

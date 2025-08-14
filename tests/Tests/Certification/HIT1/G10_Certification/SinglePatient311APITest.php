@@ -42,7 +42,7 @@ class SinglePatient311APITest extends TestCase
         $this->assertFhirTestResultResponse($response['results']);
     }
 
-    public function testSingleApiRunWithV2Scopes()
+    public function testSingleApiRunWithV2Scopes(): void
     {
         $scopes = self::FHIR_SCOPES_V2;
         self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [

@@ -891,7 +891,7 @@ class AuthorizationController
         $session->set('persist_login', $request->request->has('persist_login') ? 1 : 0);
         $user = new UserEntity();
         $user->setIdentifier($session->get('user_id'));
-        $session->set('claims', $user->getClaims($request));
+        $session->set('claims', $user->getClaims());
         // need to redirect to patient select if we have a launch context && this isn't a patient login
 
         // if we need to authorize any smart context as part of our OAUTH handler we do that here

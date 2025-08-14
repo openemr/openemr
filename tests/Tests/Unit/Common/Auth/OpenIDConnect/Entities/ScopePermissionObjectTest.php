@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 class ScopePermissionObjectTest extends TestCase
 {
-    public function test__constructNoParameter()
+    public function test__constructNoParameter(): void
     {
         $scopePermissionObject = new ScopePermissionObject();
         $this->assertEmpty($scopePermissionObject->getIdentifier());
@@ -30,7 +30,7 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(false, $scopePermissionObject->v1Write);
     }
 
-    public function testCreateFromStringWithEmptyValue()
+    public function testCreateFromStringWithEmptyValue(): void
     {
         $scopePermissionObject = ScopePermissionObject::createFromString('');
         $this->assertEmpty($scopePermissionObject->getIdentifier());
@@ -44,7 +44,7 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(false, $scopePermissionObject->v1Write);
     }
 
-    public function testCreateFromStringWithCRUDSPermission()
+    public function testCreateFromStringWithCRUDSPermission(): void
     {
         $identifier = 'cruds';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
@@ -59,7 +59,7 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(true, $scopePermissionObject->v1Write);
     }
 
-    public function testCreateFromStringWithValidPermissionString()
+    public function testCreateFromStringWithValidPermissionString(): void
     {
         $validSubSets = [
             'c'
@@ -93,7 +93,7 @@ class ScopePermissionObjectTest extends TestCase
         }
     }
 
-    public function testCreateInvalidPermissionString()
+    public function testCreateInvalidPermissionString(): void
     {
         $invalidSubSets = [
             'rc', 'rcu', 'rcud', 'rcuds', 'rdc', 'rdcu','rdcus', 'rsc', 'rscu', 'rscud', 'ruc', 'rucd', 'rucds'
@@ -112,7 +112,7 @@ class ScopePermissionObjectTest extends TestCase
         }
     }
 
-    public function testCreateFromStringWithReadPermission()
+    public function testCreateFromStringWithReadPermission(): void
     {
         $identifier = 'read';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
@@ -127,7 +127,7 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(false, $scopePermissionObject->v1Write);
     }
 
-    public function testCreateFromStringWithWritePermission()
+    public function testCreateFromStringWithWritePermission(): void
     {
         $identifier = 'write';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
@@ -142,21 +142,21 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(true, $scopePermissionObject->v1Write, "v1Write permission should be true for 'write' permission");
     }
 
-    public function testGetConstraintsWithEmptyConstraints()
+    public function testGetConstraintsWithEmptyConstraints(): void
     {
         $identifier = 'rs';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
         $this->assertEmpty($scopePermissionObject->getConstraints(), 'Constraints should be empty for identifier: ' . $identifier);
     }
 
-    public function testGetConstraintsWithPlainCategory()
+    public function testGetConstraintsWithPlainCategory(): void
     {
         $identifier = 'rs?category=bar';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
         $this->assertNotEmpty($scopePermissionObject->getConstraints(), 'Constraints should be not empty for identifier: ' . $identifier);
         $this->assertEquals(['category' => 'bar'], $scopePermissionObject->getConstraints(), 'Constraints should match for identifier: ' . $identifier);
     }
-    public function testGetConstraintsWithSystemCategory()
+    public function testGetConstraintsWithSystemCategory(): void
     {
         $identifier = 'rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
@@ -165,7 +165,7 @@ class ScopePermissionObjectTest extends TestCase
     }
 
 
-    public function testAddConstraintsWithEmptyConstraints()
+    public function testAddConstraintsWithEmptyConstraints(): void
     {
         $identifier = 'rs';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
@@ -183,7 +183,7 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(['category' => 'bar', 'patient' => '1'], $scopePermissionObject->getConstraints(), 'Constraints should match after adding constraints for identifier: ' . $identifier);
     }
 
-    public function testAddConstraintsWithExistingConstraints()
+    public function testAddConstraintsWithExistingConstraints(): void
     {
         $identifier = 'rs?category=bar';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);
@@ -197,7 +197,7 @@ class ScopePermissionObjectTest extends TestCase
         $this->assertEquals(['category' => 'bar', 'patient' => '1'], $scopePermissionObject->getConstraints(), 'Constraints should match after adding constraints for identifier: ' . $identifier);
     }
 
-    public function testAddConstraintsWithDuplicateKey()
+    public function testAddConstraintsWithDuplicateKey(): void
     {
         $identifier = 'rs?category=bar';
         $scopePermissionObject = ScopePermissionObject::createFromString($identifier);

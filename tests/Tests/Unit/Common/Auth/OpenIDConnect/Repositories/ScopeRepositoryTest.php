@@ -82,7 +82,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals('user/Patient.$version', $operations[3]->getIdentifier(), "user/Patient.\$version should be in scope validator array");
     }
 
-    public function testGetScopeEntityByIdentifierWithSubResourceScope()
+    public function testGetScopeEntityByIdentifierWithSubResourceScope(): void
     {
         $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
             ->onlyMethods(['getAllSupportedScopesList'])
@@ -203,7 +203,7 @@ class ScopeRepositoryTest extends TestCase
         }
     }
 
-    public function testFinalizeScopesWithValidSubScopeWillPass()
+    public function testFinalizeScopesWithValidSubScopeWillPass(): void
     {
         // verify a client with a full scope, will still pass if a request is made for a sub scope
         $scopeRepository = $this->scopeRepository;
