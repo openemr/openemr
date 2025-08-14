@@ -19,6 +19,8 @@ require_once "../vendor/autoload.php";
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
+use Symfony\Component\HttpFoundation\Response;
+
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
@@ -26,11 +28,13 @@ try {
     $apiApplication->run($request);
 } catch (\Throwable $e) {
     // should never reach here, but if we do, we can log the error and return a generic error response
+    // we manually handle it as we don't know if something failed in the symfony component or in our code
     error_log($e->getMessage());
+    error_log($e->getTraceAsString());
     // should never get here, but if we do, we can return a generic error response
     if (!headers_sent()) {
         header('Content-Type: application/json');
-        http_send_status(500);
+        http_response_code(Response::HTTP_INTERNAL_SERVER_ERROR);
     }
     die(json_encode([
         'error' => 'An error occurred while processing the request.',
