@@ -550,17 +550,6 @@ final class CryptoGenTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testAes256DecryptTwoWithCustomPassword(): void
-    {
-        // Test custom password path
-        $result = $this->cryptoGen->aes256DecryptTwo('invalid_base64', 'testpassword');
-        $this->assertFalse($result);
-
-        // Test with null value
-        $result = $this->cryptoGen->aes256DecryptTwo(null);
-        $this->assertFalse($result);
-    }
-
     public function testCollectCryptoKeyWithExistingDatabaseKey(): void
     {
         // Test using drive keys instead of database to avoid SQL mocking complexity
@@ -1349,5 +1338,91 @@ final class CryptoGenTest extends TestCase
 
         // This calls encryptStandard which internally calls collectCryptoKey
         $mockCryptoGen->encryptStandard('test data', null, 'drive');
+    }
+
+    /**
+     * Expect to throw a CryptoGenException if hashing fails on a custom password in coreEncrypt.
+     */
+    public function testCustomPassEncryptHashFail(): void
+    {
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hashPbkdf2', 'hashHkdf'])
+            ->getMock();
+
+        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
+        $mockCryptoGen->method('hashPbkdf2')->willReturn('hashPbkdf2 value');
+        $mockCryptoGen->method('hashHkdf')->willReturn('');
+        $this->expectException(CryptoGenException::class);
+
+        $mockCryptoGen->encryptStandard('test data', 'custom password');
+    }
+
+    /**
+     * Expect it to return false if hashing fails on a custom password in coreDecrypt.
+     */
+    public function testCustomPassDecryptHashFail(): void
+    {
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hashPbkdf2', 'hashHkdf'])
+            ->getMock();
+
+        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
+        $mockCryptoGen->method('hashPbkdf2')->willReturn('hashPbkdf2 value');
+        $mockCryptoGen->method('hashHkdf')->willReturn('');
+        $this->assertFalse($mockCryptoGen->decryptStandard('006test data', 'custom password'));
+    }
+
+    /**
+     * Expect it to return false if hashing fails on a custom password in aes256DecryptTwo.
+     */
+    public function testCustomPassAesTwoDecryptHashFail(): void
+    {
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hash'])
+            ->getMock();
+
+        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
+        $mockCryptoGen->method('hash')->willReturn('');
+
+        $this->assertFalse($mockCryptoGen->aes256DecryptTwo('test data', 'custom password'));
+    }
+
+    /**
+     * Expect it to return false if hashing fails on a custom password in aes256DecryptOne.
+     */
+    public function testCustomPassAesOneDecryptHashFail(): void
+    {
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['isOpenSSLExtensionLoaded', 'hash'])
+            ->getMock();
+
+        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
+        $mockCryptoGen->method('hash')->willReturn('');
+
+        $this->assertFalse($mockCryptoGen->aes256DecryptOne('test data', 'custom password'));
+    }
+
+    /**
+     * Test that aes256DecryptTwo works with a custom password.
+     */
+    public function testAes256DecryptTwoWithCustomPassword(): void
+    {
+        $rawTestData = 'This is a test string that is approximately one hundred characters long for testing purposes here';
+        $testData = base64_encode($rawTestData);
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['isOpenSSLExtensionLoaded', 'openSSLDecrypt', 'hashEquals', 'hash'])
+            ->getMock();
+
+        $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
+        $mockCryptoGen->method('hash')->willReturn('hash value');
+        $mockCryptoGen->method('hashEquals')->willReturn(true);
+        $encryptedData = mb_substr($rawTestData, 48, null, '8bit');
+        $iv = mb_substr($rawTestData, 32, 16, '8bit');
+        $mockCryptoGen->expects($this->once())
+            ->method('openSSLDecrypt')
+            ->with($encryptedData, 'aes-256-cbc', 'hash value', $iv)
+            ->willReturn('decrypted data');
+
+        $mockCryptoGen->aes256DecryptTwo($testData, 'custom password');
     }
 }
