@@ -159,7 +159,7 @@ class HttpRestRouteHandler
                 $resource = "*"; // for our permission check
             }
         } else {
-            $permission = match($restRequest->getMethod()) {
+            $permission = match ($restRequest->getMethod()) {
                 // we don't support HEAD requests as a route in the api so will not address that here
                 // TODO: @adunsulag spec says we should return a 405 Method Not Allowed or a 501 ("not implemented") if we don't support head.
                 "GET" =>  $this->getGetRequestPermission($parsedRoute)
@@ -183,14 +183,14 @@ class HttpRestRouteHandler
         return null; // No response means the security check passed
     }
 
-    protected function getGetRequestPermission(HttpRestParsedRoute $parsedRoute): string {
+    protected function getGetRequestPermission(HttpRestParsedRoute $parsedRoute): string
+    {
 
         // this should handle things like /fhir/Patient/{id} or /api/patient/{id}
         // as well as more complex params
         if (!empty($parsedRoute->getInstanceIdentifier())) {
             return 'r'; // read permission for instance level operations
-        }
-        else {
+        } else {
             return 's'; // anything that is not an instance level operation is a search request
         }
     }

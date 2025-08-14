@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 class ScopeEntityTest extends TestCase
 {
-
     public function testContainsScopeWithBackwardsCompatabileReadPermission()
     {
         $entityScope = ScopeEntity::createFromString('patient/Patient.read');
@@ -26,7 +25,8 @@ class ScopeEntityTest extends TestCase
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.s')), "s(search) permission should be contained in read permission");
     }
 
-    public function testContainsScopeWithBackwardsCompatabileWritePermission() {
+    public function testContainsScopeWithBackwardsCompatabileWritePermission()
+    {
         $entityScope = ScopeEntity::createFromString('patient/Patient.write');
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.write')), "write permission should be contained in write permission");
         $this->assertTrue($entityScope->containsScope(ScopeEntity::createFromString('patient/Patient.c')), "create permission should be contained in write permission");

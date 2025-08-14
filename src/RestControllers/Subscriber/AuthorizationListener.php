@@ -34,7 +34,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class AuthorizationListener implements EventSubscriberInterface
 {
     private SystemLogger $logger;
-    public static function getSubscribedEvents() : array
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [['onKernelRequest', 50]],

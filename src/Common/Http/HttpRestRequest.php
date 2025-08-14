@@ -160,7 +160,7 @@ class HttpRestRequest extends Request implements Stringable
      * Returns the raw request body if this is a POST or PUT request
      * @return false|null|string|resource
      */
-    public function getRequestBody() : mixed
+    public function getRequestBody(): mixed
     {
         return $this->content;
     }
@@ -177,17 +177,17 @@ class HttpRestRequest extends Request implements Stringable
         return json_decode($stream->getContents(), true);
     }
 
-    public function setRequestMethod($requestMethod) : void
+    public function setRequestMethod($requestMethod): void
     {
         $this->method = $requestMethod;
     }
 
-    public function setQueryParams($queryParams) : void
+    public function setQueryParams($queryParams): void
     {
         $this->query = new InputBag($queryParams);
     }
 
-    public function getQueryParams() : array
+    public function getQueryParams(): array
     {
         return $this->query->all();
     }
@@ -211,7 +211,7 @@ class HttpRestRequest extends Request implements Stringable
      * @param $headerName string the name of the header value to retrieve.
      * @return string[]
      */
-    public function getHeader(string $headerName) : array
+    public function getHeader(string $headerName): array
     {
         return $this->headers->all($headerName);
     }
@@ -363,7 +363,8 @@ class HttpRestRequest extends Request implements Stringable
      * @param ResourceScopeEntityList[] $scopeValidationArray
      * @return void
      */
-    public function setAccessTokenScopeValidationArray(array $scopeValidationArray) : void {
+    public function setAccessTokenScopeValidationArray(array $scopeValidationArray): void
+    {
         $this->accessTokenScopes = $scopeValidationArray;
         $this->buildResourceScopeContexts($scopeValidationArray);
     }
@@ -484,7 +485,7 @@ class HttpRestRequest extends Request implements Stringable
     /**
      * @return string
      */
-    public function getRequestUserRole() : string
+    public function getRequestUserRole(): string
     {
         return $this->requestUserRole;
     }
@@ -500,17 +501,17 @@ class HttpRestRequest extends Request implements Stringable
         $this->requestUserRole = $requestUserRole;
     }
 
-    public function getRequestUserUUID() : ?string
+    public function getRequestUserUUID(): ?string
     {
         return $this->requestUserUUID;
     }
 
-    public function getRequestUserUUIDString() : ?string
+    public function getRequestUserUUIDString(): ?string
     {
         return $this->requestUserUUIDString;
     }
 
-    public function getPatientUUIDString() : ?string
+    public function getPatientUUIDString(): ?string
     {
         // if the logged in account is a patient user this will match with requestUserUUID
         // If the logged in account is a practitioner user this will be the user selected as part of the launch/patient
@@ -520,12 +521,12 @@ class HttpRestRequest extends Request implements Stringable
         return $this->patientUUIDString;
     }
 
-    public function setPatientUuidString(?string $value) : void
+    public function setPatientUuidString(?string $value): void
     {
         $this->patientUUIDString = $value;
     }
 
-    public function setPatientRequest($isPatientRequest) : void
+    public function setPatientRequest($isPatientRequest): void
     {
         $this->patientRequest = $isPatientRequest;
     }
@@ -535,7 +536,7 @@ class HttpRestRequest extends Request implements Stringable
      * @param $resource string The resource to check (IE Patient, AllergyIntolerance, etc).
      * @return string|null The context or null if the resource does not exist in the scopes.
      */
-    public function getScopeContextForResource(string $resource) : ?string
+    public function getScopeContextForResource(string $resource): ?string
     {
         return $this->resourceScopeContexts[$resource] ?? null;
     }
@@ -569,7 +570,7 @@ class HttpRestRequest extends Request implements Stringable
     }
 
 
-    public function isPatientRequest() : bool
+    public function isPatientRequest(): bool
     {
         return $this->patientRequest === true;
     }
@@ -589,7 +590,7 @@ class HttpRestRequest extends Request implements Stringable
         return stripos(strtolower($this->getPathInfo()), "/api/") !== false;
     }
 
-    public function isFhir() : bool
+    public function isFhir(): bool
     {
         if (!isset($this->apiType) && $this->isFhirRequest()) {
             // if we don't have an api type set, then we assume its a fhir request
@@ -602,7 +603,7 @@ class HttpRestRequest extends Request implements Stringable
      * If this is a patient context request for write/modify of patient context resources
      * @return bool
      */
-    public function isPatientWriteRequest() : bool
+    public function isPatientWriteRequest(): bool
     {
         return $this->isFhir() && $this->isPatientRequest() && $this->getRequestMethod() != 'GET';
     }
@@ -615,14 +616,14 @@ class HttpRestRequest extends Request implements Stringable
         return false;
     }
 
-    public function setRequestPath(string $requestPath) : void
+    public function setRequestPath(string $requestPath): void
     {
         // TODO: @adunsulag is there a better way to do this?
         $this->pathInfo = $requestPath;
         $this->server->set('PATH_INFO', $requestPath);
     }
 
-    public function getRequestPathWithoutSite() : ?string
+    public function getRequestPathWithoutSite(): ?string
     {
         // This will return the request path without the site prefix
         $pathInfo = $this->getPathInfo();
@@ -664,33 +665,33 @@ class HttpRestRequest extends Request implements Stringable
     }
 
 
-    public function withProtocolVersion($version) : self
+    public function withProtocolVersion($version): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->server->set("SERVER_PROTOCOL", 'HTTP/' . $version);
         return $clonedRequest;
     }
 
-    public function getHeaderLine($name) : string
+    public function getHeaderLine($name): string
     {
         return implode(",", $this->getHeader($name));
     }
 
-    public function withHeader($name, $value) : self
+    public function withHeader($name, $value): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->headers->set($name, $value);
         return $clonedRequest;
     }
 
-    public function withAddedHeader($name, $value) : self
+    public function withAddedHeader($name, $value): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->headers->set($name, $value);
         return $clonedRequest;
     }
 
-    public function withoutHeader($name) : self
+    public function withoutHeader($name): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->headers->remove($name);
@@ -700,19 +701,19 @@ class HttpRestRequest extends Request implements Stringable
     /**
      * @return false|resource|string|null
      */
-    public function getBody() : mixed
+    public function getBody(): mixed
     {
         return $this->getContent();
     }
 
-    public function withBody(StreamInterface $body) : self
+    public function withBody(StreamInterface $body): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->content = $body;
         return $clonedRequest;
     }
 
-    public function withMethod($method) : self
+    public function withMethod($method): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->method = $method;
@@ -724,7 +725,7 @@ class HttpRestRequest extends Request implements Stringable
         return $this->requestUri;
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false) : self
+    public function withUri(UriInterface $uri, $preserveHost = false): self
     {
         $clonedRequest = clone $this;
         if (!$preserveHost) {
@@ -736,72 +737,72 @@ class HttpRestRequest extends Request implements Stringable
         return $clonedRequest;
     }
 
-    public function getServerParams() : array
+    public function getServerParams(): array
     {
         return $this->server->all();
     }
 
-    public function getCookieParams() : array
+    public function getCookieParams(): array
     {
         return $this->cookies->all();
     }
 
-    public function withCookieParams(array $cookies) : self
+    public function withCookieParams(array $cookies): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->cookies = new InputBag($cookies);
         return $clonedRequest;
     }
 
-    public function withQueryParams(array $query) : self
+    public function withQueryParams(array $query): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->query = new InputBag($query);
         return $clonedRequest;
     }
 
-    public function getUploadedFiles() : array
+    public function getUploadedFiles(): array
     {
         return $this->files->all();
     }
 
-    public function withUploadedFiles(array $uploadedFiles) : self
+    public function withUploadedFiles(array $uploadedFiles): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->files = new FileBag($uploadedFiles);
         return $clonedRequest;
     }
 
-    public function getParsedBody() : array
+    public function getParsedBody(): array
     {
         return $this->getPayload()->all();
     }
 
-    public function withParsedBody($data) : self
+    public function withParsedBody($data): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->request = new InputBag($data);
         return $clonedRequest;
     }
 
-    public function getAttributes() : array
+    public function getAttributes(): array
     {
         return $this->attributes->all();
     }
 
-    public function getAttribute($name, $default = null) : mixed
+    public function getAttribute($name, $default = null): mixed
     {
         return $this->attributes->get($name, $default);
     }
 
-    public function withAttribute($name, $value) : self
+    public function withAttribute($name, $value): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->attributes->set($name, $value);
         return $clonedRequest;
     }
 
-    public function withoutAttribute($name) : self
+    public function withoutAttribute($name): self
     {
         $clonedRequest = clone $this;
         $clonedRequest->attributes->remove($name);

@@ -968,7 +968,8 @@ class AuthorizationController
         }
     }
 
-    public function getServerConfig() : ServerConfig {
+    public function getServerConfig(): ServerConfig
+    {
         if (!isset($this->serverConfig)) {
             $this->serverConfig = new ServerConfig();
         }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ScopeValidatorFactory.php
  * @package openemr
@@ -13,8 +14,8 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Validators;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 
-class ScopeValidatorFactory {
-
+class ScopeValidatorFactory
+{
     /**
      * @param array $currentServerScopes
      * @return ResourceScopeEntityList[]

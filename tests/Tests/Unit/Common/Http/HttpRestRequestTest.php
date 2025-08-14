@@ -265,7 +265,7 @@ class HttpRestRequestTest extends TestCase
         $scopeResourceList['patient/Patient'][] = ScopeEntity::createFromString("patient/Patient.read");
         $request->setAccessTokenScopeValidationArray($scopeResourceList);
         $this->assertTrue($request->requestHasScope('patient/Patient.r'), 'patient/Patient.r should be a valid scope for Patient.read access');
-        $this->assertTrue($request->requestHasScope('patient/Patient.s'),'patient/Patient.s should be a valid scope for Patient.read access');
+        $this->assertTrue($request->requestHasScope('patient/Patient.s'), 'patient/Patient.s should be a valid scope for Patient.read access');
         $this->assertTrue($request->requestHasScope('patient/Patient.read'), 'patient/Patient.read should be a valid scope for Patient.read access');
         $this->assertTrue($request->requestHasScope('patient/Patient.rs'), "HTTPRestRequest->requestHasScope should be valid for Patient.read access");
     }

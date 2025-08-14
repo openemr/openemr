@@ -167,7 +167,7 @@ class HttpRestParsedRoute
      * Returns the resource instance identifier if it exists.  This is the last part of the route that is not a resource or operation.
      * @return string|null
      */
-    public function getInstanceIdentifier() : ?string
+    public function getInstanceIdentifier(): ?string
     {
         return $this->instanceIdentifier;
     }
