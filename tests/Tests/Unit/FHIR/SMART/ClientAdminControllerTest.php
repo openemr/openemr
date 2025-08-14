@@ -1,7 +1,5 @@
 <?php
 
-namespace OpenEMR\Tests\Unit\FHIR\SMART;
-
 /**
  * ClientAdminControllerTest - Unit tests for the ClientAdminController class
  * @package openemr
