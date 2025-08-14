@@ -639,10 +639,8 @@ MSG;
             }
         }
 
-        if (empty($GLOBALS["audit_events_{$event}"])) {
-            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
-                return;
-            }
+        if (empty($GLOBALS["audit_events_{$event}"]) && (empty($GLOBALS['gbl_force_log_breakglass'] ?? null) || !$this->isBreakglassUser($user))) {
+            return;
         }
 
         $event = $event . "-" . $querytype;
