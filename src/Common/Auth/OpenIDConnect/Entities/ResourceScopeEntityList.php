@@ -57,6 +57,9 @@ class ResourceScopeEntityList extends ArrayObject
     public function containsScope(ScopeEntity $scope): bool
     {
         foreach ($this as $item) {
+            /**
+             * @var ScopeEntity $item
+             */
             if ($item->containsScope($scope)) {
                 return true;
             }

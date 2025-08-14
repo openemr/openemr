@@ -18,6 +18,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
@@ -265,15 +266,8 @@ class ScopeRepository implements ScopeRepositoryInterface
     // made public for now!
     public function buildScopeValidatorArray(array $currentServerScopes): array
     {
-        $scopePermissionArray = [];
-        foreach ($currentServerScopes as $scope) {
-            $scopeObject = ScopeEntity::createFromString($scope);
-            if (empty($scopePermissionArray[$scopeObject->getScopeLookupKey()])) {
-                $scopePermissionArray[$scopeObject->getScopeLookupKey()] = new ResourceScopeEntityList($scopeObject->getScopeLookupKey());
-            }
-            $scopePermissionArray[$scopeObject->getScopeLookupKey()][] = $scopeObject;
-        }
-        return $scopePermissionArray;
+        $scopeValidatorFactory = new ScopeValidatorFactory();
+        return $scopeValidatorFactory->buildScopeValidatorArray($currentServerScopes);
     }
 
     public function lookupDescriptionForScope($scope, bool $isPatient): string

@@ -283,7 +283,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID string to a bytes representation
-     * @return the UUID bytes value
+     * @return string the UUID bytes value
      */
     public static function uuidToBytes($uuidString)
     {
