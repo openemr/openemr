@@ -41,10 +41,11 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
-    private SessionInterface $session;
+    private EventAuditLogger $auditLogger;
 
-    public function __construct(?SystemLogger $logger = null)
+    public function __construct(EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
     {
+        $this->auditLogger = $auditLogger;
         if ($logger) {
             $this->setSystemLogger($logger);
         }
@@ -113,6 +114,15 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $this->uuidUserAccountFactory;
     }
 
+    public function getAccessTokenRepositoryForSession(SessionInterface $session): AccessTokenRepository {
+        if (!isset($this->accessTokenRepository)) {
+            // If the access token repository is not set, we can create it here.
+            // This is a placeholder for the actual repository logic.
+            $this->accessTokenRepository = $this->createAccessTokenRepository($session);
+        }
+        return $this->accessTokenRepository;
+    }
+
     protected function createAccessTokenRepository(SessionInterface $session): AccessTokenRepository
     {
         // This method is intended to create and return an instance of AccessTokenRepository.
@@ -134,7 +144,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     {
         $session = $request->getSession();
         // verify the access token
-        $repository = $this->createAccessTokenRepository($session);
+        $repository = $this->getAccessTokenRepositoryForSession($session);
         $tokenRaw = $this->verifyAccessToken($repository, $request);
         // collect token attributes
         $attributes = $tokenRaw->getAttributes();
@@ -264,19 +274,34 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         // check for token
         $authTokenExpiration = $accessTokenRepo->getTokenExpiration($tokenId, $clientId, $userId);
         if (empty($authTokenExpiration)) {
-            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for client[" . $clientId . "] and user " . $userId . ".");
+            $this->getSystemLogger()->debug("dispatch.php api call with missing token", [
+                'clientId' => $clientId,
+                'userId' => $userId,
+                'ip' => $ip['ip_string']
+            ]);
+            $this->auditLogger->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for client[" . $clientId . "] and user " . $userId . ".");
             return false;
         }
         // Ensure token not expired (note an expired token should have already been caught by oauth2, however will also check here)
         $currentDateTime = date("Y-m-d H:i:s");
         $expiryDateTime = date("Y-m-d H:i:s", strtotime($authTokenExpiration));
         if ($expiryDateTime <= $currentDateTime) {
-            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token expired for client[" . $clientId . "] and user " . $userId . ".");
+            $this->getSystemLogger()->debug("dispatch.php api call with expired token", [
+                'clientId' => $clientId,
+                'userId' => $userId,
+                'ip' => $ip['ip_string']
+            ]);
+            $this->auditLogger->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token expired for client[" . $clientId . "] and user " . $userId . ".");
             return false;
         }
 
         // Token authentication passed
-        EventAuditLogger::instance()->newEvent('api', '', '', 1, "API success: " . $ip['ip_string'] . ". Token successfully used for client[" . $clientId . "] and user " . $userId . ".");
+        $this->auditLogger->newEvent('api', '', '', 1, "API success: " . $ip['ip_string'] . ". Token successfully used for client[" . $clientId . "] and user " . $userId . ".");
+        $this->getSystemLogger()->debug("dispatch.php api call with valid token", [
+            'clientId' => $clientId,
+            'userId' => $userId,
+            'ip' => $ip['ip_string']
+        ]);
         return true;
     }
 

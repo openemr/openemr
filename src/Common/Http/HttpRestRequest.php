@@ -85,7 +85,7 @@ class HttpRestRequest extends Request implements Stringable
     /**
      * @var string
      */
-    private string $requestSite;
+    private string $requestSite = "default"; // default site
 
     /**
      * @var string|null

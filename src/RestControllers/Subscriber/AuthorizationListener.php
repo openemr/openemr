@@ -16,6 +16,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
@@ -97,7 +98,7 @@ class AuthorizationListener implements EventSubscriberInterface
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
-            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy($this->getLogger());
+            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy(EventAuditLogger::instance(), $this->getLogger());
             $bearerTokenAuthorizationStrategy->setPublicKey($serverConfig->getPublicRestKey());
             $this->addAuthorizationStrategy($bearerTokenAuthorizationStrategy);
         }
