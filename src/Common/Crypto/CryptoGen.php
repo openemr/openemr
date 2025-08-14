@@ -65,9 +65,9 @@ class CryptoGen implements CryptoInterface
     /**
      * Encrypts data using the standard encryption method
      *
-     * @param ?string $value          The data to encrypt
-     * @param ?string $customPassword If provided, keys will be derived from this password (standard keys will not be used)
-     * @param string  $keySource      The source of the standard keys. Options are 'drive' and 'database'
+     * @param  ?string $value          The data to encrypt
+     * @param  ?string $customPassword If provided, keys will be derived from this password (standard keys will not be used)
+     * @param  string  $keySource      The source of the standard keys. Options are 'drive' and 'database'
      * @return string The encrypted data
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): string
@@ -78,11 +78,11 @@ class CryptoGen implements CryptoInterface
     /**
      * Decrypts data using the standard decryption method
      *
-     * @param ?string $value          The data to decrypt
-     * @param ?string $customPassword If provided, keys will be derived from this password (standard keys will not be used)
-     * @param string  $keySource      The source of the standard keys. Options are 'drive' and 'database'
-     * @param ?int    $minimumVersion The minimum encryption version supported (useful when accepting encrypted data
-     *                                from outside OpenEMR to prevent bad actors from using older versions)
+     * @param  ?string $value          The data to decrypt
+     * @param  ?string $customPassword If provided, keys will be derived from this password (standard keys will not be used)
+     * @param  string  $keySource      The source of the standard keys. Options are 'drive' and 'database'
+     * @param  ?int    $minimumVersion The minimum encryption version supported (useful when accepting encrypted data
+     *                                 from outside OpenEMR to prevent bad actors from using older versions)
      * @return false|string The decrypted data, or false if decryption fails
      */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
@@ -122,7 +122,7 @@ class CryptoGen implements CryptoInterface
     /**
      * Checks if a crypt block is valid for use with the standard method
      *
-     * @param ?string $value The data to validate
+     * @param  ?string $value The data to validate
      * @return bool True if valid, false otherwise
      */
     public function cryptCheckStandard(?string $value): bool
@@ -133,10 +133,10 @@ class CryptoGen implements CryptoInterface
     /**
      * Core encryption function
      *
-     * @param ?string $sValue          Raw data to be encrypted
-     * @param ?string $customPassword  If null, standard keys are used. If provided, keys are derived from this password
-     * @param string  $keySource       The source of the keys. Options are 'drive' and 'database'
-     * @param ?string $keyNumber       The key number/version
+     * @param  ?string $sValue         Raw data to be encrypted
+     * @param  ?string $customPassword If null, standard keys are used. If provided, keys are derived from this password
+     * @param  string  $keySource      The source of the keys. Options are 'drive' and 'database'
+     * @param  ?string $keyNumber      The key number/version
      * @return string The encrypted data
      * @throws CryptoGenException If encryption fails due to critical errors
      */
@@ -173,11 +173,10 @@ class CryptoGen implements CryptoInterface
             throw new CryptoGenException("OpenEMR Error : Random Bytes error - exiting");
         }
 
-        $processedValue = empty($sValue) ? '' : $this->opensslEncrypt(
+        $processedValue = empty($sValue) ? '' : $this->openSSLEncrypt(
             $sValue,
             'aes-256-cbc',
             $sSecretKey,
-            OPENSSL_RAW_DATA,
             $iv
         );
 
@@ -202,10 +201,10 @@ class CryptoGen implements CryptoInterface
     /**
      * Core decryption function
      *
-     * @param string  $sValue         Encrypted data to be decrypted
-     * @param ?string $customPassword If null, standard keys are used. If provided, keys are derived from this password
-     * @param string  $keySource      The source of the keys. Options are 'drive' and 'database'
-     * @param ?string $keyNumber      The key number/version
+     * @param  string  $sValue         Encrypted data to be decrypted
+     * @param  ?string $customPassword If null, standard keys are used. If provided, keys are derived from this password
+     * @param  string  $keySource      The source of the keys. Options are 'drive' and 'database'
+     * @param  ?string $keyNumber      The key number/version
      * @return false|string The decrypted data, or false if decryption fails
      */
     private function coreDecrypt(string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): false|string
@@ -253,11 +252,10 @@ class CryptoGen implements CryptoInterface
         $calculatedHmacHash = $this->hashHmac('sha384', $iv . $encrypted_data, $sSecretKeyHmac, true);
 
         if ($this->hashEquals($hmacHash, $calculatedHmacHash)) {
-            return $this->opensslDecrypt(
+            return $this->openSSLDecrypt(
                 $encrypted_data,
                 'aes-256-cbc',
                 $sSecretKey,
-                OPENSSL_RAW_DATA,
                 $iv
             );
         } else {
@@ -283,7 +281,7 @@ class CryptoGen implements CryptoInterface
     /**
      * Format exception message with stack trace
      *
-     * @param array $stackTrace Debug backtrace array
+     * @param  array $stackTrace Debug backtrace array
      * @return string Formatted stack trace string
      */
     private function formatExceptionMessage(array $stackTrace): string
@@ -310,8 +308,8 @@ class CryptoGen implements CryptoInterface
     /**
      * Decrypts AES256 encrypted data using version 2 algorithm
      *
-     * @param ?string $sValue              Data to decrypt
-     * @param ?string $customPassword If null, uses standard key. If provided, derives key from this password
+     * @param  ?string $sValue         Data to decrypt
+     * @param  ?string $customPassword If null, uses standard key. If provided, derives key from this password
      * @return false|string The decrypted data, or false if decryption fails
      */
     public function aes256DecryptTwo(?string $sValue, ?string $customPassword = null): false|string
@@ -351,11 +349,10 @@ class CryptoGen implements CryptoInterface
         $calculatedHmacHash = $this->hashHmac('sha256', $iv . $encrypted_data, $sSecretKeyHmac, true);
 
         if ($this->hashEquals($hmacHash, $calculatedHmacHash)) {
-            return $this->opensslDecrypt(
+            return $this->openSSLDecrypt(
                 $encrypted_data,
                 'aes-256-cbc',
                 $sSecretKey,
-                OPENSSL_RAW_DATA,
                 $iv
             );
         } else {
@@ -381,8 +378,8 @@ class CryptoGen implements CryptoInterface
     /**
      * Decrypts AES256 encrypted data using version 1 algorithm
      *
-     * @param ?string $sValue              Data to decrypt
-     * @param ?string $customPassword If null, uses standard key. If provided, derives key from this password
+     * @param  ?string $sValue         Data to decrypt
+     * @param  ?string $customPassword If null, uses standard key. If provided, derives key from this password
      * @return false|string The decrypted data
      */
     public function aes256DecryptOne(?string $sValue, ?string $customPassword = null): false|string
@@ -412,11 +409,10 @@ class CryptoGen implements CryptoInterface
         $iv = substr($raw, 0, $ivLength);
         $encrypted_data = substr($raw, $ivLength);
 
-        return $this->opensslDecrypt(
+        return $this->openSSLDecrypt(
             $encrypted_data,
             'aes-256-cbc',
             $sSecretKey,
-            OPENSSL_RAW_DATA,
             $iv
         );
     }
@@ -426,7 +422,7 @@ class CryptoGen implements CryptoInterface
      * This function is only used for backward compatibility
      * TODO: Should be removed in the future
      *
-     * @param string $sValue Encrypted data to decrypt
+     * @param  string $sValue Encrypted data to decrypt
      * @return string Decrypted data
      */
     public function aes256Decrypt_mycrypt(string $sValue): string
@@ -453,11 +449,12 @@ class CryptoGen implements CryptoInterface
      * key set from database, collect key set from drive, decrypt key set from drive using the database
      * key; caching the key will bypass all these steps).
      *
-     * @param string $version     The key number/version
-     * @param string $sub         The key sublabel
-     * @param string $keySource   The source of the standard keys. Options are 'drive' and 'database'
-     *                            The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods
-     *                            The 'database' keys are stored in the 'keys' sql table
+     * @param  string $version   The key number/version
+     * @param  string $sub       The key sublabel
+     * @param  string $keySource The source of the standard keys. Options are 'drive' and 'database'
+     *                           The 'drive' keys are stored at
+     *                           sites/<site-dir>/documents/logs_and_misc/methods The 'database'
+     *                           keys are stored in the 'keys' sql table
      * @return string The key in raw form
      * @throws CryptoGenException If key collection fails due to critical errors
      */
@@ -508,9 +505,9 @@ class CryptoGen implements CryptoInterface
         } else { //$keySource == 'drive'
             if (($version == "one") || ($version == "two") || ($version == "three") || ($version == "four")) {
                 // older key versions that did not encrypt the key on the drive
-                $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)));
+                $key = base64_decode(rtrim($this->fileGetContents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)));
             } else {
-                $key = $this->decryptStandard(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label), null, 'database');
+                $key = $this->decryptStandard($this->fileGetContents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label), null, 'database');
             }
         }
 
@@ -537,6 +534,7 @@ class CryptoGen implements CryptoInterface
      * This is a wrapper to enable better testing.
      *
      * @codeCoverageIgnore
+     *
      * @return bool
      */
     protected function isOpenSSLExtensionLoaded(): bool
@@ -549,6 +547,7 @@ class CryptoGen implements CryptoInterface
      * This is a wrapper to enable better testing.
      *
      * @codeCoverageIgnore
+     *
      * @return string
      */
     protected function getRandomBytes(int $length): string
@@ -560,12 +559,13 @@ class CryptoGen implements CryptoInterface
      * Wrapper for hash_pbkdf2 to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $algo Algorithm to use for hashing
-     * @param string $password The password to derive the key from
-     * @param string $salt The salt to use for derivation
-     * @param int $iterations Number of iterations
-     * @param int $length Length of output key
-     * @param bool $rawOutput Whether to return raw binary data
+     *
+     * @param  string $algo       Algorithm to use for hashing
+     * @param  string $password   The password to derive the key from
+     * @param  string $salt       The salt to use for derivation
+     * @param  int    $iterations Number of iterations
+     * @param  int    $length     Length of output key
+     * @param  bool   $rawOutput  Whether to return raw binary data
      * @return string The derived key
      */
     protected function hashPbkdf2(string $algo, string $password, string $salt, int $iterations, int $length, bool $rawOutput): string
@@ -577,11 +577,12 @@ class CryptoGen implements CryptoInterface
      * Wrapper for hash_hkdf to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $algo Algorithm to use for hashing
-     * @param string $key Input key material
-     * @param int $length Length of output key
-     * @param string $info Optional context and application specific information
-     * @param string $salt Optional salt value
+     *
+     * @param  string $algo   Algorithm to use for hashing
+     * @param  string $key    Input key material
+     * @param  int    $length Length of output key
+     * @param  string $info   Optional context and application specific information
+     * @param  string $salt   Optional salt value
      * @return string The derived key
      */
     protected function hashHkdf(string $algo, string $key, int $length, string $info, string $salt): string
@@ -593,7 +594,8 @@ class CryptoGen implements CryptoInterface
      * Wrapper for openssl_cipher_iv_length to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $cipher The cipher method
+     *
+     * @param  string $cipher The cipher method
      * @return int The length of the IV for the given cipher
      */
     protected function getOpenSSLCipherIvLength(string $cipher): int
@@ -605,15 +607,19 @@ class CryptoGen implements CryptoInterface
      * Wrapper for openssl_encrypt to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $data The data to encrypt
-     * @param string $cipher The cipher method
-     * @param string $key The encryption key
-     * @param int $options Options for the encryption
-     * @param string $iv The initialization vector
+     *
+     * @param  string $data   The data to encrypt
+     * @param  string $cipher The cipher method
+     * @param  string $key    The encryption key
+     * @param  string $iv     The initialization vector
      * @return string The encrypted data
      */
-    protected function opensslEncrypt(string $data, string $cipher, string $key, int $options, string $iv): string
+    protected function openSSLEncrypt(string $data, string $cipher, string $key, string $iv): string
     {
+        // embed constants in these wrapper functions
+        // so they don't trigger when the extension
+        // isn't loaded.
+        $options = OPENSSL_RAW_DATA;
         return openssl_encrypt($data, $cipher, $key, $options, $iv);
     }
 
@@ -621,15 +627,19 @@ class CryptoGen implements CryptoInterface
      * Wrapper for openssl_decrypt to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $data The data to decrypt
-     * @param string $cipher The cipher method
-     * @param string $key The decryption key
-     * @param int $options Options for the decryption
-     * @param string $iv The initialization vector
+     *
+     * @param  string $data   The data to decrypt
+     * @param  string $cipher The cipher method
+     * @param  string $key    The decryption key
+     * @param  string $iv     The initialization vector
      * @return false|string The decrypted data or false on failure
      */
-    protected function opensslDecrypt(string $data, string $cipher, string $key, int $options, string $iv): false|string
+    protected function openSSLDecrypt(string $data, string $cipher, string $key, string $iv): false|string
     {
+        // embed constants in these wrapper functions
+        // so they don't trigger when the extension
+        // isn't loaded.
+        $options = OPENSSL_RAW_DATA;
         return openssl_decrypt($data, $cipher, $key, $options, $iv);
     }
 
@@ -637,10 +647,11 @@ class CryptoGen implements CryptoInterface
      * Wrapper for hash_hmac to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $algo The hashing algorithm
-     * @param string $data The data to hash
-     * @param string $key The key for HMAC
-     * @param bool $binary Whether to return raw binary data
+     *
+     * @param  string $algo   The hashing algorithm
+     * @param  string $data   The data to hash
+     * @param  string $key    The key for HMAC
+     * @param  bool   $binary Whether to return raw binary data
      * @return string The HMAC hash
      */
     protected function hashHmac(string $algo, string $data, string $key, bool $binary): string
@@ -652,8 +663,9 @@ class CryptoGen implements CryptoInterface
      * Wrapper for hash_equals to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $knownString The known string
-     * @param string $userString The user-provided string
+     *
+     * @param  string $knownString The known string
+     * @param  string $userString  The user-provided string
      * @return bool True if strings match, false otherwise
      */
     protected function hashEquals(string $knownString, string $userString): bool
@@ -665,9 +677,10 @@ class CryptoGen implements CryptoInterface
      * Wrapper for hash to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $algo The hashing algorithm
-     * @param string $data The data to hash
-     * @param bool $binary Whether to return raw binary data
+     *
+     * @param  string $algo   The hashing algorithm
+     * @param  string $data   The data to hash
+     * @param  bool   $binary Whether to return raw binary data
      * @return string The hash
      */
     protected function hash(string $algo, string $data, bool $binary = false): string
@@ -679,10 +692,11 @@ class CryptoGen implements CryptoInterface
      * Wrapper for file_put_contents to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $filename The file to write to
-     * @param mixed $data The data to write
-     * @param int $flags Optional flags
-     * @param resource|null $context Optional context
+     *
+     * @param  string        $filename The file to write to
+     * @param  mixed         $data     The data to write
+     * @param  int           $flags    Optional flags
+     * @param  resource|null $context  Optional context
      * @return int|false The number of bytes written or false on failure
      */
     protected function filePutContents(string $filename, mixed $data, int $flags = 0, $context = null): int|false
@@ -691,11 +705,29 @@ class CryptoGen implements CryptoInterface
     }
 
     /**
+     * Wrapper for file_get_contents to enable better testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param  string        $filename         The file to read from
+     * @param  bool          $use_include_path Optional flag to search include path
+     * @param  resource|null $context          Optional context
+     * @param  int           $offset           Optional offset to start reading from
+     * @param  int|null      $length           Optional maximum length to read
+     * @return string|false The file contents or false on failure
+     */
+    protected function fileGetContents(string $filename, bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string|false
+    {
+        return file_get_contents($filename, $use_include_path, $context, $offset, $length);
+    }
+
+    /**
      * Wrapper for pack to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $format The format string
-     * @param mixed ...$values The values to pack
+     *
+     * @param  string $format    The format string
+     * @param  mixed  ...$values The values to pack
      * @return string The packed binary string
      */
     protected function pack(string $format, mixed ...$values): string
@@ -709,9 +741,10 @@ class CryptoGen implements CryptoInterface
      * for missing constants by hard-coding some of the arguments.
      *
      * @codeCoverageIgnore
-     * @param string $key The encryption key
-     * @param string $data The data to decrypt
-     * @param string $iv The initialization vector
+     *
+     * @param  string $key  The encryption key
+     * @param  string $data The data to decrypt
+     * @param  string $iv   The initialization vector
      * @return string The decrypted data
      */
     protected function mcryptDecrypt(string $key, string $data, string $iv): string
@@ -725,7 +758,8 @@ class CryptoGen implements CryptoInterface
      * for missing constants by hard-coding MCRYPT_RAND.
      *
      * @codeCoverageIgnore
-     * @param int $size The size of the IV
+     *
+     * @param  int $size The size of the IV
      * @return string The initialization vector
      */
     protected function mcryptCreateIv(int $size): string
@@ -739,6 +773,7 @@ class CryptoGen implements CryptoInterface
      * for missing constants by hard-coding the arguments.
      *
      * @codeCoverageIgnore
+     *
      * @return int The IV size for the given cipher and mode
      */
     protected function mcryptGetIvSize(): int
@@ -751,6 +786,7 @@ class CryptoGen implements CryptoInterface
      * This is a wrapper to enable better testing.
      *
      * @codeCoverageIgnore
+     *
      * @return bool
      */
     protected function isMcryptExtensionLoaded(): bool
@@ -762,8 +798,9 @@ class CryptoGen implements CryptoInterface
      * Wrapper for sqlQueryNoLog to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $statement The SQL query statement
-     * @param array $binds The parameter bindings for the query
+     *
+     * @param  string $statement The SQL query statement
+     * @param  array  $binds     The parameter bindings for the query
      * @return array|false The query result array or false on failure
      */
     protected function sqlQueryNoLog(string $statement, array $binds = []): array|false
@@ -775,8 +812,9 @@ class CryptoGen implements CryptoInterface
      * Wrapper for sqlStatementNoLog to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $statement The SQL statement to execute
-     * @param array $binds The parameter bindings for the statement
+     *
+     * @param  string $statement The SQL statement to execute
+     * @param  array  $binds     The parameter bindings for the statement
      * @return mixed The result of the SQL statement execution
      */
     protected function sqlStatementNoLog(string $statement, array $binds = []): mixed
@@ -788,7 +826,8 @@ class CryptoGen implements CryptoInterface
      * Wrapper for file_exists to enable better testing.
      *
      * @codeCoverageIgnore
-     * @param string $filename The file name to check
+     *
+     * @param  string $filename The file name to check
      * @return bool True if the file exists, false otherwise
      */
     protected function fileExists(string $filename): bool

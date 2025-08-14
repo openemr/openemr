@@ -554,7 +554,7 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test recordLogItem with encryption enabled and API data to cover lines 767-769
+     * Test recordLogItem with encryption enabled and API data
      */
     public function testRecordLogItemWithEncryptionAndApiData(): void
     {
@@ -620,7 +620,7 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test logHttpRequest comprehensive coverage of lines 862-888
+     * Test logHttpRequest
      */
     public function testLogHttpRequestComprehensiveCoverage(): void
     {
@@ -649,7 +649,7 @@ final class EventAuditLoggerTest extends TestCase
                 'api_user', // Line 882: $_SESSION['authUser'] ?? null
                 'api_provider', // Line 883: $_SESSION['authProvider'] ?? null
                 1, // Line 884: success = 1
-                '/api/patient/123?format=json&debug=true', // Lines 874-876: comment with SCRIPT_NAME + QUERY_STRING
+                '/api/patient/123?format=json&debug=true',
                 456 // Line 886: $_SESSION['pid'] ?? null
             );
 
@@ -1505,7 +1505,7 @@ final class EventAuditLoggerTest extends TestCase
 
     /**
      * Test auditSQLEvent SELECT query early return when query events disabled and no breakglass
-     * This covers the specific branch on lines 571-572
+     * This covers the specific branch
      */
     public function testAuditSQLEventSelectQueryEarlyReturn(): void
     {
@@ -1538,12 +1538,8 @@ final class EventAuditLoggerTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    /**
-     * Test auditSQLEvent with disabled specific event type to cover lines 653-654
-     */
     public function testAuditSQLEventDisabledSpecificEventType(): void
     {
-        // Set up conditions for early return on lines 653-654:
         // 1. Enable general audit logging
         $GLOBALS['enable_auditlog'] = true;
 
