@@ -67,14 +67,6 @@ class ClientAdminControllerTest extends TestCase
         // Set up global variables that might be needed
         $GLOBALS['oauth_ehr_launch_authorization_flow_skip'] = '1';
         $GLOBALS['webroot'] = '/openemr';
-
-        // Mock ACL check to return true for admin access
-        if (!function_exists('xl')) {
-            function xl($text)
-            {
-                return $text;
-            }
-        }
     }
 
     public function testListActionReturnsResponseWithClients(): void
