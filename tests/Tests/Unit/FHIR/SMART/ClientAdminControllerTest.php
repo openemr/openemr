@@ -30,8 +30,8 @@ use Twig\Environment;
 class ClientAdminControllerTest extends TestCase
 {
     private ClientAdminController $controller;
-    private MockObject|ClientRepository $mockClientRepo;
-    private MockObject|Kernel $mockKernel;
+    private MockObject $mockClientRepo;
+    private MockObject $mockKernel;
     private SessionInterface $session;
     private string $actionURL = 'admin-client.php';
 
