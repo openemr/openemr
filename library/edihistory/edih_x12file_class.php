@@ -1124,7 +1124,7 @@ class edih_x12_file
             $idval = '';
             $idlen = 1;
             //
-            foreach ($srch['array'] as $key => $seg) {
+            foreach ($srch['array'] as $seg) {
                 $idx++;
                 //
                 $test_str = substr($seg, 0, 3);
@@ -1137,7 +1137,7 @@ class edih_x12_file
                 // so type and search values can be determined here.
                 if (strncmp($seg, 'ST' . $de, 3) == 0) {
                     $stseg = explode($de, $seg);
-                    $type = ($type) ? $type : (string)$stseg[1];
+                    $type = ($type) ? $type : $stseg[1];
                     //
                     $idval = ( strpos('|HN|277|HB|271', $type) ) ? 'TRN' . $de . '2' . $de . $clm01 : '';
                     $idval = ( strpos('|HR|276|HS|270', $type) ) ? 'TRN' . $de . '1' . $de . $clm01 : $idval;
@@ -1498,7 +1498,7 @@ class edih_x12_file
                     $this->message[] = 'edih_x12_slice() did not find ST02 ' . text($stn);
                     return $ret_ar;
                 } else {
-                    $stpos = $stpos + 1;
+                    $stpos += 1;
                 }
 
                 $sepos = strpos($srchstr, $seg_se, $stpos);

@@ -282,9 +282,6 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
 
     if ($iter == 1) {
         $akeys = array_keys($returnval[0]);
-        foreach ($akeys as $key) {
-            $returnval[0][$key] = $returnval[0][$key];
-        }
     }
 
     return ($returnval ?? null);
@@ -465,7 +462,7 @@ function genPatientHeaderFooter($pid, $DOS = null)
     return $s;
 }
 
-function _set_patient_inc_count($limit, $count, $where, $whereBindArray = array())
+function _set_patient_inc_count($limit, $count, $where, $whereBindArray = array()): void
 {
   // When the limit is exceeded, find out what the unlimited count would be.
     $GLOBALS['PATIENT_INC_COUNT'] = $count;
@@ -1396,7 +1393,7 @@ function newInsuranceData(
 }
 
 // This is used internally only.
-function updateInsuranceData($id, $new)
+function updateInsuranceData($id, $new): void
 {
     $fields = sqlListFields("insurance_data");
     $use = array();
@@ -1420,7 +1417,7 @@ function updateInsuranceData($id, $new)
     sqlStatement($sql, $sqlBindArray);
 }
 
-function newHistoryData($pid, $new = false)
+function newHistoryData($pid, $new = false): void
 {
     $socialHistoryService = new SocialHistoryService();
 

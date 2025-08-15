@@ -64,12 +64,12 @@ while ($row = sqlFetchArray($users)) {
 </body>
 </html>
 <?php
-function lookup_codes($group, $term)
+function lookup_codes($group, $term): void
 {
     global $ub04_codes;
     $gotem = array();
 
-    foreach ($ub04_codes as $k => $v) {
+    foreach ($ub04_codes as $v) {
         if ($v['code_group'] != $group) {
             continue;
         }
@@ -89,7 +89,7 @@ function lookup_codes($group, $term)
 * @param lookup group string $group
 * @param search string $term
 */
-function get_codes_list($group, $term)
+function get_codes_list($group, $term): void
 {
     $term = "%" . $term . "%";
     $response = sqlStatement("SELECT CONCAT_WS(': ', isc.code, isc.primary_desc, isc.desc1) as label, isc.code as value, isc.code_group as cg FROM inst_support_codes as isc

@@ -15,9 +15,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 $isPortal = false;
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -26,7 +30,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
@@ -86,7 +90,7 @@ if ($edata) {
 //
 $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0)
+function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
 {
     global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
     global $var_index;
@@ -331,7 +335,7 @@ if ($_POST['form_save'] ?? '') {
                         if (round($Remainder, 2) != 0 && $amount != 0) {
                             if ($amount - $Remainder >= 0) {
                                 $insert_value = $Remainder;
-                                $amount = $amount - $Remainder;
+                                $amount -= $Remainder;
                             } else {
                                 $insert_value = $amount;
                                 $amount = 0;
@@ -1150,7 +1154,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
             ksort($encs, SORT_NUMERIC);
 
-            foreach ($encs as $key => $value) {
+            foreach ($encs as $value) {
                 $enc = $value['encounter'];
                 $reason = $value['reason'];
                 $dispdate = $value['date'];

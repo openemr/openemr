@@ -152,26 +152,27 @@ return array(
     'service_manager' => [
         'factories' => array(
             CarecoordinationTable::class =>  function (ContainerInterface $container, $requestedName) {
-                return new CarecoordinationTable($container->get(\Laminas\Db\Adapter\Adapter::class));
+                return new CarecoordinationTable();
             },
             EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new EncounterccdadispatchTable($container->get(\Laminas\Db\Adapter\Adapter::class));
+                $applicationTable = $container->get(\Application\Model\ApplicationTable::class);
+                return new EncounterccdadispatchTable($applicationTable);
             },
             EncountermanagerTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new EncountermanagerTable($container->get(\Laminas\Db\Adapter\Adapter::class));
+                    return new EncountermanagerTable();
             },
             SetupTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new SetupTable($container->get(\Laminas\Db\Adapter\Adapter::class));
+                    return new SetupTable();
             },
             CcdTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new CcdTable($container->get(\Laminas\Db\Adapter\Adapter::class));
+                    return new CcdTable();
             },
             ModuleconfigForm::class => function (ContainerInterface $container, $requestedName) {
                 return new ModuleconfigForm($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
             ModuleconfigController::class => function (ContainerInterface $container, $requestedName) {
-                return new ModuleconfigController();
+                return new ModuleconfigController($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             SetupController::class => SetupControllerFactory::class,
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,

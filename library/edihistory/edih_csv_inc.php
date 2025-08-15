@@ -543,7 +543,7 @@ function csv_clear_tmpdir()
 
     $tmp_files = scandir($tmpdir);
     if (count($tmp_files) > 2) {
-        foreach ($tmp_files as $idx => $tmpf) {
+        foreach ($tmp_files as $tmpf) {
             if ($tmpf == "." || $tmpf == "..") {
                 // can't delete . and ..
                 continue;
@@ -1047,7 +1047,7 @@ function edih_errseg_parse($err_seg, $id = false)
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
     $ik = explode('*', $err_seg);
     foreach ($ik as $i => $k) {
-        switch ((int)$i) {
+        switch ($i) {
             case 0:
                 $ret_ar['trace'] = $k;
                 break;
@@ -1570,7 +1570,7 @@ function edih_csv_write($csv_data)
     }
 
     //
-    foreach ($csv_data as $icn => $isa) {
+    foreach ($csv_data as $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
         $ft = ( isset($isa['type']) ) ? $isa['type'] : '';
         if (!$ft) {
@@ -1635,7 +1635,7 @@ function edih_csv_write($csv_data)
             if (is_resource($fh)) {
                 // to assure proper order of data in each row, the
                 // csv row is assembled by matching keys to the header row
-                foreach ($data as $ky => $row) {
+                foreach ($data as $row) {
                     $csvrow = array();
                     for ($i = 0; $i < $ct; $i++) {
                         $csvrow[$i] = $row[$order_ar[$i]];

@@ -45,7 +45,7 @@ function mainQrdaCatOneGenerate($xml, $patient_id, $rule_id, $provider_id)
 }
 
     //Main Header Function
-function getHeaderQRDA1($xml, $patient_id, $provider_id)
+function getHeaderQRDA1($xml, $patient_id, $provider_id): void
 {
     global $mainQrdaRaceCodeArr, $mainEthiCodeArr, $from_date, $to_date;
 
@@ -284,7 +284,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
 }
 
     //Component Function
-function getComponentQRDA1($xml, $patient_id, $rule_id)
+function getComponentQRDA1($xml, $patient_id, $rule_id): void
 {
     //Component Open
     $xml->open_mainComponent();
@@ -309,7 +309,7 @@ function getComponentQRDA1($xml, $patient_id, $rule_id)
 }
 
     //Patient Data
-function getQRDACat1PatientData($xml, $patient_id)
+function getQRDACat1PatientData($xml, $patient_id): void
 {
     $xml->open_loopComponent();
     $xml->open_section();
@@ -369,7 +369,7 @@ function getQRDACat1PatientData($xml, $patient_id)
 }
 
     //Immunization
-function getAllImmunization($xml, $patient_id)
+function getAllImmunization($xml, $patient_id): void
 {
     global $from_date, $to_date;
     $medArr = allImmuPat($patient_id, $from_date, $to_date);
@@ -476,7 +476,7 @@ function getAllImmunization($xml, $patient_id)
     }
 }
 
-function getAllPhysicalExams($xml, $patient_id)
+function getAllPhysicalExams($xml, $patient_id): void
 {
     global $encCheckUniqId, $from_date, $to_date;
 
@@ -533,7 +533,7 @@ function getAllPhysicalExams($xml, $patient_id)
     }
 }
 
-function getAllRiskCatAssessment($xml, $patient_id)
+function getAllRiskCatAssessment($xml, $patient_id): void
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("risk_category", $patient_id, $from_date, $to_date);
@@ -582,7 +582,7 @@ function getAllRiskCatAssessment($xml, $patient_id)
     }
 }
 
-function getAllProcedures($xml, $patient_id)
+function getAllProcedures($xml, $patient_id): void
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("Procedure", $patient_id, $from_date, $to_date);
@@ -636,7 +636,7 @@ function getAllProcedures($xml, $patient_id)
     }
 }
 
-function getAllLabTests($xml, $patient_id)
+function getAllLabTests($xml, $patient_id): void
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("laboratory_test", $patient_id, $from_date, $to_date);
@@ -682,7 +682,7 @@ function getAllLabTests($xml, $patient_id)
 }
 
 
-function getAllInterventionProcedures($xml, $patient_id)
+function getAllInterventionProcedures($xml, $patient_id): void
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("intervention", $patient_id, $from_date, $to_date);
@@ -730,7 +730,7 @@ function getAllInterventionProcedures($xml, $patient_id)
     }
 }
 
-function getAllOrderMedications($xml, $patient_id)
+function getAllOrderMedications($xml, $patient_id): void
 {
     global $from_date, $to_date;
     $medArr = allOrderMedsPat($patient_id, $from_date, $to_date);
@@ -815,7 +815,7 @@ function getAllOrderMedications($xml, $patient_id)
     }
 }
 
-function getAllActiveMedications($xml, $patient_id)
+function getAllActiveMedications($xml, $patient_id): void
 {
     global $from_date, $to_date;
     $medArr = allActiveMedsPat($patient_id, $from_date, $to_date);
@@ -901,7 +901,7 @@ function getAllActiveMedications($xml, $patient_id)
 }
 
     //Medical problems
-function getAllMedicalProbs($xml, $patient_id)
+function getAllMedicalProbs($xml, $patient_id): void
 {
     global $from_date, $to_date;
     $diagArr = allListsPat('medical_problem', $patient_id, $from_date, $to_date);
@@ -996,7 +996,7 @@ function getAllMedicalProbs($xml, $patient_id)
 }
 
     //Encounters function
-function getAllPatientEncounters($xml, $patient_id)
+function getAllPatientEncounters($xml, $patient_id): void
 {
     global $encCheckUniqId, $from_date, $to_date,$EncounterCptCodes;
     $encArr = allEncPat($patient_id, $from_date, $to_date);
@@ -1082,7 +1082,7 @@ function getAllPatientEncounters($xml, $patient_id)
 }
 
     //Patient Data Sub Function for Payer Data
-function payerQRDA($xml, $patient_id)
+function payerQRDA($xml, $patient_id): void
 {
     global $mainQrdaPayerCodeSendArr, $from_date, $to_date;
 
@@ -1120,7 +1120,7 @@ function payerQRDA($xml, $patient_id)
 }
 
     //Reporting Parameters function
-function getReportingParam($xml)
+function getReportingParam($xml): void
 {
     global $from_date, $to_date;
 
@@ -1169,7 +1169,7 @@ function getReportingParam($xml)
 }
 
     //Measure Section
-function getMeasureSection($xml, $rule_id)
+function getMeasureSection($xml, $rule_id): void
 {
     global $preDefinedUniqIDRules;
 
@@ -1192,7 +1192,7 @@ function getMeasureSection($xml, $rule_id)
     $xml->open_text();
 
     //Table Start
-    $xml->open_customTag('table', $tabArr);
+    $xml->open_customTag('table', []);
     //THEAD Start
     $xml->open_customTag('thead');
     //TR Start
@@ -1308,7 +1308,7 @@ function downloadQRDACat1($xml, $patient_id, $rule_id)
 }
 
     //Patient History Info
-function patCharactersticQRDA($xml, $patient_id)
+function patCharactersticQRDA($xml, $patient_id): void
 {
 
     //Patient History

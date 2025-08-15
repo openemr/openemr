@@ -52,7 +52,7 @@ class PatientValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required("fname", "First Name")->lengthBetween(1, 255);
                 $context->required("lname", 'Last Name')->lengthBetween(2, 255);
                 $context->required("sex", 'Gender')->lengthBetween(4, 30);
@@ -76,11 +76,11 @@ class PatientValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    function ($rules): void {
+                        foreach ($rules as $chain) {
                             $chain->required(false);
                         }
                     }

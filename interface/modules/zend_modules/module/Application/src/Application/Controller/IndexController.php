@@ -37,8 +37,7 @@ class IndexController extends AbstractActionController
         // $request  = $this->getRequest();
         // $message  = $request->getPost()->msg;
         // $array    = array('msg' => "test message");
-        // $return   = new JsonModel($array);
-        // return $return;
+         return new JsonModel([]);
     }
 
      /**

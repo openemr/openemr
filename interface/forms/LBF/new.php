@@ -14,11 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// since need this class before autoloader, need to manually include it and then set it in line below with use command
-require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 
 // block of code to securely support use by the patient portal
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../../vendor/autoload.php");
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
@@ -42,7 +43,7 @@ $pprow = array();
 
 $alertmsg = '';
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $historical_ids, $USING_BOOTSTRAP;
     if ($item_count > 0) {
@@ -55,7 +56,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
     end_cell();

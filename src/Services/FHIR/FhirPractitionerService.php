@@ -8,6 +8,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -21,17 +22,16 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Practitioner Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
 
@@ -244,7 +244,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
-                    $data[$systemValue] = (string)$contactValue;
+                    $data[$systemValue] = $contactValue;
                 } else if ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";
                     $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
@@ -255,7 +255,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             }
         }
 
-        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
                 $data['npi'] = (string)$identifier->getValue() ?? null;
             }
@@ -305,10 +305,6 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, true);
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
     }
 
     /**

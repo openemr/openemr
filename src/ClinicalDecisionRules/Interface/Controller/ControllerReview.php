@@ -118,7 +118,7 @@ class ControllerReview extends BaseController
         // note this assumes the rule_id is NEVER a substring of the JSON structure of value itself other than the actual rule id
         $otherMatchingRow = null;
         foreach ($data as $row) {
-            foreach ($row['valueArray'] as $key => $ruleItem) {
+            foreach ($row['valueArray'] as $ruleItem) {
                 if ($ruleItem['rule_id'] === $rule->id) {
                     if ($row['category'] == 'clinical_reminder_widget') {
                         return $row;

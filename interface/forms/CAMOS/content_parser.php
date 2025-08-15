@@ -22,7 +22,7 @@ function addAppt($days, $time)
     " day),'from CAMOS', ?, ?)";
     return sqlInsert($sql, array($_SESSION['pid'], $_SESSION['authUserID'], $time));
 }
-function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
+function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
 {
 //This is based on code from /openemr/interface/forms/vitals/C_FormVitals.class.phpif it doesn't work, look there for changes.
     $_POST['process'] = 'true';
@@ -37,7 +37,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'
-function addBilling2($encounter, $code_type, $code, $code_text, string $modifier = null, string $units = null, string $fee = null, $justify)
+function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifier = null, ?string $units = null, ?string $fee = null, $justify = "")
 {
     if (!$fee) {
         $fee = "0.00";

@@ -363,7 +363,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 }
                 await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
                 await parent.activateTabByName('pat', true);
-                
+
             } catch (error) {
                 console.error('Failed to process patient:', error);
             }
@@ -908,7 +908,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
 
             if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
-                billCodesList($list);
+                BillingReport::billCodesList($list);
             }
             ?>
             <div class="table-responsive">
@@ -1127,7 +1127,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "<a class='btn btn-sm $is_edited' role='button' onclick='popUB04(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "); return false;'>" . text($bname) . "</a>";
                                 }
                                 $lhtml .= "</div>";
-                                $divnos = $divnos + 1;
+                                $divnos += 1;
                                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br /></a>';
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                                     $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
@@ -1230,7 +1230,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been denied.Reason:-");
                                             if ($crow['process_file']) {
                                                 $code_array = explode(',', $crow['process_file']);
-                                                foreach ($code_array as $code_key => $code_value) {
+                                                foreach ($code_array as $code_value) {
                                                     $lhtml .= "<br />\n&nbsp;&nbsp;&nbsp;";
                                                     $reason_array = explode('_', $code_value);
                                                     if (!isset($adjustment_reasons[$reason_array[3]])) {

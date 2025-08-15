@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $form_dryrun = !empty($_POST['form_dryrun']);
 
-function applyCode($layoutid, $codetype, $code, $description)
+function applyCode($layoutid, $codetype, $code, $description): void
 {
     global $thecodes;
     if (!isset($thecodes[$layoutid])) {

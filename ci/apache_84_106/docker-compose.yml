@@ -1,0 +1,10 @@
+x-includes:
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mariadb.yml"
+
+services:
+  mysql:
+    image: mariadb:10.6
+  openemr:
+    image: openemr/openemr:flex-3.22-php-8.4

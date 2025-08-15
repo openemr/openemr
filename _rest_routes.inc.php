@@ -123,6 +123,7 @@
  *              "user/document.read": "Read documents the user has access to (api:oemr)",
  *              "user/document.write": "Write documents the user has access to (api:oemr)",
  *              "user/drug.read": "Read drugs the user has access to (api:oemr)",
+ *              "user/employer.read": "Read patient employer demographics the user has access to (api:oemr)",
  *              "user/encounter.read": "Read encounters the user has access to (api:oemr)",
  *              "user/encounter.write": "Write encounters the user has access to (api:oemr)",
  *              "user/facility.read": "Read facilities the user has access to (api:oemr)",
@@ -145,6 +146,7 @@
  *              "user/practitioner.write": "Write practitioners the user has access to (api:oemr)",
  *              "user/prescription.read": "Read prescriptions the user has access to (api:oemr)",
  *              "user/procedure.read": "Read procedures the user has access to (api:oemr)",
+*               "user/product.read": "Read the email registration status of OpenEMR (api:oemr)",
  *              "user/soap_note.read": "Read soap notes the user has access to (api:oemr)",
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
@@ -307,28 +309,30 @@
 //
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
-use OpenEMR\RestControllers\FacilityRestController;
-use OpenEMR\RestControllers\VersionRestController;
-use OpenEMR\RestControllers\ProductRegistrationRestController;
-use OpenEMR\RestControllers\PatientRestController;
-use OpenEMR\RestControllers\EncounterRestController;
-use OpenEMR\RestControllers\PractitionerRestController;
-use OpenEMR\RestControllers\ListRestController;
-use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\ConditionRestController;
-use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\DrugRestController;
 use OpenEMR\RestControllers\EmployerRestController;
+use OpenEMR\RestControllers\EncounterRestController;
+use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
+use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
+use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\MessageRestController;
+use OpenEMR\RestControllers\ONoteRestController;
+use OpenEMR\RestControllers\PatientRestController;
+use OpenEMR\RestControllers\PractitionerRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
+use OpenEMR\RestControllers\ProductRegistrationRestController;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
+use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
 
 // Note some Http clients may not send auth as json so a function
@@ -3712,7 +3716,7 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient/:puuid/medical_problem" => function ($puuid) {
         RestConfig::authorization_check("encounters", "notes");
-        $return = (new ConditionRestController())->getAll(['puuid' => $puuid, 'condition_uuid' => $muuid], "medical_problem");
+        $return = (new ConditionRestController())->getAll(['puuid' => $puuid]);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -6222,15 +6226,29 @@ RestConfig::$ROUTE_MAP = array(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
-     *      security={{"openemr_auth":{}}}
+     *      security={{"openemr_auth":{"user/employer.read", "patient/employer.read"}}}
      *  )
      */
     "GET /api/patient/:puuid/employer" => function ($puuid, HttpRestRequest $request) {
-        $searchParams = $request->getQueryParams();
-        $searchParams['puuid'] = $puuid;
-        if ($request->isPatientRequest()) {
-            $searchParams['puuid'] = $request->getPatientUUIDString();
+        if (!UuidRegistry::isValidStringUUID($puuid)) {
+            $errorReturn = [
+                'validationErrors' => [ 'uuid' => ['Invalid UUID format']]
+            ];
+            RestConfig::apiLog($errorReturn);
+            return RestControllerHelper::responseHandler($errorReturn, null, 400);
         }
+
+        $searchParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // For patient portal users, force the UUID to match the authenticated patient.
+            $searchParams['puuid'] = $request->getPatientUUIDString();
+        } else {
+            // For staff users, verify they have permission to view demographic data.
+            RestConfig::authorization_check("patients", "demo");
+            $searchParams['puuid'] = $puuid;
+        }
+
+        // Try to get the data. The service layer will handle non-existent UUIDs.
         $return = (new EmployerRestController())->getAll($searchParams);
         RestConfig::apiLog($return);
         return $return;

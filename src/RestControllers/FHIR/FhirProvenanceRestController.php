@@ -32,12 +32,14 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirProvenanceRestController
 {
-    private $fhirService;
+    private FhirResourcesService $fhirService;
 
     /**
      * @var FhirProvenanceService
      */
-    private $provenanceService;
+    private FhirProvenanceService $provenanceService;
+
+    private FhirServiceLocator $serviceLocator;
 
     public function __construct(HttpRestRequest $request)
     {
@@ -68,7 +70,7 @@ class FhirProvenanceRestController
     {
         $processingResult = $this->provenanceService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult

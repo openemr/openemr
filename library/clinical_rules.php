@@ -60,7 +60,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
  * @param  string   $organize_mode  Way to organize the results (default or plans)
  * @param  string   $user           If a user is set, then will only show rules that user has permission to see.
  */
-function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '')
+function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = ''): void
 {
 
   // Set date to current if not set
@@ -530,7 +530,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
   // in the report storing/tracking engine.
     $options_modified = $options;
     if (!empty($options_modified['labs_manual'])) {
-        $options_modified['labs_manual'] = $options_modified['labs_manual'] / $totalNumberBatches;
+        $options_modified['labs_manual'] /= $totalNumberBatches;
     }
 
   // Prepare the database to track/store results
@@ -868,6 +868,9 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
         // done, so now can return results
         return $results;
     }
+
+    // Default return for cases not covered by the above conditions
+    return $results;
 }
 
 /**
@@ -2086,7 +2089,7 @@ function collect_plan($plan, $patient_id = '0')
  * @param  string   $setting     activity of plan (yes,no,default)
  * @param  integer  $patient_id  pid of selected patient.
  */
-function set_plan_activity_patient($plan, $type, $setting, $patient_id)
+function set_plan_activity_patient($plan, $type, $setting, $patient_id): void
 {
 
   // Don't allow messing with the default plans here
@@ -2249,7 +2252,7 @@ function collect_rule($rule, $patient_id = '0')
  * @param  string   $setting     activity of rule (yes,no,default)
  * @param  integer  $patient_id  pid of selected patient.
  */
-function set_rule_activity_patient($rule, $type, $setting, $patient_id)
+function set_rule_activity_patient($rule, $type, $setting, $patient_id): void
 {
 
   // Don't allow messing with the default rules here
@@ -2719,7 +2722,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
             $data = substr_replace($data, '', -2);
         } else {
-            $compSql = $compSql . "? ";
+            $compSql .= "? ";
         }
 
         if ($whereTables == "" && strpos($table, 'form_') !== false) {
@@ -2841,7 +2844,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
         $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
         $result_data = substr_replace($result_data, '', -2);
     } else {
-        $compSql = $compSql . "? ";
+        $compSql .= "? ";
     }
 
     $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .

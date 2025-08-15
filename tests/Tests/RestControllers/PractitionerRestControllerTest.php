@@ -7,8 +7,6 @@ use OpenEMR\RestControllers\PractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\PractitionerRestController
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -74,10 +72,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
-    public function testPostInvalidData()
+    public function testPostInvalidData(): void
     {
         unset($this->practitionerData["fname"]);
         $actualResult = $this->practitionerController->post($this->practitionerData);
@@ -87,10 +82,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::post with valid data
-     */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
         $this->assertEquals(201, http_response_code());
@@ -103,10 +95,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, $practitionerPid);
     }
 
-    /**
-     * @cover ::put with invalid data
-     */
-    public function testPutInvalidData()
+    public function testPutInvalidData(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
         $this->assertEquals(201, http_response_code());
@@ -122,10 +111,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::put with valid data
-     */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
         $this->assertEquals(201, http_response_code());
@@ -145,10 +131,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals($this->practitionerData["email"], $updatedPractitioner["email"]);
     }
 
-    /**
-     * @cover ::getOne with an invalid uuid
-     */
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->practitionerController->getOne("not-a-uuid");
         $this->assertEquals(400, http_response_code());
@@ -157,10 +140,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals([], $actualResult["data"]);
     }
 
-    /**
-     * @cover ::getOne with a valid uuid
-     */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         // create a record
         $postResult = $this->practitionerController->post($this->practitionerData);
@@ -171,10 +151,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
-    /**
-     * @cover ::getAll
-     */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
         $searchResult = $this->practitionerController->getAll(array("npi" => "0123456789"));
@@ -184,7 +161,7 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));
 
-        foreach ($searchResult["data"] as $index => $searchResult) {
+        foreach ($searchResult["data"] as $searchResult) {
             $this->assertEquals("0123456789", $searchResult["npi"]);
         }
     }

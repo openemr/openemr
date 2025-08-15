@@ -214,7 +214,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             }),
             new TwigFunction('oemrUiPageHeading', function (array $oemr_settings) {
                 $oemrUi = $this->getOemrUiInstance($oemr_settings);
-                $heading =  $oemrUi->pageHeading(false);
+                $heading = $oemrUi->pageHeading();
                 return $heading;
             }),
             new TwigFunction(

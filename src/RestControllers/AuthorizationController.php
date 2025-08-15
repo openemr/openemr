@@ -14,8 +14,6 @@
 
 namespace OpenEMR\RestControllers;
 
-require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
-
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
@@ -242,7 +240,7 @@ class AuthorizationController
                 'logo_uri' => null,
                 'redirect_uris' => null,
                 'post_logout_redirect_uris' => null,
-                'token_endpoint_auth_method' => array('client_secret_basic', 'client_secret_post'),
+                'token_endpoint_auth_method' => array('client_secret_basic', 'client_secret_post', 'private_key_jwt'),
                 'policy_uri' => null,
                 'tos_uri' => null,
                 'jwks_uri' => null,
@@ -886,7 +884,7 @@ class AuthorizationController
             $clientName =  $client->getName();
         }
 
-        $uuidToUser = new UuidUserAccount($_SESSION['user_id']);
+        $uuidToUser = new UuidUserAccount($_SESSION['user_id'] ?? '');
         $userRole = $uuidToUser->getUserRole();
         $userAccount = $uuidToUser->getUserAccount();
 

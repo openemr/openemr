@@ -10,140 +10,224 @@
 # Bash library for openemr ci
 #
 
+set -xeuo pipefail
+
+coverage_args=(
+    --coverage-filter apis
+    --coverage-filter gacl
+    --coverage-filter interface
+    --coverage-filter library
+    --coverage-filter modules
+    --coverage-filter oauth2
+    --coverage-filter portal
+    --coverage-filter sites
+    --coverage-filter src
+    --coverage-filter tests
+    --coverage-text
+    --path-coverage
+)
+
 composer_github_auth() {
-    githubToken=`echo MjE2OTcwOGE2MmM5ZWRiMzA3NGFmNGVjMmZkOGE0MWY2YzVkMDJhZgo= | base64 --decode`
-    githubTokenRateLimitRequest=`curl -H "Authorization: token $githubToken" https://api.github.com/rate_limit`
-    githubTokenRateLimit=`echo $githubTokenRateLimitRequest | jq '.rate.remaining'`
-    echo "Number of github api requests remaining is $githubTokenRateLimit"
-    if [ "$githubTokenRateLimit" -gt 500 ]; then
-        echo "Trying to use composer github api token"
-        if `composer config --global --auth github-oauth.github.com "$githubToken"`; then
-            echo "github composer token worked"
+    githubToken=$(base64 --decode <<< MjE2OTcwOGE2MmM5ZWRiMzA3NGFmNGVjMmZkOGE0MWY2YzVkMDJhZgo=)
+    githubTokenRateLimitRequest=$(curl -H "Authorization: token ${githubToken}" https://api.github.com/rate_limit)
+    githubTokenRateLimit=$(jq '.rate.remaining' <<< "${githubTokenRateLimitRequest}")
+    echo "Number of github api requests remaining is ${githubTokenRateLimit}"
+    if (( githubTokenRateLimit > 500 )); then
+        echo 'Trying to use composer github api token'
+        if composer config --global --auth github-oauth.github.com "${githubToken}"; then
+            echo 'github composer token worked'
         else
-            echo "github composer token did not work"
+            echo 'github composer token did not work'
         fi
     else
-        echo "Not using composer github api token"
+        echo 'Not using composer github api token'
+    fi
+}
+
+##
+# Technically dc is a calculator command in linux,
+# but it's rarely used in the same context as docker compose.
+dc() {
+    docker compose "$@"
+}
+
+_exec() {
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR?}" openemr "$@"
+    else
+        dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
 }
 
 dockers_env_start() {
-    failTest=false
-    cd ci/${DOCKER_DIR} || failTest=true
-    docker compose up -d || failTest=true
-    cd ../../ || failTest=true
-    if $failTest; then
-      exit 1
+    dc up --detach --wait --wait-timeout 300
+}
+
+selenium_video_start() {
+    # Selenium and video containers are only started explicitly or when their profiles are activated.
+    # So this may do nothing if the profiles are not activated.
+    dockers_env_start
+}
+
+selenium_video_stop() {
+    dc stop selenium video
+    dc logs selenium
+    dc logs video
+}
+
+actions_chmod() {
+    # TODO, figure out how not to require the below line (maybe chown or something like that)
+    if [[ -z ${GITHUB_RUN_ID:-} ]]; then
+        echo 'skipping chmod because this is not running in github actions'
+        return
     fi
+    sudo chmod "$@"
 }
 
 main_build() {
-      failTest=false
-      # TODO, figure out how not to require the below line (maybe chown or something like that)
-      sudo chmod -R 0777 .
-      composer install || failTest=true
-      npm install || failTest=true
-      npm run build || failTest=true
-      composer global require phing/phing || failTest=true
-      $HOME/.composer/vendor/bin/phing vendor-clean || failTest=true
-      $HOME/.composer/vendor/bin/phing assets-clean || failTest=true
-      composer global remove phing/phing || failTest=true
-      composer dump-autoload -o || failTest=true
-      rm -fr node_modules || failTest=true
-      if $failTest; then
-        exit 1
-      fi
+    actions_chmod -R 0777 .
+    local composer_home
+    composer_home=$(composer --no-interaction config --global --absolute home) 2> /dev/null
+    composer install --prefer-dist --no-progress
+    npm ci
+    npm run build
+    composer global require phing/phing
+    "${composer_home}/vendor/bin/phing" vendor-clean
+    "${composer_home}/vendor/bin/phing" assets-clean
+    composer global remove phing/phing
+    composer dump-autoload -o
+    rm -fr node_modules
 }
 
-ccda_build() {
-    failTest=false
-    cd ccdaservice || failTest=true
-    npm install || failTest=true
-    cd ../ || failTest=true
-    if $failTest; then
-      exit 1
-    fi
+ccda_build() (
+    cd ccdaservice
+    npm ci
+)
+
+configure_coverage() {
+    _exec sh -c '
+      XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh
+      mkdir -p ./coverage
+      curl -sSLO https://phar.phpunit.de/phpcov-11.0.0.phar
+    '
+}
+
+phpcov() {
+    _exec php -d memory_limit=8G phpcov-11.0.0.phar "$@"
 }
 
 install_configure() {
-    failTest=false
-    sudo chmod 666 sites/default/sqlconf.php || failTest=true
-    sudo chmod -R 777 sites/default/documents || failTest=true
-    sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
-    if $failTest; then
-      exit 1
-    fi
-}
-
-build_test_unit() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite unit --testdox" || failTest=true
-    if $failTest; then
-      exit 1
-    fi
+    (
+        toplevel="$(git rev-parse --show-toplevel)"
+        cd "${toplevel}"
+    	actions_chmod 0666 sites/default/sqlconf.php
+    	actions_chmod -R 0777 sites/default/documents
+    )
+    # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
+    # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
+    _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
+    _exec sh -c 'OPENEMR_ENABLE_INSTALLER_AUTO=1 php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
 }
 
 build_test_e2e() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
-    if $failTest; then
-      exit 1
+    echo 'Creating selenium-videos directory…'
+    mkdir -p selenium-videos
+    # Fix permissions for video recording
+    actions_chmod 777 selenium-videos
+
+    selenium_video_start
+    echo 'Checking if selenium container is running…'
+    # shellcheck disable=SC2310
+    if dc ps --services --filter status=running selenium; then
+        echo 'Selenium container is running.'
+    else
+        echo 'Selenium container is not running.'
     fi
+    echo 'Checking if video container is running…'
+    # shellcheck disable=SC2310
+    if dc ps --services --filter status=running video; then
+        echo 'Video container is running.'
+    else
+        echo 'Video container is not running.'
+    fi
+    echo 'Checking if video directory exists in video container…'
+    # shellcheck disable=SC2310
+    if dc exec video ls -la /videos; then
+        echo 'Video directory exists in video container.'
+    else
+        echo 'Video directory not found in video container.'
+    fi
+
+    echo 'Showing the chromedriver version…'
+    dc exec selenium chromedriver --version
+
+    echo 'Running E2E tests…'
+    set +e
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e --testdox
+    status=$?
+    set -e
+
+    # Stop selenium and video containers if they were started and extract videos
+    echo 'Waiting for video recording to complete…'
+    sleep 5
+    echo 'Stopping selenium and video containers…'
+    selenium_video_stop
+    echo 'Extracting videos from video container…'
+    # shellcheck disable=SC2310
+    if dc cp video:/videos/video.mp4 selenium-videos/video.mp4 2>/dev/null; then
+        echo 'Video file extracted successfully'
+    else
+        # This is not an error if video recording is not enabled
+        echo 'No video file found in container'
+    fi
+    echo 'Checking for video files after extraction…'
+    if [[ -d selenium-videos ]]; then
+        echo 'Videos directory exists locally.'
+        ls -la selenium-videos/
+    else
+        echo 'No videos directory found locally.'
+    fi
+
+    return "${status}"
 }
 
-build_test_api() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
-    if $failTest; then
-      exit 1
-    fi
+phpunit() {
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testdox "$@"
 }
 
-build_test_fixtures() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite fixtures --testdox" || failTest=true
-    if $failTest; then
-      exit 1
+##
+# Run the tests, enabling coverage if set.
+# Coverage is not handled for api or e2e tests.
+build_test() {
+    local testsuite=$1
+    local -a args=( --testsuite "${testsuite}" )
+    shift
+    case "${testsuite}" in
+        api) phpunit "${args[@]}" "$@"
+             return
+             ;;
+        e2e) build_test_e2e "$@"
+             return
+             ;;
+        *) :;;
+    esac
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        args+=(
+            --coverage-php "./coverage/coverage.${testsuite}.cov"
+            "${coverage_args[@]}"
+        )
     fi
+    phpunit "${args[@]}" "$@"
 }
 
-build_test_services() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite services --testdox" || failTest=true
-    if $failTest; then
-      exit 1
-    fi
+merge_coverage() {
+    phpcov merge coverage --clover coverage.clover.xml \
+                          --html htmlcov coverage \
+                          --text /dev/stdout
 }
-
-build_test_validators() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite validators --testdox" || failTest=true
-    if $failTest; then
-      exit 1
-    fi
-}
-
-build_test_controllers() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite controllers --testdox" || failTest=true
-    if $failTest; then
-      exit 1
-    fi
-}
-
-build_test_common() {
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite common --testdox" || failTest=true
-    if $failTest; then
-      exit 1
-    fi
-}
-

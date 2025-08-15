@@ -22,6 +22,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -32,14 +33,14 @@ use u2flib_server\U2F;
 // Functions to support MFA.
 ///////////////////////////////////////////////////////////////////////
 
-function posted_to_hidden($name)
+function posted_to_hidden($name): void
 {
     if (isset($_POST[$name])) {
         echo "<input type='hidden' name='" . attr($name) . "' value='" . attr($_POST[$name]) . "' />\r\n";
     }
 }
 
-function generate_html_start()
+function generate_html_start(): void
 {
     ?>
     <html>
@@ -55,7 +56,7 @@ function generate_html_start()
     <?php
 }
 
-function generate_html_u2f()
+function generate_html_u2f(): void
 {
     global $appId;
     ?>
@@ -89,7 +90,7 @@ function generate_html_u2f()
     </script>
     <?php
 }
-function input_focus()
+function input_focus(): void
 {
     ?>
     <script>
@@ -101,13 +102,13 @@ function input_focus()
     <?php
 }
 
-function generate_html_top()
+function generate_html_top(): void
 {
     echo '</head>';
     echo '<body>';
 }
 
-function generate_html_middle()
+function generate_html_middle(): void
 {
     posted_to_hidden('new_login_session_management');
     posted_to_hidden('languageChoice');
@@ -115,7 +116,6 @@ function generate_html_middle()
     posted_to_hidden('clearPass');
 }
 
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 function generate_html_end()
 {
     // to be safe, remove clearPass from memory now (if it is not empty yet)
@@ -127,7 +127,7 @@ function generate_html_end()
         }
     }
     echo "</div></body></html>\n";
-    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
+    SessionUtil::coreSessionDestroy();
     return 0;
 }
 

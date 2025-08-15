@@ -471,7 +471,7 @@ exports.payersSectionHtmlHeader = {
                     attributes: {
                         colspan: "5"
                     },
-                    text: "Payers"
+                    text: "Health Insurance Providers"
                 }
             }, {
                 key: "tr",
@@ -498,10 +498,10 @@ exports.payersSectionHtmlHeader = {
                     text: leafLevel.deepInputProperty("participant.performer.identifiers.0.extension", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("participant.date_time.low.date", nda)
+                    text: leafLevel.deepInputDate("participant.date_time.low", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("participant.date_time.high.date", nda)
+                    text: leafLevel.deepInputDate("participant.date_time.high", nda)
                 }]
             }],
             dataKey: 'payers'

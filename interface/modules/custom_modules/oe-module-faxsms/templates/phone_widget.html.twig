@@ -1,0 +1,126 @@
+{# phone_widget.html.twig #}
+
+<div id="rc-container" class="d-flex flex-row align-items-center justify-content-between">
+    <div id="rc-header">
+        <script>
+            const RC_CLIENT_ID = {{ clientId|js_escape }};
+            const RC_CLIENT_SECRET = {{ clientSecret|js_escape }};
+            const RC_JWT = {{ jwt|js_escape }};
+            let isWidgetVisible = false;
+            let isRegistered = false;
+            let isLoggedIn = false;
+
+            const image = top.webroot_url + "/public/images/logos/core/menu/primary/logo.svg";
+
+            function loadRCAdapter() {
+                const rcScript = document.createElement("script");
+                rcScript.setAttribute("data-rc-adapter", "true");
+                rcScript.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/adapter.js" +
+                    `?enableSideWidget=1` +
+                    `&clientId=${encodeURIComponent(RC_CLIENT_ID)}` +
+                    `&clientSecret=${encodeURIComponent(RC_CLIENT_SECRET)}` +
+                    `&jwt=${encodeURIComponent(RC_JWT)}`;
+                document.body.appendChild(rcScript);
+                // Start a grace period to allow RC widget to initialize
+                setTimeout(() => {
+                    isLoggedIn = true;
+                }, 4000);
+                console.log("loaded RC adapter script");
+            }
+            // web phone event handling
+            window.addEventListener('message', function (e) {
+                const data = e.data;
+                if (!data) {
+                    return;
+                }
+                // Handle login status updates
+                if (data.type === 'rc-login-status-notify') {
+                    // replace logo image
+                    let imageLoad = document.querySelector('.Adapter_logo');
+                    imageLoad.src = image;
+                    // Register the adapter if not already done
+                    if (data.loggedIn && !isRegistered) {
+                        isRegistered = true;
+                        const frame = document.querySelector("#rc-widget-adapter-frame");
+                        frame?.contentWindow?.postMessage({
+                            type: 'rc-adapter-register-third-party-service',
+                            service: { name: 'oePhoneService' }
+                        }, '*');
+                    }
+                    // Handle login/logout status
+                    if (data.loggedIn === false && isLoggedIn) {
+                        // Remove the RingCentral iframe
+                        const rcFrame = document.getElementById("rc-widget");
+                        if (rcFrame) {
+                            rcFrame.remove();
+                            isLoggedIn = false;
+                        }
+                        // Remove existing RCAdapter object (cleanup)
+                        if (window.RCAdapter) {
+                            RCAdapter.dispose();
+                            delete window.RCAdapter;
+                        }
+                        console.warn('Detected logout. Reinitializing ...');
+                        // Reload the RC adapter, log back in
+                        loadRCAdapter();
+                    }
+                }
+                // Block popup login fallback
+                if (data.type === 'rc-adapter-login' || data.type === 'rc-login-popup-open') {
+                    console.warn('Blocked fallback login popup:', data.type);
+                    e.stopImmediatePropagation?.();
+                }
+            });
+            // Toggle visibility of the widget
+            function toggleRCWidget() {
+                const toggleBtn = document.getElementById('rc-toggle-btn');
+                const rcFrame = document.getElementById('rc-widget');
+                if (!rcFrame || typeof RCAdapter === 'undefined') {
+                    return;
+                }
+                // Check if the widget is currently visible
+                if (isWidgetVisible) {
+                    RCAdapter.setClosed(true);
+                    toggleBtn?.classList.remove('fa-phone-slash');
+                    toggleBtn?.classList.add('fa-phone');
+                    isWidgetVisible = false;
+                } else {
+                    RCAdapter.setClosed(false);
+                    toggleBtn?.classList.remove('fa-phone');
+                    toggleBtn?.classList.add('fa-phone-slash');
+                    isWidgetVisible = true;
+                }
+            }
+            // Start the adapter on page load
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initial load
+                loadRCAdapter();
+                // Automatically hide the widget on page load.
+                // Give time for the adapter to initialize
+                setTimeout(function () {
+                    const rcFrame = document.querySelector('iframe[src*="ringcentral"]');
+                    if (rcFrame && typeof RCAdapter !== 'undefined') {
+                        RCAdapter.setClosed(false);
+                    }
+                }, 2000);
+                setTimeout(function () {
+                    const rcFrame = document.querySelector('iframe[src*="ringcentral"]');
+                    if (rcFrame && typeof RCAdapter !== 'undefined') {
+                        RCAdapter.setClosed(true);
+                    }
+                }, 6000);
+            });
+
+            window.addEventListener('beforeunload', function () {
+                const rcFrame = document.getElementById('rc-widget-adapter-frame');
+                if (rcFrame && rcFrame.contentWindow) {
+                    rcFrame.contentWindow.postMessage({
+                        type: 'rc-adapter-logout'
+                    }, '*');
+                    RCAdapter.dispose();
+                    console.log('Sent logout to RingCentral widget on unload');
+                }
+            });
+        </script>
+    </div>
+</div>

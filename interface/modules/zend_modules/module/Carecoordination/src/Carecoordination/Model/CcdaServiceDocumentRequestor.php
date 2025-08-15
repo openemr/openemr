@@ -41,21 +41,15 @@ class CcdaServiceDocumentRequestor
                 if (IS_WINDOWS) {
                     // node server is quite with errors(hidden process) so we'll do redirect of tty
                     // to generally Windows/Temp.
-                    $nodePath    = 'node';
-                    $scriptPath  = ($path . '\\serveccda.js');
-                    $logPath     = ($GLOBALS['temporary_files_dir'] . "\\ccdaserver.log");  // redirect logs here if desired
-                    $cmd = sprintf(
-                        'start /B "%s" "%s" > "%s" 2>&1',
-                        $nodePath,
-                        $scriptPath,
-                        $logPath
-                    );
-                    $pipeHandle = popen($cmd, 'r');
+                    $redirect_errors = " > " .
+                        $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
+                    $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
+                    $pipeHandle = popen("start /B " . $cmd, "r");
                     if ($pipeHandle === false) {
-                        error_log("Failed to start Node process via popen()");
-                    } else {
-                        // close the pipe
-                        pclose($pipeHandle);
+                        throw new CcdaServiceConnectionException("Failed to start local ccdaservice");
+                    }
+                    if (pclose($pipeHandle) === -1) {
+                        error_log("Failed to close pipehandle for ccdaservice");
                     }
                 } else {
                     $command = 'node';
@@ -73,7 +67,7 @@ class CcdaServiceDocumentRequestor
                 }
                 sleep(5); // give cpu a rest
                 // now try to connect to the server
-                $result = socket_connect($socket, "127.0.0.1", (int)6661);
+                $result = socket_connect($socket, "127.0.0.1", 6661);
                 if ($result === false) {
                     $errorCode = socket_last_error($socket);
                     $errorMsg = socket_strerror($errorCode);

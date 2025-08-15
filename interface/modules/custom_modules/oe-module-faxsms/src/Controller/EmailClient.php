@@ -46,7 +46,7 @@ class EmailClient extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
 
         $this->sid = $credentials['username'];
         $this->appKey = $credentials['appKey'];
@@ -187,6 +187,7 @@ class EmailClient extends AppDispatch
      */
     function fetchReminderCount(): string|bool
     {
+        return "0"; // Caller expects a string result, not HTML;
         // TODO: Implement fetchReminderCount() method.
     }
 

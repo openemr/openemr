@@ -13,13 +13,11 @@ require_once(__DIR__ . '/../../../_rest_config.php');
 /**
  * FHIR Organization Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class FhirCoverageRestController
 {
@@ -45,7 +43,7 @@ class FhirCoverageRestController
     {
         $processingResult = $this->fhirCoverage->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult

@@ -12,8 +12,10 @@ jobs:
   build:
     # Only run from master branch on the main repository
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -24,9 +26,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:pre-build-dev-85 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm"
+          context: ./docker/library/dockers/dev-php-fpm
           tags: openemr/dev-php-fpm:pre-build-dev-85
           platforms: linux/amd64
           push: true

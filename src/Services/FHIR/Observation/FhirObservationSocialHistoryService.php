@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -39,6 +40,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
     // @see http://hl7.org/fhir/R4/valueset-observation-status.html
@@ -84,7 +87,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     public function populateResourceMappingUuidsForAll()
     {
         $resourcePathList = [];
-        foreach (self::COLUMN_MAPPINGS as $column => $mapping) {
+        foreach (self::COLUMN_MAPPINGS as $mapping) {
             // TODO: @adunsulag make this a single function call so we can be more effecient
             $resourcePath = $this->getResourcePathForCode($mapping['code']);
             UuidMapping::createMissingResourceUuids('Observation', 'history_data', $resourcePath);
@@ -120,27 +123,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
-    }
-
-
-    /**
-     * Inserts an OpenEMR record into the sytem.
-     * @return The OpenEMR processing result.
-     */
-    protected function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: Implement insertOpenEMRRecord() method.
-    }
-
-    /**
-     * Updates an existing OpenEMR record.
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return The OpenEMR Service Result
-     */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: Implement updateOpenEMRRecord() method.
     }
 
     /**
@@ -250,18 +232,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         }
         return $codeMappings;
     }
-
-
-    /**
-     * Parses a FHIR Resource, returning the equivalent OpenEMR record.
-     *
-     * @param $fhirResource The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
 
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource

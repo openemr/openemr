@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // mdsupport : li code
-function listitemCode($strDisp, $strInsert, $ref = '')
+function listitemCode($strDisp, $strInsert, $ref = ''): void
 {
     if ($strInsert) {
         if (!empty($ref)) {

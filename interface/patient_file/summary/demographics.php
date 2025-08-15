@@ -51,6 +51,7 @@ use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
@@ -61,6 +62,10 @@ use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+
+if (!isset($pid)) {
+    $pid = $_SESSION['pid'] ?? $_GET['pid'] ?? null;
+}
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
@@ -301,7 +306,7 @@ $deceased = is_patient_deceased($pid);
 
 
 // Display image in 'widget style'
-function image_widget($doc_id, $doc_catg)
+function image_widget($doc_id, $doc_catg): void
 {
     global $pid, $web_root;
     $docobj = new Document($doc_id);
@@ -457,8 +462,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 allowDrag: true,
                 dialogId: 'editscripts',
                 type: 'iframe'
-            })
-            .then(() => refreshme());
+            }).then(() => refreshme());
             return false;
         }
 
@@ -652,7 +656,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
                             // loadFrame already handles webroot and /interface/ prefix.
-                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' +encodeURIComponent(data.ruleId)
+                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' + encodeURIComponent(data.ruleId)
                                 + "&csrf_token=" + encodeURIComponent(csrfToken);
                             window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                         }
@@ -672,7 +676,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         dialogId: 'rulereview',
                         type: 'iframe',
                         url: launchUrl,
-                        onClose: function() {
+                        onClose: function () {
                             window.top.removeEventListener('message', windowMessageHandler);
                         }
                     });
@@ -1215,6 +1219,33 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ?>
             </div>
             <div class="row">
+                <?php
+                if (!in_array('card_care_team', $hiddenCards)) {
+                    $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
+                    $btnLabel = false;
+                    if ($card->canAdd()) {
+                        $btnLabel = 'Add';
+                    } elseif ($card->canEdit()) {
+                        $btnLabel = 'Edit';
+                    }
+                    $viewArgs = [
+                        'title' => $card->getTitle(),
+                        'id' => $card->getIdentifier(),
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => $card->getBackgroundColorClass(),
+                        'card_text_color' => $card->getTextColorClass(),
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'btnLabel' => $btnLabel,
+                        'btnLink' => 'test',
+                    ];
+                    $_auth = $card->getAcl();
+                    if (!empty($_auth) && AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                        echo "<div class='col-12 m-0 p-0 px-2'>";
+                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                        echo "</div>";
+                    }
+                }
+                ?>
                 <div class="col-md-8 px-2">
                     <?php
                     if ($deceased > 0) :
@@ -1233,6 +1264,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (!in_array('card_insurance', $hiddenCards)) {
                         $sectionRenderEvents->addCard(new InsuranceViewCard($pid, ['dispatcher' => $ed]));
                     }
+
                     // Get the cards to render
                     $sectionCards = $sectionRenderEvents->getCards();
 
@@ -1251,7 +1283,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         } elseif ($card->canEdit()) {
                             $btnLabel = 'Edit';
                         }
-
                         $viewArgs = [
                             'title' => $card->getTitle(),
                             'id' => $card->getIdentifier(),
@@ -1265,6 +1296,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
+                    // Alternative approach: Add it directly in the secondary column section
+                    // Around line 1200 in demographics.php, in the secondary column section:
 
                     if (AclMain::aclCheckCore('patients', 'notes')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('note'), CardRenderEvent::EVENT_HANDLE);
@@ -1579,7 +1612,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         'docDate' => $dateDoc,
                                     ];
                                     $advDirArr[] = $tmp;
-                                    $limitCounter = $limitCounter + 1;
+                                    $limitCounter += 1;
                                     $counterFlag = true;
                                 }
                             }

@@ -407,7 +407,7 @@ class RestControllerHelper
             }
         }
 
-        foreach ($resourcesHash as $resource => $capResource) {
+        foreach ($resourcesHash as $capResource) {
             $restItem->addResource($capResource);
         }
         return $restItem;

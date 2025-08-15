@@ -77,6 +77,8 @@ class TeleHealthRemoteRegistrationService
      */
     private $logger;
 
+    private TeleHealthUserRepository $userRepository;
+
     public function __construct(TelehealthGlobalConfig $config, TelehealthRegistrationCodeService $codeService)
     {
         $this->apiURL = $config->getRegistrationAPIURI();
@@ -158,17 +160,6 @@ class TeleHealthRemoteRegistrationService
     public function setTelehealthUserRepository(TeleHealthUserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
-    }
-
-    /**
-     * Returns if a registration should be created for the given provider id.  This does not answer whether a registration
-     * exists, but whether the user passes the criteria for creating a registration record regardless of whether it exists or not.
-     * @param $providerId
-     * @return bool
-     */
-    public function shouldCreateRegistrationForProvider($providerId)
-    {
-        return $this->providerRepository->isEnabledProvider($providerId);
     }
 
     /**

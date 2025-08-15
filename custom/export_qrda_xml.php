@@ -714,7 +714,7 @@ if (count($dataSheet) > 0) {
             $xml->open_list();
 
             //Gender Section Display
-            foreach ($mainQrdaGenderCodeArr as $GKey => $GVal) {
+            foreach ($mainQrdaGenderCodeArr as $GVal) {
                 $xml->open_customTag('item');
                 $genderInfo = $detailsArr['gender'][$GVal];
                 $arrContent = array('name' => $GVal, 'value' => $genderInfo);
@@ -723,7 +723,7 @@ if (count($dataSheet) > 0) {
             }
 
             //Ethnicity Section Display
-            foreach ($mainEthiArr as $ethKey => $ethVal) {
+            foreach ($mainEthiArr as $ethVal) {
                 $ethnicity_data = $detailsArr['ethnicity'][$ethVal];
                 $xml->open_customTag('item');
                 $arrContent = array('name' => 'Ethnicity - ' . $ethVal, 'value' => $ethnicity_data);
@@ -732,7 +732,7 @@ if (count($dataSheet) > 0) {
             }
 
             //Race Section Display
-            foreach ($mainQrdaRaceArr as $RKey => $RVal) {
+            foreach ($mainQrdaRaceArr as $RVal) {
                 $race_data = $detailsArr['race'][$RVal];
                 $xml->open_customTag('item');
                 $arrContent = array('name' => 'Race - ' . $RVal, 'value' => $race_data);
@@ -742,7 +742,7 @@ if (count($dataSheet) > 0) {
 
             //Payer Type Section Display
             $payerCheckArr = getQRDAPayerInfo($fullPatArr);
-            foreach ($mainQrdaPayerCodeArr as $PKey => $PVal) {
+            foreach ($mainQrdaPayerCodeArr as $PVal) {
                 $xml->open_customTag('item');
                 $arrContent = array('name' => 'Payer - ' . $PVal, 'value' => $payerCheckArr[$PVal]);
                 $xml->innerContent($arrContent);

@@ -1792,6 +1792,7 @@ $GLOBALS_METADATA = array(
                 '2' => xl('Last name, first name'),
                 '3' => xl('Last name, first name (title)'),
                 '4' => xl('Last name, first name (title: comments)'),
+                '5' => xl('Last name, first name, address (title: comments)')
             ),
             '2',                               // default
             xl('This determines how appointments display on the calendar.')
@@ -4316,7 +4317,7 @@ $GLOBALS_METADATA = array(
         ],
 
         'set_service_facility_encounter' => array(
-            xl('Set Service Facility in Encounter'),
+            xl('Set Service Facility in Encounter To First Care Team Facility'),
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default service facility to be selected by the care team facility in Choices.')
@@ -4389,7 +4390,7 @@ $GLOBALS_METADATA = array(
             xl('Show Encounter Type option on Encounters'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl('Show Encounter Class option on Encounters'),
+            xl('Show Encounter Type option on Encounters'),
         ],
 
         'enc_enable_ordering_provider' => [

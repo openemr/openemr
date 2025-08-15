@@ -153,7 +153,7 @@ function phimail_connect(&$phimail_error)
  * messages related to previously transmitted messages or any new messages received.
  */
 
-function phimail_check()
+function phimail_check(): void
 {
     $fp = phimail_connect($err);
     if ($fp === false) {
@@ -468,7 +468,7 @@ function phimail_check()
 
             if ($ret2 !== true) {
                 phimail_logit(0, "M12 DONE failed: " . $ret2);
-                phimail_close();
+                phimail_close($fp);
                 return;
             }
         } else { //unrecognized or FAIL response
@@ -482,7 +482,7 @@ function phimail_check()
 /**
  * Helper functions
  */
-function phimail_write($fp, $text)
+function phimail_write($fp, $text): void
 {
     fwrite($fp, $text);
     fflush($fp);
@@ -500,12 +500,12 @@ function phimail_write_expect_OK($fp, $text)
     return true;
 }
 
-function phimail_close($fp)
+function phimail_close($fp): void
 {
     fclose($fp);
 }
 
-function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
+function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check"): void
 {
     if (!$success) {
         (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);

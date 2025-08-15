@@ -168,7 +168,7 @@ class HttpRequest
     static function FilePost($url, $data = "", $verify_cert = false, $timeout = 30)
     {
         $qs = HttpRequest::ArrayToQueryString($data);
-        $url = $url . ($qs ? "?" . $qs : "");
+        $url .= $qs ? "?" . $qs : "";
 
         $show_headers = false;
         $url = parse_url($url);
@@ -189,7 +189,7 @@ class HttpRequest
         $headers = "POST " . $url ['protocol'] . $url ['host'] . $url ['path'] . " HTTP/1.0" . $eol . "Host: " . $url ['host'] . $eol . "Referer: " . $url ['protocol'] . $url ['host'] . $url ['path'] . $eol . "Content-Type: application/x-www-form-urlencoded" . $eol . "Content-Length: " . strlen($url ['query']) . $eol . $eol . $url ['query'];
         $fp = fsockopen($url ['host'], $url ['port'], $errno, $errstr, 30);
         if ($fp) {
-            fputs($fp, $headers);
+            fwrite($fp, $headers);
             $result = '';
             while (! feof($fp)) {
                 $result .= fgets($fp, 128);

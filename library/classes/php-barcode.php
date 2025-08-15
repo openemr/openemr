@@ -51,8 +51,6 @@ class Barcode
             foreach (array('code' => '', 'crc' => true, 'rect' => false) as $v => $def) {
                 $$v = isset($datas[$v]) ? $datas[$v] : $def;
             }
-
-            $code = $code;
         } else {
             $code = $datas;
         }
@@ -192,7 +190,7 @@ class Barcode
     // GD barcode renderer
     private static function digitToGDRenderer($gd, $color, $xi, $yi, $angle, $mw, $mh, $digit)
     {
-        $fn = function ($points) use ($gd, $color) {
+        $fn = function ($points) use ($gd, $color): void {
             imagefilledpolygon($gd, $points, 4, $color);
         };
         return self::digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit);
@@ -212,7 +210,7 @@ class Barcode
         $pdf->SetDrawColor($color[0], $color[1], $color[2]);
         $pdf->SetFillColor($color[0], $color[1], $color[2]);
 
-        $fn = function ($points) use ($pdf) {
+        $fn = function ($points) use ($pdf): void {
             $op = 'f';
             $h = $pdf->h;
             $k = $pdf->k;
@@ -1089,7 +1087,7 @@ class BarcodeDatamatrix
             $j = $nDataCW + $k;
             for ($i = $errorBlocks - 1; $i >= 0; $i--) {
                 $dataTab[$j] = $correctionCW[$i];
-                $j = $j + $blocks;
+                $j += $blocks;
             }
         }
 

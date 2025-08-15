@@ -18,14 +18,14 @@ use Twig\Environment;
 class RouteControllerTest extends TestCase
 {
     protected RouteController $controller;
-    protected ClientRepository $mockRepository;
-    protected SystemLogger $mockLogger;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockRepository;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockLogger;
 
-    protected Environment $mockTwig;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockTwig;
 
-    protected ActionUrlBuilder $actionUrlBuilder;
+    protected \PHPUnit\Framework\MockObject\MockObject $actionUrlBuilder;
 
-    protected DecisionSupportInterventionService $dsiService;
+    protected \PHPUnit\Framework\MockObject\MockObject $dsiService;
 
     protected function setUp(): void
     {
@@ -39,7 +39,7 @@ class RouteControllerTest extends TestCase
         $this->controller = new RouteController($this->mockRepository, $this->mockLogger, $this->mockTwig, $this->actionUrlBuilder, $this->dsiService);
     }
 
-    public function testSupportsRequest()
+    public function testSupportsRequest(): void
     {
         $request = new Request(['action' => 'external-cdr/']);
         $this->assertTrue($this->controller->supportsRequest($request));
@@ -60,7 +60,7 @@ class RouteControllerTest extends TestCase
         $this->assertFalse($this->controller->supportsRequest($request));
     }
 
-    public function testParseRequest()
+    public function testParseRequest(): void
     {
         $request = new Request(['action' => 'external-cdr/']);
         $result = $this->controller->parseRequest($request);
@@ -81,7 +81,7 @@ class RouteControllerTest extends TestCase
         $this->assertEquals('edit', $result['subAction']);
     }
 
-    public function testDispatch()
+    public function testDispatch(): void
     {
         $id = "1";
         $this->setupDSIServiceForClientEntity($id, "Test Client");
@@ -99,7 +99,7 @@ class RouteControllerTest extends TestCase
         $dsiService = new PredictiveDSIServiceEntity($client);
         $this->dsiService->method("getService")->willReturn($dsiService);
     }
-    public function testSaveAction()
+    public function testSaveAction(): void
     {
         $id = "1";
         CsrfUtils::setupCsrfKey(); // setup the key

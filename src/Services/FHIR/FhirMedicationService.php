@@ -11,6 +11,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -19,7 +20,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Medication Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirMedicationService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>
@@ -28,6 +28,8 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var MedicationService
      */
@@ -154,25 +156,6 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->medicationService->getAll($openEMRSearchParameters, true, $puuidBind);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
     }
 
     /**

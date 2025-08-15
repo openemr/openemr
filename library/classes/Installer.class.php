@@ -47,7 +47,6 @@ class Installer
     public $translation_sql;
     public $devel_translation_sql;
     public $ippf_sql;
-    public $icd9;
     public $cvx;
     public $additional_users;
     public $dumpfiles;
@@ -95,7 +94,6 @@ class Installer
         $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
         $this->devel_translation_sql = "http://translations.openemr.io/languageTranslations_utf8.sql";
         $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
-        $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
         $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
         $this->additional_users = dirname(__FILE__) . "/../../sql/official_additional_users.sql";
 
@@ -362,7 +360,7 @@ class Installer
                     continue;
             }
 
-            $query = $query . $line;          // Check for full query
+            $query .= $line;          // Check for full query
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                     $query = rtrim($query, ";");
@@ -391,13 +389,40 @@ class Installer
     public function add_version_info()
     {
         include dirname(__FILE__) . "/../../version.php";
-        if ($this->execute_sql("UPDATE version SET v_major = '" . $this->escapeSql($v_major) . "', v_minor = '" . $this->escapeSql($v_minor) . "', v_patch = '" . $this->escapeSql($v_patch) . "', v_realpatch = '" . $this->escapeSql($v_realpatch) . "', v_tag = '" . $this->escapeSql($v_tag) . "', v_database = '" . $this->escapeSql($v_database) . "', v_acl = '" . $this->escapeSql($v_acl) . "'") == false) {
-            $this->error_message = "ERROR. Unable insert version information into database\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
-            return false;
-        }
+        /**
+         * This annotation declares variables from the legacy include
+         * so PHPStan recognizes them.
+         *
+         * @var string $v_major
+         * @var string $v_minor
+         * @var string $v_patch
+         * @var string $v_realpatch
+         * @var string $v_tag
+         * @var string $v_database
+         * @var string $v_acl
+         */
+        $version_fields = array_map([$this, 'escapeSql'], [
+            'v_major' => $v_major,
+            'v_minor' => $v_minor,
+            'v_patch' => $v_patch,
+            'v_realpatch' => $v_realpatch,
+            'v_tag' => $v_tag,
+            'v_database' => $v_database,
+            'v_acl' => $v_acl
+        ]);
+        $update_parts = array_map(function ($field) use ($version_fields) {
+            return sprintf("%s = '%s'", $field, $version_fields[$field]);
+        }, array_keys($version_fields));
 
-        return true;
+        // Join the parts with commas
+        $update_sql = "UPDATE version SET " . implode(", ", $update_parts);
+
+        if ($this->execute_sql($update_sql) !== false) {
+            return true;
+        }
+        $this->error_message = "ERROR. Unable insert version information into database\n" .
+        "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+        return false;
     }
 
     public function add_initial_user()
@@ -486,21 +511,6 @@ class Installer
         }
 
         return true;
-    }
-
-    /**
-     * Generates the initial user's 2FA QR Code
-     * @deprecated Recommended to use get_initial_user_mfa_totp() instead
-     * @return bool|string|void
-     */
-    public function get_initial_user_2fa_qr()
-    {
-        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
-            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
-            $qr = $adminTotp->generateQrCode();
-            return $qr;
-        }
-        return false;
     }
 
     /**
@@ -609,17 +619,11 @@ $config = 1; /////////////
 
     public function insert_globals()
     {
-        if (!(function_exists('xl'))) {
-            function xl($s)
-            {
-                return $s;
-            }
-        } else {
-            $GLOBALS['temp_skip_translations'] = true;
-        }
-        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
+        $GLOBALS['temp_skip_translations'] = true;
+        $skipGlobalEvent = true; // use in globals.inc.php script to skip event stuff
         require(dirname(__FILE__) . '/../globals.inc.php');
-        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+        /** @phpstan-ignore variable.undefined */
+        foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
@@ -869,7 +873,7 @@ $config = 1; /////////////
         // If this script is being used by OpenEMR's setup, then will
         //   incorporate the installation values. Otherwise will
         //    hardcode the 'admin' user.
-        if (isset($this) && isset($this->iuser)) {
+        if (isset($this->iuser)) {
             $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
             $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
         } else {
@@ -1453,11 +1457,6 @@ $config = 1; /////////////
                 $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
             }
 
-            // Load ICD-9 codes if present.
-            if (file_exists($this->icd9)) {
-                $dumpfiles[ $this->icd9 ] = "ICD-9";
-            }
-
             // Load CVX codes if present
             if (file_exists($this->cvx)) {
                 $dumpfiles[ $this->cvx ] = "CVX Immunization Codes";
@@ -1516,6 +1515,12 @@ $config = 1; /////////////
             die("Source site $source_site_id has not been set up!");
         }
 
+        /**
+         * @var string $login
+         * @var string $host
+         * @var string $pass
+         * @var string $dbase
+         */
         $backup_file = $this->get_backup_filename();
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
@@ -1574,7 +1579,6 @@ $config = 1; /////////////
 
     private function extractFileName($theme_file_name = '')
     {
-        $this->theme_file_name = $theme_file_name;
         $under_score = strpos($theme_file_name, '_') + 1;
         $dot = strpos($theme_file_name, '.');
         $theme_value = substr($theme_file_name, $under_score, ($dot - $under_score));

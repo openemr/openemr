@@ -31,10 +31,11 @@ class BootstrapService
         $vendors['oesms_send'] = '';
         $vendors['oerestrict_users'] = '';
         $vendors['oe_enable_email'] = '';
+        $vendors['oe_enable_voice'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
-            array("oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email')
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?)",
+            array("oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice')
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -49,12 +50,13 @@ class BootstrapService
     public function createVendorGlobals(): void
     {
         sqlInsert(
-            "INSERT INTO `globals` (`gl_name`,`gl_value`) 
-                VALUES ('oefax_enable_fax', '0'), 
+            "INSERT INTO `globals` (`gl_name`,`gl_value`)
+                VALUES ('oefax_enable_fax', '0'),
                        ('oefax_enable_sms', '0'),
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
-                       ('oe_enable_email', '0')"
+                       ('oe_enable_email', '0'),
+                       ('oe_enable_voice', '0')"
         );
     }
 
@@ -71,6 +73,7 @@ class BootstrapService
         $items['oesms_send'] = $vendors['allow_dialog'] ?? '';
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
+        $items['oe_enable_voice'] = $vendors['voice_vendor'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
@@ -122,7 +125,7 @@ class BootstrapService
         $vendor = '_persisted';
         $authId = 0;
         $content = json_encode($settings);
-        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`) 
+        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
             VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
 
         return sqlQuery($sql, array('', $authId, $vendor, $content, $authId, $vendor, $content));
@@ -140,5 +143,34 @@ class BootstrapService
             return json_decode($globals['credentials'], true) ?? [];
         }
         return [];
+    }
+
+    public static function getUserPermission($user_id, $service)
+    {
+        if (empty($user_id)) {
+            $user_id = $_SESSION['authUserID'] ?? 0;
+        }
+        $setting_label = "module_faxsms_{$service}_permission";
+        $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
+        $result = sqlQuery($query, [$user_id, $setting_label]);
+        return $result ? $result['setting_value'] : '1';
+    }
+
+    public static function usePrimaryAccount($user_id)
+    {
+        if (empty($user_id)) {
+            $user_id = $_SESSION['authUserID'] ?? 0;
+        }
+        $setting_label = "module_faxsms_use_primary";
+        $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
+        $result = sqlQuery($query, [$user_id, $setting_label]);
+        return $result ? $result['setting_value'] : '0';
+    }
+
+    public static function getPrimaryUser()
+    {
+        $query = "SELECT setting_user FROM user_settings WHERE setting_label = 'module_faxsms_primary_user' AND setting_value = '1' LIMIT 1";
+        $result = sqlQuery($query);
+        return $result ? $result['setting_user'] : '0';
     }
 }

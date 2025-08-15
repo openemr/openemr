@@ -90,5 +90,5 @@ function is_weekend_day($day)
  */
 function is_holiday($date)
 {
-    Holidays_Controller::is_holiday($date);
+    return Holidays_Controller::is_holiday($date);
 }

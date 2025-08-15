@@ -253,7 +253,7 @@ class VitalsService extends BaseService
             return $val;
         };
 
-        $convertArrayValue = function ($index, $converter, $unit, &$array) {
+        $convertArrayValue = function ($index, $converter, $unit, &$array): void {
             $array[$index] = $converter($array[$index]);
             $array[$index . "_unit"] = $unit;
         };

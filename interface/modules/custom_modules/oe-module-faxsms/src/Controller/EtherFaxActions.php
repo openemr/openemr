@@ -60,7 +60,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
 
         $this->sid = $credentials['username'] ?? '';
         $this->appKey = $credentials['appKey'] ?? '';
@@ -681,8 +681,9 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $start
-     * @param $end
+     * @param      $start
+     * @param      $end
+     * @param bool $pollForNew
      * @return array
      */
     public function fetchFaxQueue($start, $end, $pollForNew = false): array

@@ -48,7 +48,7 @@ $error_msg = "";
  * @param $filename  - The file to download.
  * @param $filetype  - The type of file.
  */
-function download_file($filename, $filetype)
+function download_file($filename, $filetype): void
 {
 
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -70,7 +70,7 @@ function download_file($filename, $filetype)
  * A temporary certificate will be written to /tmp/openemr_client_cert.p12.
  * If an error occurs, set the $error_msg (which is displayed later below).
  */
-function create_client_cert()
+function create_client_cert(): void
 {
     global $error_msg;
 
@@ -129,7 +129,7 @@ function create_client_cert()
  *   /tmp/admin.p12
  *   /tmp/ssl.zip
  */
-function delete_certificates()
+function delete_certificates(): void
 {
     $tempDir = $GLOBALS['temporary_files_dir'];
     $files = array("CertificateAuthority.key", "CertificateAuthority.crt",
@@ -151,7 +151,7 @@ function delete_certificates()
  * - admin.p12
  * The following form inputs are used:
  */
-function create_and_download_certificates()
+function create_and_download_certificates(): void
 {
     global $error_msg;
     $tempDir = $GLOBALS['temporary_files_dir'];

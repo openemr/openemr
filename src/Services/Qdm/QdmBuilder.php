@@ -10,6 +10,7 @@
 
 namespace OpenEMR\Services\Qdm;
 
+use OpenEMR\Cqm\Generator;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
@@ -96,12 +97,18 @@ class QdmBuilder
                     // Use the service to make a QDM model with the data from the query result
                     try {
                         $qdmModel = $service->makeQdmModel($qdmRecord);
-                        // If for some reason the the model doesn't need to return a value, or the date is invalid, makeQdmModel can return null
-                        if ($qdmModel !== null) {
+                        // If for some reason the model doesn't need to return a value, or the date is invalid, makeQdmModel can return null
+                        if (!empty($qdmModel)) {
                             // Using the PID map, find the patient this model belongs to and add this data element
                             // to the correct patient's QDM model
                             $qdmPatient = $qdm_patients_map[$qdmRecord->getPid()];
-                            $qdmPatient->add_data_element($qdmModel);
+                            if (($qdmPatient ?? null) !== null) {
+                                $qdmPatient->add_data_element($qdmModel);
+                            } else {
+                                // If we don't have a QDM Patient model for this PID it's usually from a patient delete data model leftovers
+                                // care plans, medications etc. that were not deleted.
+                                error_log("QDM Builder Warning: No QDM Patient model found  on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
+                            }
                         } else {
                             error_log("QDM Builder Warning: NULL returned by makeQdmModel() on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
                         }
@@ -121,5 +128,13 @@ class QdmBuilder
         // Take just the map of models, re-index into simple array without PID as index
         $models = array_values($qdm_patients_map);
         return $models;
+    }
+
+    public function _action_generate_models()
+    {
+        $generator = new Generator();
+        $generator->execute();
+        echo '';
+        exit;
     }
 }

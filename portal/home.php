@@ -23,20 +23,21 @@ require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\TranslationService;
+use OpenEMR\Telemetry\TelemetryService;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
-    require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -329,12 +330,12 @@ $immunRecords = array();
 while ($row = sqlFetchArray($result)) {
     $immunRecords[] = $row;
 }
-
 // CCDA Alt Service
 $ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
-
 // Available Themes
 $styleArray = collectStyles();
+// Is telemetry enabled?
+$isTelemetryAllowed = TelemetryService::isTelemetryEnabled();
 
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
@@ -393,6 +394,7 @@ try {
         'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
         'assetVersion' => $GLOBALS['v_js_includes'],
         'extendVisit' => $_SESSION['portal_visit_extended'] ?? 1,
+        'isTelemetryAllowed' => $isTelemetryAllowed,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,
@@ -403,7 +405,7 @@ try {
 
     echo $twig->render('portal/home.html.twig', $data);
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {
         (new SystemLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
     }

@@ -39,11 +39,6 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     protected $resourceSearchParameters = array();
 
     /**
-     * @var FHIRSearchFieldFactory
-     */
-    private $searchFieldFactory;
-
-    /**
      * Url to the base fhir api location
      * @var string
      */
@@ -229,7 +224,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
             $fhirSearchResult->setValidationMessages($oeSearchResult->getValidationMessages());
 
             if ($oeSearchResult->isValid()) {
-                foreach ($oeSearchResult->getData() as $index => $oeRecord) {
+                foreach ($oeSearchResult->getData() as $oeRecord) {
                     $fhirResource = $this->parseOpenEMRRecord($oeRecord);
                     $fhirSearchResult->addData($fhirResource);
                     if ($provenanceRequest) {

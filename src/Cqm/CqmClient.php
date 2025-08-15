@@ -3,16 +3,12 @@
 namespace OpenEMR\Cqm;
 
 use Exception;
-use GuzzleHttp\Client;
 use OpenEMR\Common\Http\HttpClient;
 use OpenEMR\Common\System\System;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
-
-use function GuzzleHttp\Psr7\str;
 
 /**
  * Class CqmClient
@@ -102,9 +98,9 @@ class CqmClient extends HttpClient
         StreamInterface $valueSets,
         ?StreamInterface $options = null
     ) {
-        $patients = (string)str_replace(["\r\n", "\n", "\r"], '', (string)$patients);
-        $measure = (string)str_replace(["\r\n", "\n", "\r"], '', (string)$measure);
-        $valueSets = (string)str_replace(["\r\n", "\n", "\r"], '', (string)$valueSets);
+        $patients = str_replace(["\r\n", "\n", "\r"], '', (string)$patients);
+        $measure = str_replace(["\r\n", "\n", "\r"], '', (string)$measure);
+        $valueSets = str_replace(["\r\n", "\n", "\r"], '', (string)$valueSets);
         $options = (string)$options;
         try {
             return json_decode(

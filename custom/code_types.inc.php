@@ -120,7 +120,7 @@ define('SKIP_TOTAL_TABLE_COUNT', 'skip_total_table_count');
  * @param type $joins               An array which describes additional tables to join as part of a code search.
  * @param array $extraColumns       An array of extra columns to be included in the table definition
  */
-function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "", $extraColumns = array())
+function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "", $extraColumns = array()): void
 {
     $results[$index] = array(EXT_TABLE_NAME => $table_name,
                            EXT_COL_CODE => $col_code,
@@ -312,7 +312,7 @@ function related_codes_are_used()
  * Convert a code type id (ct_id) to the key string (ct_key)
  *
  * @param  integer $id
- * @return string
+ * @return string|null
  */
 function convert_type_id_to_key($id)
 {
@@ -322,6 +322,7 @@ function convert_type_id_to_key($id)
             return $key;
         }
     }
+    return null;
 }
 
 /**
@@ -333,12 +334,7 @@ function convert_type_id_to_key($id)
 function check_is_code_type_justify($key)
 {
     global $code_types;
-
-    if (!empty($code_types[$key]['just'])) {
-          return true;
-    } else {
-        return false;
-    }
+    return !empty($code_types[$key]['just']);
 }
 
 /**
@@ -729,19 +725,17 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
 
             $res = sqlStatement($query, $sql_bind_array);
         } else {
-            HelpfulDie("Code type not active or not defined:" . $join_info[JOIN_TABLE]);
+            HelpfulDie("Code type not active or not defined:" . $form_code_type);
         }
     } // End specific code type search
 
-    if (isset($res)) {
-        if ($count) {
-            // just return the count
-            $ret = sqlFetchArray($res);
-            return $ret['count'];
-        }
-        // return the data
-        return $res;
+    if ($count) {
+        // just return the count
+        $ret = sqlFetchArray($res);
+        return $ret['count'];
     }
+    // return the data
+    return $res;
 }
 
 /**

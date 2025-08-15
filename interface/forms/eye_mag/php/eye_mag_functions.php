@@ -38,7 +38,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     global $earlier;
 
     if ($type == "canvas") {
-        $zone = $zone . "_canvas";
+        $zone .= "_canvas";
     }
 
     $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
@@ -1592,9 +1592,9 @@ margin: 2px 0 2px 2px;">
  * via display_PMSFH('2') and show_PMSFH_panel($PMSFH) respectively,
  * to javascript to display changes to the user.
  * @param associative array $PMSFH if it exists
- * @return json encoded string
+ * @return void
  */
-function send_json_values($PMSFH = "")
+function send_json_values($PMSFH = ""): void
 {
     global $pid;
     global $form_id;
@@ -2289,7 +2289,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         if (empty($mention_FH)) { ?>
                 <span href="#PMH_anchor" onclick="alter_issue2('0','FH','');" style="text-align:right;"><?php echo xlt("Negative"); ?></span><br />
                 <?php
-                $counter = $counter + 3;
+                $counter += 3;
         }
 
         echo $close_table;
@@ -2333,7 +2333,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     <span href="#PMH_anchor"
                     onclick="alter_issue2('0','SOCH','');" style="text-align:right;"><?php echo xlt("Not documented"); ?></span><br />
                     <?php
-                    $counter = $counter + 2;
+                    $counter += 2;
                 }
 
                 echo $close_table;
@@ -2562,7 +2562,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     </span><br />
     <?php
     $mention_SOCH = 0;
-    foreach ($PMSFH[0]['SOCH'] as $k => $item) {
+    foreach ($PMSFH[0]['SOCH'] as $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
         onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
@@ -2634,7 +2634,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
  *  @param array $PMSFH
  *
  */
-function show_PMSFH_report($PMSFH)
+function show_PMSFH_report($PMSFH): void
 {
     global $pid;
     global $ISSUE_TYPES;
@@ -2658,7 +2658,7 @@ function show_PMSFH_report($PMSFH)
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
-    foreach ($PMSFH[0]['ROS'] as $key => $value) {
+    foreach ($PMSFH[0]['ROS'] as $value) {
         if (($value['display'] ?? '') == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2669,7 +2669,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    foreach ($PMSFH[0]['FH'] as $key => $value) {
+    foreach ($PMSFH[0]['FH'] as $value) {
         if ($value['display'] == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2680,7 +2680,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    foreach ($PMSFH[0]['SOCH'] as $key => $value) {
+    foreach ($PMSFH[0]['SOCH'] as $value) {
         if (($value['display'] == '') || ($value['display'] == 'not_applicable')) {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2861,7 +2861,7 @@ function show_PMSFH_report($PMSFH)
     <br />
     <?php
     $mention_PSOCH = 0;
-    foreach ($PMSFH[0]['SOCH'] as $k => $item) {
+    foreach ($PMSFH[0]['SOCH'] as $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
             $mention_PSOCH++;
@@ -3172,9 +3172,9 @@ function canvas_select($zone, $encounter, $pid)
  *  @param string $visit_date Future functionality to limit result set. UTC DATE Formatted
  *  @param string $pid value = patient id
  *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
- *  @return true : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
+function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = ''): void
 {
     global $form_folder;
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid . "/";
@@ -3286,9 +3286,9 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
  * @param string $form_id is the form_eye_*.id where the data to carry forward is located
  * @param string $pid value = patient id
- * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone
+ * @return void : outputs the ZONE specific HTML for a prior record + widget for the desired zone
  */
-function copy_forward($zone, $copy_from, $copy_to, $pid)
+function copy_forward($zone, $copy_from, $copy_to, $pid): void
 {
     global $form_id;
 
@@ -3980,7 +3980,7 @@ function display($pid, $encounter, $category_value)
  *
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
+function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
 {
     global $form_folder;
     global $prov_data;
@@ -4126,7 +4126,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
  *  @param string $encounter is the current encounter number
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_left($pid, $encounter)
+function menu_overhaul_left($pid, $encounter): void
 {
     global $form_folder;
     global $pat_data;
@@ -4263,7 +4263,7 @@ function menu_overhaul_left($pid, $encounter)
  *  @return nothing, outputs directly to screen
  */
 
-function menu_overhaul_bottom($pid, $encounter)
+function menu_overhaul_bottom($pid, $encounter): void
 {
     ?><div class="navbar-custom" style="width:100%;height:25px;position:relative;border-top:1pt solid black;bottom:0px;z-index:1000000;">&nbsp;</div><?php
 }
@@ -4457,7 +4457,7 @@ function start_your_engines($FIELDS)
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
-                foreach ($positives[$amihere['location']] as $k => $v) {
+                foreach ($positives[$amihere['location']] as $v) {
                     if (preg_match("/\b$term\b/", $v)) {
                         $within_array = 'yes';
                         break;
@@ -4524,7 +4524,7 @@ function start_your_engines($FIELDS)
                             //is the patient diabetic?
                             //search medical_problem for DM
                             $within_array = "";
-                            foreach ($PMSFH[0]['PMH'] as $k => $v) {
+                            foreach ($PMSFH[0]['PMH'] as $v) {
                                 if (stripos($v['codedesc'], "diabetes")) {
                                     $DM_code = $v['codedesc'];
                                     $within_array = 'yes';
@@ -5322,7 +5322,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                             }
                         }
                         if (!empty($GONIO[$i]['list'])) {
-                            $GONIO = chop(($GONIO[$i]['list']), ",");
+                            $GONIO = rtrim(($GONIO[$i]['list']), ",");
                         }
                         if ($count == 0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
@@ -5370,7 +5370,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                         }
                     }
 
-                    $DISCS_chart = chop(($DISCS_chart ?? ''), ",");
+                    $DISCS_chart = rtrim(($DISCS_chart ?? ''), ",");
                     if ($count == 0) {
                         $cups = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                     }
@@ -6397,7 +6397,7 @@ function generate_specRx($W)
  * Function to display Refractive Data for an encounter
  * @param array $encounter_data, visit data for a given encounter
  */
-function display_refractive_data($encounter_data)
+function display_refractive_data($encounter_data): void
 {
     @extract($encounter_data);
     $count_rx = '0';

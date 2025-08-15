@@ -29,7 +29,7 @@ class ScopeRepositoryTest extends TestCase
 
         $this->scopeRepository = new ScopeRepository($mock);
 
-        $noopCallback = function () { };
+        $noopCallback = function (): void { };
         $standardResources = ['facility, patient'];
         $fhirResources = ['Patient', 'Observation'];
         $portalResources = ['patient', 'patient/encounter'];
@@ -53,7 +53,7 @@ class ScopeRepositoryTest extends TestCase
         return $routes;
     }
 
-    public function testHasFhirApiScopes()
+    public function testHasFhirApiScopes(): void
     {
         $this->scopeRepository->setRequestScopes('api:oemr');
         $this->assertFalse($this->scopeRepository->hasFhirApiScopes(), "Standard api request turn off fhir api");
@@ -62,7 +62,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertTrue($this->scopeRepository->hasFhirApiScopes(), "api:fhir scope should trigger fhir api");
     }
 
-    public function testHasStandardApiScopes()
+    public function testHasStandardApiScopes(): void
     {
         $this->scopeRepository->setRequestScopes('api:oemr');
         $this->assertTrue($this->scopeRepository->hasStandardApiScopes(), "Standard api request turned on");
@@ -74,7 +74,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertFalse($this->scopeRepository->hasStandardApiScopes(), "api:fhir scope should turn off standard api");
     }
 
-    public function testBuildScopeValidatorArrayForStandardApiScopeRequest()
+    public function testBuildScopeValidatorArrayForStandardApiScopeRequest(): void
     {
         // check to make sure we get standard api scopes for the correct test screen
         $scopeRepository = $this->scopeRepository;
@@ -87,7 +87,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr' should return standard scopes");
     }
 
-    public function testBuildScopeValidatorArrayForStandardPortalApiScopeRequest()
+    public function testBuildScopeValidatorArrayForStandardPortalApiScopeRequest(): void
     {
         // check to make sure we get standard api scopes for the correct test screen
         $scopeRepository = $this->scopeRepository;
@@ -100,7 +100,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
     }
 
-    public function testBuildScopeValidatorArrayDefaultReturnsFhirScopes()
+    public function testBuildScopeValidatorArrayDefaultReturnsFhirScopes(): void
     {
         // check to make sure we get standard api scopes for the correct test screen
         $scopeRepository = $this->scopeRepository;
@@ -114,7 +114,7 @@ class ScopeRepositoryTest extends TestCase
     }
 
 
-    public function testGetScopeEntityByIdentifierHasExportOperations()
+    public function testGetScopeEntityByIdentifierHasExportOperations(): void
     {
         $scopeRepository = $this->scopeRepository;
         $scopeRepository->setRequestScopes('system/Group.$export system/Patient.$export system/*.$export');

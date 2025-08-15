@@ -21,7 +21,7 @@ class DocumentTest extends TestCase
     /**
      * Checks that a document can be created and the file exists at the location the document says it saves at
      */
-    public function testCreateDocument()
+    public function testCreateDocument(): void
     {
         $userService = new UserService();
         $apiSystemUser = $userService->getSystemUser();

@@ -78,7 +78,7 @@ class RxList
         $tokens = $this->parseToTokens($page);
         $hash = $this->tokensToHash($tokens);
         if (!empty($hash)) {
-            foreach ($hash as $index => $data) {
+            foreach ($hash as $data) {
                 unset($my_data);
                 foreach ($data as $k => $v) {
                     $my_data[$k] = $v;
@@ -147,14 +147,14 @@ class RxList
         $hash = [];
         unset($all);
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
-            if ((bool)str_contains($tokens[$pos], "<name>") && $pos !== 3) {
+            if (str_contains($tokens[$pos], "<name>") && $pos !== 3) {
                 // found a brand line 'token'
                 $type = "name";
                 $record = $pos;
                 $ending = "</name>";
             }
 
-            if ((bool)str_contains($tokens[$pos], "<synonym>")) {
+            if (str_contains($tokens[$pos], "<synonym>")) {
                 // found a generic line 'token'
                 $type = "synonym";
                 //print "generic_name record start at $pos<BR>\n";
@@ -162,7 +162,7 @@ class RxList
                 $record = $pos;
             }
 
-            if ((bool)str_contains($tokens[$pos], "<rxcui>")) {
+            if (str_contains($tokens[$pos], "<rxcui>")) {
                 // found a drug-class 'token'
                 $type = "rxcui";
                 $ending = "</rxcui>";

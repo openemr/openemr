@@ -15,10 +15,14 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use PHPMailer\PHPMailer\Exception;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
@@ -29,12 +33,33 @@ class NotificationEventListener implements EventSubscriberInterface
     private bool $isSmsEnabled;
     private mixed $isEmailEnabled;
     private bool $isFaxEnabled;
+    private bool $isVoiceEnabled;
+    private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct()
+    /**
+     * @var \Twig\Environment The twig rendering environment
+     */
+    private $twig;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
         $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
         $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
+        $this->isVoiceEnabled = !empty($GLOBALS['oe_enable_voice'] ?? 0);
+
+        if (empty($kernel)) {
+            $kernel = new Kernel();
+        }
+        $this->eventDispatcher = $eventDispatcher;
+        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
+        $twigEnv = $twig->getTwig();
+        $this->twig = $twigEnv;
+    }
+
+    public function getTemplatePath(): string
+    {
+        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -53,13 +78,52 @@ class NotificationEventListener implements EventSubscriberInterface
      * @param EventDispatcher $eventDispatcher
      * @return void
      */
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(): void
     {
-        $eventDispatcher->addListener('sendNotification.send', [$this, 'onNotifySendEvent']);
-        $eventDispatcher->addListener('sendNotification.service.onetime', [$this, 'onNotifyDocumentRenderOneTime']);
-        $eventDispatcher->addListener('sendNotification.service.universal.onetime', [$this, 'onNotifyUniversalOneTime']);
-        $eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, [$this, 'notificationButton']);
-        $eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, [$this, 'notificationDialogFunction']);
+        $this->eventDispatcher->addListener('sendNotification.send', [$this, 'onNotifySendEvent']);
+        $this->eventDispatcher->addListener('sendNotification.service.onetime', [$this, 'onNotifyDocumentRenderOneTime']);
+        $this->eventDispatcher->addListener('sendNotification.service.universal.onetime', [$this, 'onNotifyUniversalOneTime']);
+        $this->eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, [$this, 'notificationButton']);
+        $this->eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, [$this, 'notificationDialogFunction']);
+        if ($this->isVoiceEnabled) {
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_NAV, [$this, 'renderPhoneButton']);
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderPhoneWidget']);
+        }
+    }
+
+    public function renderPhoneButton()
+    {
+        $loginCred = $this->getRCCredentials('voice');
+        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt'] && $GLOBALS['oe_enable_voice'] ?? false) {
+            echo '
+            <button id="rc-toggle-exe" class="btn btn-outline-danger btn-sm" onclick="toggleRCWidget()">
+                <span id="btn-text"><i id="rc-toggle-btn" class="fa-solid fa-phone"></i></span>
+            </button>';
+        }
+    }
+
+    public function renderPhoneWidget(RenderEvent $event): void
+    {
+        $serviceType = 'voice';
+        $loginCred = $this->getRCCredentials($serviceType);
+        $moduleBaseUrl = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-faxsms";
+        $context = [
+            'clientId' => $loginCred['appKey'],
+            'clientSecret' => $loginCred['appSecret'],
+            'jwt' => $loginCred['jwt'],
+        ];
+        // Render using Twig
+        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt']) {
+            echo $this->twig->render('phone_widget.html.twig', $context);
+        }
+    }
+
+    private function getRCCredentials($serviceType = 'voice'): array
+    {
+        // Set the module type for AppDispatch i.e. voice, fax, sms, email
+        AppDispatch::setModuleType($serviceType);
+        $clientApp = AppDispatch::getApiService($serviceType);
+        return $clientApp->getCredentials();
     }
 
     /**
@@ -354,6 +418,7 @@ class NotificationEventListener implements EventSubscriberInterface
 
     /**
      * Available button to use.
+     *
      * @param SendNotificationEvent $notificationEvent
      * @return void
      */

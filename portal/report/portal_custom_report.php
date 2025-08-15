@@ -14,9 +14,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
@@ -27,7 +31,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
 }
@@ -113,7 +117,7 @@ function postToGet($arin)
     $getstring = "";
     foreach ($arin as $key => $val) {
         if (is_array($val)) {
-            foreach ($val as $k => $v) {
+            foreach ($val as $v) {
                 $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
             }
         } else {
@@ -512,7 +516,7 @@ input[type="radio"] {
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
 <?php
-if (sizeof($_GET) > 0) {
+if (count($_GET) > 0) {
     $ar = $_GET;
 } else {
     $ar = $_POST;
@@ -749,7 +753,7 @@ foreach ($ar as $key => $val) {
         if ($key == "documents") {
             echo "<hr />";
             echo "<div class='text documents'>";
-            foreach ($val as $valkey => $valvalue) {
+            foreach ($val as $valvalue) {
                 $document_id = $valvalue;
                 if (!is_numeric($document_id)) {
                     continue;
@@ -872,7 +876,7 @@ foreach ($ar as $key => $val) {
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
-                foreach ($val as $valkey => $poid) {
+                foreach ($val as $poid) {
                     echo "<h1>" . xlt('Procedure Order') . ":</h1>";
                     echo "<br />\n";
                     // Need to move the inline styles from this function to the stylesheet, but until
@@ -1037,7 +1041,7 @@ if ($PDF_OUTPUT) {
 
     if ($PDF_OUTPUT == 1) {
         try {
-            if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+            if (!empty($archive_name) && count($staged_docs) > 0) {
                 $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');

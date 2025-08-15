@@ -55,6 +55,7 @@ function onvalue($name)
 }
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <?php Header::setupHeader(['opener']);?>
@@ -101,11 +102,16 @@ function onvalue($name)
     <?php
     // If we are saving, then save and close the window.
     // lab_director is the id of the organization in the users table
-    //
+    // except when it's not in the address book, then it's the name
     if (!empty($_POST['form_save'])) {
         $org_qry = "SELECT organization FROM users WHERE id = ?";
         $org_res = sqlQuery($org_qry, array($_POST['form_name']));
         $org_name = $org_res['organization'];
+        if (empty($org_res) && $ppid) {
+            $org_qry = "SELECT name FROM procedure_providers WHERE ppid = ?";
+            $org_res = sqlQuery($org_qry, array($ppid));
+            $org_name = $org_res['name'];
+        }
         $sets =
             "name = '" . add_escape_custom($org_name) . "', " .
             "lab_director = " . invalue('form_name') . ", " .
@@ -151,6 +157,7 @@ function onvalue($name)
         exit();
     }
 
+    $row = array();
     if ($ppid) {
         $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
     }
@@ -174,6 +181,12 @@ function onvalue($name)
                 $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" . text($org_name) . "</option>";
             }
         }
+    }
+    // no Address book entry for this provider. Use the one in the procedure_providers table
+    if (empty($optionsStr) && $ppid) {
+        $org_name = $row['name'] ?? '';
+        $selected = "selected";
+        $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" . text($org_name) . "</option>";
     }
     ?>
     <div class="page-header" name="form_legend" id="form_legend">
@@ -341,6 +354,7 @@ function onvalue($name)
                                             'SFTP' => xl('SFTP'),
                                             'FS' => xl('Local Filesystem'),
                                             'WS' => xl('Web Service'),
+                                            'DORN' => xl('Dorn'),
                                             ) as $key => $value
                                         ) {
                                             echo "    <option value='" . attr($key) . "'";

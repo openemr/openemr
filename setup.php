@@ -36,7 +36,10 @@ if ($response !== true) {
     die(htmlspecialchars($response));
 }
 
-// Set the maximum excution time and time limit to unlimited.
+// Capture the maximum execution time and display errors setting before changing them.
+$original_ini_max_execution_time = ini_get('max_execution_time');
+$original_ini_display_errors = ini_get('display_errors');
+// Then set the max execution time limit to unlimited, and turn off display errors.
 ini_set('max_execution_time', 0);
 ini_set('display_errors', 0);
 set_time_limit(0);
@@ -50,10 +53,17 @@ $allow_multisite_setup = false;
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
 $allow_cloning_setup = false;
+
+// Include standard libraries/classes
+require_once dirname(__FILE__) . "/vendor/autoload.php";
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
-    require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionStart();
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionCookieDestroy();
+    SessionUtil::setupScriptSessionStart();
+    SessionUtil::setupScriptSessionCookieDestroy();
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
@@ -108,13 +118,6 @@ function recursive_writable_directory_test($dir)
         return 0;
     }
 }
-
-// Include standard libraries/classes
-require_once dirname(__FILE__) . "/vendor/autoload.php";
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 $installer = new Installer($_REQUEST);
@@ -1378,7 +1381,6 @@ STP2TBLBOT;
                     $mfa = $installer->get_initial_user_mfa_totp();
                     if ($mfa !== false) {
                         $qr = $mfa->generateQrCode();
-                        $qr_esc = attr($qr);
                         $sharedSecret = text($mfa->getSecret());
                         $qrDisplay = <<<TOTP
                                     <br />
@@ -1387,7 +1389,7 @@ STP2TBLBOT;
                                             <td>
                                                 <strong class='text-danger'>IMPORTANT!!</strong>
                                                 <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
-                                                <img src='$qr_esc' width="150" />
+                                                <img src='$qr' width="150" />
                                                 <p>Or paste in the following code into your authenticator app</p>
                                                 <p>$sharedSecret</p>
                                             </td>
@@ -1480,20 +1482,39 @@ STP4TOP;
 
                     $short_tag = ini_get('short_open_tag') ? 'On' : 'Off';
                     $short_tag_style = (strcmp($short_tag, 'Off') === 0) ? '' : 'text-danger';
-                    $display_errors = ini_get('display_errors') ? 'On' : 'Off';
+                    $display_errors = $original_ini_display_errors ? 'On' : 'Off';
                     $display_errors_style = (strcmp($display_errors, "Off")  === 0) ? '' : 'text-danger';
                     $register_globals = ini_get('register_globals') ? 'On' : 'Off';
                     $register_globals_style = (strcmp($register_globals, 'Off')  === 0) ? '' : 'text-danger';
                     $max_input_vars = ini_get('max_input_vars');
                     $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
-                    $max_execution_time = (int)ini_get('max_execution_time');
+                    $max_execution_time = (int)$original_ini_max_execution_time;
                     $max_execution_time_style = $max_execution_time >= 60 || $max_execution_time === 0 ? '' : 'text-danger';
                     $max_input_time = ini_get('max_input_time');
                     $max_input_time_style = (strcmp($max_input_time, '-1')  === 0) ? '' : 'text-danger';
                     $post_max_size = ini_get('post_max_size');
                     $post_max_size_style = $post_max_size < 30 ? 'text-danger' : '';
                     $memory_limit = ini_get('memory_limit');
-                    $memory_limit_style = $memory_limit < 256 ? 'text-danger' : '';
+                    // Convert from shorthand to M
+                    if (preg_match('/^(\d+)([KMG]?)$/', $memory_limit, $matches)) {
+                        switch ($matches[2]) {
+                            case 'K':
+                                $memory_limit_mb = intdiv($matches[1], 1024);
+                                break;
+                            case 'M':
+                                $memory_limit_mb = (int)$matches[1];
+                                break;
+                            case 'G':
+                                $memory_limit_mb = $matches[1] * 1024;
+                                break;
+                            case '':
+                                $memory_limit_mb = intdiv($matches[1], 1024 * 1024);
+                                break;
+                        }
+                    } else {
+                        $memory_limit_mb = intdiv($memory_limit, 1024 * 1024);
+                    }
+                    $memory_limit_style = $memory_limit_mb < 512 ? 'text-danger' : '';
                     $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
                     $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
@@ -1541,7 +1562,7 @@ STP4TOP;
                                 </tr>
                                 <tr>
                                     <td>memory_limit</td>
-                                    <td>at least 256M</td>
+                                    <td>at least 512M</td>
                                     <td class='" . attr($memory_limit_style) . "'>" . text($memory_limit) . "</td>
                                 </tr>
                                 <tr>
@@ -1794,7 +1815,8 @@ FRM;
                                         <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                     </form>
 FRM;
-                        echo $form . "\r\n";                        }
+                        echo $form . "\r\n";
+                    }
             }
                         $bot = <<<BOT
                                     </div>

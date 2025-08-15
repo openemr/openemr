@@ -36,7 +36,7 @@ function get_form_id_of_existing_attendance_form($encounter, $group_id)
  * @param $group_encounter_data
  * @param $appt_data
  */
-function participant_insertions($form_id, $therapy_group, $group_encounter_data, $appt_data)
+function participant_insertions($form_id, $therapy_group, $group_encounter_data, $appt_data): void
 {
     $patientData = $_POST['patientData'];
     foreach ($patientData as $pid => $patient) {
@@ -64,7 +64,7 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
  * @param $pid
  * @param $participantData
  */
-function insert_into_tgpa_table($form_id, $pid, $participantData)
+function insert_into_tgpa_table($form_id, $pid, $participantData): void
 {
 
     $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .

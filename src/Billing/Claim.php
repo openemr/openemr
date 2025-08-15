@@ -184,10 +184,10 @@ class Claim
             $referrer_id = $this->billing_options['provider_id'];
         } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
             $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
+        } elseif (empty($GLOBALS['MedicareReferrerIsRenderer']) || ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') {
+            $referrer_id = $this->patient_data['ref_providerID'];
         } else {
-            $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
-            ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') ?
-            $this->patient_data['ref_providerID'] : $provider_id;
+            $referrer_id = $this->encounter['provider_id'];
         }
         return $referrer_id;
     }
@@ -239,7 +239,7 @@ class Claim
         //
         $this->payers = array();
         $this->payers[0] = array();
-        $query = "SELECT * FROM insurance_data WHERE pid = ? AND 
+        $query = "SELECT * FROM insurance_data WHERE pid = ? AND
             (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
         $dres = sqlStatement($query, array($this->pid, $encounter_date, $encounter_date));
         $prevtype = '';
@@ -462,8 +462,8 @@ class Claim
             // Find out if this payer paid anything at all on this claim.  This will
             // help us allocate any unknown patient responsibility amounts.
             $thispaidanything = 0;
-            foreach ($this->invoice as $codekey => $codeval) {
-                foreach ($codeval['dtl'] as $key => $value) {
+            foreach ($this->invoice as $codeval) {
+                foreach ($codeval['dtl'] as $value) {
                     // plv exists to indicate the payer level.
                     if (isset($value['plv']) && $value['plv'] == $insnumber) {
                         $thispaidanything += $value['pmt'];
@@ -556,8 +556,8 @@ class Claim
 
         //
         $amount = 0;
-        foreach ($this->invoice as $codekey => $codeval) {
-            foreach ($codeval['dtl'] as $key => $value) {
+        foreach ($this->invoice as $codeval) {
+            foreach ($codeval['dtl'] as $value) {
                 // plv exists to indicate the payer level.
 
                 if (!isset($value['pmt'])) {
@@ -578,7 +578,7 @@ class Claim
     public function invoiceTotal()
     {
         $amount = 0;
-        foreach ($this->invoice as $codekey => $codeval) {
+        foreach ($this->invoice as $codeval) {
             $amount += $codeval['chg'];
         }
 

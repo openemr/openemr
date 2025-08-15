@@ -7,8 +7,6 @@ use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FHIR\FhirOrganizationRestController
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -44,20 +42,14 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::post with valid data
-     */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->fhirOrganizationController->post($this->fhirFixture);
         $this->assertEquals(201, http_response_code());
         $this->assertNotEmpty($actualResult['uuid']);
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->fhirFixture['name']);
 
@@ -66,10 +58,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
-    public function testPatch()
+    public function testPatch(): void
     {
         $actualResult = $this->fhirOrganizationController->post($this->fhirFixture);
         $fhirId = $actualResult['uuid'];
@@ -81,10 +70,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
-    public function testInvalidPatch()
+    public function testInvalidPatch(): void
     {
         $this->fhirOrganizationController->post($this->fhirFixture);
 
@@ -95,7 +81,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResult = $this->fhirOrganizationController->post($this->fhirFixture);
         $fhirId = $actualResult['uuid'];
@@ -105,7 +91,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    public function testGetOneNoMatch()
+    public function testGetOneNoMatch(): void
     {
         $this->fhirOrganizationController->post($this->fhirFixture);
 
@@ -113,7 +99,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->assertEquals(1, count($actualResult['validationErrors']));
     }
 
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fhirOrganizationController->post($this->fhirFixture);
 
@@ -121,7 +107,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $actualResults = $this->fhirOrganizationController->getAll($searchParams);
         $this->assertNotEmpty($actualResults);
 
-        foreach ($actualResults->getEntry() as $index => $bundleEntry) {
+        foreach ($actualResults->getEntry() as $bundleEntry) {
             $this->assertObjectHasProperty('fullUrl', $bundleEntry);
             $this->assertObjectHasProperty('resource', $bundleEntry);
         }

@@ -1,0 +1,20 @@
+services:
+  openemr:
+    environment:
+      OPENEMR_BASE_URL_API: "https://nginx"
+      SELENIUM_BASE_URL: "http://nginx"
+    volumes:
+    - ../:/usr/share/nginx/html/openemr
+    - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro
+  nginx:
+    image: openemr/dev-nginx
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ../:/usr/share/nginx/html/openemr
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./nginx/dummy-cert:/etc/nginx/dummy-cert:ro
+    - ./nginx/dummy-key:/etc/nginx/dummy-key:ro
+    depends_on:
+    - openemr

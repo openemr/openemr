@@ -10,13 +10,12 @@ use OpenEMR\Tests\Api\ApiTestClient;
 
 /**
  * Capability FHIR Endpoint Test Cases.
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class CapabilityFhirTest extends TestCase
 {
@@ -54,28 +53,19 @@ class CapabilityFhirTest extends TestCase
         $this->testClient->cleanupClient();
     }
 
-    /**
-     * @covers ::get with an invalid path
-     */
-    public function testInvalidPathGet()
+    public function testInvalidPathGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT . "ss");
         $this->assertEquals(401, $actualResponse->getStatusCode());
     }
 
-    /**
-     * @covers ::get with an invalid site
-     */
-    public function testInvalidSiteGet()
+    public function testInvalidSiteGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT_INVALID_SITE);
         $this->assertEquals(400, $actualResponse->getStatusCode());
     }
 
-    /**
-     * @covers ::get
-     */
-    public function testGet()
+    public function testGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -125,7 +115,7 @@ class CapabilityFhirTest extends TestCase
 
         $smartExtensions = $this->getExtensionList($restDef['security'], "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
         $enabledCapabilities = [];
-        foreach ($smartExtensions as $index => $extension) {
+        foreach ($smartExtensions as $extension) {
             $enabledCapabilities[] = $extension['valueCode'];
         }
 
@@ -149,7 +139,7 @@ class CapabilityFhirTest extends TestCase
     {
         $list = [];
         if (!empty($capabilityStatementRestDefinition['extension'])) {
-            foreach ($capabilityStatementRestDefinition['extension'] as $index => $extension) {
+            foreach ($capabilityStatementRestDefinition['extension'] as $extension) {
                 if ($extension['url'] == $extensionUri) {
                     $list[] = $extension;
                 }

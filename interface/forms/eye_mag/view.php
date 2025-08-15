@@ -168,15 +168,13 @@ if (!$form_id && !$encounter) {
 }
 
 if ($refresh and $refresh != 'fullscreen') {
-    if ($refresh == "PMSFH") {
-        echo display_PRIOR_section($refresh, $id, $id, $pid);
-    } elseif ($refresh == "PMSFH_panel") {
-        echo show_PMSFH_panel($PMSFH);
-    } elseif ($refresh == "page") {
-        echo send_json_values($PMSFH);
-    } elseif ($refresh == "GFS") {
-        echo display_GlaucomaFlowSheet($pid);
-    }
+    match ($refresh) {
+        "PMSFH" => print display_PRIOR_section($refresh, $id, $id, $pid),
+        "PMSFH_panel" => print show_PMSFH_panel($PMSFH),
+        "page" => send_json_values($PMSFH),
+        "GFS" => display_GlaucomaFlowSheet($pid),
+        default => null,
+    };
     exit;
 }
 ?><!DOCTYPE html>
@@ -223,7 +221,7 @@ if ($refresh and $refresh != 'fullscreen') {
   </div>
 
     <?php
-      $input_echo = menu_overhaul_top($pid, $encounter);
+      menu_overhaul_top($pid, $encounter);
     ?><br /><br />
 
     <div id="page-wrapper" data-role="page">
@@ -4308,10 +4306,9 @@ if ($refresh and $refresh != 'fullscreen') {
     </div>     <!-- end page wrapper -->
     <?php
     if ($display != "fullscreen") {
-      // trial fullscreen will lead to tablet versions and bootstrap menu overhaul
-      // this function is in php/eye_mag_functions.php
-        $output = menu_overhaul_bottom($pid, $encounter);
-        echo $output;
+        // trial fullscreen will lead to tablet versions and bootstrap menu overhaul
+        // this function is in php/eye_mag_functions.php
+        menu_overhaul_bottom($pid, $encounter);
     }
     ?>
   <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>

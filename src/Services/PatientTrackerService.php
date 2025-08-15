@@ -49,7 +49,7 @@ class PatientTrackerService extends BaseService
                 $tracker_time .=  "$days " . xl('day');
             }
 
-            $tracker_time_calc = $tracker_time_calc - ($days * (60 * 60 * 24));
+            $tracker_time_calc -= $days * (60 * 60 * 24);
         }
 
         if ($tracker_time_calc > 60 * 60) {
@@ -68,7 +68,7 @@ class PatientTrackerService extends BaseService
                 }
             }
 
-            $tracker_time_calc = $tracker_time_calc - ($hours * (60 * 60));
+            $tracker_time_calc -= $hours * (60 * 60);
         }
 
         if ($allow_sec) {
@@ -88,7 +88,7 @@ class PatientTrackerService extends BaseService
                     }
                 }
 
-                $tracker_time_calc = $tracker_time_calc - ($minutes * 60);
+                $tracker_time_calc -= $minutes * 60;
             }
         } else {
             $minutes = round($tracker_time_calc / 60);
@@ -108,7 +108,7 @@ class PatientTrackerService extends BaseService
                 }
             }
 
-            $tracker_time_calc = $tracker_time_calc - ($minutes * 60);
+            $tracker_time_calc -= $minutes * 60;
         }
 
         if ($allow_sec) {
@@ -249,7 +249,7 @@ class PatientTrackerService extends BaseService
                 #enc_id (encounter number) is not blank, so update this in tracker.
                 sqlStatement("UPDATE `patient_tracker` SET `encounter` = ? WHERE `id` = ?", array($enc_id,$tracker_id));
             }
-            $tracker['lastseq'] = $tracker['lastseq'] + 1;
+            $tracker['lastseq'] += 1;
             $tracker['element'] = [
                     'pt_tracker_id' => $tracker_id
                     ,'start_datetime' => $datetime

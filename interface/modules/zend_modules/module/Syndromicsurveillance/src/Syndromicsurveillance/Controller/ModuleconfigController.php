@@ -12,14 +12,13 @@
 
 namespace Syndromicsurveillance\Controller;
 
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterInterface;
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
 
 class ModuleconfigController extends AbstractActionController
 {
-    protected $inputFilter;
+    protected ?InputFilterInterface $inputFilter;
 
     public function __construct()
     {
@@ -41,9 +40,8 @@ class ModuleconfigController extends AbstractActionController
 
     public function getInputFilter()
     {
-        if (!$this->inputFilter) {
+        if (!isset($this->inputFilter)) {
             $inputFilter = new InputFilter();
-            $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
         }
 

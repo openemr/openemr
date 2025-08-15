@@ -22,5 +22,5 @@
 </button>
 <button class="btn btn-secondary reason-code-btn mt-2"
         title='<?php echo xla('Click here to provide an explanation for the observation value (or lack of value)'); ?>'
-        data-toggle-container="reason_code_<?php echo attr($key); ?>"><i class="fa fa-asterisk"></i> 
+        data-toggle-container="reason_code_<?php echo attr($key); ?>"><i class="fa fa-asterisk"></i>
         <?php echo xlt("Add Reason"); ?></button>

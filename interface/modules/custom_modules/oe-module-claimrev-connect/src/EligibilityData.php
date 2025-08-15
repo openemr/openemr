@@ -22,13 +22,13 @@ class EligibilityData
 
     public static function getPatientIdFromAppointment($eid)
     {
-        $sql = "SELECT 
-                pc_pid 
+        $sql = "SELECT
+                pc_pid
                 ,DATE_FORMAT(pc_eventDate, '%Y-%m-%d') as appointmentDate
                 ,pc_facility as facilityId
                 ,pc_aid as providerId
-                from openemr_postcalendar_events 
-                WHERE pc_eid = ? 
+                from openemr_postcalendar_events
+                WHERE pc_eid = ?
             LIMIT 1";
         $sqlarr = array($eid);
         $result = sqlStatement($sql, $sqlarr);
@@ -75,41 +75,41 @@ class EligibilityData
 
         $sqlarr = array($status);
         if ($updateLastChecked) {
-            $sql = $sql . ",last_checked = NOW() ";
+            $sql .= ",last_checked = NOW() ";
         }
         if ($response_json != null) {
-            $sql = $sql . " ,response_json = ?";
+            $sql .= " ,response_json = ?";
             array_push($sqlarr, $response_json);
         }
         if ($request_json != null) {
-            $sql = $sql . " ,request_json = ?";
+            $sql .= " ,request_json = ?";
             array_push($sqlarr, $request_json);
         }
         if ($responseMessage != null) {
-            $sql = $sql . " ,response_message = ?";
+            $sql .= " ,response_message = ?";
             array_push($sqlarr, $responseMessage);
         }
         if ($raw271 != null) {
-                $sql = $sql . " ,raw271 = ? ";
+                $sql .= " ,raw271 = ? ";
                 array_push($sqlarr, $raw271);
         }
         if ($eligibility_json != null) {
-            $sql = $sql . " ,eligibility_json = ?";
+            $sql .= " ,eligibility_json = ?";
             array_push($sqlarr, $eligibility_json);
         }
         if ($individual_json != null) {
-            $sql = $sql . " ,individual_json = ?";
+            $sql .= " ,individual_json = ?";
             array_push($sqlarr, $individual_json);
         }
 
-        $sql = $sql . " WHERE id = ?";
+        $sql .= " WHERE id = ?";
         array_push($sqlarr, $id);
         sqlStatement($sql, $sqlarr);
     }
 
     public static function getSubscriberData($pid = 0, $pr = "")
     {
-            $query = "SELECT 
+            $query = "SELECT
                     c.name as payer_name
                     , coalesce( c.eligibility_id, c.cms_id) as payerId
                     , i.subscriber_lname
@@ -124,10 +124,10 @@ class EligibilityData
             $ary = array($pid);
 
         if ($pr != "") {
-            $query = $query . " AND i.type = ?";
+            $query .= " AND i.type = ?";
             array_push($ary, $pr);
         }
-            $query = $query . " order by i.date desc LIMIT 1";
+            $query .= " order by i.date desc LIMIT 1";
 
             $res = sqlStatement($query, $ary);
             return $res;
@@ -137,15 +137,15 @@ class EligibilityData
     {
         $query = "SELECT
                         d.facility_id,
-                        f.pos_code,            
+                        f.pos_code,
                         f.facility_npi as facility_npi,
                         f.name as facility_name,
                         f.state as facility_state,
-                        f.federal_ein as facility_ein,   
+                        f.federal_ein as facility_ein,
                         d.lname as provider_lname,
                         d.fname as provider_fname,
                         d.npi as provider_npi,
-                        d.upin as provider_pin,            
+                        d.upin as provider_pin,
                         p.lname,
                         p.fname,
                         p.mname,
@@ -159,11 +159,11 @@ class EligibilityData
                         p.street,
                         p.city,
                         p.state,
-                        p.postal_code                    
+                        p.postal_code
                     FROM patient_data AS p
-                    LEFT JOIN users AS d on 
+                    LEFT JOIN users AS d on
                         p.providerID = d.id
-                    INNER JOIN facility AS f on 
+                    INNER JOIN facility AS f on
                         f.id = d.facility_id	
                     WHERE p.pid = ?
                     LIMIT 1";
@@ -175,12 +175,12 @@ class EligibilityData
     }
     public static function getFacilityData($fid)
     {
-        $query = "SELECT          
-                        f.pos_code,            
+        $query = "SELECT
+                        f.pos_code,
                         f.facility_npi as facility_npi,
                         f.name as facility_name,
                         f.state as facility_state,
-                        f.federal_ein as facility_ein                
+                        f.federal_ein as facility_ein
                     FROM facility AS f
                     WHERE f.id = ?
                     LIMIT 1";
@@ -199,7 +199,7 @@ class EligibilityData
 
     public static function getPatientData($pid = 0)
     {
-        $query = "SELECT          
+        $query = "SELECT
                         p.lname,
                         p.fname,
                         p.mname,
@@ -214,11 +214,11 @@ class EligibilityData
                         p.city,
                         p.state,
                         p.postal_code,
-                        f.id facility_id                    
+                        f.id facility_id
                     FROM patient_data AS p
-                    LEFT JOIN users AS d on 
+                    LEFT JOIN users AS d on
                         p.providerID = d.id
-                    LEFT JOIN facility AS f on 
+                    LEFT JOIN facility AS f on
                         f.id = d.facility_id
                     WHERE p.pid = ?
                     LIMIT 1";
@@ -241,8 +241,8 @@ class EligibilityData
                         d.lname as provider_lname,
                         d.fname as provider_fname,
                         d.npi as provider_npi,
-                        d.upin as provider_pin           
-                    FROM users AS d                    
+                        d.upin as provider_pin
+                    FROM users AS d
                     WHERE d.id = ?
                     LIMIT 1";
 
@@ -261,13 +261,13 @@ class EligibilityData
     public static function getInsuranceData($pid = 0, $pr = "")
     {
         $query = "SELECT
-			i.type as payer_responsibility           
+			i.type as payer_responsibility
 			FROM insurance_data AS i
             WHERE i.pid = ? ";
         $ary = array($pid);
 
         if ($pr != "") {
-            $query = $query . " AND i.type = ?";
+            $query .= " AND i.type = ?";
             array_push($ary, $pr);
         }
         $res = sqlStatement($query, $ary);

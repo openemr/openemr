@@ -14,9 +14,11 @@ namespace Application\Model;
 
 use DateTime;
 use Exception;
-use Laminas\Db\Adapter\ExceptionInterface;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Exception\ExceptionInterface;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable extends AbstractTableGateway
@@ -26,7 +28,7 @@ class ApplicationTable extends AbstractTableGateway
 
     /**
      *
-     * @param \Laminas\Db\Adapter\Adapter $adapter
+     * @param Adapter $adapter
      */
     public function __construct()
     {
@@ -64,11 +66,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement = $this->adapter->query($sql);
             $return = $statement->execute($params);
             $result = true;
-        } catch (ExceptionInterface $e) {
-            if ($error) {
-                $this->errorHandler($e, $sql, $params);
-            }
-        } catch (\Exception $e) {
+        } catch (\Exception | ExceptionInterface $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -376,7 +374,7 @@ class ApplicationTable extends AbstractTableGateway
     }
 
     /*
-    * Retrive the data format from GLOBALS
+    * Retrieve the data format from GLOBALS
     *
     * @param    Date format set in GLOBALS
     * @return   Date format in datepicker

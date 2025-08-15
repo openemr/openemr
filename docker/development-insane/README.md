@@ -9,7 +9,7 @@ Docker Environment. See below for instructions of use of the Insane Development 
 [docker](https://www.docker.com/get-docker) and
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
-- If you want to set up the base services(e.g. git, docker, docker-compose, openemr-cmd) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
+- If you want to set up the base services(e.g. git, docker, docker compose, openemr-cmd) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
 - If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
 - If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
 - If you want to migrator the running docker environment, please try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator)
@@ -23,13 +23,13 @@ There are 2 different schools of thought on where to run the docker from.
 scripts in your editor)
 ```bash
 $ cd openemr/docker/development-insane
-$ docker-compose up -d
+$ docker compose up -d
 ```
 - Option 2. Run the docker from a separate directory that is synchronized with your git
 repository. For example, if used /var/www/openemr.
 ```bash
  $ cd /var/www/openemr/docker/development-insane
- $ docker-compose up -d
+ $ docker compose up -d
 ```
 - At this time, I highly recommend option 2 since running OpenEMR will change
 scripts, add files, add cache files, thus making it very tough to track your
@@ -43,49 +43,41 @@ directory) and then restart the development docker (see below for how to do this
 
 **Step 3.** Open up OpenEMR in the latest Chrome or Firefox! You have many
 options to choose from:
-- http://localhost:8082 (with Alpine 3.15 (Apache and PHP 8.0))
 - http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
-- http://localhost:8084 (with Alpine 3.18 (Apache and PHP 8.2))
-- http://localhost:8085 (with Alpine 3.20 (Apache and PHP 8.3))
-- http://localhost:8086 (with Alpine 3.21 (Apache and PHP 8.4))
+- http://localhost:8084 (with Alpine 3.22 (Apache and PHP 8.2))
+- http://localhost:8085 (with Alpine 3.22 (Apache and PHP 8.3))
+- http://localhost:8086 (with Alpine 3.22 (Apache and PHP 8.4))
 - http://localhost:8087 (with Alpine Edge (Apache and now PHP 8.4))
-- http://localhost:8092 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
 - http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
-- http://localhost:8094 (with Alpine 3.18 (Apache and PHP 8.2) with redis)
-- http://localhost:8095 (with Alpine 3.20 (Apache and PHP 8.3) with redis)
-- http://localhost:8096 (with Alpine 3.21 (Apache and PHP 8.4) with redis)
+- http://localhost:8094 (with Alpine 3.22 (Apache and PHP 8.2) with redis)
+- http://localhost:8095 (with Alpine 3.22 (Apache and PHP 8.3) with redis)
+- http://localhost:8096 (with Alpine 3.22 (Apache and PHP 8.4) with redis)
 - http://localhost:8097 (with Alpine Edge (Apache and now PHP 8.4) with redis)
-- http://localhost:8102 (with Nginx and PHP-FPM 8.0)
 - http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 - http://localhost:8104 (with Nginx and PHP-FPM 8.2)
 - http://localhost:8105 (with Nginx and PHP-FPM 8.3)
 - http://localhost:8106 (with Nginx and PHP-FPM 8.4)
 - http://localhost:8107 (with Nginx and PHP-FPM 8.5)
-- http://localhost:8152 (with Nginx and PHP-FPM 8.0 with redis)
 - http://localhost:8153 (with Nginx and PHP-FPM 8.1 with redis)
 - http://localhost:8154 (with Nginx and PHP-FPM 8.2 with redis)
 - http://localhost:8155 (with Nginx and PHP-FPM 8.3 with redis)
 - http://localhost:8156 (with Nginx and PHP-FPM 8.4 with redis)
 - http://localhost:8157 (with Nginx and PHP-FPM 8.5 with redis)
-- https://localhost:9082 with SSL and Alpine 3.15 (with Apache and PHP 8.0)
 - https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
-- https://localhost:9084 with SSL and Alpine 3.18 (with Apache and PHP 8.2)
-- https://localhost:9085 with SSL and Alpine 3.20 (with Apache and PHP 8.3)
-- https://localhost:9086 with SSL and Alpine 3.21 (with Apache and PHP 8.4)
+- https://localhost:9084 with SSL and Alpine 3.22 (with Apache and PHP 8.2)
+- https://localhost:9085 with SSL and Alpine 3.22 (with Apache and PHP 8.3)
+- https://localhost:9086 with SSL and Alpine 3.22 (with Apache and PHP 8.4)
 - https://localhost:9087 with SSL and Alpine Edge (with Apache and now PHP 8.4)
-- https://localhost:9092 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
 - https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
-- https://localhost:9094 with SSL and Alpine 3.18 (with Apache and PHP 8.2 with redis)
-- https://localhost:9095 with SSL and Alpine 3.20 (with Apache and PHP 8.3 with redis)
-- https://localhost:9096 with SSL and Alpine 3.21 (with Apache and PHP 8.4 with redis)
+- https://localhost:9094 with SSL and Alpine 3.22 (with Apache and PHP 8.2 with redis)
+- https://localhost:9095 with SSL and Alpine 3.22 (with Apache and PHP 8.3 with redis)
+- https://localhost:9096 with SSL and Alpine 3.22 (with Apache and PHP 8.4 with redis)
 - https://localhost:9097 with SSL and Alpine Edge (with Apache and now PHP 8.4 with redis)
-- https://localhost:9102 with SSL (with Nginx and PHP-FPM 8.0)
 - https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 - https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
 - https://localhost:9105 with SSL (with Nginx and PHP-FPM 8.3)
 - https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.4)
 - https://localhost:9107 with SSL (with Nginx and PHP-FPM 8.5)
-- https://localhost:9152 with SSL (with Nginx and PHP-FPM 8.0 with redis)
 - https://localhost:9153 with SSL (with Nginx and PHP-FPM 8.1 with redis)
 - https://localhost:9154 with SSL (with Nginx and PHP-FPM 8.2 with redis)
 - https://localhost:9155 with SSL (with Nginx and PHP-FPM 8.3 with redis)
@@ -99,8 +91,8 @@ setup input screen:
    `mariadb-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
    `mysql` is version 8.4; `mysql-old` is version 8.0; `mysql-old-old` is version 5.7;
-   `mariadb` is version 11.4; `mariadb-ssl` is version 11.4 with support for ssl; `mariadb-old` is version 10.11; `mariadb-very-old` is
-   version 10.6; `mariadb-very-very-old` is version 10.5)
+   `mariadb` is version 11.8; `mariadb-ssl` is version 11.8 with support for ssl; `mariadb-old` is version 11.4; `mariadb-very-old` is
+   version 10.11; `mariadb-very-very-old` is version 10.6)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 
@@ -111,36 +103,31 @@ different github branch. This is done by first running a command or script
 to delete and replace the synchronized directory (ie. remove the /var/www/openemr
 directory) and then restart the development docker:
 ```bash
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 #### Updating Dockers
 To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
 ```console
 docker pull openemr/openemr:flex-edge
-docker pull openemr/openemr:flex-3.21
-docker pull openemr/openemr:flex-3.20
-docker pull openemr/openemr:flex-3.18
+docker pull openemr/openemr:flex-3.22
 docker pull openemr/openemr:flex-3.17
-docker pull openemr/openemr:flex-3.15-8
 docker pull openemr/dev-php-fpm:8.5
 docker pull openemr/dev-php-fpm:8.4
 docker pull openemr/dev-php-fpm:8.3
 docker pull openemr/dev-php-fpm:8.2
 docker pull openemr/dev-php-fpm:8.1
-docker pull openemr/dev-php-fpm:8.0
 docker pull openemr/dev-php-fpm:8.5-redis
 docker pull openemr/dev-php-fpm:8.4-redis
 docker pull openemr/dev-php-fpm:8.3-redis
 docker pull openemr/dev-php-fpm:8.2-redis
 docker pull openemr/dev-php-fpm:8.1-redis
-docker pull openemr/dev-php-fpm:8.0-redis
 docker pull openemr/dev-nginx
+docker pull mariadb:11.8
 docker pull mariadb:11.4
 docker pull mariadb:10.11
 docker pull mariadb:10.6
-docker pull mariadb:10.5
 docker pull mysql:8.4
 docker pull mysql:8.0
 docker pull mysql:5.7

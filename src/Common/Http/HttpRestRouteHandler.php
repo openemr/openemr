@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use Psr\Http\Message\ResponseInterface;
+use Exception;
 
 class HttpRestRouteHandler
 {
@@ -168,6 +169,7 @@ class HttpRestRouteHandler
 
     /**
      * Given a PSR7 response send the response (headers & body) to the HTTP requesting client
+     *
      * @param ResponseInterface $response The response to send
      */
     public static function emitResponse(ResponseInterface $response)
@@ -224,6 +226,7 @@ class HttpRestRouteHandler
 
     /**
      * Security check on the request route against the Access Token scopes.
+     *
      * @param HttpRestRequest $restRequest
      * @throws AccessDeniedException If the security check fails
      * @returns ResponseInterface|bool
@@ -281,7 +284,7 @@ class HttpRestRouteHandler
         }
         if ($checkedRestApiSecurityCheckEvent->hasSecurityCheckFailedResponse()) {
             return $checkedRestApiSecurityCheckEvent->getSecurityCheckFailedResponse();
-        } else if ($checkedRestApiSecurityCheckEvent->shouldSkipSecurityCheck()) {
+        } elseif ($checkedRestApiSecurityCheckEvent->shouldSkipSecurityCheck()) {
             return true;
         }
 
@@ -304,12 +307,16 @@ class HttpRestRouteHandler
             if (
                 $restRequest->getResource() == 'version'
                 || $restRequest->getResource() == 'product'
-                || $restRequest->isLocalApi() // skip security check if its a local api
+                || $restRequest->isLocalApi() // skip security check if it's a local api
             ) {
                 return true;
             }
             // ensure correct user role type for the non-fhir routes
-            if (($restRequest->getApiType() === 'oemr') && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
+            if (
+                ($restRequest->getApiType() === 'oemr')
+                && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))
+                && (($restRequest->getRequestUserRole() !== 'system') || ($scopeType !== 'system'))
+            ) {
                 (new SystemLogger())->debug("checkSecurity() - not allowing patient role to access oemr api");
                 $psrFactory = new Psr17Factory();
                 $config::destroySession();

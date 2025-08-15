@@ -23,7 +23,7 @@ function smarty_core_write_compiled_include($params, &$smarty)
 
     preg_match_all('!('.$_tag_start.'(.*)'.$_tag_end.')!Us',
                    $params['compiled_content'], $_match_source, PREG_SET_ORDER);
-    
+
     // no nocache-parts found: done
     if (count($_match_source)==0) return;
 
@@ -65,7 +65,7 @@ function smarty_core_write_compiled_include($params, &$smarty)
                         $tokens[$i] = '$' . $this_varname;
                     } else {
                         $tokens[$i] = $tokens[$i][1];
-                    }                   
+                    }
                 }
             }
             $source = implode('', $tokens);

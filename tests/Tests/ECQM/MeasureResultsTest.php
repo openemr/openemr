@@ -63,7 +63,7 @@ class MeasureResultsTest extends TestCase
         }
     }
 
-    public function testAllPatients()
+    public function testAllPatients(): void
     {
         $failures = [];
         foreach ($this->measure_result_map as $measureResult) {
@@ -126,7 +126,7 @@ class MeasureResultsTest extends TestCase
             );
 
             // Check response result against our measure map
-            foreach ($response as $id => $populationSets) {
+            foreach ($response as $populationSets) {
                 foreach ($populationSets as $setName => $populationSet) {
                     $parts = explode('_', $setName);
                     $setNumber = $parts[1];

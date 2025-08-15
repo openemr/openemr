@@ -14,17 +14,55 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
+use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
     private function base(): void
     {
-        $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
-        $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
-        $this->client->manage()->window()->maximize();
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
+
+        if ($useGrid === "true") {
+            // Use Selenium Grid (consistent testing environment with goal of stability)
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+            $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+
+            $capabilities = DesiredCapabilities::chrome();
+
+            $chromeArgs = [
+                '--window-size=1920,1080',  // Matches SE_SCREEN_WIDTH/HEIGHT
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ];
+
+            // Add headless if forced (but VNC won't work in headless mode)
+            if ($forceHeadless === "true") {
+                $chromeArgs[] = '--headless';
+            }
+
+            $capabilities->setCapability('goog:chromeOptions', [
+                'args' => $chromeArgs
+            ]);
+
+            $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+            $capabilities->setCapability('pageLoadStrategy', 'normal');
+
+            $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
+            $this->client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
+
+            $this->client->manage()->timeouts()->implicitlyWait(30);
+            $this->client->manage()->timeouts()->pageLoadTimeout(60);
+        } else {
+            // Use local ChromeDriver (not a consistent testing environment, which is thus not stable, good luck :) )
+            $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
+            $this->client->manage()->window()->maximize();
+        }
     }
 
     private function switchToIFrame(string $xpath): void
@@ -49,13 +87,13 @@ trait BaseTrait
                 }
             });
         }
-        $startTime = (int) (microtime(true) * 1000);
+        $startTime = (int)(microtime(true) * 1000);
         if (str_contains($loading, "||")) {
             // have 2 $loading to check
             $loading = explode("||", $loading);
             while (
                 str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
-                   str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
+                str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
             ) {
                 if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
                     $this->fail("Timeout waiting for tab [$text]");
@@ -82,9 +120,9 @@ trait BaseTrait
     {
         $this->client->waitFor(XpathsConstants::MODAL_TITLE);
         $this->crawler = $this->client->refreshCrawler();
-        $startTime = (int) (microtime(true) * 1000);
+        $startTime = (int)(microtime(true) * 1000);
         while (empty($this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text())) {
-            if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
+            if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
                 $this->fail("Timeout waiting for popup [$text]");
             }
             usleep(100);
@@ -94,6 +132,7 @@ trait BaseTrait
 
     private function goToMainMenuLink(string $menuLink): void
     {
+        // wait for the main menu to be visible
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
         // got to and click the menu link

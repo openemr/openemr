@@ -156,6 +156,7 @@ This is a listing of scopes:
   - `user/document.read`
   - `user/document.write`
   - `user/drug.read`
+  - `user/employer.read`
   - `user/encounter.read`
   - `user/encounter.write`
   - `user/facility.read`
@@ -178,6 +179,7 @@ This is a listing of scopes:
   - `user/practitioner.write`
   - `user/prescription.read`
   - `user/procedure.read`
+  - `user/product.read`
   - `user/soap_note.read`
   - `user/soap_note.write`
   - `user/surgery.read`

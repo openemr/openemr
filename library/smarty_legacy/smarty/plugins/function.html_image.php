@@ -37,7 +37,7 @@
 function smarty_function_html_image($params, &$smarty)
 {
     require_once $smarty->_get_plugin_filepath('shared','escape_special_chars');
-    
+
     $alt = '';
     $file = '';
     $height = '';
@@ -93,7 +93,7 @@ function smarty_function_html_image($params, &$smarty)
     } else {
         $_image_path = $file;
     }
-    
+
     if(!isset($params['width']) || !isset($params['height'])) {
         if(!$_image_data = @getimagesize($_image_path)) {
             if(!file_exists($_image_path)) {
@@ -112,8 +112,8 @@ function smarty_function_html_image($params, &$smarty)
             (require_once(SMARTY_CORE_DIR . 'core.is_secure.php')) &&
             (!smarty_core_is_secure($_params, $smarty)) ) {
             $smarty->trigger_error("html_image: (secure) '$_image_path' not in secure directory", E_USER_NOTICE);
-        }        
-        
+        }
+
         if(!isset($params['width'])) {
             $width = $_image_data[0];
         }

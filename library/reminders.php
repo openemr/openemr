@@ -39,7 +39,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
  * @param  integer  $patient_id  pid of selected patient
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  */
-function patient_reminder_widget($patient_id, $dateTarget = '')
+function patient_reminder_widget($patient_id, $dateTarget = ''): void
 {
 
   // Set date to current if not set
@@ -147,15 +147,15 @@ function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $repor
             //error_log("CDR: ".($batchSize*$i). " records",0);
 
             // Integrate batch results into main update_rem_log
-            $update_rem_log['total_active_actions'] = $update_rem_log['total_active_actions'] + $update_rem_log_batch['total_active_actions'];
-            $update_rem_log['total_pre_active_reminders'] = $update_rem_log['total_pre_active_reminders'] + $update_rem_log_batch['total_pre_active_reminders'];
-            $update_rem_log['total_pre_unsent_reminders'] = $update_rem_log['total_pre_unsent_reminders'] + $update_rem_log_batch['total_pre_unsent_reminders'];
-            $update_rem_log['number_new_reminders'] = $update_rem_log['number_new_reminders'] + $update_rem_log_batch['number_new_reminders'];
-            $update_rem_log['number_updated_reminders'] = $update_rem_log['number_updated_reminders'] + $update_rem_log_batch['number_updated_reminders'];
-            $update_rem_log['number_unchanged_reminders'] = $update_rem_log['number_unchanged_reminders'] + $update_rem_log_batch['number_unchanged_reminders'];
-            $update_rem_log['number_inactivated_reminders'] = $update_rem_log['number_inactivated_reminders'] + $update_rem_log_batch['number_inactivated_reminders'];
-            $update_rem_log['total_post_active_reminders'] = $update_rem_log['total_post_active_reminders'] + $update_rem_log_batch['total_post_active_reminders'];
-            $update_rem_log['total_post_unsent_reminders'] = $update_rem_log['total_post_unsent_reminders'] + $update_rem_log_batch['total_post_unsent_reminders'];
+            $update_rem_log['total_active_actions'] += $update_rem_log_batch['total_active_actions'];
+            $update_rem_log['total_pre_active_reminders'] += $update_rem_log_batch['total_pre_active_reminders'];
+            $update_rem_log['total_pre_unsent_reminders'] += $update_rem_log_batch['total_pre_unsent_reminders'];
+            $update_rem_log['number_new_reminders'] += $update_rem_log_batch['number_new_reminders'];
+            $update_rem_log['number_updated_reminders'] += $update_rem_log_batch['number_updated_reminders'];
+            $update_rem_log['number_unchanged_reminders'] += $update_rem_log_batch['number_unchanged_reminders'];
+            $update_rem_log['number_inactivated_reminders'] += $update_rem_log_batch['number_inactivated_reminders'];
+            $update_rem_log['total_post_active_reminders'] += $update_rem_log_batch['total_post_active_reminders'];
+            $update_rem_log['total_post_unsent_reminders'] += $update_rem_log_batch['total_post_unsent_reminders'];
         }
 
         //Update database to track results

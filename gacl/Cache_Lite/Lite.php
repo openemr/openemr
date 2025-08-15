@@ -335,7 +335,7 @@ class Cache_Lite
         if ($this->_memoryCaching) {
             if (isset($this->_memoryCachingArray[$this->_file])) {
                 unset($this->_memoryCachingArray[$this->_file]);
-                $this->_memoryCachingCounter = $this->_memoryCachingCounter - 1;
+                $this->_memoryCachingCounter -= 1;
             }
             if ($this->_onlyMemoryCaching) {
                 return true;
@@ -369,7 +369,7 @@ class Cache_Lite
             foreach ($this->_memoryCachingArray as $key => $value) {
                 if (strpos($key, $motif, 0)) {
                     unset($this->_memoryCachingArray[$key]);
-                    $this->_memoryCachingCounter = $this->_memoryCachingCounter - 1;
+                    $this->_memoryCachingCounter -= 1;
                 }
             }
             if ($this->_onlyMemoryCaching) {
@@ -472,11 +472,14 @@ class Cache_Lite
     *
     * @param string $msg error message
     * @param int $code error code
+    * @throws PEAR_Error
+    * @return never
     * @access public
     */
     function raiseError($msg, $code)
     {
         include_once('PEAR.php');
+        /** @phpstan-ignore-next-line */
         PEAR::raiseError($msg, $code, $this->_pearErrorMode);
     }
 
@@ -494,7 +497,7 @@ class Cache_Lite
                 unset($this->_memoryCachingArray[$key]);
             }
         } else {
-            $this->_memoryCachingCounter = $this->_memoryCachingCounter + 1;
+            $this->_memoryCachingCounter += 1;
         }
     }
 
@@ -531,7 +534,7 @@ class Cache_Lite
             set_magic_quotes_runtime(0);
             if ($this->_readControl) {
                 $hashControl = @fread($fp, 32);
-                $length = $length - 32;
+                $length -= 32;
             }
             $data = @fread($fp, $length);
             set_magic_quotes_runtime($mqr);

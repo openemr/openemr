@@ -100,7 +100,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click Save");?>.
                     <button type="button" class="btn btn-secondary btn-sm btn-save oe-inline oe-no-float"><?php echo xlt("Save");?></button>
                 </p>
-                
+
                 <p><?php echo xlt("Hold down Ctrl button to select multiple issues");?>.</p>
 
                 <p><?php echo xlt("For more information on Issues see the ");?>. <strong><a href="https://www.open-emr.org/wiki/index.php/Issues_%26_Immunizations" rel="noopener" target="_blank" class="oe-help-redirect"><?php echo xlt("Issues and Immunizations wiki page");?></a></strong></p>

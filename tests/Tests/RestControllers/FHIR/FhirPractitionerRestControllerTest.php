@@ -7,8 +7,6 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FHIR\FhirPractitionerRestController
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -40,20 +38,14 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * @cover ::post with valid data
-     */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $this->assertEquals(201, http_response_code());
         $this->assertNotEmpty($actualResult['uuid']);
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->fhirFixture['name']);
 
@@ -62,10 +54,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
-    public function testPatch()
+    public function testPatch(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $fhirId = $actualResult['uuid'];
@@ -77,10 +66,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
-    public function testInvalidPatch()
+    public function testInvalidPatch(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);
 
@@ -91,7 +77,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $fhirId = $actualResult['uuid'];
@@ -100,7 +86,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    public function testGetOneNoMatch()
+    public function testGetOneNoMatch(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);
 
@@ -108,7 +94,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);
 
@@ -116,7 +102,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $actualResults = $this->fhirPractitionerController->getAll($searchParams);
         $this->assertNotEmpty($actualResults);
 
-        foreach ($actualResults->getEntry() as $index => $bundleEntry) {
+        foreach ($actualResults->getEntry() as $bundleEntry) {
             $this->assertObjectHasProperty('fullUrl', $bundleEntry);
             $this->assertObjectHasProperty('resource', $bundleEntry);
         }

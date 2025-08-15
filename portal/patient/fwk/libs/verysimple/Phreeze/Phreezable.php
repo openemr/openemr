@@ -400,8 +400,8 @@ abstract class Phreezable implements Serializable
                     // decimal validation needs to be treated differently than whole numbers
 
                     $values = explode('.', (string) $this->$prop, 2);
-                    $right = count($values) > 1 ? strlen((string) $values [1]) : 0;
-                    $left = strlen((string) $values [0]);
+                    $right = count($values) > 1 ? strlen($values [1]) : 0;
+                    $left = strlen($values [0]);
 
                     $limits = explode('.', (string) $fm->FieldSize, 2);
                     $limitRight = count($limits) > 1 ? (int) $limits [1] : 0;

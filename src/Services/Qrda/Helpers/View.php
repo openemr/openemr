@@ -19,6 +19,8 @@ trait View
     protected $submission_program;
     protected $_qrda_guid;
 
+    protected $_measures;
+
     public function measures()
     {
         // Limit the pollution of the context by only passing the values we need
@@ -46,7 +48,7 @@ trait View
 
     public function object_id()
     {
-        return substr(sha1((string)random_bytes(512)), -24);
+        return substr(sha1(random_bytes(512)), -24);
     }
 
     public function submission_program()

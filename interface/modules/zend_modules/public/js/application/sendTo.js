@@ -177,14 +177,22 @@ $(function () {
         if (qrda == 'qrda') {
             $("#componentsForCCDA").hide('slow');
             $("#componentsForQRDA3").hide('slow');
+            $("#componentsForQRDA3Consolidated").hide('slow');
             $("#componentsForQRDA").show('slow');
         } else if (qrda == 'qrda3') {
             $("#componentsForCCDA").hide('slow');
             $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3Consolidated").hide('slow');
             $("#componentsForQRDA3").show('slow');
+        } else if (qrda == 'qrda3_consolidated') {
+            $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3").hide('slow');
+            $("#componentsForQRDA3Consolidated").show('slow');
         } else {
             $("#componentsForQRDA").hide('slow');
             $("#componentsForQRDA3").hide('slow');
+            $("#componentsForQRDA3Consolidated").hide('slow');
             $("#componentsForCCDA").show('slow');
         }
     });
@@ -194,14 +202,22 @@ $(function () {
         if (qrda === 'qrda') {
             $("#componentsForCCDA").hide('slow');
             $("#componentsForQRDA3").hide('slow');
+            $("#componentsForQRDA3Consolidated").hide('slow');
             $("#componentsForQRDA").toggle('slow');
         } else if (qrda === 'qrda3') {
             $("#componentsForCCDA").hide('slow');
             $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3Consolidated").hide('slow');
             $("#componentsForQRDA3").toggle('slow');
+        } else if (qrda === 'qrda3_consolidated') {
+            $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3").hide('slow');
+            $("#componentsForQRDA3Consolidated").toggle('slow');
         } else {
             $("#componentsForQRDA").hide('slow');
             $("#componentsForQRDA3").hide('slow');
+            $("#componentsForQRDA3Consolidated").hide('slow');
             $("#componentsForCCDA").toggle('slow');
         }
     });
@@ -381,7 +397,6 @@ function sendToDownloadAll() {
     var pid;
     var latest_ccda = getLatestCcda();
     var comp = getComponentsString();
-
     if ($('#ccda_pid').val()) {
         pids = $('#ccda_pid').val();
         pids = pids.split("_");
@@ -395,7 +410,7 @@ function sendToDownloadAll() {
             }
         }
     }
-    if (count == 0 && $('input:radio[name="downloadformat"]:checked').val() != 'qrda3') {
+    if (count == 0 && $('input:radio[name="downloadformat"]:checked').val() != 'qrda3' && $('input:radio[name="downloadformat"]:checked').val() != 'qrda3_consolidated') {
         $('.ap-st-st-12').fadeOut();
         $('.activity_indicator').css({"display": "none"});
         var resultTranslated = js_xl("Please select at least one patient.");
@@ -424,6 +439,13 @@ function sendToDownloadAll() {
                 window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda3");
             } else {
                 $('#download_qrda3').trigger("click");
+                $(".check_pid").prop("checked", false);
+            }
+        } else if (download_format == 'qrda3_consolidated') {
+            if ($('#ccda_pid').val()) {
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda3_consolidated=download_qrda3_consolidated");
+            } else {
+                $('#downloadqrda3_consolidated').trigger("click");
                 $(".check_pid").prop("checked", false);
             }
         } else if (download_format == 'ccr') {

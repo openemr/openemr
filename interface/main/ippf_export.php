@@ -37,7 +37,7 @@ $out = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
 $indent = 0;
 
 // Add a string to output with some basic sanitizing.
-function Add($tag, $text)
+function Add($tag, $text): void
 {
     global $out, $indent;
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
@@ -55,14 +55,14 @@ function Add($tag, $text)
     }
 }
 
-function AddIfPresent($tag, $text)
+function AddIfPresent($tag, $text): void
 {
     if (isset($text) && $text !== '') {
         Add($tag, $text);
     }
 }
 
-function OpenTag($tag)
+function OpenTag($tag): void
 {
     global $out, $indent;
     for ($i = 0; $i < $indent; ++$i) {
@@ -73,7 +73,7 @@ function OpenTag($tag)
     $out .= "<$tag>\n";
 }
 
-function CloseTag($tag)
+function CloseTag($tag): void
 {
     global $out, $indent;
     --$indent;
@@ -202,7 +202,7 @@ function mappedFieldOption($form_id, $field_id, $option_id)
     return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
-function exportEncounter($pid, $encounter, $date)
+function exportEncounter($pid, $encounter, $date): void
 {
   // Starting a new visit (encounter).
     OpenTag('IMS_eMRUpload_Visit');
@@ -313,7 +313,7 @@ function exportEncounter($pid, $encounter, $date)
     CloseTag('IMS_eMRUpload_Visit');
 }
 
-function endClient($pid, &$encarray)
+function endClient($pid, &$encarray): void
 {
   // Output issues.
     $ires = sqlStatement("SELECT " .
@@ -430,7 +430,7 @@ function endClient($pid, &$encarray)
     CloseTag('IMS_eMRUpload_Client');
 }
 
-function endFacility()
+function endFacility(): void
 {
     global $beg_year, $beg_month;
     OpenTag('IMS_eMRUpload_Version');

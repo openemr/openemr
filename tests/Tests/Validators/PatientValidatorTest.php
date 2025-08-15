@@ -7,9 +7,6 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-/**
- * @coversDefaultClass OpenEMR\Validators\PatientValidator
- */
 class PatientValidatorTest extends TestCase
 {
     private $patientValidator;
@@ -30,19 +27,13 @@ class PatientValidatorTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * @covers ::validate when an invalid context is used
-     */
-    public function testValidationInvalidContext()
+    public function testValidationInvalidContext(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->patientValidator->validate($this->patientFixture, 'invalid-context');
     }
 
-    /**
-     * @covers ::validate for an insert context with an invalid record
-     */
-    public function testValidationInsertFailure()
+    public function testValidationInsertFailure(): void
     {
         $this->patientFixture["fname"] = "";
         $actualResult = $this->patientValidator->validate($this->patientFixture, PatientValidator::DATABASE_INSERT_CONTEXT);
@@ -52,10 +43,7 @@ class PatientValidatorTest extends TestCase
         $this->assertEquals(1, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::validate for an insert context with a valid record
-     */
-    public function testValidationInsertSuccess()
+    public function testValidationInsertSuccess(): void
     {
         $actualResult = $this->patientValidator->validate($this->patientFixture, PatientValidator::DATABASE_INSERT_CONTEXT);
 
@@ -63,10 +51,7 @@ class PatientValidatorTest extends TestCase
         $this->assertEquals(0, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::validate for an update context with an invalid record
-     */
-    public function testValidationUpdateFailure()
+    public function testValidationUpdateFailure(): void
     {
         $this->patientFixture["uuid"] = $this->fixtureManager->getUnregisteredUuid();
         $this->patientFixture["fname"] = "";
@@ -82,10 +67,7 @@ class PatientValidatorTest extends TestCase
         $this->assertEquals(3, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::validate for an update context with a valid record
-     */
-    public function testValidationUpdateSuccess()
+    public function testValidationUpdateSuccess(): void
     {
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->fixtureManager->installSinglePatientFixture($patientFixture);
@@ -115,10 +97,7 @@ class PatientValidatorTest extends TestCase
         $this->assertEquals(0, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::isExistingUuid for success and failure use-cases
-     */
-    public function testIsExistingUuid()
+    public function testIsExistingUuid(): void
     {
         // ensure we have an installed record/patient
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();

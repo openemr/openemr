@@ -7,9 +7,6 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
-/**
- * @coversDefaultClass OpenEMR\RestControllers\PatientRestController
- */
 class PatientRestControllerTest extends TestCase
 {
     const PATIENT_API_URL = "/apis/api/patient";
@@ -50,10 +47,7 @@ class PatientRestControllerTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
-    public function testPostInvalidData()
+    public function testPostInvalidData(): void
     {
         unset($this->patientData["fname"]);
         $actualResult = $this->patientController->post($this->patientData);
@@ -63,10 +57,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::post with valid data
-     */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
@@ -79,10 +70,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertGreaterThan(0, $patientPid);
     }
 
-    /**
-     * @cover ::put with invalid data
-     */
-    public function testPutInvalidData()
+    public function testPutInvalidData(): void
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
@@ -98,10 +86,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::put with valid data
-     */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
@@ -121,10 +106,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals($this->patientData["phone_home"], $updatedPatient["phone_home"]);
     }
 
-    /**
-     * @cover ::getOne with an invalid uuid
-     */
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->patientController->getOne("not-a-uuid");
         $this->assertEquals(400, http_response_code());
@@ -133,10 +115,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals([], $actualResult["data"]);
     }
 
-    /**
-     * @cover ::getOne with a valid uuid
-     */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         // create a record
         $postResult = $this->patientController->post($this->patientData);
@@ -147,10 +126,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
-    /**
-     * @cover ::getAll
-     */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPatientFixtures();
         $searchResult = $this->patientController->getAll(array("postal_code" => "90210"), new SearchQueryConfig());
@@ -160,7 +136,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));
 
-        foreach ($searchResult["data"] as $index => $searchResult) {
+        foreach ($searchResult["data"] as $searchResult) {
             $this->assertEquals("90210", $searchResult["postal_code"]);
         }
     }

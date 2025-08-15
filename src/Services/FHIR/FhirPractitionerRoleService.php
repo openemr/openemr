@@ -7,6 +7,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\PractitionerRoleService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -16,16 +17,16 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR PractitionerRole Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerRoleService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var PractitionerRoleService
      */
@@ -126,39 +127,6 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     }
 
     /**
-     * Parses a FHIR PractitionerRole Resource, returning the equivalent OpenEMR practitionerRole record.
-     *
-     * @param array $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
-
-    /**
-     * Inserts an OpenEMR record into the sytem.
-     *
-     * @param array $openEmrRecord OpenEMR practitionerRole record
-     * @return ProcessingResult
-     */
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-    }
-
-
-    /**
-     * Updates an existing OpenEMR record.
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
-     * @return ProcessingResult
-     */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
@@ -168,10 +136,6 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->practitionerRoleService->search($openEMRSearchParameters);
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
     }
 
     /**

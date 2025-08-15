@@ -464,7 +464,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         # Get the tracker elements.
         $tracker_elements = collect_Tracker_Elements($tracker_id);
         # $j is incremented for a patient that made it for display.
-        $j = $j + 1;
+        $j += 1;
         ?>
 
     <tr bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>

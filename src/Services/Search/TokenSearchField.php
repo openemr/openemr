@@ -75,7 +75,7 @@ class TokenSearchField extends BasicSearchField
 
             $convertedFields[] = $this->createTokenSearchValue($value);
         }
-        parent::setValues($convertedFields);
+        return parent::setValues($convertedFields);
     }
 
     private function createTokenSearchValue($value)

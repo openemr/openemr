@@ -46,7 +46,7 @@ class AclTable extends AbstractTableGateway
     }
     public function aclUserGroupMapping()
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     usr. id AS user_id,
                     garo.id AS aro_id,
                     garo.value AS username,
@@ -55,12 +55,12 @@ class AclTable extends AbstractTableGateway
                     gagp.name AS group_name,
                     gagp.value AS group_nick
                 FROM
-                    `gacl_aro` AS garo 
-                        LEFT JOIN `gacl_groups_aro_map` AS gamp 
-                            ON garo.id = gamp.aro_id 
+                    `gacl_aro` AS garo
+                        LEFT JOIN `gacl_groups_aro_map` AS gamp
+                            ON garo.id = gamp.aro_id
                         LEFT JOIN `gacl_aro_groups` AS gagp
                             ON gagp.id = gamp.group_id
-                        RIGHT JOIN `users_secure` usr 
+                        RIGHT JOIN `users_secure` usr
                             ON usr. username =  garo.value
                 WHERE
                     garo.section_value = ?";
@@ -116,18 +116,18 @@ class AclTable extends AbstractTableGateway
     }
     public function getAclDataUsers($section_id)
     {
-        $sql    = " SELECT 
+        $sql    = " SELECT
                         usr_settings.*,
-                        aromap.group_id   
+                        aromap.group_id
                     FROM
-                        `module_acl_user_settings` AS usr_settings 
-                        LEFT JOIN `users_secure` AS usr 
-                          ON usr_settings.`user_id` = usr.id 
-                        LEFT JOIN `gacl_aro` AS aro 
-                          ON aro.value = usr.username 
-                        LEFT JOIN `gacl_groups_aro_map` AS aromap 
-                          ON aromap.aro_id = aro.id 
-                    WHERE 
+                        `module_acl_user_settings` AS usr_settings
+                        LEFT JOIN `users_secure` AS usr
+                          ON usr_settings.`user_id` = usr.id
+                        LEFT JOIN `gacl_aro` AS aro
+                          ON aro.value = usr.username
+                        LEFT JOIN `gacl_groups_aro_map` AS aromap
+                          ON aromap.aro_id = aro.id
+                    WHERE
                        usr_settings.`section_id` = ? AND aro.section_value = 'users'";
         $obj    = new ApplicationTable();
         $result = $obj->zQuery($sql, array($section_id));

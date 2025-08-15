@@ -48,7 +48,7 @@ class PatientIssuesService extends BaseService
 
     public function getAllIssues()
     {
-        $results = $this->search();
+        $results = $this->search([]);
         return $results->getData();
     }
 

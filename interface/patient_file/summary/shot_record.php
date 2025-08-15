@@ -105,7 +105,7 @@ function convertToDataArray($data_array)
     return $data;
 }
 
-function printPDF($res, $res2, $data)
+function printPDF($res, $res2, $data): void
 {
 
     $pdf = new Cezpdf("LETTER");
@@ -125,7 +125,7 @@ function printPDF($res, $res2, $data)
     $pdf->ezStream();
 }
 
-function printHTML($res, $res2, $data)
+function printHTML($res, $res2, $data): void
 {
 //print html css
 
@@ -244,7 +244,7 @@ function printHTML($res, $res2, $data)
         for ($j = 0; $j < $linesPerPage; $j++) {
             if ($rowData = array_shift($data)) {
                 echo "<tr>";
-                foreach ($rowData as $key => $value) {
+                foreach ($rowData as $value) {
                     //shading of cells
                     if ($j == 0) {
                         echo "<td>";

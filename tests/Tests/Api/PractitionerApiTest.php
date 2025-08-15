@@ -8,13 +8,12 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
  * Practitioner API Endpoint Test Cases.
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class PractitionerApiTest extends TestCase
 {
@@ -25,6 +24,7 @@ class PractitionerApiTest extends TestCase
      */
     private $testClient;
     private $fixtureManager;
+    private $practitionerRecord;
 
     protected function setUp(): void
     {
@@ -43,10 +43,7 @@ class PractitionerApiTest extends TestCase
         $this->testClient->cleanupClient();
     }
 
-    /**
-     * @covers ::post with an invalid practitioner request
-     */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->practitionerRecord["fname"]);
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
@@ -58,10 +55,7 @@ class PractitionerApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["data"]));
     }
 
-    /**
-     * @covers ::post with a valid practitioner request
-     */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
 
@@ -78,10 +72,7 @@ class PractitionerApiTest extends TestCase
         $this->assertIsString($newPractitionerUuid);
     }
 
-    /**
-     * @covers ::put with an invalid pid and uuid
-     */
-    public function testInvalidPut()
+    public function testInvalidPut(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -100,10 +91,7 @@ class PractitionerApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["data"]));
     }
 
-    /**
-     * @covers ::put with a valid resource id and payload
-     */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -124,10 +112,7 @@ class PractitionerApiTest extends TestCase
         $this->assertEquals($this->practitionerRecord["email"], $updatedResource["email"]);
     }
 
-    /**
-     * @covers ::getOne with an invalid pid
-     */
-    public function testGetOneInvalidId()
+    public function testGetOneInvalidId(): void
     {
         $actualResponse = $this->testClient->getOne(self::PRACTITIONER_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -138,10 +123,7 @@ class PractitionerApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["data"]));
     }
 
-    /**
-     * @covers ::getOne with a valid pid
-     */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -161,10 +143,7 @@ class PractitionerApiTest extends TestCase
     }
 
 
-    /**
-     * @covers ::getAll
-     */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
 
@@ -178,7 +157,7 @@ class PractitionerApiTest extends TestCase
         $searchResults = $responseBody["data"];
         $this->assertGreaterThan(1, $searchResults);
 
-        foreach ($searchResults as $index => $searchResult) {
+        foreach ($searchResults as $searchResult) {
             $this->assertEquals("0123456789", $searchResult["npi"]);
         }
     }

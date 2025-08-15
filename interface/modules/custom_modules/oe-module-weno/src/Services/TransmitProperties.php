@@ -310,7 +310,7 @@ insurance;
             --$age;
         }
 
-        return (int)$age;
+        return $age;
     }
 
     /**
@@ -585,8 +585,8 @@ insurance;
             $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
             if ($doIt) {
                 $provider['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
-                $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
-                    VALUES (?, ?, 'global:weno_provider_uid') 
+                $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)
+                    VALUES (?, ?, 'global:weno_provider_uid')
                     ON DUPLICATE KEY UPDATE `setting_value` = ?";
                 sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
             }
@@ -595,8 +595,8 @@ insurance;
             sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
             return $provider['weno_prov_id'];
         } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
-            $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
-                VALUES (?, ?, 'global:weno_provider_uid') 
+            $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)
+                VALUES (?, ?, 'global:weno_provider_uid')
                 ON DUPLICATE KEY UPDATE `setting_value` = ?";
             sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
 

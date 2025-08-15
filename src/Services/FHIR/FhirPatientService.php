@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -36,7 +37,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Patient Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -582,7 +582,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
                     } else {
-                        $data[$systemValue] = (string)$contactValue;
+                        $data[$systemValue] = $contactValue;
                     }
                 } elseif ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";
@@ -597,7 +597,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $data['DOB'] = (string)$fhirResource->getBirthDate();
         $data['sex'] = (string)$fhirResource->getGender();
 
-        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirResource->getIdentifier() as $identifier) {
             $type = $identifier->getType();
             $validCodes = ['SS' => 'ss', 'PT' => 'pubpid'];
             $coding = $type->getCoding() ?? [];

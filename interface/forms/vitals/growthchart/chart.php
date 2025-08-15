@@ -274,7 +274,7 @@ if ($charttype == 'birth') {
 $cssWidth = 524;
 $cssHeight = 668;
 
-function cssHeader()
+function cssHeader(): void
 {
     global $cssWidth, $cssHeight;
 
@@ -367,7 +367,7 @@ function cssHeader()
     <?php
 }
 
-function cssFooter()
+function cssFooter(): void
 {
     ?>
     </body>
@@ -375,7 +375,7 @@ function cssFooter()
     <?php
 }
 
-function cssPage($image1, $image2)
+function cssPage($image1, $image2): void
 {
     ?>
     <div class='paddingdiv' id='page1'>
@@ -403,13 +403,13 @@ function convertpoint($coord)
     $Ycoord = $coord[1];
 
     //adjust with offsets
-    $Xcoord = $Xcoord + $Xoffset;
-    $Ycoord = $Ycoord + $Yoffset;
+    $Xcoord += $Xoffset;
+    $Ycoord += $Yoffset;
 
 
     if ($Xcoord > 1000) {
         //on second page so subtract 1000 from x
-        $Xcoord = $Xcoord - 1000;
+        $Xcoord -= 1000;
         $page = "page2";
     } else {
         $page = "page1";
@@ -529,7 +529,7 @@ if (($_GET['html'] ?? null) == 1) {
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
                 $point = convertpoint(array($datatable_x + $datatable_hc_offset,$datatable_y));
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($head_circ)) . "</div>\n");
-                $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
+                $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
             }
 
             // 2 to 20 year-old chart has 7 rows to fill.
@@ -544,7 +544,7 @@ if (($_GET['html'] ?? null) == 1) {
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
                 $point = convertpoint(array($datatable_x + $datatable_bmi_offset,$datatable_y));
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr($bmi, 0, 5)) . "</div>\n");
-                $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
+                $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
             }
 
             // Head Circumference chart has 5 rows to fill in
@@ -559,7 +559,7 @@ if (($_GET['html'] ?? null) == 1) {
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
                 $point = convertpoint(array($datatable2_x + $datatable2_hc_offset,$datatable2_y));
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($head_circ)) . "</div>\n");
-                $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
+                $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
             }
 
             // BMI chart has 14 rows to fill in.
@@ -574,7 +574,7 @@ if (($_GET['html'] ?? null) == 1) {
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
                 $point = convertpoint(array($datatable2_x + $datatable2_bmi_offset,$datatable2_y));
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr($bmi, 0, 5)) . "</div>\n");
-                $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
+                $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
             }
             $count++;
         }
@@ -677,7 +677,7 @@ foreach ($datapoints as $data) {
             imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
             imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, unitsDist($height), $color);
             imagestring($im, 2, ($datatable_x + $datatable_hc_offset), $datatable_y, unitsDist($head_circ), $color);
-            $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
+            $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
         }
 
         // 2 to 20 year-old chart has 7 rows to fill.
@@ -687,7 +687,7 @@ foreach ($datapoints as $data) {
             imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
             imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, unitsDist($height), $color);
             imagestring($im, 2, ($datatable_x + $datatable_bmi_offset), $datatable_y, substr($bmi, 0, 5), $color);
-            $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
+            $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
         }
 
         // Head Circumference chart has 5 rows to fill in
@@ -697,7 +697,7 @@ foreach ($datapoints as $data) {
             imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_hc_offset), $datatable2_y, unitsDist($head_circ), $color);
-            $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
+            $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
         // BMI chart has 14 rows to fill in.
@@ -707,7 +707,7 @@ foreach ($datapoints as $data) {
             imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_bmi_offset), $datatable2_y, substr($bmi, 0, 5), $color);
-            $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
+            $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
         $count++;

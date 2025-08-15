@@ -2,13 +2,15 @@
 
 namespace OpenEMR\Tests\Api;
 
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Api\ApiTestClient;
+use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Facility API Endpoint Test Cases.
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -16,10 +18,13 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
+#[CoversClass(FacilityRestController::class)]
 class FacilityApiTest extends TestCase
 {
     const FACILITY_API_ENDPOINT = "/apis/default/api/facility";
     private $testClient;
+    private $facilityRecord;
 
     /**
      * @var FacilityFixtureManager
@@ -43,10 +48,8 @@ class FacilityApiTest extends TestCase
         $this->testClient->cleanupClient();
     }
 
-    /**
-     * @covers ::post with an invalid facility request
-     */
-    public function testInvalidPost()
+    #[Test]
+    public function testInvalidPost(): void
     {
         unset($this->facilityRecord["name"]);
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
@@ -58,10 +61,8 @@ class FacilityApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["data"]));
     }
 
-    /**
-     * @covers ::post with a valid facility request
-     */
-    public function testPost()
+    #[Test]
+    public function testPost(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
 
@@ -78,10 +79,8 @@ class FacilityApiTest extends TestCase
         $this->assertIsString($newFacilityUuid);
     }
 
-    /**
-     * @covers ::put with an invalid uuid
-     */
-    public function testInvalidPut()
+    #[Test]
+    public function testInvalidPut(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -100,10 +99,8 @@ class FacilityApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["data"]));
     }
 
-    /**
-     * @covers ::put with a valid resource uuid and payload
-     */
-    public function testPut()
+    #[Test]
+    public function testPut(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -123,10 +120,8 @@ class FacilityApiTest extends TestCase
         $this->assertEquals($this->facilityRecord["email"], $updatedResource["email"]);
     }
 
-    /**
-     * @covers ::getOne with an invalid uuid
-     */
-    public function testGetOneInvalidId()
+    #[Test]
+    public function testGetOneInvalidId(): void
     {
         $actualResponse = $this->testClient->getOne(self::FACILITY_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -137,10 +132,8 @@ class FacilityApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["data"]));
     }
 
-    /**
-     * @covers ::getOne with a valid uuid
-     */
-    public function testGetOne()
+    #[Test]
+    public function testGetOne(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -159,11 +152,8 @@ class FacilityApiTest extends TestCase
         $this->assertEquals($facilityId, $responseBody["data"]["id"]);
     }
 
-
-    /**
-     * @covers ::getAll
-     */
-    public function testGetAll()
+    #[Test]
+    public function testGetAll(): void
     {
         $this->fixtureManager->installFacilityFixtures();
 
@@ -177,7 +167,7 @@ class FacilityApiTest extends TestCase
         $searchResults = $responseBody["data"];
         $this->assertGreaterThan(1, $searchResults);
 
-        foreach ($searchResults as $index => $searchResult) {
+        foreach ($searchResults as $searchResult) {
             $this->assertEquals("0123456789", $searchResult["facility_npi"]);
         }
     }

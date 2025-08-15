@@ -16,7 +16,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 require_once("{$GLOBALS['srcdir']}/group.inc.php");
 require_once("functions.php");
-function group_attendance_report($pid, $encounter, $cols, $id)
+function group_attendance_report($pid, $encounter, $cols, $id): void
 {
 
     global $therapy_group;

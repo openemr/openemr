@@ -8,11 +8,17 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @deprecated Its unlikely these files are used as the functionality has been replaced by the "Merge Patients" feature in the patient summary screen.
  */
-
+class DupeCheckMergeRecordsIsDeprecated
+{
+    public function __construct()
+    {
+        trigger_error("The dupecheck module is deprecated and will be removed in a future version of OpenEMR. Please use the 'Merge Patients' feature in the patient summary screen instead.", E_USER_DEPRECATED);
+    }
+}
 require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc.php");
-require_once("./Utils.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -155,7 +161,7 @@ foreach ($parameters['otherid'] as $otherID) {
     echo "<br /><br />";
 } // end of otherID loop
 
-function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
+function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
 {
     global $commitchanges;
 

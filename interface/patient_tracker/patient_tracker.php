@@ -63,7 +63,7 @@ if (!$GLOBALS['ptkr_date_range']) {
 } elseif (($GLOBALS['ptkr_start_date']) == 'D0') {
     $from_date = date('Y-m-d');
 } elseif (($GLOBALS['ptkr_start_date']) == 'B0') {
-    if (date(w) == GLOBALS['first_day_week']) {
+    if (date('w') == $GLOBALS['first_day_week']) {
         //today is the first day of the week
         $from_date = date('Y-m-d');
     } elseif ($GLOBALS['first_day_week'] == 0) {
@@ -330,7 +330,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     // get all appts for date range and refine view client side.  very fast...
     $appointments = array();
     $datetime = date("Y-m-d H:i:s");
-    $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id);
+    $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date', 'time');
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
@@ -599,7 +599,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             data-pid="' . attr($appointment['pc_pid']) . '"
                             data-pname="' . attr($ptname) . '"
                             class="text-small"
-                            style="background-color:' . attr($bgcolor) . ';" >';
+                            style="background-color:#' . attr($bgcolor) . ';" >';
 
                         if ($GLOBALS['ptkr_show_pid']) {
                             ?>
@@ -794,7 +794,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
         <input type='hidden' name='encounterID' value='0' />
     </form>
 
-    <?php echo myLocalJS(); ?>
+    <?php myLocalJS(); ?>
 </body>
 </html>
     <?php
@@ -803,7 +803,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 exit;
 
-function myLocalJS()
+function myLocalJS(): void
 {
     ?>
     <script>

@@ -59,7 +59,7 @@ class System
             $redirect_errors = " > " .
                 $this->escapeshellcmd($GLOBALS['temporary_files_dir'] .
                     "/oe-system-start_server.log") . " 2>&1";
-            $cmd = $cmd . $redirect_errors;
+            $cmd .= $redirect_errors;
             $phandle = popen("start /B " . $cmd, "r");
             if ($phandle === false) {
                 error_log("Failed to start local CQM");

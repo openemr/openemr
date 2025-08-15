@@ -39,10 +39,10 @@ class FhirExportServiceLocatorTest extends TestCase
         $this->mockConfig::reset();
     }
 
-    public function testFindExportServices()
+    public function testFindExportServices(): void
     {
 
-        $noop = function () {};
+        $noop = function (): void {};
         $config = $this->mockConfig;
         $config::$FHIR_ROUTE_MAP = [
             'GET /fhir/Patient' => $noop

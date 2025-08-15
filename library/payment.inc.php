@@ -55,14 +55,14 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 //===============================================================================
 //This section handles the common functins of payment screens.
 //===============================================================================
-function DistributionInsert($CountRow, $created_time, $user_id)
+function DistributionInsert($CountRow, $created_time, $user_id): void
 {
 //Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $Affected = 'no';
     // watch for payments less than $1, thanks @snailwell
-    if (isset($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
+    if (!empty($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
         if (trim(formData('type_name')) == 'insurance') {
             if (trim(formData("HiddenIns$CountRow")) == 1) {
                 $AccountCode = "IPP";
@@ -245,7 +245,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
   // Delete rows, with logging, for the specified table using the
   // specified WHERE clause.  Borrowed from deleter.php.
   //
-function row_delete($table, $where)
+function row_delete($table, $where): void
 {
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -276,7 +276,7 @@ function row_delete($table, $where)
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.  Borrowed from deleter.php.
 //
-function row_modify($table, $set, $where)
+function row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::instance()->newEvent(

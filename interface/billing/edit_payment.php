@@ -187,7 +187,7 @@ if (isset($_POST["mode"])) {
                 //==============================================================================================================================
 
                 $where = "$where1 AND adj_amount != 0";
-                if (isset($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
+                if (!empty($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
                         $AccountCode = "IA";
@@ -771,7 +771,7 @@ $ResultSearchSub = sqlStatement(
                                         $rowMoneyGot = sqlFetchArray($resMoneyGot);
                                         $PatientPay = $rowMoneyGot['PatientPay'];
 
-                                        $Copay = $Copay + $PatientPay;
+                                        $Copay += $PatientPay;
                                     }
 
                                     //For calculating Remainder
@@ -952,11 +952,11 @@ $ResultSearchSub = sqlStatement(
                                     } elseif ($Ins == 0) {
                                         $bgcolor = '#AAFFFF';
                                     }
-                                    $paymenttot = $paymenttot + floatval($PaymentDB);
-                                    $adjamttot = $adjamttot + floatval($AdjAmountDB);
-                                    $deductibletot = $deductibletot + floatval($DeductibleDB);
-                                    $takebacktot = $takebacktot + floatval($TakebackDB);
-                                    $allowedtot = $allowedtot + floatval($AllowedDB);
+                                    $paymenttot += floatval($PaymentDB);
+                                    $adjamttot += floatval($AdjAmountDB);
+                                    $deductibletot += floatval($DeductibleDB);
+                                    $takebacktot += floatval($TakebackDB);
+                                    $allowedtot += floatval($AllowedDB);
                                     ?>
 
                                 <tr class="border-dark" bgcolor='<?php echo attr($bgcolor); ?>' class="text" id="trCharges<?php echo attr($CountIndex); ?>">

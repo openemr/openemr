@@ -143,7 +143,6 @@ class edih_835_codes
         "LA" => "Life-time Reserve - Actual",
         "LE" => "Life-time Reserve - Estimated",
         "NE" => "Non-Covered - Estimated",
-        "NL" => "Net Billed",
         "NL" => "Negative Ledger Balance",
         "NR" => "Not Replaced Blood Units",
         "OU" => "Outlier Days",

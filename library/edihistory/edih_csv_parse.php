@@ -539,7 +539,7 @@ function edih_277_csv_data($obj277)
                         //
                         if (strncmp($seg, 'HL' . $de, 3) === 0) {
                             $sar = explode($de, $seg);
-                            $hl = (string)$sar[3];
+                            $hl = $sar[3];
                         }
 
                         //
@@ -1086,7 +1086,7 @@ function edih_997_csv_data($obj997)
                 if (strncmp($seg, 'AK2' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $rspsttype = csv_file_type($sar[1]);
-                    $rspstn = (string)$sar[2];
+                    $rspstn = $sar[2];
                     $bht03syn = sprintf("%s%04d", $isaicn, $rspstn);
                     $iserr = false;
                     $err_seg = '';
@@ -1384,9 +1384,9 @@ function edih_271_csv_data($obj270)
                 //
                 // for 270 eligibility request
                 if (strncmp($seg, 'EQ' . $de, 3) === 0) {
-                    if (strlen((string)$sar[1])) {
+                    if (strlen($sar[1])) {
                         $bnfteq .= ($bnfteq) ? '|' . $sar[1] : $sar[1];
-                    } elseif (strlen((string)$sar[2])) {
+                    } elseif (strlen($sar[2])) {
                         $bnfteq .= ($bnfteq) ?  '|' . $sar[2] : $sar[2];
                     } else {
                         csv_edihist_log('Invalid EQ segment, missing benefit type in ' . $fn);

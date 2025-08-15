@@ -34,6 +34,7 @@ class CdaTemplateImportDispose
     protected $codeService;
     protected $userauthorized;
     private int $currentEncounter;
+    private array $encounterList = [];
 
     public function __construct()
     {
@@ -69,7 +70,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($allergy_array as $key => $value) {
+        foreach ($allergy_array as $value) {
             $active = 1;
 
             $allergy_begdate_value = null;
@@ -250,7 +251,7 @@ class CdaTemplateImportDispose
             }
         }
 
-        foreach ($care_plan_array as $key => $value) {
+        foreach ($care_plan_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             $end_date = $value['end_date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
             $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_low'])) : null;
@@ -331,23 +332,20 @@ class CdaTemplateImportDispose
                 $newid = 1;
             }
         }
-        foreach ($clinical_note_array as $key => $value) {
+        foreach ($clinical_note_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
-            // encounters already created or should be created
+            // encounters already created or should have been created
+            // all newly created encounters get stored to a static array
+            $encounter_for_forms = $this->encounterList[$value['encounter_extension']] ?? null;
             if (empty($encounter_for_forms)) {
                 $encounter_for_forms = $this->findClosestEncounterWithForm(trim($plan_date_value), $pid, 'form_clinical_notes');
-                if (empty($encounter_for_forms && empty($this->currentEncounter))) {
+                if (empty($encounter_for_forms && empty($static_encounter))) {
                     $query_sel_enc = "SELECT encounter FROM form_encounter WHERE date=? AND pid=?";
                     $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array(date('Y-m-d H:i:s'), $pid));
                     if ($res_query_sel_enc->count() == 0) {
                         $res_enc = $appTable->zQuery("SELECT encounter FROM form_encounter WHERE pid=? ORDER BY id DESC LIMIT 1", array($pid));
                         $res_enc_cur = $res_enc->current();
                         $encounter_for_forms = $res_enc_cur['encounter'];
-                    } else {
-                        $encounter_for_forms = $this->currentEncounter;
-                        /*foreach ($res_query_sel_enc as $value2) {
-                            $encounter_for_forms = $value2['encounter'];
-                        }*/
                     }
                 }
             }
@@ -379,7 +377,7 @@ class CdaTemplateImportDispose
         }
         $encounter_for_billing = 0;
         $appTable = new ApplicationTable();
-        foreach ($proc_array as $key => $value) {
+        foreach ($proc_array as $value) {
             $procedure_date_value = null;
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
                 $procedure_date_value = !empty($value['date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
@@ -597,7 +595,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($enc_array as $key => $value) {
+        foreach ($enc_array as $value) {
             $encounter_id = $appTable->generateSequenceID();
 
             $value['provider_npi'] = $value['provider_npi'] ?? '';
@@ -680,6 +678,9 @@ class CdaTemplateImportDispose
                 $catname = substr($catname, 0, 92);
                 if (empty($reason)) {
                     $reason = trim($cat[1] ?? '');
+                    if (empty($reason)) {
+                        $reason = $catname;
+                    }
                 }
                 $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?? '';
             }
@@ -807,6 +808,8 @@ class CdaTemplateImportDispose
                     }
                 }
             }
+
+            $this->encounterList[$value["extension"]] = $encounter_id;
             //to external_encounters
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
             $appTable->zQuery($insertEX, array($encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)));
@@ -835,7 +838,7 @@ class CdaTemplateImportDispose
             $ct_id = $val['ct_id'];
         }
 
-        foreach ($imm_array as $key => $value) {
+        foreach ($imm_array as $value) {
             //provider
             $value['provider_npi'] = $value['provider_npi'] ?? '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
@@ -1104,7 +1107,7 @@ class CdaTemplateImportDispose
 
         $appTable = new ApplicationTable();
         $oid_route = $unit_option_id = $oidu_unit = '';
-        foreach ($pres_array as $key => $value) {
+        foreach ($pres_array as $value) {
             $active = 1;
             if (empty($value['enddate'])) {
                 $value['enddate'] = (null);
@@ -1386,7 +1389,7 @@ class CdaTemplateImportDispose
 
             // Medication additions
             if ($addMedication) {
-                $sql = "INSERT INTO lists SET `type` = ?, `begdate` = ?, `enddate` = ?, `pid` = ?, 
+                $sql = "INSERT INTO lists SET `type` = ?, `begdate` = ?, `enddate` = ?, `pid` = ?,
                       `title` = ?, `diagnosis` = ?, `date` = ?, `activity` = ?, `user` = ?, `groupname` = ?";
                 $med = [
                     'medication',
@@ -1420,7 +1423,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($med_pblm_array as $key => $value) {
+        foreach ($med_pblm_array as $value) {
             $activity = 1;
 
             if (!empty($value['begdate']) && $revapprove == 0) {
@@ -1610,7 +1613,7 @@ class CdaTemplateImportDispose
             $pro_name = xlt('Qrda Lab');
         }
         $appTable = new ApplicationTable();
-        foreach ($lab_results as $key => $value) {
+        foreach ($lab_results as $value) {
             $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             $value['proc_text'] = $value['proc_text'] ?? (xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date'])));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
@@ -1728,7 +1731,7 @@ class CdaTemplateImportDispose
             }
         }
 
-        foreach ($functional_cognitive_status_array as $key => $value) {
+        foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
                 $date = $carecoordinationTable->formatDate($value['date']);
             } else {
@@ -1779,7 +1782,7 @@ class CdaTemplateImportDispose
                 $newid = 1;
             }
         }
-        foreach ($functional_cognitive_status_array as $key => $value) {
+        foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
                 $date = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             } else {
@@ -1822,6 +1825,7 @@ class CdaTemplateImportDispose
             }
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date));
+            $plan_date_value = null; // leaving variable in before in case code relies on key as it was undefined and newer versions of php doesn't like that.
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
 
@@ -1846,7 +1850,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($arr_referral as $key => $value) {
+        foreach ($arr_referral as $value) {
             $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array(date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $_SESSION["userauthorized"] ?? ''));
             if ($res) {
@@ -1901,7 +1905,7 @@ class CdaTemplateImportDispose
             return;
         }
         $appTable = new ApplicationTable();
-        foreach ($vitals_array as $key => $value) {
+        foreach ($vitals_array as $value) {
             if (!empty($value['date']) && $revapprove == 0) {
                 $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             } elseif (!empty($value['date']) && $revapprove == 1) {
@@ -2231,24 +2235,71 @@ class CdaTemplateImportDispose
     }
 
     /**
-     * @param $item_date
-     * @param $item_pid
-     * @return int
+     * Find the closest encounter (by date) for a given item date and patient ID.
+     * The original code was refactored by ChatGPT to improve readability and maintainability.
+     *  The refactor request was to expand the encounter search to separate both before and after the item date.
+     * @param string $item_date The form item's date (any format parsable by strtotime).
+     * @param int    $item_pid  The patient ID.
+     * @return int              The encounter id (or 0 if none found).
      */
     public function findClosestEncounter($item_date, $item_pid): int
     {
-        $item_date = !empty($item_date) ? date('Y-m-d 23:59:59', strtotime($item_date)) : null;
-        $sql = "SELECT
-            fe.encounter,
-            fe.date,
-            fe.pid
-            FROM `form_encounter` AS fe
-            WHERE fe.date <= ? AND fe.pid = ?
-            ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
-        $rtn = sqlQuery($sql, array($item_date, $item_pid));
+        if (empty($item_date)) {
+            return 0;
+        }
 
-        return (int)($rtn['encounter'] ?? '') ?: 0;
+        $item_ts = strtotime($item_date);
+        if ($item_ts === false) {
+            return 0;
+        }
+
+        $item_date_end = date('Y-m-d 23:59:59', $item_ts);
+        $item_date_start = date('Y-m-d 00:00:00', $item_ts);
+
+        $sqlBefore = "SELECT encounter, date
+                  FROM form_encounter
+                  WHERE date <= ? AND pid = ?
+                  ORDER BY date DESC
+                  LIMIT 1";
+        $resultBefore = sqlQuery($sqlBefore, array($item_date_end, $item_pid));
+
+        $sqlAfter = "SELECT encounter, date
+                 FROM form_encounter
+                 WHERE date >= ? AND pid = ?
+                 ORDER BY date ASC
+                 LIMIT 1";
+        $resultAfter = sqlQuery($sqlAfter, array($item_date_start, $item_pid));
+
+        $encounterBefore = null;
+        $encounterAfter = null;
+        $diffBefore = PHP_INT_MAX;
+        $diffAfter = PHP_INT_MAX;
+
+        if ($resultBefore && !empty($resultBefore['date'])) {
+            $tsBefore = strtotime($resultBefore['date']);
+            $diffBefore = abs($item_ts - $tsBefore);
+            $encounterBefore = (int)$resultBefore['encounter'];
+        }
+
+        if ($resultAfter && !empty($resultAfter['date'])) {
+            $tsAfter = strtotime($resultAfter['date']);
+            $diffAfter = abs($tsAfter - $item_ts);
+            $encounterAfter = (int)$resultAfter['encounter'];
+        }
+
+        // If only one side is available, return that one.
+        if ($encounterBefore === null && $encounterAfter !== null) {
+            return $encounterAfter;
+        } elseif ($encounterAfter === null && $encounterBefore !== null) {
+            return $encounterBefore;
+        } elseif ($encounterBefore !== null && $encounterAfter !== null) {
+            // Return the one with the smaller difference.
+            return ($diffBefore <= $diffAfter) ? $encounterBefore : $encounterAfter;
+        }
+
+        return 0;
     }
+
 
     /**
      * @param $item_date
@@ -2285,7 +2336,7 @@ class CdaTemplateImportDispose
         if (empty($arr_file)) {
             return;
         }
-        foreach ($arr_file as $key => $value) {
+        foreach ($arr_file as $value) {
             $exist = sqlQuery("SELECT id  FROM `documents` WHERE `foreign_id` = ? AND `hash` = ? LIMIT 1", array($pid, $value['hash']));
             if (!empty($exist['id'])) {
                 error_log(xlt("Skipping import. Document exists already. File Name") . ': ' . text($value['file_name']) . ' Hash: ' . text($value['hash']));

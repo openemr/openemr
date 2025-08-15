@@ -13,6 +13,11 @@
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleconferenceRoomController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\ParticipantListService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use OpenEMR\Services\AppointmentService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -31,7 +36,13 @@ class TeleconferenceRoomControllerTest extends TestCase
         $this->controller = new TeleconferenceRoomController(
             $this->createMock(Environment::class),
             $this->createMock(LoggerInterface::class),
-            ''
+            $this->createMock(TeleHealthVideoRegistrationController::class),
+            $this->createMock(TeleHealthParticipantInvitationMailerService::class),
+            $this->createMock(TeleHealthFrontendSettingsController::class),
+            $this->createMock(TelehealthGlobalConfig::class),
+            $this->createMock(TeleHealthProvisioningService::class),
+            $this->createMock(ParticipantListService::class),
+            ""
         );
     }
 
@@ -52,7 +63,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         ];
     }
 
-    public function testInitalizeAppointmentForTelehealthWithPendingCheckinStatus()
+    public function testInitalizeAppointmentForTelehealthWithPendingCheckinStatus(): void
     {
         $apptService = $this->createMock(AppointmentService::class);
         $appointment = $this->getDefaultAppointment();
@@ -68,7 +79,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         $controller->initalizeAppointmentForTelehealth($appointment['pc_eid']);
     }
 
-    public function testInitalizeAppointmentForTelehealthWithValidCheckinStatus()
+    public function testInitalizeAppointmentForTelehealthWithValidCheckinStatus(): void
     {
         $encounterId = 50;
         $apptService = $this->createMock(AppointmentService::class);
@@ -101,7 +112,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         $this->assertEquals($encounterId, $updatedAppointment['encounter'], 'Encounter value should match getEncounterForAppointment return');
     }
 
-    public function testInitalizeAppointmentForTelehealthWithAppointmentCreation()
+    public function testInitalizeAppointmentForTelehealthWithAppointmentCreation(): void
     {
         $encounterId = 50;
         $apptService = $this->createMock(AppointmentService::class);

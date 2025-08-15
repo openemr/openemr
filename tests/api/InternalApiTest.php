@@ -10,9 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment below exit command to run this test script
-//  (when done, remember to uncomment it again)
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_INTERNAL_API_TEST')) {
+    die('Set OPENEMR_ENABLE_INTERNAL_API_TEST=1 environment variable to enable this script');
+}
 
 require_once(__DIR__ . "/../../interface/globals.php");
 

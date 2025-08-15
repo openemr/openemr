@@ -250,7 +250,7 @@ function todaysEncounter($patient_id, $reason = '')
 }
 //===============================================================================
 // get the original event's repeat specs
-function update_event($eid)
+function update_event($eid): void
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $origEvent = sqlFetchArray($origEventRes);
@@ -413,7 +413,7 @@ function &__increment($d, $m, $y, $f, $t)
     }
 
     if ($t == REPEAT_EVERY_DAY) {
-        $d = $d + $f;
+        $d += $f;
     } elseif ($t == REPEAT_EVERY_WORK_DAY) {
         // a workday is defined as Mon,Tue,Wed,Thu,Fri
         // repeating on every or Nth work day means to not include
@@ -443,13 +443,13 @@ function &__increment($d, $m, $y, $f, $t)
             $f++;
         }
 
-        $d = $d + $f;
+        $d += $f;
     } elseif ($t == REPEAT_EVERY_WEEK) {
-        $d = $d + (7 * $f);
+        $d += 7 * $f;
     } elseif ($t == REPEAT_EVERY_MONTH) {
-        $m = $m + $f;
+        $m += $f;
     } elseif ($t == REPEAT_EVERY_YEAR) {
-        $y = $y + $f;
+        $y += $f;
     }
 
     $dtYMD = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));

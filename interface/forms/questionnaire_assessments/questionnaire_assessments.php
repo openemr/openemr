@@ -14,8 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
@@ -25,6 +23,9 @@ use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 // block of code to securely support use by the patient portal
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../../vendor/autoload.php");
 $isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($isPortal) {
     $ignoreAuth_onsite_portal = true;

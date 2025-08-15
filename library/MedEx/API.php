@@ -1479,10 +1479,10 @@ class Logging extends base
             if (is_array($data)) {
                 $dumper = print_r($data, true);
                 foreach ($data as $key => $value) {
-                    fputs($std_log, $key . ": " . $value . "\n");
+                    fwrite($std_log, $key . ": " . $value . "\n");
                 }
             } else {
-                fputs($std_log, "\nDATA= " . $data . "\n");
+                fwrite($std_log, "\nDATA= " . $data . "\n");
             }
         } catch (\Exception $e) {
             fwrite($std_log, $e->getMessage() . "\n");

@@ -3,7 +3,6 @@
 /**
  * FHIR Procedure Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirProcedureService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>
@@ -15,6 +14,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureOEProcedureService;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureSurgeryService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -24,6 +24,7 @@ use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -103,20 +104,6 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
-    }
-
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult
-     */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
-    {
-        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind);
-        $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false, $puuidBind);
-        return $this->processResults($procedureResult, $surgeryResult);
     }
 
     /**

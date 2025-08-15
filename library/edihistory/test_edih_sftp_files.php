@@ -24,8 +24,10 @@
  *
  */
 
-// comment out below exit when need to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_TEST_EDIH_SFTP_FILES')) {
+    die('Set OPENEMR_ENABLE_TEST_EDIH_SFTP_FILES=1 environment variable to enable this script');
+}
 
 /* ** add this function to edih_uploads.php
  * -- or work it into edih_upload_files(), since it is almost a direct copy
@@ -107,7 +109,7 @@ function edih_upload_sftp()
 
         if (!$fa['tmp_name'] || !$fa['size']) {
             //$html_str .= "Error: file name or size error <br />" . PHP_EOL;
-            $f_ar['reject'][] = array('name' => (string)$fa['name'],'comment' => 'php file upload error');
+            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'php file upload error');
             unset($files[$uplkey][$idx]);
             continue;
         }
@@ -239,7 +241,7 @@ $get_count = extract($_GET, EXTR_OVERWRITE);
 $script_dir = dirname(__FILE__);
 ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$script_dir/phpseclib");
 require_once("$script_dir/phpseclib/Net/SFTP.php");
-function get_openemr_globals($libdir)
+function get_openemr_globals($libdir): void
 {
     if (!isset($site)) {
         $_GET['site'] = 'default';
@@ -247,7 +249,7 @@ function get_openemr_globals($libdir)
 
     require_once("$libdir/../interface/globals.php");
 }
-function sftp_status($msg, $val)
+function sftp_status($msg, $val): void
 {
     if (php_sapi_name() == 'cli') {
         fwrite(STDOUT, xl($msg) . ' ' . $val . PHP_EOL);

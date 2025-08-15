@@ -19,7 +19,6 @@ require_once(__DIR__ . '/../../../_rest_config.php');
 /**
  * FHIR Organization Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
@@ -61,7 +60,7 @@ class FhirOrganizationRestController
         $processingResult = $this->fhirOrganizationService->getAll($searchParams);
         $bundleEntries = array();
         // TODO: adunsulag why isn't this work done in the fhirService->createBundle?
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult

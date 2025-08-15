@@ -174,7 +174,7 @@ class CcdaServiceRequestModelGenerator
         $this->data .= $this->getEncounterccdadispatchTable()->getLegalAuthenticator($pid, $encounter);
         $this->data .= $this->getEncounterccdadispatchTable()->getDocumentParticipants($pid, $encounter);
         $this->data .= $this->getEncounterccdadispatchTable()->getAuthenticator($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getPrimaryCareProvider($pid, $encounter);
+        $this->data .= $this->getEncounterccdadispatchTable()->getPatientCarePlan($pid, $encounter);
         /***************CCDA Header Information***************/
 
         /***************CCDA Body Information***************/
@@ -272,6 +272,11 @@ class CcdaServiceRequestModelGenerator
         if (in_array('referral', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid);
         }
+
+        if (in_array('payers', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getPayers($pid);
+        }
+
         return $ccd;
     }
 

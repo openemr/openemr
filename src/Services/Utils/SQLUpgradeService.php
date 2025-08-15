@@ -21,8 +21,9 @@ namespace OpenEMR\Services\Utils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
+use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 
-class SQLUpgradeService
+class SQLUpgradeService implements ISQLUpgradeService
 {
     private $renderOutputToScreen = true;
     private $throwExceptionOnError = false;
@@ -578,7 +579,7 @@ class SQLUpgradeService
                 $tables_list = $this->getTablesList(array('engine' => 'MyISAM'));
 
                 $skipping = true;
-                foreach ($tables_list as $k => $t) {
+                foreach ($tables_list as $t) {
                     if (empty($t)) {
                         continue;
                     }
@@ -679,7 +680,7 @@ class SQLUpgradeService
                 continue;
             }
 
-            $query = $query . $line;
+            $query .= $line;
 
             if (substr(trim($query), -1) == ';') {
                 if ($trim) {
@@ -1009,7 +1010,7 @@ class SQLUpgradeService
 
                 $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
                 SqlStatement($sql2, array($parts[0] . '_issue_list', $parts[1], $parts[1], $seq));
-                $seq = $seq + 10;
+                $seq += 10;
                 $prev = $parts[0];
             }
 
@@ -1033,9 +1034,9 @@ class SQLUpgradeService
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
         if (count($records) > 0) {
             $seq = 0;
-            foreach ($records as $key => $value) {
+            foreach ($records as $value) {
                 sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq + 10)));
-                $seq = $seq + 10;
+                $seq += 10;
             }
         }
     }
@@ -1056,9 +1057,9 @@ class SQLUpgradeService
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
         if (count($records) > 0) {
             $seq = 0;
-            foreach ($records as $key => $value) {
+            foreach ($records as $value) {
                 sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq + 10)));
-                $seq = $seq + 10;
+                $seq += 10;
             }
         }
     }
@@ -1077,9 +1078,9 @@ class SQLUpgradeService
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");
         if (count($records) > 0) {
             $seq = 0;
-            foreach ($records as $key => $value) {
+            foreach ($records as $value) {
                 sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq + 10)));
-                $seq = $seq + 10;
+                $seq += 10;
             }
         }
     }

@@ -149,6 +149,8 @@ class Prescription extends ORDataObject
 
     var $updated_by;
 
+    private string $erx_source;
+
     /**
     * Constructor sets all Prescription attributes to their default value
     */
@@ -232,7 +234,7 @@ class Prescription extends ORDataObject
 
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
             . "ID: " . $this->id . "\n"
             . "Patient:" . $this->patient . "\n"
             . "Patient ID:" . $this->patient->id . "\n"
@@ -262,12 +264,7 @@ class Prescription extends ORDataObject
             . "Drug ID: " . $this->drug_id . "\n"
             . "Active: " . $this->active . "\n"
             . "Transmitted: " . $this->ntx;
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     private function load_drug_attributes($id)

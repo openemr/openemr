@@ -12,83 +12,88 @@
 
 <div class="container mt-3">
     <div class="row">
+        <div class="col-12 mb-3">
+            [-php-]
+                echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='btn btn-secondary btn-lg' onclick='top.restoreSession()'>";
+            [-/php-]
+            <i class="fa fa-arrow-left mr-1"></i> [-xlt t='Return to Calendar'-]</a>
+        </div>
         <div class="col-12">
             <h2>[-xlt t='Searching for appointments'-]</h2>
         </div>
         <div class="col-12">
-            <!-- search parameters -->
-            &nbsp;
-            [-php-]
-                echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu text-decoration-none' onclick='top.restoreSession()'>";
-            [-/php-]
-            [-xlt t='Return to calendar'-]</a>
-                <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
-                    <!-- Keywords -->
-                    <div class="form-group">
-                        <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
-                        <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
-                    </div>
-                    <!-- Condition -->
+            <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
+                <!-- Keywords -->
+                <div class="form-group">
+                    <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
                     <div class="form-row">
-                        <div class="col">
-                            <select class="form-control" name="pc_keywords_andor">
-                                <option value="AND">[-xlt t='AND'-]</option>
-                                <option value="OR">[-xlt t='OR'-]</option>
-                            </select>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="pc_keywords" id="pc_keywords"
+                                placeholder= "[-xla t='Search patients, providers, appointments, or comments'-]"
+                                value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
                         </div>
-                        <div class="col-1">
-                            [-xlt t='In'-]:
-                        </div>
-                        <div class="col">
-                            <select class="form-control" name="pc_category">
-                                <option value="">[-xlt t='Any Category'-]</option>
-                                [-$CATEGORY_OPTIONS-]
+                        <div class="col-md-4">
+                            <select class="form-control" name="pc_keywords_andor" id="pc_keywords_andor" disabled>
+                                <option value="AND" [-php-] echo ($_POST['pc_keywords_andor'] == 'AND' || empty($_POST['pc_keywords_andor'])) ? 'selected' : ''; [-/php-]>[-xlt t='AND'-]</option>
+                                <option value="OR" [-php-] echo ($_POST['pc_keywords_andor'] == 'OR') ? 'selected' : ''; [-/php-]>[-xlt t='OR'-]</option>
                             </select>
                         </div>
                     </div>
-                    <!-- Topic -->
-                    [-if $USE_TOPICS-]
-                    <div class="form-group">
-                        <select name="pc_topic">
-                            <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
-                            [-$TOPIC_OPTIONS-]
+                    <small class="form-text text-muted">[-xlt t='For multiple words, separate with spaces and select AND/OR'-]</small>
+                </div>
+                <!-- In Category -->
+                <div class="form-group">
+                    <label for="pc_category">[-xlt t='In'-]:</label>
+                    <select class="form-control" name="pc_category" id="pc_category">
+                        <option value="">[-xlt t='Any Category'-]</option>
+                        [-$CATEGORY_OPTIONS-]
+                    </select>
+                </div>
+                <!-- Topic -->
+                [-if $USE_TOPICS-]
+                <div class="form-group">
+                    <select name="pc_topic">
+                        <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
+                        [-$TOPIC_OPTIONS-]
+                    </select>
+                </div>
+                [-/if-]
+                <br />
+                <!-- Between -->
+                <div class="form-row">
+                    <div class="col">
+                        <label for="start">[-xlt t='Between'-]:</label>
+                        <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
+                    </div>
+                    <div class="col">
+                        <label for="end">&nbsp;</label>
+                        <input type="text" class='form-control datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
+                    </div>
+                </div>
+                <br />
+                <!-- For At -->
+                <div class="form-row">
+                    <div class="col">
+                        <label for="provider_id">[-xlt t='For'-]</label>
+                        <select class="form-control" name="provider_id" id="provider_id">
+                            [-$PROVIDER_OPTIONS-]
                         </select>
                     </div>
-                    [-/if-]
-                    <br />
-                    <!-- Between -->
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="start">[-xlt t='Between'-]:</label>
-                            <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
-                        </div>
-                        <div class="col">
-                            <label for="end">&nbsp;</label>
-                            <input type="text" class='form-control datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
-                        </div>
+                    <div class="col">
+                        <label for="pc_facility">[-xlt t='At'-]</label>
+                        <select class="form-control" name="pc_facility" id="pc_facility">
+                            [-$FACILITY_OPTIONS-]
+                        </select>
                     </div>
-                    <br />
-                    <!-- For At -->
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="provider_id">[-xlt t='For'-]</label>
-                            <select class="form-control" name="provider_id" id="provider_id">
-                                [-$PROVIDER_OPTIONS-]
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="pc_facility">[-xlt t='At'-]</label>
-                            <select class="form-control" name="pc_facility" id="pc_facility">
-                                [-$FACILITY_OPTIONS-]
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Submit -->
-                    <button class="btn btn-primary mt-2 btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
-                    <div class="d-none" id="calsearch_status">
-                        <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
-                    </div>
-                </form>
+                </div>
+                <!-- Submit -->
+                <div class="btn-group mt-2">
+                    <button class="btn btn-primary btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
+                </div>
+                <div class="d-none" id="calsearch_status">
+                    <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
+                </div>
+            </form>
             <!-- end of search parameters -->
 
             [-if isset($SEARCH_PERFORMED)-]
@@ -178,6 +183,19 @@
 </div>
 
 <script>
+
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .calsearch_event {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .calsearch_event:hover {
+        background-color: #f0f0f5;
+    }
+</style>
+`);
+
 // jQuery stuff to make the page a little easier to use
 
 $(function () {
@@ -192,6 +210,32 @@ $(function () {
         [-php-] require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); [-/php-]
         [-php-] // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma [-/php-]
         ,format: 'm/d/Y'
+    });
+
+    // function to check keywords and toggle AND/OR selector
+    function toggleAndOrSelector() {
+        const keywords = $("#pc_keywords").val().trim();
+        const hasMultipleWords = keywords.includes(' ');
+
+        if (hasMultipleWords) {
+            $("#pc_keywords_andor").prop('disabled', false);
+        } else {
+            $("#pc_keywords_andor").prop('disabled', true);
+        }
+    }
+
+    // runs when the page loads
+    toggleAndOrSelector();
+
+    // runs when the user input gets changed
+    $("#pc_keywords").on('input', toggleAndOrSelector);
+
+    // pressing the enter key will search
+    $('#theform input, #theform select').keypress(function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#submit').click();
+        }
     });
 });
 

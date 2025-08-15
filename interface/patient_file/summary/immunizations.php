@@ -274,11 +274,11 @@ function getImmunizationObservationResults()
     return $imm_obs_data;
 }
 
-function saveImmunizationObservationResults($id, $immunizationdata)
+function saveImmunizationObservationResults($id, $immunizationdata): void
 {
     $imm_obs_data = getImmunizationObservationResults();
     if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
-        foreach ($imm_obs_data as $key => $val) {
+        foreach ($imm_obs_data as $val) {
             if ($val['imo_id'] && $val['imo_id'] != 0) {
                 $sql2                   = " DELETE
                                             FROM
@@ -564,7 +564,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria');?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_<?php echo attr(($key + 1)); ?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
-                                                    <?php foreach ($observation_criteria as $keyo => $valo) { ?>
+                                                    <?php foreach ($observation_criteria as $valo) { ?>
                                                         <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $value['imo_criteria'] && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                     <?php } ?>
                                                 </select>
@@ -573,7 +573,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_<?php echo attr(($key + 1)); ?>">
-                                                    <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
+                                                    <?php foreach ($observation_criteria_value as $valoc) { ?>
                                                         <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value']  && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                     <?php } ?>
                                                 </select>
@@ -634,7 +634,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
-                                                <?php foreach ($observation_criteria as $keyo => $valo) { ?>
+                                                <?php foreach ($observation_criteria as $valo) { ?>
                                                     <option value="<?php echo attr($valo['option_id']);?>" <?php echo (!empty($value['imo_criteria']) && ($valo['option_id'] == $value['imo_criteria']) && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                 <?php } ?>
                                                 </select>
@@ -643,7 +643,7 @@ tr.selected {
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
-                                                <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
+                                                <?php foreach ($observation_criteria_value as $valoc) { ?>
                                                     <option value="<?php echo attr($valoc['option_id']);?>" <?php echo (!empty($value['imo_criteria_value']) && ($valoc['option_id'] == $value['imo_criteria_value']) && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                 <?php } ?>
                                                 </select>

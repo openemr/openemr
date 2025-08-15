@@ -642,7 +642,7 @@ class parseCSV
 
         // create heading
         if ($this->heading && ! $append && ! empty($fields)) {
-            foreach ($fields as $key => $value) {
+            foreach ($fields as $value) {
                 $entry [] = $this->_enclose_value($value);
             }
 
@@ -651,8 +651,8 @@ class parseCSV
         }
 
         // create data
-        foreach ($data as $key => $row) {
-            foreach ($row as $field => $value) {
+        foreach ($data as $row) {
+            foreach ($row as $value) {
                 $entry [] = $this->_enclose_value($value);
             }
 
@@ -727,11 +727,11 @@ class parseCSV
                         $conditions
                 );
                 $or = '';
-                foreach ($conditions as $key => $value) {
+                foreach ($conditions as $value) {
                     if (strpos($value, ' AND ') !== false) {
                         $value = explode(' AND ', $value);
                         $and = '';
-                        foreach ($value as $k => $v) {
+                        foreach ($value as $v) {
                             $and .= $this->_validate_row_condition($row, $v);
                         }
 
@@ -894,7 +894,7 @@ class parseCSV
             $first = null;
             $equal = null;
             $almost = false;
-            foreach ($array as $key => $value) {
+            foreach ($array as $value) {
                 if ($first == null) {
                     $first = $value;
                 } elseif ($value == $first && $equal !== false) {

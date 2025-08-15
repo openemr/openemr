@@ -26,7 +26,21 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Telemetry\TelemetryService;
 use Psr\Http\Message\ResponseInterface;
+use OpenEMR\Tools\Coverage\CoverageHelper;
+
+if (
+    getenv('ENABLE_COVERAGE')
+    && !empty(getenv('OPENEMR_COVERAGE_DIR'))
+) {
+    // setup our code coverage
+    ini_set('memory_limit', '1024M');
+    $basedir = __DIR__ . '/../' . getenv('OPENEMR_COVERAGE_DIR');
+    $coverage = CoverageHelper::createTargetedCodeCoverage($basedir);
+    $coverageId = CoverageHelper::getCurrentCoverageId();
+    $coverage->start($coverageId);
+}
 
 $gbl = RestConfig::GetInstance();
 $restRequest = new HttpRestRequest($gbl, $_SERVER);
@@ -154,7 +168,7 @@ if (!empty($tokenId)) {
 
 
 // recollect this so the DEBUG global can be used if set
-    $logger = new SystemLogger();
+$logger = new SystemLogger();
 
 $gbl::$apisBaseFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/apis/" . $gbl::$SITE;
 $restRequest->setApiBaseFullUrl($gbl::$apisBaseFullUrl);
@@ -254,7 +268,7 @@ if ($isLocalApi) {
     } elseif ($userRole == 'patient' && ($gbl::is_portal_request($resource) || $gbl::is_fhir_request($resource))) {
         $logger->debug("dispatch.php valid role and patient has access portal resource", ['resource' => $resource]);
         // good to go
-    } elseif ($userRole === 'system' && ($gbl::is_fhir_request($resource))) {
+    } elseif ($userRole === 'system' && ($gbl::is_fhir_request($resource) || $gbl::is_api_request($resource))) {
         $logger->debug("dispatch.php valid role and system has access to api/fhir resource", ['resource' => $resource]);
     } else {
         $logger->error("OpenEMR Error: api failed because user role does not have access to the resource", ['resource' => $resource, 'userRole' => $userRole]);
@@ -266,7 +280,7 @@ if ($isLocalApi) {
     if ($userRole == 'users') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;
-        $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
+        $_SESSION['authProvider'] = sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
         if (empty($_SESSION['authUser']) || empty($_SESSION['authUserID']) || empty($_SESSION['authProvider'])) {
             // this should never happen
             $logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
@@ -296,7 +310,7 @@ if ($isLocalApi) {
         $restRequest->setPatientRequest(true);
         $restRequest->setPatientUuidString($puuidStringCheck);
         $logger->debug("dispatch.php request setup for patient role", ['patient' => $puuidStringCheck]);
-    } else if ($userRole === 'system') {
+    } elseif ($userRole === 'system') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;
         if (
@@ -398,7 +412,7 @@ if (!$isLocalApi) {
 // Send the output if not empty
 if (!empty($apiCallOutput)) {
     echo $apiCallOutput;
-} else if ($dispatchResult instanceof ResponseInterface) {
+} elseif ($dispatchResult instanceof ResponseInterface) {
     RestConfig::emitResponse($dispatchResult);
 }
 
@@ -406,4 +420,18 @@ if (!empty($apiCallOutput)) {
 if ($dispatchResult === false) {
     $logger->debug("dispatch.php no route found for resource", ['resource' => $resource]);
     http_response_code(404);
+}
+
+// Report to Telemetry
+// Be nice to find a centralized place to catch failed requests.
+try {
+    (new TelemetryService())->trackApiRequestEvent([
+        'eventType' => 'API',
+        'eventLabel' => strtoupper($_SESSION['api'] ?? 'UNKNOWN'),
+        'eventUrl' => $restRequest->getRequestMethod() . ' ' . $resource,
+        'eventTarget' => $userRole ?? 'Unknown',
+    ]);
+    exit;
+} catch (\Exception $e) {
+    $logger->error("dispatch.php telemetry error", ['exception' => $e]);
 }

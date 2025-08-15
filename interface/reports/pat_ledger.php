@@ -147,7 +147,7 @@ function GetAllCredits($enc = '', $pat = '')
 
     return($all);
 }
-function PrintEncHeader($dt, $rsn, $dr)
+function PrintEncHeader($dt, $rsn, $dr): void
 {
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -161,7 +161,7 @@ function PrintEncHeader($dt, $rsn, $dr)
     echo "</tr>\n";
     $orow++;
 }
-function PrintEncFooter()
+function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
     echo "<tr style='background-color: var(--gray300)'>";
@@ -174,7 +174,7 @@ function PrintEncFooter()
     echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
-function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances)
+function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances = []): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;
@@ -255,17 +255,17 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
               $uac_appl = $pmt['applied'];
               $uac_total = $pmt['pay_total'];
               $pmt_amt = $pmt['pay_total'];
-              $total_pmt = $total_pmt - $uac_bal;
+              $total_pmt -= $uac_bal;
         } else {
               $uac_total = '';
               $uac_bal = '';
               $uac_appl = '';
               $pmt_amt = $pmt['pay_amount'];
               $adj_amt = $pmt['adj_amount'];
-              $enc_pmt = $enc_pmt + $pmt['pay_amount'];
-              $total_pmt = $total_pmt + $pmt['pay_amount'];
-              $enc_adj = $enc_adj + $pmt['adj_amount'];
-              $total_adj = $total_adj + $pmt['adj_amount'];
+              $enc_pmt += $pmt['pay_amount'];
+              $total_pmt += $pmt['pay_amount'];
+              $enc_adj += $pmt['adj_amount'];
+              $total_adj += $pmt['adj_amount'];
         }
 
         $print_pmt = '';
@@ -298,7 +298,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         }
 
         if ($unassigned) {
-            $total_bal = $total_bal + $uac_bal;
+            $total_bal += $uac_bal;
         } else {
             $enc_bal = $enc_bal - $pmt_amt - $adj_amt;
             $total_bal = $total_bal - $pmt_amt - $adj_amt;
