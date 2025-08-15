@@ -156,6 +156,8 @@ class QrdaReportController
                 if ($glob !== false) {
                     array_map('unlink', $glob);
                 }
+                $content = '';
+                $file = '';
                 // create reports
                 foreach ($pids as $pid) {
                     $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
@@ -188,6 +190,8 @@ class QrdaReportController
             }
             $zip_name = "QRDA1_" . $zip_measure . "_" . time() . ".zip";
         } elseif ($bypid) {
+            $content = '';
+            $file = '';
             foreach ($pids as $pid) {
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                 $file = $zip_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
@@ -211,6 +215,7 @@ class QrdaReportController
             throw new \RuntimeException(sprintf('Zip file "%s" was not created due to "%s"', $save_path, $ret));
         } else {
             $dir = opendir($zip_directory);
+            $filename = '';
             while ($filename = readdir($dir)) {
                 $filename_path = $zip_directory . "/" . $filename;
                 if (is_file($filename_path)) {
@@ -302,7 +307,7 @@ class QrdaReportController
             if (empty($xml)) {
                 continue;
             }
-
+            $filename = '';
             // Determine filename based on patient count
             if (count($pids) === 1 && !empty($pids[0])) {
                 $meta = sqlQuery("SELECT `fname`, `lname`, `pid` FROM `patient_data` WHERE `pid` = ?", [$pids[0]]);
