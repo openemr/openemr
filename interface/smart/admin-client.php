@@ -39,9 +39,7 @@ try {
         $oeGlobals,
         $session,
         new ClientRepository(),
-        $oeGlobals->get('kernel'),
-        'admin-client.php',
-        $oeGlobals->getString('web_root')
+        'admin-client.php'
     );
     $response = $router->dispatch($request);
     $response->send();
