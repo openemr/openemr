@@ -3186,14 +3186,14 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" class="Draw_class canvas">
         <?php
-            if ($zone != "SDRETINA") {
-        ?>
+        if ($zone != "SDRETINA") {
+            ?>
         <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
         <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
         <i class="closeButton_3 fas fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
-                <?php
-            } ?>
+            <?php
+        } ?>
         <?php
             $output = canvas_select($zone, $encounter, $pid);
             echo $output;
@@ -3254,13 +3254,13 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <canvas id="myCanvas_<?php echo attr($zone); ?>"
                         name="myCanvas_<?php echo attr($zone); ?>"
                     <?php
-                        if ($zone == "SDRETINA") {
-                            $height_canvas="500";
-                            $width_canvas = "1000";
-                        } else {
-                            $height_canvas="250";
-                            $width_canvas = "450";
-                        }
+                    if ($zone == "SDRETINA") {
+                        $height_canvas = "500";
+                        $width_canvas = "1000";
+                    } else {
+                        $height_canvas = "250";
+                        $width_canvas = "450";
+                    }
                     ?>
                         width="<?php echo attr($width_canvas); ?>"
                         height="<?php echo attr($height_canvas); ?>"></canvas>
@@ -3806,8 +3806,8 @@ function document_engine($pid)
                     VALUES ($counter, 'AntSeg Laser', 'ANTSEG', '14', 'patients|docs', '');";
         sqlStatement($sql);
 
-        $sql = "SELECT * from categories where id ='" . $counter ."'";
-        $sql2= sqlStatement($sql);
+        $sql = "SELECT * from categories where id ='" . $counter . "'";
+        $sql2 = sqlStatement($sql);
         while ($row1 = sqlFetchArray($sql2)) {
             $categories[] = $row1;
             $my_name[$row1['id']] = $row1['name'];
@@ -3825,8 +3825,8 @@ function document_engine($pid)
                     VALUES ($counter, 'Retina Laser', 'POSTSEG', '14', 'patients|docs', '');";
         sqlStatement($sql);
 
-        $sql = "SELECT * from categories where id ='" . $counter ."'";
-        $sql2= sqlStatement($sql);
+        $sql = "SELECT * from categories where id ='" . $counter . "'";
+        $sql2 = sqlStatement($sql);
         while ($row1 = sqlFetchArray($sql2)) {
             $categories[] = $row1;
             $my_name[$row1['id']] = $row1['name'];
@@ -3844,8 +3844,8 @@ function document_engine($pid)
                     VALUES ($counter, 'Injections', 'POSTSEG', '14', 'patients|docs', '');";
         sqlStatement($sql);
 
-        $sql = "SELECT * from categories where id ='" . $counter ."'";
-        $sql2= sqlStatement($sql);
+        $sql = "SELECT * from categories where id ='" . $counter . "'";
+        $sql2 = sqlStatement($sql);
         while ($row1 = sqlFetchArray($sql2)) {
             $categories[] = $row1;
             $my_name[$row1['id']] = $row1['name'];
@@ -4870,7 +4870,8 @@ function cmp($a, $b)
  * @param        $pid
  * @param string $bywhat == byday or byhour
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
+{
     global $PMSFH;
     global $form_folder;
     global $priors;
@@ -4981,59 +4982,58 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
             }
             $i++;
         }
-   }
-    else { //there are no priors, get info from this visit
+    } else { //there are no priors, get info from this visit
             $VISITS_date[0] = $dated;
-            if ($encounter_data['IOPTIME']) {
-                $time_here = explode(":", $encounter_data['IOPTIME']);
-                $time = $time_here[0] . ":" . $time_here[1];
-                $time_OU[] = $time;
-            }
+        if ($encounter_data['IOPTIME']) {
+            $time_here = explode(":", $encounter_data['IOPTIME']);
+            $time = $time_here[0] . ":" . $time_here[1];
+            $time_OU[] = $time;
+        }
 
-            if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
-                $GONIO_date[$i] = $dated;
-            }
+        if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
+            $GONIO_date[$i] = $dated;
+        }
 
             $ODIOP[$i]['time'] = $time;
             $OSIOP[$i]['time'] = $time;
 
-            if ($encounter_data['ODIOPAP'] > '') {
-                if (!is_int($encounter_data['ODIOPAP'])) {
-                    $ODIOP[$k]['IOP'] = '';
-                } else {
-                    $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
-                $ODIOP[$i]['method'] = "AP";
-            } elseif ($encounter_data['ODIOPTPN'] > '') {
-                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
-                $ODIOP[$i]['method'] = "TPN";
-            }
+        if ($encounter_data['ODIOPAP'] > '') {
+            if (!is_int($encounter_data['ODIOPAP'])) {
+                $ODIOP[$k]['IOP'] = '';
+            } else {
+                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
+            $ODIOP[$i]['method'] = "AP";
+        } elseif ($encounter_data['ODIOPTPN'] > '') {
+            $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
+            $ODIOP[$i]['method'] = "TPN";
+        }
 
-            if ($encounter_data['OSIOPAP'] > '') {
-                if (!is_int($encounter_data['OSIOPAP'])) {
-                    $OSIOP[$k]['IOP'] = '';
-                } else {
-                    $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
-                $OSIOP[$i]['method'] = "AP";
-            } elseif ($encounter_data['OSIOPTPN'] > '') {
-                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
-                $OSIOP[$i]['method'] = "TPN";
+        if ($encounter_data['OSIOPAP'] > '') {
+            if (!is_int($encounter_data['OSIOPAP'])) {
+                $OSIOP[$k]['IOP'] = '';
             } else {
-                //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
-                //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
-            }
-            if ($encounter_data['ODIOPTARGET'] > '0') {
-                $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
-            } else {
-                $ODIOPTARGETS[$i] = $ODIOPTARGET;
-                $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
-            }
+                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
+            $OSIOP[$i]['method'] = "AP";
+        } elseif ($encounter_data['OSIOPTPN'] > '') {
+            $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
+            $OSIOP[$i]['method'] = "TPN";
+        } else {
+            //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
+            //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
+        }
+        if ($encounter_data['ODIOPTARGET'] > '0') {
+            $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
+        } else {
+            $ODIOPTARGETS[$i] = $ODIOPTARGET;
+            $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
+        }
 
-            if ($encounter_data['OSIOPTARGET']) {
-                $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
-            } else {
-                $OSIOPTARGETS[$i] = $OSIOPTARGET;
-                $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
-            }
+        if ($encounter_data['OSIOPTARGET']) {
+            $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
+        } else {
+            $OSIOPTARGETS[$i] = $OSIOPTARGET;
+            $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
+        }
     }
 
     //There are visits for testing only, no IOP, or old tests have been imported, like VF or OCTs...
@@ -5149,14 +5149,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
         }
     }
 
-    $dates_OU = "'" .implode("','", $date_OU) . "'";
+    $dates_OU = "'" . implode("','", $date_OU) . "'";
     $OD_values = implode(",", $OD_values);
     $OS_values = implode(",", $OS_values);
     $OCT_values = "'" . implode("','", $OCT_values) . "'";
     $VF_values = "'" . implode("','", $VF_values) . "'";
     $GONIO_values =  "'" . implode("','", $GONIO_values) . "'";
     $ODIOPTARGET_values = implode(",", $ODIOPTARGET_values);
-    $OSIOPTARGET_values = implode(",",$OSIOPTARGET_values);
+    $OSIOPTARGET_values = implode(",", $OSIOPTARGET_values);
     $times_OU = "'" . implode("','", $times_OU) . "'";
     $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
     $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
@@ -5395,15 +5395,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
         </div>
         <div class="right" style="position:relative;float:right; margin: 0px 5px 10px;text-align:center;width:60%;">
             <?php
-                if ($priors) {
-                    if ($bywhat == 'byday') { //$bywhat='byday'
-                        $class_1 = "nodisplay";
-                        $class_2 = "";
-                    } else {
-                        $class_2 = "nodisplay";
-                        $class_1 = "";
-                    }
-                    ?>
+            if ($priors) {
+                if ($bywhat == 'byday') { //$bywhat='byday'
+                    $class_1 = "nodisplay";
+                    $class_2 = "";
+                } else {
+                    $class_2 = "nodisplay";
+                    $class_1 = "";
+                }
+                ?>
                     <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
                     <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
                     <hr />
@@ -5519,7 +5519,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                         type: 'line',
                         data: {
                             labels: [
-                                <?php echo $dates_OU; ?>
+                            <?php echo $dates_OU; ?>
                             ],
                             datasets: [
                                 {
@@ -5708,7 +5708,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
  *
  * @return mixed|string
 */
-function display_VisualAcuities($pid=0) {
+function display_VisualAcuities($pid = 0)
+{
     global $priors;
     global $visit_date;
 
@@ -5814,27 +5815,27 @@ function display_VisualAcuities($pid=0) {
                             <th colspan="2" class="vasc_class"><?php echo xlt('SC{{abbr without correction}}'); ?></th>
                             <?php
                         }
-                            if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                        if ($VA_CCODVA || $VA_CCOSVA) { ?>
                                 <th colspan="2" class="vacc_class"><?php echo xlt('CC{{abbr Acuity with current Correction}}'); ?></th>
                                 <?php
-                            }
-                            if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                        }
+                        if ($VA_PHODVA || $VA_PHOSVA) { ?>
                                 <th colspan="2" class="vaph_class"><?php echo xlt('Ph{{abbr Pinhole acuity}}'); ?></th>
                                 <?php
-                            }
-                            if ($VA_ARODVA || $VA_AROSVA) { ?>
+                        }
+                        if ($VA_ARODVA || $VA_AROSVA) { ?>
                                 <th colspan="2" class="vaar_class"><?php echo xlt('AR{{abbr Autorefraction acuity}}'); ?></th>
                                 <?php
-                            }
-                            if ($VA_MRODVA || $VA_MROSVA) { ?>
+                        }
+                        if ($VA_MRODVA || $VA_MROSVA) { ?>
                                 <th colspan="2" class="vamr_class"><?php echo xlt('MR{{abbr Manifest Refraction acuity}}'); ?></th>
                                 <?php
-                            }
-                            if ($VA_CRODVA || $VA_CROSVA) { ?>
+                        }
+                        if ($VA_CRODVA || $VA_CROSVA) { ?>
                                 <th colspan="2" class="vacr_class"><?php echo xlt('CR{{abbr Cycloplegic Refraction acuity}}'); ?></th>
                                 <?php
-                            }
-                            if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                        }
+                        if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
                                 <th colspan="2" class="vactl_class"><?php echo xlt('CTL{{abbr Contact Lens Refraction acuity}}'); ?></th>
                             <?php  }  ?>
                     </tr>
@@ -5844,70 +5845,69 @@ function display_VisualAcuities($pid=0) {
                             <td class="vasc_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vasc_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                             <?php
                         }
-                            if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                        if ($VA_CCODVA || $VA_CCOSVA) { ?>
                                 <td class="vacc_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacc_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                                 <?php
-                            }
-                            if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                        }
+                        if ($VA_PHODVA || $VA_PHOSVA) { ?>
                                 <td class="vaph_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vaph_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                                 <?php
-                            }
-                            if ($VA_ARODVA || $VA_AROSVA) { ?>
+                        }
+                        if ($VA_ARODVA || $VA_AROSVA) { ?>
                                 <td class="vaar_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vaar_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                                 <?php
-                            }
-                            if ($VA_MRODVA || $VA_MROSVA) { ?>
+                        }
+                        if ($VA_MRODVA || $VA_MROSVA) { ?>
                                 <td class="vacr_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacr_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                                 <?php
-                            }
-                            if ($VA_CRODVA || $VA_CROSVA) { ?>
+                        }
+                        if ($VA_CRODVA || $VA_CROSVA) { ?>
                                 <td class="vacr_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacr_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                                 <?php
-                            }
-                            if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                        }
+                        if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
                                 <td class="vactl_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vactl_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                                 <?php
-                            }
+                        }
                         ?>
                     </tr>
                     <?php
-                        foreach ($flip_priors_CC as $prior) {
-                            ?>
+                    foreach ($flip_priors_CC as $prior) {
+                        ?>
                             <tr>
                                 <td><?php echo $prior['visit_date']; ?></td>
-                                <?php
-                                    if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                            <?php
+                            if ($VA_SCODVA || $VA_SCOSVA) { ?>
                                         <td class="vasc_class"><?php echo $prior['SCODVA']; ?></td><td class="vasc_class"><?php echo $prior['SCOSVA']; ?></td>
                                         <?php
-                                    }
-                                    if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                            }
+                            if ($VA_CCODVA || $VA_CCOSVA) { ?>
                                         <td class="vacc_class"><?php echo $prior['CCODVA']; ?></td><td class="vacc_class"><?php echo $prior['CCOSVA']; ?></td>
                                         <?php
-                                    }
-                                    if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                            }
+                            if ($VA_PHODVA || $VA_PHOSVA) { ?>
                                         <td class="vaph_class"><?php echo $prior['PHODVA']; ?></td><td class="vaph_class"><?php echo $prior['PHOSVA']; ?></td>
                                         <?php
-                                    }
-                                    if ($VA_ARODVA || $VA_AROSVA) { ?>
+                            }
+                            if ($VA_ARODVA || $VA_AROSVA) { ?>
                                         <td class="vaar_class"><?php echo $prior['ARODVA']; ?></td><td class="vaar_class"><?php echo $prior['AROSVA']; ?></td>
                                         <?php
-                                    }
-                                    if ($VA_MRODVA || $VA_MROSVA) { ?>
+                            }
+                            if ($VA_MRODVA || $VA_MROSVA) { ?>
                                         <td class="vamr_class"><?php echo $prior['MRODVA']; ?></td><td class="vamr_class"><?php echo $prior['MROSVA']; ?></td>
                                         <?php
-                                    }
-                                    if ($VA_CRODVA || $VA_CROSVA) { ?>
+                            }
+                            if ($VA_CRODVA || $VA_CROSVA) { ?>
                                         <td class="vacr_class"><?php echo $prior['CRODVA']; ?></td><td class="vacr_class"><?php echo $prior['CROSVA']; ?></td>
                                         <?php
-                                    }
-                                    if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                            }
+                            if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
                                         <td class="vactl_class"><?php echo $prior['CTLODVA']; ?></td><td class="vactl_class"><?php echo $prior['CTLOSVA']; ?></td>
                                     <?php } ?>
                             </tr>
 
                             <?php
-
-                        }
+                    }
                     ?>
                 </table>
         </div>
@@ -5928,7 +5928,7 @@ function display_VisualAcuities($pid=0) {
                             labels: ['<?php echo $VA_dates; ?>'],
                             datasets: [
                                 <?php
-                                if ( !empty($VA_SCODVA) || !empty($VA_SCOSVA) ) { ?>
+                                if (!empty($VA_SCODVA) || !empty($VA_SCOSVA)) { ?>
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -5970,8 +5970,8 @@ function display_VisualAcuities($pid=0) {
                                     pointHitRadius: 3
                                 },
                                 <?php  }
-                                if ( !empty($VA_CCODVA) || !empty($VA_CCOSVA) ) {
-                                ?>
+                                if (!empty($VA_CCODVA) || !empty($VA_CCOSVA)) {
+                                    ?>
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -6013,8 +6013,8 @@ function display_VisualAcuities($pid=0) {
                                     pointHitRadius: 3
                                 },
                                 <?php  }
-                                if ( !empty($VA_MRODVA) || !empty($VA_MROSVA) ) {
-                                ?>
+                                if (!empty($VA_MRODVA) || !empty($VA_MROSVA)) {
+                                    ?>
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -6056,8 +6056,8 @@ function display_VisualAcuities($pid=0) {
                                     pointHitRadius: 3
                                 },
                                 <?php  }
-                                if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA) ) {
-                                ?>
+                                if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA)) {
+                                    ?>
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -6098,7 +6098,7 @@ function display_VisualAcuities($pid=0) {
                                     pointRadius: 1,
                                     pointHitRadius: 3
                                 }
-                                <?php
+                                    <?php
                                 }
                                 ?>
                             ]
@@ -6146,20 +6146,18 @@ function display_VisualAcuities($pid=0) {
 
                 </script>
                 <?php
-                } else {
-                    echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
+    } else {
+        echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
                             <ul>
                             <li> Va measurements</li>
 
                             </ul>
                             Visual Acuity graphs are not generated on the initial visit...</span></div>";
-                } ?>
+    } ?>
             </table>
         </div>
     <?php
-
-
-    }
+}
 
 
 # gets the provider from the encounter file , or from the logged on user or from the patient file
