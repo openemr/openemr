@@ -91,6 +91,8 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
    * openEMR note:  eye_mag Index is id,
    * linked to encounter in form_encounter
    * whose encounter is linked to id in forms.
+   * Note that without encounter in each table,
+   * custom clinical reminders that wish to access Eye Form data do not work.
    */
 
     $query = "  select  *,form_encounter.date as encounter_date
@@ -181,6 +183,9 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
         <?php display_draw_section("RETINA", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
+        <?php display_draw_section("SDRETINA", $encounter, $pid); ?>
+    </div>
+    <div class="borderShadow">
         <?php display_draw_section("IMPPLAN", $encounter, $pid); ?>
     </div>
         <?php
@@ -217,6 +222,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     global $form_folder;
     global $PDF_OUTPUT;
     global $facilityService;
+
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
      $query = "  select  *,form_encounter.date as encounter_date
@@ -290,7 +296,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     }
 
     ?><br /><br />
-    <table style="font-size:1.2em;">
+    <table class="report_exam_group">
         <tr>
             <td style="text-align:left;padding:1px;vertical-align:top;max-width:720px;">
                 <table style="padding:5px;width:700px;">
@@ -451,21 +457,47 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 </table>
             </td>
             <td style="width:220px;padding:1px;vertical-align:top;">
+
                 <?php
+                    /**
+                     * Display the patient Photo, if there is one.
+                     * Using document Class does not work since if there is no patient photo,
+                     * it spits back an error message saying document could not be found.
+                     * Not what we want and it is above my pay grade to change a Service...
+                     * Instead, we will check manually here for a patient_photograph
+                     * and if it exists, display it via the Document class.
+                     */
+                    $sql = "SELECT doc.id AS id
+                 FROM documents doc
+                 JOIN categories_to_documents cate_to_doc
+                   ON doc.id = cate_to_doc.document_id
+                 JOIN categories cate
+                   ON cate.id = cate_to_doc.category_id
+                WHERE cate.name LIKE ? and doc.foreign_id = ?";
+
+                    $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+
+                if (empty($result) || empty($result['id'])) {
+                    //echo "no photo";
+                } else {
                     //get patient photo
                     $tempDocC = new C_Document();
-                    $tempDocC->onReturnRetrieveKey();
-                    $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
-                if (!empty($fileTemp)) {
-                    if ($PDF_OUTPUT) {
-                        // tmp file in ../documents/temp since need to be available via webroot
-                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
-                        file_put_contents($from_file_tmp_web_name, $fileTemp);
-                        echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
-                        $tmp_files_remove[] = $from_file_tmp_web_name;
-                    } else {
-                        $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
-                        echo "<img src='" . $filetoshow . "' style='width:220px;'>";
+                    try {
+                        $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
+                        if (!empty($fileTemp)) {
+                            if ($PDF_OUTPUT) {
+                                // tmp file in ../documents/temp since need to be available via webroot
+                                $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                                file_put_contents($from_file_tmp_web_name, $fileTemp);
+                                echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
+                                $tmp_files_remove[] = $from_file_tmp_web_name;
+                            } else {
+                                $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                                echo "<img src='" . $filetoshow . "' style='width:220px;'>";
+                            }
+                        }
+                    } catch (Exception $ex) {
+                        echo "No patient photo " . $ex;
                     }
                 }
                 ?>
@@ -1545,14 +1577,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         <td style="text-align:right;
                                         flex-wrap: wrap;
                                         padding: 2px 10px;
-                                        width: 200px;"
-                                            style="width:100px;"><?php echo text($ODGONIO); ?></td>
+                                        width: 200px;"><?php echo text($ODGONIO); ?></td>
                                         <td style="text-align:center;font-weight:bold;"><?php echo xlt('Gonioscopy'); ?></td>
                                         <td style="text-align:left;
                                         flex-wrap: wrap;
                                         padding: 2px 10px;
-                                        width: 200px;"
-                                            style="width:100px;"><?php echo text($OSGONIO); ?></td>
+                                        width: 200px;"><?php echo text($OSGONIO); ?></td>
                                     </tr>
                                 <?php }
                             if ($ODKTHICKNESS || $OSKTHICKNESS) { ?>
@@ -1666,7 +1696,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                             <td style="text-align:left;
                                         flex-wrap: wrap;
                                         padding: 2px 10px;
-                                        width: 200px;" style=""><?php echo text($LLF); ?></td>
+                                        width: 200px;"><?php echo text($LLF); ?></td>
                                         </tr>
                                         <?php
                             }
@@ -1875,7 +1905,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                             <?php
                                         }
 
-                                        if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR or $VERTFUSAMPS) { ?>
+                                        if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR) { ?>
                                             <tr style="text-decoration:underline;">
                                                 <td></td>
                                                 <td style="text-align:center;font-weight:bold;"><?php echo xlt('Distance'); ?> </td>
@@ -2481,7 +2511,6 @@ function display_draw_image($zone, $encounter, $pid): void
         //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
         if ($PDF_OUTPUT) {
             $tempDocC = new C_Document();
-            $tempDocC->onReturnRetrieveKey();
             $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
             // tmp file in ../documents/temp since need to be available via webroot
             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
