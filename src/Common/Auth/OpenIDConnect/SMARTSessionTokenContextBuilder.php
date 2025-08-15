@@ -16,7 +16,9 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
@@ -31,9 +33,12 @@ class SMARTSessionTokenContextBuilder
 
     private SessionInterface $session;
 
-    public function __construct(SessionInterface $sessionArray)
+    private OEGlobalsBag $globalsBag;
+
+    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $sessionArray)
     {
         $this->session = $sessionArray;
+        $this->globalsBag = $globalsBag;
     }
 
     /**
@@ -145,7 +150,7 @@ class SMARTSessionTokenContextBuilder
     {
         // "/public/smart-styles/smart-light.json";
         // need to make sure we grab the site id for this.
-        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/oauth2/" . $_SESSION['site_id'] . SMARTAuthorizationController::SMART_STYLE_URL;
+        return $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . "/oauth2/" . $this->session->get('site_id') . SMARTAuthorizationController::SMART_STYLE_URL;
     }
 
     /**
@@ -167,7 +172,7 @@ class SMARTSessionTokenContextBuilder
     }
 
     /**
-     * @param array $scopes
+     * @param ScopeEntity[] $scopes
      * @param string $searchScope
      * @return bool
      */

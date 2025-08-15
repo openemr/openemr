@@ -23,6 +23,7 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -47,6 +48,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -660,7 +662,13 @@ class AuthorizationController
 
         // OpenID Connect Response Type
         $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() creating server");
-        $responseType = new IdTokenSMARTResponse($this->session, new IdentityRepository(), new ClaimExtractor($customClaim));
+        $responseType = new IdTokenSMARTResponse(
+            $this->globalsBag,
+            $this->session,
+            $this->getUserRepository(),
+            new ClaimExtractor($customClaim),
+            new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session)
+        );
         $responseType->setSystemLogger($this->getSystemLogger());
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';
@@ -719,7 +727,7 @@ class AuthorizationController
         if (!empty($this->globalsBag->get('oauth_password_grant')) && ($this->grantType === self::GRANT_TYPE_PASSWORD)) {
             $grant = new CustomPasswordGrant(
                 $this->session,
-                new UserRepository(),
+                $this->getUserRepository(),
                 $this->getRefreshTokenRepository($includeAuthGrantRefreshToken)
             );
             $grant->setRefreshTokenTTL(new DateInterval('P3M'));
@@ -780,7 +788,10 @@ class AuthorizationController
         }
     }
 
-    // TODO: @adunsulag write a unit test for all of this.
+    /**
+     * @param HttpRestRequest $request
+     * @return ResponseInterface
+     */
     public function userLogin(HttpRestRequest $request): ResponseInterface
     {
         $session = $this->session;
@@ -889,8 +900,7 @@ class AuthorizationController
         $request->request->remove('password');
         $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
         $session->set('persist_login', $request->request->has('persist_login') ? 1 : 0);
-        $user = new UserEntity();
-        $user->setIdentifier($session->get('user_id'));
+        $user = $this->getUserRepository()->getUserEntityByIdentifier($session->get('user_id'));
         $session->set('claims', $user->getClaims());
         // need to redirect to patient select if we have a launch context && this isn't a patient login
 
@@ -1165,8 +1175,8 @@ class AuthorizationController
             $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $request->request->all('scope'));
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
-            $user = new UserEntity();
-            $user->setIdentifier($this->session->get('user_id'));
+
+            $user = $this->getUserRepository()->getUserEntityByIdentifier($this->session->get('user_id'));
             $authRequest->setUser($user);
             $authRequest->setAuthorizationApproved(true);
             $result = $server->completeAuthorizationRequest($authRequest, $response);
@@ -1753,8 +1763,7 @@ class AuthorizationController
         // make sure we get our serialized session data
         $this->serializeUserSession($authRequest, $session);
         $apiSession = $this->session->all();
-        $user = new UserEntity();
-        $user->setIdentifier($userUuid);
+        $user = $this->getUserRepository()->getUserEntityByIdentifier($userUuid);
         $authRequest->setUser($user);
         $authRequest->setAuthorizationApproved(true);
         $result = $server->completeAuthorizationRequest($authRequest, $response);
@@ -1884,12 +1893,18 @@ class AuthorizationController
         return $userUuid;
     }
 
+    protected function getUserRepository(): UserRepository
+    {
+        $userIdentityRepository = new UserRepository($this->globalsBag, $this->session);
+        $userIdentityRepository->setSystemLogger($this->getSystemLogger());
+        return $userIdentityRepository;
+    }
     /**
      * @return AccessTokenRepository
      */
     private function getTokenRepository(): AccessTokenRepository
     {
-        $tokenRepository = new AccessTokenRepository($this->session);
+        $tokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
         $tokenRepository->setSystemLogger($this->getSystemLogger());
         return $tokenRepository;
     }

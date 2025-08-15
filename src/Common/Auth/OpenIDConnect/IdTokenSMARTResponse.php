@@ -17,24 +17,17 @@ use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Token\Builder;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
-use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use LogicException;
 use Nyholm\Psr7\Stream;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\FHIR\SMART\SmartLaunchController;
-use OpenEMR\FHIR\SMART\SMARTLaunchToken;
-use OpenEMR\Services\PatientService;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\IdTokenResponse;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Twig\Environment;
 
 // TODO: Look at renaming this class to OEIdTokenResponse since it applies to all OpenEMR OAuth2 responses
 class IdTokenSMARTResponse extends IdTokenResponse
@@ -53,7 +46,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
     /**
      * @var SMARTSessionTokenContextBuilder
      */
-    private $contextBuilder;
+    private SMARTSessionTokenContextBuilder $contextBuilder;
 
     /**
      * The context values to use for issuing new tokens.  This is populated when a refresh grant is generating a new
@@ -64,14 +57,19 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
     private SessionInterface $session;
 
+    private OEGlobalsBag $globalsBag;
+
     public function __construct(
+        OEGlobalsBag $globalsBag,
         SessionInterface $session,
         IdentityProviderInterface $identityProvider,
-        ClaimExtractor $claimExtractor
+        ClaimExtractor $claimExtractor,
+        SMARTSessionTokenContextBuilder $sessionTokenContextBuilder,
     ) {
+        $this->globalsBag = $globalsBag;
         $this->isAuthorizationGrant = false;
         $this->session = $session;
-        $this->contextBuilder = new SMARTSessionTokenContextBuilder($session);
+        $this->contextBuilder = $sessionTokenContextBuilder;
         parent::__construct($identityProvider, $claimExtractor);
     }
 
@@ -178,7 +176,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         // Add required id_token claims
         $builder = $builder
             ->permittedFor($accessToken->getClient()->getIdentifier())
-            ->issuedBy($GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/oauth2/" . $_SESSION['site_id'])
+            ->issuedBy($this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('webroot') . "/oauth2/" . $this->session->get('site_id'))
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());
@@ -194,11 +192,11 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
     /**
      * Sets the context array that will be saved to the database for new acess tokens.
-     * @param $context The array of context variables.  If this is not an array the context is set to null;
+     * @param array $context The array of context variables.  If this is not an array the context is set to null;
      */
-    public function setContextForNewTokens($context)
+    public function setContextForNewTokens(array $context)
     {
-        $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
+        $this->contextForNewTokens = !empty($context) ? $context : null;
     }
 
     /**

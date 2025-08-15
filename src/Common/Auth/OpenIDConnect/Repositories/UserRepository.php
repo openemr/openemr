@@ -21,10 +21,28 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenIDConnectServer\Repositories\IdentityProviderInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class UserRepository implements UserRepositoryInterface
+class UserRepository implements UserRepositoryInterface, IdentityProviderInterface
 {
     use SystemLoggerAwareTrait;
+
+    private OEGlobalsBag $globalsBag;
+
+    private SessionInterface $session;
+
+    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session)
+    {
+        $this->globalsBag = $globalsBag;
+        $this->session = $session;
+    }
+
+    public function getUserEntityByIdentifier($identifier)
+    {
+        return $this->createUserEntity($identifier);
+    }
 
     /**
      * @param $userrole
@@ -44,7 +62,7 @@ class UserRepository implements UserRepositoryInterface
         $grantType,
         ClientEntityInterface $clientEntity
     ) {
-        $user = new UserEntity();
+        $user = $this->createUserEntity();
         if (!empty($userrole) && !empty($username) && !empty($password)) {
             if (!$this->getAccountByPassword($user, $userrole, $username, $password, $email)) {
                 return false;
@@ -135,5 +153,20 @@ class UserRepository implements UserRepositoryInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param string|null $identifier
+     * @return UserEntity
+     * @throws OAuthServerException if the fhir base URL is not a proper URL, see site_addr_oath if this is thrown
+     */
+    private function createUserEntity(?string $identifier = null): UserEntity
+    {
+        $user = new UserEntity();
+        if (!empty($identifier)) {
+            $user->setIdentifier($identifier);
+        }
+        $user->setFhirBaseUrl($this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id') . '/fhir/');
+        return $user;
     }
 }

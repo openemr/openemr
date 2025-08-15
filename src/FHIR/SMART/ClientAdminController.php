@@ -27,6 +27,7 @@ use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
@@ -69,6 +70,8 @@ class ClientAdminController
 
     private SessionInterface $session;
 
+    private OEGlobalsBag $globalsBag;
+
     private Kernel $kernel;
 
     private AccessTokenRepository $accessTokenRepository;
@@ -80,15 +83,16 @@ class ClientAdminController
      * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
      * @param string $actionURL The URL that we will send requests back to
      */
-    public function __construct(SessionInterface $session, ClientRepository $repo, Kernel $kernel, string $actionURL, string $webroot)
+    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session, ClientRepository $repo, string $actionURL)
     {
+        $this->globalsBag = $globalsBag;
         $this->session = $session;
-        $this->kernel = $kernel;
+        $this->kernel = $globalsBag->get('kernel');
         $this->clientRepo = $repo;
         $this->actionURL = $actionURL;
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $actionURL, self::CSRF_TOKEN_NAME);
-        $this->twig = (new TwigContainer(null, $kernel))->getTwig();
-        $this->webroot = $webroot;
+        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->webroot = $globalsBag->get('web_root');
     }
 
     public function setTwig(Environment $twig)
@@ -314,7 +318,7 @@ class ClientAdminController
     private function getAccessTokenRepository(): AccessTokenRepository
     {
         if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository($this->session);
+            $this->accessTokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
         }
         return $this->accessTokenRepository;
     }

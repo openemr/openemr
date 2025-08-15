@@ -30,8 +30,24 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     protected $claimsType = 'oidc'; // default to oidc claims
 
+    private string $fhirBaseUrl = '';
+
     public function __construct()
     {
+    }
+
+    public function getFhirBaseUrl(): string
+    {
+        return $this->fhirBaseUrl;
+    }
+
+    public function setFhirBaseUrl(string $fhirBaseUrl): void
+    {
+        if (filter_var($fhirBaseUrl, FILTER_VALIDATE_URL)) {
+            $this->fhirBaseUrl = $fhirBaseUrl;
+        } else {
+            throw OAuthServerException::invalidRequest('fhirBaseUrl', 'Invalid FHIR base URL provided.');
+        }
     }
 
     public function getClaimsType(): string
@@ -72,7 +88,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         } else {
             (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
         }
-            $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/" . $fhirUserResource . "/" . $this->identifier;
+            $fhirUser = $this->getFhirBaseUrl() . $fhirUserResource . "/" . $this->identifier;
 
             (new SystemLogger())->debug("UserEntity->getClaims() fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 

@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Unit\FHIR\SMART;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,6 +30,7 @@ use Twig\Environment;
 
 class ClientAdminControllerTest extends TestCase
 {
+    private OEGlobalsBag $globalsBag;
     private ClientAdminController $controller;
     private MockObject $mockClientRepo;
     private MockObject $mockKernel;
@@ -44,6 +46,10 @@ class ClientAdminControllerTest extends TestCase
         $this->mockKernel = $this->createMock(Kernel::class);
         $this->session = new Session(new MockArraySessionStorage());
         $this->session->start();
+        $this->globalsBag = new OEGlobalsBag([
+            'kernel' => $this->mockKernel,
+            'web_root' => '',
+        ]);
         CsrfUtils::setupCsrfKey($this->session);
 
         // Mock Twig environment
@@ -56,11 +62,10 @@ class ClientAdminControllerTest extends TestCase
 
         // Create controller instance
         $this->controller = new ClientAdminController(
+            $this->globalsBag,
             $this->session,
             $this->mockClientRepo,
-            $this->mockKernel,
             $this->actionURL,
-            '' // Assuming the webroot is not needed for this test
         );
         $this->controller->setTwig($mockTwig);
 
@@ -419,7 +424,7 @@ class ClientAdminControllerTest extends TestCase
      */
     private function getAdminController()
     {
-        return new class ($this->session, $this->mockClientRepo, $this->mockKernel, $this->actionURL, '') extends ClientAdminController {
+        return new class ($this->globalsBag, $this->session, $this->mockClientRepo, $this->actionURL) extends ClientAdminController {
             public function checkSecurity(string $action): void
             {
                 // Override to skip ACL check for testing

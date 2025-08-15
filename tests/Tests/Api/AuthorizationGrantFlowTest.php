@@ -70,6 +70,8 @@ class AuthorizationGrantFlowTest extends TestCase
         $controller = $this->createMock(ControllerResolverInterface::class);
         $kernel = new OEHttpKernel($dispatcher, $controller);
         // set the globals.php kernel which doesn't do much... need to reconicle these two
+        // set our site_addr_oath so we use it properly
+        $kernel->getGlobalsBag()->set('site_addr_oath', getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost:9300");
         $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
         list($clientIdentifier, $clientSecret) = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
 

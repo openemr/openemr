@@ -36,6 +36,7 @@ try {
     $session = $sessionFactory->createSession();
     $request = Request::createFromGlobals();
     $router = new ClientAdminController(
+        $oeGlobals,
         $session,
         new ClientRepository(),
         $oeGlobals->get('kernel'),

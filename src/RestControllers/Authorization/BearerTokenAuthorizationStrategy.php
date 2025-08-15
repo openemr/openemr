@@ -15,6 +15,7 @@ use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -43,8 +44,11 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private EventAuditLogger $auditLogger;
 
-    public function __construct(EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
+    private OEGlobalsBag $globalsBag;
+
+    public function __construct(OEGlobalsBag $globalsBag, EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
     {
+        $this->globalsBag = $globalsBag;
         $this->auditLogger = $auditLogger;
         if ($logger) {
             $this->setSystemLogger($logger);
@@ -128,7 +132,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     {
         // This method is intended to create and return an instance of AccessTokenRepository.
         // Implementation details would depend on the specific requirements of the application.
-        return new AccessTokenRepository($session);
+        return new AccessTokenRepository($this->globalsBag, $session);
     }
 
     public function shouldProcessRequest(HttpRestRequest $request): bool

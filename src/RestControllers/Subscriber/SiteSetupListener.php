@@ -177,7 +177,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $serverConfig = new ServerConfig();
             // check for key existence, if public key not there, we want to make sure we create it
             if (!file_exists($serverConfig->getPublicRestKey())) {
-                $oauth2KeyConfig = new OAuth2KeyConfig($GLOBALS['OE_SITE_DIR']);
+                $oauth2KeyConfig = new OAuth2KeyConfig($globalsBag->get('OE_SITE_DIR'));
                 $oauth2KeyConfig->configKeyPairs();
             }
             $request->setApiBaseFullUrl($serverConfig->getBaseApiUrl());

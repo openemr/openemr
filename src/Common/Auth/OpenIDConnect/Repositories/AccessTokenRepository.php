@@ -22,6 +22,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
@@ -42,8 +43,11 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     private SessionInterface $session;
 
-    public function __construct(SessionInterface $session)
+    private OEGlobalsBag $globalsBag;
+
+    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session)
     {
+        $this->globalsBag = $globalsBag;
         $this->session = $session;
         $this->contextForNewTokens = null;
     }
@@ -169,8 +173,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     private function getBuilderForAccessToken(): SMARTSessionTokenContextBuilder
     {
         if (empty($this->builder)) {
-            // TODO: @adunsulag replace the $_SESSION with a session service that can be injected
-            $this->builder = new SMARTSessionTokenContextBuilder($this->session);
+            $this->builder = new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session);
         }
         return $this->builder;
     }
