@@ -189,7 +189,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $finalizedScopes;
     }
 
-    public function getClaimRepository() : ClaimSetRepositoryInterface
+    public function getClaimRepository(): ClaimSetRepositoryInterface
     {
         if (!isset($this->claimRepository)) {
             $this->claimRepository = new ClaimRepository();

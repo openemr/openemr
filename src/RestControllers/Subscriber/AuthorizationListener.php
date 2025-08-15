@@ -15,6 +15,7 @@
 namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -185,10 +186,41 @@ class AuthorizationListener implements EventSubscriberInterface
         }
 
         // check access token scopes
-        if (!$restRequest->requestHasScope($scope)) {
+        $scopeEntity = ScopeEntity::createFromString($scope);
+        if (!$restRequest->requestHasScopeEntity($scopeEntity)) {
             throw new AccessDeniedException($scopeType, $restRequest->getResource() ?? '', "scope " . $scope . " not in access token");
         }
+        $this->updateRequestWithConstraints($request, $scopeEntity);
         return $event;
+    }
+
+    /**
+     * Updates the request query parameters with constraints from ScopeEntity objects that match the given scope
+     *
+     * @param HttpRestRequest $request The request to update, will have query parameters modified if there are granular constraints
+     * @param ScopeEntity $scope The scope to match against
+     * @return void
+     */
+    private function updateRequestWithConstraints(HttpRestRequest $request, ScopeEntity $scope): void
+    {
+        $scopeEntities = $request->getAllContainedScopesForScopeEntity($scope);
+        $constraints = [];
+
+        foreach ($scopeEntities as $scopeEntity) {
+            // Check if this scope entity matches or is contained by the given scope
+            $scope->addScopePermissions($scopeEntity);
+        }
+        $constraints = $scope->getPermissions()->getConstraints();
+        if (!empty($constraints)) {
+            // Merge constraints with existing query parameters
+            $request->query->add($constraints);
+            $logValues = [
+                'scope' => $scope->getIdentifier(),
+                'constraints' => $constraints,
+                'mergedQuery' => $request->query->all()
+            ];
+            $this->getLogger()->debug("Updated request with scope constraints", $logValues);
+        }
     }
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void

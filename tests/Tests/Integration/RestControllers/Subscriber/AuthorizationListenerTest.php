@@ -3,6 +3,10 @@
 namespace OpenEMR\Tests\Integration\RestControllers\Subscriber;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopePermissionObject;
+use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
@@ -471,30 +475,10 @@ class AuthorizationListenerTest extends TestCase
      */
     public function testOnRestApiSecurityCheckValidatesScopeWithoutResource(): void
     {
-        $mockAttributes = $this->createMock(\Symfony\Component\HttpFoundation\ParameterBag::class);
-        $mockAttributes->expects($this->once())
-            ->method('get')
-            ->with('skipAuthorization', false)
-            ->willReturn(false);
-
-        $mockRestRequest = $this->createMock(HttpRestRequest::class);
-        $mockRestRequest->expects($this->once())
-            ->method('isPatientRequest')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('isLocalApi')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('isFhir')
-            ->willReturn(true);
-        $mockRestRequest->expects($this->once())
-            ->method('isPatientWriteRequest')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('requestHasScope')
-            ->with('user')
-            ->willReturn(true);
-        $mockRestRequest->attributes = $mockAttributes;
+        $mockScope = ScopeEntity::createFromString("fhirUser");
+        $scopeFactory = new ScopeValidatorFactory();
+        $mockRestRequest = HttpRestRequest::create("/fhir/metadata");
+        $mockRestRequest->setAccessTokenScopeValidationArray($scopeFactory->buildScopeValidatorArray(["fhirUser"]));
 
         $event = $this->createMock(RestApiSecurityCheckEvent::class);
         $event->expects($this->once())
@@ -505,7 +489,7 @@ class AuthorizationListenerTest extends TestCase
             ->willReturn($mockRestRequest);
         $event->expects($this->once())
             ->method('getScopeType')
-            ->willReturn('user');
+            ->willReturn('fhirUser');
         $event->expects($this->once())
             ->method('getResource')
             ->willReturn("");
@@ -523,31 +507,10 @@ class AuthorizationListenerTest extends TestCase
      */
     public function testOnRestApiSecurityCheckValidatesScopeWithResource(): void
     {
-        $mockAttributes = $this->createMock(ParameterBag::class);
-        $mockAttributes->expects($this->once())
-            ->method('get')
-            ->with('skipAuthorization', false)
-            ->willReturn(false);
-
-        $mockRestRequest = $this->createMock(HttpRestRequest::class);
-        $mockRestRequest->expects($this->once())
-            ->method('isPatientRequest')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('isLocalApi')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('isFhir')
-            ->willReturn(true);
-        $mockRestRequest->expects($this->once())
-            ->method('isPatientWriteRequest')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('requestHasScope')
-            ->with('user/Patient.read')
-            ->willReturn(true);
-        $mockRestRequest->attributes = $mockAttributes;
-
+        $mockScope = ScopeEntity::createFromString("fhirUser");
+        $scopeFactory = new ScopeValidatorFactory();
+        $mockRestRequest = HttpRestRequest::create("/fhir/Patient/123");
+        $mockRestRequest->setAccessTokenScopeValidationArray($scopeFactory->buildScopeValidatorArray(["user/Patient.read"]));
         $event = $this->createMock(RestApiSecurityCheckEvent::class);
         $event->expects($this->once())
             ->method('shouldSkipSecurityCheck')
@@ -578,55 +541,105 @@ class AuthorizationListenerTest extends TestCase
      */
     public function testOnRestApiSecurityCheckDeniesInvalidScope(): void
     {
-        $mockAttributes = $this->createMock(ParameterBag::class);
-        $mockAttributes->expects($this->once())
-            ->method('get')
-            ->with('skipAuthorization', false)
-            ->willReturn(false);
-
-        $mockRestRequest = $this->createMock(HttpRestRequest::class);
-        $mockRestRequest->expects($this->once())
-            ->method('isPatientRequest')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('isLocalApi')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('isFhir')
-            ->willReturn(true);
-        $mockRestRequest->expects($this->once())
-            ->method('isPatientWriteRequest')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->once())
-            ->method('requestHasScope')
-            ->with('user/Patient.read')
-            ->willReturn(false);
-        $mockRestRequest->expects($this->atLeastOnce())
-            ->method('getResource')
-            ->willReturn('Patient');
-        $mockRestRequest->attributes = $mockAttributes;
-
-        $event = $this->createMock(RestApiSecurityCheckEvent::class);
-        $event->expects($this->once())
-            ->method('shouldSkipSecurityCheck')
-            ->willReturn(false);
-        $event->expects($this->atLeastOnce())
-            ->method('getRestRequest')
-            ->willReturn($mockRestRequest);
-        $event->expects($this->once())
-            ->method('getScopeType')
-            ->willReturn('user');
-        $event->expects($this->atLeastOnce())
-            ->method('getResource')
-            ->willReturn('Patient');
-        $event->expects($this->once())
-            ->method('getPermission')
-            ->willReturn('read');
-
+        $mockRestRequest = HttpRestRequest::create("/fhir/Patient/123");
+        $event = new RestApiSecurityCheckEvent($mockRestRequest);
+        $event->setScopeType('user');
+        $event->setResource('Patient');
+        $event->setPermission('read');
         $this->expectException(AccessDeniedException::class);
-        $this->expectExceptionMessage('scope user/Patient.read not in access token');
+        $this->expectExceptionMessage('scope user/Patient.read not in access token');// invalid scope permission
+        $result = $this->authListener->onRestApiSecurityCheck($event);
 
         $this->authListener->onRestApiSecurityCheck($event);
+    }
+
+    /**
+     * Test that constraints from matching scope entities are added to request query parameters
+     */
+    public function testOnRestApiSecurityCheckUpdatesRequestWithConstraints(): void
+    {
+        $mockRestRequest = HttpRestRequest::create("/fhir/Patient/123");
+        $mockRestRequest->query->set('existing', 'param');
+        $scopeFactory = new ScopeValidatorFactory();
+        $mockRestRequest->setAccessTokenScopeValidationArray($scopeFactory->buildScopeValidatorArray([
+            "user/Patient.rs?patient=123&status=active"
+            , "user/Observation.read"]));
+
+        $this->mockLogger->expects($this->once())
+            ->method('debug')
+            ->with('Updated request with scope constraints', [
+                'scope' => 'user/Patient.r',
+                'constraints' => ['patient' => '123', 'status' => 'active'],
+                'mergedQuery' => ['existing' => 'param', 'patient' => '123', 'status' => 'active']
+            ]);
+        $event = new RestApiSecurityCheckEvent($mockRestRequest);
+        $event->setScopeType('user');
+        $event->setResource('Patient');
+        $event->setPermission('r');
+        $result = $this->authListener->onRestApiSecurityCheck($event);
+        $this->assertSame($event, $result);
+        $this->assertEquals(
+            ['existing' => 'param', 'patient' => '123', 'status' => 'active'],
+            $mockRestRequest->getQueryParams(),
+            'Query parameters should include merged constraints'
+        );
+    }
+
+    /**
+     * Test that constraints are merged when multiple scope entities match
+     */
+    public function testOnRestApiSecurityCheckMergesConstraintsFromMultipleScopes(): void
+    {
+        $mockRestRequest = HttpRestRequest::create("/fhir/Patient/123");
+        $mockRestRequest->query->set('existing', 'param');
+        $scopeFactory = new ScopeValidatorFactory();
+        $mockRestRequest->setAccessTokenScopeValidationArray($scopeFactory->buildScopeValidatorArray([
+            "user/Patient.rs?patient=123&status=active"
+            ,"user/Patient.r?category=vital-signs&date=2023"]));
+
+        $this->mockLogger->expects($this->once())
+            ->method('debug')
+            ->with('Updated request with scope constraints', [
+                'scope' => 'user/Patient.r',
+                'constraints' => ['patient' => '123', 'status' => 'active', 'category' => 'vital-signs', 'date' => '2023'],
+                'mergedQuery' => ['existing' => 'param', 'patient' => '123', 'status' => 'active', 'category' => 'vital-signs', 'date' => '2023']
+            ]);
+        $event = new RestApiSecurityCheckEvent($mockRestRequest);
+        $event->setScopeType('user');
+        $event->setResource('Patient');
+        $event->setPermission('r');
+        $result = $this->authListener->onRestApiSecurityCheck($event);
+        $this->assertSame($event, $result);
+        $this->assertEquals(
+            ['existing' => 'param', 'patient' => '123', 'status' => 'active', 'category' => 'vital-signs', 'date' => '2023'],
+            $mockRestRequest->getQueryParams(),
+            'Query parameters should include merged constraints'
+        );
+    }
+
+    /**
+     * Test that no constraints are applied when no scope entities match
+     */
+    public function testOnRestApiSecurityCheckNoConstraintsWhenScopeHasEmptyConstraints(): void
+    {
+        $mockRestRequest = HttpRestRequest::create("/fhir/Patient/123");
+        $mockRestRequest->query->set('existing', 'param');
+        $scopeFactory = new ScopeValidatorFactory();
+        $mockRestRequest->setAccessTokenScopeValidationArray($scopeFactory->buildScopeValidatorArray([
+            "user/Patient.rs"
+            ,"user/Patient.r"]));
+
+        $event = new RestApiSecurityCheckEvent($mockRestRequest);
+        $event->setScopeType('user');
+        $event->setResource('Patient');
+        $event->setPermission('r');
+        $result = $this->authListener->onRestApiSecurityCheck($event);
+        $this->assertSame($event, $result);
+        $this->assertEquals(
+            ['existing' => 'param'],
+            $mockRestRequest->getQueryParams(),
+            'Query parameters should not have been modified'
+        );
     }
 
     /**

@@ -153,6 +153,7 @@ class HttpRestRequest extends Request implements Stringable
 
     public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
     {
+        $this->patientRequest = false;
         parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
     }
 
@@ -346,17 +347,38 @@ class HttpRestRequest extends Request implements Stringable
     /**
      * Checks if the request's access token has the given scope identifier.
      * @param string $scope
+     * @deprecated use requestHasScopeEntity() instead which receives a ScopeEntity object
      * @return bool true if the request has the scope, false otherwise.
      */
     public function requestHasScope(string $scope): bool
     {
         // TODO: would prefer to move this into a Permission Decision Point code (PDP)
         $scopeEntity = ScopeEntity::createFromString($scope);
+        return $this->requestHasScopeEntity($scopeEntity);
+    }
+
+    /**
+     * Checks if the request's access token has the given scope contained within the access token scopes.
+     * @param ScopeEntity $scopeEntity
+     * @return bool
+     */
+    public function requestHasScopeEntity(ScopeEntity $scopeEntity): bool
+    {
         $scopeKey = $scopeEntity->getScopeLookupKey();
         if (isset($this->accessTokenScopes[$scopeKey])) {
             return $this->accessTokenScopes[$scopeKey]->containsScope($scopeEntity);
         }
         return false;
+    }
+
+    public function getAllContainedScopesForScopeEntity(ScopeEntity $scopeEntity): array
+    {
+        // returns all scopes that are contained within the access token scopes for the given scope entity
+        $scopeKey = $scopeEntity->getScopeLookupKey();
+        if (isset($this->accessTokenScopes[$scopeKey])) {
+            return $this->accessTokenScopes[$scopeKey]->getContainedScopes($scopeEntity);
+        }
+        return [];
     }
 
     /**

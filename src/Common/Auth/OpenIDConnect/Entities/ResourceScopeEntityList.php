@@ -66,4 +66,26 @@ class ResourceScopeEntityList extends ArrayObject
         }
         return false;
     }
+
+    /**
+     * Returns an array of scopes that contain the given scope.  This is useful for finding scopes that are more specific than the given scope such
+     * as scopes that have a specific granular restriction.
+     * For example contained scopes for user/Condition.r would include user/Condition.rs &&
+     * user/Condition.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern
+     * @param ScopeEntity $scope
+     * @return array
+     */
+    public function getContainedScopes(ScopeEntity $scope): array
+    {
+        $containedScopes = [];
+        foreach ($this as $item) {
+            /**
+             * @var ScopeEntity $item
+             */
+            if ($item->containsScope($scope)) {
+                $containedScopes[] = $item;
+            }
+        }
+        return $containedScopes;
+    }
 }

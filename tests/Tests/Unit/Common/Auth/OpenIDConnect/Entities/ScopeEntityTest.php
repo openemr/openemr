@@ -79,7 +79,25 @@ class ScopeEntityTest extends TestCase
 
     public function testAddScopePermissions(): void
     {
-        $this->markTestIncomplete(" This test is not yet implemented.");
+        $scope1 = ScopeEntity::createFromString('patient/Patient.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern');
+        $scope2 = ScopeEntity::createFromString('patient/Patient.r?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|other-health-concern');
+        $scope3 = ScopeEntity::createFromString('patient/Patient.rs?status=active');
+        $scope1->addScopePermissions($scope2);
+        $this->assertEquals($scope1->getPermissions()->getConstraints(), [
+            'category' => [
+                'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern',
+                'http://hl7.org/fhir/us/core/CodeSystem/condition-category|other-health-concern'
+            ]
+        ], "permissions constraints should match the combined query parameters");
+
+        $scope1->addScopePermissions($scope3);
+        $this->assertEquals($scope1->getPermissions()->getConstraints(), [
+            'category' => [
+                'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern',
+                'http://hl7.org/fhir/us/core/CodeSystem/condition-category|other-health-concern'
+            ]
+            ,'status' => 'active'
+        ], "permissions constraints should match the combined query parameters");
     }
 
     public function testCreateFromStringSMARTLaunchScope(): void
@@ -151,7 +169,7 @@ class ScopeEntityTest extends TestCase
         $this->assertEquals('patient/medical-problem', $entity->getScopeLookupKey(), "scopeLookupKey should match the context/resource format");
     }
 
-    public function testCreateFromStringScopeWithCondition() : void
+    public function testCreateFromStringScopeWithCondition(): void
     {
         $scope = 'patient/Condition.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern';
         $entity = ScopeEntity::createFromString($scope);
