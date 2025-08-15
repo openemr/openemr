@@ -1,4 +1,5 @@
 <?php
+
 /*
  * AuthorizationListenerTest.php handles testing the AuthorizationListener class.
  * @package openemr
