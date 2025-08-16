@@ -514,7 +514,7 @@ function getGcacClientStatus($row)
 
 // Helper function called after the reporting key is determined for a row.
 //
-function loadColumnData($key, $row, $quantity = 1): void
+function loadColumnDataIPPF($key, $row, $quantity = 1): void
 {
     global $areport, $arr_titles, $form_content, $from_date, $to_date, $arr_show;
 
@@ -806,7 +806,7 @@ function process_ippf_code($row, $code, $quantity = 1): void
     }
 
   // OK we now have the reporting key for this issue.
-    loadColumnData($key, $row, $quantity);
+    loadColumnDataIPPF($key, $row, $quantity);
 } // end function process_ippf_code()
 
 // This is called for each MA service code that is selected.
@@ -833,7 +833,7 @@ function process_ma_code($row): void
         return;
     }
 
-    loadColumnData($key, $row);
+    loadColumnDataIPPF($key, $row);
 }
 
 function LBFgcac_query($pid, $encounter, $name)
@@ -911,12 +911,12 @@ function process_visit($row): void
                 }
 
                 $key = "$abtype / " . $crow['title'];
-                loadColumnData($key, $row);
+                loadColumnDataIPPF($key, $row);
             }
         }
     }
 
-  // loadColumnData() already done as needed.
+  // loadColumnDataIPPF() already done as needed.
 }
 
 /*********************************************************************
@@ -988,7 +988,7 @@ function process_referral($row): void
             if ($form_by === '1') {
                 if (preg_match('/^[12]/', $code)) {
                     $key = xl('SRH Referrals');
-                    loadColumnData($key, $row);
+                    loadColumnDataIPPF($key, $row);
                     break;
                 }
             } else { // $form_by is 9 (internal) or 10 or 20 (external) referrals
@@ -999,7 +999,7 @@ function process_referral($row): void
     }
 
     if ($form_by !== '1') {
-        loadColumnData($key, $row);
+        loadColumnDataIPPF($key, $row);
     }
 }
 

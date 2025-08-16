@@ -32,7 +32,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-6">
-                    {% if requestMessage %}
+                    {% if requestMessage is not empty %}
                         <div class="alert alert-info">
                             {{ requestMessage|text }}
                         </div>

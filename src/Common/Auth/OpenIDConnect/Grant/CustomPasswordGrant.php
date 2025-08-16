@@ -25,6 +25,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
@@ -33,9 +34,12 @@ class CustomPasswordGrant extends PasswordGrant
      */
     private $logger;
 
-    public function __construct(UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
+    private SessionInterface $session;
+
+    public function __construct(SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
         $this->logger = new SystemLogger();
+        $this->session = $session;
         parent::__construct($userRepository, $refreshTokenRepository);
     }
 
@@ -99,10 +103,11 @@ class CustomPasswordGrant extends PasswordGrant
             );
             throw OAuthServerException::invalidGrant('Failed Authentication');
         }
-        $_SESSION['pass_user_id'] = $user->getIdentifier();
-        $_SESSION['pass_username'] = $username;
-        $_SESSION['pass_user_role'] = $userrole;
-        $_SESSION['pass_user_email'] = $email;
+
+        $this->session->set('pass_user_id', $user->getIdentifier());
+        $this->session->set('pass_username', $username);
+        $this->session->set('pass_user_role', $userrole);
+        $this->session->set('pass_user_email', $email);
 
         return $user;
     }

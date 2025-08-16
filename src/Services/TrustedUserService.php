@@ -30,13 +30,13 @@ class TrustedUserService
         return $records;
     }
 
-    public function getTrustedUser($clientId, $userId)
+    public function getTrustedUser($clientId, $userId): array|false
     {
         $trusted = sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
         return $trusted;
     }
 
-    public function getTrustedUserByCode($code)
+    public function getTrustedUserByCode($code): array|false
     {
         return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
     }

@@ -862,7 +862,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                             $param = ['is_universal' => 1, 'type' => 'email'];
                             $GLOBALS['kernel']->getEventDispatcher()->
                             dispatch(
-                                new SendNotificationEvent($pid, $param),
+                                new SendNotificationEvent($pid ?? 0, $param),
                                 SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST
                             );
                             ?>

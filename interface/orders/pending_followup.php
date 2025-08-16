@@ -29,7 +29,7 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 $facilityService = new FacilityService();
 
-function thisLineItem($row, $codetype, $code): void
+function thisLineItemPendingFollowup($row, $codetype, $code): void
 {
     global $code_types;
 
@@ -253,7 +253,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
                 continue;
             }
 
-            thisLineItem($row, $codetype, $code);
+            thisLineItemPendingFollowup($row, $codetype, $code);
         }
     }
 } // end report generation
