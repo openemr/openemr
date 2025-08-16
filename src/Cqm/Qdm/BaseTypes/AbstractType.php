@@ -33,6 +33,6 @@ abstract class AbstractType implements \JsonSerializable
     public function propertyExists($property)
     {
         $vars = get_object_vars($this);
-        return property_exists($this, $property) || isset($vars);
+        return property_exists($this, $property) || $vars[$property] ?? false;
     }
 }
