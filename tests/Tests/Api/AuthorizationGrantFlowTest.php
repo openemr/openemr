@@ -71,7 +71,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $kernel = new OEHttpKernel($dispatcher, $controller);
         // set the globals.php kernel which doesn't do much... need to reconicle these two
         // set our site_addr_oath so we use it properly
-        $kernel->getGlobalsBag()->set('site_addr_oath', getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost:9300");
+        $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
         $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
         list($clientIdentifier, $clientSecret) = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
 
@@ -233,7 +233,7 @@ class AuthorizationGrantFlowTest extends TestCase
             "phone_number_verified" => true,
             "address" => "  ",
             "zip" => null,
-            "fhirUser" => "https://localhost:9300/apis/default/fhir/Person/" . $user['uuid'],
+            "fhirUser" => $this->getBaseUrlApi() . "/apis/default/fhir/Person/" . $user['uuid'],
             'nickname' => '',
             'api:fhir' => true,
             'api:oemr' => true,
@@ -376,5 +376,20 @@ class AuthorizationGrantFlowTest extends TestCase
         $scopeConfirmationPage = $patientSelectionSubmissionResponse->getHeader('Location')[0];
         $this->assertStringEndsWith(AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, $scopeConfirmationPage, 'Redirect location should end with scope authorize confirm endpoint');
         return $scopeConfirmationPage;
+    }
+
+    /**
+     * @return string
+     */
+    private function getBaseUrlApi(): string
+    {
+        $url = getenv("OPENEMR_BASE_URL_API", true);
+        if (is_array($url)) {
+            return (string)$url[0];
+        } else if (is_string($url)) {
+            return $url;
+        } else {
+            return "https://localhost:9300";
+        }
     }
 }
