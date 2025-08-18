@@ -1,3 +1,5 @@
+includes:
+	- phpstan.local.baseline.neon
 parameters:
   ignoreErrors:
   - message: '#^Variable \$web_root might not be defined\.$#'
@@ -12264,14 +12266,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/orders/patient_match_dialog.php
-  - message: '#^Function thisLineItem invoked with 3 parameters, 8\-9 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/orders/pending_followup.php
-  - message: '#^Function thisLineItem invoked with 1 parameter, 8\-9 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/orders/pending_orders.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -12892,10 +12886,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 4 parameters, 5\-10 required\.$#'
-    identifier: arguments.count
-    count: 3
-    path: interface/patient_file/pos_checkout_normal.php
   - message: '#^Variable \$amount might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -12994,10 +12984,6 @@ parameters:
     path: interface/patient_file/report/custom_report.php
   - message: '#^Function cms_portal_call not found\.$#'
     identifier: function.notFound
-    count: 1
-    path: interface/patient_file/report/custom_report.php
-  - message: '#^Function postToGet invoked with 1 parameter, 2 required\.$#'
-    identifier: arguments.count
     count: 1
     path: interface/patient_file/report/custom_report.php
   - message: '#^Variable \$ISSUE_TYPES might not be defined\.$#'
@@ -13992,22 +13978,10 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/inventory_list.php
-  - message: '#^Function thisLineItem invoked with 1 parameter, 8\-9 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/inventory_transactions.php
-  - message: '#^Function thisLineItem invoked with 2 parameters, 8\-9 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/inventory_transactions.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/reports/inventory_transactions.php
-  - message: '#^Function thisLineItem invoked with 7 parameters, 8\-9 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/ippf_cyp_report.php
   - message: '#^Variable \$productleft might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17236,10 +17210,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/report/pat_ledger.php
-  - message: '#^Function postToGet invoked with 1 parameter, 2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: portal/report/portal_custom_report.php
   - message: '#^Variable \$ISSUE_TYPES might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -18388,23 +18358,3 @@ parameters:
     identifier: arguments.count
     count: 1
     path: tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
-  - message: '#^Trying to mock an undefined method Execute\(\) on class stdClass\.$#'
-    identifier: phpunit.mockMethod
-    count: 1
-    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
-  - message: '#^Trying to mock an undefined method ExecuteNoLog\(\) on class stdClass\.$#'
-    identifier: phpunit.mockMethod
-    count: 1
-    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
-  - message: '#^Trying to mock an undefined method FetchRow\(\) on class stdClass\.$#'
-    identifier: phpunit.mockMethod
-    count: 3
-    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
-  - message: '#^Trying to mock an undefined method Insert_ID\(\) on class stdClass\.$#'
-    identifier: phpunit.mockMethod
-    count: 1
-    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
-  - message: '#^Trying to mock an undefined method qstr\(\) on class stdClass\.$#'
-    identifier: phpunit.mockMethod
-    count: 1
-    path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
