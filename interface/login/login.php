@@ -29,6 +29,7 @@
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
@@ -42,6 +43,16 @@ $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
 require_once("../globals.php");
+
+if (isset($_GET['client_id'])) {
+    $clientRepository = new ClientRepository();
+    $client = $clientRepository->getClientEntity($_GET['client_id']);
+    if ($client && $client->getIdentityProvider() === 'google') {
+        $site_id = $_SESSION['site_id'] ?? 'default';
+        header('Location: ' . $GLOBALS['webroot'] . '/oauth2/' . $site_id . '/authorize/google?client_id=' . $_GET['client_id']);
+        exit;
+    }
+}
 
 $twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();

@@ -56,6 +56,24 @@ Multisite is supported by including the site in the endpoint. When not using mul
 
 OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Config->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. The listing of scopes can be found in below Scopes section.
 
+### Google Cloud Identity Platform (GCIP) Integration
+
+OpenEMR supports authentication via Google Cloud Identity Platform (GCIP) using the OpenID Connect (OIDC) protocol. This allows users to log in to OpenEMR using their Google accounts, providing a seamless and secure authentication experience.
+
+#### Configuration
+
+To enable GCIP integration, you need to configure the following settings for an OAuth2 client in OpenEMR:
+
+1.  **Identity Provider**: Set the identity provider to `google`.
+2.  **Google Client ID**: Your Google Cloud project's client ID.
+3.  **Google Client Secret**: Your Google Cloud project's client secret.
+
+These settings can be configured in the client management UI at `Administration -> System -> API Clients`.
+
+#### Authentication Flow
+
+When a user attempts to log in to an application that is configured to use GCIP, they will be redirected to Google for authentication. After successfully authenticating with Google, they will be redirected back to OpenEMR, where a session will be created for them. If the user does not exist in OpenEMR, a new user will be provisioned automatically.
+
 ### Scopes
 
 This is a listing of scopes:
