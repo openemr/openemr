@@ -17664,10 +17664,6 @@ parameters:
     identifier: return.missing
     count: 1
     path: src/Core/Header.php
-  - message: '#^Variable \$vars in isset\(\) always exists and is not nullable\.$#'
-    identifier: isset.variable
-    count: 1
-    path: src/Cqm/QrdaControllers/QrdaReportController.php
   - message: '#^Class OpenEMR\\Cqm\\CqmClient constructor invoked with 0 parameters, 2\-4 required\.$#'
     identifier: arguments.count
     count: 1
