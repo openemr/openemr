@@ -677,8 +677,6 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $acoList = AclExtended::genAcoArray();
     $tpl->assign('ACO_List', $acoList);
 
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
 
     if (isset($data_loaded)) {
         $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update ?? '') . "\" />";
