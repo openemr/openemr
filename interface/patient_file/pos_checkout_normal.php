@@ -79,10 +79,17 @@ $this_bill_date = date('Y-m-d H:i:s');
 // Get the patient's name and chart number.
 $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
-// Output HTML for an invoice line item.
-//
 $prevsvcdate = '';
-function receiptDetailLine($svcdate, $description, $amount, $quantity): void
+/**
+ * Output HTML for an invoice line item.
+ *
+ * @param string $svcdate
+ * @param string $description
+ * @param float $amount
+ * @param int $quantity
+ * @return void
+ */
+function receiptDetailLine(string $svcdate, string $description, float $amount, int $quantity): void
 {
     global $prevsvcdate, $details;
     if (!$details) {
