@@ -338,6 +338,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFilter(
+                'xl_form_title',
+                function ($constant, $mode = 'r', $prepend = '', $append = '') {
+                    return xl_form_title($constant, $mode, $prepend, $append);
+                }
+            ),
+            new TwigFilter(
                 'money',
                 function ($amount) {
                     return oeFormatMoney($amount);

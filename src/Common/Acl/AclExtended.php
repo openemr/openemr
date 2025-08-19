@@ -529,9 +529,11 @@ class AclExtended
     // This generates an HTML options list for all ACOs.
     // The caller inserts this between <select> and </select> tags.
     //
-    public static function genAcoHtmlOptions($default = '')
+    public static function genAcoHtmlOptions($default = '', $acoArray = null)
     {
-        $acoArray = self::genAcoArray();
+        if (!is_array($acoArray)) {
+            $acoArray = self::genAcoArray();
+        }
         $s = '';
         foreach ($acoArray as $section => $acos_array) {
             $s .= "<optgroup label='" . xla($section) . "'>\n";
