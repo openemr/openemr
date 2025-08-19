@@ -1,6 +1,8 @@
-includes:
-	- phpstan.local.baseline.neon
 parameters:
+  scanFiles:
+    - vendor/phpunit/phpunit/src/Framework/TestCase.php
+  excludePaths:
+    - sites/default/documents/smarty
   ignoreErrors:
   - message: '#^Variable \$web_root might not be defined\.$#'
     identifier: variable.undefined
