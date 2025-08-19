@@ -26,7 +26,13 @@ if (!AclMain::aclCheckCore('patients', 'lab')) {
     exit;
 }
 
-function thisLineItem($row): void
+/**
+ * Render a line item for the pending orders html table.
+ *
+ * @param array $row
+ * @return void
+ */
+function pendingOrdersLineItem(array $row): void
 {
     $provname = $row['provider_lname'];
     if (!empty($row['provider_fname'])) {
@@ -208,7 +214,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row);
+        pendingOrdersLineItem($row);
     }
 } // end report generation
 

@@ -29,7 +29,15 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 $facilityService = new FacilityService();
 
-function thisLineItem($row, $codetype, $code): void
+/**
+ * Render a line item for the pending follow-up html table.
+ *
+ * @param array $row
+ * @param string $codetype
+ * @param string $code
+ * @return void
+ */
+function pendingFollowupLineItem(array $row, string $codetype, string $code): void
 {
     global $code_types;
 
@@ -253,7 +261,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
                 continue;
             }
 
-            thisLineItem($row, $codetype, $code);
+            pendingFollowupLineItem($row, $codetype, $code);
         }
     }
 } // end report generation
