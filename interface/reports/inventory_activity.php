@@ -86,16 +86,30 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
 
-function thisLineItem(
-    $product_id,
-    $warehouse_id,
-    $patient_id,
-    $encounter_id,
-    $rowprod,
-    $rowwh,
-    $transdate,
-    $qtys,
-    $irnumber = ''
+/**
+ * Render a line item for the inventory activity report HTML table.
+ *
+ * @param int $product_id
+ * @param int $warehouse_id
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $rowprod
+ * @param string $rowwh
+ * @param string $transdate
+ * @param array $qtys
+ * @param string $irnumber
+ * @return void
+ */
+function inventoryActivityLineItem(
+    int $product_id,
+    int $warehouse_id,
+    int $patient_id,
+    int $encounter_id,
+    string $rowprod,
+    string $rowwh,
+    string $transdate,
+    array $qtys,
+    string $irnumber = ''
 ): void {
 
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
@@ -655,7 +669,7 @@ if ($form_action) { // if submit or export
                 !empty($row['destroy_date']) && $row['on_hand'] != 0
                 && $row['destroy_date'] <= $form_to_date
             ) {
-                thisLineItem(
+                inventoryActivityLineItem(
                     $row['drug_id'],
                     $row['warehouse_id'],
                     0,
@@ -689,7 +703,7 @@ if ($form_action) { // if submit or export
             }
         }
 
-        thisLineItem(
+        inventoryActivityLineItem(
             $row['drug_id'],
             $row['warehouse_id'],
             $row['pid'] + 0,
@@ -703,7 +717,7 @@ if ($form_action) { // if submit or export
     }
 
     // Generate totals for last product and warehouse.
-    thisLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0, 0, 0));
+    inventoryActivityLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0, 0, 0));
 
     // Grand totals line.
     if ($form_action != 'export') { // if submit
