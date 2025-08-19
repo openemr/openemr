@@ -512,9 +512,15 @@ function getGcacClientStatus($row)
     return xl('Indeterminate');
 }
 
-// Helper function called after the reporting key is determined for a row.
-//
-function loadColumnData($key, $row, $quantity = 1): void
+/**
+ * Helper function called after the reporting key is determined for a row.
+ *
+ * @param string $key The reporting key for this row.
+ * @param array $row The data for this row.
+ * @param int $quantity The quantity for this row.
+ * @return void
+ */
+function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
 {
     global $areport, $arr_titles, $form_content, $from_date, $to_date, $arr_show;
 
@@ -782,9 +788,9 @@ function process_ippf_code($row, $code, $quantity = 1): void
         $crow = sqlQuery("SELECT title FROM list_options WHERE " .
         "list_id = 'complication' AND option_id = '$compl'");
         $key = "$abtype / " . $crow['title'];
-        loadColumnData($key, $row);
+        ippfLoadColumnData($key, $row);
         }
-        return; // because loadColumnData() is already done.
+        return; // because ippfLoadColumnData() is already done.
         }
          *******************************************************************/
 
@@ -806,7 +812,7 @@ function process_ippf_code($row, $code, $quantity = 1): void
     }
 
   // OK we now have the reporting key for this issue.
-    loadColumnData($key, $row, $quantity);
+    ippfLoadColumnData($key, $row, $quantity);
 } // end function process_ippf_code()
 
 // This is called for each MA service code that is selected.
@@ -833,7 +839,7 @@ function process_ma_code($row): void
         return;
     }
 
-    loadColumnData($key, $row);
+    ippfLoadColumnData($key, $row);
 }
 
 function LBFgcac_query($pid, $encounter, $name)
@@ -888,7 +894,7 @@ function process_visit($row): void
           "list_id = 'contrameth' AND option_id = '$methid'");
         $key = $crow['title'];
         if (empty($key)) $key = xl('Indeterminate');
-        loadColumnData($key, $row);
+        ippfLoadColumnData($key, $row);
         }
       }
         *****************************************************************/
@@ -911,12 +917,12 @@ function process_visit($row): void
                 }
 
                 $key = "$abtype / " . $crow['title'];
-                loadColumnData($key, $row);
+                ippfLoadColumnData($key, $row);
             }
         }
     }
 
-  // loadColumnData() already done as needed.
+  // ippfLoadColumnData() already done as needed.
 }
 
 /*********************************************************************
@@ -945,7 +951,7 @@ function process_issue($row) {
   }
 
   // TBD: Load column data from the issue.
-  // loadColumnData($key, $row);
+  // ippfLoadColumnData($key, $row);
 }
 *********************************************************************/
 
@@ -988,7 +994,7 @@ function process_referral($row): void
             if ($form_by === '1') {
                 if (preg_match('/^[12]/', $code)) {
                     $key = xl('SRH Referrals');
-                    loadColumnData($key, $row);
+                    ippfLoadColumnData($key, $row);
                     break;
                 }
             } else { // $form_by is 9 (internal) or 10 or 20 (external) referrals
@@ -999,7 +1005,7 @@ function process_referral($row): void
     }
 
     if ($form_by !== '1') {
-        loadColumnData($key, $row);
+        ippfLoadColumnData($key, $row);
     }
 }
 
@@ -1452,7 +1458,7 @@ if ($_POST['form_submit']) {
         }
       }
       if ($form_by === '104') $key .= " / " . $row['name'];
-      loadColumnData($key, $row, $row['quantity']);
+      ippfLoadColumnData($key, $row, $row['quantity']);
     }
     }
 
