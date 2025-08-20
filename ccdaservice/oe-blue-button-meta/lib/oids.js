@@ -174,14 +174,14 @@ module.exports = OIDs = {
 
         }
     },
-    "2.16.840.1.113883.5.111": {
+    "2.16.840.1.113883.5.110": {
         name: "HL7 Role",
         uri: "http://hl7.org/codes/PersonalRelationship#",
         table: {
             "PRN": "Parent"
         }
     },
-    "2.16.840.1.113883.5.110": {
+    "2.16.840.1.113883.5.111": {
         name: "HL7 RoleCode"
     },
     "2.16.840.1.113883.5.1119": {
