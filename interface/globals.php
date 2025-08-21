@@ -653,7 +653,7 @@ $globalsBag->set('tback', $tback);
 
 $srcdir = $globalsBag->getString('srcdir');
 $login_screen = $globalsBag->getString('login_screen');
-$globalsBag->getString('backpic', '');
+$globalsBag->set('backpic', $backpic ?? '');
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
@@ -743,8 +743,6 @@ $globalsBag->set('userauthorized', $userauthorized);
 $globalsBag->set('groupname', $groupname);
 $globalsBag->set('attendant_type', $attendant_type);
 $globalsBag->set('groupname', $groupname);
-$globalsBag->set('attendant_type', $attendant_type);
-$globalsBag->set('therapy_group', $therapy_group);
 
 // global interface function to format text length using ellipses
 function strterm($string, $length)
