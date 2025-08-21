@@ -60,7 +60,22 @@ _exec() {
 }
 
 dockers_env_start() {
+    local status
+    local container_id
+    set +e
     dc up --detach --wait
+    status=$?
+    if (( status == 0 )); then
+        echo 'Docker containers started successfully'
+    else
+        echo "Docker containers failed to start with status ${status}"
+        dc logs openemr
+        container_id=$(dc ps -q openemr)
+        docker inspect --format "{{json .State.Health }}" "${container_id}" | jq -r .
+        tail -n 100 /var/log/php*/* /var/log/apache2/*
+    fi
+    set -e
+    return "${status}"
 }
 
 selenium_video_start() {
