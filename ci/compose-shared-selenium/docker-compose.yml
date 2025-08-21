@@ -1,6 +1,6 @@
 services:
   selenium:
-    image: selenium/standalone-chromium:4.34.0
+    image: selenium/standalone-chromium:4.35.0
     # Services with profiles don't start by default.
     profiles:
     - selenium
