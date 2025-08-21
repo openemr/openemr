@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\RestControllers\FHIR\ProfileMappers\FhirConditionProfileMapper;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -19,8 +20,11 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirConditionRestController
 {
-    private $fhirConditionService;
+    private FhirConditionService $fhirConditionService;
     private $fhirService;
+
+    // base unversioned profile
+    private string $fhirProfile = FhirConditionService::USCGI_PROFILE_URI;
 
     public function __construct()
     {
@@ -37,6 +41,14 @@ class FhirConditionRestController
     public function getOne($fhirId, $puuidBind = null)
     {
         $processingResult = $this->fhirConditionService->getOne($fhirId, $puuidBind);
+        $profileMapper = new FhirConditionProfileMapper();
+        if ($processingResult->hasData()) {
+            $conditionResource = $processingResult->getFirstDataResult();
+            // Apply the configured FHIR profile to the resource
+            $profiledResource = $profileMapper->profileResource($conditionResource, $this->fhirProfile);
+            // Update the processing result with the profiled resource
+            $processingResult->setData([$profiledResource]);
+        }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -51,10 +63,11 @@ class FhirConditionRestController
     {
         $processingResult = $this->fhirConditionService->getAll($searchParams, $puuidBind);
         $bundleEntries = [];
+        $profileMapper = new FhirConditionProfileMapper();
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
-                'resource' => $searchResult
+                'resource' => $profileMapper->profileResource($searchResult)
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
             array_push($bundleEntries, $fhirBundleEntry);
@@ -62,5 +75,10 @@ class FhirConditionRestController
         $bundleSearchResult = $this->fhirService->createBundle('Condition', $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
+    }
+
+    public function setResourceProfile(string $profile)
+    {
+        $this->fhirProfile = $profile;
     }
 }

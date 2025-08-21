@@ -2,20 +2,22 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -35,6 +37,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
     use VersionedProfileTrait;
+    use MappedServiceCodeTrait;
+    use SystemLoggerAwareTrait;
 
     const USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis';
     const USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns';
@@ -50,6 +54,9 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     public function __construct()
     {
         parent::__construct();
+        $this->innerServices = [];
+        $this->addMappedService(new FhirConditionEncounterDiagnosisService());
+        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
         $this->conditionService = new ConditionService();
     }
 
@@ -103,7 +110,6 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $this->populateCode($dataRecord, $conditionResource);
         $this->populateSubject($dataRecord, $conditionResource);
 
-        // non-ONC requirements
         $this->populateEncounter($dataRecord, $conditionResource);
 
 
