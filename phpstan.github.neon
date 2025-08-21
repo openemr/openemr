@@ -11388,10 +11388,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php
-  - message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-    identifier: whitespace.fileEnd
-    count: 1
-    path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php
   - message: '#^Variable \$benefits might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -11444,10 +11440,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php
-  - message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-    identifier: whitespace.fileEnd
-    count: 1
-    path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php
   - message: '#^Variable \$source might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14028,10 +14020,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/ippf_statistics.php
-  - message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-    identifier: whitespace.fileEnd
-    count: 1
-    path: interface/reports/message_list.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
