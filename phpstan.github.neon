@@ -16440,10 +16440,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/patient/_machine_config.php
-  - message: '#^Result of method Savant3\:\:applyFilters\(\) \(void\) is used\.$#'
-    identifier: method.void
-    count: 1
-    path: portal/patient/fwk/libs/savant/Savant3.php
   - message: '#^Method Savant3_Filter_trimwhitespace\:\:replace\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
     count: 1
