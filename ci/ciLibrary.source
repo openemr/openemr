@@ -72,7 +72,7 @@ dockers_env_start() {
         dc logs openemr
         container_id=$(dc ps -q openemr)
         docker inspect --format "{{json .State.Health }}" "${container_id}" | jq -r .
-        tail -n 100 /var/log/php*/* /var/log/apache2/*
+        dc exec -ti openemr tail -n 100 '/var/log/php*/*' '/var/log/apache2/*'
     fi
     set -e
     return "${status}"

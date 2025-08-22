@@ -43,6 +43,7 @@ class ReadinessProbeService
 
             // Check if database connection exists
             if (!isset($GLOBALS['adodb']['db']) || !$GLOBALS['adodb']['db']) {
+                error_log("ReadinessProbe: FAILURE - Database connection not established. GLOBALS[adodb][db] is " . (isset($GLOBALS['adodb']['db']) ? 'set but falsy' : 'not set'));
                 return $this->createResponse(Status::NOT_READY, 'Database connection not established', 503);
             }
 
@@ -55,6 +56,7 @@ class ReadinessProbeService
                     $GLOBALS['last_mysql_error'] :
                     $GLOBALS['adodb']['db']->ErrorMsg();
 
+                error_log("ReadinessProbe: FAILURE - Database query failed. Error: {$error_msg}");
                 return $this->createResponse(Status::NOT_READY, 'Database query failed', 503);
             }
 
@@ -67,14 +69,17 @@ class ReadinessProbeService
                     $GLOBALS['last_mysql_error'] :
                     $GLOBALS['adodb']['db']->ErrorMsg();
 
+                error_log("ReadinessProbe: FAILURE - Cannot access core tables. Error: {$error_msg}");
                 return $this->createResponse(Status::NOT_READY, 'Cannot access core tables', 503);
             }
 
             // If we get here, all checks passed
             return $this->createResponse(Status::READY, 'Application is ready', 200);
         } catch (Exception $e) {
+            error_log("ReadinessProbe: FAILURE - Exception caught: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
             return $this->createResponse(Status::NOT_READY, 'Readiness check failed: ' . $e->getMessage(), 503);
         } catch (Error $e) {
+            error_log("ReadinessProbe: FAILURE - Error caught: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
             return $this->createResponse(Status::NOT_READY, 'Readiness check failed: ' . $e->getMessage(), 503);
         }
     }
