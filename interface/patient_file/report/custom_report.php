@@ -118,7 +118,7 @@ function getContent()
     return $content;
 }
 
-function postToGet($arin)
+function patientFilePostToGet($arin)
 {
     $getstring = "";
     foreach ($arin as $key => $val) {
@@ -320,7 +320,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 </div>
                 <br />
                 <br />
-                <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+                <a href="custom_report.php?printable=1&<?php print patientFilePostToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
                     [<?php echo xlt('Printable Version'); ?>]
                 </a>
             <?php } // end not printable ?>

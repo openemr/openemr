@@ -1,4 +1,8 @@
 parameters:
+  scanFiles:
+    - vendor/phpunit/phpunit/src/Framework/TestCase.php
+  excludePaths:
+    - sites/default/documents/smarty
   ignoreErrors:
   - message: '#^Variable \$web_root might not be defined\.$#'
     identifier: variable.undefined
@@ -12260,10 +12264,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/orders/patient_match_dialog.php
-  - message: '#^Function thisLineItem invoked with 3 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/orders/pending_followup.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -12843,18 +12843,6 @@ parameters:
   - message: '#^Function oeFormatMoney invoked with 3 parameters, 1\-2 required\.$#'
     identifier: arguments.count
     count: 5
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 10 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 6 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 9 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 1
     path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Function receiptPaymentLine invoked with 4 parameters, 2\-3 required\.$#'
     identifier: arguments.count
@@ -13988,14 +13976,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/immunization_report.php
-  - message: '#^Function thisLineItem invoked with 8 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/inventory_activity.php
-  - message: '#^Function thisLineItem invoked with 9 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/inventory_activity.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14008,18 +13988,10 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/inventory_list.php
-  - message: '#^Function thisLineItem invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/inventory_transactions.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/reports/inventory_transactions.php
-  - message: '#^Function thisLineItem invoked with 7 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/ippf_cyp_report.php
   - message: '#^Variable \$productleft might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14039,10 +14011,6 @@ parameters:
   - message: '#^Function genHeadCell invoked with 3 parameters, 1\-2 required\.$#'
     identifier: arguments.count
     count: 4
-    path: interface/reports/ippf_statistics.php
-  - message: '#^Function loadColumnData invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 1
     path: interface/reports/ippf_statistics.php
   - message: '#^Variable \$arr_report in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
@@ -14116,10 +14084,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/reports/prescriptions_report.php
-  - message: '#^Function thisLineItem invoked with 9 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/receipts_by_method_report.php
   - message: '#^Undefined variable\: \$invnumber$#'
     identifier: variable.undefined
     count: 1
@@ -14148,10 +14112,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/reports/report_results.php
-  - message: '#^Function thisLineItem invoked with 8 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/sales_by_item.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2

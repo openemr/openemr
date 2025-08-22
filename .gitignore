@@ -29,3 +29,5 @@ ccdaservice/node_modules
 .phpunit.result.cache
 coverage/js-unit
 
+# phpstan
+tmp-phpstan/*
