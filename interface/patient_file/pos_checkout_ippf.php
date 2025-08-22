@@ -402,7 +402,7 @@ function ippfReceiptDetailLine(
 
 // Output HTML for a receipt payment line.
 //
-function receiptPaymentLine($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
+function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
 {
     global $aTaxNames, $num_optional_columns;
     global $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
@@ -964,7 +964,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     );
     while ($inrow = sqlFetchArray($inres)) {
         $payments -= formatMoneyNumber($inrow['fee']);
-        receiptPaymentLine($svcdate, 0 - $inrow['fee'], $inrow['code_text'], 'COPAY');
+        receiptPaymentLineIppf($svcdate, 0 - $inrow['fee'], $inrow['code_text'], 'COPAY');
     }
 
     // Get other payments.
@@ -987,7 +987,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         $tmp = array_search($inrow['post_time'], $checkout_times);
         $tmp = $tmp === false ? 0 : ($tmp + 1);
         $refno = $invoice_refno ? "$invoice_refno-$tmp" : "$encounter-$tmp";
-        receiptPaymentLine(
+        receiptPaymentLineIppf(
             $inrow['post_date'],
             $inrow['pay_amount'],
             trim($payer . ' ' . $inrow['reference']),
