@@ -50,16 +50,30 @@ $showing_ppd = true;
 
 $insarray = array();
 
-function thisLineItem(
-    $patient_id,
-    $encounter_id,
-    $memo,
-    $transdate,
-    $rowmethod,
-    $rowpayamount,
-    $rowadjamount,
-    $payer_type = 0,
-    $irnumber = ''
+/**
+ * Render a line item for the receipts by method html table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $memo
+ * @param string $transdate
+ * @param string $rowmethod
+ * @param float $rowpayamount
+ * @param float $rowadjamount
+ * @param int $payer_type
+ * @param string $irnumber
+ * @return void
+ */
+function receiptsByMethodLineItem(
+    int $patient_id,
+    int $encounter_id,
+    string $memo,
+    string $transdate,
+    string $rowmethod,
+    float $rowpayamount,
+    float $rowadjamount,
+    int $payer_type = 0,
+    string $irnumber = ''
 ): void {
 
     global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
@@ -555,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
 
             while ($row = sqlFetchArray($res)) {
                 $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
-                thisLineItem(
+                receiptsByMethodLineItem(
                     $row['pid'],
                     $row['encounter'],
                     $row['code_text'],
@@ -670,7 +684,7 @@ if (!empty($_POST['form_refresh'])) {
                 }
             }
 
-            thisLineItem(
+            receiptsByMethodLineItem(
                 $row['pid'],
                 $row['encounter'],
                 ($rowreference ?? ''),

@@ -156,6 +156,8 @@ class QrdaReportController
                 if ($glob !== false) {
                     array_map('unlink', $glob);
                 }
+                $content = '';
+                $file = '';
                 // create reports
                 foreach ($pids as $pid) {
                     $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
@@ -188,6 +190,8 @@ class QrdaReportController
             }
             $zip_name = "QRDA1_" . $zip_measure . "_" . time() . ".zip";
         } elseif ($bypid) {
+            $content = '';
+            $file = '';
             foreach ($pids as $pid) {
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                 $file = $zip_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
@@ -211,6 +215,7 @@ class QrdaReportController
             throw new \RuntimeException(sprintf('Zip file "%s" was not created due to "%s"', $save_path, $ret));
         } else {
             $dir = opendir($zip_directory);
+            $filename = '';
             while ($filename = readdir($dir)) {
                 $filename_path = $zip_directory . "/" . $filename;
                 if (is_file($filename_path)) {
@@ -248,13 +253,11 @@ class QrdaReportController
         exit;
     }
 
-    /**
-     * Modified downloadQrdaIII to support a consolidated option
-     */
+
     public function downloadQrdaIII($pids, $measures = '', $options = [], $consolidated = false): void
     {
         if ($consolidated) {
-            // Use a new consolidated download
+            // Use the consolidated download
             $this->downloadConsolidatedQrdaIII($pids, $measures, $options);
             return;
         }
@@ -266,6 +269,16 @@ class QrdaReportController
             $measures = $this->reportMeasures;
         }
 
+        // Create temporary zip directory
+        $zip_directory = sys_get_temp_dir() . "/qrda3_export_" . time();
+        if (!is_dir($zip_directory)) {
+            if (!mkdir($zip_directory, 0777, true) && !is_dir($zip_directory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $zip_directory));
+            }
+            chmod($zip_directory, 0777);
+        }
+
+        // Create local storage directory for permanent copies
         $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
         if (!is_dir($directory)) {
             if (!mkdir($directory, 0775, true) && !is_dir($directory)) {
@@ -273,38 +286,152 @@ class QrdaReportController
             }
         }
 
-        if (is_array($pids)) {
-            if (count($pids) === 1) {
-                $pids = $pids[0];
-            }
+        // Clean up existing files in local directory
+        $glob = glob("$directory/*.*");
+        if ($glob !== false) {
+            array_map('unlink', $glob);
         }
+
+        $pids = is_array($pids) ? $pids : [$pids];
+
+        // Generate files for each measure
         foreach ($measures as $measure) {
             if (is_array($measure)) {
-                $measure = $measure['measure_id'];
+                $measure_id = $measure['measure_id'];
+            } else {
+                $measure_id = $measure;
             }
-            $xml = $this->getCategoryIIIReport($pids, $measure, $options);
-            $filename = $measure . "_selected_patients.xml";
-            if (!empty($pids) && !is_array($pids)) {
-                $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pids]);
-                $filename = $measure . '_' . $pids . '_' . $meta['fname'] . '_' . $meta['lname'] . ".xml";
+
+            $xml = $this->getCategoryIIIReport($pids, $measure_id, $options);
+
+            if (empty($xml)) {
+                continue;
             }
-            $file = $directory . DIRECTORY_SEPARATOR . $filename;
-            file_put_contents($file, $xml);
-            unset($content);
+            $filename = '';
+            // Determine filename based on patient count
+            if (count($pids) === 1 && !empty($pids[0])) {
+                $meta = sqlQuery("SELECT `fname`, `lname`, `pid` FROM `patient_data` WHERE `pid` = ?", [$pids[0]]);
+                $filename = $measure_id . '_' . $meta['pid'] . '_' . $meta['fname'] . '_' . $meta['lname'] . ".xml";
+            } else {
+                $filename = $measure_id . "_selected_patients.xml";
+            }
+
+            // Save to both temporary zip directory and permanent local directory
+            $zip_file = $zip_directory . DIRECTORY_SEPARATOR . $filename;
+            $local_file = $directory . DIRECTORY_SEPARATOR . $filename;
+
+            file_put_contents($zip_file, $xml);
+            // Saving to files was 2015 testing method we cert to. Since add consolidations of reports, it's no longer necessary.
+            // 08-11-2025 sjp
+            // file_put_contents($local_file, $xml);
+
+            // Force garbage collection to manage memory usage
+            unset($xml);
+            gc_mem_caches();
+            gc_collect_cycles();
         }
-        EventAuditLogger::instance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 download");
+
+        // Create zip filename
+        $zip_measure = 'measures';
+        if (count($measures) === 1) {
+            if (is_array($measures[0])) {
+                $zip_measure = $measures[0]['measure_id'];
+            } else {
+                $zip_measure = $measures[0];
+            }
+        }
+        $zip_name = "QRDA3_" . $zip_measure . "_" . time() . ".zip";
+        $zip_path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $zip_name;
+
+        // Create zip archive
+        $zip = new \ZipArchive();
+        $ret = $zip->open($zip_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        if ($ret !== true) {
+            // Clean up temporary directory before throwing exception
+            $this->cleanupDirectory($zip_directory);
+            throw new \RuntimeException(sprintf('Zip file "%s" was not created due to error code: %s', $zip_path, $ret));
+        }
+
+        // Add files to zip
+        $dir = opendir($zip_directory);
+        while (($filename = readdir($dir)) !== false) {
+            $file_path = $zip_directory . DIRECTORY_SEPARATOR . $filename;
+            if (is_file($file_path)) {
+                $zip->addFile($file_path, $filename);
+            }
+        }
+        closedir($dir);
+        $zip->close();
+
+        // Clean up temporary directory
+        $this->cleanupDirectory($zip_directory);
+
+        // Log the event
+        EventAuditLogger::instance()->newEvent(
+            "qrda3-export",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            "QRDA3 download - " . count($measures) . " measures, " . count($pids) . " patients"
+        );
+
+        // Stream download
+        $this->streamZipDownload($zip_name, $zip_path);
+    }
+
+    /**
+     * Helper method to clean up temporary directories
+     *
+     * @param string $directory
+     */
+    private function cleanupDirectory($directory): void
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $files = array_diff(scandir($directory), ['.', '..']);
+        foreach ($files as $file) {
+            $file_path = $directory . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($file_path)) {
+                $this->cleanupDirectory($file_path);
+            } else {
+                unlink($file_path);
+            }
+        }
+        rmdir($directory);
+    }
+
+    /**
+     * Helper method to stream zip download and cleanup
+     *
+     * @param string $filename
+     * @param string $file_path
+     */
+    private function streamZipDownload($filename, $file_path): void
+    {
+        // Clean any output
         ob_clean();
+
+        // Set download headers
         header("Pragma: public");
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Cache-Control: private", false);
         header('Content-type: application/zip');
-        header("Content-Disposition: attachment; filename=\"" . $filename . "\";");
+        header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
         header("Content-Transfer-Encoding: binary");
-        header("Content-Length: " . filesize($file));
+        header("Content-Length: " . filesize($file_path));
+
+        // Output file
         flush();
-        readfile($file);
+        readfile($file_path);
         flush();
+
+        // Clean up zip file after download
+        unlink($file_path);
+
         exit;
     }
 

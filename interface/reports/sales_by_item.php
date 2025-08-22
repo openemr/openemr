@@ -58,7 +58,20 @@ function display_desc($desc)
     return $desc;
 }
 
-function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transdate, $qty, $amount, $irnumber = ''): void
+/**
+ * Render a line item for the sales by item html table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $rowcat
+ * @param string $description
+ * @param string $transdate
+ * @param int $qty
+ * @param float $amount
+ * @param string $irnumber
+ * @return void
+ */
+function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat, string $description, string $transdate, int $qty, float $amount, string $irnumber = ''): void
 {
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
@@ -569,7 +582,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     //
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
             $row['title'],
@@ -607,7 +620,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     //
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
             xl('Products'),

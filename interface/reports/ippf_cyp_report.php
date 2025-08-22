@@ -44,7 +44,19 @@ function display_desc($desc)
     return $desc;
 }
 
-function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber = ''): void
+/**
+ * Render a line item for the CYP report HTML table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $description
+ * @param string $transdate
+ * @param int $qty
+ * @param float $cypfactor
+ * @param string $irnumber
+ * @return void
+ */
+function cypReportLineItem(int $patient_id, int $encounter_id, string $description, string $transdate, int $qty, float $cypfactor, string $irnumber = ''): void
 {
     global $product, $productcyp, $producttotal, $productqty, $grandtotal, $grandqty;
 
@@ -311,7 +323,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        cypReportLineItem(
             $row['pid'],
             $row['encounter'],
             $row['code'] . ' ' . $row['code_text'],
@@ -344,7 +356,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        cypReportLineItem(
             $row['pid'],
             $row['encounter'],
             $row['name'],

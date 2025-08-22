@@ -8,9 +8,10 @@ use OpenEMR\Common\Database\QueryUtils;
  * Provides GACL Fixtures for testing breakglass user functionality
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @copyright Copyright (c) 2025 OpenCoreEMR
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link      http://www.open-emr.org
  */
 class GaclFixtureManager extends BaseFixtureManager
 {

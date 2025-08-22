@@ -275,19 +275,32 @@ function pull_tax($lineid, &$aTaxes)
     return $totlinetax;
 }
 
-// Output HTML for a receipt line item.
-//
-function receiptDetailLine(
-    $code_type,
-    $code,
-    $description,
-    $quantity,
-    $charge,
-    &$aTotals = '',
-    $lineid = '',
-    $billtime = '',
-    $postdate = '',
-    $chargecat = ''
+/**
+ * Output HTML for a receipt line item.
+ *
+ * @param string $code_type
+ * @param string $code
+ * @param string $description
+ * @param int $quantity
+ * @param float $charge
+ * @param string &$aTotals
+ * @param string $lineid
+ * @param string $billtime
+ * @param string $postdate
+ * @param string $chargecat
+ * @return void
+ */
+function ippfReceiptDetailLine(
+    string $code_type,
+    string $code,
+    string $description,
+    int $quantity,
+    float $charge,
+    string &$aTotals = '',
+    string $lineid = '',
+    string $billtime = '',
+    string $postdate = '',
+    string $chargecat = ''
 ): void {
     global $details, $TAXES_AFTER_ADJUSTMENT;
 
@@ -790,7 +803,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             $tmpname .= ' / ' . $inrow['selector'];
         }
         $units = $inrow['quantity'] / FeeSheet::getBasicUnits($inrow['drug_id'], $inrow['selector']);
-        receiptDetailLine(
+        ippfReceiptDetailLine(
             'PROD',
             $inrow['drug_id'],
             $tmpname,
@@ -817,7 +830,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         // Write the line item if it allows fees or is not a diagnosis.
         if (!empty($code_types[$inrow['code_type']]['fee']) || empty($code_types[$inrow['code_type']]['diag'])) {
             $billtime = $inrow['billed'] ? $inrow['bill_date'] : '';
-            receiptDetailLine(
+            ippfReceiptDetailLine(
                 $inrow['code_type'],
                 $inrow['code'],
                 $inrow['code_text'],
@@ -838,7 +851,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             continue;
         }
         $payer = empty($arow['payer_type']) ? 'Pt' : ('Ins' . $arow['payer_type']);
-        receiptDetailLine(
+        ippfReceiptDetailLine(
             '',
             "$payer|" . $arow['code_type'] . "|" . $arow['code'],
             $arow['memotitle'],
@@ -899,7 +912,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     foreach ($aInvTaxes as $taxid => $taxarr) {
         foreach ($taxarr as $taxlineid => $tax) {
             if ($tax) {
-                receiptDetailLine('TAX', $taxid, $aTaxNames[$taxid], 1, $tax, $aTotals);
+                ippfReceiptDetailLine('TAX', $taxid, $aTaxNames[$taxid], 1, $tax, $aTotals);
                 $aInvTaxes[$taxid][$taxlineid] = 0;
             }
         }

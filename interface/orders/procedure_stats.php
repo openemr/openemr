@@ -192,9 +192,14 @@ function genNumCell($num, $cnum): void
     genAnyCell($num, true, 'detail');
 }
 
-// Helper function called after the reporting key is determined for a row.
-//
-function loadColumnData($key, $row): void
+/**
+ * Helper function called after the reporting key is determined for a row.
+ *
+ * @param string $key
+ * @param array $row
+ * @return void
+ */
+function loadColumnData(string $key, array $row): void
 {
     global $areport, $arr_titles, $arr_show;
 

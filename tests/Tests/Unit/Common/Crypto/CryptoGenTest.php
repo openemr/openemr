@@ -6,7 +6,7 @@
  * @category  Test
  * @package   OpenEMR\Tests\Unit\Common\Crypto
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright 2025 OpenCoreEMR
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   GNU General Public License 3
  * @link      http://www.open-emr.org
  */
@@ -18,8 +18,10 @@ namespace OpenEMR\Tests\Unit\Common\Crypto;
 use Error;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoGenException;
-use PHPUnit\Framework\TestCase;
+use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Crypto\KeyVersion;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -154,7 +156,7 @@ final class CryptoGenTest extends TestCase
             ->willReturn(['value' => 'encoded_key_value']);
 
         $testValue = 'test data';
-        $result = $mockCryptoGen->encryptStandard($testValue, null, 'database');
+        $result = $mockCryptoGen->encryptStandard($testValue, null, KeySource::DATABASE->value);
 
         $this->assertNotEmpty($result);
         $this->assertIsString($result);
@@ -194,21 +196,6 @@ final class CryptoGenTest extends TestCase
         $decrypted = $this->cryptoGen->decryptStandard($encrypted, $customPassword);
 
         $this->assertEquals($originalValue, $decrypted);
-    }
-
-    public function testDecryptStandardWithMinimumVersion(): void
-    {
-        $testValue = 'test data';
-        $encrypted = $this->cryptoGen->encryptStandard($testValue);
-        $this->assertIsString($encrypted);
-
-        // Should succeed with minimum version 6
-        $decrypted = $this->cryptoGen->decryptStandard($encrypted, null, 'drive', 6);
-        $this->assertEquals($testValue, $decrypted);
-
-        // Should fail with minimum version 7
-        $decrypted = $this->cryptoGen->decryptStandard($encrypted, null, 'drive', 7);
-        $this->assertFalse($decrypted);
     }
 
     public function testCryptCheckStandardWithValidValues(): void
@@ -331,13 +318,15 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
+        $keyVersion = KeyVersion::SIX;
+
         // Test creating a new key
-        $key = $reflection->invoke($this->cryptoGen, 'test', 'a', 'drive');
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
         $this->assertIsString($key);
         $this->assertEquals(32, strlen($key)); // 256 bits = 32 bytes
 
         // Test retrieving the same key (should be cached)
-        $key2 = $reflection->invoke($this->cryptoGen, 'test', 'a', 'drive');
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
         $this->assertEquals($key, $key2);
     }
 
@@ -346,6 +335,8 @@ final class CryptoGenTest extends TestCase
         // Create a mock CryptoGen to test database key collection
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
             ->onlyMethods(['sqlQueryNoLog', 'sqlStatementNoLog', 'getRandomBytes'])->getMock();
+
+        $keyVersion = KeyVersion::SIX;
 
         $testKey = 'random_32_byte_key_for_testing!!';
         $this->assertEquals(32, strlen($testKey), 'Test key must be exactly 32 bytes long');
@@ -358,8 +349,8 @@ final class CryptoGenTest extends TestCase
         $mockCryptoGen->expects($this->exactly(2))
             ->method('sqlQueryNoLog')
             ->willReturnOnConsecutiveCalls(
-                ['value' => ''], // First call - key doesn't exist
-                ['value' => base64_encode($testKey)]  // Second call - key exists after creation
+                ['value' => ''], // First call: key doesn't exist
+                ['value' => base64_encode($testKey)] // Second call: return the created key
             );
 
         $mockCryptoGen->expects($this->once())
@@ -368,7 +359,7 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($mockCryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
-        $key = $reflection->invoke($mockCryptoGen, 'test', 'a', 'database');
+        $key = $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
         $this->assertIsString($key);
         $this->assertEquals($key, $testKey);
     }
@@ -378,9 +369,16 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
+        $legacyVersions = [
+            KeyVersion::ONE,
+            KeyVersion::TWO,
+            KeyVersion::THREE,
+            KeyVersion::FOUR
+        ];
+
         // Test older versions that don't encrypt the key on drive
-        foreach (['one', 'two', 'three', 'four'] as $version) {
-            $key = $reflection->invoke($this->cryptoGen, $version, 'a', 'drive');
+        foreach ($legacyVersions as $keyVersion) {
+            $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
             $this->assertIsString($key);
             $this->assertEquals(32, strlen($key));
         }
@@ -429,24 +427,13 @@ final class CryptoGenTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testKeyVersionProperty(): void
-    {
-        $reflection = new ReflectionProperty($this->cryptoGen, 'keyVersion');
-        $reflection->setAccessible(true);
-        $this->assertEquals('six', $reflection->getValue($this->cryptoGen));
-    }
-
-    public function testEncryptionVersionProperty(): void
-    {
-        $reflection = new ReflectionProperty($this->cryptoGen, 'encryptionVersion');
-        $reflection->setAccessible(true);
-        $this->assertEquals('006', $reflection->getValue($this->cryptoGen));
-    }
-
     public function testKeyCacheProperty(): void
     {
         $reflection = new ReflectionProperty($this->cryptoGen, 'keyCache');
         $reflection->setAccessible(true);
+
+        $keyVersion = KeyVersion::SIX;
+        $keySource = KeySource::DRIVE;
 
         // Initially empty
         $this->assertEmpty($reflection->getValue($this->cryptoGen));
@@ -454,13 +441,13 @@ final class CryptoGenTest extends TestCase
         // After getting a key, should be populated
         $reflectionMethod = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflectionMethod->setAccessible(true);
-        $reflectionMethod->invoke($this->cryptoGen, 'test', 'a', 'drive');
+        $reflectionMethod->invoke($this->cryptoGen, $keyVersion, 'a', $keySource);
 
         $cache = $reflection->getValue($this->cryptoGen);
         $this->assertIsArray($cache);
         // Since PHPStan can't analyze runtime behavior, we use array key existence as a proxy
         $cacheKeys = array_keys($cache);
-        $expectedKey = 'testadrive';
+        $expectedKey = "{$keyVersion->toString()}a{$keySource->value}";
         $this->assertContains($expectedKey, $cacheKeys, 'Cache should contain the expected key after collectCryptoKey call');
     }
 
@@ -556,37 +543,46 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
+        $keyVersion = KeyVersion::SIX;
+
         // First call will create a key, second call should return the same key from cache
-        $key1 = $reflection->invoke($this->cryptoGen, 'existing', 'a', 'drive');
-        $key2 = $reflection->invoke($this->cryptoGen, 'existing', 'a', 'drive');
+        $key1 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
 
         $this->assertIsString($key1);
         $this->assertEquals(32, strlen($key1)); // 256-bit key should be 32 bytes
         $this->assertEquals($key1, $key2); // Should be the same key from cache
 
         // Verify the key file was created
-        $keyFilePath = $this->testSiteDir . '/documents/logs_and_misc/methods/existinga';
+        $keyFilePath = "{$this->testSiteDir}/documents/logs_and_misc/methods/{$keyVersion->toString()}a";
         $this->assertFileExists($keyFilePath);
     }
 
     public function testCollectCryptoKeyNewerVersionEncryption(): void
     {
+        $keyVersion = KeyVersion::FIVE;
+
         // Test newer versions (five, six) that encrypt the key on drive
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
         // Create a key with version 'five'
-        $key = $reflection->invoke($this->cryptoGen, 'five', 'a', 'drive');
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
         $this->assertIsString($key);
         $this->assertEquals(32, strlen($key));
 
         // Verify the file was created and encrypted
-        $keyFile = $this->testSiteDir . '/documents/logs_and_misc/methods/fivea';
+        $keyFile = "{$this->testSiteDir}/documents/logs_and_misc/methods/{$keyVersion->toString()}a";
         $this->assertFileExists($keyFile);
 
         // The content should be encrypted (start with version prefix)
         $content = file_get_contents($keyFile);
         $this->assertIsString($content);
+        // '006' is correct here.
+        // The encryption version used to encrypt the key is not the same
+        // as the version of the key itself. That is, while this key is
+        // used to encrypt/decrypt data encrypted with version five encryption
+        // the key itself is encrypted with version six encryption.
         $this->assertStringStartsWith('006', $content);
     }
 
@@ -652,7 +648,7 @@ final class CryptoGenTest extends TestCase
         $testData = 'test';
         $encrypted = $this->cryptoGen->encryptStandard($testData); // Version 6
         $this->assertIsString($encrypted);
-        $result = $this->cryptoGen->decryptStandard($encrypted, null, 'drive', 7);
+        $result = $this->cryptoGen->decryptStandard($encrypted, null, KeySource::DRIVE->value, 7);
         $this->assertFalse($result);
     }
 
@@ -677,12 +673,12 @@ final class CryptoGenTest extends TestCase
         $reflection->setAccessible(true);
 
         // Test default parameters
-        $key1 = $reflection->invoke($this->cryptoGen);
+        $key1 = $reflection->invoke($this->cryptoGen, KeyVersion::ONE);
         $this->assertIsString($key1);
         $this->assertEquals(32, strlen($key1));
 
         // Test with sub parameter
-        $key2 = $reflection->invoke($this->cryptoGen, 'one', 'test');
+        $key2 = $reflection->invoke($this->cryptoGen, KeyVersion::ONE, 'test');
         $this->assertIsString($key2);
         $this->assertEquals(32, strlen($key2));
 
@@ -698,14 +694,16 @@ final class CryptoGenTest extends TestCase
         $cacheProperty = new ReflectionProperty($this->cryptoGen, 'keyCache');
         $cacheProperty->setAccessible(true);
 
+        $keyVersion = KeyVersion::SIX;
+
         // Initially empty
         $this->assertEmpty($cacheProperty->getValue($this->cryptoGen));
 
         // Get a key
-        $key1 = $reflection->invoke($this->cryptoGen, 'cache_test', 'a', 'drive');
+        $key1 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
 
         // Getting the same key again should return cached version
-        $key2 = $reflection->invoke($this->cryptoGen, 'cache_test', 'a', 'drive');
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
         $this->assertEquals($key1, $key2, 'Second call should return cached key (same as first)');
 
         // Cache should now contain the key - verify by checking cache size
@@ -732,19 +730,21 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
+        $keyVersion = KeyVersion::SIX;
+
         // This will create a real key file on drive and return the key
-        $key = $reflection->invoke($this->cryptoGen, 'testkey', 'a', 'drive');
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
 
         // Key should be a valid 32-byte string
         $this->assertIsString($key);
         $this->assertEquals(32, strlen($key)); // 256-bit key should be 32 bytes
 
         // Verify the key file was created
-        $keyFilePath = $this->testSiteDir . '/documents/logs_and_misc/methods/testkeya';
+        $keyFilePath = "{$this->testSiteDir}/documents/logs_and_misc/methods/{$keyVersion->toString()}a";
         $this->assertFileExists($keyFilePath);
 
         // Second call should return the same key from cache
-        $key2 = $reflection->invoke($this->cryptoGen, 'testkey', 'a', 'drive');
+        $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
         $this->assertEquals($key, $key2);
     }
 
@@ -788,12 +788,14 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
+        $keyVersion = KeyVersion::THREE;
+
         // Create a mock older version key file (unencrypted)
         $keyDir = $this->testSiteDir . '/documents/logs_and_misc/methods';
         $testKey = base64_encode('test_older_key_32_bytes_for_testing!');
-        file_put_contents($keyDir . '/threea', $testKey);
+        file_put_contents("{$keyDir}/{$keyVersion->toString()}a", $testKey);
 
-        $key = $reflection->invoke($this->cryptoGen, 'three', 'a', 'drive');
+        $key = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
         $this->assertEquals(base64_decode($testKey), $key);
     }
 
@@ -814,7 +816,7 @@ final class CryptoGenTest extends TestCase
         // Create an encrypted key file using the mock
         $keyDir = $this->testSiteDir . '/documents/logs_and_misc/methods';
         $rawKey = 'test_newer_key_32_bytes_for_test'; // Exactly 32 bytes
-        $encryptedKey = $mockCryptoGenForEncryption->encryptStandard($rawKey, null, 'database');
+        $encryptedKey = $mockCryptoGenForEncryption->encryptStandard($rawKey, null, KeySource::DATABASE->value);
         file_put_contents($keyDir . '/sixx', $encryptedKey);
 
         // Now test reading the key with a second mock for the decryption part
@@ -829,21 +831,23 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($mockCryptoGenForDecryption, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
-        $key = $reflection->invoke($mockCryptoGenForDecryption, 'six', 'x', 'drive');
+        $key = $reflection->invoke($mockCryptoGenForDecryption, KeyVersion::SIX, 'x', KeySource::DRIVE);
         $this->assertEquals($rawKey, $key);
     }
 
     public function testCorruptedKeyFileHandling(): void
     {
+        $keyVersion = KeyVersion::SIX;
+
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
         // Create a corrupted key file for newer version (five/six that need decryption)
         $keyDir = $this->testSiteDir . '/documents/logs_and_misc/methods';
-        file_put_contents($keyDir . '/corruptedkeya', 'invalid_encrypted_data');
+        file_put_contents("{$keyDir}/{$keyVersion->toString()}a", 'invalid_encrypted_data');
 
         $this->expectException(CryptoGenException::class);
-        $reflection->invoke($this->cryptoGen, 'corruptedkey', 'a', 'drive');
+        $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
     }
 
     public function testMcryptLegacyFunction(): void
@@ -891,12 +895,19 @@ final class CryptoGenTest extends TestCase
         $reflection->setAccessible(true);
 
         // Test all version/sub combinations to ensure full coverage
-        $versions = ['one', 'two', 'three', 'four', 'five', 'six'];
+        $versions = [
+            KeyVersion::ONE,
+            KeyVersion::TWO,
+            KeyVersion::THREE,
+            KeyVersion::FOUR,
+            KeyVersion::FIVE,
+            KeyVersion::SIX
+        ];
         $subs = ['', 'a', 'b'];
 
-        foreach ($versions as $version) {
+        foreach ($versions as $keyVersion) {
             foreach ($subs as $sub) {
-                $key = $reflection->invoke($this->cryptoGen, $version, $sub, 'drive');
+                $key = $reflection->invoke($this->cryptoGen, $keyVersion, $sub, KeySource::DRIVE);
                 $this->assertIsString($key);
                 $this->assertEquals(32, strlen($key));
             }
@@ -988,26 +999,6 @@ final class CryptoGenTest extends TestCase
         $malformedV2 = '002' . base64_encode(str_repeat('y', 100));
         $result3 = $this->cryptoGen->decryptStandard($malformedV2);
         $this->assertFalse($result3);
-    }
-
-    public function testCoverageBoosterAllPaths(): void
-    {
-        // This test aims to hit any remaining uncovered lines
-
-        // Test minimum version parameter
-        $result = $this->cryptoGen->decryptStandard('001test', null, 'drive', 2);
-        $this->assertFalse($result); // Should fail due to minimum version check
-
-        // Test unknown version
-        $result2 = $this->cryptoGen->decryptStandard('999test');
-        $this->assertFalse($result2);
-
-        // Test successful decryption paths for version coverage
-        $v6Data = $this->cryptoGen->encryptStandard('test data');
-        $this->assertIsString($v6Data);
-        $this->assertStringStartsWith('006', $v6Data);
-        $decrypted = $this->cryptoGen->decryptStandard($v6Data);
-        $this->assertEquals('test data', $decrypted);
     }
 
     /**
@@ -1138,7 +1129,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $mockCryptoGen->encryptStandard('non_empty_data', null, 'database');
+        $mockCryptoGen->encryptStandard('non_empty_data', null, KeySource::DATABASE->value);
     }
 
     /**
@@ -1222,6 +1213,8 @@ final class CryptoGenTest extends TestCase
      */
     public function testCollectCryptoKeyDatabaseRandomBytesFailure(): void
     {
+        $keyVersion = KeyVersion::SIX;
+
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
             ->onlyMethods(['sqlQueryNoLog', 'getRandomBytes'])
             ->getMock();
@@ -1241,7 +1234,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $reflection->invoke($mockCryptoGen, 'test', 'a', 'database');
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
     }
 
     /**
@@ -1252,6 +1245,8 @@ final class CryptoGenTest extends TestCase
         // Set up globals for file path
         global $GLOBALS;
         $GLOBALS['OE_SITE_DIR'] = $this->testSiteDir;
+
+        $keyVersion = KeyVersion::SIX;
 
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
             ->onlyMethods(['getRandomBytes'])
@@ -1267,7 +1262,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $reflection->invoke($mockCryptoGen, 'test', 'a', 'drive');
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DRIVE);
     }
 
     /**
@@ -1276,31 +1271,75 @@ final class CryptoGenTest extends TestCase
     public function testCollectCryptoKeyDatabaseCreationFailure(): void
     {
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['sqlQueryNoLog', 'getRandomBytes', 'sqlStatementNoLog'])
+            ->onlyMethods(['sqlQueryNoLog', 'createDatabaseKey'])
             ->getMock();
 
+        $keyVersion = KeyVersion::SIX;
         // First call: key doesn't exist
         // Second call: key still empty after attempted creation
-        $mockCryptoGen->expects($this->exactly(2))
+        $mockCryptoGen->expects($this->once())
             ->method('sqlQueryNoLog')
             ->willReturnOnConsecutiveCalls(
-                ['value' => ''], // Key doesn't exist initially
-                ['value' => '']  // Key still doesn't exist after creation attempt
+                ['value' => '']  // Key doesn't exist on initial query
             );
 
         $mockCryptoGen->expects($this->once())
-            ->method('getRandomBytes')
-            ->willReturn('random_key_data');
-
-        $mockCryptoGen->expects($this->once())
-            ->method('sqlStatementNoLog');
+            ->method('createDatabaseKey')
+            ->willReturn('');  // Key still doesn't exist after "creation".
 
         $reflection = new ReflectionMethod($mockCryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
         $this->expectException(CryptoGenException::class);
 
-        $reflection->invoke($mockCryptoGen, 'test', 'a', 'database');
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
+    }
+
+    /**
+     * When we create a new database key, if it doesn't successfully come back
+     * from the database in the round-trip check, we expect a CryptoGenException.
+     */
+    public function testCollectCryptoKeyDatabaseRoundTripFailure(): void
+    {
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['sqlQueryNoLog', 'sqlStatementNoLog', 'getRandomBytes'])
+            ->getMock();
+
+        $testKey = 'test_key_32_bytes_for_testing!!!'; // Exactly 32 bytes
+        $this->assertEquals(32, strlen($testKey), 'Test key must be exactly 32 bytes long');
+        $keyVersion = KeyVersion::SIX;
+
+        // Mock random bytes generation to return our test key
+        $mockCryptoGen->expects($this->once())
+            ->method('getRandomBytes')
+            ->with(32)
+            ->willReturn($testKey);
+
+        // Mock SQL query responses:
+        // First call: key doesn't exist (empty value triggers creation)
+        // Second call: round-trip verification returns different key (simulating corruption/storage failure)
+        $mockCryptoGen->expects($this->exactly(2))
+            ->method('sqlQueryNoLog')
+            ->willReturnOnConsecutiveCalls(
+                ['value' => ''], // Key doesn't exist initially
+                ['value' => base64_encode('different_key_that_doesnt_match!')] // Round-trip returns wrong key
+            );
+
+        // Mock SQL statement for key insertion
+        $mockCryptoGen->expects($this->once())
+            ->method('sqlStatementNoLog')
+            ->with(
+                "INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)",
+                [$keyVersion->toString() . 'a', base64_encode($testKey)]
+            );
+
+        $reflection = new ReflectionMethod($mockCryptoGen, 'collectCryptoKey');
+        $reflection->setAccessible(true);
+
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('The newly created key could not be stored or encoded correctly.');
+
+        $reflection->invoke($mockCryptoGen, $keyVersion, 'a', KeySource::DATABASE);
     }
 
     /**
@@ -1309,7 +1348,7 @@ final class CryptoGenTest extends TestCase
     public function testCollectCryptoKeyDriveFileNotCreated(): void
     {
         $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['sqlQueryNoLog', 'decryptStandard', 'fileExists', 'fileGetContents', 'filePutContents'])
+            ->onlyMethods(['sqlQueryNoLog', 'fileExists', 'filePutContents'])
             ->getMock();
 
         // First fileExists call returns false (file doesn't exist initially)
@@ -1318,26 +1357,18 @@ final class CryptoGenTest extends TestCase
             ->method('fileExists')
             ->willReturn(false);
 
-        $mockCryptoGen->expects($this->exactly(4))
+        $mockCryptoGen->expects($this->exactly(2))
             ->method('sqlQueryNoLog')
             ->willReturn(['value' => base64_encode('successful database key')]);
-
-        $mockCryptoGen->expects($this->once())
-            ->method('decryptStandard')
-            ->willReturn('');
 
         $mockCryptoGen->expects($this->once())
             ->method('filePutContents')
             ->willReturn(16); // File write succeeds, returns number of bytes written
 
-        $mockCryptoGen->expects($this->once())
-            ->method('fileGetContents')
-            ->willReturn(''); // The file is empty or doesn't exist
-
         $this->expectException(CryptoGenException::class);
 
         // This calls encryptStandard which internally calls collectCryptoKey
-        $mockCryptoGen->encryptStandard('test data', null, 'drive');
+        $mockCryptoGen->encryptStandard('test data', null, KeySource::DRIVE->value);
     }
 
     /**
@@ -1424,5 +1455,43 @@ final class CryptoGenTest extends TestCase
             ->willReturn('decrypted data');
 
         $mockCryptoGen->aes256DecryptTwo($testData, 'custom password');
+    }
+
+    /**
+     * When the $encryptionVersion is lower than the $minimumVersion, decryptStandard
+     * should return false. Otherwise it should return a string.
+     */
+    public function testComparingKeyVersions(): void
+    {
+        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['legacyDecrypt', 'coreDecrypt'])
+            ->getMock();
+
+        // the decryption methods return the decrypted value or `false`.
+        // So symbolize a successful decryption.
+        $success = 'plaintext';
+
+        // If the code as far as these mocks then decryption was
+        // allowed to happen, so we always return success.
+        $mockCryptoGen->method('legacyDecrypt')->willReturn($success);
+        $mockCryptoGen->method('coreDecrypt')->willReturn($success);
+
+        // comprehensively test every pair of encryptionVersion and minimumVersion
+        $min = min(array_map(fn($v) => $v->value, KeyVersion::cases()));
+        $max = max(array_map(fn($v) => $v->value, KeyVersion::cases()));
+        $versions = array_map(fn($i) => KeyVersion::from($i), range($min, $max));
+
+        foreach ($versions as $minValue => $minimumVersion) {
+            foreach ($versions as $encryptionValue => $encryptionVersion) {
+                $result = $mockCryptoGen->decryptStandard(
+                    value: "{$encryptionVersion->toPaddedString()}blah",
+                    minimumVersion: $minimumVersion->value,
+                );
+                $this->assertTrue(
+                    (($minValue <= $encryptionValue) && ($result === $success)) || (($minValue > $encryptionValue) && ($result === false)),
+                    "Got {$result} for encryption version {$encryptionVersion->toString()} and minimum version {$minimumVersion->toString()}"
+                );
+            }
+        }
     }
 }
