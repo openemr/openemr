@@ -11732,10 +11732,6 @@ parameters:
     identifier: empty.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php
-  - message: '#^Property OpenEMR\\Modules\\FaxSMS\\Events\\NotificationEventListener\:\:\$isSmsEnabled on left side of \?\? is not nullable nor uninitialized\.$#'
-    identifier: nullCoalesce.initializedProperty
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php
   - message: '#^Variable \$data on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
