@@ -184,10 +184,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: ccr/transmitCCD.php
-  - message: '#^Result of function outputMessage \(void\) is used\.$#'
-    identifier: function.void
-    count: 5
-    path: contrib/util/ccda_import/import_ccda.php
   - message: '#^Variable \$duplicates on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -11624,10 +11620,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/index.php
-  - message: '#^Function cron_updateentry invoked with 4 parameters, 3 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php
   - message: '#^Variable \$args on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -12843,18 +12835,6 @@ parameters:
   - message: '#^Function oeFormatMoney invoked with 3 parameters, 1\-2 required\.$#'
     identifier: arguments.count
     count: 5
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptPaymentLine invoked with 4 parameters, 2\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptPaymentLine invoked with 6 parameters, 2\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function write_form_line invoked with 10 parameters, 8 required\.$#'
-    identifier: arguments.count
-    count: 2
     path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Variable \$arates in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
