@@ -161,7 +161,7 @@ foreach (glob($dir) as $file) {
         if ($dedup) {
             $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
             if (empty($patientData)) {
-                echo outputMessage("File load issue. Skipping: " . text($file) . "\n");
+                outputMessage("File load issue. Skipping: " . text($file) . "\n");
                 continue;
             }
             $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
@@ -170,7 +170,7 @@ foreach (glob($dir) as $file) {
                     CdaComponentParseHelpers::moveToDuplicateDir($file, $duplicateDir);
                 }
                 $dups = count(($duplicates ?? []));
-                echo outputMessage("Patient is duplicated " . text($dups) . " times. Patient skipped: " . json_encode($duplicates[0]) . "\n");
+                outputMessage("Patient is duplicated " . text($dups) . " times. Patient skipped: " . json_encode($duplicates[0]) . "\n");
                 continue;
             }
         }
@@ -218,12 +218,12 @@ foreach (glob($dir) as $file) {
 }
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
 if ($counter > 0) {
-    echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)");
-//  4. run function to populate all the uuids via the universal service function that already exists
-    echo outputMessage("Started uuid creation");
+    outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)");
+    //  4. run function to populate all the uuids via the universal service function that already exists
+    outputMessage("Started uuid creation");
     UuidRegistry::populateAllMissingUuids(false);
     $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-    echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
+    outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
 }
 
 outputMessage("Finished patients import" . " $counter\n");
