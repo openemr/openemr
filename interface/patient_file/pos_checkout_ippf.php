@@ -1240,7 +1240,7 @@ function write_form_headers(): void
 // Function to output a line item for the input form.
 //
 $totalchg = 0; // totals charges after adjustments
-function write_form_line(
+function write_form_line_ippf(
     $code_type,
     $code,
     $id,
@@ -2381,7 +2381,7 @@ while ($brow = sqlFetchArray($bres)) {
 
     // Write the line item if it allows fees or is not a diagnosis.
     if (!empty($code_types[$code_type]['fee']) || empty($code_types[$code_type]['diag'])) {
-        write_form_line(
+        write_form_line_ippf(
             $code_type,
             $brow['code'],
             $brow['id'],
@@ -2453,7 +2453,7 @@ while ($drow = sqlFetchArray($dres)) {
     }
     $units = $drow['quantity'] / FeeSheet::getBasicUnits($drow['drug_id'], $drow['selector']);
 
-    write_form_line(
+    write_form_line_ippf(
         'PROD',
         $drow['drug_id'],
         $drow['sale_id'],
