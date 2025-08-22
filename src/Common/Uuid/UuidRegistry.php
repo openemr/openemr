@@ -211,7 +211,7 @@ class UuidRegistry
     /**
      * Given the name of a table that is supported in the uuid registry, return its uuid registry definition.  If there
      * is no definition an empty array is returned
-     * @param $table_name The name of the table
+     * @param $table_name string The name of the table
      * @return array The definition definition or empty array
      */
     public static function getUuidTableDefinitionForTable($table_name)
@@ -274,7 +274,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID byte value to a string representation
-     * @return the UUID string value
+     * @return string the UUID string value
      */
     public static function uuidToString($uuidBytes)
     {
@@ -283,7 +283,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID string to a bytes representation
-     * @return the UUID bytes value
+     * @return string the UUID bytes value
      */
     public static function uuidToBytes($uuidString)
     {

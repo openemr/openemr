@@ -48,10 +48,10 @@ class SentinelUtil
 
     private SystemLogger $logger;
 
-    public function __construct(int $ttl)
+    public function __construct(int $ttl, ?SystemLogger $logger = null)
     {
         // Initialize the logger
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? new SystemLogger();
 
         // Collect and validate environment variables
         $this->ttl = $ttl;
@@ -152,7 +152,7 @@ class SentinelUtil
         ]);
     }
 
-    public function configure(): void
+    public function configure(): \SessionHandlerInterface
     {
         $useTls = $this->predisTls;
         $useClientCert = $this->predisX509;
@@ -231,5 +231,6 @@ class SentinelUtil
             throw new \Exception("Failed to set session handler for Predis Sentinel.");
         }
         $this->logger->debug("Successfully set session handler for Predis Sentinel.");
+        return $handler;
     }
 }

@@ -13,10 +13,12 @@
 
 namespace OpenEMR\Common\Http;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class HttpRestParsedRoute
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * Whether the route definition is a valid match against the current request
      * @var bool
@@ -36,6 +38,13 @@ class HttpRestParsedRoute
      * @var string
      */
     private $operation;
+
+    /**
+     * The identifier of a resource for an instance level operation ie fhir/Patient/{id} -> id or
+     * /api/patient/{id} -> id or /api/patient/{id}/encounter/{encounter_id} -> encounter_id
+     * @var string|null
+     */
+    private ?string $instanceIdentifier;
 
     /**
      * The endpoint paramters (identifiers, and anything else marked with the :colon param).
@@ -60,6 +69,7 @@ class HttpRestParsedRoute
 
     public function __construct($requestMethod, $requestRoute, $routeDefinition)
     {
+        $this->instanceIdentifier = null;
         $this->routeDefinition = $routeDefinition;
         $this->requestRoute = $requestRoute;
         $this->requestMethod = $requestMethod;
@@ -73,7 +83,7 @@ class HttpRestParsedRoute
             array_shift($matches); // drop request method
             $this->routeParams = $matches;
             $this->parseRouteParams($matches, $routeDefinition);
-            (new SystemLogger())->debug("HttpRestParsedRoute->__construct() matched", ['routePath' => $routeDefinition,
+            $this->getSystemLogger()->debug("HttpRestParsedRoute->__construct() matched", ['routePath' => $routeDefinition,
                 'requestPath' => $requestRoute
                 ,'method' => $requestMethod, 'routeParams' => $this->routeParams
                 , 'resource' => $this->getResource(), 'operation' => $this->getOperation()]);
@@ -154,6 +164,15 @@ class HttpRestParsedRoute
     }
 
     /**
+     * Returns the resource instance identifier if it exists.  This is the last part of the route that is not a resource or operation.
+     * @return string|null
+     */
+    public function getInstanceIdentifier(): ?string
+    {
+        return $this->instanceIdentifier;
+    }
+
+    /**
      * Sets up the operation and resource definitions for this parsed route
      * @param $routeParams
      * @param $routeDefinition
@@ -174,7 +193,9 @@ class HttpRestParsedRoute
             $finalArg = end($parts);
         }
 
-        if (strpos($finalArg, ':') !== false) {
+        if (str_starts_with($finalArg, ':') !== false) {
+            // valid match so every part should be accounted for, so the ending part is the instance identifier
+            $this->instanceIdentifier = end($routeParams);
             array_pop($parts);
             $finalArg = end($parts);
         }

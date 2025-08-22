@@ -2,17 +2,21 @@
 
 namespace OpenEMR\Tests\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ServerBag;
 
 class PatientRestControllerTest extends TestCase
 {
     const PATIENT_API_URL = "/apis/api/patient";
 
     private $patientData;
-    private $patientController;
+    private PatientRestController $patientController;
     private $fixtureManager;
 
     protected function setUp(): void
@@ -50,8 +54,9 @@ class PatientRestControllerTest extends TestCase
     public function testPostInvalidData(): void
     {
         unset($this->patientData["fname"]);
-        $actualResult = $this->patientController->post($this->patientData);
-        $this->assertEquals(400, http_response_code());
+        $response = $this->patientController->post($this->patientData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
@@ -59,8 +64,9 @@ class PatientRestControllerTest extends TestCase
 
     public function testPost(): void
     {
-        $actualResult = $this->patientController->post($this->patientData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->patientController->post($this->patientData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(2, count($actualResult["data"]));
@@ -72,15 +78,17 @@ class PatientRestControllerTest extends TestCase
 
     public function testPutInvalidData(): void
     {
-        $actualResult = $this->patientController->post($this->patientData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->patientController->post($this->patientData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $actualUuid = $actualResult["data"]["uuid"];
         $this->patientData["uuid"] = $actualUuid;
 
-        $actualResult = $this->patientController->put("not-a-pid", $this->patientData);
-        $this->assertEquals(400, http_response_code());
+        $response = $this->patientController->put("not-a-pid", $this->patientData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
@@ -88,15 +96,17 @@ class PatientRestControllerTest extends TestCase
 
     public function testPut(): void
     {
-        $actualResult = $this->patientController->post($this->patientData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->patientController->post($this->patientData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $patientUuid = $actualResult["data"]["uuid"];
         $this->patientData["phone_home"] = "111-111-1111";
-        $actualResult = $this->patientController->put($patientUuid, $this->patientData);
+        $response = $this->patientController->put($patientUuid, $this->patientData, $this->createMock(HttpRestRequest::class));
 
-        $this->assertEquals(200, http_response_code());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertNotNull($actualResult["data"]);
@@ -108,8 +118,9 @@ class PatientRestControllerTest extends TestCase
 
     public function testGetOneInvalidUuid(): void
     {
-        $actualResult = $this->patientController->getOne("not-a-uuid");
-        $this->assertEquals(400, http_response_code());
+        $response = $this->patientController->getOne("not-a-uuid", $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals([], $actualResult["data"]);
@@ -118,20 +129,29 @@ class PatientRestControllerTest extends TestCase
     public function testGetOne(): void
     {
         // create a record
-        $postResult = $this->patientController->post($this->patientData);
+        $response = $this->patientController->post($this->patientData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $postResult = json_decode($response->getBody(), true);
         $postedUuid = $postResult["data"]["uuid"];
 
         // confirm the pid matches what was requested
-        $actualResult = $this->patientController->getOne($postedUuid);
+        $response = $this->patientController->getOne($postedUuid, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
     public function testGetAll(): void
     {
         $this->fixtureManager->installPatientFixtures();
-        $searchResult = $this->patientController->getAll(array("postal_code" => "90210"), new SearchQueryConfig());
+        $restRequest = $this->createMock(HttpRestRequest::class);
+        $restRequest->server = $this->createMock(ServerBag::class);
+        $restRequest->server->method('get')->with('REDIRECT_URL')->willReturn('http://localhost/');
+        $restRequest->query = new InputBag();
+        $response = $this->patientController->getAll($restRequest, array("postal_code" => "90210"), new SearchQueryConfig());
 
-        $this->assertEquals(200, http_response_code());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $searchResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($searchResult["validationErrors"]));
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));

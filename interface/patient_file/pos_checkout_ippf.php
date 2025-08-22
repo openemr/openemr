@@ -277,7 +277,7 @@ function pull_tax($lineid, &$aTaxes)
 
 // Output HTML for a receipt line item.
 //
-function receiptDetailLine(
+function receiptDetailLineIPPF(
     $code_type,
     $code,
     $description,
@@ -389,7 +389,7 @@ function receiptDetailLine(
 
 // Output HTML for a receipt payment line.
 //
-function receiptPaymentLine($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
+function receiptPaymentLineIPPF($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
 {
     global $aTaxNames, $num_optional_columns;
     global $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
@@ -790,7 +790,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             $tmpname .= ' / ' . $inrow['selector'];
         }
         $units = $inrow['quantity'] / FeeSheet::getBasicUnits($inrow['drug_id'], $inrow['selector']);
-        receiptDetailLine(
+        receiptDetailLineIPPF(
             'PROD',
             $inrow['drug_id'],
             $tmpname,
@@ -817,7 +817,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         // Write the line item if it allows fees or is not a diagnosis.
         if (!empty($code_types[$inrow['code_type']]['fee']) || empty($code_types[$inrow['code_type']]['diag'])) {
             $billtime = $inrow['billed'] ? $inrow['bill_date'] : '';
-            receiptDetailLine(
+            receiptDetailLineIPPF(
                 $inrow['code_type'],
                 $inrow['code'],
                 $inrow['code_text'],
@@ -838,7 +838,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             continue;
         }
         $payer = empty($arow['payer_type']) ? 'Pt' : ('Ins' . $arow['payer_type']);
-        receiptDetailLine(
+        receiptDetailLineIPPF(
             '',
             "$payer|" . $arow['code_type'] . "|" . $arow['code'],
             $arow['memotitle'],
@@ -899,7 +899,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     foreach ($aInvTaxes as $taxid => $taxarr) {
         foreach ($taxarr as $taxlineid => $tax) {
             if ($tax) {
-                receiptDetailLine('TAX', $taxid, $aTaxNames[$taxid], 1, $tax, $aTotals);
+                receiptDetailLineIPPF('TAX', $taxid, $aTaxNames[$taxid], 1, $tax, $aTotals);
                 $aInvTaxes[$taxid][$taxlineid] = 0;
             }
         }
@@ -951,7 +951,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     );
     while ($inrow = sqlFetchArray($inres)) {
         $payments -= formatMoneyNumber($inrow['fee']);
-        receiptPaymentLine($svcdate, 0 - $inrow['fee'], $inrow['code_text'], 'COPAY');
+        receiptPaymentLineIPPF($svcdate, 0 - $inrow['fee'], $inrow['code_text'], 'COPAY');
     }
 
     // Get other payments.
@@ -974,7 +974,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         $tmp = array_search($inrow['post_time'], $checkout_times);
         $tmp = $tmp === false ? 0 : ($tmp + 1);
         $refno = $invoice_refno ? "$invoice_refno-$tmp" : "$encounter-$tmp";
-        receiptPaymentLine(
+        receiptPaymentLineIPPF(
             $inrow['post_date'],
             $inrow['pay_amount'],
             trim($payer . ' ' . $inrow['reference']),
@@ -1227,7 +1227,7 @@ function write_form_headers(): void
 // Function to output a line item for the input form.
 //
 $totalchg = 0; // totals charges after adjustments
-function write_form_line(
+function write_form_line_ippf(
     $code_type,
     $code,
     $id,
@@ -2368,7 +2368,7 @@ while ($brow = sqlFetchArray($bres)) {
 
     // Write the line item if it allows fees or is not a diagnosis.
     if (!empty($code_types[$code_type]['fee']) || empty($code_types[$code_type]['diag'])) {
-        write_form_line(
+        write_form_line_ippf(
             $code_type,
             $brow['code'],
             $brow['id'],
@@ -2440,7 +2440,7 @@ while ($drow = sqlFetchArray($dres)) {
     }
     $units = $drow['quantity'] / FeeSheet::getBasicUnits($drow['drug_id'], $drow['selector']);
 
-    write_form_line(
+    write_form_line_ippf(
         'PROD',
         $drow['drug_id'],
         $drow['sale_id'],

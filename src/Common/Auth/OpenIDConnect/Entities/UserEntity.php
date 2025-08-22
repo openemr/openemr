@@ -17,6 +17,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\UuidUserAccount;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
@@ -27,36 +28,74 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
     public $userRole;
     public $identifier;
 
+    protected $claimsType = 'oidc'; // default to oidc claims
+
+    private string $fhirBaseUrl = '';
+
+    public function __construct()
+    {
+    }
+
+    public function getFhirBaseUrl(): string
+    {
+        return $this->fhirBaseUrl;
+    }
+
+    public function setFhirBaseUrl(string $fhirBaseUrl): void
+    {
+        if (filter_var($fhirBaseUrl, FILTER_VALIDATE_URL)) {
+            $this->fhirBaseUrl = $fhirBaseUrl;
+        } else {
+            throw OAuthServerException::invalidRequest('fhirBaseUrl', 'Invalid FHIR base URL provided.');
+        }
+    }
+
+    public function getClaimsType(): string
+    {
+        return $this->claimsType;
+    }
+
+    public function setClaimsType(string $claimsType): void
+    {
+        if (in_array($claimsType, ['oidc', 'client'])) {
+            $this->claimsType = $claimsType;
+        } else {
+            throw OAuthServerException::invalidRequest('claimsType', 'Invalid claims type provided. Must be "oidc" or "client".');
+        }
+    }
+
     public function getClaims()
     {
         $claims = [];
-        $claimsType = (!empty($_REQUEST['grant_type']) && ($_REQUEST['grant_type'] === 'client_credentials')) ? 'client' : 'oidc';
-        if ($claimsType === 'oidc') {
+        // TODO: @adunsulag as far as I can tell the UserEntity class is only used w/o the client_credentials grant type
+        // so we don't need this.  Will comment for now, but I believe we can remove this code.
+        // Note session type claims like nonce get added in the IdTokenSMARTResponse
+//        if ($this->getClaimsType() === 'oidc') {
             $uuidToUser = new UuidUserAccount($this->identifier);
             $fhirUser = '';
             $userRole = $uuidToUser->getUserRole();
             $fhirUserResource = "Person";
-            if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
-                // need to find out if its a practitioner or not
-                $practitionerService = new PractitionerService();
-                // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
-                // from the more generic Person resource.
-                if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
-                    $fhirUserResource = "Practitioner";
-                }
-            } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
-                $fhirUserResource = "Patient";
-            } else {
-                (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+        if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
+            // need to find out if its a practitioner or not
+            $practitionerService = new PractitionerService();
+            // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
+            // from the more generic Person resource.
+            if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
+                $fhirUserResource = "Practitioner";
             }
-            $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/" . $fhirUserResource . "/" . $this->identifier;
+        } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
+            $fhirUserResource = "Patient";
+        } else {
+            (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+        }
+            $fhirUser = $this->getFhirBaseUrl() . $fhirUserResource . "/" . $this->identifier;
 
             (new SystemLogger())->debug("UserEntity->getClaims() fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 
             $user = $uuidToUser->getUserAccount();
-            if (empty($user)) {
-                $user = false;
-            }
+        if (empty($user)) {
+            $user = false;
+        }
             $claims = [
                 'name' => $user['fullname'],
                 'family_name' => $user['lastname'],
@@ -70,6 +109,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'gender' => '',
                 'birthdate' => '',
                 'zoneinfo' => '',
+                // TODO: locale should be set to the user's locale
                 'locale' => 'US',
                 'updated_at' => '',
                 'email' => $user['email'],
@@ -83,22 +123,17 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'api:oemr' => true,
                 'api:port' => true,
             ];
-        }
-        if ($claimsType === 'client') {
-            $claims = [
-                'api:fhir' => true,
-                'api:oemr' => true,
-                'api:port' => true,
-            ];
-        }
-        if (!empty($_SESSION['nonce'])) {
-            $claims['nonce'] = $_SESSION['nonce'];
-        }
-        if ($_SESSION['site_id']) {
-            $claims['site'] = $_SESSION['site_id'];
-        }
+//        }
+//        // TODO: @adunsulag need to revisit the client_credentials grant type and how we handle claims
+//        if ($this->getClaimsType() === 'client') {
+//            $claims = [
+//                'api:fhir' => true,
+//                'api:oemr' => true,
+//                'api:port' => true,
+//            ];
+//        }
 
-        return $claims;
+            return $claims;
     }
 
     public function getIdentifier()
@@ -109,67 +144,5 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
     public function setIdentifier($id): void
     {
         $this->identifier = $id;
-    }
-
-    protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
-    {
-        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
-            $auth = new AuthUtils('api');
-            if ($auth->confirmPassword($username, $password)) {
-                $id = $auth->getUserId();
-                UuidRegistry::createMissingUuidsForTables(['users']);
-                $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
-                if (empty($uuid)) {
-                    error_log("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
-                    return false;
-                }
-                $this->setIdentifier(UuidRegistry::uuidToString($uuid));
-
-                // If an mfa_token was provided, then will force TOTP MFA (U2F impossible to support via password grant)
-                //  (note that this is only forced if mfa_token is provided)
-                $mfa = new MfaUtils($id);
-                $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                if (!is_null($mfaToken)) {
-                    if (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType())) {
-                        // A mfa_token was provided, however the user is not configured for totp
-                        throw new OAuthServerException(
-                            'MFA not supported.',
-                            11,
-                            'mfa_not_supported',
-                            403
-                        );
-                    } else {
-                        //Check the validity of the totp token, if applicable
-                        if (!empty($mfaToken) && $mfa->check($mfaToken, MfaUtils::TOTP)) {
-                            return true;
-                        } else {
-                            throw new OAuthServerException(
-                                $mfa->errorMessage(),
-                                12,
-                                'mfa_token_invalid',
-                                401
-                            );
-                        }
-                    }
-                }
-
-                return true;
-            }
-        } elseif (($userrole == UuidUserAccount::USER_ROLE_PATIENT) && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
-            $auth = new AuthUtils('portal-api');
-            if ($auth->confirmPassword($username, $password, $email)) {
-                $id = $auth->getPatientId();
-                UuidRegistry::createMissingUuidsForTables(['patient_data']);
-                $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
-                if (empty($uuid)) {
-                    error_log("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");
-                    return false;
-                }
-                $this->setIdentifier(UuidRegistry::uuidToString($uuid));
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -73,7 +73,7 @@ When registering an API client to use with Swagger the following for the redirec
 Request:
 
 ```sh
-curl -X GET 'https://localhost:9300/apis/fhir/Patient' \
+curl -X GET 'https://localhost:9300/apis/default/fhir/Patient' \
   -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNnZ3eGJZYmFrOXlxUjF4U290Y1g4QVVDd3JOcG5yYXZEaFlqaHFjWXJXRGNDQUtFZmJONkh2cElTVkJiaWFobHBqOTBYZmlNRXpiY2FtU01pSHk1UzFlMmgxNmVqZEhcL1ZENlNtaVpTRFRLMmtsWDIyOFRKZzNhQmxMdUloZmNJM3FpMGFKZ003OXdtOGhYT3dpVkx5b3BFRXQ1TlNYNTE3UW5TZ0dsUVdQbG56WjVxOVYwc21tdDlSQ3RvcDV3TEkiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6ImZoaXIifQ=='
 ```
 
@@ -246,9 +246,8 @@ endpoint to the OpenEMR FHIR controller which handles the request, and also hand
 
 ```php
 "GET /fhir/Patient" => function () {
-    RestConfig::authorization_check("patients", "demo");
+    RestConfig::request_authorization_check($request, "patients", "demo");
     $return = (new FhirPatientRestController())->getAll($_GET);
-    RestConfig::apiLog($return);
     return $return;
 }
 ```

@@ -26,7 +26,7 @@ if (!AclMain::aclCheckCore('patients', 'lab')) {
     exit;
 }
 
-function thisLineItem($row): void
+function thisLineItemPendingOrders($row): void
 {
     $provname = $row['provider_lname'];
     if (!empty($row['provider_fname'])) {
@@ -208,7 +208,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row);
+        thisLineItemPendingOrders($row);
     }
 } // end report generation
 
