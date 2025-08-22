@@ -1141,18 +1141,13 @@ class Savant3
     }
 
     /**
-     *
      * Runs all filter callbacks on buffered output.
      *
      * @access protected
-     *
-     * @param
-     *          string The template output.
-     *
-     * @return void
-     *
+     * @param string $buffer The template output.
+     * @return string The filtered template output.
      */
-    protected function applyFilters($buffer)
+    protected function applyFilters(string $buffer): string
     {
         $autoload = $this->__config ['autoload'];
         foreach ($this->__config ['filters'] as $callback) {
