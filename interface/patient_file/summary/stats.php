@@ -182,7 +182,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     //
     if (count($issues) > 0 || $arr[4] == 1) {
         $old_key = $key;
-        if ($GLOBALS['erx_enable'] && $key = "medication") {
+        if ($GLOBALS['erx_enable'] && $key == "medication") {
             $sqlUploadedArr = [
                 "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
                 dateEmptySql('enddate'),
