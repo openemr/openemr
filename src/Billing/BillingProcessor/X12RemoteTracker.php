@@ -139,8 +139,8 @@ class X12RemoteTracker extends BaseService
 
     public static function create($fields)
     {
-        $fields['created_at'] = date('Y-m-d h:i:s');
-        $fields['updated_at'] = date('Y-m-d h:i:s');
+        $fields['created_at'] = date('Y-m-d H:i:s');
+        $fields['updated_at'] = date('Y-m-d H:i:s');
         $remoteTracker = new X12RemoteTracker();
         return $remoteTracker->insert($fields);
     }
