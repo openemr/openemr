@@ -13172,10 +13172,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/summary/demographics.php
-  - message: '#^Variable \$display_current_medications_below might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/patient_file/summary/demographics.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 3
