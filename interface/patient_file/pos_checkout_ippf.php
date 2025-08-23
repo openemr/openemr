@@ -233,7 +233,7 @@ function load_taxes($patient_id, $encounter)
     $rcpt_num_ref_columns = 1;
     if ($num_optional_columns == 1) {
         $rcpt_num_method_columns = 2;
-    } else if ($num_optional_columns > 1) {
+    } elseif ($num_optional_columns > 1) {
         $rcpt_num_method_columns = 3;
         $rcpt_num_ref_columns = $num_optional_columns - 1;
     }
@@ -1763,7 +1763,7 @@ if ($patient_id && !empty($_GET['enc'])) {
 if (!$alertmsg && $patient_id && !empty($_GET['void'])) {
     BillingUtilities::doVoid($patient_id, $encounter_id, true, '', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
-} else if (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
+} elseif (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
     BillingUtilities::doVoid($patient_id, $encounter_id, true, 'all', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 }
@@ -1785,7 +1785,7 @@ if (!$encounter_id) {
         } else {
             $encounter_id = $brow['encounter'];
         }
-    } else if (!empty($drow['encounter'])) {
+    } elseif (!empty($drow['encounter'])) {
         $encounter_id = $drow['encounter'];
     }
 }
@@ -2683,7 +2683,7 @@ if (!$current_irnumber) {
         </td>
     </tr>
         <?php
-    } else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
+    } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) {
     // Otherwise if there is an invoice reference number mask, ask for the refno.
         ?>
     <tr>
@@ -2838,7 +2838,7 @@ if ($GLOBALS['ippf_specific']) {
         $warningMessage = xl('Warning') . ': ';
         if (!$csmethod) {
             $warningMessage .= xl('there is a contraception service but no contraception form new method');
-        } else if (!$contraception_billing_code) {
+        } elseif (!$contraception_billing_code) {
             $warningMessage .= xl('there is a contraception form new method but no contraception service');
         } else {
             $warningMessage .= xl('new method in contraception form does not match the contraception service');
