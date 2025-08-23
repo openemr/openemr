@@ -11724,10 +11724,6 @@ parameters:
     identifier: staticProperty.notFound
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php
-  - message: '#^Access to private property \$authUser of parent class OpenEMR\\Modules\\FaxSMS\\Controller\\AppDispatch\.$#'
-    identifier: property.private
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php
   - message: '#^Variable \$tz in empty\(\) is never defined\.$#'
     identifier: empty.variable
     count: 1
