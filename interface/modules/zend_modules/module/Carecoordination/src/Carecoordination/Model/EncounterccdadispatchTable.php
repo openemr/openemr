@@ -4075,7 +4075,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         foreach ($types as $type) {
             $sql = "
-            SELECT i.*, c.name AS company_name,
+            SELECT i.*, c.name AS company_name, 
                    c.uuid as compuuid,
                    a.line1, a.line2, a.city, a.state, a.zip, a.plus_four, a.country,
                    a.foreign_id,
@@ -4100,6 +4100,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
             $companyName = xmlEscape($row['company_name']);
             $companyPhone = xmlEscape($row['phone'] ?: '(000)000-0000');
+            $planName = xmlEscape($row['plan_name'] ?: '');
             $policyId = xmlEscape($row['policy_number'] ?: '');
             $policyGroup = xmlEscape($row['group_number'] ?: '');
             $startDate = xmlEscape($row['date'] ?: '');
@@ -4138,12 +4139,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <identifier>{$puuid}</identifier>
          <extension>{$policyGroup}</extension>
       </identifiers>
-      <code code="SELF" code_system_name="HL7 RoleCode" />
+      <code code="SELF" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" />
+      <plan_name>{$planName}</plan_name>
       <insurance>
-        <code code="PAYOR" code_system_name="HL7 RoleCode" />
+        <code code="PAYOR" code_system="2.16.840.1.113883.5.110" code_system_name="RoleCode" name="Invoice Payor" />
         <performer>
           <identifiers>
-            <identifier>2.16.840.1.113883.19</identifier>
+            <identifier>2.16.840.1.113883.18</identifier>
           </identifiers>
           <address>
             <street_lines>{$addrLine1}</street_lines>
@@ -4201,7 +4203,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     <participant>
       <time_low>{$startDate}</time_low>
       <time_high>{$endDate}</time_high>
-      <code name="Self" code="SELF" code_system_name="HL7 Role" />
+      <code name="Self" code="SELF" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" />
       <performer>
         <identifiers>
           <identifier>{$puuid}</identifier>
@@ -4218,7 +4220,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <code>
           <name>Self</name>
           <code>SELF</code>
-          <code_system_name>HL7 Role</code_system_name>
+          <code_system>"2.16.840.1.113883.3.221.5"</code_system>
+          <code_system_name>Insurance Type Code</code_system_name>
         </code>
       </performer>
       <name>
@@ -4245,9 +4248,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     </policy_holder>
     <authorization>
       <identifiers><identifier>{$puuid}</identifier></identifiers>
-      <procedure>
-        <code name="Colonoscopy" code="73761001" code_system_name="SNOMED CT" />
-      </procedure>
     </authorization>
   </payer>
 
