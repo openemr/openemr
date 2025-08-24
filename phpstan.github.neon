@@ -16932,10 +16932,6 @@ parameters:
     identifier: return.missing
     count: 1
     path: portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
-  - message: '#^Regex pattern is invalid\: Unknown modifier ''/'' in pattern\: /\[\[\:alpha\:\]\]\+\://\[\^\<\>\[\:space\:\]\]\+\[\[\:alnum\:\]/\]/i$#'
-    identifier: regexp.pattern
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
   - message: '#^Path in require_once\(\) "verysimple/Phreeze/CacheMemCache\.php" is not a file or it does not exist\.$#'
     identifier: requireOnce.fileNotFound
     count: 1
