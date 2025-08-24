@@ -9072,14 +9072,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/newGroupEncounter/view.php
-  - message: '#^Anonymous function has an unused use \$pid\.$#'
-    identifier: closure.unusedUse
-    count: 1
-    path: interface/forms/newpatient/C_EncounterVisitForm.class.php
-  - message: '#^Anonymous function has an unused use \$viewmode\.$#'
-    identifier: closure.unusedUse
-    count: 1
-    path: interface/forms/newpatient/C_EncounterVisitForm.class.php
   - message: '#^Variable \$body_javascript on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
