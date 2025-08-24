@@ -632,7 +632,7 @@ class C_EncounterVisitForm
             return $provider;
         }, $MBO->getReferringProviders());
 
-        $orderingProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
+        $orderingProviders = array_map(function ($provider) use ($encounter) {
             $provider['selected'] = $provider['id'] == ($encounter['ordering_provider_id'] ?? 0);
             return $provider;
         }, $MBO->getOrderingProviders());
