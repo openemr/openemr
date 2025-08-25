@@ -159,33 +159,21 @@ class Thumbnail
     }
 
     /**
-     *  Create new file from resource file with GD functions.
-     *  @param (string) extension of file
-     *  @param (resource) file resource from create_thumbnail()
-     *  @param (optional)(string) file name for saving (pull path with wanted name)
-     *  @param (optional) (int) quality for 'jpeg' type
-     *  @return false if failed
+     * Create new file from resource file with GD functions.
+     *
+     * @param resource $image_resource file resource from create_thumbnail()
+     * @param string|null $file_name file name for saving (full path with wanted name)
+     * @param int $quality quality for 'jpeg' type
+     * @return bool true on success, false on failure
      */
-    private function create_file($image_resource, $file_name = null, $quality = 80)
+    private function create_file($image_resource, $file_name = null, $quality = 80): bool
     {
-        switch ($this->thumbnail_type) {
-            case 'gif':
-                $file = imagegif($image_resource, $file_name);
-                break;
-            case 'jpg':
-            case 'jpeg':
-                $file =  imagejpeg($image_resource, $file_name, $quality);
-                break;
-            case 'png':
-                $file =  imagepng($image_resource, $file_name);
-                break;
-            case 'bmp':
-                $file =  imagewbmp($image_resource, $file_name);
-                break;
-            default:
-                return false;
-        }
-
-        return $file;
+        return match ($this->thumbnail_type) {
+            'gif' => imagegif($image_resource, $file_name),
+            'jpg', 'jpeg' => imagejpeg($image_resource, $file_name, $quality),
+            'png' => imagepng($image_resource, $file_name),
+            'bmp' => imagewbmp($image_resource, $file_name),
+            default => false
+        };
     }
 }

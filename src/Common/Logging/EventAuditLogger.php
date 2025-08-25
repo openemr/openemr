@@ -156,7 +156,7 @@ MSG;
      * @param $groupname
      * @param $success
      * @param string $comments
-     * @param null   $patient_id
+     * @param ?int $patient_id
      * @param string $log_from
      * @param string $menu_item
      * @param int    $ccda_doc_id
@@ -520,7 +520,7 @@ MSG;
      *
      * @param $statement
      * @param $outcome
-     * @param null $binds
+     * @param ?array $binds
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {

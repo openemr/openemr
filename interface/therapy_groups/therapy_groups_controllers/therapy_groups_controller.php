@@ -86,7 +86,7 @@ class TherapyGroupsController extends BaseController
     /**
      * add / edit therapy group
      * making validation and saving in the match tables.
-     * @param null $groupId - must pass when edit group
+     * @param ?int $groupId - must pass when edit group
      */
     public function index($groupId = null)
     {

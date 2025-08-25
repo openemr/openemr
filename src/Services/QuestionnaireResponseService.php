@@ -333,12 +333,12 @@ class QuestionnaireResponseService extends BaseService
     /**
      * @param       $response
      * @param       $pid
-     * @param null  $encounter
-     * @param null  $qr_id
-     * @param null  $qr_record_id
-     * @param null  $q
-     * @param null  $q_id
-     * @param null  $form_response
+     * @param ?int  $encounter
+     * @param ?string  $qr_id
+     * @param ?int  $qr_record_id
+     * @param string|array|null  $q
+     * @param ?string  $q_id
+     * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
      * @return array|false|int|mixed
@@ -397,20 +397,18 @@ class QuestionnaireResponseService extends BaseService
         }
 
         $version = 1;
-        if (!empty($fhirQuestionnaireOb)) {
-            $q_id = $q_id ?: $this->getValue($fhirQuestionnaireOb->id);
-            $q_title = $this->getValue($fhirQuestionnaireOb->title);
-            $q_name = $this->getValue($fhirQuestionnaireOb->name);
-            if (empty($q_title)) {
-                $q_title = $q_name;
-            }
-            $q_record_id = $this->questionnaireService->getQuestionnaireIdAndVersion($q_title, $q_id)['id'] ?? null;
+        $q_id = $q_id ?: $this->getValue($fhirQuestionnaireOb->id);
+        $q_title = $this->getValue($fhirQuestionnaireOb->title);
+        $q_name = $this->getValue($fhirQuestionnaireOb->name);
+        if (empty($q_title)) {
+            $q_title = $q_name;
         }
+        $q_record_id = $this->questionnaireService->getQuestionnaireIdAndVersion($q_title, $q_id)['id'] ?? null;
 
         if ($add_report) {
             $response_array = $this->fhirObjectToArray($fhirResponseOb);
             $answers = $this->flattenQuestionnaireResponse($response_array, '|', '');
-            $html = $this->buildQuestionnaireResponseHtml($answers, '|');
+            $html = $this->buildQuestionnaireResponseHtml($answers);
             $report = new FHIRNarrative();
             $report->setStatus(new FHIRNarrativeStatus(['value' => 'generated']));
             $report->setDiv($html);
@@ -428,8 +426,10 @@ class QuestionnaireResponseService extends BaseService
             $qr_id = UuidRegistry::uuidToString($qr_uuid);
             $update_flag = false;
         } else {
+            $qr_uuid = null;
             $update_flag = true;
         }
+        $id = [];
         if ($update_flag) {
             $id = $this->getQuestionnaireResourceIdAndVersion(null, $qr_id, null);
             if (empty($id)) {
@@ -442,10 +442,10 @@ class QuestionnaireResponseService extends BaseService
         $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
-            if (!empty($encounter_uuid)) {
-                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
-            } else {
+            if (empty($encounter_uuid)) {
                 $encounter = 0;
+            } else {
+                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
             }
         }
         if (!empty($encounter)) {
@@ -735,8 +735,8 @@ class QuestionnaireResponseService extends BaseService
 
     /**
      * @param      $name
-     * @param null $q_id
-     * @param null $uuid
+     * @param ?string $q_id
+     * @param ?string $uuid
      * @return array
      */
     public function getQuestionnaireResourceIdAndVersion($name, $q_id = null, $uuid = null): array
