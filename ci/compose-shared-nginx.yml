@@ -6,6 +6,7 @@ services:
     volumes:
     - ../:/usr/share/nginx/html/openemr
     - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro
+
   nginx:
     image: openemr/dev-nginx
     ports:
@@ -18,3 +19,18 @@ services:
     - ./nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
     - openemr
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/status/readiness.php
+      start_period: 10m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
