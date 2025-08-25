@@ -34,7 +34,7 @@ abstract class AppDispatch
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
-    private $authUser;
+    protected $authUser;
 
     /**
      * @throws \Exception
