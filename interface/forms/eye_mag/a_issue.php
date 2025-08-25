@@ -17,7 +17,8 @@
  * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* TODO: Code cleanup */
+/*
+TODO: Code cleanup */
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
