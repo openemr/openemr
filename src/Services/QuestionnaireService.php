@@ -42,8 +42,8 @@ class QuestionnaireService extends BaseService
 
     /**
      * @param      $name
-     * @param null $q_id
-     * @param null $uuid
+     * @param ?string $q_id
+     * @param ?string $uuid
      * @return array
      */
     public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null): array
@@ -85,7 +85,7 @@ class QuestionnaireService extends BaseService
     /**
      * @param $q
      * @param $name
-     * @param null $q_record_id
+     * @param ?int $q_record_id
      * @param $q_id
      * @param $lform
      * @param $type

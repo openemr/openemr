@@ -171,7 +171,7 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * @param      $pids
-     * @param null $category
+     * @param ?string $category
      * @return array
      */
     public function getTemplateCategoriesByPids($pids, $category = null): array
@@ -475,8 +475,8 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param null $pid
-     * @param null $category
+     * @param ?int $pid
+     * @param ?string $category
      * @param bool $include_content
      * @return array
      */
@@ -566,8 +566,8 @@ class DocumentTemplateService extends QuestionnaireService
      * @param      $category
      * @param      $template
      * @param      $content
-     * @param null $mimetype
-     * @param null $profile
+     * @param ?string $mimetype
+     * @param ?string $profile
      * @return int
      */
     public function insertTemplate($pid, $category, $template, $content, $mimetype = null, $profile = null): int
@@ -661,7 +661,7 @@ class DocumentTemplateService extends QuestionnaireService
     /**
      * @param      $pids
      * @param      $templates
-     * @param null $category
+     * @param ?string $category
      * @return int
      */
     public function sendTemplate($pids, $templates, $category = null): int
@@ -717,7 +717,7 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * @param      $id
-     * @param null $template
+     * @param ?string $template
      * @return bool
      */
     public function deleteTemplate($id, $template = null): bool

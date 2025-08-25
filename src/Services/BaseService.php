@@ -378,7 +378,7 @@ class BaseService
      * @param string $uuid              - UUID of Resource
      * @param string $table             - Table reffering to the ID field
      * @param string $field             - Identifier field
-     * @return false if nothing found otherwise return ID
+     * @return string|false if nothing found return false, otherwise return ID
      */
     public static function getIdByUuid($uuid, $table, $field)
     {
@@ -393,7 +393,7 @@ class BaseService
      * @param string $id                - ID of Resource
      * @param string $table             - Table reffering to the UUID field
      * @param string $field             - Identifier field
-     * @return false if nothing found otherwise return UUID
+     * @return string|false if nothing found return false, otherwise return UUID string
      */
     public static function getUuidById($id, $table, $field)
     {
