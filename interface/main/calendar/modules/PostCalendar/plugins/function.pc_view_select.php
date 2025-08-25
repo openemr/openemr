@@ -66,7 +66,6 @@ function smarty_function_pc_view_select($args): void
     }
 
     closedir($handle);
-    unset($no_list);
     sort($viewlist);
     $tcount = count($viewlist);
     //$options = "<select id=\"tplview\" name=\"tplview\" class=\"$args[class]\">"; - pennfirm

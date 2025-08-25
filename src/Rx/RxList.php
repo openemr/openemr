@@ -109,7 +109,6 @@ class RxList
     {
         $pos = 0;
         $token = 0;
-        unset($tokens);
         $in_token = false;
         while ($pos < strlen($page)) {
             switch (substr($page, $pos, 1)) {
@@ -143,9 +142,7 @@ class RxList
     {
         $record = false;
         $current = 0;
-        unset($hash);
         $hash = [];
-        unset($all);
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
             if (str_contains($tokens[$pos], "<name>") && $pos !== 3) {
                 // found a brand line 'token'
