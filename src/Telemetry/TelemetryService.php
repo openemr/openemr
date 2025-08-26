@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
@@ -11,15 +10,22 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionService;
 
 /**
  * Provides telemetry reporting functionality.
+ *
+ * @package OpenEMR\Telemetry
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class TelemetryService
 {
+    use DatabaseQueryTrait;
     protected TelemetryRepository $repository;
     protected VersionService $versionService;
     protected SystemLogger $logger;
@@ -43,13 +49,17 @@ class TelemetryService
     /**
      * Checks if telemetry is enabled based on the product registration table.
      * I don't know why I didn't use telemetry_enabled in the product_registration table.
+     * Uses DatabaseQueryTrait for better testability.
      *
      * @return int
      */
-    public static function isTelemetryEnabled(): int
+    public function isTelemetryEnabled(): int
     {
         // Check if telemetry is disabled in the product registration table.
-        $isEnabled = sqlQuery("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0")['telemetry_disabled'] ?? null;
+        // AI-generated code: Using DatabaseQueryTrait for testability
+        $result = $this->fetchRecords("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0", []);
+        $isEnabled = !empty($result) ? $result[0]['telemetry_disabled'] ?? null : null;
+        // End AI-generated code
         if (!is_null($isEnabled)) {
             // If telemetry_disabled is 0, it means telemetry is enabled.
             $isEnabled = 1;
@@ -121,7 +131,7 @@ class TelemetryService
      */
     public function reportUsageData(): int|bool
     {
-        if (empty(self::isTelemetryEnabled())) {
+        if (empty($this->isTelemetryEnabled())) {
             error_log("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
@@ -142,7 +152,9 @@ class TelemetryService
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
         $interval = date("Ym", strtotime("-33 Days"));
 
-        $timeZoneResult = sqlQuery("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1");
+        // AI-generated code: Using DatabaseQueryTrait for testability
+        $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
+        // End AI-generated code
         $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
@@ -210,7 +222,7 @@ class TelemetryService
      */
     public function trackApiRequestEvent(array $event_data): void
     {
-        if (!empty(self::isTelemetryEnabled())) {
+        if (!empty($this->isTelemetryEnabled())) {
             $this->reportClickEvent($event_data);
         }
     }

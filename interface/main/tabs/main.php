@@ -123,7 +123,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
         const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
         const isServicesOther = (isSms || isFax);
-        var telemetryEnabled = <?php echo js_escape(TelemetryService::isTelemetryEnabled()); ?>;
+        var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
 
         /**
          * Async function to get session value from the server
