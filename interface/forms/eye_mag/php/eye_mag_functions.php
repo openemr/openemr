@@ -4870,7 +4870,7 @@ function cmp($a, $b)
  * @param        $pid
  * @param string $bywhat == byday or byhour
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 {
     global $PMSFH;
     global $form_folder;
@@ -5708,10 +5708,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
  *
  * @return mixed|string
 */
-function display_VisualAcuities($pid = 0)
+function display_VisualAcuities($pid = 0): void
 {
     global $priors;
     global $visit_date;
+    global $dated;
 
     if ($priors) {
         // We have to get this data if it exists for each prior visit.
@@ -5777,29 +5778,76 @@ function display_VisualAcuities($pid = 0)
         }
 
         $VA_dates = implode("','", $va_dates);
+
         if (strlen(implode($va_SCODVA)) !== 0) {
             $VA_SCODVA = implode(',', $va_SCODVA);
+        } else {
+            $VA_SCODVA = '';
         }
         if (strlen(implode($va_SCOSVA)) !== 0) {
             $VA_SCOSVA = implode(',', $va_SCOSVA);
+        } else {
+            $VA_SCOSVA = '';
         }
         if (strlen(implode($va_CCODVA)) !== 0) {
             $VA_CCODVA = implode(',', $va_CCODVA);
+        } else {
+            $VA_CCODVA = '';
         }
         if (strlen(implode($va_CCOSVA)) !== 0) {
             $VA_CCOSVA = implode(',', $va_CCOSVA);
+        } else {
+            $VA_CCOSVA = '';
+        }
+        if (strlen(implode($va_PHODVA)) !== 0) {
+            $VA_PHODVA = implode(',', $va_PHODVA);
+        } else {
+            $VA_PHODVA = '';
+        }
+        if (strlen(implode($va_PHOSVA)) !== 0) {
+            $VA_PHOSVA = implode(',', $va_PHOSVA);
+        } else {
+            $VA_PHOSVA = '';
+        }
+        if (strlen(implode($va_ARODVA)) !== 0) {
+            $VA_ARODVA = implode(',', $va_ARODVA);
+        } else {
+            $VA_ARODVA = '';
+        }
+        if (strlen(implode($va_AROSVA)) !== 0) {
+            $VA_AROSVA = implode(',', $va_AROSVA);
+        } else {
+            $VA_AROSVA = '';
         }
         if (strlen(implode($va_MRODVA)) !== 0) {
             $VA_MRODVA = implode(',', $va_MRODVA);
+        } else {
+            $VA_MRODVA = '';
         }
         if (strlen(implode($va_MROSVA)) !== 0) {
             $VA_MROSVA = implode(',', $va_MROSVA);
+        } else {
+            $VA_MROSVA = '';
+        }
+        if (strlen(implode($va_CRODVA)) !== 0) {
+            $VA_CRODVA = implode(',', $va_CRODVA);
+        } else {
+            $VA_CRODVA = '';
+        }
+        if (strlen(implode($va_CROSVA)) !== 0) {
+            $VA_CROSVA = implode(',', $va_CROSVA);
+        } else {
+            $VA_CROSVA = '';
         }
         if (strlen(implode($va_CTLODVA)) !== 0) {
             $VA_CTLODVA = implode(',', $va_CTLODVA);
+        } else {
+            $VA_CTLODVA = '';
         }
         if (strlen(implode($va_CTLOSVA)) !== 0) {
             $VA_CTLOSVA = implode(',', $va_CTLOSVA);
+        } else {
+            $VA_CTLOSVA = '';
         }
         ?>
         <div>
@@ -5872,41 +5920,43 @@ function display_VisualAcuities($pid = 0)
                         ?>
                     </tr>
                     <?php
-                    foreach ($flip_priors_CC as $prior) {
-                        ?>
-                            <tr>
-                                <td><?php echo $prior['visit_date']; ?></td>
-                            <?php
-                            if ($VA_SCODVA || $VA_SCOSVA) { ?>
-                                        <td class="vasc_class"><?php echo $prior['SCODVA']; ?></td><td class="vasc_class"><?php echo $prior['SCOSVA']; ?></td>
-                                        <?php
-                            }
-                            if ($VA_CCODVA || $VA_CCOSVA) { ?>
-                                        <td class="vacc_class"><?php echo $prior['CCODVA']; ?></td><td class="vacc_class"><?php echo $prior['CCOSVA']; ?></td>
-                                        <?php
-                            }
-                            if ($VA_PHODVA || $VA_PHOSVA) { ?>
-                                        <td class="vaph_class"><?php echo $prior['PHODVA']; ?></td><td class="vaph_class"><?php echo $prior['PHOSVA']; ?></td>
-                                        <?php
-                            }
-                            if ($VA_ARODVA || $VA_AROSVA) { ?>
-                                        <td class="vaar_class"><?php echo $prior['ARODVA']; ?></td><td class="vaar_class"><?php echo $prior['AROSVA']; ?></td>
-                                        <?php
-                            }
-                            if ($VA_MRODVA || $VA_MROSVA) { ?>
-                                        <td class="vamr_class"><?php echo $prior['MRODVA']; ?></td><td class="vamr_class"><?php echo $prior['MROSVA']; ?></td>
-                                        <?php
-                            }
-                            if ($VA_CRODVA || $VA_CROSVA) { ?>
-                                        <td class="vacr_class"><?php echo $prior['CRODVA']; ?></td><td class="vacr_class"><?php echo $prior['CROSVA']; ?></td>
-                                        <?php
-                            }
-                            if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
-                                        <td class="vactl_class"><?php echo $prior['CTLODVA']; ?></td><td class="vactl_class"><?php echo $prior['CTLOSVA']; ?></td>
-                                    <?php } ?>
-                            </tr>
+                    if (!empty($flip_priors_CC)) {
+                        foreach ($flip_priors_CC as $prior) {
+                            ?>
+                                <tr>
+                                    <td><?php echo $prior['visit_date']; ?></td>
+                                <?php
+                                if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                                            <td class="vasc_class"><?php echo $prior['SCODVA']; ?></td><td class="vasc_class"><?php echo $prior['SCOSVA']; ?></td>
+                                            <?php
+                                }
+                                if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                            <td class="vacc_class"><?php echo $prior['CCODVA']; ?></td><td class="vacc_class"><?php echo $prior['CCOSVA']; ?></td>
+                                            <?php
+                                }
+                                if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                            <td class="vaph_class"><?php echo $prior['PHODVA']; ?></td><td class="vaph_class"><?php echo $prior['PHOSVA']; ?></td>
+                                            <?php
+                                }
+                                if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                            <td class="vaar_class"><?php echo $prior['ARODVA']; ?></td><td class="vaar_class"><?php echo $prior['AROSVA']; ?></td>
+                                            <?php
+                                }
+                                if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                            <td class="vamr_class"><?php echo $prior['MRODVA']; ?></td><td class="vamr_class"><?php echo $prior['MROSVA']; ?></td>
+                                            <?php
+                                }
+                                if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                            <td class="vacr_class"><?php echo $prior['CRODVA']; ?></td><td class="vacr_class"><?php echo $prior['CROSVA']; ?></td>
+                                            <?php
+                                }
+                                if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                            <td class="vactl_class"><?php echo $prior['CTLODVA']; ?></td><td class="vactl_class"><?php echo $prior['CTLOSVA']; ?></td>
+                                        <?php } ?>
+                                </tr>
 
-                            <?php
+                                <?php
+                        }
                     }
                     ?>
                 </table>
