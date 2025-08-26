@@ -6032,6 +6032,14 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Result of function display_VisualAcuities \(void\) is used\.$#'
+    identifier: function.void
+    count: 1
+    path: interface/forms/eye_mag/view.php
+  - message: '#^Result of function display_GlaucomaFlowSheet \(void\) is used\.$#'
+    identifier: function.void
+    count: 1
+    path: interface/forms/eye_mag/view.php
   - message: '#^Variable \$encounter_date might not be defined\.$#'
     identifier: variable.undefined
     count: 1

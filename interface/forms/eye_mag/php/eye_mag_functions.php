@@ -3739,12 +3739,12 @@ function build_IMPPLAN_items($pid, $form_id)
     return $IMPPLAN_items ?? [];
 }
 
-            /**
-             *  This builds the CODING_items variable for a given pid and encounter.
-             *  @param string $pid patient_id
-             *  @param string $encounter field id in table form_encounters
-             *  @return object CODING_items
-             */
+/**
+ *  This builds the CODING_items variable for a given pid and encounter.
+ *  @param string $pid patient_id
+ *  @param string $encounter field id in table form_encounters
+ *  @return object CODING_items
+ */
 function build_CODING_items($pid, $encounter)
 {
     $query = "select * from billing where encounter=? and pid=? ORDER BY id";
@@ -4864,14 +4864,14 @@ function cmp($a, $b)
 }
 
 /**
- * This function returns the Glaucoma Flow Sheet.
+ * This function displays the Glaucoma Flow Sheet.
  * Default is to display IOP measurements 'byday'.
  *
- * @param         $pid
- * @param string  $bywhat == byday or byhour
- *
+ * @param string|int   $pid
+ * @param string       $bywhat == byday or byhour
+ * @return string|null html of the flow sheet
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 {
     global $PMSFH;
     global $form_folder;
@@ -5705,10 +5705,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
  *
  * and 3rd row on: the leftmost/first column containing Date of visit, then the actual measurements obtained
  *
- * @param $pid
+ * @param string|int   $pid
+ * @return string|null html of the visual acuity measurements
  *
 */
-function display_VisualAcuities($pid = 0)
+function display_VisualAcuities($pid = 0): void
 {
     global $priors;
     global $visit_date;
