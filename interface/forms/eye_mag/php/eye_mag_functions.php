@@ -4870,7 +4870,7 @@ function cmp($a, $b)
  * @param        $pid
  * @param string $bywhat == byday or byhour
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 {
     global $PMSFH;
     global $form_folder;
@@ -5708,7 +5708,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
  *
  * @return mixed|string
 */
-function display_VisualAcuities($pid = 0): void
+function display_VisualAcuities($pid = 0)
 {
     global $priors;
     global $visit_date;
