@@ -197,7 +197,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                            cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -233,7 +233,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                            cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -278,7 +278,7 @@ function isValidPhone($phone): array|bool|string|null
  * @param string $recur
  * @return int
  */
-function cron_UpdateEntry($type, $pid, $pc_eid, $recur = '')
+function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
 {
     global $bTestRun;
 

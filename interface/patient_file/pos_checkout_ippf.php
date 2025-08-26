@@ -233,7 +233,7 @@ function load_taxes($patient_id, $encounter): void
     $rcpt_num_ref_columns = 1;
     if ($num_optional_columns == 1) {
         $rcpt_num_method_columns = 2;
-    } else if ($num_optional_columns > 1) {
+    } elseif ($num_optional_columns > 1) {
         $rcpt_num_method_columns = 3;
         $rcpt_num_ref_columns = $num_optional_columns - 1;
     }
@@ -402,7 +402,7 @@ function ippfReceiptDetailLine(
 
 // Output HTML for a receipt payment line.
 //
-function receiptPaymentLine($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
+function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
 {
     global $aTaxNames, $num_optional_columns;
     global $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
@@ -964,7 +964,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     );
     while ($inrow = sqlFetchArray($inres)) {
         $payments -= formatMoneyNumber($inrow['fee']);
-        receiptPaymentLine($svcdate, 0 - $inrow['fee'], $inrow['code_text'], 'COPAY');
+        receiptPaymentLineIppf($svcdate, 0 - $inrow['fee'], $inrow['code_text'], 'COPAY');
     }
 
     // Get other payments.
@@ -987,7 +987,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         $tmp = array_search($inrow['post_time'], $checkout_times);
         $tmp = $tmp === false ? 0 : ($tmp + 1);
         $refno = $invoice_refno ? "$invoice_refno-$tmp" : "$encounter-$tmp";
-        receiptPaymentLine(
+        receiptPaymentLineIppf(
             $inrow['post_date'],
             $inrow['pay_amount'],
             trim($payer . ' ' . $inrow['reference']),
@@ -1240,7 +1240,7 @@ function write_form_headers(): void
 // Function to output a line item for the input form.
 //
 $totalchg = 0; // totals charges after adjustments
-function write_form_line(
+function write_form_line_ippf(
     $code_type,
     $code,
     $id,
@@ -1776,7 +1776,7 @@ if ($patient_id && !empty($_GET['enc'])) {
 if (!$alertmsg && $patient_id && !empty($_GET['void'])) {
     BillingUtilities::doVoid($patient_id, $encounter_id, true, '', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
-} else if (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
+} elseif (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
     BillingUtilities::doVoid($patient_id, $encounter_id, true, 'all', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 }
@@ -1798,7 +1798,7 @@ if (!$encounter_id) {
         } else {
             $encounter_id = $brow['encounter'];
         }
-    } else if (!empty($drow['encounter'])) {
+    } elseif (!empty($drow['encounter'])) {
         $encounter_id = $drow['encounter'];
     }
 }
@@ -2381,7 +2381,7 @@ while ($brow = sqlFetchArray($bres)) {
 
     // Write the line item if it allows fees or is not a diagnosis.
     if (!empty($code_types[$code_type]['fee']) || empty($code_types[$code_type]['diag'])) {
-        write_form_line(
+        write_form_line_ippf(
             $code_type,
             $brow['code'],
             $brow['id'],
@@ -2453,7 +2453,7 @@ while ($drow = sqlFetchArray($dres)) {
     }
     $units = $drow['quantity'] / FeeSheet::getBasicUnits($drow['drug_id'], $drow['selector']);
 
-    write_form_line(
+    write_form_line_ippf(
         'PROD',
         $drow['drug_id'],
         $drow['sale_id'],
@@ -2696,7 +2696,7 @@ if (!$current_irnumber) {
         </td>
     </tr>
         <?php
-    } else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
+    } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) {
     // Otherwise if there is an invoice reference number mask, ask for the refno.
         ?>
     <tr>
@@ -2851,7 +2851,7 @@ if ($GLOBALS['ippf_specific']) {
         $warningMessage = xl('Warning') . ': ';
         if (!$csmethod) {
             $warningMessage .= xl('there is a contraception service but no contraception form new method');
-        } else if (!$contraception_billing_code) {
+        } elseif (!$contraception_billing_code) {
             $warningMessage .= xl('there is a contraception form new method but no contraception service');
         } else {
             $warningMessage .= xl('new method in contraception form does not match the contraception service');

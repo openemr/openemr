@@ -27,11 +27,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
 {
-    /**
-     * @var int|mixed
-     */
     private bool $isSmsEnabled;
-    private mixed $isEmailEnabled;
+    private bool $isEmailEnabled;
     private bool $isFaxEnabled;
     private bool $isVoiceEnabled;
     private EventDispatcherInterface $eventDispatcher;
@@ -442,7 +439,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $baseUrl = "/interface/modules/custom_modules/oe-module-faxsms/contact.php?";
         $type = $_REQUEST['type'] ?? 'sms';
         $queryParams = [];
-        $queryParams['xmitMode'] = (($this->isSmsEnabled ?? false) && ($this->isEmailEnabled ?? false)) ? 'both' : 'sms';
+        $queryParams['xmitMode'] = (($this->isSmsEnabled) && ($this->isEmailEnabled)) ? 'both' : 'sms';
         $queryParams['isSMS'] = $this->isSmsEnabled;
         $queryParams['isEmail'] = $this->isEmailEnabled;
         $queryParams['isFax'] = $this->isFaxEnabled;

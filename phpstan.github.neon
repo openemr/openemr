@@ -184,10 +184,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: ccr/transmitCCD.php
-  - message: '#^Result of function outputMessage \(void\) is used\.$#'
-    identifier: function.void
-    count: 5
-    path: contrib/util/ccda_import/import_ccda.php
   - message: '#^Variable \$duplicates on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -9076,14 +9072,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/newGroupEncounter/view.php
-  - message: '#^Anonymous function has an unused use \$pid\.$#'
-    identifier: closure.unusedUse
-    count: 1
-    path: interface/forms/newpatient/C_EncounterVisitForm.class.php
-  - message: '#^Anonymous function has an unused use \$viewmode\.$#'
-    identifier: closure.unusedUse
-    count: 1
-    path: interface/forms/newpatient/C_EncounterVisitForm.class.php
   - message: '#^Variable \$body_javascript on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -11624,10 +11612,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/index.php
-  - message: '#^Function cron_updateentry invoked with 4 parameters, 3 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php
   - message: '#^Variable \$args on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -11740,10 +11724,6 @@ parameters:
     identifier: empty.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php
-  - message: '#^Property OpenEMR\\Modules\\FaxSMS\\Events\\NotificationEventListener\:\:\$isSmsEnabled on left side of \?\? is not nullable nor uninitialized\.$#'
-    identifier: nullCoalesce.initializedProperty
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php
   - message: '#^Variable \$data on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -11832,10 +11812,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php
-  - message: '#^Class Application\\Model\\SendtoTable does not have a constructor and must be instantiated without any parameters\.$#'
-    identifier: new.noConstructor
-    count: 1
-    path: interface/modules/zend_modules/module/Application/config/module.config.php
   - message: '#^Class OpenEMR\\Core\\Kernel referenced with incorrect case\: OpenEmr\\Core\\Kernel\.$#'
     identifier: class.nameCase
     count: 1
@@ -12844,18 +12820,6 @@ parameters:
     identifier: arguments.count
     count: 5
     path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptPaymentLine invoked with 4 parameters, 2\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptPaymentLine invoked with 6 parameters, 2\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function write_form_line invoked with 10 parameters, 8 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Variable \$arates in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 2
@@ -13197,10 +13161,6 @@ parameters:
     count: 1
     path: interface/patient_file/summary/demographics.php
   - message: '#^Variable \$bgColor might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/patient_file/summary/demographics.php
-  - message: '#^Variable \$display_current_medications_below might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/summary/demographics.php
@@ -16460,10 +16420,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/patient/_machine_config.php
-  - message: '#^Result of method Savant3\:\:applyFilters\(\) \(void\) is used\.$#'
-    identifier: method.void
-    count: 1
-    path: portal/patient/fwk/libs/savant/Savant3.php
   - message: '#^Method Savant3_Filter_trimwhitespace\:\:replace\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
     count: 1
@@ -16966,10 +16922,6 @@ parameters:
     path: portal/patient/fwk/libs/verysimple/String/SimpleTemplate.php
   - message: '#^Method VerySimpleStringUtil\:\:unicode_entity_replace\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
-  - message: '#^Regex pattern is invalid\: Unknown modifier ''/'' in pattern\: /\[\[\:alpha\:\]\]\+\://\[\^\<\>\[\:space\:\]\]\+\[\[\:alnum\:\]/\]/i$#'
-    identifier: regexp.pattern
     count: 1
     path: portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
   - message: '#^Path in require_once\(\) "verysimple/Phreeze/CacheMemCache\.php" is not a file or it does not exist\.$#'
