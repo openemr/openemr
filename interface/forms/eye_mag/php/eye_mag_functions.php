@@ -4867,10 +4867,11 @@ function cmp($a, $b)
  * This function returns the Glaucoma Flow Sheet.
  * Default is to display IOP measurements 'byday'.
  *
- * @param        $pid
- * @param string $bywhat == byday or byhour
+ * @param         $pid
+ * @param string  $bywhat == byday or byhour
+ *
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): ?string
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 {
     global $PMSFH;
     global $form_folder;
@@ -5706,9 +5707,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): ?string
  *
  * @param $pid
  *
- * @return mixed|string
 */
-function display_VisualAcuities($pid = 0): ?string
+function display_VisualAcuities($pid = 0)
 {
     global $priors;
     global $visit_date;
