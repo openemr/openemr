@@ -20,7 +20,6 @@ use OpenEMR\Services\SpreadSheetService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-
 class SpreadSheetServiceTest extends TestCase
 {
     private function createSpreadSheetServiceMock(
