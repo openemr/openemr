@@ -32,7 +32,6 @@ class SpreadSheetService extends Spreadsheet
     private array $header;
     private array $row;
     private array $fields;
-    private SystemLogger $logger;
 
     /**
      * SpreadSheetService constructor.
@@ -43,38 +42,13 @@ class SpreadSheetService extends Spreadsheet
      */
     public function __construct(array $arrayData, array $fields, string $fileName = 'report')
     {
-        $this->logger = new SystemLogger();
         if ($this->isCli()) {
-            // FIXME: this returns, aborting the constructor,
-            // but doesn't prevent the caller from continuing.
-            // That may lead to a confusing user experience.
-            $this->logError('This should only be run from a Web browser');
-            return;
+            throw new \RuntimeException('This should only be run from a Web browser');
         }
         parent::__construct();
-
         $this->fileName = $fileName;
         $this->arrayData = $arrayData;
-        $this->fields = $fields ?? [];
-    }
-
-    /**
-     * Check if the script is running in CLI mode
-     */
-    protected function isCli(): bool
-    {
-        return (php_sapi_name() === 'cli');
-    }
-
-    /**
-     * Log an error
-     *
-     * @param string $message
-     * @return void
-     */
-    protected function logError(string $message): void
-    {
-        $this->logger->error($message);
+        $this->fields = $fields;
     }
 
     /**
@@ -137,10 +111,24 @@ class SpreadSheetService extends Spreadsheet
     }
 
     /**
+     * Check if the script is running in CLI mode
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function isCli(): bool
+    {
+        return (php_sapi_name() === 'cli');
+    }
+
+    /**
      * Set one or more HTTP headers
      *
      * This method sets multiple HTTP headers using PHP's header() function.
      * Headers are sent to the browser/client as part of the HTTP response.
+     *
+     * @codeCoverageIgnore
      *
      * @param string ...$headers Variable number of header strings to set
      * @return void
@@ -152,6 +140,14 @@ class SpreadSheetService extends Spreadsheet
         }
     }
 
+    /**
+     * Write the spreadsheet output
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $format The format to write the spreadsheet in (e.g., 'Csv', 'Xlsx')
+     * @return void
+     */
     protected function writeOutput(string $format): void
     {
         $writer = IOFactory::createWriter($this, $format);
