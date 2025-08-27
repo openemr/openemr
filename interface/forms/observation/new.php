@@ -15,16 +15,14 @@
 
 require_once(__DIR__ . "/../../globals.php");
 /**
- * @global string $srcdir
+ * @global string $srcdir defined in globals.php
  */
+global $srcdir;
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Core\Header;
 use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;

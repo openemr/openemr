@@ -15,8 +15,9 @@
 
 require_once(__DIR__ . "/../../globals.php");
 /**
- * @global string $srcdir
+ * @global string $srcdir defined in globals.php
  */
+global $srcdir;
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
@@ -34,7 +35,6 @@ try {
     $controller = new ObservationController($service);
     $response = $controller->save($request);
     $response->send();
-    exit;
 } catch (Exception $e) {
     // Handle any exceptions that may occur
     $logger->errorLogCaller("Failed to create new observation form", [
@@ -42,5 +42,4 @@ try {
         'trace' => $e->getTraceAsString()
     ]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");
-    exit;
 }

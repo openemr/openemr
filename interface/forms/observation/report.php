@@ -16,7 +16,6 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -33,7 +32,6 @@ function observation_report($pid, $encounter, $cols, $id): void
         // This approach is consistent with the current design, even though the original report used session values.
         $response = $controller->report($pid, $encounter, $cols, $id);
         $response->send();
-        return;
     } catch (Exception $e) {
         // Handle any exceptions that may occur
         $logger->errorLogCaller("Failed to render observation form report.php", [
@@ -41,6 +39,5 @@ function observation_report($pid, $encounter, $cols, $id): void
             'trace' => $e->getTraceAsString()
         ]);
         echo xlt("An error occurred while trying to render this form. Please try again later.");
-        return;
     }
 }
