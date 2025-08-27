@@ -247,43 +247,34 @@ class ObservationServiceTest extends TestCase
         $this->assertContains('Date is required', $errors);
     }
 
+    // end of AI Generated Test Class for ObservationService
+
     /**
      * Test that would require database mocking - placeholder for integration tests
      */
-    public function testGetObservationsByFormIdStructure(): void
+    public function testGetObservationsByFormId(): void
     {
-        // This test would require database mocking or integration test setup
-        // For now, we'll just verify the method exists and returns an array
-
-        $this->assertTrue(method_exists($this->service, 'getObservationsByFormId'));
-
-        // In a real test environment with database:
-        // $result = $this->service->getObservationsByFormId(1, 1, 1);
-        // $this->assertIsArray($result);
+        $this->markTestIncomplete("This test requires database mocking or integration test setup.");
     }
 
-    public function testGetNextFormIdStructure(): void
+    public function testGetNextFormId(): void
     {
-        // This test would require database mocking
-        $this->assertTrue(method_exists($this->service, 'getNextFormId'));
+        $this->markTestIncomplete("This test requires database mocking or integration test setup.");
     }
 
-    public function testDeleteObservationsByFormIdStructure(): void
+    public function testDeleteObservationsByFormId(): void
     {
-        // This test would require database mocking
-        $this->assertTrue(method_exists($this->service, 'deleteObservationsByFormId'));
+        $this->markTestIncomplete("This test requires database mocking or integration test setup.");
     }
 
-    public function testSaveObservationStructure(): void
+    public function testSaveObservation(): void
     {
-        // This test would require database mocking
-        $this->assertTrue(method_exists($this->service, 'saveObservation'));
+        $this->markTestIncomplete("This test requires database mocking or integration test setup.");
     }
 
-    public function testGetObservationTypesStructure(): void
+    public function testGetObservationTypes(): void
     {
         // This test would require database mocking
-        $this->assertTrue(method_exists($this->service, 'getObservationTypes'));
+        $this->markTestIncomplete("This test requires database mocking or integration test setup.");
     }
 }
-// end of AI Generated Test Class for ObservationService

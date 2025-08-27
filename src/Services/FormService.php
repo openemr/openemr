@@ -96,7 +96,7 @@ class FormService
 
         $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
-        return sqlInsert($sql, $arraySqlBind);
+        return QueryUtils::sqlInsert($sql, $arraySqlBind);
     }
 
     public function saveEncounterForm(BaseForm $form): BaseForm
