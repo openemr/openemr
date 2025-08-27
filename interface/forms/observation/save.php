@@ -43,7 +43,3 @@ try {
     ]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");
 }
-
-formHeader("Redirecting....");
-formJump();
-formFooter();
