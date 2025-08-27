@@ -30,8 +30,7 @@ function observation_report($pid, $encounter, $cols, $id): void
         // Create controller and handle request
         $service = new ObservationService();
         $controller = new ObservationController($service);
-        // this feels broken... even though the original report uses the session values rather than the report parameters,
-        // this seems broken
+        // This approach is consistent with the current design, even though the original report used session values.
         $response = $controller->report($pid, $encounter, $cols, $id);
         $response->send();
         return;

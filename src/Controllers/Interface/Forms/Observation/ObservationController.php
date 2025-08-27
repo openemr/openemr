@@ -28,6 +28,7 @@ use OpenEMR\Services\ObservationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+// AI Generated Note: This controller was refactored into a class using AI from interface/forms/observation/view.php,new.php,save.php to follow PSR-4 standards and improve maintainability.
 class ObservationController
 {
     private ObservationService $observationService;
@@ -109,7 +110,6 @@ class ObservationController
         <body style="background: <?php echo attr_url($GLOBALS['backpic'])?>; margin: 10px;">
         <script>
         parent.closeTab(window.name, true);
-        </script>
         </script>
         </body>
         </html>

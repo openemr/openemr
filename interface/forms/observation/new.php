@@ -14,6 +14,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/**
+ * @global string $srcdir
+ */
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
