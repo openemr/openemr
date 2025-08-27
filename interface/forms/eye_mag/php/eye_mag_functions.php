@@ -3803,11 +3803,11 @@ function document_engine($pid)
         $counter = $last_row['id'];
         $counter++;
         $sql = "INSERT INTO `categories` ( `id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
-                    VALUES ($counter, 'AntSeg Laser', 'ANTSEG', '14', 'patients|docs', '');";
-        sqlStatement($sql);
+                    VALUES (?, 'AntSeg Laser', 'ANTSEG', '14', 'patients|docs', '');";
+        sqlStatement($sql, [$counter]);
 
-        $sql = "SELECT * from categories where id ='" . $counter . "'";
-        $sql2 = sqlStatement($sql);
+        $sql = "SELECT * from categories where id = ?";
+        $sql2 = sqlStatement($sql, [$counter]);
         while ($row1 = sqlFetchArray($sql2)) {
             $categories[] = $row1;
             $my_name[$row1['id']] = $row1['name'];
@@ -3822,11 +3822,11 @@ function document_engine($pid)
         $counter = $last_row['id'];
         $counter++;
         $sql = "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
-                    VALUES ($counter, 'Retina Laser', 'POSTSEG', '14', 'patients|docs', '');";
-        sqlStatement($sql);
+                    VALUES (?, 'Retina Laser', 'POSTSEG', '14', 'patients|docs', '');";
+        sqlStatement($sql, [$counter]);
 
-        $sql = "SELECT * from categories where id ='" . $counter . "'";
-        $sql2 = sqlStatement($sql);
+        $sql = "SELECT * from categories where id = ?";
+        $sql2 = sqlStatement($sql, [$counter]);
         while ($row1 = sqlFetchArray($sql2)) {
             $categories[] = $row1;
             $my_name[$row1['id']] = $row1['name'];
@@ -3841,11 +3841,11 @@ function document_engine($pid)
         $counter = $last_row['id'];
         $counter++;
         $sql = "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
-                    VALUES ($counter, 'Injections', 'POSTSEG', '14', 'patients|docs', '');";
-        sqlStatement($sql);
+                    VALUES (?, 'Injections', 'POSTSEG', '14', 'patients|docs', '');";
+        sqlStatement($sql, [$counter]);
 
-        $sql = "SELECT * from categories where id ='" . $counter . "'";
-        $sql2 = sqlStatement($sql);
+        $sql = "SELECT * from categories where id = ?";
+        $sql2 = sqlStatement($sql, [$counter]);
         while ($row1 = sqlFetchArray($sql2)) {
             $categories[] = $row1;
             $my_name[$row1['id']] = $row1['name'];
@@ -4867,9 +4867,9 @@ function cmp($a, $b)
  * This function displays the Glaucoma Flow Sheet.
  * Default is to display IOP measurements 'byday'.
  *
- * @param string|int   $pid
- * @param string       $bywhat == byday or byhour
- * @return string|null html of the flow sheet
+ * @param int    $pid
+ * @param string $bywhat == byday or byhour
+ * @return void
  */
 function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 {
@@ -5705,8 +5705,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
  *
  * and 3rd row on: the leftmost/first column containing Date of visit, then the actual measurements obtained
  *
- * @param string|int   $pid
- * @return string|null html of the visual acuity measurements
+ * @param int $pid
+ * @return void
  *
 */
 function display_VisualAcuities($pid = 0): void
