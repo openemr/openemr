@@ -35,9 +35,9 @@ class SpreadSheetServiceTest extends TestCase
             ['Name' => 'Bob', 'Age' => 25, 'City' => 'Los Angeles'],
         ];
         $defaultFields = ['Name', 'Age'];
-        
+
         $methods = array_merge(['isCli'], $additionalMethods);
-        
+
         $mock = $this->getMockBuilder(SpreadSheetService::class)
             ->setConstructorArgs([
                 $arrayData ?? $defaultData,
@@ -46,9 +46,9 @@ class SpreadSheetServiceTest extends TestCase
             ])
             ->onlyMethods($methods)
             ->getMock();
-            
+
         $mock->method('isCli')->willReturn($isCliReturn);
-        
+
         return $mock;
     }
 
@@ -59,9 +59,9 @@ class SpreadSheetServiceTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('This should only be run from a Web browser');
-        
+
         // Create a test service that extends SpreadSheetService to override isCli
-        $testService = new class([['Name' => 'Alice']], ['Name']) extends SpreadSheetService {
+        $testService = new class ([['Name' => 'Alice']], ['Name']) extends SpreadSheetService {
             protected function isCli(): bool
             {
                 return true; // Simulate CLI mode
@@ -90,7 +90,7 @@ class SpreadSheetServiceTest extends TestCase
     public function testBuildSpreadsheetPopulatesProperties(): void
     {
         $service = $this->createSpreadSheetServiceMock();
-        
+
         // Test with fields already set - fields should not change
         $result = $service->buildSpreadsheet();
         $this->assertTrue($result);
@@ -175,4 +175,3 @@ class SpreadSheetServiceTest extends TestCase
         $mockService->downloadSpreadsheet();
     }
 }
-
