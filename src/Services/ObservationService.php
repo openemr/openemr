@@ -139,6 +139,8 @@ class ObservationService extends BaseService
      */
     public function getObservationsByFormId(int $formId, int $pid, int $encounter): array
     {
+        $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";
+        return QueryUtils::fetchRecords($sql, array($formId, $pid, $encounter));
         $result = $this->search([
             'form_id' => $formId,
             'pid' => $pid,
@@ -500,6 +502,16 @@ class ObservationService extends BaseService
             throw new RuntimeException("Failed to fetch saved observation record for id: " . $observationData['id']);
         }
         return $dbObservation;
+    }
+
+    /**
+     * Get observation types from list options
+     *
+     * @return array
+     */
+    public function getObservationTypes(): array
+    {
+        return QueryUtils::fetchRecords("SELECT `option_id`, `title` FROM `list_options` WHERE `list_id` = 'Observation_Types' ORDER BY `seq`");
     }
 
     /**
