@@ -14,7 +14,6 @@
  * @copyright Copyright (c) 2021-2022  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 
 namespace OpenEMR\Services;
@@ -43,7 +42,7 @@ class SpreadSheetService extends Spreadsheet
     public function __construct(array $arrayData, array $fields, string $fileName = 'report')
     {
         if ($this->isCli()) {
-            throw new \RuntimeException('This should only be run from a Web browser');
+            throw new \RuntimeException(self::class . ' should only be run from a Web browser');
         }
         parent::__construct();
         $this->fileName = $fileName;
