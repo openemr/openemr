@@ -41,6 +41,16 @@ class ObservationController
         $this->formService = $formService ?? new FormService();
     }
 
+    public function getObservationService(): ObservationService
+    {
+        return $this->observationService;
+    }
+
+    public function getFormService(): FormService
+    {
+        return $this->formService;
+    }
+
     /**
      * Handle new/edit observation form display
      *

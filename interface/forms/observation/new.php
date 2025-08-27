@@ -38,7 +38,6 @@ try {
     $controller = new ObservationController($service);
     $response = $controller->new($request);
     $response->send();
-    exit;
 } catch (Exception $e) {
     // Handle any exceptions that may occur
     $logger->errorLogCaller("Failed to create new observation form", [
@@ -46,5 +45,4 @@ try {
         'trace' => $e->getTraceAsString()
     ]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");
-    exit;
 }

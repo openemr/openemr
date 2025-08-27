@@ -79,7 +79,6 @@ class ObservationControllerTest extends TestCase
 
         $response = $this->controller->new($this->mockRequest);
 
-        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('text/html', $response->headers->get('Content-Type'));
     }
@@ -111,8 +110,6 @@ class ObservationControllerTest extends TestCase
             ->willReturn([]);
 
         $response = $this->controller->new($this->mockRequest);
-
-        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -123,10 +120,6 @@ class ObservationControllerTest extends TestCase
 
         $newResponse = $this->controller->new($this->mockRequest);
         $viewResponse = $this->controller->view($this->mockRequest);
-
-        // Both should return Response instances
-        $this->assertInstanceOf(Response::class, $newResponse);
-        $this->assertInstanceOf(Response::class, $viewResponse);
         $this->assertEquals($newResponse->getStatusCode(), $viewResponse->getStatusCode());
     }
 
@@ -162,7 +155,6 @@ class ObservationControllerTest extends TestCase
 
         $response = $this->controller->report(1, 1, 2, 1);
 
-        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
 
         $content = $response->getContent();
@@ -178,7 +170,6 @@ class ObservationControllerTest extends TestCase
 
         $response = $this->controller->report(1, 1, 2, null);
 
-        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
 
         $content = $response->getContent();
@@ -232,7 +223,6 @@ class ObservationControllerTest extends TestCase
 
         $response = $this->controller->save($this->mockRequest);
 
-        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), "Status should have been successful");
     }
 
@@ -279,8 +269,6 @@ class ObservationControllerTest extends TestCase
             }));
 
         $response = $this->controller->save($this->mockRequest);
-
-        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), "Status should have been successful");
     }
 
@@ -397,21 +385,6 @@ class ObservationControllerTest extends TestCase
         $this->assertEquals('display: block;', $result);
     }
 
-    public function testResponseImplementation(): void
-    {
-        $this->mockService->method('getObservationsByFormId')->willReturn([]);
-        $this->mockService->method('getObservationTypes')->willReturn([]);
-
-        $response = $this->controller->new($this->mockRequest);
-
-        // Test PSR-7 Response compliance
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertIsString($response->getProtocolVersion());
-        $this->assertIsArray($response->headers->all());
-        $this->assertIsInt($response->getStatusCode());
-        $this->assertIsString($response->getContent());
-    }
-
     public function testResponseHeaders(): void
     {
         $this->mockService->method('getObservationsByFormId')->willReturn([]);
@@ -446,13 +419,8 @@ class ObservationControllerTest extends TestCase
     {
         // Test constructor without injected service (uses default)
         $controller = new ObservationController();
-        $this->assertInstanceOf(ObservationController::class, $controller);
-
-        // Verify it has the methods we expect
-        $this->assertTrue(method_exists($controller, 'new'));
-        $this->assertTrue(method_exists($controller, 'save'));
-        $this->assertTrue(method_exists($controller, 'view'));
-        $this->assertTrue(method_exists($controller, 'report'));
+        $this->assertNotEmpty($controller->getObservationService());
+        $this->assertNotEmpty($controller->getFormService());
     }
 
     /**
@@ -477,9 +445,9 @@ class ObservationControllerTest extends TestCase
         $viewResponse = $this->controller->view($this->mockRequest);
         $reportResponse = $this->controller->report(1, 1, 2, 1);
 
-        $this->assertInstanceOf(Response::class, $newResponse);
-        $this->assertInstanceOf(Response::class, $viewResponse);
-        $this->assertInstanceOf(Response::class, $reportResponse);
+        $this->assertEquals(Response::HTTP_OK, $newResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $viewResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $reportResponse->getStatusCode());
     }
 }
 // End of AI Generated Code
