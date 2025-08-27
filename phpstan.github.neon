@@ -11468,10 +11468,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php
-  - message: '#^Variable \$uuidBinary in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php
   - message: '#^Variable \$userSaveRecord might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -18008,24 +18004,12 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Services/DocumentTemplates/DocumentTemplateRender.php
-  - message: '#^Variable \$category in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/DocumentTemplates/DocumentTemplateService.php
   - message: '#^Variable \$group_list might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: src/Services/DocumentTemplates/DocumentTemplateService.php
-  - message: '#^Variable \$pid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/DocumentTemplates/DocumentTemplateService.php
   - message: '#^Variable \$rtn might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
-    path: src/Services/DocumentTemplates/DocumentTemplateService.php
-  - message: '#^Variable \$template in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: src/Services/DocumentTemplates/DocumentTemplateService.php
   - message: '#^Variable \$tid on left side of \?\? always exists and is not nullable\.$#'
@@ -18040,16 +18024,8 @@ parameters:
     identifier: isset.variable
     count: 1
     path: src/Services/DrugService.php
-  - message: '#^Variable \$pid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/EncounterService.php
   - message: '#^Method OpenEMR\\Services\\FHIR\\FhirDocRefService\:\:getMostCurrentCCDReference\(\) invoked with 2 parameters, 1 required\.$#'
     identifier: arguments.count
-    count: 1
-    path: src/Services/FHIR/FhirDocRefService.php
-  - message: '#^Variable \$uuid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: src/Services/FHIR/FhirDocRefService.php
   - message: '#^Variable \$code might not be defined\.$#'
@@ -18160,19 +18136,11 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: src/Services/QuestionnaireResponseService.php
-  - message: '#^Variable \$uuid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/QuestionnaireResponseService.php
   - message: '#^Variable \$v on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
     path: src/Services/QuestionnaireResponseService.php
   - message: '#^Variable \$form in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/QuestionnaireService.php
-  - message: '#^Variable \$q_record_id in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
     count: 1
     path: src/Services/QuestionnaireService.php
@@ -18182,10 +18150,6 @@ parameters:
     path: src/Services/QuestionnaireService.php
   - message: '#^Variable \$q_uuid might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
-    path: src/Services/QuestionnaireService.php
-  - message: '#^Variable \$uuid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: src/Services/QuestionnaireService.php
   - message: '#^Method OpenEMR\\Services\\Search\\FHIRSearchFieldFactory\:\:buildSearchField\(\) invoked with 3 parameters, 2 required\.$#'

@@ -644,10 +644,10 @@ class PatientService extends BaseService
     /**
      * Fetch UUID for the patient id
      *
-     * @param string $id                - ID of Patient
-     * @return false if nothing found otherwise return UUID (in binary form)
+     * @param string $pid ID of Patient
+     * @return false|string false if nothing found otherwise return UUID (in binary form)
      */
-    public function getUuid($pid)
+    public function getUuid(string $pid): false|string
     {
         return self::getUuidById($pid, self::TABLE_NAME, 'pid');
     }
