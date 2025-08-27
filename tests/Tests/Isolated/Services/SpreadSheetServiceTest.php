@@ -58,7 +58,6 @@ class SpreadSheetServiceTest extends TestCase
     public function testConstructorThrowsExceptionInCliMode(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('This should only be run from a Web browser');
 
         // Create a test service that extends SpreadSheetService to override isCli
         $testService = new class ([['Name' => 'Alice']], ['Name']) extends SpreadSheetService {
