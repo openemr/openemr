@@ -13,6 +13,7 @@ namespace OpenEMR\Telemetry;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Services\VersionService;
 
 /**
@@ -27,23 +28,21 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
     protected TelemetryRepository $repository;
-    protected VersionService $versionService;
+    protected VersionServiceInterface $versionService;
     protected SystemLogger $logger;
 
-
-    public function __construct(?TelemetryRepository $repository = null, ?VersionService $versionService = null, ?SystemLogger $logger = null)
+    /**
+     * TelemetryService constructor.
+     *
+     * @param ?TelemetryRepository $repository
+     * @param ?VersionServiceInterface $versionService
+     * @param ?SystemLogger $logger
+     */
+    public function __construct(?TelemetryRepository $repository = null, ?VersionServiceInterface $versionService = null, ?SystemLogger $logger = null)
     {
-        if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
-            $repository = new TelemetryRepository();
-            $versionService = new VersionService();
-        }
-        $this->repository = $repository;
-        $this->versionService = $versionService;
-
-        if (!($logger instanceof SystemLogger)) {
-            $logger = new SystemLogger();
-        }
-        $this->logger = $logger;
+        $this->repository = $repository ?? new TelemetryRepository();
+        $this->versionService = $versionService ?? new VersionService();
+        $this->logger = $logger ?? new SystemLogger();
     }
 
     /**
@@ -56,10 +55,8 @@ class TelemetryService
     public function isTelemetryEnabled(): int
     {
         // Check if telemetry is disabled in the product registration table.
-        // AI-generated code: Using DatabaseQueryTrait for testability
         $result = $this->fetchRecords("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0", []);
         $isEnabled = !empty($result) ? $result[0]['telemetry_disabled'] ?? null : null;
-        // End AI-generated code
         if (!is_null($isEnabled)) {
             // If telemetry_disabled is 0, it means telemetry is enabled.
             $isEnabled = 1;
@@ -67,7 +64,6 @@ class TelemetryService
             // If telemetry_disabled is not 0, it means telemetry is disabled.
             $isEnabled = 0;
         }
-
         return $isEnabled;
     }
 
@@ -152,9 +148,7 @@ class TelemetryService
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
         $interval = date("Ym", strtotime("-33 Days"));
 
-        // AI-generated code: Using DatabaseQueryTrait for testability
         $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
-        // End AI-generated code
         $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();

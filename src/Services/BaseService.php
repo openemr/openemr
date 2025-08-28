@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
-class BaseService
+class BaseService implements BaseServiceInterface
 {
     /**
      * Passed in data should be vetted and fully qualified from calling service class
