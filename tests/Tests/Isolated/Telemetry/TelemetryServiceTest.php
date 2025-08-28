@@ -16,7 +16,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Telemetry;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionServiceInterface;
+use OpenEMR\Telemetry\GeoTelemetry;
+use OpenEMR\Telemetry\GeoTelemetryInterface;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -377,5 +380,288 @@ class TelemetryServiceTest extends TestCase
         $decodedResult = json_decode($result, true);
 
         $this->assertEquals(["success" => true], $decodedResult);
+    }
+
+    public function testReportUsageDataReturnsFalseWhenTelemetryDisabled(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        // Create a partial mock to mock the isTelemetryEnabled method
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled'])
+            ->getMock();
+
+        // Mock isTelemetryEnabled to return false (disabled)
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(0);
+
+        $result = $telemetryService->reportUsageData();
+
+        $this->assertFalse($result);
+    }
+
+    public function testReportUsageDataReturnsFalseWhenSiteUuidNotFound(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        // Create a partial mock to mock the isTelemetryEnabled method and getUniqueInstallationUuid
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid'])
+            ->getMock();
+
+        // Mock isTelemetryEnabled to return true (enabled)
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        // Mock getUniqueInstallationUuid to return empty string
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('');
+
+        $result = $telemetryService->reportUsageData();
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test reportUsageData with successful scenario.
+     * Note: This method still has external dependencies (cURL) that would require
+     * additional refactoring to fully isolate, but we can test the core logic flow.
+     */
+    public function testReportUsageDataWithMockedDependencies(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+
+        // Create a partial mock to mock the dependencies we can control
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow', 'executeCurlRequest'])
+            ->getMock();
+
+        // Mock isTelemetryEnabled to return enabled
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        // Mock getUniqueInstallationUuid to return a valid UUID
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('test-uuid-123');
+
+        // Mock createGeoTelemetry to return our mock
+        $telemetryService->expects($this->once())
+            ->method('createGeoTelemetry')
+            ->willReturn($mockGeoTelemetry);
+
+        // Mock GeoTelemetry to return geo data
+        $mockGeoTelemetry->expects($this->once())
+            ->method('getServerGeoData')
+            ->willReturn(['country' => 'US', 'region' => 'CA']);
+
+        // Mock database query for timezone
+        $telemetryService->expects($this->once())
+            ->method('querySingleRow')
+            ->with(
+                "SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1",
+                []
+            )
+            ->willReturn(['zone' => 'America/New_York']);
+
+        // Mock repository methods
+        $mockRepository->expects($this->once())
+            ->method('fetchUsageRecords')
+            ->willReturn([
+                ['event_type' => 'click', 'event_label' => 'test', 'count' => 5]
+            ]);
+
+        // Mock version service
+        $mockVersionService->expects($this->once())
+            ->method('asString')
+            ->willReturn('7.0.0');
+
+        // Mock successful HTTP response
+        $telemetryService->expects($this->once())
+            ->method('executeCurlRequest')
+            ->with(
+                $this->stringContains('https://reg.open-emr.org/api/usage?SiteID=test-uuid-123'),
+                $this->isType('string')
+            )
+            ->willReturn([
+                'response' => '{"status": "success"}',
+                'httpStatus' => 200,
+                'error' => null
+            ]);
+
+        // Expect clearTelemetryData to be called on successful response
+        $mockRepository->expects($this->once())
+            ->method('clearTelemetryData');
+
+        $result = $telemetryService->reportUsageData();
+
+        $this->assertEquals(200, $result);
+    }
+
+    public function testReportUsageDataHandlesGeoTelemetryError(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+
+        // Create a partial mock
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow', 'executeCurlRequest'])
+            ->getMock();
+
+        // Setup basic mocks
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('test-uuid-123');
+
+        $telemetryService->expects($this->once())
+            ->method('createGeoTelemetry')
+            ->willReturn($mockGeoTelemetry);
+
+        // Mock geo telemetry error
+        $mockGeoTelemetry->expects($this->once())
+            ->method('getServerGeoData')
+            ->willReturn(['error' => 'Failed to fetch geo data']);
+
+        $telemetryService->expects($this->once())
+            ->method('querySingleRow')
+            ->willReturn(['zone' => 'UTC']);
+
+        $mockRepository->expects($this->once())
+            ->method('fetchUsageRecords')
+            ->willReturn([]);
+
+        $mockVersionService->expects($this->once())
+            ->method('asString')
+            ->willReturn('7.0.0');
+
+        // Mock successful HTTP response despite geo error
+        $telemetryService->expects($this->once())
+            ->method('executeCurlRequest')
+            ->willReturn([
+                'response' => '{"status": "success"}',
+                'httpStatus' => 200,
+                'error' => null
+            ]);
+
+        // Should still call clearTelemetryData on successful HTTP response
+        $mockRepository->expects($this->once())
+            ->method('clearTelemetryData');
+
+        $result = $telemetryService->reportUsageData();
+
+        // Verify that the method continues execution despite geo telemetry error
+        $this->assertEquals(200, $result);
+    }
+
+    public function testReportUsageDataHandlesHttpError(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+
+        // Create a partial mock
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow', 'executeCurlRequest'])
+            ->getMock();
+
+        // Setup basic mocks
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('test-uuid-123');
+
+        $telemetryService->expects($this->once())
+            ->method('createGeoTelemetry')
+            ->willReturn($mockGeoTelemetry);
+
+        $mockGeoTelemetry->expects($this->once())
+            ->method('getServerGeoData')
+            ->willReturn(['country' => 'US']);
+
+        $telemetryService->expects($this->once())
+            ->method('querySingleRow')
+            ->willReturn(['zone' => 'America/New_York']);
+
+        $mockRepository->expects($this->once())
+            ->method('fetchUsageRecords')
+            ->willReturn([]);
+
+        $mockVersionService->expects($this->once())
+            ->method('asString')
+            ->willReturn('7.0.0');
+
+        // Mock HTTP error response
+        $telemetryService->expects($this->once())
+            ->method('executeCurlRequest')
+            ->willReturn([
+                'response' => '',
+                'httpStatus' => 500,
+                'error' => null
+            ]);
+
+        // Should NOT call clearTelemetryData on HTTP error
+        $mockRepository->expects($this->never())
+            ->method('clearTelemetryData');
+
+        $result = $telemetryService->reportUsageData();
+
+        $this->assertEquals(500, $result);
     }
 }

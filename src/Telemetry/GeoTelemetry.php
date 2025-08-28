@@ -20,7 +20,7 @@
 
 namespace OpenEMR\Telemetry;
 
-class GeoTelemetry
+class GeoTelemetry implements GeoTelemetryInterface
 {
     /**
      * Anonymize IP using SHA-256 hashing

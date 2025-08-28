@@ -132,14 +132,14 @@ class TelemetryService
             return false;
         }
 
-        $site_uuid = UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
+        $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
             error_log("Site UUID not found.");
             return false;
         }
 
         // server geo data
-        $geo = new GeoTelemetry();
+        $geo = $this->createGeoTelemetry();
         $serverGeoData = $geo->getServerGeoData();
         if (isset($serverGeoData['error'])) {
             error_log("Error fetching server geolocation: " . $serverGeoData['error']);
@@ -177,23 +177,12 @@ class TelemetryService
 
         $payload = json_encode($payload_data);
 
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Content-Length: " . strlen($payload)
-        ]);
-
-        $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (curl_errno($ch)) {
-            error_log("cURL error: " . curl_error($ch));
+        $curlResult = $this->executeCurlRequest($endpoint, $payload);
+        $response = $curlResult['response'];
+        $httpStatus = $curlResult['httpStatus'];
+        if (!empty($curlResult['error'])) {
+            error_log("cURL error: " . $curlResult['error']);
         }
-        curl_close($ch);
 
         if (in_array($httpStatus, [200, 201, 204])) {
             $responseData = json_decode($response, true);
@@ -232,5 +221,63 @@ class TelemetryService
             $normalized = $path;
         }
         return ($normalized . $fragment);
+    }
+
+    /**
+     * A stubbable wrapper around a static method.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return string
+     */
+    protected function getUniqueInstallationUuid(): string
+    {
+        return UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
+    }
+
+    /**
+     * A stubbable wrapper around GeoTelemetry instantiation.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return GeoTelemetryInterface
+     */
+    protected function createGeoTelemetry(): GeoTelemetryInterface
+    {
+        return new GeoTelemetry();
+    }
+
+    /**
+     * A stubbable wrapper around cURL operations.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $endpoint
+     * @param string $payload
+     * @return array
+     */
+    protected function executeCurlRequest(string $endpoint, string $payload): array
+    {
+        $ch = curl_init($endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Content-Length: " . strlen($payload)
+        ]);
+
+        $response = curl_exec($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_errno($ch) ? curl_error($ch) : null;
+        curl_close($ch);
+
+        return [
+            'response' => $response,
+            'httpStatus' => $httpStatus,
+            'error' => $error
+        ];
     }
 }
