@@ -3857,7 +3857,7 @@ function document_engine($pid)
 
     $query = "Select *, categories.name as cat_name
                 from
-                categories, documents,categories_to_documents
+                categories, documents, categories_to_documents
                 where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
                 categories_to_documents.category_id=categories.id and documents.deleted = 0 ORDER BY categories.name";
     $sql2 =  sqlStatement($query, array($pid));
@@ -3868,7 +3868,7 @@ function document_engine($pid)
         $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot'] . "/sites/", $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
-            $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date']));
+            $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date'] ?? ''));
         } else {
             $row2['encounter_date'] = $row2['docdate'];
         }
@@ -4450,7 +4450,7 @@ function start_your_engines($FIELDS)
         }
 
         $matches = [];
-        preg_match("/\b$term\b/", $FIELDS[$amihere['location']], $matches);
+        preg_match("/\b$term\b/", ($FIELDS[$amihere['location']] ?? ''), $matches);
         if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
@@ -5105,7 +5105,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                     $ODIOP[$k]['IOP'] = '';}
                 if (preg_match('/[a-z]/i', ($OSIOP[$k]['IOP'] ?? ''))) {
                     $OSIOP[$k]['IOP'] = '';}
-                $OD_values[$a] = "'" . ($ODIOP[$k]['IOP'] ?? '') . "'";
+                $OD_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
                 $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
                 $OS_values[$a] = $OSIOP[$k]['IOP'] ?? '';
                 $OS_methods[$a] = $OSIOP[$k]['method'] ?? '';
@@ -5143,24 +5143,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     for ($a = 0; $a < count($times_OU); $a++) {
         for ($k = 0; $k < count($ODIOP); $k++) {
             if ($times_OU[$a] == $time_OU[$k]) {
-                $OD_time_values[$a] = $ODIOP[$k]['IOP'] ?? '';
-                $OS_time_values[$a] = $OSIOP[$k]['IOP'] ?? '';
+                $OD_time_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
+                $OS_time_values[$a] = ($OSIOP[$k]['IOP'] ?? '');
                 break;
             }
         }
     }
-
-    $dates_OU = "'" . implode("','", $date_OU) . "'";
-    $OD_values = implode(",", $OD_values);
-    $OS_values = implode(",", $OS_values);
-    $OCT_values = "'" . implode("','", $OCT_values) . "'";
-    $VF_values = "'" . implode("','", $VF_values) . "'";
-    $GONIO_values =  "'" . implode("','", $GONIO_values) . "'";
-    $ODIOPTARGET_values = implode(",", $ODIOPTARGET_values);
-    $OSIOPTARGET_values = implode(",", $OSIOPTARGET_values);
-    $times_OU = "'" . implode("','", $times_OU) . "'";
-    $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
-    $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
 
     ?> <p style="font-weight:bold;"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
        <span class="closeButton fas fa-times" id="Close_IOP" name="Close_IOP"></span>
@@ -5424,12 +5412,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                     var config_byhour = {
                         type: 'line',
                         data: {
-                            labels: [<?php echo $times_OU; ?>],
+                            labels: <?php echo js_escape($times_OU); ?>,
                             datasets: [
                                 {
                                     type: 'line',
                                     label: "OD",
-                                    data: [<?php echo $OD_time_values; ?>],
+                                    data: <?php echo js_escape($OD_time_values); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -5448,7 +5436,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                 {
                                     type: 'line',
                                     label: 'OS',
-                                    data: [ <?php echo $OS_time_values; ?> ],
+                                    data: <?php echo js_escape($OS_time_values); ?>,
                                     fill: false,
                                     borderColor : "#000099",
                                     backgroundColor : "#000099",
@@ -5519,15 +5507,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                     var config_byday = {
                         type: 'line',
                         data: {
-                            labels: [
-                            <?php echo $dates_OU; ?>
-                            ],
+                            labels: <?php echo js_escape($date_OU); ?>,
                             datasets: [
                                 {
                                     axis: 'y',
                                     type: 'line',
                                     label: "Target OD",
-                                    data: [<?php echo $ODIOPTARGET_values; ?>],
+                                    data: <?php echo js_escape($ODIOPTARGET_values); ?>,
                                     fill: false,
                                     borderColor : "#f28282",
                                     backgroundColor : "#f28282",
@@ -5547,7 +5533,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "Target OS",
-                                    data: [<?php echo $OSIOPTARGET_values; ?>],
+                                    data: <?php echo js_escape($OSIOPTARGET_values); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "#AA8282",
@@ -5568,7 +5554,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "OD",
-                                    data: [<?php echo $OD_values; ?>],
+                                    data: <?php echo js_escape($OD_values); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -5588,7 +5574,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                     axis: 'y',
                                     type: 'line',
                                     label: 'OS',
-                                    data: [<?php echo $OS_values; ?>],
+                                    data: <?php echo js_escape($OS_values); ?>,
                                     fill: false,
                                     lineTension: 3,
                                     borderColor : "#000099",
@@ -5610,7 +5596,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                     label: "VF",
                                     strokeColor: '#5CABFA',
                                     fillColor:"#5CABFA",
-                                    data: [<?php echo $VF_values; ?>],
+                                    data: <?php echo js_escape($VF_values); ?>,
                                     fill: true,
                                     backgroundColor: '#5CABFA'
                                 },
@@ -5618,7 +5604,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                     axis: 'y',
                                     type: 'bar',
                                     label: "OCT",
-                                    data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
+                                    data: <?php echo js_escape($OCT_values); ?>, //0/null is not done, 1 if performed.
                                     fill: true,
                                     backgroundColor: '#71B37C'
                                 },
@@ -5626,7 +5612,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
                                     axis: 'y',
                                     type: 'bar',
                                     label: "Gonio",
-                                    data: [<?php echo $GONIO_values; ?>],
+                                    data: <?php echo js_escape($GONIO_values); ?>,
                                     fill: false,
                                     strokeColor: 'rgba(209, 30, 93, 0.3)',
                                     fillColor:'rgba(209, 30, 93, 0.3)',
@@ -5976,7 +5962,7 @@ function display_VisualAcuities($pid = 0): void
                     var config_byVA = {
                         type: 'line',
                         data: {
-                            labels: ['<?php echo $VA_dates; ?>'],
+                            labels: '<?php echo js_escape($VA_dates); ?>',
                             datasets: [
                                 <?php
                                 if (!empty($VA_SCODVA) || !empty($VA_SCOSVA)) { ?>
@@ -5984,7 +5970,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OD sc{{Visual Acuity without correction right eye}}"); ?>",
-                                    data: [<?php echo $VA_SCODVA; ?>],
+                                    data: <?php echo js_escape($VA_SCODVA); ?>,
                                     fill: false,
                                     borderColor : "#f28282",
                                     backgroundColor : "#f28282",
@@ -6004,7 +5990,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OS sc{{Visual Acuity without correction left eye}}"); ?>",
-                                    data: [<?php echo $VA_SCOSVA; ?>],
+                                    data: <?php echo js_escape($VA_SCOSVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "#AA8282",
@@ -6027,7 +6013,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OD CC{{Visual Acuity with correction right eye}}"); ?>",
-                                    data: [<?php echo $VA_CCODVA; ?>],
+                                    data: <?php echo js_escape($VA_CCODVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "red",
@@ -6047,7 +6033,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OS CC{{Visual Acuity with correction left eye}}"); ?>",
-                                    data: [<?php echo $VA_CCOSVA; ?>],
+                                    data: <?php echo js_escape($VA_CCOSVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "blue",
@@ -6070,7 +6056,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OD MR{{Visual Acuity with Manifest refraction right eye}}"); ?>",
-                                    data: [<?php echo $VA_MRODVA; ?>],
+                                    data: <?php echo js_escape($VA_MRODVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "navy",
@@ -6090,7 +6076,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OS MR{{Visual Acuity with Manifest refraction left eye}}"); ?>",
-                                    data: [<?php echo $VA_MROSVA; ?>],
+                                    data: <?php echo js_escape($VA_MROSVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "yellow",
@@ -6113,7 +6099,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OD CTL{{Va with Contact Lens right eye}}"); ?>",
-                                    data: [<?php echo $VA_CTLODVA; ?>],
+                                    data: <?php echo js_escape($VA_CTLODVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "orange",
@@ -6133,7 +6119,7 @@ function display_VisualAcuities($pid = 0): void
                                     axis: 'y',
                                     type: 'line',
                                     label: "<?php echo xla("OS CTL{{Va with Contact Lens left eye}}"); ?>",
-                                    data: [<?php echo $VA_CTLOSVA; ?>],
+                                    data: <?php echo js_escape($VA_CTLOSVA); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "purple",
@@ -6290,7 +6276,7 @@ function generate_specRx($W)
     ?>
     <input type="hidden" id="W_<?php echo attr($W); ?>" name="W_<?php echo attr($W); ?>" value="<?php echo attr($RX_VALUE); ?>">
 
-    <div id="LayerVision_W_<?php echo attr($W); ?>" name="currentRX" class="refraction current_W borderShadow <?php echo attr($display_W); ?> <?php echo $display_W_width; ?>">
+    <div id="LayerVision_W_<?php echo attr($W); ?>" name="currentRX" class="refraction current_W borderShadow <?php echo attr($display_W ?? ''); ?> <?php echo $display_W_width; ?>">
                       <i class="closeButton fas fa-times" id="Close_W_<?php echo attr($W); ?>" name="Close_W_<?php echo attr($W); ?>"
                         title="<?php echo xla('Close this panel and delete this Rx'); ?>"></i>
                       <i class="closeButton_2 fas fa-arrows-alt-h" id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
