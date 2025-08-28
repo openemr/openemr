@@ -1,0 +1,302 @@
+{# AI Generated Note: This template refactored from ObservationController.php HTML rendering methods to use Twig #}
+
+{% extends "core/base.html.twig" %}
+
+{% block pagetitle %}{{ "Observation"|xlt }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
+    <link rel="stylesheet" href="{{ webroot }}/interface/forms/observation/observation.css?v={{ assetVersion }}" type="text/css"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="observation-form-container p-3">
+            <form id="observation_form" method="post" name="observation_form" action="new.php?form_id={{ formId|attr_url }}&id={{ id|attr_url }}">
+                <input type="hidden" name="csrf_token_form" value="{{ csrf_token }}" />
+                <input type="hidden" name="id" value="{{ formId }}" />
+
+                {# Return to List Button #}
+                <div class="mb-3">
+                    {# We use the formId for id because that's how OpenEMR forms are setup #}
+                    <a href="{{ webroot }}/interface/forms/observation/new.php?id={{ formId|attr_url }}"
+                       class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> {{ "Return to List"|xlt }}
+                    </a>
+                </div>
+
+                <div class="observation-cards-container">
+
+                    {# Basic Information Card #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>
+                            <strong>{{ "Basic Information"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Code"|xlt }}:</label>
+                                        <input type="text" name="code[]" class="form-control code"
+                                               value="{{ observations[0].code|default('')|attr }}"
+                                               placeholder="{{ 'Enter observation code'|xla }}"
+                                               data-description-target="description_0"
+                                               data-display-target="displaytext_0"
+                                               data-code-type-target="code_type_0"
+                                        >
+                                        <input type="hidden" id="code_type_0" name="code_type[]" class="code_type"
+                                               value="{{ observations[0].code_type|default('')|attr }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Value"|xlt }}:</label>
+                                        <input type="text" name="ob_value[]" class="form-control ob_value"
+                                               value="{{ observations[0].ob_value|default('')|attr }}"
+                                               placeholder="{{ 'Enter value'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Units"|xlt }}:</label>
+                                        <input type="text" name="ob_unit[]" class="form-control ob_unit"
+                                               value="{{ observations[0].ob_unit|default('')|attr }}"
+                                               placeholder="{{ 'e.g., mg/dL'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Code Description"|xlt }}:</label>
+                                        <input id="description_0" type="text" name="description[]" class="form-control description"
+                                               value="{{ observations[0].description|default('')|attr }}"
+                                               placeholder="{{ 'Enter description'|xla }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Date"|xlt }}:</label>
+                                        <input type="text" name="code_date[]" class="form-control code_date datepicker"
+                                               value="{{ observations[0].date|default('')|attr }}"
+                                               title="{{ 'yyyy-mm-dd HH:MM Date of service'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "End Date"|xlt }}:</label>
+                                        <input type="text" name="code_date_end[]" class="form-control code_date datepicker"
+                                               value="{{ observations[0].date_end|default('')|attr }}"
+                                               title="{{ 'yyyy-mm-dd HH:MM End Date of service'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Status"|xlt }}: </label>
+                                        {{ selectList('status[]', 'observation-status', observations[0].ob_status, '') }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Type"|xlt }}:</label>
+                                        {{ selectList('ob_type[]', 'Observation_Types', observations[0].ob_type, 'Select Type'|xla, {empty_name: 'Select Type'|xlt}) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Questionnaire Response Card #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-clipboard-list text-success mr-2"></i>
+                            <strong>{{ "Questionnaire Response"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            {% if observations[0].questionnaire_response_id is defined and observations[0].questionnaire_response_id %}
+                                <div class="questionnaire-linked bg-light-green border border-success rounded p-3 text-center">
+                                    <h5 class="text-success mb-2">{{ "Linked Questionnaire"|xlt }}</h5>
+                                    <p class="text-muted mb-3">{{ "Response ID"|xlt }}: {{ observations[0].questionnaire_response_id|text }}</p>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-secondary btn-sm">{{ "View Response"|xlt }}</button>
+                                        <button type="button" class="btn btn-secondary btn-sm">{{ "Change"|xlt }}</button>
+                                        <button type="button" class="btn btn-danger btn-sm">{{ "Remove Link"|xlt }}</button>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="questionnaire-section bg-light border-2 border-dashed rounded p-4 text-center">
+                                    <h5 class="text-muted mb-2">{{ "No Questionnaire Linked"|xlt }}</h5>
+                                    <p class="text-muted mb-3">{{ "Link a questionnaire response to provide additional context for this observation"|xlt }}</p>
+                                    <button type="button" class="btn btn-primary">{{ "Link Questionnaire"|xlt }}</button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Sub-observations Card #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-sitemap text-info mr-2"></i>
+                                <strong>{{ "Sub-observations"|xlt }}</strong>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm btn-add-sub-observation">
+                                <i class="fa fa-plus"></i> {{ "Add Sub-observation"|xlt }}
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="sub-observations-container">
+                                {# Sub-observations will be added here dynamically #}
+                                {% if observations|length > 1 %}
+                                    {% for subObs in observations[1:] %}
+                                        {% include "forms/observation/templates/partials/_sub-observation.html.twig" with
+                                            {
+                                                nodeId: 'sub-observation-' ~ loop.index,
+                                                observation: {id: subObs.id, code: subObs.code, value: subObs.ob_value, units: subObs.ob_unit
+                                                , description: subObs.description, status: subObs.ob_status},
+                                            }
+                                        %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-sub-observations text-center py-4">
+                                        {% include "forms/observation/templates/partials/_sub-observation-empty.html.twig" %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Comments & Notes Card #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-comment-alt text-warning mr-2"></i>
+                            <strong>{{ "Comments & Notes"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">{{ "Comments"|xlt }}:</label>
+                                <textarea name="comments[]" class="form-control comments" rows="3"
+                                          placeholder="{{ 'Add any additional notes or observations...'|xla }}">{{ observations[0].observation|default('')|text }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Reason Code Card - Hidden by default #}
+                    <div class="card mb-4 reasonCodeContainer d-none" id="reason_code_1">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-asterisk text-secondary mr-2"></i>
+                            <strong>{{ "Reason for Observation"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-muted">
+                                        {{ "When recording a reason for the value (or abscence of a value) of an observation both the reason code and status of the reason are required"|xlt }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Reason Code"|xlt }}:</label>
+                                        <input type="text" name="reasonCode[]" class="form-control code-selector-popup"
+                                               value="{{ observations[0].ob_reason_code|default('')|attr }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Reason Status"|xlt }}:</label>
+                                        <select name="reasonCodeStatus[]" class="form-control">
+                                            {% for code, codeDesc in reasonCodeStatii %}
+                                                <option value="{{ code|attr }}"
+                                                        {% if observations[0].ob_reason_status|default('') == code %}selected{% endif %}>
+                                                    {{ codeDesc.description|text }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <input type="hidden" class="code-selector-text" name="reasonCodeTextHidden[]"
+                                           value="{{ observations[0].ob_reason_text|default('')|attr }}">
+                                <span class="code-selector-text-display">{{ observations[0].ob_reason_text|default('')|text }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {# Action Bar #}
+                <div class="action-bar bg-light border-top p-3 d-flex justify-content-between align-items-center">
+                    <div class="status-indicator d-flex align-items-center text-light">
+                        <span class="badge badge-success mr-2">{{ "Form Ready"|xlt }}</span>
+                    </div>
+                    <div class="btn-group">
+                        <a href="{{ webroot }}/interface/forms/observation/observation_list.php?pid={{ session.pid }}&encounter={{ session.encounter }}"
+                           class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> {{ "Cancel"|xlt }}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"></i> {{ "Save Observation"|xlt }}
+                        </button>
+                        <button type="button" class="btn btn-secondary reason-code-btn"
+                                title="{{ 'Click here to provide an explanation for the observation value (or lack of value)'|xla }}"
+                                data-toggle-container="reason_code_1">
+                            <i class="fa fa-asterisk"></i> {{ "Add Reason"|xlt }}
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        {# Hidden Templates for JavaScript - AI Generated: Proper separation of concerns #}
+        <div id="templates" class='d-none'>
+            {# Sub-observation Template #}
+            {% include "forms/observation/templates/partials/_sub-observation.html.twig" with {
+                nodeId: 'sub-observation-template'
+                , observation: {id: '', code: '', value: '', units: '', description: '', status: defaultStatusType}
+            } %}
+
+            {# Empty Sub-observations State Template #}
+            <div id="empty-sub-observations-template" class="empty-sub-observations text-center py-4">
+                {% include "forms/observation/templates/partials/_sub-observation-empty.html.twig" %}
+            </div>
+
+            {# Questionnaire Linked State Template #}
+            <div id="questionnaire-linked-template" class="questionnaire-linked bg-light border border-success rounded p-3 text-center">
+                <h5 class="text-success mb-2">{{ "Linked"|xlt }}: <span class="questionnaire-name"></span></h5>
+                <p class="text-muted mb-3">{{ "Response ID"|xlt }}: <span class="response-id"></span></p>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary btn-sm">{{ "View Response"|xlt }}</button>
+                    <button type="button" class="btn btn-secondary btn-sm">{{ "Change"|xlt }}</button>
+                    <button type="button" class="btn btn-danger btn-sm questionnaire-remove">{{ "Remove Link"|xlt }}</button>
+                </div>
+                <input type="hidden" name="questionnaire_response_id[]" class="questionnaire-response-input">
+            </div>
+
+            {# Questionnaire Unlinked State Template #}
+            <div id="questionnaire-unlinked-template" class="questionnaire-section bg-light border-2 border-dashed rounded p-4 text-center">
+                <h5 class="text-muted mb-2">{{ "No Questionnaire Linked"|xlt }}</h5>
+                <p class="text-muted mb-3">{{ "Link a questionnaire response to provide additional context for this observation"|xlt }}</p>
+                <button type="button" class="btn btn-primary questionnaire-link">{{ "Link Questionnaire"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ webroot }}/interface/forms/observation/observation.js?v={{ assetVersion }}" type="text/javascript"></script>
+    <script>
+        // AI Generated JavaScript: Enhanced from observation.js for Design 1 implementation
+        window.addEventListener('DOMContentLoaded', function () {
+            if (window.observationForm) {
+                window.observationForm.init({{ webroot|js_url }}, {{ reasonCodeTypes|js_url }}, {{ translations|json_encode }});
+            }
+        });
+    </script>
+{% endblock %}

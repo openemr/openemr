@@ -32,7 +32,10 @@ try {
     // Create controller and handle request
     $request = Request::createFromGlobals();
     $service = new ObservationService();
-    $controller = new ObservationController($service);
+    $formService = new FormService();
+    // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
+    $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
+    $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
     $response = $controller->save($request);
     $response->send();
 } catch (Exception $e) {

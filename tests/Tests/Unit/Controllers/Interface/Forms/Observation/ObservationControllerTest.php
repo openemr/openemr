@@ -77,7 +77,7 @@ class ObservationControllerTest extends TestCase
                 ['option_id' => 'type2', 'title' => 'Type 2']
             ]);
 
-        $response = $this->controller->new($this->mockRequest);
+        $response = $this->controller->newAction($this->mockRequest);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('text/html', $response->headers->get('Content-Type'));
@@ -109,7 +109,7 @@ class ObservationControllerTest extends TestCase
         $this->mockService->method('getObservationTypes')
             ->willReturn([]);
 
-        $response = $this->controller->new($this->mockRequest);
+        $response = $this->controller->newAction($this->mockRequest);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -118,7 +118,7 @@ class ObservationControllerTest extends TestCase
         $this->mockService->method('getObservationsByFormId')->willReturn([]);
         $this->mockService->method('getObservationTypes')->willReturn([]);
 
-        $newResponse = $this->controller->new($this->mockRequest);
+        $newResponse = $this->controller->newAction($this->mockRequest);
         $viewResponse = $this->controller->view($this->mockRequest);
         $this->assertEquals($newResponse->getStatusCode(), $viewResponse->getStatusCode());
     }
@@ -390,7 +390,7 @@ class ObservationControllerTest extends TestCase
         $this->mockService->method('getObservationsByFormId')->willReturn([]);
         $this->mockService->method('getObservationTypes')->willReturn([]);
 
-        $response = $this->controller->new($this->mockRequest);
+        $response = $this->controller->newAction($this->mockRequest);
 
         $this->assertTrue($response->headers->has('Content-Type'));
         $this->assertStringContainsString('text/html', $response->headers->get('Content-Type'));
@@ -404,7 +404,7 @@ class ObservationControllerTest extends TestCase
             ['option_id' => 'test_type', 'title' => 'Test Type']
         ]);
 
-        $response = $this->controller->new($this->mockRequest);
+        $response = $this->controller->newAction($this->mockRequest);
         $content = $response->getContent();
 
         // Verify HTML structure
@@ -441,7 +441,7 @@ class ObservationControllerTest extends TestCase
         $this->mockService->method('getObservationTypes')->willReturn([]);
 
         // Test that all controller methods return Response
-        $newResponse = $this->controller->new($this->mockRequest);
+        $newResponse = $this->controller->newAction($this->mockRequest);
         $viewResponse = $this->controller->view($this->mockRequest);
         $reportResponse = $this->controller->report(1, 1, 2, 1);
 

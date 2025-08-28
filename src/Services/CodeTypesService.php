@@ -429,4 +429,67 @@ class CodeTypesService
         }
         return $codeableConcepts;
     }
+
+    /**
+     * Return listing of pertinent and active code types.
+     *
+     * Function will return listing (ct_key) of pertinent
+     * active code types, such as diagnosis codes or procedure
+     * codes in a chosen format. Supported returned formats include
+     * as 1) an array and as 2) a comma-separated lists that has been
+     * process by urlencode() in order to place into URL  address safely.
+     *
+     * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
+     * @param  string       $return_format  format or returned code types ('array' or 'csv')
+     * @return string/array
+     */
+    public function collectCodeTypes($category, $return_format = "array")
+    {
+        global $code_types;
+
+        $return = array();
+
+        foreach ($code_types as $ct_key => $ct_arr) {
+            if (!$ct_arr['active']) {
+                continue;
+            }
+
+            if ($category == "diagnosis") {
+                if ($ct_arr['diag']) {
+                    $return[] = $ct_key;
+                }
+            } elseif ($category == "procedure") {
+                if ($ct_arr['proc']) {
+                    $return[] = $ct_key;
+                }
+            } elseif ($category == "clinical_term") {
+                if ($ct_arr['term']) {
+                    $return[] = $ct_key;
+                }
+            } elseif ($category == "active") {
+                if ($ct_arr['active']) {
+                    $return[] = $ct_key;
+                }
+            } elseif ($category == "medical_problem") {
+                if ($ct_arr['problem']) {
+                    $return[] = $ct_key;
+                }
+            } elseif ($category == "drug") {
+                if ($ct_arr['drug']) {
+                    $return[] = $ct_key;
+                }
+            } else {
+                //return nothing since no supported category was chosen
+            }
+        }
+
+        if ($return_format == "csv") {
+            //return it as a csv string
+            return csv_like_join($return);
+        }
+
+        //$return_format == "array"
+        //return the array
+        return $return;
+    }
 }

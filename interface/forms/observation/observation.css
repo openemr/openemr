@@ -1,0 +1,250 @@
+/*
+ * observation.css
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/* AI Generated CSS: Design 1 Card-Based Layout styles */
+/* AI Generated CSS: Design 1 Card-Based Layout styles - Bootstrap 4 compatible */
+
+/* AI Generated CSS: Observation List styles based on observation_list_screen.html */
+.observation-list-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.encounter-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+
+.filters-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.observations-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.observations-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.observation-count {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.observation-item {
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.2s;
+}
+
+.observation-item:hover {
+    background-color: #f8fafc;
+}
+
+.observation-item:last-child {
+    border-bottom: none;
+}
+
+.observation-code {
+    background: #edf2f7;
+    color: #4a5568;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.category-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.category-physical {
+    background: #e6fffa;
+    color: #38a169;
+}
+
+.category-sdoh {
+    background: #fef5e7;
+    color: #d69e2e;
+}
+
+.category-cognitive {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.category-functional {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.detail-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.detail-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #718096;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #2d3748;
+    font-weight: 500;
+}
+
+.questionnaire-info {
+    min-width: 200px;
+}
+
+.sub-observations {
+    min-width: 150px;
+}
+
+.sub-obs-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sub-obs-list {
+    font-size: 13px;
+    color: #2d3748;
+}
+
+.sub-obs-item {
+    margin-bottom: 4px;
+}
+
+.sub-obs-value {
+    font-weight: 500;
+    color: #667eea;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #718096;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.questionnaire-section {
+    background: #edf2f7;
+    border: 2px dashed #a0aec0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.questionnaire-linked {
+    background: #f0fff4;
+    border: 1px solid #68d391;
+}
+
+.sub-observation {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.action-bar {
+    background: #f7fafc;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 30px;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Empty state styling */
+.empty-sub-observations {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .observation-form-container {
+        padding: 10px;
+    }
+}
+/* AI Generated CSS: Design 1 Card-Based Layout styles */
+.questionnaire-section {
+    background: #edf2f7;
+    border: 1px dashed #a0aec0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.questionnaire-linked {
+    background: #f0fff4;
+    border: 1px solid #68d391;
+}
+
+.sub-observation {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.action-bar {
+    background: #f7fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 20px 30px;
+    margin-top: 30px;
+    border-radius: 0 0 8px 8px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}

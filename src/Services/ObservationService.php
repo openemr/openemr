@@ -2,13 +2,14 @@
 
 /**
  * ObservationService handles all database operations for the observation form
+ * AI Generated Note: Refactored to use new database schema from table.sql and support Design 1 implementation
  *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @author    Claude.AI on August 21st 2025
+ * @author    Claude.AI on August 27th 2025
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
@@ -19,11 +20,86 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
-class ObservationService
+class ObservationService extends BaseService
 {
+    const TABLE_NAME = 'form_observation';
+
+    private UuidRegistry $uuidRegistry;
+
+    private ListService $listService;
+
+    private array $typesById;
+
+    private array $statiiById;
+
+    public function __construct()
+    {
+        parent::__construct(self::TABLE_NAME);
+    }
+
+    public function getListService(): ListService
+    {
+        if (!isset($this->listService)) {
+            $this->listService = new ListService();
+        }
+        return $this->listService;
+    }
+
+    public function setListService(ListService $listService): void
+    {
+        $this->listService = $listService;
+    }
+
+    public function getUuidRegistry(): UuidRegistry
+    {
+        if (!isset($this->uuidRegistry)) {
+            $this->uuidRegistry = new UuidRegistry(['table_name' => self::TABLE_NAME]);
+        }
+        return $this->uuidRegistry;
+    }
+
+    public function setUuidRegistry(UuidRegistry $uuidRegistry): void
+    {
+        $this->uuidRegistry = $uuidRegistry;
+    }
+
+    const DEFAULT_OB_STATUS = 'preliminary';
+
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
+    }
+
+    public function getObservationTypeDisplayName($obType): string
+    {
+        if (!isset($this->typesById)) {
+            $this->typesById = $this->getOptionsByListName('Observation_Types');
+        }
+        return $this->typesById[$obType] ?? $obType;
+    }
+    public function getStatusDisplayName($status): string
+    {
+        if (!isset($this->statiiById)) {
+            $this->statiiById = $this->getOptionsByListName('observation-status');
+        }
+        return $this->statiiById[$status] ?? $status;
+    }
+
+    private function getOptionsByListName($listName): array
+    {
+        $options = $this->getListService()->getOptionsByListName($listName);
+        $optionsById = [];
+        foreach ($options as $option) {
+            $optionsById[$option['option_id']] = $option['title'];
+        }
+        return $optionsById;
+    }
+
     /**
-     * Get observation data by form id
+     * Get observation data by form id including sub-observations
+     * AI Generated: Enhanced to support parent-child observation relationships
      *
      * @param int $formId
      * @param int $pid
@@ -32,8 +108,96 @@ class ObservationService
      */
     public function getObservationsByFormId(int $formId, int $pid, int $encounter): array
     {
-        $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";
-        return QueryUtils::fetchRecords($sql, array($formId, $pid, $encounter));
+        $sql = "SELECT * FROM `form_observation`
+                WHERE id = ? AND pid = ? AND encounter = ?
+                ORDER BY parent_observation_id ASC, id ASC";
+
+        $records = QueryUtils::fetchRecords($sql, array($formId, $pid, $encounter));
+        $records = array_map(fn($rec) => $this->createResultRecordFromDatabaseResult($rec), $records ?? []);
+        return $records;
+    }
+
+    public function getObservationById(int $observationId, int $pid): ?array
+    {
+        $sql = "SELECT * FROM `form_observation`
+                WHERE id = ? AND pid = ?"; // we add pid check for security
+
+        $records = QueryUtils::fetchRecords($sql, array($observationId, $pid));
+        $records = array_map(fn($rec) => $this->createResultRecordFromDatabaseResult($rec), $records ?? []);
+        return !empty($records) ? $records[0] : null;
+    }
+
+    /**
+     * Get all observations for a patient/encounter with hierarchical structure
+     * AI Generated: New method to support list view functionality
+     *
+     * @param int $pid
+     * @param int $encounter
+     * @return array
+     */
+    public function getAllObservationsForEncounter(int $pid, int $encounter): array
+    {
+        $sql = "SELECT * FROM `form_observation`
+                WHERE pid = ? AND encounter = ? AND parent_observation_id IS NULL
+                ORDER BY date DESC, id DESC";
+
+        $mainObservations = QueryUtils::fetchRecords($sql, array($pid, $encounter));
+
+        // For each main observation, get its sub-observations
+        foreach ($mainObservations as &$observation) {
+            $observation['sub_observations'] = $this->getSubObservations($observation['id']);
+        }
+
+        return $mainObservations;
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $record = parent::createResultRecordFromDatabaseResult($row); // setup any uuid fields
+        if (empty($record['ob_status'])) {
+            $record['ob_status'] = self::DEFAULT_OB_STATUS; // default value
+        }
+        $record['ob_status_display'] = $this->getStatusDisplayName($record['ob_status']);
+        if (!empty($record['ob_type'])) {
+            $record['ob_type'] = $this->getObservationMappedType($record['ob_type']);
+        }
+        $record['ob_type_display'] = $this->getObservationTypeDisplayName($record['ob_type']);
+        return $record;
+    }
+
+    public function getObservationMappedType($obType)
+    {
+        // these are old inactivated types, map them to current types
+        $mapping = [
+            'procedure_diagnostic' => 'procedure',
+            'physical_exam_performed' => 'exam',
+        ];
+
+        return $mapping[$obType] ?? $obType;
+    }
+
+    /**
+     * Get sub-observations for a parent observation
+     * AI Generated: New method to support Design 1 sub-observation functionality
+     *
+     * @param int $parentObservationId
+     * @return array
+     */
+    public function getSubObservations(int $parentObservationId): array
+    {
+        $sql = "SELECT * FROM `form_observation`
+                WHERE parent_observation_id = ?
+                ORDER BY id ASC";
+
+        $records = QueryUtils::fetchRecords($sql, array($parentObservationId));
+        $records = array_map(fn($rec) => $this->createResultRecordFromDatabaseResult($rec), $records ?? []);
+        return $records;
+    }
+
+    // TODO: @adunsulag need to implement the search method properly so we can use it in the controller
+    public function search($search, $isAndCondition = true)
+    {
+        return parent::search($search, $isAndCondition); // TODO: Change the autogenerated stub
     }
 
     /**
@@ -52,7 +216,8 @@ class ObservationService
     }
 
     /**
-     * Delete existing observations for a form
+     * Delete existing observations for a form including sub-observations
+     * AI Generated: Enhanced to handle parent-child relationships
      *
      * @param int $formId
      * @param int $pid
@@ -61,21 +226,30 @@ class ObservationService
      */
     public function deleteObservationsByFormId(int $formId, int $pid, int $encounter): void
     {
+        // First delete sub-observations
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?",
+            "DELETE FROM `form_observation` WHERE parent_observation_id = ? AND pid = ? AND encounter = ?",
+            array($formId, $pid, $encounter)
+        );
+
+        // Then delete main observation
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `form_observation` WHERE id = ? AND pid = ? AND encounter = ?",
             array($formId, $pid, $encounter)
         );
     }
 
     /**
-     * Save observation data
+     * Save observation data with enhanced schema support
+     * AI Generated: Updated to use new database schema fields
      *
      * @param array $observationData
-     * @return void
+     * @return int The saved observation ID
      */
-    public function saveObservation(array $observationData): void
+    public function saveObservation(array $observationData): int
     {
         $sets = "id     = ?,
+            uuid        = ?,
             pid         = ?,
             groupname   = ?,
             user        = ?,
@@ -94,155 +268,445 @@ class ObservationService
             ob_reason_code = ?,
             ob_reason_status = ?,
             ob_reason_text = ?,
-            date_end    = ?";
+            date_end = ?,
+            parent_observation_id = ?,
+            category = ?,
+            questionnaire_response_id = ?";
 
-        QueryUtils::sqlStatementThrowException("INSERT INTO form_observation SET $sets", [
-            $observationData['id'],
-            $observationData['pid'],
-            $observationData['groupname'],
-            $observationData['user'],
-            $observationData['encounter'],
-            $observationData['authorized'],
-            $observationData['observation'],
-            $observationData['code'],
-            $observationData['code_type'],
-            $observationData['description'],
-            $observationData['table_code'],
-            $observationData['ob_type'],
-            $observationData['ob_value'],
-            $observationData['ob_unit'],
-            $observationData['date'],
-            $observationData['ob_reason_code'],
-            $observationData['ob_reason_status'],
-            $observationData['ob_reason_text'],
-            $observationData['date_end']
-        ]);
-    }
-
-    /**
-     * Process observation unit value based on code
-     *
-     * @param string $code
-     * @param array $obUnit
-     * @param array $obValuePhin
-     * @param int $key
-     * @return string
-     */
-    public function processObservationUnit(string $code, array $obUnit, array $obValuePhin, int $key): string
-    {
-        $obUnitValue = $obUnit[$key] ?? '';
-
-        if ($code == 'SS003') {
-            $obUnitValue = "";
-        } elseif ($code == '8661-1') {
-            $obUnitValue = "";
-        } elseif ($code == '21612-7') {
-            if (!empty($obUnit)) {
-                foreach ($obUnit as $key1 => $val) {
-                    if ($key1 == 0) {
-                        $obUnitValue = $obUnit[$key1];
-                    } else {
-                        if ($key1 == $key) {
-                            $obUnitValue = $obUnit[$key1];
-                        }
-                    }
-                }
-            }
+        if (empty($observationData['uuid'])) {
+            $observationData['uuid'] = $this->getUuidRegistry()->createUuid();
         }
 
-        return $obUnitValue;
+        $sqlBindArray = array(
+            $observationData['id'] ?? null,
+            $observationData['uuid'],
+            $observationData['pid'] ?? $_SESSION['pid'],
+            $observationData['groupname'] ?? $_SESSION['authProvider'],
+            $observationData['user'] ?? $_SESSION['authUser'],
+            $observationData['encounter'] ?? $_SESSION['encounter'],
+            $observationData['authorized'] ?? $_SESSION['userauthorized'] ?? 0,
+            $observationData['observation'] ?? '',
+            $observationData['code'] ?? '',
+            $observationData['code_type'] ?? '',
+            $observationData['description'] ?? '',
+            $observationData['table_code'] ?? '',
+            $observationData['ob_type'] ?? '',
+            $observationData['ob_value'] ?? '',
+            $observationData['ob_unit'] ?? '',
+            $observationData['date'] ?? date('Y-m-d H:i:s'),
+            $observationData['ob_reason_code'] ?? '',
+            $observationData['ob_reason_status'] ?? '',
+            $observationData['ob_reason_text'] ?? '',
+            $observationData['date_end'] ?? null,
+            $observationData['parent_observation_id'] ?? null,
+            $observationData['category'] ?? null,
+            $observationData['questionnaire_response_id'] ?? null
+        );
+
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `form_observation` SET $sets
+             ON DUPLICATE KEY UPDATE $sets",
+            array_merge($sqlBindArray, $sqlBindArray)
+        );
+
+        // Return the observation ID
+        return $observationData['id'] ?? $this->getNextFormId();
     }
 
     /**
-     * Process observation value based on code
+     * Save main observation with sub-observations
+     * AI Generated: New method to support Design 1 hierarchical structure
      *
-     * @param string $code
-     * @param array $obValue
-     * @param array $obValuePhin
-     * @param int $key
-     * @return string
+     * @param array $mainObservationData
+     * @param array $subObservationsData
+     * @return int The main observation ID
      */
-    public function processObservationValue(string $code, array $obValue, array $obValuePhin, int $key): string
+    public function saveObservationWithSubObservations(array $mainObservationData, array $subObservationsData = []): int
     {
-        if ($code == 'SS003') {
-            return $obValuePhin[$key] ?? '';
+        // Save main observation first
+        $mainObservationId = $this->saveObservation($mainObservationData);
+
+        // Save sub-observations
+        foreach ($subObservationsData as $subObsData) {
+            $subObsData['parent_observation_id'] = $mainObservationId;
+            $subObsData['pid'] = $mainObservationData['pid'] ?? $_SESSION['pid'];
+            $subObsData['encounter'] = $mainObservationData['encounter'] ?? $_SESSION['encounter'];
+            $subObsData['id'] = $this->getNextFormId(); // Generate new ID for sub-observation
+
+            $this->saveObservation($subObsData);
         }
 
-        return $obValue[$key] ?? '';
+        return $mainObservationId;
     }
 
     /**
-     * Get observation types from list options
+     * Get observation types from list_options
+     * AI Generated: Enhanced with proper error handling
      *
      * @return array
      */
     public function getObservationTypes(): array
     {
-        return QueryUtils::fetchRecords("SELECT `option_id`, `title` FROM `list_options` WHERE `list_id` = 'Observation_Types' ORDER BY `seq`");
+        try {
+            $types = $this->getListService()->getOptionsByListName('Observation_Types');
+            return $types;
+        } catch (\Exception $e) {
+            // Fallback to basic types if list_options doesn't exist
+            return [
+                ['option_id' => 'vital-signs', 'title' => 'Vital Signs'],
+                ['option_id' => 'laboratory', 'title' => 'Laboratory'],
+                ['option_id' => 'assessment', 'title' => 'Assessment'],
+                ['option_id' => 'imaging', 'title' => 'Imaging']
+            ];
+        }
     }
 
     /**
-     * Format observation value for display in reports
+     * Format observation for display in list or report
+     * AI Generated: New method to support consistent display formatting
      *
      * @param array $observation
      * @return array
      */
     public function formatObservationForDisplay(array $observation): array
     {
-        // Format SS003 values
-        if ($observation['code'] == 'SS003') {
-            $valueMap = [
-                '261QE0002X' => 'Emergency Care',
-                '261QM2500X' => 'Medical Specialty',
-                '261QP2300X' => 'Primary Care',
-                '261QU0200X' => 'Urgent Care'
-            ];
-
-            if (isset($valueMap[$observation['ob_value']])) {
-                $observation['ob_value'] = $valueMap[$observation['ob_value']];
-            }
-        }
-
-        // Format 21612-7 units
-        if ($observation['code'] == '21612-7') {
-            $unitMap = [
-                'd' => 'Day',
-                'mo' => 'Month',
-                'UNK' => 'Unknown',
-                'wk' => 'Week',
-                'a' => 'Year'
-            ];
-
-            if (isset($unitMap[$observation['ob_unit']])) {
-                $observation['ob_unit'] = $unitMap[$observation['ob_unit']];
-            }
-        }
-
-        return $observation;
+        return [
+            'id' => $observation['id'],
+            'code' => $observation['code'] ?? '',
+            'description' => $observation['description'] ?? 'Untitled Observation',
+            'code_type' => $observation['code_type'] ?? '',
+            'table_code' => $observation['table_code'] ?? '',
+            'ob_value' => $observation['ob_value'] ?? '',
+            'ob_unit' => $observation['ob_unit'] ?? '',
+            'date' => $observation['date'] ?? '',
+            'date_end' => $observation['date_end'] ?? '',
+            'ob_type' => $observation['ob_type'] ?? '',
+            'observation' => $observation['observation'] ?? '',
+            'questionnaire_response_id' => $observation['questionnaire_response_id'] ?? null,
+            'parent_observation_id' => $observation['parent_observation_id'] ?? null,
+            'ob_reason_code' => $observation['ob_reason_code'] ?? '',
+            'ob_reason_status' => $observation['ob_reason_status'] ?? '',
+            'ob_reason_text' => $observation['ob_reason_text'] ?? ''
+        ];
     }
 
     /**
-     * Validate observation data
+     * Validate observation data before saving
+     * AI Generated: New method for data validation
      *
-     * @param array $data
-     * @return array Array of validation errors
+     * @param array $observationData
+     * @return array Array of validation errors (empty if valid)
      */
-    public function validateObservationData(array $data): array
+    public function validateObservationData(array $observationData): array
     {
         $errors = [];
 
-        if (empty($data['code'])) {
+        // Required field validation
+        if (empty($observationData['code'])) {
             $errors[] = 'Code is required';
         }
 
-        if (empty($data['description'])) {
+        if (empty($observationData['description'])) {
             $errors[] = 'Description is required';
         }
 
-        if (empty($data['date'])) {
+        if (empty($observationData['date'])) {
             $errors[] = 'Date is required';
         }
 
+        // Date format validation
+        if (!empty($observationData['date'])) {
+            $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $observationData['date']);
+            if (!$dateTime || $dateTime->format('Y-m-d H:i:s') !== $observationData['date']) {
+                // Try alternative formats
+                $altFormats = ['Y-m-d H:i', 'Y-m-d', 'm/d/Y H:i:s', 'm/d/Y H:i', 'm/d/Y'];
+                $validDate = false;
+
+                foreach ($altFormats as $format) {
+                    $dateTime = \DateTime::createFromFormat($format, $observationData['date']);
+                    if ($dateTime) {
+                        $validDate = true;
+                        break;
+                    }
+                }
+
+                if (!$validDate) {
+                    $errors[] = 'Invalid date format';
+                }
+            }
+        }
+
+        // End date validation
+        if (!empty($observationData['date_end'])) {
+            $endDateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $observationData['date_end']);
+            if (!$endDateTime) {
+                $errors[] = 'Invalid end date format';
+            } elseif (!empty($observationData['date'])) {
+                $startDateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $observationData['date']);
+                if ($startDateTime && $endDateTime < $startDateTime) {
+                    $errors[] = 'End date cannot be before start date';
+                }
+            }
+        }
+
+        // Category validation
+        if (!empty($observationData['ob_type'])) {
+            $optionId = $this->getListService()->getListOptionByCode('Observation_Types', $observationData['ob_type']);
+            if (empty($optionId)) {
+                $errors[] = 'Invalid type specified';
+            }
+        }
+
         return $errors;
+    }
+
+    /**
+     * Get patient encounter information for display
+     * AI Generated: New method to support list view header
+     *
+     * @param int $pid
+     * @param int $encounter
+     * @return array
+     */
+    public function getEncounterInfo(int $pid, int $encounter): array
+    {
+        try {
+            $sql = "SELECT
+                        p.fname, p.lname, p.pid,
+                        fe.date as encounter_date,
+                        u.fname as provider_fname, u.lname as provider_lname
+                    FROM patient_data p
+                    LEFT JOIN form_encounter fe ON fe.pid = p.pid AND fe.encounter = ?
+                    LEFT JOIN users u ON u.id = fe.provider_id
+                    WHERE p.pid = ?";
+
+            $result = QueryUtils::fetchRecords($sql, array($encounter, $pid));
+
+            if (!empty($result)) {
+                $row = $result[0];
+                return [
+                    'patient_name' => trim($row['fname'] . ' ' . $row['lname']),
+                    'encounter_date' => $row['encounter_date'] ?? date('Y-m-d'),
+                    'provider_name' => trim(($row['provider_fname'] ?? '') . ' ' . ($row['provider_lname'] ?? ''))
+                ];
+            }
+        } catch (\Exception $e) {
+            error_log("Error getting encounter info: " . $e->getMessage());
+        }
+
+        return [
+            'patient_name' => 'Unknown Patient',
+            'encounter_date' => date('Y-m-d'),
+            'provider_name' => 'Unknown Provider'
+        ];
+    }
+
+    /**
+     * Link observation to questionnaire response
+     * AI Generated: New method to support questionnaire linking
+     *
+     * @param int $observationId
+     * @param int $questionnaireResponseId
+     * @return bool
+     */
+    public function linkToQuestionnaireResponse(int $observationId, int $questionnaireResponseId): bool
+    {
+        try {
+            $sql = "UPDATE form_observation
+                    SET questionnaire_response_id = ?
+                    WHERE id = ?";
+
+            QueryUtils::sqlStatementThrowException($sql, array($questionnaireResponseId, $observationId));
+            return true;
+        } catch (\Exception $e) {
+            error_log("Error linking observation to questionnaire: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Remove questionnaire link from observation
+     * AI Generated: New method to support questionnaire unlinking
+     *
+     * @param int $observationId
+     * @return bool
+     */
+    public function unlinkFromQuestionnaireResponse(int $observationId): bool
+    {
+        try {
+            $sql = "UPDATE form_observation
+                    SET questionnaire_response_id = NULL
+                    WHERE id = ?";
+
+            QueryUtils::sqlStatementThrowException($sql, array($observationId));
+            return true;
+        } catch (\Exception $e) {
+            error_log("Error unlinking observation from questionnaire: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Search observations by criteria
+     * AI Generated: New method to support filtering in list view
+     *
+     * @param int $pid
+     * @param int $encounter
+     * @param array $searchCriteria
+     * @return array
+     */
+    public function searchObservations(int $pid, int $encounter, array $searchCriteria = []): array
+    {
+        $sql = "SELECT * FROM `form_observation`
+                WHERE pid = ? AND encounter = ? AND parent_observation_id IS NULL";
+
+        $params = array($pid, $encounter);
+
+        if (!empty($searchCriteria['form_id'])) {
+            $sql .= " AND form_id = ? ";
+            $params[] = $searchCriteria['form_id'];
+        }
+
+        // Add search filters
+        if (!empty($searchCriteria['search_term'])) {
+            $sql .= " AND (code LIKE ? OR description LIKE ? OR observation LIKE ?)";
+            $searchTerm = '%' . $searchCriteria['search_term'] . '%';
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+
+        if (!empty($searchCriteria['ob_type'])) {
+            $sql .= " AND ob_type = ?";
+            $params[] = $searchCriteria['ob_type'];
+        }
+
+        if (!empty($searchCriteria['ob_type'])) {
+            $sql .= " AND ob_type = ?";
+            $params[] = $searchCriteria['ob_type'];
+        }
+
+        if (!empty($searchCriteria['date_range'])) {
+            switch ($searchCriteria['date_range']) {
+                case 'today':
+                    $sql .= " AND DATE(date) = CURDATE()";
+                    break;
+                case 'week':
+                    $sql .= " AND date >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                    break;
+                case 'month':
+                    $sql .= " AND date >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+                    break;
+                // 'all' or default - no additional filter
+            }
+        }
+
+        $sql .= " ORDER BY date DESC, id DESC";
+
+        $mainObservations = QueryUtils::fetchRecords($sql, $params);
+        $mainObservations = array_map(fn($rec) => $this->createResultRecordFromDatabaseResult($rec), $mainObservations ?? []);
+
+        // For each main observation, get its sub-observations
+        foreach ($mainObservations as &$observation) {
+            $observation['sub_observations'] = $this->getSubObservations($observation['id']);
+        }
+
+        return $mainObservations;
+    }
+
+    /**
+     * Get observation statistics for encounter
+     * AI Generated: New method to provide summary statistics
+     *
+     * @param int $pid
+     * @param int $encounter
+     * @return array
+     */
+    public function getObservationStats(int $pid, int $encounter): array
+    {
+        try {
+            $sql = "SELECT
+                        COUNT(*) as total_observations,
+                        COUNT(DISTINCT ob_type) as unique_types,
+                        COUNT(CASE WHEN questionnaire_response_id IS NOT NULL THEN 1 END) as linked_to_questionnaires,
+                        COUNT(CASE WHEN parent_observation_id IS NOT NULL THEN 1 END) as sub_observations
+                    FROM form_observation
+                    WHERE pid = ? AND encounter = ?";
+
+            $result = QueryUtils::fetchRecords($sql, array($pid, $encounter));
+
+            if (!empty($result)) {
+                return $result[0];
+            }
+        } catch (\Exception $e) {
+            error_log("Error getting observation stats: " . $e->getMessage());
+        }
+
+        return [
+            'total_observations' => 0,
+            'unique_types' => 0,
+            'linked_to_questionnaires' => 0,
+            'sub_observations' => 0
+        ];
+    }
+
+    /**
+     * Clone an existing observation (useful for templating)
+     * AI Generated: New method to support observation templates
+     *
+     * @param int $sourceObservationId
+     * @param array $overrideData
+     * @return int|null The new observation ID or null on failure
+     */
+    public function cloneObservation(int $sourceObservationId, array $overrideData = []): ?int
+    {
+        try {
+            // Get source observation
+            $sql = "SELECT * FROM form_observation WHERE id = ?";
+            $sourceObservations = QueryUtils::fetchRecords($sql, array($sourceObservationId));
+
+            if (empty($sourceObservations)) {
+                return null;
+            }
+
+            $sourceObs = $sourceObservations[0];
+
+            // Remove unique identifiers and apply overrides
+            unset($sourceObs['id']);
+            $sourceObs['date'] = date('Y-m-d H:i:s');
+            $sourceObs = array_merge($sourceObs, $overrideData);
+
+            // Save new observation
+            $newId = $this->getNextFormId();
+            $sourceObs['id'] = $newId;
+
+            return $this->saveObservation($sourceObs);
+        } catch (\Exception $e) {
+            error_log("Error cloning observation: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function getNewObservationTemplate()
+    {
+        return [
+            'id' => $this->getNextFormId(),
+            'code' => '',
+            'description' => '',
+            'ob_value' => '',
+            'ob_unit' => '',
+            'ob_status' => self::DEFAULT_OB_STATUS,
+            'date' => date('Y-m-d H:i:s'),
+            'date_end' => '',
+            'code_type' => '',
+            'table_code' => '',
+            'ob_type' => '',
+            'observation' => '',
+            'questionnaire_response_id' => null,
+            'ob_reason_code' => '',
+            'ob_reason_status' => '',
+            'ob_reason_text' => '',
+            'parent_observation_id' => null
+        ];
     }
 }
