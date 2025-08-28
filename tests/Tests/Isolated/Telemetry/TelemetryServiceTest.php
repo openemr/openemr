@@ -303,26 +303,20 @@ class TelemetryServiceTest extends TestCase
         /** @var SystemLogger|MockObject $mockLogger */
         $mockLogger = $this->createMock(SystemLogger::class);
 
-        // Create a partial mock to mock the normalizeUrl method
-        $telemetryService = $this->getMockBuilder(TelemetryService::class)
-            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
-            ->onlyMethods(['normalizeUrl'])
-            ->getMock();
+        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
+
+        // Set up GLOBALS to test the normalization behavior
+        $originalWebroot = $GLOBALS['webroot'] ?? null;
+        $GLOBALS['webroot'] = '/openemr';
 
         $data = [
             'eventType' => 'click',
             'eventLabel' => 'test-label',
-            'eventUrl' => 'http://example.com/webroot/interface/test#section?param=value',
+            'eventUrl' => 'http://example.com/openemr/interface/test#section?param=value',
             'eventTarget' => 'button'
         ];
 
-        // Mock normalizeUrl method - it should receive the URL with query params stripped
-        $telemetryService->expects($this->once())
-            ->method('normalizeUrl')
-            ->with('http://example.com/webroot/interface/test#section')
-            ->willReturn('/interface/test#section');
-
-        // Verify that the normalized URL is used
+        // Verify that the normalized URL is used (webroot stripped, query params removed)
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
@@ -339,6 +333,13 @@ class TelemetryServiceTest extends TestCase
         $decodedResult = json_decode($result, true);
 
         $this->assertEquals(["success" => true], $decodedResult);
+
+        // Restore original webroot
+        if ($originalWebroot !== null) {
+            $GLOBALS['webroot'] = $originalWebroot;
+        } else {
+            unset($GLOBALS['webroot']);
+        }
     }
 
     public function testReportClickEventHandlesMissingOptionalFields(): void
@@ -802,5 +803,95 @@ class TelemetryServiceTest extends TestCase
         // Test return type is void
         $returnType = $reflection->getReturnType();
         $this->assertEquals('void', $returnType->getName());
+    }
+
+    public function testReportClickEventNormalizesUrlWithoutWebroot(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
+
+        // Set up GLOBALS with empty webroot to test the fallback behavior
+        $originalWebroot = $GLOBALS['webroot'] ?? null;
+        $GLOBALS['webroot'] = '';
+
+        $data = [
+            'eventType' => 'click',
+            'eventLabel' => 'test-label',
+            'eventUrl' => '/interface/main/calendar/index.php#calendar?param=value',
+            'eventTarget' => 'button'
+        ];
+
+        // Verify that URL normalization works without webroot (only query params stripped)
+        $mockRepository->expects($this->once())
+            ->method('saveTelemetryEvent')
+            ->with(
+                $this->callback(function ($eventData) {
+                    return $eventData['eventUrl'] === '/interface/main/calendar/index.php#calendar';
+                }),
+                $this->isType('string')
+            )
+            ->willReturn(true);
+
+        $mockLogger->expects($this->once())->method('debug');
+
+        $result = $telemetryService->reportClickEvent($data, true);
+        $decodedResult = json_decode($result, true);
+
+        $this->assertEquals(["success" => true], $decodedResult);
+
+        // Restore original webroot
+        if ($originalWebroot !== null) {
+            $GLOBALS['webroot'] = $originalWebroot;
+        } else {
+            unset($GLOBALS['webroot']);
+        }
+    }
+
+    public function testReportClickEventNormalizesUrlWithFragmentOnly(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
+
+        // Test URL that's just a fragment
+        $data = [
+            'eventType' => 'click',
+            'eventLabel' => 'test-label',
+            'eventUrl' => '#section-navigation?param=value',
+            'eventTarget' => 'button'
+        ];
+
+        // Verify that fragment-only URL is handled correctly (query params stripped)
+        $mockRepository->expects($this->once())
+            ->method('saveTelemetryEvent')
+            ->with(
+                $this->callback(function ($eventData) {
+                    return $eventData['eventUrl'] === '#section-navigation';
+                }),
+                $this->isType('string')
+            )
+            ->willReturn(true);
+
+        $mockLogger->expects($this->once())->method('debug');
+
+        $result = $telemetryService->reportClickEvent($data, true);
+        $decodedResult = json_decode($result, true);
+
+        $this->assertEquals(["success" => true], $decodedResult);
     }
 }
