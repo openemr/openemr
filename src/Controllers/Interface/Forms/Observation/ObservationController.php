@@ -172,18 +172,12 @@ class ObservationController
                 $observation['subObservations'] = $this->observationService->getSubObservations($observation['id']);
             }
 
-            // Get encounter information for header
-            $encounterInfo = $this->observationService->getEncounterInfo($pid, $encounter);
-
             // Get statistics
             $stats = $this->observationService->getObservationStats($pid, $encounter);
 
             // Prepare template data
             $templateData = [
                 'observations' => $observations,
-                'patientName' => $encounterInfo['patient_name'],
-                'encounterDate' => $encounterInfo['encounter_date'],
-                'providerName' => $encounterInfo['provider_name'],
                 'searchCriteria' => $searchCriteria,
                 'stats' => $stats,
                 'title' => xl('Observation List'),
