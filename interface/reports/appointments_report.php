@@ -37,6 +37,7 @@ require_once "$srcdir/clinical_rules.php";
 use OpenEMR\Common\{
     Acl\AclMain,
     Csrf\CsrfUtils,
+    Logging\SystemLogger,
     Twig\TwigContainer,
 };
 use OpenEMR\Core\Header;
@@ -521,9 +522,14 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             $csvfields[$i]["Type"] = xl_appt_category($appointments[$i]['pc_catname']);
             $csvfields[$i]["Status"] = getListItemTitle('apptstat', $appointments[$i]['pc_apptstatus']);
         }
-        $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
-        if (!empty($spreadsheet->buildSpreadsheet())) {
-            $spreadsheet->downloadSpreadsheet();
+        try {
+            $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
+            if (!empty($spreadsheet->buildSpreadsheet())) {
+                $spreadsheet->downloadSpreadsheet();
+            }
+        } catch (RuntimeException $e) {
+            $logger = new SystemLogger();
+            $logger->logError($e->getMessage());
         }
     } else {
         $pid_list = array();  // Initialize list of PIDs for Superbill option
