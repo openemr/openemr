@@ -664,4 +664,143 @@ class TelemetryServiceTest extends TestCase
 
         $this->assertEquals(500, $result);
     }
+
+    public function testTrackApiRequestEventCallsReportClickEventWhenTelemetryEnabled(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        // Create a partial mock to mock both isTelemetryEnabled and reportClickEvent
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'reportClickEvent'])
+            ->getMock();
+
+        // Mock isTelemetryEnabled to return enabled (1)
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $eventData = [
+            'eventType' => 'api_call',
+            'eventLabel' => 'patient_search',
+            'eventUrl' => '/api/patient',
+            'eventTarget' => 'api_endpoint'
+        ];
+
+        // Expect reportClickEvent to be called with the same data
+        $telemetryService->expects($this->once())
+            ->method('reportClickEvent')
+            ->with($eventData)
+            ->willReturn('{"success": true}');
+
+        $telemetryService->trackApiRequestEvent($eventData);
+    }
+
+    public function testTrackApiRequestEventDoesNotCallReportClickEventWhenTelemetryDisabled(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        // Create a partial mock to mock both isTelemetryEnabled and reportClickEvent
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'reportClickEvent'])
+            ->getMock();
+
+        // Mock isTelemetryEnabled to return disabled (0)
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(0);
+
+        $eventData = [
+            'eventType' => 'api_call',
+            'eventLabel' => 'patient_search',
+            'eventUrl' => '/api/patient',
+            'eventTarget' => 'api_endpoint'
+        ];
+
+        // Expect reportClickEvent to NOT be called
+        $telemetryService->expects($this->never())
+            ->method('reportClickEvent');
+
+        $telemetryService->trackApiRequestEvent($eventData);
+    }
+
+    public function testTrackApiRequestEventHandlesEmptyData(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        // Create a partial mock to mock both isTelemetryEnabled and reportClickEvent
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'reportClickEvent'])
+            ->getMock();
+
+        // Mock isTelemetryEnabled to return enabled (1)
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $eventData = [];
+
+        // Expect reportClickEvent to be called with empty data (will handle validation internally)
+        $telemetryService->expects($this->once())
+            ->method('reportClickEvent')
+            ->with($eventData)
+            ->willReturn('{"error": "Missing required fields"}');
+
+        $telemetryService->trackApiRequestEvent($eventData);
+    }
+
+    public function testTrackApiRequestEventMethodSignature(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
+
+        // Verify method exists and is callable
+        $this->assertTrue(method_exists($telemetryService, 'trackApiRequestEvent'));
+        $this->assertTrue(is_callable([$telemetryService, 'trackApiRequestEvent']));
+        
+        // Test method signature
+        $reflection = new \ReflectionMethod($telemetryService, 'trackApiRequestEvent');
+        $this->assertEquals(1, $reflection->getNumberOfParameters());
+        
+        // Test parameter type
+        $parameters = $reflection->getParameters();
+        $eventDataParam = $parameters[0];
+        $this->assertEquals('event_data', $eventDataParam->getName());
+        $this->assertEquals('array', $eventDataParam->getType()->getName());
+        
+        // Test return type is void
+        $returnType = $reflection->getReturnType();
+        $this->assertEquals('void', $returnType->getName());
+    }
 }
