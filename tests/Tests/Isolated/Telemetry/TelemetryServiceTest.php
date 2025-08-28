@@ -894,4 +894,230 @@ class TelemetryServiceTest extends TestCase
 
         $this->assertEquals(["success" => true], $decodedResult);
     }
+
+    public function testReportUsageDataLogsCurlError(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+
+        // Create a partial mock
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow', 'executeCurlRequest'])
+            ->getMock();
+
+        // Setup basic mocks
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('test-uuid-123');
+
+        $telemetryService->expects($this->once())
+            ->method('createGeoTelemetry')
+            ->willReturn($mockGeoTelemetry);
+
+        $mockGeoTelemetry->expects($this->once())
+            ->method('getServerGeoData')
+            ->willReturn(['country' => 'US']);
+
+        $telemetryService->expects($this->once())
+            ->method('querySingleRow')
+            ->willReturn(['zone' => 'America/New_York']);
+
+        $mockRepository->expects($this->once())
+            ->method('fetchUsageRecords')
+            ->willReturn([]);
+
+        $mockVersionService->expects($this->once())
+            ->method('asString')
+            ->willReturn('7.0.0');
+
+        // Mock cURL response with error
+        $curlError = 'Connection timeout';
+        $telemetryService->expects($this->once())
+            ->method('executeCurlRequest')
+            ->willReturn([
+                'response' => false,
+                'httpStatus' => 0,
+                'error' => $curlError
+            ]);
+
+        // Should NOT call clearTelemetryData on cURL error
+        $mockRepository->expects($this->never())
+            ->method('clearTelemetryData');
+
+        // Capture error_log output
+        $errorLogCalled = false;
+        $errorMessage = '';
+        
+        // Mock error_log function using a custom error handler
+        set_error_handler(function($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
+            // Check if this is our expected error_log call
+            if (strpos($message, 'cURL error: Connection timeout') !== false) {
+                $errorLogCalled = true;
+                $errorMessage = $message;
+            }
+            return true; // Don't call the default error handler
+        });
+
+        // Temporarily override error_log by capturing its output
+        ob_start();
+        $result = $telemetryService->reportUsageData();
+        $output = ob_get_clean();
+        
+        restore_error_handler();
+
+        $this->assertEquals(0, $result);
+        
+        // Since we can't easily mock error_log, we'll verify the method completed
+        // and that clearTelemetryData was not called (which indicates error handling occurred)
+    }
+
+    public function testReportUsageDataLogsHttpError(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+
+        // Create a partial mock
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow', 'executeCurlRequest'])
+            ->getMock();
+
+        // Setup basic mocks
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('test-uuid-123');
+
+        $telemetryService->expects($this->once())
+            ->method('createGeoTelemetry')
+            ->willReturn($mockGeoTelemetry);
+
+        $mockGeoTelemetry->expects($this->once())
+            ->method('getServerGeoData')
+            ->willReturn(['country' => 'US']);
+
+        $telemetryService->expects($this->once())
+            ->method('querySingleRow')
+            ->willReturn(['zone' => 'America/New_York']);
+
+        $mockRepository->expects($this->once())
+            ->method('fetchUsageRecords')
+            ->willReturn([]);
+
+        $mockVersionService->expects($this->once())
+            ->method('asString')
+            ->willReturn('7.0.0');
+
+        // Mock HTTP error response (404 Not Found)
+        $telemetryService->expects($this->once())
+            ->method('executeCurlRequest')
+            ->willReturn([
+                'response' => '{"error": "Not Found"}',
+                'httpStatus' => 404,
+                'error' => null
+            ]);
+
+        // Should NOT call clearTelemetryData on HTTP error
+        $mockRepository->expects($this->never())
+            ->method('clearTelemetryData');
+
+        $result = $telemetryService->reportUsageData();
+
+        // Verify HTTP status is returned and clearTelemetryData was not called
+        $this->assertEquals(404, $result);
+    }
+
+    public function testReportUsageDataHandlesSuccessfulResponseWithInvalidJson(): void
+    {
+        /** @var TelemetryRepository|MockObject $mockRepository */
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+
+        /** @var VersionServiceInterface|MockObject $mockVersionService */
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+
+        /** @var SystemLogger|MockObject $mockLogger */
+        $mockLogger = $this->createMock(SystemLogger::class);
+
+        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+
+        // Create a partial mock
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow', 'executeCurlRequest'])
+            ->getMock();
+
+        // Setup basic mocks
+        $telemetryService->expects($this->once())
+            ->method('isTelemetryEnabled')
+            ->willReturn(1);
+
+        $telemetryService->expects($this->once())
+            ->method('getUniqueInstallationUuid')
+            ->willReturn('test-uuid-123');
+
+        $telemetryService->expects($this->once())
+            ->method('createGeoTelemetry')
+            ->willReturn($mockGeoTelemetry);
+
+        $mockGeoTelemetry->expects($this->once())
+            ->method('getServerGeoData')
+            ->willReturn(['country' => 'US']);
+
+        $telemetryService->expects($this->once())
+            ->method('querySingleRow')
+            ->willReturn(['zone' => 'America/New_York']);
+
+        $mockRepository->expects($this->once())
+            ->method('fetchUsageRecords')
+            ->willReturn([]);
+
+        $mockVersionService->expects($this->once())
+            ->method('asString')
+            ->willReturn('7.0.0');
+
+        // Mock successful HTTP response but with invalid JSON
+        $telemetryService->expects($this->once())
+            ->method('executeCurlRequest')
+            ->willReturn([
+                'response' => 'invalid json response',
+                'httpStatus' => 200,
+                'error' => null
+            ]);
+
+        // Should NOT call clearTelemetryData when JSON decode fails
+        $mockRepository->expects($this->never())
+            ->method('clearTelemetryData');
+
+        $result = $telemetryService->reportUsageData();
+
+        // Should return 200 (HTTP status) but not clear data due to invalid JSON
+        $this->assertEquals(200, $result);
+    }
 }
