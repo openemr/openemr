@@ -3765,7 +3765,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                   $fs_category = $row['fs_category'];
                                                                   $fs_option   = $row['fs_option'];
                                                                   $fs_codes    = $row['fs_codes'];
-                                                                  list($code_type_here,$code) = explode("|", $fs_codes);
+                                                                  if (!empty($fs_codes)) {
+                                                                      list($code_type_here, $code) = explode("|", $fs_codes);
+                                                                  }
                                                                   if ($fs_category !== $last_category) {
                                                                       $last_category = $fs_category;
                                                                       echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
@@ -4156,7 +4158,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                       // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
                                                         $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
-                                                        if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon ?>
+                                                        if ($FAX_REF['ID'] ?? '') { //it is here already, make them print and manually fax it.  Show icon ?>
                                                              <span id='ref_fax'><?php echo text($ref_data['fax']); ?></span>
                                                              <span id='ref_fax_info'>
                                                                  <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"

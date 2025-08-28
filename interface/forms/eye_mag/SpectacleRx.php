@@ -31,7 +31,7 @@ require_once("php/" . $form_folder . "_functions.php");
 
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
-if (!$_REQUEST['pid'] && $_REQUEST['id']) {
+if (!($_REQUEST['pid'] ?? '') && $_REQUEST['id']) {
     $_REQUEST['pid'] = $_REQUEST['id'];
 }
 if (!$_REQUEST['pid']) {
@@ -83,7 +83,7 @@ $query = "select  *,form_encounter.date as encounter_date
 
     $visit_date = oeFormatShortDate($data['encounter_date']);
 
-if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense table
+if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
@@ -113,12 +113,12 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     }
 
     exit;
-} elseif ($_REQUEST['mode'] == "remove") {
+} elseif ($_REQUEST['mode'] ?? '' == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, array($_REQUEST['delete_id']));
     echo xlt('Prescription successfully removed.');
     exit;
-} elseif ($_REQUEST['RXTYPE']) {  //store any changed fields
+} elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
     sqlStatement($query, array($_REQUEST['RXTYPE'], $_REQUEST['id']));
     exit;
@@ -153,7 +153,7 @@ if ($_REQUEST['REFTYPE']) {
     if ($REFTYPE == "W") {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
-        $wear = sqlStatement($query, array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
+        $wear = sqlStatement($query, array($encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']));
         $wearing = sqlFetchArray($wear);
         $ODSPH = $wearing['ODSPH'];
         $ODAXIS = $wearing['ODAXIS'];
@@ -282,7 +282,7 @@ if ($_REQUEST['REFTYPE']) {
     }
 }
 
-if ($_REQUEST['dispensed']) {
+if ($_REQUEST['dispensed'] ?? '') {
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
     $dispensed = sqlStatement($query, array($_REQUEST['pid']));
     ?><html>
@@ -962,7 +962,7 @@ if ($REFTYPE == "CTL") {
                                             <label for="RXTYPE_Bifocal"><?php echo xlt('Bifocal'); ?></label>
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>);"
-                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?> />
+                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal ?? ''); ?> />
                                         </span>
                                         <br/>
                                         <span id="Trifocal_span" name="Trifocal_span">
@@ -970,7 +970,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Trifocal" id="RXTYPE_Trifocal"
-                                                   name="RXTYPE" <?php echo attr($Trifocal); ?>>
+                                                   name="RXTYPE" <?php echo attr($Trifocal ?? ''); ?>>
                                         </span>
                                         <br/>
                                         <span id="Progressive_span">
@@ -980,7 +980,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Progressive" id="RXTYPE_Progressive"
-                                                   name="RXTYPE" <?php echo attr($Progressive); ?>>
+                                                   name="RXTYPE" <?php echo attr($Progressive ?? ''); ?>>
                                         </span>
                                         <br/>
                                     </td>
@@ -1153,7 +1153,7 @@ if ($REFTYPE == "CTL") {
                                 </tr>
                                 <tr style="text-align:left;vertical-align:top;">
                                     <td colspan="4" class="bold left">
-                                        <?php echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
+                                        <?php echo generate_lens_treatments($W ?? '', $LENS_TREATMENTS); ?>
                                     </td>
                                 </tr>
                             </table>&nbsp;<br/><br/><br/>
