@@ -221,7 +221,7 @@ class TelemetryService
         }
     }
 
-    private function normalizeUrl(string $url): string
+    protected function normalizeUrl(string $url): string
     {
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
