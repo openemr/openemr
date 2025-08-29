@@ -1076,7 +1076,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 "ORDER BY code_text", array($prow['option_id']));
                                 while ($row = sqlFetchArray($res)) {
                                     $ctkey = $fs->alphaCodeType($row['code_type']);
-                                    if ($code_types[$ctkey]['nofs']) {
+                                    if (isset($code_types[$ctkey]['nofs']) && $code_types[$ctkey]['nofs']) {
                                         continue;
                                     }
                                     echo "    <option value='" . attr($ctkey) . "|" .
