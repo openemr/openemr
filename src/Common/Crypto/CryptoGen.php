@@ -43,7 +43,7 @@ class CryptoGen implements CryptoInterface
      * to the enum and increment this const to enable
      * backwards compatibility.
      */
-    private const CURRENT_KEY_VERSION = KeyVersion::SIX;
+    public const CURRENT_KEY_VERSION = KeyVersion::SEVEN;
 
     /**
      * Key cache to optimize key collection, which avoids numerous repeat
