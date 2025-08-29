@@ -20,8 +20,10 @@
 
 namespace OpenEMR\Telemetry;
 
-class GeoTelemetry
+class GeoTelemetry implements GeoTelemetryInterface
 {
+    private const GET_IP_URL = 'https://api.ipify.org';
+
     /**
      * Anonymize IP using SHA-256 hashing
      */
@@ -35,7 +37,7 @@ class GeoTelemetry
      */
     public function getGeoData(string $ip): array
     {
-        $data = $this->fetch("https://ipapi.co/{$ip}/json/");
+        $data = $this->fetchJson("https://ipapi.co/{$ip}/json/");
         if (isset($data['country_name'])) {
             return [
                 'country' => $data['country_name'] ?? null,
@@ -46,7 +48,7 @@ class GeoTelemetry
             ];
         }
         // fallback to geoplugin.net
-        $data = $this->fetch("http://www.geoplugin.net/json.gp?ip={$ip}");
+        $data = $this->fetchJson("http://www.geoplugin.net/json.gp?ip={$ip}");
         if (isset($data['geoplugin_countryName'])) {
             return [
                 'country' => $data['geoplugin_countryName'] ?? null,
@@ -65,11 +67,23 @@ class GeoTelemetry
      */
     public function getServerGeoData(): array
     {
-        $ip = trim(@file_get_contents("https://api.ipify.org"));
+        $ip = trim($this->fetchText(self::GET_IP_URL));
         if (filter_var($ip, FILTER_VALIDATE_IP)) {
             return $this->getGeoData($ip);
         }
         return ['error' => 'Unable to determine server IP'];
+    }
+
+    /**
+     * Get raw text data from a given URL
+     *
+     * @param string $url
+     * @return string
+     */
+    protected function fetchText(string $url): string
+    {
+        $ctx = stream_context_create(['http' => ['timeout' => 3]]);
+        return @$this->fileGetContents($url, false, $ctx) ?: '';
     }
 
     /**
@@ -78,10 +92,19 @@ class GeoTelemetry
      * @param string $url
      * @return array
      */
-    private function fetch(string $url): array
+    protected function fetchJson(string $url): array
     {
-        $ctx = stream_context_create(['http' => ['timeout' => 3]]);
-        $json = @file_get_contents($url, false, $ctx);
+        $json = $this->fetchText($url);
         return json_decode($json, true) ?: [];
+    }
+
+    /**
+     * Wrapper so we can easily mock file_get_contents
+     *
+     * @codeCoverageIgnore
+     */
+    protected function fileGetContents(string $url, $use_include_path = false, $context = null, $offset = 0, $maxlen = null)
+    {
+        return file_get_contents($url, $use_include_path, $context, $offset, $maxlen);
     }
 }
