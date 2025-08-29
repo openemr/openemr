@@ -5,6 +5,15 @@ use OpenEMR\Services\FormService;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
+/**
+ * @deprecated Use FormService::getFormByEncounter() instead
+ * @param $attendant_id
+ * @param $encounter
+ * @param $cols
+ * @param $name
+ * @param $orderby
+ * @return array
+ */
 function getFormByEncounter(
     $attendant_id,
     $encounter,
@@ -16,6 +25,20 @@ function getFormByEncounter(
     return $formService->getFormByEncounter($attendant_id, $encounter, $cols, $name, $orderby);
 }
 
+/**
+ * @deprecated Use FormService::addForm() instead
+ * @param $encounter
+ * @param $form_name
+ * @param $form_id
+ * @param $formdir
+ * @param $pid
+ * @param $authorized
+ * @param $date
+ * @param $user
+ * @param $group
+ * @param $therapy_group
+ * @return int
+ */
 function addForm(
     $encounter,
     $form_name,
@@ -28,34 +51,8 @@ function addForm(
     $group = "",
     $therapy_group = 'not_given'
 ) {
-
-    global $attendant_type;
-    if (!$user) {
-        $user = $_SESSION['authUser'] ?? null;
-    }
-
-    if (!$group) {
-        $group = $_SESSION['authProvider'] ?? null;
-    }
-
-    if ($therapy_group == 'not_given') {
-        $therapy_group = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'];
-    }
-
-    //print_r($_SESSION['therapy_group']);die;
-    $arraySqlBind = array();
-    $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
-        "user, groupname, authorized, formdir, therapy_group_id) values (";
-    if ($date == "NOW()") {
-        $sql .= "$date";
-    } else {
-        $sql .= "?";
-                array_push($arraySqlBind, $date);
-    }
-
-    $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
-    return sqlInsert($sql, $arraySqlBind);
+    $formService = new FormService();
+    return $formService->addForm($encounter, $form_name, $form_id, $formdir, $pid, $authorized, $date, $user, $group, $therapy_group);
 }
 
 function authorizeForm($id, $authorized = "1"): void

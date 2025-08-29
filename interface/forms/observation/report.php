@@ -16,68 +16,28 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
+use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
+use OpenEMR\Services\ObservationService;
+use OpenEMR\Common\Logging\SystemLogger;
+
 function observation_report($pid, $encounter, $cols, $id): void
 {
-    $count = 0;
-    $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($id,$_SESSION["pid"], $_SESSION["encounter"]));
+    $logger = new SystemLogger();
 
-
-
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $data[$iter] = $row;
-    }
-
-    if (!empty($data)) {
-        print "<table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
-            <tr>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Code') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Description') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Code Type') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Table Code') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Value') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Unit') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Date') . "</span></td>
-            </tr>";
-        foreach ($data as $value) {
-            if ($value['code'] == 'SS003') {
-                if ($value['ob_value'] == '261QE0002X') {
-                    $value['ob_value'] = 'Emergency Care';
-                } elseif ($value['ob_value'] == '261QM2500X') {
-                    $value['ob_value'] = 'Medical Specialty';
-                } elseif ($value['ob_value'] == '261QP2300X') {
-                    $value['ob_value'] = 'Primary Care';
-                } elseif ($value['ob_value'] == '261QU0200X') {
-                    $value['ob_value'] = 'Urgent Care';
-                }
-            }
-
-            if ($value['code'] == '21612-7') {
-                if ($value['ob_unit'] == 'd') {
-                    $value['ob_unit'] = 'Day';
-                } elseif ($value['ob_unit'] == 'mo') {
-                    $value['ob_unit'] = 'Month';
-                } elseif ($value['ob_unit'] == 'UNK') {
-                    $value['ob_unit'] = 'Unknown';
-                } elseif ($value['ob_unit'] == 'wk') {
-                    $value['ob_unit'] = 'Week';
-                } elseif ($value['ob_unit'] == 'a') {
-                    $value['ob_unit'] = 'Year';
-                }
-            }
-
-            print "<tr>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['code']) . "</span></td>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['description']) . "</span></td>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['code_type']) . "</span></td>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['table_code']) . "</span></td>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['ob_value']) . "</span></td>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['ob_unit']) . "</span></td>
-                        <td style='border:1px solid #ccc;padding:4px;'><span class=text>" . text($value['date']) . "</span></td>
-                    </tr>";
-            print "\n";
-        }
-
-        print "</table>";
+// Output the response
+    try {
+        // Create controller and handle request
+        $service = new ObservationService();
+        $controller = new ObservationController($service);
+        // This approach is consistent with the current design, even though the original report used session values.
+        $response = $controller->report($pid, $encounter, $cols, $id);
+        $response->send();
+    } catch (Exception $e) {
+        // Handle any exceptions that may occur
+        $logger->errorLogCaller("Failed to render observation form report.php", [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        echo xlt("An error occurred while trying to render this form. Please try again later.");
     }
 }
