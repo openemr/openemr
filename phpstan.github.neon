@@ -10364,10 +10364,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_url.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$no_list\.$#'
-    identifier: unset.variable
-    count: 1
-    path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php
   - message: '#^Constant _PC_TPL_VIEW_SUBMIT not found\.$#'
     identifier: constant.notFound
     count: 1
@@ -17416,10 +17412,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Common/Auth/MfaUtils.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$auth\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Common/Auth/OneTimeAuth.php
   - message: '#^Variable \$this_contacts in empty\(\) is never defined\.$#'
     identifier: empty.variable
     count: 1
@@ -17770,18 +17762,6 @@ parameters:
     path: src/RestControllers/SMART/SMARTAuthorizationController.php
   - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
     identifier: staticMethod.notFound
-    count: 1
-    path: src/Rx/RxList.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$all\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Rx/RxList.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$hash\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Rx/RxList.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$tokens\.$#'
-    identifier: unset.variable
     count: 1
     path: src/Rx/RxList.php
   - message: '#^Variable \$all might not be defined\.$#'

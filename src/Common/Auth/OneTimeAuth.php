@@ -330,7 +330,6 @@ class OneTimeAuth
             }
         } catch (OneTimeAuthExpiredException $e) {
             $this->systemLogger->error("Failed " . $e->getMessage());
-            unset($auth);
             throw new OneTimeAuthException(xlt("Decode Authentication Failed! Contact administrator."));
         }
         if (!empty($auth['error'] ?? null)) {
