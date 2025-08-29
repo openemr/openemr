@@ -10,8 +10,12 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\Common\Database\DatabaseQueryTrait;
+
 class TelemetryRepository
 {
+    use DatabaseQueryTrait;
+
     /**
      * Inserts a new click event or updates an existing one.
      */
@@ -42,7 +46,7 @@ class TelemetryRepository
             $currentTime
         ];
 
-        return (bool)sqlStatementNoLog($sql, $params);
+        return (bool)$this->sqlStatementThrowException($sql, $params, noLog: true);
     }
 
     /**
@@ -50,14 +54,9 @@ class TelemetryRepository
      */
     public function fetchUsageRecords(): array
     {
-        $usageRecords = [];
         // Alias label_count as count for backward compatibility.
         $sql = "SELECT event_type, event_label, event_url, event_target, first_event, last_event, label_count AS count FROM track_events";
-        $result = sqlStatementNoLog($sql);
-        while ($row = sqlFetchArray($result)) {
-            $usageRecords[] = $row;
-        }
-        return $usageRecords;
+        return $this->fetchRecords($sql, [], noLog: true);
     }
 
     /**
@@ -66,6 +65,6 @@ class TelemetryRepository
     public function clearTelemetryData(): void
     {
         $sql = "TRUNCATE track_events";
-        sqlQueryNoLog($sql);
+        $this->sqlStatementThrowException($sql, [], noLog: true);
     }
 }
