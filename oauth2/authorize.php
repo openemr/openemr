@@ -122,7 +122,7 @@ if (false !== stripos($end_point, '/registration')) {
 
 if (false !== stripos($end_point, '/client')) {
     // session is destroyed within below function
-    $authServer->clientRegisteredDetails();
+    $authServer->clientRegisteredDetails($end_point);
     exit;
 }
 
