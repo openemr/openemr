@@ -234,6 +234,38 @@ $focus = "document.theform.search_term.select();";
                 </div>
             <?php } ?>
         </form>
+        <form>
+            <div class="row align-items-start">
+                <?php
+                if ($codetype == 'ICD10' && !empty($pid)) { ?>
+                    <div class="col">
+                        <h4><?php echo xlt("Previous Diagnosis") ?></h4>
+                        <?php
+                        //get previous diagnosis
+                        getPreviousCodes($pid, 'ICD10');
+                        ?>
+                    </div>
+                <?php } elseif ($codetype == 'CPT4' && !empty($pid)) { ?>
+                    <div class="col">
+                        <h4><?php echo xlt("Previous CPT Codes") ?></h4>
+                        <?php
+                        //get previous diagnosis
+                        getPreviousCodes($pid, 'CPT4');
+                        ?>
+                    </div>
+                <?php } //end of which to display ?>
+                <?php
+                function getPreviousCodes($pid, $codeType) {
+                    $previous_cpt = "SELECT DISTINCT `code`, `code_text` FROM `billing` WHERE pid = ? AND code_type = ? ORDER BY id ASC";
+                    $list_previous = sqlStatement($previous_cpt, [$pid, $codeType]);
+                    while ($row = sqlFetchArray($list_previous)) {
+                        $codeText = explode("\r", $row['code_text']);
+                        echo '<a href="" onclick="return selcode(' . attr_js($codeType) . ', ' . attr_js($row['code']) . ', ' . attr_js(' ') . ', ' . attr_js(trim($codeText[0])) . ')">' . text($row['code']) . ' ' . text($row['code_text']) . '</a><br>';
+                    }
+                }
+                ?>
+            </div>
+        </form>
     </div>
 </body>
 </html>
