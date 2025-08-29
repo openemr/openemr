@@ -789,17 +789,17 @@ class TelemetryServiceTest extends TestCase
         // Verify method exists and is callable
         $this->assertTrue(method_exists($telemetryService, 'trackApiRequestEvent'));
         $this->assertTrue(is_callable([$telemetryService, 'trackApiRequestEvent']));
-        
+
         // Test method signature
         $reflection = new \ReflectionMethod($telemetryService, 'trackApiRequestEvent');
         $this->assertEquals(1, $reflection->getNumberOfParameters());
-        
+
         // Test parameter type
         $parameters = $reflection->getParameters();
         $eventDataParam = $parameters[0];
         $this->assertEquals('event_data', $eventDataParam->getName());
         $this->assertEquals('array', $eventDataParam->getType()->getName());
-        
+
         // Test return type is void
         $returnType = $reflection->getReturnType();
         $this->assertEquals('void', $returnType->getName());
@@ -961,9 +961,9 @@ class TelemetryServiceTest extends TestCase
         // Capture error_log output
         $errorLogCalled = false;
         $errorMessage = '';
-        
+
         // Mock error_log function using a custom error handler
-        set_error_handler(function($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
+        set_error_handler(function ($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
             // Check if this is our expected error_log call
             if (strpos($message, 'cURL error: Connection timeout') !== false) {
                 $errorLogCalled = true;
@@ -976,11 +976,11 @@ class TelemetryServiceTest extends TestCase
         ob_start();
         $result = $telemetryService->reportUsageData();
         $output = ob_get_clean();
-        
+
         restore_error_handler();
 
         $this->assertEquals(0, $result);
-        
+
         // Since we can't easily mock error_log, we'll verify the method completed
         // and that clearTelemetryData was not called (which indicates error handling occurred)
     }

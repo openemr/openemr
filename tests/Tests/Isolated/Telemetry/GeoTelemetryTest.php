@@ -24,10 +24,10 @@ class GeoTelemetryTest extends TestCase
     public function testAnonymizeIpReturnsHashedValue(): void
     {
         $geoTelemetry = new GeoTelemetry();
-        
+
         $ip = '192.168.1.1';
         $result = $geoTelemetry->anonymizeIp($ip);
-        
+
         // Should return a SHA-256 hash
         $this->assertIsString($result);
         $this->assertEquals(64, strlen($result)); // SHA-256 produces 64 character hex string
@@ -37,11 +37,11 @@ class GeoTelemetryTest extends TestCase
     public function testAnonymizeIpReturnsSameHashForSameIp(): void
     {
         $geoTelemetry = new GeoTelemetry();
-        
+
         $ip = '10.0.0.1';
         $result1 = $geoTelemetry->anonymizeIp($ip);
         $result2 = $geoTelemetry->anonymizeIp($ip);
-        
+
         $this->assertEquals($result1, $result2);
     }
 
@@ -264,7 +264,7 @@ class GeoTelemetryTest extends TestCase
 
         $expected = [
             'country' => 'Test Country',
-            'region' => 'Test Region', 
+            'region' => 'Test Region',
             'city' => 'Test City',
             'latitude' => 40.7128,
             'longitude' => -74.0060

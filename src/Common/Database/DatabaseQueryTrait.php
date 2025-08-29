@@ -4,7 +4,7 @@
  * DatabaseQueryTrait.php provides protected instance methods for database operations.
  * This trait wraps QueryUtils static methods to provide protected instance methods for classes
  * that need to make database queries.
- * 
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>

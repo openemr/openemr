@@ -27,6 +27,7 @@ use OpenEMR\Services\VersionService;
 class TelemetryService
 {
     use DatabaseQueryTrait;
+
     protected TelemetryRepository $repository;
     protected VersionServiceInterface $versionService;
     protected SystemLogger $logger;

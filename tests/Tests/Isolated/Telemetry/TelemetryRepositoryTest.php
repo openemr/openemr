@@ -27,22 +27,22 @@ class TelemetryRepositoryTest extends TestCase
         // Verify method exists and is callable
         $this->assertTrue(method_exists($repository, 'saveTelemetryEvent'));
         $this->assertTrue(is_callable([$repository, 'saveTelemetryEvent']));
-        
+
         // Test method signature
         $reflection = new \ReflectionMethod($repository, 'saveTelemetryEvent');
         $this->assertEquals(2, $reflection->getNumberOfParameters());
-        
+
         // Test parameter types
         $parameters = $reflection->getParameters();
         $eventDataParam = $parameters[0];
         $currentTimeParam = $parameters[1];
-        
+
         $this->assertEquals('eventData', $eventDataParam->getName());
         $this->assertEquals('array', $eventDataParam->getType()->getName());
-        
+
         $this->assertEquals('currentTime', $currentTimeParam->getName());
         $this->assertEquals('string', $currentTimeParam->getType()->getName());
-        
+
         // Test return type is bool
         $returnType = $reflection->getReturnType();
         $this->assertEquals('bool', $returnType->getName());
@@ -55,11 +55,11 @@ class TelemetryRepositoryTest extends TestCase
         // Verify method exists and is callable
         $this->assertTrue(method_exists($repository, 'fetchUsageRecords'));
         $this->assertTrue(is_callable([$repository, 'fetchUsageRecords']));
-        
+
         // Test method signature
         $reflection = new \ReflectionMethod($repository, 'fetchUsageRecords');
         $this->assertEquals(0, $reflection->getNumberOfParameters());
-        
+
         // Test return type is array
         $returnType = $reflection->getReturnType();
         $this->assertEquals('array', $returnType->getName());
@@ -72,11 +72,11 @@ class TelemetryRepositoryTest extends TestCase
         // Verify method exists and is callable
         $this->assertTrue(method_exists($repository, 'clearTelemetryData'));
         $this->assertTrue(is_callable([$repository, 'clearTelemetryData']));
-        
+
         // Test method signature
         $reflection = new \ReflectionMethod($repository, 'clearTelemetryData');
         $this->assertEquals(0, $reflection->getNumberOfParameters());
-        
+
         // Test return type is void
         $returnType = $reflection->getReturnType();
         $this->assertEquals('void', $returnType->getName());

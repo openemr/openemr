@@ -9,6 +9,7 @@
  */
 
 namespace OpenEMR\Telemetry;
+
 use OpenEMR\Common\Database\DatabaseQueryTrait;
 
 /**
