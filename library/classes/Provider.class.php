@@ -11,41 +11,49 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
 
 /**
  * class Provider
- *
  */
-
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
+/**
+ * class Provider
+ */
 class Provider extends ORDataObject
 {
-        var $id;
-        var $lname;
-        var $fname;
-        var $federal_drug_id;
-        var $insurance_numbers;
-        var $specialty;
-        var $npi;
-        var $state_license_number;
+    protected string $_table = 'users';
 
-        /**
-         * Constructor sets all Prescription attributes to their default value
-         */
-    function __construct($id = "", $prefix = "")
+    var $lname;
+    var $fname;
+    var $federal_drug_id;
+    var $insurance_numbers;
+    var $specialty;
+    var $npi;
+    var $state_license_number;
+
+    /**
+     * Set Prescription properties to their default value
+     *
+     * @return void
+     */
+    protected function init(): void
     {
-        $this->id = $id;
         $this->federal_drug_id = "";
-        $this->_table = "users";
-        $this-> npi = "";
+        $this->npi = "";
         $this->insurance_numbers = array();
         $this->state_license_number = "";
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
-    function populate()
+    /**
+     * @return void
+     */
+    protected function populate(): void
     {
-        $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty, npi, state_license_number FROM users where id ='" . add_escape_custom($this->id) . "'");
+        parent::populate();
+        $id = $this->get_id();
+        if (empty($id)) {
+            $this->insurance_numbers = array();
+            return;
+        }
+        $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty, npi, state_license_number FROM users where id ='" . add_escape_custom($id) . "'");
 
         if (is_array($res)) {
             $this->lname = $res['lname'];
@@ -57,7 +65,7 @@ class Provider extends ORDataObject
         }
 
         $ins = new InsuranceNumbers();
-        $this->insurance_numbers = $ins->insurance_numbers_factory($this->id);
+        $this->insurance_numbers = $ins->insurance_numbers_factory($id);
     }
 
     function utility_provider_array()
@@ -82,11 +90,6 @@ class Provider extends ORDataObject
         }
 
         return $psa;
-    }
-
-    function get_id()
-    {
-        return $this->id;
     }
 
     function get_name_display()

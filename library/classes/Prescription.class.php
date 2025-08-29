@@ -82,23 +82,23 @@
 
 require_once(dirname(__FILE__) . "/../lists.inc.php");
 
+/**
+ * class Prescription
+ */
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Prescription
- *
  */
-
-use OpenEMR\Common\ORDataObject\ORDataObject;
-
 class Prescription extends ORDataObject
 {
+    protected string $_table = 'prescriptions';
+
     /**
-     *
      * @access public
      */
 
     /**
-     *
      * static
      */
     var $form_array;
@@ -110,11 +110,9 @@ class Prescription extends ORDataObject
     var $refills_array;
 
     /**
-     *
      * @access private
      */
 
-    var $id;
     var $patient = '';
     var $pharmacist = '';
     var $date_added;
@@ -152,83 +150,53 @@ class Prescription extends ORDataObject
     private string $erx_source;
 
     /**
-    * Constructor sets all Prescription attributes to their default value
-    */
-
-    function __construct($id = "", $_prefix = "")
+     * Set Prescription attributes to their default value
+     *
+     * @return void
+     */
+    protected function init(): void
     {
         $this->route_array = $this->load_drug_attributes('drug_route');
         $this->form_array = $this->load_drug_attributes('drug_form');
         $this->interval_array = $this->load_drug_attributes('drug_interval');
         $this->unit_array = $this->load_drug_attributes('drug_units');
 
-        $this->substitute_array = array("",xl("substitution allowed"),
-            xl("do not substitute"));
-
+        $this->substitute_array = array("", xl("substitution allowed"), xl("do not substitute"));
         $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
 
-        if (is_numeric($id)) {
-            $this->id = $id;
-        } else {
-            $id = "";
-        }
+        $this->refills = 0;
+        $this->substitute = false;
+        $this->pharmacy = new Pharmacy();
+        $this->pharmacist = new Person();
+        // default provider is the current user
+        $provider_id = $_SESSION['authUserID'];
+        $this->provider = new Provider($provider_id);
+        // for old historical data we are going to populate our created_by and updated_by
+        $this->created_by = $provider_id;
+        $this->updated_by = $provider_id;
+        $this->patient = new Patient();
+        $this->start_date = date("Y-m-d");
+        $this->date_added = date("Y-m-d H:i:s");
+        $this->date_modified = date("Y-m-d H:i:s");
+        $this->per_refill = 0;
+        $this->note = "";
 
-        //$this->unit = UNIT_MG;
-        //$this->route = ROUTE_PER_ORIS;
-        //$this->quantity = 1;
-        //$this->size = 1;
-            $this->refills = 0;
-        //$this->form = FORM_TABLET;
-            $this->substitute = false;
-            $this->_prefix = $_prefix;
-            $this->_table = "prescriptions";
-            $this->pharmacy = new Pharmacy();
-            $this->pharmacist = new Person();
-            // default provider is the current user
-            $this->provider = new Provider($_SESSION['authUserID']);
-            $this->patient = new Patient();
-            $this->start_date = date("Y-m-d");
-            $this->date_added = date("Y-m-d H:i:s");
-            $this->date_modified = date("Y-m-d H:i:s");
-            $this->created_by = $_SESSION['authUserID'];
-            $this->updated_by = $_SESSION['authUserID'];
-            $this->per_refill = 0;
-            $this->note = "";
-
-            $this->drug_id = 0;
-            $this->active = 1;
+        $this->drug_id = 0;
+        $this->active = 1;
 
         $this->ntx = 0;
 
         for ($i = 0; $i < 21; $i++) {
             $this->refills_array[$i] = sprintf("%02d", $i);
         }
-
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
     function persist()
     {
-        $this->date_modified = date("Y-m-d H:i:s");
-        if ($this->id == "") {
-            $this->date_added = date("Y-m-d H:i:s");
-        }
-
-        if (parent::persist()) {
-        }
-    }
-
-    function populate()
-    {
-        parent::populate();
-        // for old historical data we are going to populate our created_by and updated_by
-        if (empty($this->created_by)) {
-            $this->created_by = $this->get_provider_id();
-        }
-        if (empty($this->updated_by)) {
-            $this->updated_by = $this->get_provider_id();
+        $now = date("Y-m-d H:i:s");
+        $this->date_modified = $now;
+        if ($this->id === null) {
+            $this->date_added = $now;
         }
     }
 
@@ -300,17 +268,6 @@ class Prescription extends ORDataObject
         if (is_numeric($unit)) {
             $this->unit = $unit;
         }
-    }
-
-    function set_id($id)
-    {
-        if (!empty($id) && is_numeric($id)) {
-            $this->id = $id;
-        }
-    }
-    function get_id()
-    {
-        return $this->id;
     }
 
     function get_dosage_display($display_form = "")

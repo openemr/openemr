@@ -14,11 +14,11 @@ use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * class Address
- *
  */
 class Company extends ORDataObject
 {
-    var $id;
+    protected string $_table = 'companies';
+
     var $name;
     var $foreign_id;
     var $line1;
@@ -30,14 +30,25 @@ class Company extends ORDataObject
     var $country;
 
     /**
-     * Constructor sets all Company attributes to their default value
+     * Set Company attributes to their default value
+     *
+     * @param int|null $id
+     * @param string $foreign_id
      */
-    function __construct($id = "", $foreign_id = "")
+    function __construct(?int $id = null, $foreign_id = "")
     {
-        $this->id = $id;
-        $this->name = "";
+        parent::__construct($id);
         $this->foreign_id = $foreign_id;
-        $this->_table = "companies";
+    }
+
+    /**
+     * Initialize the Company object with default values
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
+        $this->name = "";
         $this->line1 = "";
         $this->line2 = "";
         $this->city = "";
@@ -45,10 +56,8 @@ class Company extends ORDataObject
         $this->zip = "";
         $this->plus_four = "";
         $this->country = "USA";
-        if ($id != "") {
-            $this->populate();
-        }
     }
+
     function factory_company($foreign_id = "")
     {
         $sqlArray = array();
@@ -85,14 +94,6 @@ class Company extends ORDataObject
         return $html ? nl2br($string) : $string;
     }
 
-    function set_id($id)
-    {
-        $this->id = $id;
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
     function set_name($name)
     {
         $this->name = $name;
@@ -173,4 +174,4 @@ class Company extends ORDataObject
 
         parent::persist();
     }
-} // end of Company
+}

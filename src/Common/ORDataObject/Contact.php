@@ -16,12 +16,14 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
+/**
+ * Contact class
+ */
 class Contact extends ORDataObject
 {
-    /**
-     * @var int
-     */
-    private $id;
+    protected string $_table = 'contact';
 
     /**
      * @var string
@@ -33,19 +35,8 @@ class Contact extends ORDataObject
      */
     private $foreign_id;
 
-
     const CONTACT_TYPE_PATIENT = 'Patient';
     const CONTACT_TYPES = [self::CONTACT_TYPE_PATIENT];
-
-    public function __construct($id)
-    {
-        parent::__construct("contact");
-        $this->id = $id;
-
-        if (!empty($id)) {
-            $this->populate();
-        }
-    }
 
     public function setContactRecord(string $foreign_table_name, int $foreign_id): void
     {
@@ -71,24 +62,6 @@ class Contact extends ORDataObject
             // the contact entry already exists for this foreign table name and foreign id, so set it
             $this->id = $id;
         }
-    }
-
-    /**
-     * @return int
-     */
-    public function get_id(): ?int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     * @return Contact
-     */
-    public function set_id(int $id): Contact
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**

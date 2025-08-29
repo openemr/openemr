@@ -18,11 +18,14 @@ namespace OpenEMR\Common\ORDataObject;
 
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 use DateTime;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactAddress extends ORDataObject implements \JsonSerializable
 {
+    protected string $_table = 'contact_address';
+
     // ORDataObject won't save with a numeric "0", we could change the condition but we don't know the ramifications
     // of doing that and we're short on time.  So we are switching this to string constants and letting MySQL convert it
     // TODO: Change these to numeric values once we've fixed the issue in ORDataObject
@@ -34,7 +37,7 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     public const DEFAULT_TYPE = "both"; // both physical and shipping address
     public const DEFAULT_USE = self::ADDRESS_TYPE_HOME;
     public const USE_OLD = "old"; // option_id for 'use' property when the address is no longer used or is incorrect.
-    private $id;
+
     /**
      * @var int The foreign key to the contact table
      */
@@ -108,30 +111,22 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     /**
      * @var string The use of this address (home, work, etc)
      */
-    private $_use;
+    private $_use = self::DEFAULT_USE;
 
     /**
-     * Constructor sets all Address attributes to their default value
+     * Sets all Address attributes to their default value
+     *
+     * @return void
      */
-    public function __construct($id = "")
+    protected function init(): void
     {
-        parent::__construct("contact_address");
-        $this->setThrowExceptionOnError(true);
-        // we set our defaults, populate can override this if  needed.
-        $this->id = $id;
         $this->priority = 0;
         $this->author = $_SESSION['authUser'];
         $this->status = self::STATUS_ACTIVE;
-        $this->use = self::DEFAULT_USE;
         $this->type = self::DEFAULT_TYPE;
         $this->isPrimary = false;
         $this->createdDate = new DateTime();
         $this->periodStart = $this->createdDate;
-
-        if ($id != "") {
-            $this->populate();
-            $this->setIsObjectModified(false);
-        }
     }
 
     protected function get_date_fields()
@@ -216,24 +211,6 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
         $contact = new Contact($id);
         $contact->setThrowExceptionOnError(true);
         return $contact;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function get_id()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param mixed $id
-     * @return ContactAddress
-     */
-    public function set_id($id)
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**

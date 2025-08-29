@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\Common\ORDataObject\ORDataObject;
-
 /*
  * Copyright Medical Information Integration,LLC info@mi-squared.com
  * This program is free software; you can redistribute it and/or
@@ -19,45 +17,36 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 /* remember that include paths are calculated relative to the including script, not this file. */
 require_once(dirname(__FILE__) . '/../globals.php');
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 /**
  * @class AbstractClickmapModel
  *
  * @brief code This class extends the OrDataObject class, which is used to model form data for a smarty generated form.
  *
  * This class extends the ORDataObject class, to model the contents of an image-based form.
- *
  */
 abstract class AbstractClickmapModel extends ORDataObject
 {
     /**
-     * The row to persist information to/from.
-     *
-     * @var id
-     */
-    var $id;
-    /**
-     *
      * FIXME: either last modification date OR creation date?
      *
      * @var date
      */
     var $date;
     /**
-     *
      * The unique identifier of the patient this form belongs to.
      *
      * @var pid
      */
     var $pid;
     /**
-     *
      * required field in database table. not used, always defaulted to NULL.
      *
      * @var user
      */
     var $user;
     /**
-     *
      * required field in database table. not used, always defaulted to NULL.
      *
      * @var groupname
@@ -86,32 +75,15 @@ abstract class AbstractClickmapModel extends ORDataObject
     var $data;
 
     /**
-     * @brief Initialize a newly created object belonging to this class
+     * Initialize a newly created object belonging to this class
      *
-     * @param table
-     *  The sql table to persist form contents from/to.
-     *
-     * @param id
-     *  The index of a row in the given table to initialize form contents from.
+     * @return void
      */
-    public function __construct($table, $id = "")
+    protected function init(): void
     {
-        parent::__construct();
-
-        /* Only accept numeric IDs as arguments. */
-        if (is_numeric($id)) {
-            $this->id = $id;
-        } else {
-            $id = "";
-        }
-
         $this->date = date("Y-m-d H:i:s");
-        $this->_table = $table;
         $this->data = "";
         $this->pid = $GLOBALS['pid'];
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
     /**
@@ -129,15 +101,6 @@ abstract class AbstractClickmapModel extends ORDataObject
     abstract function getCode();
 
     /**
-     * @brief Fill in this object's members with the contents from the database representing the stored form.
-     */
-    function populate()
-    {
-        /* Run our parent's implementation. */
-        parent::populate();
-    }
-
-    /**
      * @brief Store the current structure members representing the form into the database.
      */
     function persist()
@@ -147,21 +110,6 @@ abstract class AbstractClickmapModel extends ORDataObject
     }
 
     /* The rest of this object consists of set_ and get_ pairs, for setting and getting the value of variables that are members of this object. */
-
-    function get_id()
-    {
-        return $this->id;
-    }
-
-    function set_id($id)
-    {
-        if (!empty($id) && is_numeric($id)) {
-            $this->id = $id;
-        } else {
-            trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
-        }
-    }
-
     function get_pid()
     {
         return $this->pid;

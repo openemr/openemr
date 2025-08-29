@@ -450,9 +450,15 @@ class C_FormVitals
         foreach ($_POST as $varname => $var) {
             $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
+            if ($func == "set_id") {
+                if (!empty($var)) {
+                    $var = (int)$var; // make sure we have an integer
+                } else {
+                    $var = null; // if we don't have an id then we set it to null
+                }
+            }
             if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
                 //echo "c: $func on w: "  . $var . "<br />";
-
                 $obj->$func($var, $_POST);
             }
         }
