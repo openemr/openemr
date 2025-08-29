@@ -150,6 +150,8 @@ class ClientAdminController
                 return $this->enableAction($clientId, $request);
             } else if ($subAction == 'disable') { // route /edit/:clientId/disable
                 return $this->disableAction($clientId, $request);
+            } else if ($subAction == 'update') {
+                return $this->updateAction($clientId, $request);
             } else if ($subAction == self::REVOKE_TRUSTED_USER) {
                 return $this->revokeTrustedUserAction($clientId, $request);
             } else if ($subAction == self::REVOKE_ACCESS_TOKEN) {
@@ -251,6 +253,52 @@ class ClientAdminController
         }
         $client->setTrustedUsers($usersWithAccessTokens);
         $this->renderEdit($client, $request);
+    }
+
+    public function updateAction($clientId, Request $request)
+    {
+        $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            $this->notFoundAction($request);
+            return;
+        }
+
+        $identityProvider = $request->request->get('identity_provider');
+        $googleClientId = $request->request->get('google_client_id');
+        $googleClientSecret = $request->request->get('google_client_secret');
+
+        $client->setIdentityProvider($identityProvider);
+        $client->setGoogleClientId($googleClientId);
+        if (!empty($googleClientSecret)) {
+            $client->setGoogleClientSecret($googleClientSecret);
+        }
+
+        try {
+            $this->clientRepo->persist($client);
+            $this->logger->info(
+                "GCIP configuration updated for client: " . $client->getIdentifier(),
+                [
+                    'client_id' => $client->getIdentifier(),
+                    'identity_provider' => $client->getIdentityProvider(),
+                    'google_client_id' => $client->getGoogleClientId(),
+                ]
+            );
+            $message = xl('Client updated successfully');
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            header("Location: " . $url);
+        } catch (\Exception $ex) {
+            $this->logger->error(
+                "Failed to save client",
+                [
+                    "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
+                    , 'client' => $client->getIdentifier()
+                ]
+            );
+
+            $message = xl('Client failed to save. Check system logs');
+            $url = $this->getActionUrl(['edit', 'client' => $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            header("Location: " . $url);
+        }
     }
 
     private function getAccessTokensForClientUser($clientId, $user_id)
@@ -363,6 +411,7 @@ class ClientAdminController
     private function renderEdit(ClientEntity $client, Request $request)
     {
         $listAction = $this->getActionUrl(['list']);
+        $updateAction = $this->getActionUrl(['edit', $client->getIdentifier(), 'update']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
         $disableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable-authorization-flow-skip']);
@@ -494,6 +543,7 @@ class ClientAdminController
         }
         $data = [
             'listAction' => $listAction
+            ,'updateAction' => $updateAction
             ,'client' => $client
             ,'allowSkipAuthSetting' => $allowSkipAuthSetting
             ,'skipAuthorizationFlow' => $skipAuthorizationFlow

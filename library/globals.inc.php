@@ -2288,6 +2288,13 @@ $GLOBALS_METADATA = array(
             xl('This Client ID Is Provided By Google For Your App (Required For Google Sign-in)')
         ),
 
+       'gcip_enabled' => array(
+           xl('Enable Google Cloud Identity Platform Integration'),
+           'bool',
+           '0',
+           xl('This will enable authentication using Google Cloud Identity Platform.')
+       ),
+
         'gbl_ldap_enabled' => array(
             xl('Use LDAP for Authentication'),
             'bool',

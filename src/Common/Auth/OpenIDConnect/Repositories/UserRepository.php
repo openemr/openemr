@@ -45,4 +45,32 @@ class UserRepository extends UserEntity implements UserRepositoryInterface
     ) {
         return false;
     }
+
+    public function getUserEntityByEmail(string $email): ?UserEntity
+    {
+        $userRecord = sqlQueryNoLog("SELECT * FROM `users` WHERE `email` = ?", [$email]);
+        if (empty($userRecord)) {
+            return null;
+        }
+
+        $user = new UserEntity();
+        $user->setIdentifier($userRecord['uuid']);
+        return $user;
+    }
+
+    public function createUser(string $email, string $firstName, string $lastName): string
+    {
+        // In a real scenario, you would want to set a secure password, handle roles, etc.
+        // For this example, we'll create a basic user.
+        $sql = "INSERT INTO `users` (`username`, `email`, `fname`, `lname`, `active`, `authorized`) VALUES (?, ?, ?, ?, 1, 1)";
+        sqlQueryNoLog($sql, [$email, $email, $firstName, $lastName]);
+        $newUserId = sqlInsertId();
+
+        // Ensure UUID is generated for the new user
+        \OpenEMR\Common\Uuid\UuidRegistry::createMissingUuidsForTables(['users']);
+
+        $userRecord = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$newUserId]);
+        return $userRecord['uuid'];
+    }
 }
+
