@@ -20,6 +20,7 @@ require_once("../globals.php");
 require_once("$srcdir/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/column_views.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
@@ -398,8 +399,28 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     //New line for hidden input, for update items
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
-    echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
+    
+    if ($list_id == 'ptlistcols') {
+        $query = "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'patient_data'";
+        $res = sqlStatement($query);
+        $patient_data_column_names = array();
+        while ($row = sqlFetchArray($res)) {
+            $patient_data_column_names[] = $row['COLUMN_NAME'];
+        }
+        $patient_data_column_names[] = '';
+        $patient_data_column_names = array_merge($patient_data_column_names, column_views_list());
+        sort($patient_data_column_names);
+
+        echo "<select name='opt[" . attr($opt_line_no) . "][id]' class='form-control form-control-sm select2-patient_data_column_names option'>";
+        foreach ($patient_data_column_names as $column_name) {
+            $selected = ($option_id == $column_name) ? " selected=''" : "";
+            echo "    <option value='".attr($column_name)."'".$selected.">".attr($column_name)."</option>";
+        }
+        echo "</select>";
+    } else {
+        echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
+    }
     echo "</td>\n";
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][title]' value='" .
@@ -517,7 +538,11 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "</td>\n";
     } elseif ($list_id == 'ptlistcols') {
         echo "  <td>";
-        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', null, 'option');
+        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction_Full', $tog1, 'Sort Direction', null, 'form-control-sm option');
+        echo "</td>\n";
+        echo "  <td>";
+        echo "<input type='text' name='opt[" . attr($opt_line_no) . "][subtype]' value='" .
+            attr($subtype) . "' size='8' maxlength='15' class='optin form-control form-control-sm' />";
         echo "</td>\n";
     }
 
@@ -891,6 +916,20 @@ function writeITLine($it_array): void
         $(document).on('select2:open', () => {
             document.querySelector('.select2-search__field').focus();
         });
+
+        <?php 
+            if ($list_id == 'ptlistcols') {
+        ?>
+                $(function () {             
+                    $(".select2-patient_data_column_names").select2({ 
+                        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                    });
+                    $('.select2-patient_data_column_names').next()
+                        .css("width","100%")
+                        .css("font-size","small")
+                });
+        <?php } ?>
+
         // Keeping track of code picker requests.
         var current_lino = 0;
         var current_sel_name = '';
@@ -1327,7 +1366,8 @@ function writeITLine($it_array): void
                     <?php } elseif ($list_id == 'immunizations') { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
                     <?php } elseif ($list_id == 'ptlistcols') { ?>
-                        <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
+                        <th style="width: 7rem;">&nbsp;<?php echo xlt('Default Sort'); ?></th>
+                        <th style="width: 12rem;"><?php echo xlt('Width (%,px,or rem)'); ?>&nbsp;&nbsp;</th>
                     <?php }
                     if ($GLOBALS['ippf_specific']) { ?>
                         <th><?php echo xlt('Global ID'); ?></th>

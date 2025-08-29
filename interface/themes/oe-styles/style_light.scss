@@ -3,7 +3,12 @@
 $black: #222;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
-$gray: #cdcdcd;
+
+// Original gray: #cdcdcd;
+$gray: #6c757d;
+$secondary-color: #6c757d;
+
+@import "../default-variables";
 
 // Import Bootstrap 4 SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch

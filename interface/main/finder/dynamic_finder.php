@@ -10,9 +10,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -85,6 +87,42 @@ $loading = "";
         color: var(--danger);
         transform: translateX(-50%);
     }
+
+     div.dataTables_wrapper div#header-buttons {
+        padding-top: 0;
+        padding-left: 2rem;
+        display: inline-block;
+    }
+    
+    div.dataTables_wrapper div#select-search {
+        padding-top: 0;
+        padding-left: 0;
+        display: inline-block;
+    }
+
+    div.dataTables_wrapper a#exp_cont_icon {
+        padding-top: 0rem;
+        padding-left: 1.5rem;
+        font-size: 1.5rem !important;
+        display: inline-block;
+        vertical-align: middle;
+        color: var(--primary) !important;
+    }
+
+    div.dataTables_wrapper i#show_hide {
+        padding-top: 0rem;
+        padding-left: 1rem;
+        font-size: 1.5rem;
+        display: inline-block;
+        vertical-align: middle;
+        color: var(--primary) !important;
+    }
+
+    div.dataTables_wrapper .my_bottom_div {
+        padding-left: 0.75rem;
+        padding-top: 0.5rem;
+    }
+
     .card {
         border: 0;
         border-radius: 0;
@@ -92,26 +130,59 @@ $loading = "";
 
     @media screen and (max-width: 640px) {
         .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper #custom-search {
             float: inherit;
             text-align: justify;
         }
+        /* remove later .dataTables_wrapper .dataTables_filter */
     }
 
     /* Color Overrides for jQuery-DT */
     table.dataTable thead th,
     table.dataTable thead td {
-        border-bottom: 1px solid var(--gray900) !important;
+        /*border-bottom: 1px solid var(--gray900) !important;*/
+        border-bottom: 0;
+        padding: 0.25rem 0.25rem;
+    }
+    table.dataTable thead #column-search {
+        border-bottom: 0;
+        background-color: var(--white) !important;
+    }
+
+    table.dataTable thead #column-search td input.search_init {
+        height: 1.7rem;
+    }
+
+    table.dataTable thead tr.header-labels th {
+        border-bottom: 0;
+        padding: 0.25rem 0.75rem;
+    }
+
+    table.dataTable thead tr.header-labels th.dt-control {
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
     }
 
     table.dataTable tfoot th,
     table.dataTable tfoot td {
-        border-top: 1px solid var(--gray900) !important;
+        /*border-top: 1px solid var(--gray900) !important;*/
+        border-top: 0;    
     }
 
     table.dataTable tbody tr {
         background-color: var(--white) !important;
         cursor: pointer;
+    }
+
+    table.dataTable tbody td {
+        padding: 0.1rem 0.75rem;
+        border-bottom: 1px solid var(--primary) !important;
+    }
+
+    table.dataTable tbody td.dt-control {
+        padding: 0.1rem 0.2rem;
+        border-bottom: 1px solid var(--primary) !important;
     }
 
     table.dataTable.row-border tbody th,
@@ -137,11 +208,21 @@ $loading = "";
         background-color: var(--light) !important;
     }
 
-    table.dataTable.hover tbody tr:hover,
-    table.dataTable.display tbody tr:hover {
-        background-color: var(--light) !important;
+        table.dataTable tbody tr:hover,
+    table.dataTable tbody tr:hover a,
+    table.dataTable.display tbody tr:hover,
+    table.dataTable.display tbody tr:hover a {
+        background-color: var(--secondary) !important;
+        text-decoration: none !important;
+        color: var(--light);
     }
 
+    table.dataTable tbody a:hover,
+    table.dataTable.display tbody a:hover {
+        text-decoration: none !important;
+        color: var(--light);
+    }
+    
     table.dataTable.order-column tbody tr>.sorting_1,
     table.dataTable.order-column tbody tr>.sorting_2,
     table.dataTable.order-column tbody tr>.sorting_3,
@@ -183,26 +264,26 @@ $loading = "";
 
     table.dataTable.display tbody tr:hover>.sorting_1,
     table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
-        background-color: var(--gray200) !important;
+        background-color: var(--gray300) !important;
     }
 
     table.dataTable.display tbody tr:hover>.sorting_2,
     table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
-        background-color: var(--gray200) !important;
+        background-color: var(--gray300) !important;
     }
 
     table.dataTable.display tbody tr:hover>.sorting_3,
     table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
-        background-color: var(--gray200) !important;
+        background-color: var(--gray300) !important;
     }
 
     table.dataTable.display tbody .odd:hover,
     table.dataTable.display tbody .even:hover {
-        background-color: var(--gray200) !important;
+        background-color: var(--gray300) !important;
     }
 
     table.dataTable.no-footer {
-        border-bottom: 1px solid var(--gray900) !important;
+        border-bottom: 0;
     }
 
     .dataTables_wrapper .dataTables_processing {
@@ -217,10 +298,44 @@ $loading = "";
 
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper #custom-search,
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_processing,
     .dataTables_wrapper .dataTables_paginate {
         color: var(--dark) !important;
+    }
+    /* remove later  .dataTables_wrapper .dataTables_filter,*/
+
+        .dataTables_wrapper .dataTables_info {
+        padding-left: 0.75rem;
+        padding-top: 0.5rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding-right: 0;
+        margin-bottom: 1rem !important;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper #custom-search {
+        margin-top: 0.2rem;
+        padding: 0;
+        padding-right: 0.5rem;
+    }
+
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper #custom-search label {
+        margin-bottom: 0;
+    }
+
+    div.dataTables_wrapper div#custom-search input {
+        display: inline-block !important;
+        float: none;
+        width: 12rem !important;
+        vertical-align: middle;
+        height: 1.7rem;
+        font-size: 1rem;
+        margin-left: 0.5rem;
     }
 
     div.dataTables_length select {
@@ -228,7 +343,7 @@ $loading = "";
     }
 
     .dataTables_wrapper.no-footer .dataTables_scrollBody {
-        border-bottom: 1px solid var(--gray900) !important;
+        border-bottom: 0;
     }
 
     /* Pagination button Overrides for jQuery-DT */
@@ -247,6 +362,72 @@ $loading = "";
     table thead .sorting::after {
         display: none !important;
     }
+
+    .dataTables_wrapper #search {
+        float: right;
+    }
+
+    .dataTables_wrapper .btn-select-search {
+        display: inline-block;
+        margin-left: -35px;
+        border: 0;
+        transition: 0;
+        background: transparent;
+        padding: 7px 7px 8px 5px;
+        outline: none;
+    }
+
+    .dataTables_wrapper .btn-select-search:focus {
+        outline: none !important;
+    }
+
+    .dataTables_wrapper .dropdown-toggle::after {
+        display: none !important;
+    }
+
+    .dataTables_wrapper #custom-search {
+        float: none !important;
+    }
+
+    .dataTables_wrapper #pt_table_info {
+        padding-left: 0;
+    }
+
+    .dt-control {
+        padding: 0;
+    }
+
+    .dt-control::before {
+        background-color: var(--primary) !important;
+        height: 0.9em !important;
+        width: 0.9em !important;
+        font-size: 0.8em !important;
+        line-height: 0.9em !important;
+        vertical-align:0.2em !important;
+        padding: 0;
+        box-shadow: 0 0 .3em #444 !important;
+    }
+
+    table.dataTable tr.dt-hasChild td.dt-control::before {
+        background-color: var(--danger) !important;
+    }
+
+
+    .noHover {
+        pointer-events: none;
+    }
+
+    .patient_detail_container div.tab{
+        padding-left: 2rem;
+        margin-bottom: 1rem;
+        min-height: 0;
+
+    }
+
+    .patient_detail_container div.tab table td{
+        border: 0 !important;
+    }
+
 </style>
 <script>
     var uspfx = '<?php echo attr($uspfx); ?>';
