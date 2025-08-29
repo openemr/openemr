@@ -3773,7 +3773,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                       echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
                                                                   }
                                                                     $code_text = (strlen(substr($fs_option, 1)) > 26) ? substr(substr($fs_option, 1), 0, 24) . '...' : substr($fs_option, 1);
-                                                                    echo "    <option value='" . attr($fs_codes) . "'>" . text($code) . " " . text(substr($fs_category, 1)) . ": " . text($code_text) . "</option>\n";
+                                                                    echo "    <option value='" . attr($fs_codes) . "'>" . text($code ?? '') . " " . text(substr($fs_category, 1)) . ": " . text($code_text) . "</option>\n";
                                                               }
 
                                                               // Create drop-lists based on categories defined within the codes.

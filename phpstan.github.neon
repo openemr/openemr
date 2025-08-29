@@ -4260,10 +4260,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Bifocal might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$COMMENTS might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -4432,10 +4428,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Progressive might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$REFTYPE might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -4445,14 +4437,6 @@ parameters:
     count: 3
     path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$Single might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Trifocal might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$W might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/forms/eye_mag/SpectacleRx.php
@@ -4562,7 +4546,7 @@ parameters:
     path: interface/forms/eye_mag/a_issue.php
   - message: '#^Variable \$result2 might not be defined\.$#'
     identifier: variable.undefined
-    count: 12
+    count: 8
     path: interface/forms/eye_mag/a_issue.php
   - message: '#^Variable \$subtype might not be defined\.$#'
     identifier: variable.undefined
@@ -5879,10 +5863,6 @@ parameters:
   - message: '#^Variable \$display_PMSFH might not be defined\.$#'
     identifier: variable.undefined
     count: 7
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$display_W might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$encounter_date on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
