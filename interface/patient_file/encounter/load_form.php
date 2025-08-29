@@ -48,7 +48,7 @@ $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
 $telemetryService = new TelemetryService();
-if ($telemetryService->checkTelemetryEnabled()) {
+if ($telemetryService->isTelemetryEnabled()) {
     $telemetryService->reportClickEvent([
         'eventType' => 'encounterForm',
         'eventLabel' => $_GET['formname'] ?? 'Unknown',
