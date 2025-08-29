@@ -78,20 +78,19 @@ function smarty_function_pc_date_select($args): void
 
     $dayselect = $monthselect = $yearselect = $viewselect = '';
     $output = new pnHTML();
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if ($args['day'] === true) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day' => $d));
-        $dayselect = $output->FormSelectMultiple('jumpday', $sel_data);
+        $dayselect = $output->generateFormSelectMultiple('jumpday', $sel_data);
     }
 
     if ($args['month'] === true) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month' => $m));
-        $monthselect = $output->FormSelectMultiple('jumpmonth', $sel_data);
+        $monthselect = $output->generateFormSelectMultiple('jumpmonth', $sel_data);
     }
 
     if ($args['year'] === true) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year' => $y));
-        $yearselect = $output->FormSelectMultiple('jumpyear', $sel_data);
+        $yearselect = $output->generateFormSelectMultiple('jumpyear', $sel_data);
     }
 
     if ($args['view'] === true) {
@@ -108,7 +107,7 @@ function smarty_function_pc_date_select($args): void
         $sel_data[3]['id']         = 'year';
         $sel_data[3]['selected']   = $viewtype == 'year';
         $sel_data[3]['name']       = _CAL_YEARVIEW;
-        $viewselect = $output->FormSelectMultiple('viewtype', $sel_data);
+        $viewselect = $output->generateFormSelectMultiple('viewtype', $sel_data);
     }
 
     if (!isset($args['label'])) {
@@ -116,7 +115,6 @@ function smarty_function_pc_date_select($args): void
     }
 
         $jumpsubmit = '<input type="submit" class="btn btn-primary align-middle" name="submit" value="' . $args['label'] . '" />';
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
 
     $orderArray = array('day' => $dayselect,
                         'month' => $monthselect,
