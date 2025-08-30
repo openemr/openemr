@@ -3797,64 +3797,6 @@ function document_engine($pid)
         }
     }
 
-    if (!$zone['AntSeg Laser']) {
-        $sql = "select id from categories ORDER by id desc LIMIT 1";
-        $last_row = sqlQuery($sql);
-        $counter = $last_row['id'];
-        $counter++;
-        $sql = "INSERT INTO `categories` ( `id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
-                    VALUES (?, 'AntSeg Laser', 'ANTSEG', '14', 'patients|docs', '');";
-        sqlStatement($sql, [$counter]);
-
-        $sql = "SELECT * from categories where id = ?";
-        $sql2 = sqlStatement($sql, [$counter]);
-        while ($row1 = sqlFetchArray($sql2)) {
-            $categories[] = $row1;
-            $my_name[$row1['id']] = $row1['name'];
-            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
-            $parent_name[$row1['name']] = $my_name[$row1['parent']];
-            $zones[$row1['value']][] = $row1;
-        }
-    }
-    if (!$zone['Retina Laser']) {
-        $sql = "select id from categories ORDER by id desc LIMIT 1";
-        $last_row = sqlQuery($sql);
-        $counter = $last_row['id'];
-        $counter++;
-        $sql = "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
-                    VALUES (?, 'Retina Laser', 'POSTSEG', '14', 'patients|docs', '');";
-        sqlStatement($sql, [$counter]);
-
-        $sql = "SELECT * from categories where id = ?";
-        $sql2 = sqlStatement($sql, [$counter]);
-        while ($row1 = sqlFetchArray($sql2)) {
-            $categories[] = $row1;
-            $my_name[$row1['id']] = $row1['name'];
-            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
-            $parent_name[$row1['name']] = $my_name[$row1['parent']];
-            $zones[$row1['value']][] = $row1;
-        }
-    }
-    if (!$zone['Injections']) {
-        $sql = "select id from categories ORDER by id desc LIMIT 1";
-        $last_row = sqlQuery($sql);
-        $counter = $last_row['id'];
-        $counter++;
-        $sql = "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
-                    VALUES (?, 'Injections', 'POSTSEG', '14', 'patients|docs', '');";
-        sqlStatement($sql, [$counter]);
-
-        $sql = "SELECT * from categories where id = ?";
-        $sql2 = sqlStatement($sql, [$counter]);
-        while ($row1 = sqlFetchArray($sql2)) {
-            $categories[] = $row1;
-            $my_name[$row1['id']] = $row1['name'];
-            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
-            $parent_name[$row1['name']] = $my_name[$row1['parent']];
-            $zones[$row1['value']][] = $row1;
-        }
-    }
-
     $query = "Select *, categories.name as cat_name
                 from
                 categories, documents, categories_to_documents
