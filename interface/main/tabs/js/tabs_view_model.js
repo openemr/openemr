@@ -5,8 +5,10 @@
  * @link      http://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Daniel Pflieger <daniel@growlingflea.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -402,6 +404,7 @@ function clearPatient(openFinder = true)
     top.restoreSession();
     app_view_model.application_data.patient(null);
     tabCloseByName('enc');
+    tabCloseByName('enc2'); //***closes the issues tab
     tabCloseByName('rev');
     tabCloseByName('pop');
     tabCloseByName('pat');
@@ -426,6 +429,15 @@ function clearPatient(openFinder = true)
         },
         success:function( msg ) { }
 	});
+}
+
+
+function loadPatientIssues(fun = '')
+{
+    console.log("***loadPatientIssues***" + fun);
+    let  url = webroot_url+'/interface/patient_file/summary/stats_full.php';
+    navigateTab(url,"gfn");
+    //activateTabByName("enc2",true);
 }
 
 function clearTherapyGroup()

@@ -118,6 +118,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         jsGlobals.time_display_format = <?php echo js_escape($GLOBALS['time_display_format']); ?>;
         jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone'] ?? ''); ?>;
         jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
+        let AutoIssuesTab = <?php echo js_escape($GLOBALS['issues_auto_tab']); ?>;
         var WindowTitleAddPatient = <?php echo($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false'); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
