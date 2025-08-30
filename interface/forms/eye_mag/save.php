@@ -53,7 +53,7 @@ if (isset($_REQUEST['id'])) {
 }
 
 if (!($id ?? '')) {
-    $id = $_REQUEST['pid'];
+    $id = $_REQUEST['pid'] ?? '';
 }
 
 $encounter = $_REQUEST['encounter'] ?? '';
@@ -71,156 +71,161 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','VA','Vision',?,'RS','51',?,'1')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_VA']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_VA'] ?? ''));
+
+    $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
+                VALUES
+                ('PREFS','VAHx','Vision History',?,'VAHx','1001',?,'1')";
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_VAHx'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','W','Current Rx',?,'W','52',?,'2')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','W_width','Detailed Rx',?,'W_width','80',?,'100')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W_width']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W_width'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','MR','Manifest Refraction',?,'MR','53',?,'3')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_MR']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_MR'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','MR_width','Detailed MR',?,'MR_width','81',?,'110')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W_width']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W_width'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CR','Cycloplegic Refraction',?,'CR','54',?,'4')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CR']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CR'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CTL','Contact Lens',?,'CTL','55',?,'5')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CTL']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CTL'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS', 'VAX', 'Visual Acuities', ?, 'VAX','65', ?,'15')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_VAX']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_VAX'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS', 'RXHX', 'Prior Refractions', ?, 'RXHX','65', ?,'115')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RXHX']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RXHX'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ADDITIONAL','Additional Data Points',?,'ADDITIONAL','56',?,'6')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ADDITIONAL']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ADDITIONAL'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CLINICAL','CLINICAL',?,'CLINICAL','57',?,'7')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CLINICAL']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CLINICAL'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','IOP','Intraocular Pressure',?,'IOP','67',?,'17')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_IOP']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_IOP'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','EXAM','EXAM',?,'EXAM','58',?,'8')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_EXAM']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_EXAM'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CYLINDER','CYL',?,'CYL','59',?,'9')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CYL']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_CYL'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','HPI_VIEW','HPI View',?,'HPI_VIEW','60',?,'10')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_HPI_VIEW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_HPI_VIEW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','EXT_VIEW','External View',?,'EXT_VIEW','66',?,'16')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_EXT_VIEW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_EXT_VIEW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ANTSEG_VIEW','Anterior Segment View',?,'ANTSEG_VIEW','61',?,'11')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ANTSEG_VIEW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ANTSEG_VIEW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','RETINA_VIEW','Retina View',?,'RETINA_VIEW','62',?,'12')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RETINA_VIEW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RETINA_VIEW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','NEURO_VIEW','Neuro View',?,'NEURO_VIEW','63',?,'13')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_NEURO_VIEW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_NEURO_VIEW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ACT_VIEW','ACT View',?,'ACT_VIEW','64',?,'14')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ACT_VIEW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ACT_VIEW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ACT_SHOW','ACT Show',?,'ACT_SHOW','65',?,'15')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ACT_SHOW']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ACT_SHOW'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','HPI_RIGHT','HPI DRAW',?,'HPI_RIGHT','70',?,'16')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_HPI_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_HPI_RIGHT'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','PMH_RIGHT','PMH DRAW',?,'PMH_RIGHT','71',?,'17')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_PMH_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_PMH_RIGHT'] ?? ''));
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','EXT_RIGHT','EXT DRAW',?,'EXT_RIGHT','72',?,'18')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_EXT_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_EXT_RIGHT'] ?? ''));
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ANTSEG_RIGHT','ANTSEG DRAW',?,'ANTSEG_RIGHT','73',?,'19')";
-    $result = sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ANTSEG_RIGHT']));
+    $result = sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_ANTSEG_RIGHT'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','RETINA_RIGHT','RETINA DRAW',?,'RETINA_RIGHT','74',?,'20')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RETINA_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RETINA_RIGHT'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','SDRETINA_RIGHT','SDRETINA DRAW',?,'SDRETINA_RIGHT','80',?,'26')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_SDRETINA_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_SDRETINA_RIGHT'] ?? ''));
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','NEURO_RIGHT','NEURO DRAW',?,'NEURO_RIGHT','75',?,'21')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_NEURO_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_NEURO_RIGHT'] ?? ''));
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','IMPPLAN_RIGHT','IMPPLAN DRAW',?,'IMPPLAN_RIGHT','76',?,'22')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_IMPPLAN_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_IMPPLAN_RIGHT'] ?? ''));
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','PANEL_RIGHT','PMSFH Panel',?,'PANEL_RIGHT','77',?,'23')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_PANEL_RIGHT']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_PANEL_RIGHT'] ?? ''));
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','KB_VIEW','KeyBoard View',?,'KB_VIEW','78',?,'24')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_KB']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_KB'] ?? ''));
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','TOOLTIPS','Toggle Tooltips',?,'TOOLTIPS','79',?,'25')";
-    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_TOOLTIPS']));
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_TOOLTIPS'] ?? ''));
 
     // These settings are sticky user preferences linked to a given page.
 // Could do ALL preferences this way instead of the modified extract above...
@@ -894,7 +899,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['MOTILITYNORMAL'] = '0';
     }
 
-    if (!$_POST['ACT']) {
+    if (!($_POST['ACT'] ?? '')) {
         $_POST['ACT'] = 'off';
     }
 
@@ -1028,7 +1033,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             `LENS_TREATMENTS`
             ) VALUES
             (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $LENS_TREATMENTS_1 = implode("|", (empty($_POST['LENS_TREATMENTS_1']) ? array() : $_POST['LENS_TREATMENTS_1']));
+            $LENS_TREATMENTS_1 = implode("|", $_POST['LENS_TREATMENTS_1'] ?? []);
             sqlQuery($query, array($encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_1'], $_POST['ODCYL_1'], $_POST['ODAXIS_1'],
                 $_POST['ODVA_1'], $_POST['ODADD_1'], $_POST['ODNEARVA_1'], $_POST['OSSPH_1'], $_POST['OSCYL_1'], $_POST['OSAXIS_1'],
                 $_POST['OSVA_1'], $_POST['OSADD_1'], $_POST['OSNEARVA_1'], $_POST['ODMIDADD_1'], $_POST['OSMIDADD_1'],
@@ -1053,11 +1058,11 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        $LENS_TREATMENTS_2 = implode("|", $_POST['LENS_TREATMENTS_2']);
+        $LENS_TREATMENTS_2 = implode("|", $_POST['LENS_TREATMENTS_2'] ?? []);
         sqlQuery($query, array($encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_2'], $_POST['ODCYL_2'], $_POST['ODAXIS_2'],
-            $_POST['ODVA_2'], $_POST['ODADD_2'], $_POST['ODNEARVA_2'], $_POST['OSSPH_2'], $_POST['OSCYL_2'], $_POST['OSAXIS_2'],
-            $_POST['OSVA_2'], $_POST['OSADD_2'], $_POST['OSNEARVA_2'], $_POST['ODMIDADD_2'], $_POST['OSMIDADD_2'],
-            0 + $_POST['RX_TYPE_2'], $_POST['COMMENTS_2'],
+            $_POST['ODVA_2'], $_POST['ODADD_2'], $_POST['ODNEARVA_2'] ?? '', $_POST['OSSPH_2'], $_POST['OSCYL_2'], $_POST['OSAXIS_2'],
+            $_POST['OSVA_2'], $_POST['OSADD_2'], $_POST['OSNEARVA_2'] ?? '', $_POST['ODMIDADD_2'], $_POST['OSMIDADD_2'],
+            0 + $_POST['RX_TYPE_2'], $_POST['COMMENTS_2'] ?? '',
             $_POST['ODHPD_2'], $_POST['ODHBASE_2'], $_POST['ODVPD_2'], $_POST['ODVBASE_2'], $_POST['ODSLABOFF_2'], $_POST['ODVERTEXDIST_2'],
             $_POST['OSHPD_2'], $_POST['OSHBASE_2'], $_POST['OSVPD_2'], $_POST['OSVBASE_2'], $_POST['OSSLABOFF_2'], $_POST['OSVERTEXDIST_2'],
             $_POST['ODMPDD_2'], $_POST['ODMPDN_2'], $_POST['OSMPDD_2'], $_POST['OSMPDN_2'], $_POST['BPDD_2'], $_POST['BPDN_2'], $_POST['LENS_MATERIAL_2'],
@@ -1078,11 +1083,11 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        $LENS_TREATMENTS_3 = implode("|", $_POST['LENS_TREATMENTS_3']);
+        $LENS_TREATMENTS_3 = implode("|", $_POST['LENS_TREATMENTS_3'] ?? []);
         sqlQuery($query, array($encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_3'], $_POST['ODCYL_3'], $_POST['ODAXIS_3'],
-            $_POST['ODVA_3'], $_POST['ODADD_3'], $_POST['ODNEARVA_3'], $_POST['OSSPH_3'], $_POST['OSCYL_3'], $_POST['OSAXIS_3'],
-            $_POST['OSVA_3'], $_POST['OSADD_3'], $_POST['OSNEARVA_3'], $_POST['ODMIDADD_3'], $_POST['OSMIDADD_3'],
-            0 + $_POST['RX_TYPE_3'], $_POST['COMMENTS_3'],
+            $_POST['ODVA_3'], $_POST['ODADD_3'], $_POST['ODNEARVA_3'] ?? '', $_POST['OSSPH_3'], $_POST['OSCYL_3'], $_POST['OSAXIS_3'],
+            $_POST['OSVA_3'], $_POST['OSADD_3'], $_POST['OSNEARVA_3'] ?? '', $_POST['ODMIDADD_3'], $_POST['OSMIDADD_3'],
+            0 + $_POST['RX_TYPE_3'] ?? '', $_POST['COMMENTS_3'] ?? '',
             $_POST['ODHPD_3'], $_POST['ODHBASE_3'], $_POST['ODVPD_3'], $_POST['ODVBASE_3'], $_POST['ODSLABOFF_3'], $_POST['ODVERTEXDIST_3'],
             $_POST['OSHPD_3'], $_POST['OSHBASE_3'], $_POST['OSVPD_3'], $_POST['OSVBASE_3'], $_POST['OSSLABOFF_3'], $_POST['OSVERTEXDIST_3'],
             $_POST['ODMPDD_3'], $_POST['ODMPDN_3'], $_POST['OSMPDD_3'], $_POST['OSMPDN_3'], $_POST['BPDD_3'], $_POST['BPDN_3'], $_POST['LENS_MATERIAL_3'],
@@ -1103,11 +1108,11 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        $LENS_TREATMENTS_4 = implode("|", $_POST['LENS_TREATMENTS_4']);
+        $LENS_TREATMENTS_4 = implode("|", $_POST['LENS_TREATMENTS_4'] ?? []);
         sqlQuery($query, array($encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_4'], $_POST['ODCYL_4'], $_POST['ODAXIS_4'],
-            $_POST['ODVA_4'], $_POST['ODADD_4'], $_POST['ODNEARVA_4'], $_POST['OSSPH_4'], $_POST['OSCYL_4'], $_POST['OSAXIS_4'],
-            $_POST['OSVA_4'], $_POST['OSADD_4'], $_POST['OSNEARVA_4'], $_POST['ODMIDADD_4'], $_POST['OSMIDADD_4'],
-            0 + $_POST['RX_TYPE_4'], $_POST['COMMENTS_4'],
+            $_POST['ODVA_4'], $_POST['ODADD_4'], $_POST['ODNEARVA_4'] ?? '', $_POST['OSSPH_4'], $_POST['OSCYL_4'], $_POST['OSAXIS_4'],
+            $_POST['OSVA_4'], $_POST['OSADD_4'], $_POST['OSNEARVA_4'] ?? '', $_POST['ODMIDADD_4'], $_POST['OSMIDADD_4'],
+            0 + $_POST['RX_TYPE_4'] ?? '', $_POST['COMMENTS_4'] ?? '',
             $_POST['ODHPD_4'], $_POST['ODHBASE_4'], $_POST['ODVPD_4'], $_POST['ODVBASE_4'], $_POST['ODSLABOFF_4'], $_POST['ODVERTEXDIST_4'],
             $_POST['OSHPD_4'], $_POST['OSHBASE_4'], $_POST['OSVPD_4'], $_POST['OSVBASE_4'], $_POST['OSSLABOFF_4'], $_POST['OSVERTEXDIST_4'],
             $_POST['ODMPDD_4'], $_POST['ODMPDN_4'], $_POST['OSMPDD_4'], $_POST['OSMPDN_4'], $_POST['BPDD_4'], $_POST['BPDN_4'], $_POST['LENS_MATERIAL_4'],

@@ -4260,10 +4260,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Bifocal might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$COMMENTS might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -4432,10 +4428,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Progressive might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$REFTYPE might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -4445,14 +4437,6 @@ parameters:
     count: 3
     path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$Single might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Trifocal might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$W might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/forms/eye_mag/SpectacleRx.php
@@ -4562,7 +4546,7 @@ parameters:
     path: interface/forms/eye_mag/a_issue.php
   - message: '#^Variable \$result2 might not be defined\.$#'
     identifier: variable.undefined
-    count: 12
+    count: 8
     path: interface/forms/eye_mag/a_issue.php
   - message: '#^Variable \$subtype might not be defined\.$#'
     identifier: variable.undefined
@@ -4605,10 +4589,6 @@ parameters:
     count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Undefined variable\: \$header1$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Undefined variable\: \$id$#'
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
@@ -5382,7 +5362,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$ODIOPTARGETS might not be defined\.$#'
     identifier: variable.undefined
-    count: 3
+    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$ODIOPTARGET_values might not be defined\.$#'
     identifier: variable.undefined
@@ -5594,7 +5574,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$OSIOPTARGET_values might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
+    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$OSIRIS might not be defined\.$#'
     identifier: variable.undefined
@@ -5884,10 +5864,6 @@ parameters:
     identifier: variable.undefined
     count: 7
     path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$display_W might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$encounter_date on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -5918,7 +5894,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$id on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
-    count: 4
+    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$item on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
@@ -5972,6 +5948,78 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$zone might not be defined\.$#'
+    identifier: variable.undefined
+    count: 1
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_dates might not be defined\.$#'
+    identifier: variable.undefined
+    count: 1
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_SCODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_SCOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CCODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CCOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_PHODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_PHOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_ARODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_AROSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_MRODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_MROSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CRODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CROSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CTLODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CTLOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Result of function display_VisualAcuities \(void\) is used\.$#'
+    identifier: function.void
+    count: 1
+    path: interface/forms/eye_mag/view.php
+  - message: '#^Result of function display_GlaucomaFlowSheet \(void\) is used\.$#'
+    identifier: function.void
+    count: 1
+    path: interface/forms/eye_mag/view.php
   - message: '#^Variable \$encounter_date might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -7234,7 +7282,7 @@ parameters:
     path: interface/forms/eye_mag/report.php
   - message: '#^Variable \$VERTFUSAMPS might not be defined\.$#'
     identifier: variable.undefined
-    count: 3
+    count: 2
     path: interface/forms/eye_mag/report.php
   - message: '#^Variable \$bad on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
