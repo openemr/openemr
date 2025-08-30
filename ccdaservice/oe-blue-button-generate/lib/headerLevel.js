@@ -88,7 +88,7 @@ var patient = exports.patient = {
             key: "guardian",
             content: [{
                 key: "code",
-                attributes: leafLevel.codeFromName("2.16.840.1.113883.5.111"),
+                attributes: leafLevel.codeFromName("2.16.840.1.113883.5.110"),
                 dataKey: "relation"
             },
                 [fieldLevel.usRealmAddress, dataKey("addresses")],
