@@ -441,3 +441,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2024','2024 Reporting Period',30,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2025','2025 Reporting Period',40,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2026','2026 Reporting Period',50,0,0);
+
+#IfNotRow categories name AntSeg Laser
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'AntSeg Laser', '', 1, rght, rght + 1, 'patients|docs' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfNotRow categories name Retina Laser
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'Retina Laser', '', 1, rght, rght + 1, 'patients|docs' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfNotRow categories name Injections
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'Injections', '', 1, rght, rght + 1, 'patients|docs' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
