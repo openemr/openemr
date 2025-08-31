@@ -23,6 +23,7 @@
  *  All generated code has been reviewed and tested for compliance with project standards.
  */
 
+$srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
