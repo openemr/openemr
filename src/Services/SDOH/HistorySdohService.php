@@ -55,7 +55,7 @@ class HistorySdohService
     public static function buildGoals(array $info, int $pid): array
     {
         // Quick CodeableConcept builder
-        $cc = fn($system, $code, $display) => ['coding' => [['system' => $system, 'code' => $code, 'display' => $display]], 'text' => $display];
+        $cc = fn($system, $code, $display): array => ['coding' => [['system' => $system, 'code' => $code, 'display' => $display]], 'text' => $display];
 
         // Domain spec: category (SDOHCC), measure (LOINC), desired target, description (SNOMED or text)
         $map = [
@@ -115,7 +115,7 @@ class HistorySdohService
             ],
         ];
 
-        $needsGoal = fn($status) => in_array((string)$status, ['present', 'at_risk', 'yes'], true);
+        $needsGoal = fn($status): bool => in_array((string)$status, ['present', 'at_risk', 'yes'], true);
 
         $when = $info['assessment_date'] ?? $info['sdoh_assessment_date'] ?? $info['updated_at'] ?? null;
         $due = $info['goal_due_date'] ?? null;
@@ -132,7 +132,7 @@ class HistorySdohService
                 'lifecycleStatus' => 'active',
                 'category' => [$spec['category']],
                 'description' => $spec['description'],
-                'subject' => ['reference' => 'Patient/' . (int)$pid],
+                'subject' => ['reference' => 'Patient/' . $pid],
             ];
             if ($when) {
                 $goal['startDate'] = substr($when, 0, 10);
@@ -148,9 +148,8 @@ class HistorySdohService
             if ($due) {
                 $target['dueDate'] = substr($due, 0, 10);
             }
-            if (!empty($target)) {
-                $goal['target'] = [$target];
-            }
+
+            $goal['target'] = [$target];
 
             $out[] = $goal;
         }

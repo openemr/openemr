@@ -43,14 +43,14 @@ function hs_lo_title(string $listId, ?string $value): string
         return $cache[$key] = $row['title'];
     }
     // Fallback: prettify the slug
-    $pretty = ucwords(str_replace('_', ' ', (string)$value));
+    $pretty = ucwords(str_replace('_', ' ', $value));
     return $cache[$key] = $pretty;
 }
 
 /** Clip a string to N chars (UI-friendly), preserving plain text. */
 function hs_clip(?string $s, int $len = 80): string
 {
-    $s = (string)($s ?? '');
+    $s = $s ?? '';
     if (mb_strlen($s) <= $len) {
         return $s;
     }

@@ -67,7 +67,7 @@ function v($info, $new, $old = null)
 }
 
 // Small wrapper so we don't repeat attributes everywhere
-function render_list_select($field, $list_id, $current, $placeholder = 'Select...')
+function render_list_select($field, $list_id, $current, $placeholder = 'Select...'): void
 {
     echo generate_select_list(
         $field,

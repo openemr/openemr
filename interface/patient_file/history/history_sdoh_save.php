@@ -29,7 +29,7 @@ $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
 $uid = $_SESSION['authUserID'] ?? null;
 
-$clean = fn($k) => trim($_POST[$k] ?? '');
+$clean = fn($k): string => trim($_POST[$k] ?? '');
 $intOrNull = function ($k) {
     $v = trim($_POST[$k] ?? '');
     return ($v === '') ? null : (int)$v;
@@ -82,7 +82,7 @@ $data = [
     'postpartum_end' => $dateOrNull('postpartum_end'),
 
     // Care plan
-    'goals' => $goalsSave ?? '',
+    'goals' => $goalsSave,
     'interventions' => $_POST['interventions'] ?? ''
 ];
 
