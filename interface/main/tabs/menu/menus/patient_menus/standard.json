@@ -19,6 +19,23 @@
         "requirement": 0
     },
     {
+        "label": "Assessments",
+        "menu_id": "sdoc",
+        "target": "main",
+        "children": [
+            {
+                "label": "SDOH Assessment",
+                "menu_id": "sdoc1",
+                "target": "main",
+                "on_click": "top.restoreSession()",
+                "url": "interface/patient_file/history/history_sdoh_widget.php?pid=",
+                "pid": "true",
+                "children": [],
+                "requirement": 0
+            }],
+        "requirement": 0
+    },
+    {
         "label": "Report",
         "menu_id": "report",
         "target": "main",
