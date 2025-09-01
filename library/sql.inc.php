@@ -17,6 +17,23 @@
  */
 
 require_once(dirname(__FILE__) . "/sqlconf.php");
+
+/**
+ * Variables set by sqlconf.php or SqlConfigEvent
+ *
+ * @var string $host
+ * @var string $port
+ * @var string $login
+ * @var string $pass
+ * @var string $dbase
+ * @var bool $disable_utf8_flag
+ * @var string $secure_host
+ * @var string $secure_port
+ * @var string $secure_login
+ * @var string $secure_pass
+ * @var string $secure_dbase
+ */
+
 require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(dirname(__FILE__) . "/ADODB_mysqli_log.php");
@@ -60,6 +77,16 @@ if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION[
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
+// This makes the login screen informative when no connection can be made
+if (!$GLOBALS['dbh']) {
+    if ($host === "localhost") {
+        echo "Check that mysqld is running.<p>";
+    } else {
+        echo "Check that you can ping the server " . text($host) . ".<p>";
+    }
+    HelpfulDie("Could not connect to server!", getSqlLastError());
+}
+
 // Modified 5/2009 by BM for UTF-8 project ---------
 if (!$disable_utf8_flag) {
     if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
@@ -89,16 +116,6 @@ if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
     error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
 }
 
-//fmg: This makes the login screen informative when no connection can be made
-if (!$GLOBALS['dbh']) {
-  //try to be more helpful
-    if ($host == "localhost") {
-        echo "Check that mysqld is running.<p>";
-    } else {
-        echo "Check that you can ping the server " . text($host) . ".<p>";
-    }//if local
-    HelpfulDie("Could not connect to server!", getSqlLastError());
-}//if no connection
 
 /**
 * Standard sql query in OpenEMR.
@@ -748,6 +765,15 @@ function getPrivDB()
         $secure_config = $GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php";
         if (file_exists($secure_config)) {
             require_once($secure_config);
+            /**
+             * Variables set by secure_sqlconf.php
+             *
+             * @var string $secure_host
+             * @var string $secure_port
+             * @var string $secure_login
+             * @var string $secure_pass
+             * @var string $secure_dbase
+             */
             $GLOBALS['PRIV_DB'] = NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
             // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
             // which is needed to import data in the Administration->Other->External Data Loads feature.
@@ -774,6 +800,8 @@ function getPrivDB()
                     $GLOBALS['PRIV_DB']->clientFlags = MYSQLI_CLIENT_SSL;
                 }
             }
+            // $port variable is from main sqlconf.php (global scope)
+            global $port;
             $GLOBALS['PRIV_DB']->port = $port;
             if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
                 $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
@@ -784,7 +812,7 @@ function getPrivDB()
             $GLOBALS['PRIV_DB']->SetFetchMode(ADODB_FETCH_ASSOC);
             // debug hook for ssl stuff
             if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
-                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . errorLogEscape(print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields), true));
+                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . errorLogEscape(print_r($GLOBALS['PRIV_DB']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
             }
         } else {
             $GLOBALS['PRIV_DB'] = $GLOBALS['adodb']['db'];
