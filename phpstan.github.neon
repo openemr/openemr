@@ -16058,7 +16058,7 @@ parameters:
     path: library/sql.inc.php
   - message: '#^Variable \$host might not be defined\.$#'
     identifier: variable.undefined
-    count: 4
+    count: 3
     path: library/sql.inc.php
   - message: '#^Variable \$login might not be defined\.$#'
     identifier: variable.undefined

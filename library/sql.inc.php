@@ -60,6 +60,16 @@ if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION[
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
+// This makes the login screen informative when no connection can be made
+if (!$GLOBALS['dbh']) {
+    if ($host === "localhost") {
+        echo "Check that mysqld is running.<p>";
+    } else {
+        echo "Check that you can ping the server " . text($host) . ".<p>";
+    }
+    HelpfulDie("Could not connect to server!", getSqlLastError());
+}
+
 // Modified 5/2009 by BM for UTF-8 project ---------
 if (!$disable_utf8_flag) {
     if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
@@ -89,16 +99,6 @@ if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
     error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
 }
 
-//fmg: This makes the login screen informative when no connection can be made
-if (!$GLOBALS['dbh']) {
-  //try to be more helpful
-    if ($host == "localhost") {
-        echo "Check that mysqld is running.<p>";
-    } else {
-        echo "Check that you can ping the server " . text($host) . ".<p>";
-    }//if local
-    HelpfulDie("Could not connect to server!", getSqlLastError());
-}//if no connection
 
 /**
 * Standard sql query in OpenEMR.
