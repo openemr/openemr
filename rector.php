@@ -39,4 +39,7 @@ return RectorConfig::configure()
         cacheClass: FileCacheStorage::class,
         // specify a path that works locally as well as on CI job runners
         cacheDirectory: '/tmp/rector'
-    );
+    )
+    ->withSkip([
+        __DIR__ . '/sites/default/documents/smarty'
+    ]);
