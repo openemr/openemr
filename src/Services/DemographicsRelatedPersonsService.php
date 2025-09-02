@@ -34,6 +34,7 @@ class DemographicsRelatedPersonsService
 
     /** @var string[] Base column name stems for each related person */
     private array $fieldBases = [
+        'uuid',
         'relatedfirstname_', 'relatedlastname_', 'relatedrelationship_', 'relatedsex_',
         'relatedaddress_', 'relatedcity_', 'relatedstate_', 'relatedpostalcode_',
         'relatedcountry_', 'relatedphone_', 'relatedworkphone_', 'relatedemail_',
@@ -73,6 +74,7 @@ class DemographicsRelatedPersonsService
             }
         }
 
+        $col[] = 'uuid'; // Ensure uuid_1 is always included
         return $cols;
     }
 
@@ -88,7 +90,7 @@ class DemographicsRelatedPersonsService
             return $map;
         }
 
-        $colList = implode(',', array_map(static fn($c) => "`$c`", $cols));
+        $colList = implode(',', array_map(static fn($c): string => "`$c`", $cols));
         $row = sqlQuery("SELECT $colList FROM `{$this->table}` WHERE `pid` = ?", [$pid]);
 
         if (is_array($row)) {
@@ -111,7 +113,7 @@ class DemographicsRelatedPersonsService
         $map = $this->getMapForPid($pid);
 
         // Add missing keys without overwriting existing
-        $result = $result + $map;
+        $result += $map;
 
         if ($overlayPost && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             foreach ($map as $col => $_) {
@@ -172,7 +174,7 @@ class DemographicsRelatedPersonsService
         $cols = array_keys($values);
         $insertCols = array_merge(['pid'], $cols);
         $placeholders = implode(',', array_fill(0, count($insertCols), '?'));
-        $assignments = implode(', ', array_map(static fn($c) => "`$c` = ?", $cols));
+        $assignments = implode(', ', array_map(static fn($c): string => "`$c` = ?", $cols));
         $params = array_merge([$pid], array_values($values), array_values($values));
 
         $sql = "INSERT INTO `{$this->table}` (`" . implode('`,`', $insertCols) . "`)
