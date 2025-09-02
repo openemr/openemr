@@ -41,6 +41,10 @@ require_once(dirname(__FILE__) . "/ADODB_mysqli_log.php");
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
 }
+// Our ADODB driver is already loaded.
+// This prevents ADODB trying to find and
+// load it again from the wrong place.
+$ADODB_LASTDB = 'mysqli_log';
 
 $database = NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
 // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
