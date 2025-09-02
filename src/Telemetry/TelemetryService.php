@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
@@ -11,45 +10,54 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Services\VersionService;
 
 /**
  * Provides telemetry reporting functionality.
+ *
+ * @package OpenEMR\Telemetry
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class TelemetryService
 {
+    use DatabaseQueryTrait;
+
     protected TelemetryRepository $repository;
-    protected VersionService $versionService;
+    protected VersionServiceInterface $versionService;
     protected SystemLogger $logger;
 
-
-    public function __construct(?TelemetryRepository $repository = null, ?VersionService $versionService = null, ?SystemLogger $logger = null)
+    /**
+     * TelemetryService constructor.
+     *
+     * @param ?TelemetryRepository $repository
+     * @param ?VersionServiceInterface $versionService
+     * @param ?SystemLogger $logger
+     */
+    public function __construct(?TelemetryRepository $repository = null, ?VersionServiceInterface $versionService = null, ?SystemLogger $logger = null)
     {
-        if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
-            $repository = new TelemetryRepository();
-            $versionService = new VersionService();
-        }
-        $this->repository = $repository;
-        $this->versionService = $versionService;
-
-        if (!($logger instanceof SystemLogger)) {
-            $logger = new SystemLogger();
-        }
-        $this->logger = $logger;
+        $this->repository = $repository ?? new TelemetryRepository();
+        $this->versionService = $versionService ?? new VersionService();
+        $this->logger = $logger ?? new SystemLogger();
     }
 
     /**
      * Checks if telemetry is enabled based on the product registration table.
      * I don't know why I didn't use telemetry_enabled in the product_registration table.
+     * Uses DatabaseQueryTrait for better testability.
      *
      * @return int
      */
-    public static function isTelemetryEnabled(): int
+    public function isTelemetryEnabled(): int
     {
         // Check if telemetry is disabled in the product registration table.
-        $isEnabled = sqlQuery("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0")['telemetry_disabled'] ?? null;
+        $result = $this->fetchRecords("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0", []);
+        $isEnabled = !empty($result) ? $result[0]['telemetry_disabled'] ?? null : null;
         if (!is_null($isEnabled)) {
             // If telemetry_disabled is 0, it means telemetry is enabled.
             $isEnabled = 1;
@@ -57,7 +65,6 @@ class TelemetryService
             // If telemetry_disabled is not 0, it means telemetry is disabled.
             $isEnabled = 0;
         }
-
         return $isEnabled;
     }
 
@@ -121,19 +128,19 @@ class TelemetryService
      */
     public function reportUsageData(): int|bool
     {
-        if (empty(self::isTelemetryEnabled())) {
+        if (empty($this->isTelemetryEnabled())) {
             error_log("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
 
-        $site_uuid = UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
+        $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
             error_log("Site UUID not found.");
             return false;
         }
 
         // server geo data
-        $geo = new GeoTelemetry();
+        $geo = $this->createGeoTelemetry();
         $serverGeoData = $geo->getServerGeoData();
         if (isset($serverGeoData['error'])) {
             error_log("Error fetching server geolocation: " . $serverGeoData['error']);
@@ -142,7 +149,7 @@ class TelemetryService
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
         $interval = date("Ym", strtotime("-33 Days"));
 
-        $timeZoneResult = sqlQuery("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1");
+        $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
         $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
@@ -171,23 +178,12 @@ class TelemetryService
 
         $payload = json_encode($payload_data);
 
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Content-Length: " . strlen($payload)
-        ]);
-
-        $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (curl_errno($ch)) {
-            error_log("cURL error: " . curl_error($ch));
+        $curlResult = $this->executeCurlRequest($endpoint, $payload);
+        $response = $curlResult['response'];
+        $httpStatus = $curlResult['httpStatus'];
+        if (!empty($curlResult['error'])) {
+            error_log("cURL error: " . $curlResult['error']);
         }
-        curl_close($ch);
 
         if (in_array($httpStatus, [200, 201, 204])) {
             $responseData = json_decode($response, true);
@@ -210,12 +206,12 @@ class TelemetryService
      */
     public function trackApiRequestEvent(array $event_data): void
     {
-        if (!empty(self::isTelemetryEnabled())) {
+        if (!empty($this->isTelemetryEnabled())) {
             $this->reportClickEvent($event_data);
         }
     }
 
-    private function normalizeUrl(string $url): string
+    protected function normalizeUrl(string $url): string
     {
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
@@ -226,5 +222,63 @@ class TelemetryService
             $normalized = $path;
         }
         return ($normalized . $fragment);
+    }
+
+    /**
+     * A stubbable wrapper around a static method.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return string
+     */
+    protected function getUniqueInstallationUuid(): string
+    {
+        return UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
+    }
+
+    /**
+     * A stubbable wrapper around GeoTelemetry instantiation.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return GeoTelemetryInterface
+     */
+    protected function createGeoTelemetry(): GeoTelemetryInterface
+    {
+        return new GeoTelemetry();
+    }
+
+    /**
+     * A stubbable wrapper around cURL operations.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $endpoint
+     * @param string $payload
+     * @return array
+     */
+    protected function executeCurlRequest(string $endpoint, string $payload): array
+    {
+        $ch = curl_init($endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Content-Length: " . strlen($payload)
+        ]);
+
+        $response = curl_exec($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_errno($ch) ? curl_error($ch) : null;
+        curl_close($ch);
+
+        return [
+            'response' => $response,
+            'httpStatus' => $httpStatus,
+            'error' => $error
+        ];
     }
 }

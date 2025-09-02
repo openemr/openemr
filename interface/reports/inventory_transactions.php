@@ -27,7 +27,14 @@ if (!empty($_POST)) {
     }
 }
 
-function thisLineItem($row, $xfer = false): void
+/**
+ * Render a line item for the inventory transactions report HTML table.
+ *
+ * @param array $row
+ * @param bool $xfer
+ * @return void
+ */
+function inventoryTransactionsLineItem(array $row, bool $xfer = false): void
 {
     global $grandtotal, $grandqty, $encount, $form_action;
 
@@ -128,7 +135,7 @@ function thisLineItem($row, $xfer = false): void
         $row['warehouse'] = $row['warehouse_2'];
         $row['quantity'] = 0 - $row['quantity'];
         $row['fee'] = 0 - $row['fee'];
-        thisLineItem($row, true);
+        inventoryTransactionsLineItem($row, true);
     }
 } // end function
 
@@ -402,7 +409,7 @@ if ($form_action) { // if submit or export
   //
     $res = sqlStatement($query, array($from_date, $to_date));
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row);
+        inventoryTransactionsLineItem($row);
     }
 
   // Grand totals line.

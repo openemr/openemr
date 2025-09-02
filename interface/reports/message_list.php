@@ -305,6 +305,4 @@ if (empty($_POST['form_csvexport'])) {
 
 </html>
     <?php
-} // end not export
-?>
-
+}

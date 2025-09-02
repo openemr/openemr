@@ -17,7 +17,8 @@
  * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* TODO: Code cleanup */
+/*
+TODO: Code cleanup */
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
@@ -1085,7 +1086,9 @@ foreach (explode(',', $given) as $item) {
                                 <table>
                                     <tbody>
                                         <tr>
-                                            <td><input type="text" name="form_exercise_patterns" id="form_box" size="20" value="<?php echo attr($result2['exercise_patterns']['resnote']); ?>" />&nbsp;</td>
+                                            <td><input type="text" name="form_exercise_patterns" id="form_box" size="20" value="<?php if (!empty($result2['exercise_patterns'])) {
+                                                echo attr($result2['exercise_patterns']['resnote'] ?? '');
+                                                                                                                                } ?>" />&nbsp;</td>
                                             <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[current]" value="currentexercise_patterns" <?php if (($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '') == 'currentexercise_patterns') {
                                                 echo " checked";
                                                                                                                                                                                        } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
@@ -1111,7 +1114,9 @@ foreach (explode(',', $given) as $item) {
                                 <table>
                                     <tbody>
                                         <tr>
-                                            <td><input type="text" name="form_hazardous_activities" id="form_box" size="20" value="<?php echo attr($result2['hazardous_activities']['resnote']); ?>" />&nbsp;</td>
+                                            <td><input type="text" name="form_hazardous_activities" id="form_box" size="20" value="<?php if (!empty($result2['hazardous_activities'])) {
+                                                echo attr($result2['hazardous_activities']['resnote'] ?? '');
+                                                                                                                                   } ?>" />&nbsp;</td>
                                             <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[current]" value="currenthazardous_activities" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'currenthazardous_activities') {
                                                 echo " checked";
                                                                                                                                                                                                 } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
@@ -1135,11 +1140,15 @@ foreach (explode(',', $given) as $item) {
                                 <table>
                                     <tbody>
                                         <tr>
-                                            <td><input type="text" name="form_sleep_patterns" id="form_box" size="20" title="<?php echo xla('Sleep patterns'); ?>" value="<?php echo attr($result2['sleep_patterns']['resnote']); ?>" /></td>
+                                            <td><input type="text" name="form_sleep_patterns" id="form_box" size="20" title="<?php echo xla('Sleep patterns'); ?>" value="<?php if (!empty($result2['sleep_patterns'])) {
+                                                echo attr($result2['sleep_patterns']['resnote']);
+                                                                                                                             } ?>" /></td>
                                             <td></td>
                             <td class="left text-nowrap"><?php echo xlt('Seatbelt'); ?>:
                             </td>
-                            <td><input type="text" name="form_seatbelt_use" id="form_box" size="20" title="<?php echo xla('Seatbelt use'); ?>" value="<?php echo attr($result2['seatbelt_use']['resnote']); ?>" />
+                            <td><input type="text" name="form_seatbelt_use" id="form_box" size="20" title="<?php echo xla('Seatbelt use'); ?>" value="<?php if (!empty($result2['seatbelt_use'])) {
+                                echo attr($result2['seatbelt_use']['resnote']);
+                                                                                                           } ?>" />
                             </td>
                         </tr>
                     </tbody>

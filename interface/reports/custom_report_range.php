@@ -290,16 +290,6 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
     $N = 6;
 
-    function postToGet($newpatient, $pids)
-    {
-        $getstring = "";
-        $serialnewpatient = serialize($newpatient);
-        $serialpids = serialize($pids);
-        $getstring = "newpatient=" . urlencode($serialnewpatient) . "&pids=" . urlencode($serialpids);
-
-        return $getstring;
-    }
-
     $iCounter = 0;
     if (empty($newpatient)) {
         $newpatient = array();

@@ -1,4 +1,8 @@
 parameters:
+  scanFiles:
+    - vendor/phpunit/phpunit/src/Framework/TestCase.php
+  excludePaths:
+    - sites/default/documents/smarty
   ignoreErrors:
   - message: '#^Variable \$web_root might not be defined\.$#'
     identifier: variable.undefined
@@ -180,10 +184,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: ccr/transmitCCD.php
-  - message: '#^Result of function outputMessage \(void\) is used\.$#'
-    identifier: function.void
-    count: 5
-    path: contrib/util/ccda_import/import_ccda.php
   - message: '#^Variable \$duplicates on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -4260,10 +4260,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Bifocal might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$COMMENTS might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -4432,10 +4428,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Progressive might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$REFTYPE might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -4445,14 +4437,6 @@ parameters:
     count: 3
     path: interface/forms/eye_mag/SpectacleRx.php
   - message: '#^Variable \$Single might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$Trifocal might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/SpectacleRx.php
-  - message: '#^Variable \$W might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/forms/eye_mag/SpectacleRx.php
@@ -4562,7 +4546,7 @@ parameters:
     path: interface/forms/eye_mag/a_issue.php
   - message: '#^Variable \$result2 might not be defined\.$#'
     identifier: variable.undefined
-    count: 12
+    count: 8
     path: interface/forms/eye_mag/a_issue.php
   - message: '#^Variable \$subtype might not be defined\.$#'
     identifier: variable.undefined
@@ -4605,10 +4589,6 @@ parameters:
     count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Undefined variable\: \$header1$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Undefined variable\: \$id$#'
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
@@ -5382,7 +5362,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$ODIOPTARGETS might not be defined\.$#'
     identifier: variable.undefined
-    count: 3
+    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$ODIOPTARGET_values might not be defined\.$#'
     identifier: variable.undefined
@@ -5594,7 +5574,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$OSIOPTARGET_values might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
+    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$OSIRIS might not be defined\.$#'
     identifier: variable.undefined
@@ -5884,10 +5864,6 @@ parameters:
     identifier: variable.undefined
     count: 7
     path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$display_W might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$encounter_date on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -5918,7 +5894,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$id on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
-    count: 4
+    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$item on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
@@ -5972,6 +5948,78 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$zone might not be defined\.$#'
+    identifier: variable.undefined
+    count: 1
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_dates might not be defined\.$#'
+    identifier: variable.undefined
+    count: 1
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_SCODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_SCOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CCODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CCOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_PHODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_PHOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_ARODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_AROSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_MRODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_MROSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CRODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CROSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CTLODVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Variable \$va_CTLOSVA might not be defined\.$#'
+    identifier: variable.undefined
+    count: 2
+    path: interface/forms/eye_mag/php/eye_mag_functions.php
+  - message: '#^Result of function display_VisualAcuities \(void\) is used\.$#'
+    identifier: function.void
+    count: 1
+    path: interface/forms/eye_mag/view.php
+  - message: '#^Result of function display_GlaucomaFlowSheet \(void\) is used\.$#'
+    identifier: function.void
+    count: 1
+    path: interface/forms/eye_mag/view.php
   - message: '#^Variable \$encounter_date might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -7234,7 +7282,7 @@ parameters:
     path: interface/forms/eye_mag/report.php
   - message: '#^Variable \$VERTFUSAMPS might not be defined\.$#'
     identifier: variable.undefined
-    count: 3
+    count: 2
     path: interface/forms/eye_mag/report.php
   - message: '#^Variable \$bad on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
@@ -9072,14 +9120,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/newGroupEncounter/view.php
-  - message: '#^Anonymous function has an unused use \$pid\.$#'
-    identifier: closure.unusedUse
-    count: 1
-    path: interface/forms/newpatient/C_EncounterVisitForm.class.php
-  - message: '#^Anonymous function has an unused use \$viewmode\.$#'
-    identifier: closure.unusedUse
-    count: 1
-    path: interface/forms/newpatient/C_EncounterVisitForm.class.php
   - message: '#^Variable \$body_javascript on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -10372,10 +10412,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_url.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$no_list\.$#'
-    identifier: unset.variable
-    count: 1
-    path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php
   - message: '#^Constant _PC_TPL_VIEW_SUBMIT not found\.$#'
     identifier: constant.notFound
     count: 1
@@ -11384,10 +11420,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php
-  - message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-    identifier: whitespace.fileEnd
-    count: 1
-    path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php
   - message: '#^Variable \$benefits might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -11440,10 +11472,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php
-  - message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-    identifier: whitespace.fileEnd
-    count: 1
-    path: interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php
   - message: '#^Variable \$source might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -11484,10 +11512,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php
-  - message: '#^Variable \$uuidBinary in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php
   - message: '#^Variable \$userSaveRecord might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -11628,10 +11652,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/index.php
-  - message: '#^Function cron_updateentry invoked with 4 parameters, 3 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php
   - message: '#^Variable \$args on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -11736,18 +11756,10 @@ parameters:
     identifier: staticProperty.notFound
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php
-  - message: '#^Access to private property \$authUser of parent class OpenEMR\\Modules\\FaxSMS\\Controller\\AppDispatch\.$#'
-    identifier: property.private
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php
   - message: '#^Variable \$tz in empty\(\) is never defined\.$#'
     identifier: empty.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php
-  - message: '#^Property OpenEMR\\Modules\\FaxSMS\\Events\\NotificationEventListener\:\:\$isSmsEnabled on left side of \?\? is not nullable nor uninitialized\.$#'
-    identifier: nullCoalesce.initializedProperty
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php
   - message: '#^Variable \$data on left side of \?\? is never defined\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -11836,10 +11848,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php
-  - message: '#^Class Application\\Model\\SendtoTable does not have a constructor and must be instantiated without any parameters\.$#'
-    identifier: new.noConstructor
-    count: 1
-    path: interface/modules/zend_modules/module/Application/config/module.config.php
   - message: '#^Class OpenEMR\\Core\\Kernel referenced with incorrect case\: OpenEmr\\Core\\Kernel\.$#'
     identifier: class.nameCase
     count: 1
@@ -12268,10 +12276,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/orders/patient_match_dialog.php
-  - message: '#^Function thisLineItem invoked with 3 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/orders/pending_followup.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -12852,30 +12856,6 @@ parameters:
     identifier: arguments.count
     count: 5
     path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 10 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 6 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptDetailLine invoked with 9 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptPaymentLine invoked with 4 parameters, 2\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function receiptPaymentLine invoked with 6 parameters, 2\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function write_form_line invoked with 10 parameters, 8 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Variable \$arates in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 2
@@ -13217,10 +13197,6 @@ parameters:
     count: 1
     path: interface/patient_file/summary/demographics.php
   - message: '#^Variable \$bgColor might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/patient_file/summary/demographics.php
-  - message: '#^Variable \$display_current_medications_below might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/summary/demographics.php
@@ -13996,14 +13972,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/immunization_report.php
-  - message: '#^Function thisLineItem invoked with 8 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/inventory_activity.php
-  - message: '#^Function thisLineItem invoked with 9 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/inventory_activity.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14016,18 +13984,10 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/inventory_list.php
-  - message: '#^Function thisLineItem invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/inventory_transactions.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: interface/reports/inventory_transactions.php
-  - message: '#^Function thisLineItem invoked with 7 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/ippf_cyp_report.php
   - message: '#^Variable \$productleft might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14048,10 +14008,6 @@ parameters:
     identifier: arguments.count
     count: 4
     path: interface/reports/ippf_statistics.php
-  - message: '#^Function loadColumnData invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/ippf_statistics.php
   - message: '#^Variable \$arr_report in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
     count: 1
@@ -14060,10 +14016,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/ippf_statistics.php
-  - message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-    identifier: whitespace.fileEnd
-    count: 1
-    path: interface/reports/message_list.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -14128,10 +14080,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/reports/prescriptions_report.php
-  - message: '#^Function thisLineItem invoked with 9 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/receipts_by_method_report.php
   - message: '#^Undefined variable\: \$invnumber$#'
     identifier: variable.undefined
     count: 1
@@ -14160,10 +14108,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/reports/report_results.php
-  - message: '#^Function thisLineItem invoked with 8 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/reports/sales_by_item.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -16096,54 +16040,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: library/spreadsheet.inc.php
-  - message: '#^Constant PRIV_DB not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: library/sql.inc.php
-  - message: '#^Function errorLogEscape invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/sql.inc.php
-  - message: '#^Variable \$dbase might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$disable_utf8_flag might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: library/sql.inc.php
-  - message: '#^Variable \$host might not be defined\.$#'
-    identifier: variable.undefined
-    count: 4
-    path: library/sql.inc.php
-  - message: '#^Variable \$login might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$pass might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$port might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_dbase might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_host might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_login might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_pass might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
   - message: '#^Variable \$handle1 might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -16512,10 +16408,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/patient/_machine_config.php
-  - message: '#^Result of method Savant3\:\:applyFilters\(\) \(void\) is used\.$#'
-    identifier: method.void
-    count: 1
-    path: portal/patient/fwk/libs/savant/Savant3.php
   - message: '#^Method Savant3_Filter_trimwhitespace\:\:replace\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
     count: 1
@@ -17020,10 +16912,6 @@ parameters:
     identifier: return.missing
     count: 1
     path: portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
-  - message: '#^Regex pattern is invalid\: Unknown modifier ''/'' in pattern\: /\[\[\:alpha\:\]\]\+\://\[\^\<\>\[\:space\:\]\]\+\[\[\:alnum\:\]/\]/i$#'
-    identifier: regexp.pattern
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
   - message: '#^Path in require_once\(\) "verysimple/Phreeze/CacheMemCache\.php" is not a file or it does not exist\.$#'
     identifier: requireOnce.fileNotFound
     count: 1
@@ -17524,10 +17412,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Common/Auth/MfaUtils.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$auth\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Common/Auth/OneTimeAuth.php
   - message: '#^Variable \$this_contacts in empty\(\) is never defined\.$#'
     identifier: empty.variable
     count: 1
@@ -17880,18 +17764,6 @@ parameters:
     identifier: staticMethod.notFound
     count: 1
     path: src/Rx/RxList.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$all\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Rx/RxList.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$hash\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Rx/RxList.php
-  - message: '#^Call to function unset\(\) contains undefined variable \$tokens\.$#'
-    identifier: unset.variable
-    count: 1
-    path: src/Rx/RxList.php
   - message: '#^Variable \$all might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -18112,24 +17984,12 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Services/DocumentTemplates/DocumentTemplateRender.php
-  - message: '#^Variable \$category in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/DocumentTemplates/DocumentTemplateService.php
   - message: '#^Variable \$group_list might not be defined\.$#'
     identifier: variable.undefined
     count: 1
     path: src/Services/DocumentTemplates/DocumentTemplateService.php
-  - message: '#^Variable \$pid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/DocumentTemplates/DocumentTemplateService.php
   - message: '#^Variable \$rtn might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
-    path: src/Services/DocumentTemplates/DocumentTemplateService.php
-  - message: '#^Variable \$template in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: src/Services/DocumentTemplates/DocumentTemplateService.php
   - message: '#^Variable \$tid on left side of \?\? always exists and is not nullable\.$#'
@@ -18144,16 +18004,8 @@ parameters:
     identifier: isset.variable
     count: 1
     path: src/Services/DrugService.php
-  - message: '#^Variable \$pid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/EncounterService.php
   - message: '#^Method OpenEMR\\Services\\FHIR\\FhirDocRefService\:\:getMostCurrentCCDReference\(\) invoked with 2 parameters, 1 required\.$#'
     identifier: arguments.count
-    count: 1
-    path: src/Services/FHIR/FhirDocRefService.php
-  - message: '#^Variable \$uuid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: src/Services/FHIR/FhirDocRefService.php
   - message: '#^Variable \$code might not be defined\.$#'
@@ -18264,19 +18116,11 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: src/Services/QuestionnaireResponseService.php
-  - message: '#^Variable \$uuid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/QuestionnaireResponseService.php
   - message: '#^Variable \$v on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
     path: src/Services/QuestionnaireResponseService.php
   - message: '#^Variable \$form in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Services/QuestionnaireService.php
-  - message: '#^Variable \$q_record_id in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
     count: 1
     path: src/Services/QuestionnaireService.php
@@ -18286,10 +18130,6 @@ parameters:
     path: src/Services/QuestionnaireService.php
   - message: '#^Variable \$q_uuid might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
-    path: src/Services/QuestionnaireService.php
-  - message: '#^Variable \$uuid in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: src/Services/QuestionnaireService.php
   - message: '#^Method OpenEMR\\Services\\Search\\FHIRSearchFieldFactory\:\:buildSearchField\(\) invoked with 3 parameters, 2 required\.$#'

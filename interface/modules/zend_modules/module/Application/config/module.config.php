@@ -139,9 +139,7 @@ return array(
                 return $table;
             },
             SendtoTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
-                $table = new SendtoTable($dbAdapter);
-                return $table;
+                return new SendtoTable();
             },
             SendtoController::class => function (ContainerInterface $container, $requestedName) {
                 return new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class));

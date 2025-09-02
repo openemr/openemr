@@ -30,7 +30,7 @@ class BasicSearchField implements ISearchField
      * @param $type The type of
      * @param $field
      * @param $values
-     * @param null $modifier
+     * @param ?string $modifier
      * @param bool $isAnd
      */
     public function __construct($name, $type, $field, $values, $modifier = null)
