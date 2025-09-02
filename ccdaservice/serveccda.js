@@ -1148,6 +1148,9 @@ function getPlanOfCare(pd) {
         case 'procedure':
             planType = "procedure";
             break;
+        case 'planned_procedure':
+            planType = "planned_procedure";
+            break;
         case 'appointments':
             planType = "encounter";
             break;
@@ -1214,7 +1217,7 @@ function getPlanOfCare(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.date),
+                "date": pd.proposed_date ? fDate(pd.proposed_date) : fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -2196,6 +2199,9 @@ function populateNote(pd) {
 }
 
 function populateParticipant(participant) {
+    if (!participant.code) {
+        cleanCode(participant.organization_taxonomy);
+    }
     return {
         "name": {
             "prefix": participant.prefix || "",
@@ -2205,16 +2211,16 @@ function populateParticipant(participant) {
             "first": participant.fname || ""
         },
         "typeCode": participant.type || "",
-        "classCode": "ASSIGNED",
+        "classCode": participant.class_code || "ASSIGNED",
         "code": {
-            "name": participant.organization_taxonomy_description || "",
-            "code": cleanCode(participant.organization_taxonomy) || "",
-            "code_system": "2.16.840.1.113883.6.101",
-            "code_system_name": "NUCC Health Care Provider Taxonomy"
+            "name": participant.organization_taxonomy_description || participant.code,
+            "code": participant.organization_taxonomy || participant.code || "",
+            "code_system": "2.16.840.1.113883.1.11.19563",
+            "code_system_name": "Personal Relationship Role Type Value Set"
         },
         "identifiers": [{
             "identifier": participant.organization_npi ? "2.16.840.1.113883.4.6" : participant.organization_id,
-            "extension": participant.organization_npi ? participant.organization_npi : ''
+            "extension": participant.organization_npi ? participant.organization_npi : participant.organization_ext || 'NI'
         }],
         "date_time": {
             "point": {
@@ -2248,7 +2254,7 @@ function populateHeader(pd) {
     let name = "Summarization of Episode Note";
     let docCode = "34133-9";
     let docOid = "2.16.840.1.113883.10.20.22.1.2";
-    if (pd.doc_type == 'referral') {
+    if (pd.doc_type === 'referral') {
         name = "Referral Note";
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
@@ -2398,8 +2404,14 @@ function populateHeader(pd) {
             },
         }
     };
+
     let participants = [];
-    let docParticipants = pd.document_participants || {participant: []};
+    let docParticipants = {
+        participant: [
+            ...(pd.document_participants?.participant || []),
+            ...(pd.patient.related_persons?.participant || []),
+        ],
+    };
     let count = 0;
     try {
         count = countEntities(docParticipants.participant);

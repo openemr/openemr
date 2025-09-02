@@ -1,4 +1,7 @@
 module.exports = OIDs = {
+    "2.16.840.1.113883.11.20.12.1": {
+        name: "Personal And Legal Relationship Role Type",
+    },
     "2.16.840.1.113883.11.20.9.19": {
         name: "Problem Status",
         table: {
