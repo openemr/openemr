@@ -1067,7 +1067,7 @@ INSERT INTO `layout_options`
 VALUES
     ('DEM','relatedfirstname_1', @newgrp,'First Name',10, 2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','',''),
     ('DEM','relatedlastname_1',  @newgrp,'Last Name', 20, 2,1,25,63,'',1,1,'','','Last Name',        0,'','F','','',''),
-    ('DEM','relatedrelationship_1',@newgrp,'Relationship',30,1,1,0,0,'next_of_kin_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','relatedrelationship_1',@newgrp,'Relationship',30,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
     ('DEM','relatedsex_1',        @newgrp,'Sex',       40, 1,1,0,0,'sex',1,1,'','','Sex',             0,'','F','','',''),
     ('DEM','relatedaddress_1',    @newgrp,'Address',   50, 2,1,25,63,'',1,1,'','','Address',         0,'','F','','',''),
     ('DEM','relatedcity_1',       @newgrp,'City',      60, 2,1,15,63,'',1,1,'','','City',            0,'','F','','',''),
@@ -1082,7 +1082,7 @@ VALUES
 
     ('DEM','relatedfirstname_2',  @newgrp,'First Name',130, 2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','',''),
     ('DEM','relatedlastname_2',   @newgrp,'Last Name', 140, 2,1,25,63,'',1,1,'','','Last Name',        0,'','F','','',''),
-    ('DEM','relatedrelationship_2',@newgrp,'Relationship',150,1,1,0,0,'next_of_kin_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','relatedrelationship_2',@newgrp,'Relationship',150,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
     ('DEM','relatedsex_2',        @newgrp,'Sex',       160,1,1,0,0,'sex',1,1,'','','Sex',             0,'','F','','',''),
     ('DEM','relatedaddress_2',    @newgrp,'Address',   170, 2,1,25,63,'',1,1,'','','Address',         0,'','F','','',''),
     ('DEM','relatedcity_2',       @newgrp,'City',      180, 2,1,15,63,'',1,1,'','','City',            0,'','F','','',''),
@@ -1097,7 +1097,7 @@ VALUES
 
     ('DEM','relatedfirstname_3',  @newgrp,'First Name',250, 2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','',''),
     ('DEM','relatedlastname_3',   @newgrp,'Last Name', 260, 2,1,25,63,'',1,1,'','','Last Name',        0,'','F','','',''),
-    ('DEM','relatedrelationship_3',@newgrp,'Relationship',270,1,1,0,0,'next_of_kin_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','relatedrelationship_3',@newgrp,'Relationship',270,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
     ('DEM','relatedsex_3',        @newgrp,'Sex',       280,1,1,0,0,'sex',1,1,'','','Sex',             0,'','F','','',''),
     ('DEM','relatedaddress_3',    @newgrp,'Address',   290, 2,1,25,63,'',1,1,'','','Address',         0,'','F','','',''),
     ('DEM','relatedcity_3',       @newgrp,'City',      300, 2,1,15,63,'',1,1,'','','City',            0,'','F','','',''),
