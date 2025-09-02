@@ -995,11 +995,12 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
 #EndIf
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
--- DROP TABLE IF EXISTS `patient_related_persons`;
+
 #IfNotTable patient_related_persons
 CREATE TABLE `patient_related_persons`
 (
     `pid`                   BIGINT UNSIGNED NOT NULL,
+    `uuid`                  binary(16)   DEFAULT NULL,
     `relatedfirstname_1`    VARCHAR(63)  DEFAULT NULL,
     `relatedlastname_1`     VARCHAR(63)  DEFAULT NULL,
     `relatedrelationship_1` VARCHAR(63)  DEFAULT NULL,
@@ -1039,7 +1040,8 @@ CREATE TABLE `patient_related_persons`
     `relatedworkphone_3`    VARCHAR(25)  DEFAULT NULL,
     `relatedemail_3`        VARCHAR(254) DEFAULT NULL,
 
-    PRIMARY KEY (`pid`)
+    PRIMARY KEY (`pid`),
+    KEY `uuid_idx` (`uuid`)
 ) ENGINE = InnoDB;
 #EndIf
 

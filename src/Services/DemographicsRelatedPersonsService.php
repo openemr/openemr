@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+
 class DemographicsRelatedPersonsService
 {
     /** @var string */
@@ -177,6 +179,8 @@ class DemographicsRelatedPersonsService
                 VALUES ($placeholders)
                 ON DUPLICATE KEY UPDATE $assignments";
         sqlStatement($sql, $params);
+
+        UuidRegistry::createMissingUuidsForTables([$this->table]);
     }
 
     /**
