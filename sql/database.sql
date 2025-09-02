@@ -328,8 +328,8 @@ INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 58, 59, 'patients|docs',
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 60, 61, 'patients|docs','LOINC:LP173394-0');
 INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 63, 64, 'admin|super','LOINC:LP173421-1');
 INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 65, 66, 'encounters|coding', '');
-INSERT INTO `categories` VALUES (32, 'AntSeg Laser - Eye', '', 17, 49, 50, 'patients|docs', '');
-INSERT INTO `categories` VALUES (33, 'Retina Laser - Eye', '', 17, 51, 52, 'patients|docs', '');
+INSERT INTO `categories` VALUES (32, 'AntSeg Laser - Eye', '', 14, 49, 50, 'patients|docs', '');
+INSERT INTO `categories` VALUES (33, 'Retina Laser - Eye', '', 14, 51, 52, 'patients|docs', '');
 INSERT INTO `categories` VALUES (34, 'Injections - Eye', '', 14, 53, 54, 'patients|docs', '');
 
 -- --------------------------------------------------------
