@@ -657,6 +657,43 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
+            } elseif (preg_match('/^#IfEyeFormLaserCategoriesNeeded/', $line)) {
+                $eyeFormCategoryParent = sqlStatementNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Form'");
+                if (sqlNumRows($eyeFormCategoryParent) > 0) {
+                    $this->echo("<p>Inserting eye form laser categories.</p>\n");
+                    $this->flush_echo();
+                    $categoryRghtMatches = sqlStatementNoLog("SELECT `id` FROM `categories` WHERE `rght` >= ?", [$eyeFormCategoryParent['rght']]);
+                    while ($row = sqlFetchArray($categoryMatches)) {
+                        sqlStatementNoLog("UPDATE `categories` SET `rght` = `rght` + 6, `lft` = `lft` + 6 WHERE `id` = ?", [$categoryRghtMatches['id']]);
+                    }
+                    sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'AntSeg Laser - Eye', '', ?, ?, ?, 'patients|docs', '')", 
+                        [
+                            $eyeFormCategoryParent['id'],
+                            $eyeFormCategoryParent['rght'],
+                            $eyeFormCategoryParent['rght'] + 1
+                        ]);
+                    sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'Retina Laser - Eye', '', ?, ?, ?, 'patients|docs', '')",
+                        [
+                            $eyeFormCategoryParent['id'],
+                            $eyeFormCategoryParent['rght'] + 2,
+                            $eyeFormCategoryParent['rght'] + 3
+                        ]);
+                    sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'Injections - Eye', '', ?, ?, ?, 'patients|docs', '')",
+                        [
+                            $eyeFormCategoryParent['id'],
+                            $eyeFormCategoryParent['rght'] + 4,
+                            $eyeFormCategoryParent['rght'] + 5
+                        ]
+                    );
+                    $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
             } elseif (preg_match('/^#EndIf/', $line)) {
                 $skipping = false;
             }
