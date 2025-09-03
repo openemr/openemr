@@ -7,10 +7,12 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright  Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
@@ -32,6 +34,10 @@ use OpenEMR\Services\DemographicsRelatedPersonsService;
 $set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
 if ($set_pid && $set_pid != $_SESSION["pid"]) {
     setpid($set_pid);
+}
+$pid = $_SESSION["pid"] ?: $set_pid;
+if (!$pid) {
+    die(xlt('No patient selected.'));
 }
 
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
