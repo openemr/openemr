@@ -662,10 +662,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (sqlNumRows($eyeFormCategoryParent) > 0) {
                     $this->echo("<p>Inserting eye form laser categories.</p>\n");
                     $this->flush_echo();
-                    $categoryRghtMatches = sqlStatementNoLog("SELECT `id` FROM `categories` WHERE `rght` >= ?", [$eyeFormCategoryParent['rght']]);
-                    while ($row = sqlFetchArray($categoryMatches)) {
-                        sqlStatementNoLog("UPDATE `categories` SET `rght` = `rght` + 6, `lft` = `lft` + 6 WHERE `id` = ?", [$categoryRghtMatches['id']]);
-                    }
+                    sqlStatementNoLog("UPDATE `categories` SET `rght` = `rght` + 6 WHERE `rght` >= ?", [$eyeFormCategoryParent['rght']]);
+                    sqlStatementNoLog("UPDATE `categories` SET `lft` = `lft` + 6 WHERE `lft` >= ?", [$eyeFormCategoryParent['rght']]);
                     sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'AntSeg Laser - Eye', '', ?, ?, ?, 'patients|docs', '')", 
                         [
                             $eyeFormCategoryParent['id'],
