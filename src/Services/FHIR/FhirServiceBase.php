@@ -90,6 +90,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         if (empty($searchParams)) {
             return [];
         }
+        if (empty($paramsToFilter)) {
+            return [];
+        }
         $filteredParams = [];
         foreach ($paramsToFilter as $param => $value) {
             if ($this->getSearchFieldFactory()->hasSearchField($param)) {
@@ -170,7 +173,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID.
      */
     public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult
     {
