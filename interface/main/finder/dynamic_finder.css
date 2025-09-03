@@ -1,0 +1,711 @@
+/* dynamic_finder.css - Styles for Patient Finder interface */
+
+
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+#container_div {
+    margin-top: 0.4rem !important;
+}
+
+#container_div.container #pt_table {
+    width: 100% !important;
+    min-width: 800px;
+}
+
+/* Expanded: Remove min-width constraint */
+#container_div.container-fluid #pt_table {
+    width: 100% !important;
+    min-width: auto;
+}
+
+/* When w-auto class is applied */
+#pt_table.w-auto {
+    width: auto !important;
+    min-width: auto !important;
+}
+
+
+
+/* ==========================================================================
+   Three-Section Header Layout (Tabs | OemrUI Icons | Actions)
+   ========================================================================== */
+
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-right: 1rem;
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: transparent;
+}
+
+/* Header Icons, Buttons */
+#expand_icon,
+#search_icon {
+    color: #007bff;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    margin-left: 1rem;
+    margin-right: 0rem;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+#expand_icon {
+    margin-left: 1rem;
+}
+#search_icon {
+    margin-left: 0rem;
+}
+
+#expand_icon:hover,
+#search_icon:hover {
+    background-color: rgba(0,123,255,0.1);
+    color: #0056b3;
+    text-decoration: none;
+}
+
+#create_patient_btn {
+    height: 2rem; 
+    line-height: 0;
+    margin-left: 2rem;
+    margin-top: 0rem;
+}
+
+
+
+/* OemrUI buttons styling next to tabs */
+#oemr-ui-buttons .oe-page-header-actions {
+    display: flex !important;
+    align-items: center;
+}
+
+#oemr-ui-buttons .oe-page-header-actions a {
+    margin-left: 0.5rem;
+    text-decoration: none;
+    color: #007bff; /* Bootstrap primary blue to match header */
+    padding: 0.125rem 0.25rem; /* Smaller padding */
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    font-size: 0.875rem; /* Smaller font size */
+}
+
+#oemr-ui-buttons .oe-page-header-actions a i {
+    font-size: 0.875rem !important; /* Make icons smaller */
+}
+
+#oemr-ui-buttons .oe-page-header-actions a:hover {
+    background-color: rgba(0,123,255,0.1);
+    text-decoration: none;
+    color: #0056b3; /* Darker blue on hover */
+}
+
+/* Far right section styling */
+#header-buttons-right {
+    flex-shrink: 0;
+}
+
+#header-buttons-right .btn {
+    white-space: nowrap;
+}
+
+
+/* Search elements styling in header */
+#search-elements {
+    flex-shrink: 0;
+}
+
+#search-elements #custom-search label {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+#search-elements #custom-search input {
+    margin-left: 0.5rem;
+    width: 150px;
+}
+
+#search-elements .btn-select-search {
+    background: transparent;
+    border: none;
+    padding: 0.375rem 0.5rem;
+    margin-left: -1px;
+    border-left: 1px solid #ced4da;
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
+#search-elements .btn-select-search:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+#search-elements .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+#custom-search .input-group {
+    position: relative;
+}
+
+#custom-search .input-group-append {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+#custom-search .btn-select-search {
+    background-color: #007bff !important;
+    color: white !important;
+    border: 1px solid;
+    border-color: #007bff !important;   
+    border-left: none !important;
+    padding: 0.25rem 0.5rem;
+    height: 100%;
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
+#custom-search .btn-select-search i {
+    color: white !important;
+}   
+
+#custom-search .btn-select-search:hover {
+    /* Darker blue on hover */
+    background-color: #0056b3 !important;
+}
+
+/* Adjust input padding to make room for button */
+#custom-search .form-control {
+    padding-right: 2rem;
+}
+
+/* Hide original search elements */
+#original-search,
+#search-moved-here {
+    display: none !important;
+}
+
+
+/* ==========================================================================
+   DataTables Integration & Overrides
+   ========================================================================== */
+
+/* Hide DataTable's built-in search and old header buttons */
+.dataTables_filter {
+    display: none !important;
+}
+
+div.dataTables_wrapper div#header-buttons {
+    display: none;
+}
+
+div.dataTables_wrapper #search {
+    display: none !important;
+}
+
+/* Style the moved length selector */
+.dataTables_length {
+    float: left;
+    margin-right: 1rem;
+}
+
+.dataTables_length select {
+    width: auto !important;
+    display: inline-block;
+    margin: 0 0.5rem;
+}
+
+
+/* ==========================================================================
+   Existing DataTables Style Overrides
+   ========================================================================== */
+
+/* Finder Processing style */
+div.dataTables_wrapper div.dataTables_processing {
+    width: auto;
+    margin: 0;
+    color: var(--danger);
+    transform: translateX(-50%);
+}
+
+/*div.dataTables_wrapper div#header-buttons {
+    padding-top: 0;
+    padding-left: 2rem;
+    display: inline-block;
+}*/
+
+div.dataTables_wrapper div#select-search {
+    padding-top: 0;
+    padding-left: 0;
+    display: inline-block;
+}
+
+div.dataTables_wrapper a#exp_cont_icon {
+    padding-top: 0rem;
+    padding-left: 1.5rem;
+    font-size: 1.5rem !important;
+    display: inline-block;
+    vertical-align: middle;
+    color: var(--primary) !important;
+}
+
+div.dataTables_wrapper i#show_hide {
+    padding-top: 0rem;
+    padding-left: 1rem;
+    font-size: 1.5rem;
+    display: inline-block;
+    vertical-align: middle;
+    color: var(--primary) !important;
+}
+
+div.dataTables_wrapper .my_bottom_div {
+    padding-left: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+.card {
+    border: 0;
+    border-radius: 0;
+}
+
+
+/* Table Headers */
+#header {
+    margin: 0 !important;
+}
+
+table.dataTable #header-top {
+    padding: 0 !important;
+}
+
+
+/* Color Overrides for jQuery-DT */
+table.dataTable thead th,
+table.dataTable thead td {
+    /*border-bottom: 1px solid var(--gray900) !important;*/
+    border: 0 !important;
+    padding: 0.25rem 0.25rem;
+}
+
+table.dataTable thead #pt_table_header_search_boxes {
+    border-bottom: 0;
+    background-color:  #007bff !important;
+}
+
+table.dataTable thead #pt_table_header_search_boxes td {
+    padding-top: 5px;
+    padding-bottom: 5px !important;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+table.dataTable thead #pt_table_header_search_boxes td input.search_init {
+    height: 1.7rem;
+}
+
+table.dataTable thead tr.header-labels th {
+    border-bottom: 0;
+    padding: 0.25rem 0.75rem;
+}
+
+table.dataTable thead tr.header-labels th.dt-control {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+}
+
+table.dataTable tfoot th,
+table.dataTable tfoot td {
+    /*border-top: 1px solid var(--gray900) !important;*/
+    border-top: 0;    
+}
+
+table.dataTable tbody tr {
+    background-color: var(--white) !important;
+    cursor: pointer;
+}
+
+table.dataTable tbody td {
+    padding: 0.1rem 0.75rem;
+    border-bottom: 1px solid var(--primary) !important;
+}
+
+table.dataTable tbody td.dt-control {
+    padding: 0.1rem 0.2rem;
+    border-bottom: 1px solid var(--primary) !important;
+}
+
+table.dataTable.row-border tbody th,
+table.dataTable.row-border tbody td,
+table.dataTable.display tbody th,
+table.dataTable.display tbody td {
+    border-top: 1px solid var(--gray300) !important;
+}
+
+table.dataTable.cell-border tbody th,
+table.dataTable.cell-border tbody td {
+    border-top: 1px solid var(--gray300) !important;
+    border-right: 1px solid var(--gray300) !important;
+}
+
+table.dataTable.cell-border tbody tr th:first-child,
+table.dataTable.cell-border tbody tr td:first-child {
+    border-left: 1px solid var(--gray300) !important;
+}
+
+table.dataTable.stripe tbody tr.odd,
+table.dataTable.display tbody tr.odd {
+    background-color: var(--light) !important;
+}
+
+table.dataTable tbody tr:hover,
+table.dataTable tbody tr:hover a,
+table.dataTable.display tbody tr:hover,
+table.dataTable.display tbody tr:hover a {
+    background-color: var(--secondary) !important;
+    text-decoration: none !important;
+    color: var(--light);
+}
+
+table.dataTable tbody a:hover,
+table.dataTable.display tbody a:hover {
+    text-decoration: none !important;
+    color: var(--light);
+}
+
+table.dataTable.order-column tbody tr>.sorting_1,
+table.dataTable.order-column tbody tr>.sorting_2,
+table.dataTable.order-column tbody tr>.sorting_3,
+table.dataTable.display tbody tr>.sorting_1,
+table.dataTable.display tbody tr>.sorting_2,
+table.dataTable.display tbody tr>.sorting_3 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr.odd>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr.odd>.sorting_2,
+table.dataTable.order-column.stripe tbody tr.odd>.sorting_2 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr.odd>.sorting_3,
+table.dataTable.order-column.stripe tbody tr.odd>.sorting_3 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr.even>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr.even>.sorting_2,
+table.dataTable.order-column.stripe tbody tr.even>.sorting_2 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr.even>.sorting_3,
+table.dataTable.order-column.stripe tbody tr.even>.sorting_3 {
+    background-color: var(--light) !important;
+}
+
+table.dataTable.display tbody tr:hover>.sorting_1,
+table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
+    background-color: var(--gray300) !important;
+}
+
+table.dataTable.display tbody tr:hover>.sorting_2,
+table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
+    background-color: var(--gray300) !important;
+}
+
+table.dataTable.display tbody tr:hover>.sorting_3,
+table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
+    background-color: var(--gray300) !important;
+}
+
+table.dataTable.display tbody .odd:hover,
+table.dataTable.display tbody .even:hover {
+    background-color: var(--gray300) !important;
+}
+
+table.dataTable.no-footer {
+    border-bottom: 0;
+}
+
+.dataTables_wrapper .dataTables_processing {
+    background-color: var(--white) !important;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--black), 0.9)), color-stop(75%, rgba(var(--black), 0.9)), color-stop(100%, transparent)) !important;
+    background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+    background: -moz-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+    background: -ms-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+    background: -o-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+    background: linear-gradient(to right, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper #custom-search,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--dark) !important;
+}
+/* remove later  .dataTables_wrapper .dataTables_filter,*/
+
+    .dataTables_wrapper .dataTables_info {
+    padding-left: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    padding-right: 0;
+    margin-bottom: 1rem !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper #custom-search {
+    margin-top: 0.2rem;
+    padding: 0;
+    padding-right: 0.5rem;
+}
+
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper #custom-search label {
+    margin-bottom: 0;
+}
+
+div.dataTables_wrapper div#custom-search input {
+    display: inline-block !important;
+    float: none;
+    width: 12rem !important;
+    vertical-align: middle;
+    height: 1.7rem;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+}
+
+#pt_table_length {
+    margin-bottom: 0 !important;
+    margin-right: 3rem;
+    border-bottom: 0 !important;
+    padding-bottom: 0rem;
+    font-size: 0.875rem;
+}
+
+.nav-tabs + #pt_table_length {
+    margin-left: 2rem;
+}
+
+div.dataTables_length select {
+    width: 4rem !important;
+}
+
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+    border-bottom: 0;
+}
+
+/* Pagination button Overrides for jQuery-DT */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+}
+
+/* Sort indicator Overrides for jQuery-DT */
+table thead .sorting::before,
+table thead .sorting_asc::before,
+table thead .sorting_asc::after,
+table thead .sorting_desc::before,
+table thead .sorting_desc::after,
+table thead .sorting::after {
+    display: none !important;
+}
+
+.dataTables_wrapper #search {
+    float: right;
+}
+
+.dataTables_wrapper .btn-select-search {
+    display: inline-block;
+    margin-left: -35px;
+    border: 0;
+    transition: 0;
+    background: transparent;
+    padding: 7px 7px 8px 5px;
+    outline: none;
+}
+
+.dataTables_wrapper .btn-select-search:focus {
+    outline: none !important;
+}
+
+.dataTables_wrapper .dropdown-toggle::after {
+    display: none !important;
+}
+
+.dataTables_wrapper #custom-search {
+    float: none !important;
+}
+
+.dataTables_wrapper #pt_table_info {
+    padding-left: 0;
+}
+
+
+/* ==========================================================================
+   DataTable Control Styles
+   ========================================================================== */
+
+.dt-control {
+    padding: 0;
+}
+
+.dt-control::before {
+    background-color: var(--primary) !important;
+    height: 0.9em !important;
+    width: 0.9em !important;
+    font-size: 0.8em !important;
+    line-height: 0.9em !important;
+    vertical-align:0.2em !important;
+    padding: 0;
+    box-shadow: 0 0 .3em #444 !important;
+}
+
+table.dataTable tr.dt-hasChild td.dt-control::before {
+    background-color: var(--danger) !important;
+}
+
+
+.noHover {
+    pointer-events: none;
+}
+
+.patient_detail_container div.tab{
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+    min-height: 0;
+
+}
+
+.patient_detail_container div.tab table td{
+    border: 0 !important;
+}
+
+
+/* ==========================================================================
+   Fine-tune the three-section layout
+   ========================================================================== */
+
+.d-flex.justify-content-between > div:first-child {
+    flex-shrink: 0;
+}
+
+.d-flex.justify-content-between > div:last-child {
+    flex-shrink: 0;
+}
+
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media screen and (max-width: 640px) {
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper #custom-search {
+        float: inherit;
+        text-align: justify;
+    }
+    /* remove later .dataTables_wrapper .dataTables_filter */
+}
+
+
+@media (max-width: 992px) {
+    #search-elements #custom-search input {
+        width: 120px;
+    }
+    
+    #search-elements #custom-search label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .d-flex.justify-content-between > div:first-child {
+        margin-bottom: 0.5rem;
+    }
+    
+    #header-buttons-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    #search-elements {
+        margin-top: 0.25rem;
+    }
+    
+    .dataTables_length {
+        float: none;
+        margin-bottom: 0.5rem;
+    }
+    
+    #pt_table_length {
+        order: -1;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .d-flex.justify-content-between {
+        align-items: stretch;
+    }
+    
+    #header-buttons-right {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    
+    #header-buttons-right .btn {
+        margin-bottom: 0.25rem;
+        margin-right: 0;
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    #search-elements {
+        flex-direction: column;
+        align-items: flex-end;
+        margin-top: 0.5rem;
+    }
+    
+    #search-elements #custom-search {
+        margin-bottom: 0.25rem;
+    }
+    
+    #search-elements #custom-search input {
+        width: 140px;
+    }
+    
+    #oemr-ui-buttons .oe-page-header-actions {
+        flex-direction: row;
+        margin-top: 0.25rem;
+    }
+}
+
+

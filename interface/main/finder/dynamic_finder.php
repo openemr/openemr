@@ -34,37 +34,58 @@ use OpenEMR\Services\PatientService;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
+$current_state_expand = prevSetting($uspfx, 'patient_finder_expand', 'dynamic_finder_xpd', '0');
+//Is prevSetting deprecated?   does it work?
+
+$oeContainer = ($current_state_expand) ? 'container-fluid' : 'container';
+
+$expand_title = ($current_state_expand) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
+$expand_icon = ($current_state_expand) ? 'fa-compress' : 'fa-expand';
+$expand_class = ($current_state_expand) ? 'oe-center' : 'oe-expand';
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = empty($_GET['search_any']) ? "" : $_GET['search_any'];
 unset($_GET['search_any']);
 // Generate some code based on the list of columns.
 //
-$colcount = 0;
-$header0 = "";
-$header = "";
-$coljson = "";
+$colcount = 1;
+$table_header_search_boxes = "<td><input type='hidden'></td>";
+$table_header_labels = "<th></th>";
+$coljson = "{ name: 'fname', className: 'dt-control', orderable: false, data: null, searchable: false, defaultContent: '' }";
 $orderjson = "";
-$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+
+$res = sqlStatement("SELECT option_id, title, toggle_setting_1, subtype FROM list_options WHERE " .
+    "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+
 $sort_dir_map = generate_list_map('Sort_Direction');
+
+$colwidth = array();
+$colwidth[] = "0.5rem";
+
+
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
+    $colindex[$colname] = $colcount;
     $colorder = $sort_dir_map[$row['toggle_setting_1']]; // Get the title 'asc' or 'desc' using the value
+    $colwidth[] = $row['subtype'];
     $title = xl_list_label($row['title']);
     $title1 = ($title == xl('Full Name')) ? xl('Name') : $title;
-    $header .= "   <th>";
-    $header .= text($title);
-    $header .= "</th>\n";
-    $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='form-control search_init' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
+   
+    $table_header_labels .= "   <th>";
+    $table_header_labels .= text($title);
+    $table_header_labels .= "</th>\n";
+    $table_header_search_boxes .= "   <td class='pl-1 pr-3'><input type='text' size='20' ";
+    $table_header_search_boxes .= "value='' class='form-control search_init pl-2' placeholder='" . $title1 . "'/></td>\n";
+   
     if ($coljson) {
         $coljson .= ", ";
     }
-
-    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"";
-    if ($title1 == xl('Name')) {
-        $coljson .= ", \"mRender\": wrapInLink";
-    }
+    $colname_escaped = addcslashes($colname, "\t\r\n\"\\");
+    $coljson .= "{ name: '$colname_escaped', data: '$colname_escaped'";
+    //$coljson .= "{ name: '$colname_escaped'";
+    //if ($title1 == xl('Name')) {
+    //    $coljson .= ", \"mRender\": wrapInLink";
+    //}
     $coljson .= "}";
     if ($orderjson) {
         $orderjson .= ", ";
@@ -78,357 +99,9 @@ $loading = "";
 <html>
 <head>
     <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/main/finder/dynamic_finder.css">
     <title><?php echo xlt("Patient Finder"); ?></title>
-<style>
-    /* Finder Processing style */
-    div.dataTables_wrapper div.dataTables_processing {
-        width: auto;
-        margin: 0;
-        color: var(--danger);
-        transform: translateX(-50%);
-    }
 
-     div.dataTables_wrapper div#header-buttons {
-        padding-top: 0;
-        padding-left: 2rem;
-        display: inline-block;
-    }
-    
-    div.dataTables_wrapper div#select-search {
-        padding-top: 0;
-        padding-left: 0;
-        display: inline-block;
-    }
-
-    div.dataTables_wrapper a#exp_cont_icon {
-        padding-top: 0rem;
-        padding-left: 1.5rem;
-        font-size: 1.5rem !important;
-        display: inline-block;
-        vertical-align: middle;
-        color: var(--primary) !important;
-    }
-
-    div.dataTables_wrapper i#show_hide {
-        padding-top: 0rem;
-        padding-left: 1rem;
-        font-size: 1.5rem;
-        display: inline-block;
-        vertical-align: middle;
-        color: var(--primary) !important;
-    }
-
-    div.dataTables_wrapper .my_bottom_div {
-        padding-left: 0.75rem;
-        padding-top: 0.5rem;
-    }
-
-    .card {
-        border: 0;
-        border-radius: 0;
-    }
-
-    @media screen and (max-width: 640px) {
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper #custom-search {
-            float: inherit;
-            text-align: justify;
-        }
-        /* remove later .dataTables_wrapper .dataTables_filter */
-    }
-
-    /* Color Overrides for jQuery-DT */
-    table.dataTable thead th,
-    table.dataTable thead td {
-        /*border-bottom: 1px solid var(--gray900) !important;*/
-        border-bottom: 0;
-        padding: 0.25rem 0.25rem;
-    }
-    table.dataTable thead #column-search {
-        border-bottom: 0;
-        background-color: var(--white) !important;
-    }
-
-    table.dataTable thead #column-search td input.search_init {
-        height: 1.7rem;
-    }
-
-    table.dataTable thead tr.header-labels th {
-        border-bottom: 0;
-        padding: 0.25rem 0.75rem;
-    }
-
-    table.dataTable thead tr.header-labels th.dt-control {
-        padding-left: 0.1rem;
-        padding-right: 0.1rem;
-    }
-
-    table.dataTable tfoot th,
-    table.dataTable tfoot td {
-        /*border-top: 1px solid var(--gray900) !important;*/
-        border-top: 0;    
-    }
-
-    table.dataTable tbody tr {
-        background-color: var(--white) !important;
-        cursor: pointer;
-    }
-
-    table.dataTable tbody td {
-        padding: 0.1rem 0.75rem;
-        border-bottom: 1px solid var(--primary) !important;
-    }
-
-    table.dataTable tbody td.dt-control {
-        padding: 0.1rem 0.2rem;
-        border-bottom: 1px solid var(--primary) !important;
-    }
-
-    table.dataTable.row-border tbody th,
-    table.dataTable.row-border tbody td,
-    table.dataTable.display tbody th,
-    table.dataTable.display tbody td {
-        border-top: 1px solid var(--gray300) !important;
-    }
-
-    table.dataTable.cell-border tbody th,
-    table.dataTable.cell-border tbody td {
-        border-top: 1px solid var(--gray300) !important;
-        border-right: 1px solid var(--gray300) !important;
-    }
-
-    table.dataTable.cell-border tbody tr th:first-child,
-    table.dataTable.cell-border tbody tr td:first-child {
-        border-left: 1px solid var(--gray300) !important;
-    }
-
-    table.dataTable.stripe tbody tr.odd,
-    table.dataTable.display tbody tr.odd {
-        background-color: var(--light) !important;
-    }
-
-        table.dataTable tbody tr:hover,
-    table.dataTable tbody tr:hover a,
-    table.dataTable.display tbody tr:hover,
-    table.dataTable.display tbody tr:hover a {
-        background-color: var(--secondary) !important;
-        text-decoration: none !important;
-        color: var(--light);
-    }
-
-    table.dataTable tbody a:hover,
-    table.dataTable.display tbody a:hover {
-        text-decoration: none !important;
-        color: var(--light);
-    }
-    
-    table.dataTable.order-column tbody tr>.sorting_1,
-    table.dataTable.order-column tbody tr>.sorting_2,
-    table.dataTable.order-column tbody tr>.sorting_3,
-    table.dataTable.display tbody tr>.sorting_1,
-    table.dataTable.display tbody tr>.sorting_2,
-    table.dataTable.display tbody tr>.sorting_3 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.odd>.sorting_1,
-    table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.odd>.sorting_2,
-    table.dataTable.order-column.stripe tbody tr.odd>.sorting_2 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.odd>.sorting_3,
-    table.dataTable.order-column.stripe tbody tr.odd>.sorting_3 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.even>.sorting_1,
-    table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.even>.sorting_2,
-    table.dataTable.order-column.stripe tbody tr.even>.sorting_2 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.even>.sorting_3,
-    table.dataTable.order-column.stripe tbody tr.even>.sorting_3 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr:hover>.sorting_1,
-    table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
-        background-color: var(--gray300) !important;
-    }
-
-    table.dataTable.display tbody tr:hover>.sorting_2,
-    table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
-        background-color: var(--gray300) !important;
-    }
-
-    table.dataTable.display tbody tr:hover>.sorting_3,
-    table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
-        background-color: var(--gray300) !important;
-    }
-
-    table.dataTable.display tbody .odd:hover,
-    table.dataTable.display tbody .even:hover {
-        background-color: var(--gray300) !important;
-    }
-
-    table.dataTable.no-footer {
-        border-bottom: 0;
-    }
-
-    .dataTables_wrapper .dataTables_processing {
-        background-color: var(--white) !important;
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--black), 0.9)), color-stop(75%, rgba(var(--black), 0.9)), color-stop(100%, transparent)) !important;
-        background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -moz-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -ms-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -o-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: linear-gradient(to right, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-    }
-
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter,
-    .dataTables_wrapper #custom-search,
-    .dataTables_wrapper .dataTables_info,
-    .dataTables_wrapper .dataTables_processing,
-    .dataTables_wrapper .dataTables_paginate {
-        color: var(--dark) !important;
-    }
-    /* remove later  .dataTables_wrapper .dataTables_filter,*/
-
-        .dataTables_wrapper .dataTables_info {
-        padding-left: 0.75rem;
-        padding-top: 0.5rem;
-    }
-
-    .dataTables_wrapper .dataTables_paginate {
-        padding-right: 0;
-        margin-bottom: 1rem !important;
-    }
-
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper #custom-search {
-        margin-top: 0.2rem;
-        padding: 0;
-        padding-right: 0.5rem;
-    }
-
-    .dataTables_wrapper .dataTables_length label,
-    .dataTables_wrapper #custom-search label {
-        margin-bottom: 0;
-    }
-
-    div.dataTables_wrapper div#custom-search input {
-        display: inline-block !important;
-        float: none;
-        width: 12rem !important;
-        vertical-align: middle;
-        height: 1.7rem;
-        font-size: 1rem;
-        margin-left: 0.5rem;
-    }
-
-    div.dataTables_length select {
-        width: 50px !important;
-    }
-
-    .dataTables_wrapper.no-footer .dataTables_scrollBody {
-        border-bottom: 0;
-    }
-
-    /* Pagination button Overrides for jQuery-DT */
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 0 !important;
-        margin: 0 !important;
-        border: 0 !important;
-    }
-
-    /* Sort indicator Overrides for jQuery-DT */
-    table thead .sorting::before,
-    table thead .sorting_asc::before,
-    table thead .sorting_asc::after,
-    table thead .sorting_desc::before,
-    table thead .sorting_desc::after,
-    table thead .sorting::after {
-        display: none !important;
-    }
-
-    .dataTables_wrapper #search {
-        float: right;
-    }
-
-    .dataTables_wrapper .btn-select-search {
-        display: inline-block;
-        margin-left: -35px;
-        border: 0;
-        transition: 0;
-        background: transparent;
-        padding: 7px 7px 8px 5px;
-        outline: none;
-    }
-
-    .dataTables_wrapper .btn-select-search:focus {
-        outline: none !important;
-    }
-
-    .dataTables_wrapper .dropdown-toggle::after {
-        display: none !important;
-    }
-
-    .dataTables_wrapper #custom-search {
-        float: none !important;
-    }
-
-    .dataTables_wrapper #pt_table_info {
-        padding-left: 0;
-    }
-
-    .dt-control {
-        padding: 0;
-    }
-
-    .dt-control::before {
-        background-color: var(--primary) !important;
-        height: 0.9em !important;
-        width: 0.9em !important;
-        font-size: 0.8em !important;
-        line-height: 0.9em !important;
-        vertical-align:0.2em !important;
-        padding: 0;
-        box-shadow: 0 0 .3em #444 !important;
-    }
-
-    table.dataTable tr.dt-hasChild td.dt-control::before {
-        background-color: var(--danger) !important;
-    }
-
-
-    .noHover {
-        pointer-events: none;
-    }
-
-    .patient_detail_container div.tab{
-        padding-left: 2rem;
-        margin-bottom: 1rem;
-        min-height: 0;
-
-    }
-
-    .patient_detail_container div.tab table td{
-        border: 0 !important;
-    }
-
-</style>
 <script>
     var uspfx = '<?php echo attr($uspfx); ?>';
 
@@ -448,18 +121,19 @@ $loading = "";
             // the new 'ajax' command to work.
             "sAjaxSource": serverUrl,
             "fnServerParams": function (aoData) {
-                var searchType = $("#setting_search_type:checked").length > 0;
-                aoData.push({"name": "searchType", "value": searchType});
+                var searchExact = $("#setting_search_exact:checked").length > 0;
+                aoData.push({"name": "searchExact", "value": searchExact});
             },
             // dom invokes ColReorderWithResize and allows inclusion of a custom div
-            "dom": 'Rlfrt<"mytopdiv">ip',
+            "dom": 'lrtip',
             // These column names come over as $_GET['sColumns'], a comma-separated list of the names.
             // See: http://datatables.net/usage/columns and
             // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
             "columns": [ <?php echo $coljson; ?> ],
             "order": [ <?php echo $orderjson; ?> ],
-            "lengthMenu": [10, 25, 50, 100],
+            "lengthMenu": [10, 25, 50, 100, 250],
             "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
+            "initComplete": postDataTableInitialization,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('search' => (xla('Search all columns') . ':')); ?>
             <?php $translationsDatatablesOverride = array('processing' => $loading); ?>
@@ -470,7 +144,131 @@ $loading = "";
         <?php
         $checked = (!empty($GLOBALS['gbl_pt_list_new_window'])) ? 'checked' : '';
         ?>
-        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Browser Tab'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
+
+        if(!('nextElementSibling' in document.documentElement))
+        {
+            Object.defineProperty(Element.prototype, 'nextElementSibling',
+            {
+                get: function()
+                {
+                    var e = this.nextSibling;
+                    while (e && e.nodeType !== 1)
+                        e = e.nextSibling;
+
+                    return e;
+                }
+            });
+        }
+
+        header_topNode = document.getElementById("header-top");
+        searchNode = document.getElementById("search");
+        header_rightNode = document.getElementById("header-right");
+        select_searchNode = document.getElementById("select-search");
+        custom_searchNode = document.getElementById("custom-search");
+        pt_table_lengthNode = document.getElementById("pt_table_length");
+
+        //searchNode.insertBefore(custom-searchNode, select_searchNode);
+        //header_topNode.insertBefore(pt_table_lengthNode, header_buttonsNode);
+
+        pt_table_infoNode = document.getElementById("pt_table_info");
+        pt_table_paginateNode = document.getElementById("pt_table_paginate");
+        footer_bottomNode = document.getElementById("footer-bottom");
+        footer_bottomNode.append(pt_table_infoNode);
+        footer_bottomNode.append(pt_table_paginateNode);        
+
+        let colindex = <?php echo json_encode($colindex); ?>
+
+        // This is to support column-specific search fields.
+        // Borrowed from the multi_filter.html example.
+     
+        $("#column-search input").keyup(function () {
+            // Filter on the column (the index) of this element
+            oTable.fnFilter(this.value, $("#column-search input").index(this));
+        });
+
+        $("div#custom-search input").keyup(function () {
+            // Filter on the column (the index) of this element
+            //oTable.search(this.value);
+            $('#pt_table').DataTable().search(this.value).draw();
+        });
+
+        //$('#pt_table').on('mouseenter', 'tbody tr', function() {
+        //    $(this).find('a').css('text-decoration', 'underline');
+        //});
+        //$('#pt_table').on('mouseleave', 'tbody tr', function() {
+        //    $(this).find('a').css('text-decoration', '');
+        //});
+
+        // Force styling on OemrUI buttons after they're rendered
+
+        // OnClick handler for the rows
+
+        function showhidePatientData(target) {
+            let rowNode = target.parentNode;
+            if (rowNode.classList.contains("childShown")) {
+                rowNode.nextElementSibling.classList.add("d-none");
+                rowNode.classList.remove("childShown");
+                rowNode.classList.remove("dt-hasChild");                
+            } else {
+                rowNode.classList.add("childShown");
+                rowNode.classList.add("dt-hasChild");
+                if (rowNode.classList.contains("hasChild")) {
+                    rowNode.nextElementSibling.classList.remove("d-none");
+                } else {
+                    let templateNode = document.querySelector(".template_patient_detail");
+                    let clonedNode = templateNode.content.cloneNode(true);
+                    rowNode.parentNode.insertBefore(clonedNode, rowNode.nextSibling);
+                    rowNode.classList.add("hasChild");
+                    let pid = rowNode.id.substring(4); 
+
+                    let patientDetailNode = rowNode.nextElementSibling.querySelector(".patient_detail_container");
+                    getPatientDetail(patientDetailNode, pid);
+
+                }
+            }
+        }
+
+        async function getPatientDetail(patientDetailNode, pid) {
+            let url = "patient_data_ajax.php?pid=" + pid;
+            const response = await fetch(url);
+            const PatientDetailHTML = await response.json();
+            console.log(PatientDetailHTML);
+
+            patientDetailNode.innerHTML = PatientDetailHTML;
+
+        }
+
+
+        const tbodyNode = document.querySelector('table#pt_table tbody');
+        tbodyNode.addEventListener("click", function (event) {
+            if (event.target.classList.contains("dt-control")) {
+                event.stopPropagation();
+                showhidePatientData(event.target);
+            }
+        });
+
+        // After DataTable initialization, move the length selector
+        // Wait for DataTable to fully initialize
+        $('#pt_table').on('init.dt', function() {
+            // Move the length selector to be inline with the tabs
+            var lengthSelector = $('#pt_table_length');
+            var header_rightContainer = $('#header-right');
+            
+            // Create a wrapper div if needed to keep them on the same line
+            if (header_rightContainer.length && lengthSelector.length) {
+                // Detach the length selector from its current position
+                lengthSelector.detach();
+                
+                // Insert it right after the tabs, but within the same flex container
+                lengthSelector.addClass('ms-3 d-flex align-items-center');
+                header_rightContainer.before(lengthSelector);
+                
+                // Ensure proper styling
+                lengthSelector.find('label').addClass('mb-0');
+                lengthSelector.find('select').addClass('form-control-sm');
+            }
+        });
+
 
         // This is to support column-specific search fields.
         // Borrowed from the multi_filter.html example.
@@ -485,6 +283,7 @@ $loading = "";
         $('#pt_table').on('mouseleave', 'tbody tr', function() {
             $(this).find('a').css('text-decoration', '');
         });
+
         // OnClick handler for the rows
         $('#pt_table').on('click', 'tbody tr', function () {
             // ID of a row element is pid_{value}
@@ -504,11 +303,108 @@ $loading = "";
                 top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
             }
         });
+
+        $('#expand_icon').click(function (e) {
+            e.preventDefault();
+            var elementTitle;
+            var expandTitle = <?php echo xlj("Click to contract page to center view"); ?>;
+            var contractTitle = <?php echo xlj("Click to expand page to full width"); ?>;
+            var webroot = '<?php echo $GLOBALS['webroot']; ?>';
+            var collectToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+            
+            if ($(this).is('.oe-expand')) {
+                elementTitle = expandTitle;
+                $(this).find('i').removeClass('fa-expand').addClass('fa-compress');
+                $(this).removeClass('oe-expand').addClass('oe-center');
+                $('#container_div').removeClass('container').addClass('container-fluid');
+                $('#pt_table').removeClass('w-auto');
+                
+                // Save setting
+                $.post(webroot + "/library/ajax/user_settings.php", {
+                    target: 'dynamic_finder_xpd',
+                    setting: 1,
+                    csrf_token_form: collectToken
+                });
+            } else if ($(this).is('.oe-center')) {
+                elementTitle = contractTitle;
+                $(this).find('i').removeClass('fa-compress').addClass('fa-expand');
+                $(this).removeClass('oe-center').addClass('oe-expand');
+                $('#container_div').removeClass('container-fluid').addClass('container');
+                $('#pt_table').addClass('w-auto');
+                
+                // Save setting
+                $.post(webroot + "/library/ajax/user_settings.php", {
+                    target: 'dynamic_finder_xpd',
+                    setting: 0,
+                    csrf_token_form: collectToken
+                });
+            }      
+            $(this).attr('title', elementTitle);
+        });
+    
+        // Search toggle functionality (replaces OemrUI search functionality)
+        $('#search_icon').click(function(e) {
+            e.preventDefault();
+            var $icon = $(this).find('i');
+            var $table_header_labels = $('#pt_table_header_labels')
+            var showTitle = <?php echo xlj('Click to show search'); ?>;
+            var hideTitle = <?php echo xlj('Click to hide search'); ?>;
+            
+            // Toggle the search row
+            $('.hideaway').toggleClass('d-none');
+            
+            // Toggle icon and title
+            if ($icon.hasClass('fa-search')) {
+                $icon.removeClass('fa-search').addClass('fa-search-minus');
+                $(this).attr('title', hideTitle);
+                $table_header_labels.removeClass('d-none');
+            } else {
+                $icon.removeClass('fa-search-minus').addClass('fa-search');
+                $(this).attr('title', showTitle);
+                $table_header_labels.addClass('d-none');
+            }
+        });
     });
+
+   // $(document).ready(function() {
+            //$('#pt_table').DataTable({
+            //    "searching": false, // Disables the global search input
+            //    "lengthChange": true // Enables the "Show Entries" dropdown
+            //});
+   //     });
+
+    function postDataTableInitialization ( settings, json) {
+        // Format DataTable Columns
+        let pt_tableNode = document.querySelector("table#pt_table");
+        let pt_table_header_labels_th = pt_tableNode.querySelectorAll("th");
+
+        let pt_table_header_search_boxes = document.querySelector("tr#pt_table_header_search_boxes");
+        let pt_table_header_search_boxes_td = pt_table_header_search_boxes.querySelectorAll("td")
+
+        var colwidth = <?php echo json_encode($colwidth); ?>;
+        pt_table_header_labels_th.forEach( function(header, index) {
+            header.style.width = colwidth[index];
+        });
+        pt_table_header_search_boxes_td.forEach( function(header, index) {
+            header.style.width = colwidth[index];
+        });
+
+        var pt_table_w_auto = <?php echo json_encode($pt_table_w_auto); ?>;
+        if (pt_table_w_auto) {
+            pt_tableNode.classList.add('w-auto');
+        } else {
+            pt_tableNode.classList.remove('w-auto');
+        }
+        $('#pt_table tfoot td').removeClass('dt-control');
+
+        
+    }
+
+
 
     function wrapInLink(data, type, full) {
         if (type == 'display') {
-            return '<a href="">' + data + "</a>";
+            return '<a href="" class="text-decoration-none">' + data + "</a>";
         } else {
             return data;
         }
@@ -536,34 +432,7 @@ $loading = "";
 
 </script>
 <?php
-    /** @var EventDispatcher */
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    $arrOeUiSettings = array(
-    'heading_title' => xl('Patient Finder'),
-    'include_patient_name' => false,
-    'expandable' => true,
-    'expandable_files' => array('dynamic_finder_xpd'),//all file names need suffix _xpd
-    'action' => "search",//conceal, reveal, search, reset, link or back
-    'action_title' => "",//only for action link, leave empty for conceal, reveal, search
-    'action_href' => "",//only for actions - reset, link or back
-    'show_help_icon' => false,
-    'help_file_name' => "",
-    'page_id' => 'dynamic_finder',
-    );
-    $oemr_ui = new OemrUI($arrOeUiSettings);
-
-    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event): void {
-        if ($event->getPageId() !== 'dynamic_finder') {
-            return;
-        }
-
-        $event->setPrimaryMenuItem(new BaseMenuItem([
-            'displayText' => xl('Add New Patient'),
-            'linkClassList' => ['btn-add'],
-            'id' => $GLOBALS['webroot'] . '/interface/new/new.php',
-            'acl' => ['patients', 'demo', ['write', 'addonly']]
-        ]));
-    });
+    $pt_table_w_auto = str_contains($oeContainer, "fluid") ? false : true;
     ?>
 </head>
 <body>
@@ -637,17 +506,22 @@ function rp()
     return ['headers' => $headers, 'rp' => $pd_data];
 }
 
+$acl_addpatient = AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'));
 $rp = rp();
 
 $templateVars = [
-    'oeContainer' => $oemr_ui->oeContainer(),
-    'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
-    'pageHeading' => $oemr_ui->pageHeading(),
-    'header0' => $header0,
-    'header' => $header,
+    'oeContainer' => $oeContainer,
+    'expand_title' => $expand_title,
+    'expand_icon' => $expand_icon,
+    'expand_class' => $expand_class,
+    'table_header_search_boxes' => $table_header_search_boxes,
+    'table_header_labels' => $table_header_labels,
     'colcount' => $colcount,
     'headers' => $rp['headers'],
-    'rp' => $rp['rp'],
+    'checked' => $checked,
+    'acl_addpatient' => $acl_addpatient,
+    'patient_finder_exact_search' => $patient_finder_exact_search,
+    'rp' => $rp['rp']
 ];
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);

@@ -3490,6 +3490,14 @@ INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_m
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '' , 'Facility Specific User Information', 'Core');
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '1', 'General'                           , ''    );
 
+INSERT INTO `layout_group_properties`
+       (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_subtitle`, `grp_mapping`, `grp_seq`, `grp_activity`, `grp_repeats`, `grp_columns`, `grp_size`, `grp_issue_type`, `grp_aco_spec`, `grp_save_close`, `grp_init_open`, `grp_referrals`, `grp_services`, `grp_products`, `grp_diags`, `grp_last_update`)
+    VALUES
+       ('LBF_PATIENTLIST_DETAIL', '', 'Patient List Detail', '', 'Core', 0, 1, 0, 8, 9, '', '', 0, 0, 0, '', '', '', '2022-08-03 09:09:39'),
+       ('LBF_PATIENTLIST_DETAIL', '1', 'Main', '', '', 0, 1, 0, 0, 0, '', '', 0, 0, 0, '', '', '', NULL);
+
+
+
 -- --------------------------------------------------------
 
 --
@@ -3714,6 +3722,15 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'provider_id', '1', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'role_code', '1', 'Provider Role', 2, 43, 1, 0, 0, 'us-core-provider-role', 1, 1, '', '', 'Provider Role at Specified Facility', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'specialty_code', '1', 'Provider Specialty', 3, 43, 1, 0, 0, 'us-core-provider-specialty', 1, 1, '', '', 'Provider Specialty at Specified Facility', 0);
+
+INSERT INTO `layout_options`
+        (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`)
+    VALUES
+          ('LBF_PATIENTLIST_DETAIL', 'address_full', '1', 'Address', 30, 2, 1, 20, 200, '', 1, 7, '', '[\"J\"]', '', 0, '', 'F', '', '', ''),
+          ('LBF_PATIENTLIST_DETAIL', 'lname', '1', 'Last Name', 10, 2, 2, 20, 63, '', 1, 2, '', '', '', 0, '', 'F', '', '', ''),
+          ('LBF_PATIENTLIST_DETAIL', 'name', '1', 'Name', 20, 2, 1, 20, 60, '', 1, 2, '', '', '', 0, '', 'F', '', '', '');
+
+
 -- --------------------------------------------------------
 
 --
@@ -4992,12 +5009,28 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nat
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('lists','payment_gateways','Payment Gateways','297','1','0','','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_gateways','authorize_net','Authorize.net','1','0','0','','');
 
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('lists','ptlistcols','Patient List Columns','1','0','','');
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','name'      ,'Full Name'     ,'10','3','','');
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','phone_home','Home Phone'    ,'20','3','','');
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','ss'        ,'SSN'           ,'30','3','','');
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','DOB'       ,'Date of Birth' ,'40','3','','');
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
+INSERT INTO `list_options`
+	     (list_id, option_id, title, seq, option_value, mapping, notes)
+     VALUES
+         ('lists','ptlistcols','Patient List Columns','1','0','','');
+
+INSERT INTO `list_options`
+         (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `toggle_setting_1`, `activity`, `subtype`)
+     VALUES
+         ('ptlistcols', 'age', 'Age', 40, 0, 0, 0, 1, '1rem'),
+         ('ptlistcols', 'city', 'City', 90, 0, 0, 0, 0, '10rem'),
+         ('ptlistcols', 'city_state', 'City State', 80, 0, 0, 0, 1, '10rem'),
+         ('ptlistcols', 'DOB', 'DOB', 50, 0, 0, 0, 1, '5rem'),
+         ('ptlistcols', 'fname', 'First Name', 30, 0, 0, 0, 1, '4rem'),
+         ('ptlistcols', 'lname', 'Last Name', 20, 0, 0, 0, 1, '6rem'),
+         ('ptlistcols', 'name', 'Full Name', 10, 0, 0, 0, 0, '12rem'),
+         ('ptlistcols', 'next_appointment', 'Next Appt', 150, 0, 0, 0, 1, '11rem'),
+         ('ptlistcols', 'phone_home', 'Home Phone', 130, 0, 0, 0, 0, '5rem'),
+         ('ptlistcols', 'postal_code', 'ZIP', 110, 0, 0, 0, 1, '2rem'),
+         ('ptlistcols', 'ss', 'SSN', 120, 0, 0, 0, 1, '5rem'),
+         ('ptlistcols', 'state', 'State', 100, 0, 0, 0, 0, '1rem'),
+         ('ptlistcols', 'status', 'Status', 140, 0, 0, 0, 1, '3rem'),
+         ('ptlistcols', 'pubpid', 'External ID', 150, 0, 0, 0, 0, '5rem');
 
 -- Medical Problem Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medical_problem_issue_list','Medical Problem Issue List');
@@ -5549,6 +5582,13 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'Sort_Direction', 'Sort Direction', 1, 0, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '0', 'asc', 10, 1, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
+
+INSERT INTO `list_options`
+         (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+    VALUES
+		('sort_direction_full', '0', 'Ascending', 10, 0, 0, '', '', '', 0, 0, 1, '', 1),
+		('sort_direction_full', '1', 'Descending', 20, 0, 0, '', '', '', 0, 0, 1, '', 1);
+
 
 -- ActEncounterCode [FHIR Encounter.class]
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', '_ActEncounterCode', 'Value Set ActEncounterCode', 1);
