@@ -313,7 +313,7 @@ INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs', '')
 INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 56, 'patients|docs', '');
 INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs', '');
 INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs','');
-INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 55, 'patients|docs','');
+INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs','');
 INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs','');
 INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs','');
 INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs','');
@@ -328,9 +328,9 @@ INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 58, 59, 'patients|docs',
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 60, 61, 'patients|docs','LOINC:LP173394-0');
 INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 63, 64, 'admin|super','LOINC:LP173421-1');
 INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 65, 66, 'encounters|coding', '');
-INSERT INTO `categories` VALUES (32, 'AntSeg Laser - Eye', '', 14, 49, 50, 'patients|docs', '');
-INSERT INTO `categories` VALUES (33, 'Retina Laser - Eye', '', 14, 51, 52, 'patients|docs', '');
-INSERT INTO `categories` VALUES (34, 'Injections - Eye', '', 14, 53, 54, 'patients|docs', '');
+INSERT INTO `categories` VALUES (32, 'AntSeg Laser - Eye', '', 14, 50, 51, 'patients|docs', '');
+INSERT INTO `categories` VALUES (33, 'Retina Laser - Eye', '', 14, 52, 53, 'patients|docs', '');
+INSERT INTO `categories` VALUES (34, 'Injections - Eye', '', 14, 54, 55, 'patients|docs', '');
 
 -- --------------------------------------------------------
 
