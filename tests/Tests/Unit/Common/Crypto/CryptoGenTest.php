@@ -200,7 +200,7 @@ final class CryptoGenTest extends TestCase
 
     public function testCryptCheckStandardWithValidValues(): void
     {
-        // Recording variables to ensure testing completed
+        // Counter to ensure all versions tested
         $totalVersionsTested = 0;
 
         // Test all supported decryption versions
@@ -504,7 +504,7 @@ final class CryptoGenTest extends TestCase
 
     public function testDecryptStandardAllVersions(): void
     {
-        // Recording variables to ensure testing completed
+        // Variables to ensure all versions tested
         $currentVersionTested = false;
         $totalVersionsTested = 0;
 
@@ -894,7 +894,7 @@ final class CryptoGenTest extends TestCase
         $reflection = new ReflectionMethod($this->cryptoGen, 'collectCryptoKey');
         $reflection->setAccessible(true);
 
-        // Recording variables to ensure testing completed
+        // Counter to ensure all versions tested
         $totalVersionsTested = 0;
 
         // Test all version/sub combinations to ensure full coverage
