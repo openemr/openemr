@@ -11092,14 +11092,6 @@ parameters:
     identifier: isset.variable
     count: 1
     path: interface/main/finder/document_select.php
-  - message: '#^Variable \$srcdir might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/main/finder/dynamic_finder.php
-  - message: '#^Variable \$aColumns might not be defined\.$#'
-    identifier: variable.undefined
-    count: 7
-    path: interface/main/finder/dynamic_finder_ajax.php
   - message: '#^Variable \$results might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -14171,10 +14163,6 @@ parameters:
   - message: '#^Variable \$ok_map_cvx_codes might not be defined\.$#'
     identifier: variable.undefined
     count: 1
-    path: interface/super/edit_list.php
-  - message: '#^Variable \$srcdir might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
     path: interface/super/edit_list.php
   - message: '#^Variable \$total_rows might not be defined\.$#'
     identifier: variable.undefined

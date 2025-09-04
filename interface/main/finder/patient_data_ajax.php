@@ -22,7 +22,7 @@ $out = array();
 
 $row = sqlFetchArray($result);
 
-foreach($row as $column_name => $value) {
+foreach ($row as $column_name => $value) {
     $out[$column_name] = attr($value);
 }
 

@@ -17,10 +17,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/lists.inc.php");
+require_once($GLOBALS['srcdir'] . "/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/column_views.inc.php");
+require_once($GLOBALS['srcdir'] . "/options.inc.php");
+require_once($GLOBALS['srcdir'] . "/column_views.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
@@ -399,7 +399,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     //New line for hidden input, for update items
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
-    
+
     if ($list_id == 'ptlistcols') {
         $query = "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'patient_data'";
         $res = sqlStatement($query);
@@ -414,7 +414,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "<select name='opt[" . attr($opt_line_no) . "][id]' class='form-control form-control-sm select2-patient_data_column_names option'>";
         foreach ($patient_data_column_names as $column_name) {
             $selected = ($option_id == $column_name) ? " selected=''" : "";
-            echo "    <option value='".attr($column_name)."'".$selected.">".attr($column_name)."</option>";
+            echo "    <option value='" . attr($column_name) . "'" . $selected . ">" . attr($column_name) . "</option>";
         }
         echo "</select>";
     } else {
@@ -917,12 +917,12 @@ function writeITLine($it_array): void
             document.querySelector('.select2-search__field').focus();
         });
 
-        <?php 
-            if ($list_id == 'ptlistcols') {
-        ?>
+        <?php
+        if ($list_id == 'ptlistcols') {
+            ?>
                 $(function () {             
                     $(".select2-patient_data_column_names").select2({ 
-                        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
                     });
                     $('.select2-patient_data_column_names').next()
                         .css("width","100%")

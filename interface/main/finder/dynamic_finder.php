@@ -19,8 +19,8 @@
  */
 
 require_once(dirname(__FILE__) . "/../../globals.php");
-require_once "$srcdir/user.inc.php";
-require_once "$srcdir/options.inc.php";
+require_once($GLOBALS['srcdir'] . "/user.inc.php");
+require_once($GLOBALS['srcdir'] . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -33,7 +33,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Services\PatientService;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
-$patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
+$current_state_patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', '0');
 $current_state_expand = prevSetting($uspfx, 'patient_finder_expand', 'dynamic_finder_xpd', '0');
 //Is prevSetting deprecated?   does it work?
 
@@ -42,6 +42,7 @@ $oeContainer = ($current_state_expand) ? 'container-fluid' : 'container';
 $expand_title = ($current_state_expand) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
 $expand_icon = ($current_state_expand) ? 'fa-compress' : 'fa-expand';
 $expand_class = ($current_state_expand) ? 'oe-center' : 'oe-expand';
+$pt_table_w_auto = str_contains($oeContainer, "fluid") ? false : true;
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = empty($_GET['search_any']) ? "" : $_GET['search_any'];
@@ -61,7 +62,7 @@ $sort_dir_map = generate_list_map('Sort_Direction');
 
 $colwidth = array();
 $colwidth[] = "0.5rem";
-
+$colindex = array(); 
 
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
@@ -70,13 +71,13 @@ while ($row = sqlFetchArray($res)) {
     $colwidth[] = $row['subtype'];
     $title = xl_list_label($row['title']);
     $title1 = ($title == xl('Full Name')) ? xl('Name') : $title;
-   
+
     $table_header_labels .= "   <th>";
     $table_header_labels .= text($title);
     $table_header_labels .= "</th>\n";
     $table_header_search_boxes .= "   <td class='pl-1 pr-3'><input type='text' size='20' ";
     $table_header_search_boxes .= "value='' class='form-control search_init pl-2' placeholder='" . $title1 . "'/></td>\n";
-   
+
     if ($coljson) {
         $coljson .= ", ";
     }
@@ -431,9 +432,7 @@ $loading = "";
     }
 
 </script>
-<?php
-    $pt_table_w_auto = str_contains($oeContainer, "fluid") ? false : true;
-    ?>
+
 </head>
 <body>
 <?php
@@ -520,7 +519,7 @@ $templateVars = [
     'headers' => $rp['headers'],
     'checked' => $checked,
     'acl_addpatient' => $acl_addpatient,
-    'patient_finder_exact_search' => $patient_finder_exact_search,
+    'patient_finder_exact_search' => $current_state_patient_finder_exact_search,
     'rp' => $rp['rp']
 ];
 

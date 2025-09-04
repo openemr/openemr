@@ -41,6 +41,9 @@ $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['sea
 // Probably could have used a session var here because datatable server url
 // presists not allowing easy way to unset any for normal search but opted not.
 //
+
+$aColumns = array();
+
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(
@@ -153,7 +156,7 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
             } else {// like search
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
-        } elseif ( is_column_view($colname) ) {
+        } elseif (is_column_view($colname)) {
             $where .=
                 "usertext8 LIKE ?";
             array_push($srch_bind, ($sSearch . '%'));
@@ -193,15 +196,14 @@ for ($i = 0; $i < count($aColumns); ++$i) {
             } else {// like search
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
-        } elseif ( is_column_view($colname) ) {
+        } elseif (is_column_view($colname)) {
             $where .=
                 "usertext8 LIKE ?";
                 array_push($srch_bind, ($sSearch . '%'));
         } elseif ($colname == 'DOB') {
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
-        }
-        elseif ($searchExactInPatientList) { // exact search
+        } elseif ($searchExactInPatientList) { // exact search
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
@@ -234,7 +236,7 @@ foreach ($aColumns as $colname) {
 
     if (is_column_view($colname)) {
         $select = column_view_select_list($colname);
-        $sellist .= ($select == "") ? "" : (", " .column_view_select_list($colname) . " ");
+        $sellist .= ($select == "") ? "" : (", " . column_view_select_list($colname) . " ");
     } else {
         $sellist .= ", `" . escape_sql_column_name($colname, array('patient_data')) . "`";
     }
