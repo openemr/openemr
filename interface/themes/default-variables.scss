@@ -50,7 +50,16 @@ $theme-colors: (
   dark: $dark,
   ovr-dark: $ovr-dark,
   ovr-light: $ovr-light,
-  body-color: $body-color
+  body-color: $body-color,
+  gray100: $gray-100,
+  gray200: $gray-200,
+  gray300: $gray-300,
+  gray400: $gray-400,
+  gray500: $gray-500,
+  gray600: $gray-600,
+  gray700: $gray-700,
+  gray800: $gray-800,
+  gray900: $gray-900
 );
 
 /* Array of random colors that can be added to */

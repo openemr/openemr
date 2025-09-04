@@ -1,24 +1,94 @@
+{#
+HTML rendering Patient Finder called by dynamic_finder.php
+
+@author    Rod Roark <rod@sunsetsystems.com>
+@author    David Eschelbacher <psoas@tampabay.rr.com>
+@copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
+@copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+
 <body>
-    {{ pageHeading }}
     <div id="container_div" class="{{ oeContainer|attr }} mt-3">
          <div class="w-100">
             <div>
-                <ul class="nav nav-tabs mt-3" id="finderTabs" role="tablist">
-                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
-                    <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true">{{ "Recent Patients"|xlt }}</button></li>
-                </ul>
+                <div id="header" class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <ul class="nav nav-tabs mb-0" id="finderTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true">{{ "Recent Patients"|xlt }}</button>
+                            </li>
+                        </ul>
+                        <!-- Length selector will be inserted here dynamically -->
+                    </div>
+
+                    {# Far right section with Add Patient button and search elements #}
+                    <div class="d-flex align-items-center" id="header-right">
+                    
+
+                        {# Search elements moved to far right #}
+                        <div id="search-elements" class="d-flex align-items-center">
+                            <div id="custom-search" class="me-1">
+                                <label class="mb-0 d-flex align-items-center">
+                                    {{ "Search"|xlt }}:
+                                    <div class="input-group input-group-sm ms-2" style="width: 180px;">
+                                        <input type="search" class="form-control" placeholder="All" aria-controls="pt_table" style="border-right: none;">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn-select-search btn btn-outline-secondary" 
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
+                                                style="border-left: none; background: white;">
+                                                <i class="fas fa-search" style="font-size: 0.875rem; color: white;"></i>
+                                                <i class="fas fa-chevron-down ms-1" style="color: white; font-size: 0.7rem;"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#" onclick="document.querySelector('#custom-search input').placeholder='Search All';">{{ "Search ALL"|xlt }}</a>
+                                                <a class="dropdown-item" href="#" onclick="document.querySelector('#custom-search input').placeholder='Search Name';">{{ "Search Name"|xlt }}</a>
+                                                <a class="dropdown-item" href="#">Search ZIP</a>
+                                                <div role="separator" class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#">Separated link</a>
+                                           </div>
+                                        </div>
+                                    </div>   
+                                </label>
+                          </div>  
+                        </div>
+                               
+                        {% if acl_addpatient %}
+                            <button id='create_patient_btn' class='btn btn-primary'
+                                onclick='top.restoreSession(); top.RTop.location="{{ webroot }}/interface/new/new.php";'>
+                                    {{ "Add Patient"|xlt }}
+                            </button>
+                        {% endif %}
+
+                        {# OemrUI buttons positioned right after tabs #}
+                        <div id="oemr-ui-buttons" class="d-flex align-items-center">
+                            <a href="#" id="expand_icon" class="expand_icon {{ expand_class }}" title="{{ expand_title }}">
+                                <i class="fas {{ expand_icon }}" aria-hidden="true"></i>
+                            </a>
+                            <a href="#" id="search_icon" title="{{ 'Click to show search'|xlt }}">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </a>
+                        </div>
+
+
+                    </div>
+                </div>
+
                 <div class="tab-content" id="finderTabs">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
                         <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                             <!-- Class "display" is defined in demo_table.css -->
                             <div class="table-responsive">
-                                <table class="table" class="border-0 display" id="pt_table">
-                                    <thead class="thead-light">
-                                        <tr id="advanced_search" class="hideaway d-none">
-                                            {{ header0 }}
+                                <table class="table border-0 display" id="pt_table">
+                                    <thead class="">
+                                        <tr id="pt_table_header_search_boxes" class="hideaway">
+                                            {{ table_header_search_boxes }}  
                                         </tr>
-                                        <tr class="">
-                                            {{ header }}
+                                        <tr id="pt_table_header_labels" class="header-labels bg-primary text-light d-none">
+                                            {{ table_header_labels }}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -27,6 +97,24 @@
                                             <td class="dataTables_empty" colspan="{{ colcount|attr }}">...</td>
                                         </tr>
                                     </tbody>
+                                    <tfoot>
+                                        <tr><td id="footer-top" class="border-top-0 px-1" colspan="{{ colcount|attr }}">
+                                            <form name='myform'>
+                                                <div class='form-check form-check-inline'>
+                                                    <label id='form_new_window_label' class='form-check-label' for='form_new_window'>
+                                                        <input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' {{ checked }} />{{ "Open in New Window"|xlt }}
+                                                    </label>    
+                                            </div>
+                                                <div class='form-check form-check-inline'>
+                                                    <label for='setting-search-exact' id='setting-search-exact_label' class='form-check-label'>
+                                                        <input type='checkbox' name='setting-search-exact' class='form-check-input' id='setting-search-exact' onchange='persistCriteria(this, event)' value='1' {% if patient_finder_exact_search %}checked{% endif %}/>{{ "Search with exact method"|xlt }}
+                                                    </label>
+                                                </div>
+                                            </form>
+                                        </td></tr>
+                                        <tr><td id="footer-bottom" class="border-top-0 pt-0 px-1" colspan="{{ colcount|attr }}">
+                                        </td></tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -58,7 +146,7 @@
                                         </tr>
                                     {% endfor %}
                                 </tbody>
-                            </table>
+                           </table>
                         </div>
                         {% else %}
                         <div class="row">
@@ -78,26 +166,36 @@
             <input type='hidden' name='patientID' value='0'/>
         </form>
     </div> <!--End of Container div-->
-    {{ oeBelowContainerDiv }}
+
+    <template class="template_patient_detail">
+        <tr class='noHover'>
+            <td colspan='7'>
+                <div class='patient_detail_container'>
+                </div>
+            </td>
+        </tr>
+    </template>
 
     <script>
+
     $(window).on("resize", function() { //portrait vs landscape
         $("#pt_table").removeAttr("style");
     });
 
     $(function() {
         $("#exp_cont_icon").click(function () {
-            $("#pt_table").removeAttr("style");
-        });
-        $("#pt_table_filter").addClass("d-md-initial");
+            $("#pt_table").removeAttr("style");});
+        $("#custom-search").addClass("d-md-initial");
         $("#pt_table_length").addClass("d-md-initial");
         $("#show_hide").addClass("d-md-initial");
         $("#search_hide").addClass("d-md-initial");
         $("#pt_table_length").addClass("d-none");
         $("#show_hide").addClass("d-none");
         $("#search_hide").addClass("d-none");
-        $('div.dataTables_filter input').focus();
+        $('div#custom-search input').focus();
+
     });
+
 
     let elements = document.querySelectorAll("[data-pid]");
 
@@ -113,3 +211,6 @@
 
     document.addEventListener('touchstart', {});
     </script>
+
+   
+</body>
