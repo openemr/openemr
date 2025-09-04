@@ -131,9 +131,9 @@ $updated_at = $info['updated_at'] ?? '';
                         ?>
                         <a class="btn btn-outline-primary" href="<?= $newUrl; ?>"><?= xlt("New Assessment"); ?></a>
                         <?php if (!empty($info['id'])) :
-                        $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id']]);
-                        ?>
-                        <a class="btn btn-primary" href="<?= $editUrl; ?>"><?= xlt("Edit"); ?></a>
+                            $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id']]);
+                            ?>
+                            <a class="btn btn-primary" href="<?= $editUrl; ?>"><?= xlt("Edit"); ?></a>
                         <?php endif; ?>
 
                         <a class="btn btn-secondary" href="<?= $listUrl; ?>"><?= xlt("View All"); ?></a>
