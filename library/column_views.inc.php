@@ -227,10 +227,14 @@ function column_view_last_appointment($row)
 
 function column_view_insurance_primary_provider_name($row)
 {
+    // TODO: Implement insurance primary provider name retrieval
+    return "";
 }
 
 function column_view_insurance_primary_policy_number($row)
 {
+    // TODO: Implement insurance primary policy number retrieval
+    return "";
 }
 
 function column_view_age($row)

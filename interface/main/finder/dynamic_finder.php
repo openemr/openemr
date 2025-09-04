@@ -62,7 +62,7 @@ $sort_dir_map = generate_list_map('Sort_Direction');
 
 $colwidth = array();
 $colwidth[] = "0.5rem";
-$colindex = array(); 
+$colindex = array();
 
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
