@@ -35,9 +35,9 @@ class DemographicsRelatedPersonsService
     /** @var string[] Base column name stems for each related person */
     private array $fieldBases = [
         'uuid',
-        'relatedfirstname_', 'relatedlastname_', 'relatedrelationship_', 'relatedsex_',
-        'relatedaddress_', 'relatedcity_', 'relatedstate_', 'relatedpostalcode_',
-        'relatedcountry_', 'relatedphone_', 'relatedworkphone_', 'relatedemail_',
+        'related_firstname_', 'related_lastname_', 'related_relationship_', 'related_sex_',
+        'related_address_', 'related_city_', 'related_state_', 'related_postalcode_',
+        'related_country_', 'related_phone_', 'related_workphone_', 'related_email_',
     ];
 
     public function __construct(int $maxPeople = 3)
@@ -58,7 +58,7 @@ class DemographicsRelatedPersonsService
                FROM INFORMATION_SCHEMA.COLUMNS
               WHERE TABLE_SCHEMA = DATABASE()
                 AND TABLE_NAME = ?
-                AND COLUMN_NAME LIKE 'related%';",
+                AND COLUMN_NAME LIKE 'related_%';",
             [$this->table]
         );
         while ($r = sqlFetchArray($res)) {
@@ -191,7 +191,7 @@ class DemographicsRelatedPersonsService
     public function isRelatedFieldId(string $fieldId): bool
     {
         return (bool)preg_match(
-            '/^related(?:firstname|lastname|relationship|sex|address|city|state|postalcode|country|phone|workphone|email)_(?:\d+)$/',
+            '/^related_(?:firstname|lastname|relationship|sex|address|city|state|postalcode|country|phone|workphone|email)_(?:\d+)$/',
             $fieldId
         );
     }
