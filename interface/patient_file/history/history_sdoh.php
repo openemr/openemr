@@ -100,15 +100,14 @@ $self = basename($_SERVER['PHP_SELF']);
 </head>
 <body class="body_top">
     <div class="container-xl mb-3">
-        <form method="post" action="history_sdoh_save.php?pid=<?php echo attr_url($pid); ?>" onsubmit="top.restoreSession()">
+        <form method="post" action="history_sdoh_save.php?pid=<?php echo ($pid); ?>" onsubmit="top.restoreSession()">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrf); ?>">
             <input type="hidden" name="history_sdoh_id" value="<?php echo attr($info['id'] ?? 0); ?>">
 
             <div class="">
                 <div class="d-flex align-items-center justify-content-between mt-2 mb-3">
                     <h4 class="m-0"><?php echo xlt("SDOH (USCDI v3)"); ?></h4>
-                    <a class="btn btn-outline-primary btn-sm"
-                        href="<?php echo attr($self . '?pid=' . urlencode($pid) . '&new=1'); ?>">
+                    <a class="btn btn-outline-primary btn-sm"  href="<?php echo ($self . '?pid=' . urlencode($pid) . '&new=1'); ?>">
                         <?php echo xlt("New Assessment"); ?>
                     </a>
                 </div>
@@ -171,7 +170,7 @@ $self = basename($_SERVER['PHP_SELF']);
                         ?>
                         <div class="col-12 col-md-6">
                             <div class="card h-100 mb-2">
-                                <div class="card-header font-weight-bold"><?php echo text($label); ?></div>
+                                <div class="card-header font-weight-bold"><?php echo $label; ?></div>
                                 <div class="card-body">
                                     <div class="form-row">
                                         <div class="form-group col-sm-5">
@@ -272,11 +271,11 @@ $self = basename($_SERVER['PHP_SELF']);
 
                 <div class="mb-4">
                     <button type="submit" class="btn btn-primary"><?php echo xlt("Save"); ?></button>
-                    <a class="btn btn-secondary" href="<?php echo attr($GLOBALS['webroot'] . '/interface/patient_file/history/history_sdoh_widget.php?pid=' . urlencode($pid)); ?>">
+                    <a class="btn btn-secondary" href="<?php echo ($GLOBALS['webroot'] . '/interface/patient_file/history/history_sdoh_widget.php?pid=' . urlencode($pid)); ?>">
                         <?php echo xlt("Cancel"); ?>
                     </a>
                     <a class="btn btn-link"
-                        href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid)); ?>">
+                        href="<?php echo ($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid)); ?>">
                         &larr; <?php echo xlt("Back to Summary"); ?>
                     </a>
                 </div>
