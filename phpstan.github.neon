@@ -13252,6 +13252,10 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/summary/demographics_full.php
+  - message: '#^Variable \$srcdir might not be defined\.$#'
+    identifier: variable.undefined
+    count: 6
+    path: interface/patient_file/summary/demographics_full.php
   - message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
     identifier: include.fileNotFound
     count: 1
