@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - rel-*
     # GitHub Actions do not support YAML anchors
     # There are five places in here we must keep
     # the paths in sync and the exclusion logic.
@@ -25,6 +26,7 @@ on:
   pull_request:
     branches:
     - master
+    - rel-*
     paths:
     - '**.sh'
     - '**.source'
