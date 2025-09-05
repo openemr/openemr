@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * Installer class.
  *
  * @package   OpenEMR
@@ -53,6 +52,7 @@ class Installer
     public $error_message;
     public $debug_message;
     public $dbh;
+    public $custom_globals;
 
     public function __construct($cgi_variables)
     {
@@ -81,6 +81,7 @@ class Installer
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
         $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
         $this->new_theme                = isset($cgi_variables['new_theme']) ? ($cgi_variables['new_theme']) : '';
+        $this->custom_globals           = isset($cgi_variables['custom_globals']) ? json_decode($cgi_variables['custom_globals'], true) : [];
         // Make this true for IPPF.
         $this->ippf_specific = false;
 
@@ -627,13 +628,65 @@ $config = 1; /////////////
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
-                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
-                    $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
-                    if (empty($row['count'])) {
-                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
-                    }
+                    $this->write_global($fldid, $flddef, 0, true);
                 }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Write a global setting to the database
+     *
+     * @param string $name Global name
+     * @param string $value Global value
+     * @param int $index Global index (default: 0)
+     * @param bool $insert_only If true, only insert if not exists; if false, use REPLACE INTO (default: false)
+     * @return bool True on success, false on failure
+     */
+    protected function write_global(string $name, string $value, int $index = 0, bool $insert_only = false): bool
+    {
+        $expression = "%s INTO globals ( gl_name, gl_index, gl_value ) VALUES ( '%s', '%d', '%s' )";
+        if ($insert_only) {
+            $check_sql = "SELECT count(*) AS count FROM globals WHERE gl_name = '%s'";
+            $sql = sprintf($check_sql, $this->escapeSql($name));
+            $res = $this->execute_sql($sql);
+            $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
+
+            if (!empty($row['count'])) {
+                return true; // Already exists, skip
+            }
+
+            $sql = sprintf($expression, 'INSERT', $this->escapeSql($name), $index, $this->escapeSql($value));
+        } else {
+            $sql = sprintf($expression, 'REPLACE', $this->escapeSql($name), $index, $this->escapeSql($value));
+        }
+
+        return $this->execute_sql($sql) !== false;
+    }
+
+    /**
+     * Add arbitrary custom globals to the database after insert_globals
+     *
+     * @param array $custom_globals Associative array where keys are global names and values are configuration arrays.
+     *                             Each configuration array can contain:
+     *                             - 'value' (string): The global value (default: '')
+     *                             - 'index' (int): The global index (default: 0)
+     * @return bool True on success, false on failure
+     */
+    public function upsert_custom_globals(array $new_globals): bool
+    {
+        foreach ($new_globals as $global_name => $global_config) {
+            if (!is_array($global_config) || empty($global_name)) {
+                continue;
+            }
+
+            $global_value = isset($global_config['value']) ? $global_config['value'] : '';
+            $global_index = isset($global_config['index']) ? intval($global_config['index']) : 0;
+
+            if (!$this->write_global($global_name, $global_value, $global_index, false)) {
+                return false;
             }
         }
 
@@ -1290,13 +1343,17 @@ $config = 1; /////////////
 
         // Load the version information, globals settings,
         // initial user, and set up gacl access controls.
-        //  (applicable if not cloning from another database)
+        // (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
             if (! $this->add_version_info()) {
                 return false;
             }
 
             if (! $this->insert_globals()) {
+                return false;
+            }
+
+            if (is_array($this->custom_globals) && ! $this->upsert_custom_globals($this->custom_globals)) {
                 return false;
             }
 
