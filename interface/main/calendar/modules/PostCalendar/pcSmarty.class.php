@@ -26,7 +26,7 @@
  *
  */
 
-require_once(dirname(__FILE__) . '/../../../../../library/smarty_legacy/smarty/Smarty_Legacy.class.php');
+require_once(__DIR__ . '/../../../../../library/smarty_legacy/smarty/Smarty_Legacy.class.php');
 
 class pcSmarty extends Smarty_Legacy
 {

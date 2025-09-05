@@ -238,7 +238,7 @@ if (php_sapi_name() == 'cli') {
 
 $get_count = extract($_GET, EXTR_OVERWRITE);
 // Following breaks link to OpenEMR structure dependency - assumes phpseclib is subdir
-$script_dir = dirname(__FILE__);
+$script_dir = __DIR__;
 ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$script_dir/phpseclib");
 require_once("$script_dir/phpseclib/Net/SFTP.php");
 function get_openemr_globals($libdir): void

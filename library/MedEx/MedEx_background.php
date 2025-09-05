@@ -26,9 +26,9 @@
 
 $ignoreAuth = true;
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/API.php");
-require_once(dirname(__FILE__) . "/../patient.inc.php");
+require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/API.php");
+require_once(__DIR__ . "/../patient.inc.php");
 
 function start_MedEx(): void
 {

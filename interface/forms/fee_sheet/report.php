@@ -11,7 +11,7 @@
  */
 
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 function fee_sheet_report($pid, $encounter, $cols, $id): void

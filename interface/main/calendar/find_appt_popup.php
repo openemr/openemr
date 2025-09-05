@@ -19,7 +19,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
+require_once(__DIR__ . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AclMain;

@@ -34,7 +34,7 @@
 //  arseq - ar_activity.sequence_no when it applies.
 namespace OpenEMR\Billing;
 
-require_once(dirname(__FILE__) . "/../../custom/code_types.inc.php");
+require_once(__DIR__ . "/../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\SLEOB;
 

@@ -11,8 +11,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../user.inc.php");
+require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../user.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use Symfony\Component\HttpFoundation\Response;

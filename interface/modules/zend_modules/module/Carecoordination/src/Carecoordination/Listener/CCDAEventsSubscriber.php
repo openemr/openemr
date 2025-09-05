@@ -133,7 +133,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             $format = $event->getFormat();
             if ($format == 'html') {
                 // time to use our stylesheets
-                $stylesheet = dirname(__FILE__) . "/../../../../../public/xsl/";
+                $stylesheet = __DIR__ . "/../../../../../public/xsl/";
 
                 // from original ccr/display.php code
                 if ($type == 'CCR') {

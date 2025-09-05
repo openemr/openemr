@@ -14,7 +14,7 @@
  * @copyright Copyright (c) 2014 Joe Slam <joe@produnis.de>
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

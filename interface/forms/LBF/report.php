@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;

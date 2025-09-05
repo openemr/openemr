@@ -31,8 +31,8 @@
 
 /* $Id$ */
 
-require_once(dirname(__FILE__) . "/Config_File_Legacy.class.php");
-require_once(dirname(__FILE__) . "/Smarty_Compiler_Legacy.class.php");
+require_once(__DIR__ . "/Config_File_Legacy.class.php");
+require_once(__DIR__ . "/Smarty_Compiler_Legacy.class.php");
 
 /**
  * DIR_SEP isn't used anymore, but third party apps might
@@ -48,7 +48,7 @@ if(!defined('DIR_SEP')) {
  */
 
 if (!defined('SMARTY_DIR')) {
-    define('SMARTY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
+    define('SMARTY_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 }
 
 if (!defined('SMARTY_CORE_DIR')) {

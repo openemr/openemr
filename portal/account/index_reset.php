@@ -30,8 +30,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     header('Location: ' . $landingpage . '&w');
     exit;
 }
-require_once(dirname(__FILE__) . '/../../interface/globals.php');
-require_once(dirname(__FILE__) . "/../lib/appsql.class.php");
+require_once(__DIR__ . '/../../interface/globals.php');
+require_once(__DIR__ . "/../lib/appsql.class.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;

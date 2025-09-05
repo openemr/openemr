@@ -24,12 +24,12 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../interface/globals.php");
-require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
-require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
-require_once(dirname(__FILE__) . "/options.inc.php");
-require_once(dirname(__FILE__) . "/appointment_status.inc.php");
-require_once(dirname(__FILE__) . "/forms.inc.php");
+require_once(__DIR__ . "/../interface/globals.php");
+require_once(__DIR__ . "/../custom/code_types.inc.php");
+require_once(__DIR__ . "/../interface/drugs/drugs.inc.php");
+require_once(__DIR__ . "/options.inc.php");
+require_once(__DIR__ . "/appointment_status.inc.php");
+require_once(__DIR__ . "/forms.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
@@ -38,8 +38,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
 
-// require_once(dirname(__FILE__) . "/api.inc.php");
-// require_once(dirname(__FILE__) . "/forms.inc.php");
+// require_once(__DIR__ . "/api.inc.php");
+// require_once(__DIR__ . "/forms.inc.php");
 
 class FeeSheet
 {
