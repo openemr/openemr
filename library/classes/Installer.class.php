@@ -48,7 +48,7 @@ class Installer
     public string $ippf_sql;
     public string $cvx;
     public string $additional_users;
-    public string $dumpfiles;
+    public array $dumpfiles;
     public string $error_message;
     public string $debug_message;
     public mysqli|false $dbh;
