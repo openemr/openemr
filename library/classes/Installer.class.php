@@ -204,7 +204,21 @@ class Installer
         }
     }
 
-    public function user_database_connection()
+    /**
+     * Wrapper for mysqli_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @param string $dbname
+     * @return bool
+     */
+    protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
+    {
+        return mysqli_select_db($mysql, $dbname);
+    }
+
+    public function user_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->login, $this->pass, $this->port, $this->dbname);
         if (! $this->dbh) {
@@ -222,7 +236,7 @@ class Installer
             return false;
         }
 
-        if (! mysqli_select_db($this->dbh, $this->dbname)) {
+        if (! $this->mysqliSelectDb($this->dbh, $this->dbname)) {
             $this->error_message = "unable to select database: '$this->dbname'";
             return false;
         }
@@ -248,37 +262,54 @@ class Installer
         return $this->execute_sql($sql);
     }
 
-    public function create_database_user()
+    /**
+     * Wrapper for mysqli_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli_result $result
+     * @return int
+     */
+    protected function mysqliNumRows(mysqli_result $result): int
     {
+        return mysqli_num_rows($result);
+    }
+
+    public function create_database_user(): mysqli_result|bool
+    {
+        $escapedLogin = $this->escapeSql($this->login);
+        $escapedHost = $this->escapeSql($this->loginhost);
+        $escapedPass = $this->escapeSql($this->pass);
+
         // First, check for database user in the mysql.user table (this works for all except mariadb 10.4+)
-        $checkUser = $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'", false);
+        $checkUser = $this->execute_sql("SELECT user FROM mysql.user WHERE user = '{$escapedLogin}' AND host = '{$escapedHost}'", false);
         if ($checkUser === false) {
             // Above caused error, so is MariaDB 10.4+, and need to do below query instead in the mysql.global_priv table
-            $checkUser = $this->execute_sql("SELECT user FROM mysql.global_priv WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
+            $checkUser = $this->execute_sql("SELECT user FROM mysql.global_priv WHERE user = '{$escapedLogin}' AND host = '{$escapedHost}'");
         }
 
         if ($checkUser === false) {
             // there was an error in the check database user query, so return false
             return false;
-        } elseif ($checkUser->num_rows > 0) {
+        } elseif ($this->mysqliNumRows($checkUser) > 0) {
             // the mysql user already exists, so do not need to create the user, but need to set the password
             // Note need to try two different methods, first is for newer mysql versions and second is for older mysql versions (if the first method fails)
-            $returnSql = $this->execute_sql("ALTER USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'", false);
+            $returnSql = $this->execute_sql("ALTER USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}'", false);
             if ($returnSql === false) {
                 error_log("Using older mysql version method to set password for the mysql user");
-                $returnSql = $this->execute_sql("SET PASSWORD FOR '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' = PASSWORD('" . $this->escapeSql($this->pass) . "')");
+                $returnSql = $this->execute_sql("SET PASSWORD FOR '{$escapedLogin}'@'{$escapedHost}' = PASSWORD('{$escapedPass}')");
             }
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
             if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
                 // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
-                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+                return $this->execute_sql("CREATE USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}' REQUIRE X509");
             } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
                 // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
-                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+                return $this->execute_sql("CREATE USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}' REQUIRE SSL");
             } else {
-                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+                return $this->execute_sql("CREATE USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}'");
             }
         }
     }
@@ -288,7 +319,14 @@ class Installer
         return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "'");
     }
 
-    public function disconnect()
+    /**
+     * Close the mysqli connection.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return true
+     */
+    public function disconnect(): true
     {
         return mysqli_close($this->dbh);
     }
@@ -321,11 +359,65 @@ class Installer
         return $sql_results;
     }
 
-    public function load_file($filename, $title)
+    /**
+     * Wrapper for fopen to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @param string $mode
+     * @return resource|false
+     */
+    protected function openFile(string $filename, string $mode)
+    {
+        return fopen($filename, $mode);
+    }
+
+    /**
+     * Wrapper for feof to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @return bool
+     */
+    protected function atEndOfFile($stream): bool
+    {
+        return feof($stream);
+    }
+
+    /**
+     * Wrapper for fgets to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @param int $length
+     * @return string|false
+     */
+    protected function getLine($stream, int $length): string|false
+    {
+        return fgets($stream, $length);
+    }
+
+    /**
+     * Wrapper for fclose to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @return bool
+     */
+    protected function closeFile($stream): bool
+    {
+        return fclose($stream);
+    }
+
+    public function load_file(string $filename, string $title): string|false
     {
         $sql_results = ''; // information string which is returned
         $sql_results .= "Creating $title tables...\n";
-        $fd = fopen($filename, 'r');
+        $fd = $this->openFile($filename, 'r');
         if ($fd == false) {
             $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
             return false;
@@ -343,25 +435,17 @@ class Installer
             return false;
         }
 
-        while (!feof($fd)) {
-            $line = fgets($fd, 1024);
+        while (!$this->atEndOfFile($fd)) {
+            $line = $this->getLine($fd, 1024);
             $line = rtrim($line);
-            if (substr($line, 0, 2) == "--") { // Kill comments
-                    continue;
-            }
-
-            if (substr($line, 0, 1) == "#") { // Kill comments
-                    continue;
-            }
-
-            if ($line == "") {
-                    continue;
+            if ($line === "" || substr($line, 0, 2) === "--" || substr($line, 0, 1) === "#") {
+                continue;
             }
 
             $query .= $line;          // Check for full query
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
-                    $query = rtrim($query, ";");
+                $query = rtrim($query, ";");
                 if (! $this->execute_sql($query)) {
                     return false;
                 }
@@ -380,7 +464,7 @@ class Installer
         }
 
         $sql_results .= "<span class='text-success'><b>OK</b></span>.<br>\n";
-        fclose($fd);
+        $this->closeFile($fd);
         return $sql_results;
     }
 
@@ -419,7 +503,7 @@ class Installer
             return true;
         }
         $this->error_message = "ERROR. Unable insert version information into database\n" .
-        "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+        "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
         return false;
     }
 
@@ -427,13 +511,13 @@ class Installer
     {
         if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+            "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
         if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','NoLongerUsed',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+            "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
@@ -445,7 +529,7 @@ class Installer
         }
         if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "',NOW())") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+            "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
@@ -456,7 +540,7 @@ class Installer
             $secret = $cryptoGen->encryptStandard($this->i2faSecret, $hash);
             if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '" . $this->escapeSql($secret) . "', '')") == false) {
                 $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n" .
-                    "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+                    "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
                 return false;
             }
         }
@@ -556,7 +640,7 @@ class Installer
             $this->create_site_directory();
         }
         @touch($this->conffile); // php bug
-        $fd = @fopen($this->conffile, 'w');
+        $fd = @$this->openFile($this->conffile, 'w');
         if (! $fd) {
             $this->error_message = 'unable to open configuration file for writing: ' . $this->conffile;
             return false;
@@ -602,7 +686,7 @@ $config = 1; /////////////
 ';
 
         fwrite($fd, $string) or $it_died++;
-        fclose($fd) or $it_died++;
+        $this->closeFile($fd) or $it_died++;
 
         //it's rather irresponsible to not report errors when writing this file.
         if ($it_died != 0) {
@@ -739,8 +823,8 @@ $config = 1; /////////////
         // xl('Notes - any encounters (write,addonly optional)')
         $gacl->add_object('encounters', 'Fix encounter dates - any encounters', 'date_a', 10, 0, 'ACO');
         // xl('Fix encounter dates - any encounters')
-        $gacl->add_object('encounters', 'Less-private information (write,addonly optional)', 'relaxed', 10, 0, 'ACO');
-        // xl('Less-private information (write,addonly optional)')
+        $gacl->add_object('encounters', 'Less-protected information (write,addonly optional)', 'relaxed', 10, 0, 'ACO');
+        // xl('Less-protected information (write,addonly optional)')
 
         // Create ACOs for lists.
         //
@@ -1316,12 +1400,12 @@ $config = 1; /////////////
         return true;
     }
 
-    private function escapeSql(string $sql): string
+    protected function escapeSql(string $sql): string
     {
         return mysqli_real_escape_string($this->dbh, $sql);
     }
 
-    private function escapeDatabaseName(string $name): string
+    protected function escapeDatabaseName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             error_log("Illegal character(s) in database name");
@@ -1330,7 +1414,7 @@ $config = 1; /////////////
         return $name;
     }
 
-    private function escapeCollateName(string $name): string
+    protected function escapeCollateName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             error_log("Illegal character(s) in collation name");
@@ -1339,7 +1423,47 @@ $config = 1; /////////////
         return $name;
     }
 
-    private function execute_sql(string $sql, bool $showError = true): mysqli_result|bool
+    /**
+     * Wrapper for mysqli_query to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @param string $query
+     * @return mysqli_result|bool
+     */
+    protected function mysqliQuery(mysqli $mysql, string $query): mysqli_result|bool
+    {
+        return mysqli_query($mysql, $query);
+    }
+
+    /**
+     * Wrapper for mysqli_error to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @return string
+     */
+    protected function mysqliError(mysqli $mysql): string
+    {
+        return mysqli_error($mysql);
+    }
+
+    /**
+     * Wrapper for mysqli_errno to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @return int
+     */
+    protected function mysqliErrno(mysqli $mysql): int
+    {
+        return mysqli_errno($mysql);
+    }
+
+    protected function execute_sql(string $sql, bool $showError = true): mysqli_result|bool
     {
         $this->error_message = '';
         if (! $this->dbh) {
@@ -1347,12 +1471,12 @@ $config = 1; /////////////
         }
 
         try {
-            $results = mysqli_query($this->dbh, $sql);
+            $results = $this->mysqliQuery($this->dbh, $sql);
             if ($results) {
                 return $results;
             } else {
                 if ($showError) {
-                    $error_mes = mysqli_error($this->dbh);
+                    $error_mes = $this->mysqliError($this->dbh);
                     $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
                     error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
                 }
@@ -1368,19 +1492,82 @@ $config = 1; /////////////
         }
     }
 
-    private function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
+    /**
+     * Wrapper for mysqli_init to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return mysqli|false
+     */
+    protected function mysqliInit(): mysqli|false
+    {
+        return mysqli_init();
+    }
+
+    /**
+     * Wrapper for file_exists to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $fileName
+     * @return bool
+     */
+    protected function fileExists(string $fileName): bool
+    {
+        return file_exists($fileName);
+    }
+
+    /**
+     * Wrapper for mysqli_ssl_set to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $link
+     * @param ?string $key
+     * @param ?string $cert
+     * @param ?string $ca
+     * @param ?string $capath
+     * @param ?string $cipher
+     * @return bool
+     */
+    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
+    {
+        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
+    }
+
+    /**
+     * Wrapper for mysqli_real_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $link
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $database
+     * @param int $port
+     * @param string $socket
+     * @param int $flags
+     * @return bool
+     */
+    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
+    {
+        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
+    }
+
+    protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
         $mysqlSsl = false;
-        $mysqli = mysqli_init();
-        if (defined('MYSQLI_CLIENT_SSL') && file_exists($pathToCerts . "mysql-ca")) {
+        $mysqli = $this->mysqliInit();
+        if (defined('MYSQLI_CLIENT_SSL') && $this->fileExists($pathToCerts . "mysql-ca")) {
             $mysqlSsl = true;
             if (
-                file_exists($pathToCerts . "mysql-key") &&
-                file_exists($pathToCerts . "mysql-cert")
+                $this->fileExists($pathToCerts . "mysql-key") &&
+                $this->fileExists($pathToCerts . "mysql-cert")
             ) {
                 // with client side certificate/key
-                mysqli_ssl_set(
+                $this->mysqliSslSet(
                     $mysqli,
                     $pathToCerts . "mysql-key",
                     $pathToCerts . "mysql-cert",
@@ -1390,7 +1577,7 @@ $config = 1; /////////////
                 );
             } else {
                 // without client side certificate/key
-                mysqli_ssl_set(
+                $this->mysqliSslSet(
                     $mysqli,
                     null,
                     null,
@@ -1401,11 +1588,16 @@ $config = 1; /////////////
             }
         }
         try {
-            if ($mysqlSsl) {
-                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
-            } else {
-                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
-            }
+            $ok = $this->mysqliRealConnect(
+                $mysqli,
+                $server,
+                $user,
+                $password,
+                $dbname,
+                (int)$port != 0 ? (int)$port : 3306,
+                '',
+                $mysqlSsl ? MYSQLI_CLIENT_SSL : 0
+            );
         } catch (mysqli_sql_exception $e) {
             $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
             return false;
@@ -1417,13 +1609,13 @@ $config = 1; /////////////
         return $mysqli;
     }
 
-    private function set_sql_strict()
+    protected function set_sql_strict()
     {
         // Turn off STRICT SQL
         return $this->execute_sql("SET sql_mode = ''");
     }
 
-    private function set_collation()
+    protected function set_collation()
     {
         return $this->execute_sql("SET NAMES 'utf8mb4'");
     }
@@ -1436,7 +1628,7 @@ $config = 1; /////////////
     *
     * @return array
     */
-    private function initialize_dumpfile_list(): array
+    protected function initialize_dumpfile_list(): array
     {
         if ($this->clone_database) {
             $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
@@ -1473,7 +1665,7 @@ $config = 1; /////////////
      * @param string $dst name of the destination to copy to
      * @return bool indicating success
      */
-    private function recurse_copy(string $src, string $dst): bool
+    protected function recurse_copy(string $src, string $dst): bool
     {
         $dir = opendir($src);
         if (! @mkdir($dst)) {
@@ -1501,7 +1693,7 @@ $config = 1; /////////////
      * @param string $source_site_id the site_id of the site to dump
      * @return string filename of the backup
      */
-    private function dumpSourceDatabase(): string
+    protected function dumpSourceDatabase(): string
     {
         global $OE_SITES_BASE;
         $source_site_id = $this->source_site_id;
@@ -1537,7 +1729,7 @@ $config = 1; /////////////
     /**
      * @return string filename of the source backup database for cloning
      */
-    private function get_backup_filename(): string
+    protected function get_backup_filename(): string
     {
         if (stristr(PHP_OS, 'WIN')) {
             $backup_file = 'C:/windows/temp/setup_dump.sql';
@@ -1575,7 +1767,7 @@ $config = 1; /////////////
         return $arr_themes_img;
     }
 
-    private function extractFileName(string $theme_file_name = ''): array
+    protected function extractFileName(string $theme_file_name = ''): array
     {
         $under_score = strpos($theme_file_name, '_') + 1;
         $dot = strpos($theme_file_name, '.');
