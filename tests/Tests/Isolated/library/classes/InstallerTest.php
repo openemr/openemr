@@ -103,5 +103,4 @@ class InstallerTest extends TestCase
         $this->installer->iuserpass = '';
         $this->assertFalse($this->installer->user_password_is_valid());
     }
-
 }

@@ -1465,42 +1465,42 @@ $config = 1; /////////////
         return $this->dumpfiles;
     }
 
-   /**
-    * Directory copy logic borrowed from a user comment at
-    * http://www.php.net/manual/en/function.copy.php
-    *
-    * @param string $src name of the directory to copy
-    * @param string $dst name of the destination to copy to
-    * @return bool indicating success
-    */
-   private function recurse_copy(string $src, string $dst): bool
-   {
-       $dir = opendir($src);
-       if (! @mkdir($dst)) {
-           $this->error_message = "unable to create directory: '$dst'";
-           return false;
-       }
+    /**
+     * Directory copy logic borrowed from a user comment at
+     * http://www.php.net/manual/en/function.copy.php
+     *
+     * @param string $src name of the directory to copy
+     * @param string $dst name of the destination to copy to
+     * @return bool indicating success
+     */
+    private function recurse_copy(string $src, string $dst): bool
+    {
+        $dir = opendir($src);
+        if (! @mkdir($dst)) {
+            $this->error_message = "unable to create directory: '$dst'";
+            return false;
+        }
 
-       while (false !== ($file = readdir($dir))) {
-           if ($file != '.' && $file != '..') {
-               if (is_dir($src . '/' . $file)) {
-                   $this->recurse_copy($src . '/' . $file, $dst . '/' . $file);
-               } else {
-                   copy($src . '/' . $file, $dst . '/' . $file);
-               }
-           }
-       }
+        while (false !== ($file = readdir($dir))) {
+            if ($file != '.' && $file != '..') {
+                if (is_dir($src . '/' . $file)) {
+                    $this->recurse_copy($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
 
-       closedir($dir);
-       return true;
-   }
+        closedir($dir);
+        return true;
+    }
 
-  /**
-   * Dump a site's database to a temporary file.
-   *
-   * @param string $source_site_id the site_id of the site to dump
-   * @return string filename of the backup
-   */
+    /**
+     * Dump a site's database to a temporary file.
+     *
+     * @param string $source_site_id the site_id of the site to dump
+     * @return string filename of the backup
+     */
     private function dumpSourceDatabase(): string
     {
         global $OE_SITES_BASE;
@@ -1534,9 +1534,9 @@ $config = 1; /////////////
         return $backup_file;
     }
 
-   /**
-    * @return string filename of the source backup database for cloning
-    */
+    /**
+     * @return string filename of the source backup database for cloning
+     */
     private function get_backup_filename(): string
     {
         if (stristr(PHP_OS, 'WIN')) {
