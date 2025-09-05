@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Services\DemographicsRelatedPersonsService;
 
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -48,6 +49,9 @@ foreach ($_POST as $key => $val) {
     }
 }
 
+$relSvc = new DemographicsRelatedPersonsService();
+$relatedValues = $relSvc->collectFromPostAndStrip($_POST); // removes form_related* from $_POST so they skip patient_data
+
 // Update patient_data and employer_data:
 //
 $newdata = array();
@@ -58,6 +62,11 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 $addressFieldsToSave = array();
 while ($frow = sqlFetchArray($fres)) {
+    // Skip related-person fields from patient_data $newdata
+    if ($relSvc->isRelatedFieldId($frow['field_id'])) {
+        continue;
+    }
+
     $data_type = $frow['data_type'];
     if ((int)$data_type === 52) {
         // patient name history is saved in add.
@@ -99,6 +108,14 @@ if (!empty($addressFieldsToSave)) {
         $contactService->saveContactsForPatient($pid, $addressFieldData);
     }
 }
+
+// Save related-person info to patient_related_persons table
+// Note that there is a unique key on (pid) so this will only
+// ever be one row per patient.
+if (empty($pid) && !empty($_SESSION['pid'])) {
+    $pid = (int) $_SESSION['pid'];
+}
+$relSvc->saveForPid((int)$pid, $relatedValues);
 
 /**
  * trigger events to listeners who want data that is not directly available in

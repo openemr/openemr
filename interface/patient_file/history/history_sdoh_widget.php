@@ -74,6 +74,12 @@ if ($authorized && !empty($pid)) {
 $goals_arr = json_decode($info['goals'] ?? '[]', true);
 $goals_text = HistorySdohService::goalsToText($goals_arr, [
     'include_category' => true,
+    'include_measure' => true,
+    'include_due' => true
+]);
+$interventions_arr = json_decode($info['interventions'] ?? '[]', true);
+$interventions_text = HistorySdohService::interventionsToText($interventions_arr, [
+    'include_category' => true,
     'include_measure'  => true,
     'include_due'      => true
 ]);
@@ -125,15 +131,19 @@ $updated_at = $info['updated_at'] ?? '';
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span class="font-weight-bold"><?= xlt("SDOH (USCDI v3)"); ?></span>
                     <span class="btn-group btn-group-sm">
-                    <a class="btn btn-outline-primary"
-                        href="<?= attr($self_form . '?pid=' . $pid . '&new=1'); ?>"><?= xlt("New Assessment"); ?></a>
-                    <?php if (!empty($info['id'])) : ?>
-                        <a class="btn btn-primary"
-                            href="<?= attr($self_form . '?pid=' . $pid . '&id=' . (int)$info['id']); ?>"><?= xlt("Edit"); ?></a>
-                    <?php endif; ?>
-                    <a class="btn btn-secondary"
-                        href="<?= attr($list_url . '?pid=' . $pid); ?>"><?= xlt("View All"); ?></a>
-                </span>
+                        <?php
+                        $newUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'new' => 1]);
+                        $listUrl = $list_url . '?' . http_build_query(['pid' => $pid]);
+                        ?>
+                        <a class="btn btn-outline-primary" href="<?= $newUrl; ?>"><?= xlt("New Assessment"); ?></a>
+                        <?php if (!empty($info['id'])) :
+                            $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id']]);
+                            ?>
+                            <a class="btn btn-primary" href="<?= $editUrl; ?>"><?= xlt("Edit"); ?></a>
+                        <?php endif; ?>
+
+                        <a class="btn btn-secondary" href="<?= $listUrl; ?>"><?= xlt("View All"); ?></a>
+                    </span>
                 </div>
 
                 <div class="card-body">
@@ -172,18 +182,15 @@ $updated_at = $info['updated_at'] ?? '';
                             </table>
                         </div>
 
-                        <?php
-                        $goals = $info['goals'] ?? $info['sdoh_goals'] ?? '';
-                        $interv = $info['interventions'] ?? $info['sdoh_interventions'] ?? '';
-                        ?>
-                        <?php if ($goals || $interv) : ?>
+                        <?php if ($goals_text || $interventions_text) : ?>
                             <div class="row small">
                                 <div class="form-group col-md-12 mb-2">
                                     <label><?php echo xlt("Patient Goals (SDOH)"); ?></label>
                                     <textarea class="form-control" rows="5" readonly><?php echo text($goals_text); ?></textarea>
                                 </div>
-                                <div class="col-md-12 mb-2">
-                                    <strong><?= xlt("Interventions / Referrals"); ?>:</strong> <?= text(hs_clip($interv, 220)); ?>
+                                <div class="form-group col-md-12 mb-2">
+                                    <label><?php echo xlt("Interventions / Referrals"); ?></label>
+                                    <textarea class="form-control" rows="5" readonly><?php echo text($interventions_text); ?></textarea>
                                 </div>
                             </div>
                         <?php endif; ?>

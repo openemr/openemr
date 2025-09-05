@@ -57,6 +57,12 @@ $goals_text = HistorySdohService::goalsToText($goals_arr, [
     'include_measure'  => true,
     'include_due'      => true
 ]);
+$interventions_arr = json_decode($info['interventions'] ?? '[]', true);
+$interventions_text = HistorySdohService::interventionsToText($interventions_arr, [
+    'include_category' => true,
+    'include_measure'  => true,
+    'include_due'      => true
+]);
 
 // Helper to read either new or legacy column name (so you can transition DB safely)
 function v($info, $new, $old = null)
@@ -100,15 +106,14 @@ $self = basename($_SERVER['PHP_SELF']);
 </head>
 <body class="body_top">
     <div class="container-xl mb-3">
-        <form method="post" action="history_sdoh_save.php?pid=<?php echo attr_url($pid); ?>" onsubmit="top.restoreSession()">
+        <form method="post" action="history_sdoh_save.php?pid=<?php echo attr_js($pid); ?>" onsubmit="top.restoreSession()">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrf); ?>">
             <input type="hidden" name="history_sdoh_id" value="<?php echo attr($info['id'] ?? 0); ?>">
 
             <div class="">
                 <div class="d-flex align-items-center justify-content-between mt-2 mb-3">
                     <h4 class="m-0"><?php echo xlt("SDOH (USCDI v3)"); ?></h4>
-                    <a class="btn btn-outline-primary btn-sm"
-                        href="<?php echo attr($self . '?pid=' . urlencode($pid) . '&new=1'); ?>">
+                    <a class="btn btn-outline-primary btn-sm"  href="<?php echo ($self . '?pid=' . urlencode($pid) . '&new=1'); ?>">
                         <?php echo xlt("New Assessment"); ?>
                     </a>
                 </div>
@@ -171,7 +176,7 @@ $self = basename($_SERVER['PHP_SELF']);
                         ?>
                         <div class="col-12 col-md-6">
                             <div class="card h-100 mb-2">
-                                <div class="card-header font-weight-bold"><?php echo text($label); ?></div>
+                                <div class="card-header font-weight-bold"><?php echo $label; ?></div>
                                 <div class="card-body">
                                     <div class="form-row">
                                         <div class="form-group col-sm-5">
@@ -265,18 +270,18 @@ $self = basename($_SERVER['PHP_SELF']);
                         </div>
                         <div class="form-group">
                             <label><?php echo xlt("Interventions / Referrals"); ?></label>
-                            <textarea class="form-control" rows="3" name="interventions"><?php echo text(v($info, 'interventions')); ?></textarea>
+                            <textarea class="form-control" rows="3" name="interventions" placeholder="<?php echo xla('Assessment calculated Treatment Plan Interventions resources display here after assessment is saved.') ?>" readonly><?php echo text($interventions_text); ?></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <button type="submit" class="btn btn-primary"><?php echo xlt("Save"); ?></button>
-                    <a class="btn btn-secondary" href="<?php echo attr($GLOBALS['webroot'] . '/interface/patient_file/history/history_sdoh_widget.php?pid=' . urlencode($pid)); ?>">
+                    <a class="btn btn-secondary" href="<?php echo ($GLOBALS['webroot'] . '/interface/patient_file/history/history_sdoh_widget.php?pid=' . urlencode($pid)); ?>">
                         <?php echo xlt("Cancel"); ?>
                     </a>
                     <a class="btn btn-link"
-                        href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid)); ?>">
+                        href="<?php echo ($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid)); ?>">
                         &larr; <?php echo xlt("Back to Summary"); ?>
                     </a>
                 </div>

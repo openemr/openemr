@@ -17,6 +17,7 @@ exports.goalActivityObservation = {
     },
     content: [
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.121"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.121", "2022-06-01"),
         fieldLevel.uniqueId,
         fieldLevel.id, {
             key: "code",

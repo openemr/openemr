@@ -34,6 +34,7 @@ exports.procedureActivityObservation = procedureEntryLevel.procedureActivityObse
 exports.planOfCareActivityAct = planOfCareEntryLevel.planOfCareActivityAct;
 exports.planOfCareActivityObservation = planOfCareEntryLevel.planOfCareActivityObservation;
 exports.planOfCareActivityProcedure = planOfCareEntryLevel.planOfCareActivityProcedure;
+exports.planOfCarePlannedProcedure = planOfCareEntryLevel.planOfCarePlannedProcedure;
 exports.planOfCareActivityEncounter = planOfCareEntryLevel.planOfCareActivityEncounter;
 exports.planOfCareActivitySubstanceAdministration = planOfCareEntryLevel.planOfCareActivitySubstanceAdministration;
 exports.planOfCareActivitySupply = planOfCareEntryLevel.planOfCareActivitySupply;

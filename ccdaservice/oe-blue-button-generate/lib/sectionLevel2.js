@@ -315,6 +315,7 @@ exports.payersSection = function (htmlHeader, na) {
             attributes: condition.isNullFlavorSection('payers'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.18"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.18", "2015-08-01"),
                 fieldLevel.templateCode("PayersSection"),
                 fieldLevel.templateTitle("PayersSection"), {
                     key: "text",
@@ -390,6 +391,7 @@ exports.planOfCareSection = function (htmlHeader, na) {
                         entryLevel.planOfCareActivityAct,
                         entryLevel.planOfCareActivityObservation,
                         entryLevel.planOfCareActivityProcedure,
+                        entryLevel.planOfCarePlannedProcedure,
                         entryLevel.planOfCareActivityEncounter,
                         entryLevel.planOfCareActivitySubstanceAdministration,
                         entryLevel.planOfCareActivitySupply,
