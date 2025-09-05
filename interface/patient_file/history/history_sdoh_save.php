@@ -38,8 +38,11 @@ $dateOrNull = function ($k) {
     $v = trim($_POST[$k] ?? '');
     return ($v === '') ? null : $v;
 };
+
 $goals = HistorySdohService::buildGoals($_POST, $pid);
 $goalsSave = ($goals !== []) ? json_encode($goals) : '';
+$interventions =  HistorySdohService::buildInterventions($_POST, $pid);
+$interventionsSave = ($interventions !== []) ? json_encode($interventions) : '';
 
 // Build data array using new (prefixless) names
 $data = [
@@ -83,7 +86,7 @@ $data = [
 
     // Care plan
     'goals' => $goalsSave,
-    'interventions' => $_POST['interventions'] ?? ''
+    'interventions' => $interventionsSave ?? ''
 ];
 
 if ($rec_id) {

@@ -57,6 +57,12 @@ $goals_text = HistorySdohService::goalsToText($goals_arr, [
     'include_measure'  => true,
     'include_due'      => true
 ]);
+$interventions_arr = json_decode($info['interventions'] ?? '[]', true);
+$interventions_text = HistorySdohService::interventionsToText($interventions_arr, [
+    'include_category' => true,
+    'include_measure'  => true,
+    'include_due'      => true
+]);
 
 // Helper to read either new or legacy column name (so you can transition DB safely)
 function v($info, $new, $old = null)
@@ -264,7 +270,7 @@ $self = basename($_SERVER['PHP_SELF']);
                         </div>
                         <div class="form-group">
                             <label><?php echo xlt("Interventions / Referrals"); ?></label>
-                            <textarea class="form-control" rows="3" name="interventions"><?php echo text(v($info, 'interventions')); ?></textarea>
+                            <textarea class="form-control" rows="3" name="interventions" placeholder="<?php echo xla('Assessment calculated Treatment Plan Interventions resources display here after assessment is saved.') ?>" readonly><?php echo text($interventions_text); ?></textarea>
                         </div>
                     </div>
                 </div>

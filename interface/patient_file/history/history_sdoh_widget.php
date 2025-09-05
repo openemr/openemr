@@ -77,6 +77,12 @@ $goals_text = HistorySdohService::goalsToText($goals_arr, [
     'include_measure' => true,
     'include_due' => true
 ]);
+$interventions_arr = json_decode($info['interventions'] ?? '[]', true);
+$interventions_text = HistorySdohService::interventionsToText($interventions_arr, [
+    'include_category' => true,
+    'include_measure'  => true,
+    'include_due'      => true
+]);
 
 // Domain → list_id mapping (match your form)
 $map = [
@@ -176,18 +182,15 @@ $updated_at = $info['updated_at'] ?? '';
                             </table>
                         </div>
 
-                        <?php
-                        $goals = $info['goals'] ?? $info['sdoh_goals'] ?? '';
-                        $interv = $info['interventions'] ?? $info['sdoh_interventions'] ?? '';
-                        ?>
-                        <?php if ($goals || $interv) : ?>
+                        <?php if ($goals_text || $interventions_text) : ?>
                             <div class="row small">
                                 <div class="form-group col-md-12 mb-2">
                                     <label><?php echo xlt("Patient Goals (SDOH)"); ?></label>
                                     <textarea class="form-control" rows="5" readonly><?php echo text($goals_text); ?></textarea>
                                 </div>
-                                <div class="col-md-12 mb-2">
-                                    <strong><?= xlt("Interventions / Referrals"); ?>:</strong> <?= text(hs_clip($interv, 220)); ?>
+                                <div class="form-group col-md-12 mb-2">
+                                    <label><?php echo xlt("Interventions / Referrals"); ?></label>
+                                    <textarea class="form-control" rows="5" readonly><?php echo text($interventions_text); ?></textarea>
                                 </div>
                             </div>
                         <?php endif; ?>
