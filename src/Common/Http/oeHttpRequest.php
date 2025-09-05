@@ -171,7 +171,7 @@ class oeHttpRequest extends oeHttp
             ]);
         }
 
-        return new oeHttpResponse($this->client->request($method, $url, $this->mergeOptions([
+        return new oeHttpResponse(self::$client->request($method, $url, $this->mergeOptions([
             'query' => $this->parseQueryParams($url),
         ], $options)));
     }

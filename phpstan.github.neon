@@ -17480,10 +17480,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: src/Common/Http/HttpRestRequest.php
-  - message: '#^Non\-static access to static property OpenEMR\\Common\\Http\\oeHttp\:\:\$client\.$#'
-    identifier: staticProperty.nonStaticAccess
-    count: 1
-    path: src/Common/Http/oeHttpRequest.php
   - message: '#^Variable \$test in isset\(\) always exists and is not nullable\.$#'
     identifier: isset.variable
     count: 1
