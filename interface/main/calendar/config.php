@@ -16,9 +16,9 @@
 
 // to collect sql database login info and the utf8 flag
 // also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-require_once(dirname(__FILE__) . "/../../../library/sqlconf.php");
-require_once(dirname(__FILE__) . "/../../../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(dirname(__FILE__) . "/../../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(__DIR__ . "/../../../library/sqlconf.php");
+require_once(__DIR__ . "/../../../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(__DIR__ . "/../../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 
 // Modified 5/2009 by BM for UTF-8 project
 global $host,$port,$login,$pass,$dbase,$db_encoding,$disable_utf8_flag;

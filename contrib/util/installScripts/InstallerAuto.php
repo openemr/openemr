@@ -80,7 +80,7 @@ if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
 }
 
 // Include standard libraries/classes
-require_once dirname(__FILE__) . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 // Set up default configuration settings
 $installSettings = array();

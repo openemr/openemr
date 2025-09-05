@@ -85,7 +85,7 @@ if (!defined('DS')) {
 function csv_edihist_log($msg_str)
 {
     //
-    //$dir = dirname(__FILE__).DS.'log';
+    //$dir = __DIR__.DS.'log';
     //$dir = $GLOBALS['OE_EDIH_DIR'].DS.'log';
     //$logfile = $GLOBALS['OE_EDIH_DIR'] . "/log/edi_history_log.txt";
     $logfile = 'edih_log_' . date('Y-m-d') . '.txt';
@@ -147,7 +147,7 @@ function csv_log_html($logname = '')
 function csv_log_manage($list = true)
 {
     //
-    //$dir = dirname(__FILE__).DS.'log';
+    //$dir = __DIR__.DS.'log';
     $dir = csv_edih_basedir() . DS . 'log';
     $list_ar = array();
     $old_ar = array();
@@ -1784,7 +1784,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         return $ret_ar;
     } else {
         $params = csv_parameters($ft);
-        //$fp = isset($params['claims_csv']) ? dirname(__FILE__).$params['claims_csv'] : false;
+        //$fp = isset($params['claims_csv']) ? __DIR__.$params['claims_csv'] : false;
         $fp = isset($params['claims_csv']) ? $params['claims_csv'] : false;
         $h_ar = csv_table_header($ft, 'claim');
         $hct = count($h_ar);

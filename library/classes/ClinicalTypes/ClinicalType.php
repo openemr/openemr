@@ -7,11 +7,11 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once(dirname(__FILE__) . "/../../clinical_rules.php");
-require_once(dirname(__FILE__) . "/../../forms.inc.php");
-require_once(dirname(__FILE__) . "/../../patient.inc.php");
-require_once(dirname(__FILE__) . "/../../lists.inc.php");
-require_once(dirname(__FILE__) . "/../rulesets/library/RsPatient.php");
+require_once(__DIR__ . "/../../clinical_rules.php");
+require_once(__DIR__ . "/../../forms.inc.php");
+require_once(__DIR__ . "/../../patient.inc.php");
+require_once(__DIR__ . "/../../lists.inc.php");
+require_once(__DIR__ . "/../rulesets/library/RsPatient.php");
 require_once('codes.php');
 
 abstract class ClinicalType

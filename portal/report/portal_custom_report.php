@@ -210,7 +210,7 @@ input[type="radio"] {
 <script>var $j = '$';</script>
 
     <?php // if the track_anything form exists, then include the styling
-    if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+    if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>">
     <?php  } ?>
 

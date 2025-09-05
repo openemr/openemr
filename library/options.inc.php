@@ -52,7 +52,7 @@
 require_once("user.inc.php");
 require_once("patient.inc.php");
 require_once("lists.inc.php");
-require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
+require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;

@@ -4,7 +4,7 @@
 
 /** import supporting libraries */
 require_once("verysimple/Phreeze/PortalController.php");
-require_once(dirname(__FILE__) . "/../../../lib/appsql.class.php");
+require_once(__DIR__ . "/../../../lib/appsql.class.php");
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this

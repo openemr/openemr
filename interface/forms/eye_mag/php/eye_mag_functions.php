@@ -13,8 +13,8 @@
  */
 
 $form_folder = "eye_mag";
-require_once(dirname(__FILE__) . "/../../../../custom/code_types.inc.php");
-require_once(dirname(__FILE__) . "/../../../../library/options.inc.php");
+require_once(__DIR__ . "/../../../../custom/code_types.inc.php");
+require_once(__DIR__ . "/../../../../library/options.inc.php");
 global $PMSFH;
 
     use OpenEMR\Common\Acl\AclMain;

@@ -24,15 +24,15 @@ namespace OpenEMR\Gacl;
  * Path to ADODB.
  */
 if ( !defined('ADODB_DIR') ) {
-	define('ADODB_DIR', dirname(__FILE__).'/../vendor/adodb/adodb-php');
+	define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
 
 //openemr configuration file - bm - 05-2009
 // to collect sql database login info and the utf8 flag
 // also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-require_once(dirname(__FILE__) . "/../../library/sqlconf.php");
-require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(__DIR__ . "/../../library/sqlconf.php");
+require_once(__DIR__ . "/../../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(__DIR__ . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 
 class Gacl {
 	/*
@@ -213,7 +213,7 @@ class Gacl {
 
 		if ( $this->_caching == TRUE ) {
 			if (!class_exists('Hashed_Cache_Lite')) {
-				require_once(dirname(__FILE__) .'/Cache_Lite/Hashed_Cache_Lite.php');
+				require_once(__DIR__ .'/Cache_Lite/Hashed_Cache_Lite.php');
 			}
 
 			/*

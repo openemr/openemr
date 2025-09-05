@@ -30,7 +30,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -55,7 +55,7 @@ $allow_multisite_setup = false;
 $allow_cloning_setup = false;
 
 // Include standard libraries/classes
-require_once dirname(__FILE__) . "/vendor/autoload.php";
+require_once __DIR__ . "/vendor/autoload.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -1616,11 +1616,11 @@ STP4TOP;
                     echo "<p>Configuration of Apache web server...</p><br />\n";
                     echo "The <code>\"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
                     it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "\"&gt;<br />
+                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(__DIR__)) . "\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
                     &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "/sites\"&gt;<br />
+                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(__DIR__)) . "/sites\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
                     &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
                     &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />

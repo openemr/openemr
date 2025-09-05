@@ -81,7 +81,7 @@ if (
     exit();
 }
 
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthHash;

@@ -14,10 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/patient.inc.php");
-require_once(dirname(__FILE__) . "/forms.inc.php");
-require_once(dirname(__FILE__) . "/options.inc.php");
-require_once(dirname(__FILE__) . "/report_database.inc.php");
+require_once(__DIR__ . "/patient.inc.php");
+require_once(__DIR__ . "/forms.inc.php");
+require_once(__DIR__ . "/options.inc.php");
+require_once(__DIR__ . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
@@ -891,7 +891,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
     if (is_numeric($provider)) {
         $ruleOptions['provider_id'] = $provider;
     }
-    require_once(dirname(__FILE__) . "/classes/rulesets/ReportManager.php");
+    require_once(__DIR__ . "/classes/rulesets/ReportManager.php");
     $manager = new ReportManager();
     if ($rowRule['amc_flag']) {
         // Send array of dates ('dateBegin' and 'dateTarget')

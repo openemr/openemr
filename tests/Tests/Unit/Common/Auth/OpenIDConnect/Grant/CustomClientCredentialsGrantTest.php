@@ -267,7 +267,7 @@ class CustomClientCredentialsGrantTest extends TestCase
 
     private function loadJSONFile($fileName)
     {
-        $filePath = dirname(__FILE__) . "/../../../../../data/Unit/Common/Auth/Grant/" . $fileName;
+        $filePath = __DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/" . $fileName;
         $jsonData = file_get_contents($filePath);
         return $jsonData;
     }

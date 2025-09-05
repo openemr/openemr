@@ -25,7 +25,7 @@
  * @link    http://www.open-emr.org
  */
 
-require_once dirname(__FILE__) . '/base_controller.php';
+require_once __DIR__ . '/base_controller.php';
 require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
 require_once("{$GLOBALS['srcdir']}/pid.inc.php");
 
