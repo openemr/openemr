@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * Installer class.
  *
  * @package   OpenEMR
@@ -19,42 +18,42 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
-    public $iuser;
-    public $iuserpass;
-    public $iuname;
-    public $iufname;
-    public $igroup;
-    public $i2faEnable;
-    public $i2faSecret;
-    public $server;
-    public $loginhost;
-    public $port;
-    public $root;
-    public $rootpass;
-    public $login;
-    public $pass;
-    public $dbname;
-    public $collate;
-    public $site;
-    public $source_site_id;
-    public $clone_database;
-    public $no_root_db_access;
-    public $development_translations;
-    public $new_theme;
-    public $ippf_specific;
-    public $conffile;
-    public $main_sql;
-    public $translation_sql;
-    public $devel_translation_sql;
-    public $ippf_sql;
-    public $cvx;
-    public $additional_users;
-    public $dumpfiles;
-    public $error_message;
-    public $debug_message;
-    public $dbh;
+    public string $iuser;
+    public string $iuserpass;
+    public string $iuname;
+    public string $iufname;
+    public string $igroup;
+    public string $i2faEnable;
+    public string $i2faSecret;
+    public string $server;
+    public string $loginhost;
+    public string $port;
+    public string $root;
+    public string $rootpass;
+    public string $login;
+    public string $pass;
+    public string $dbname;
+    public string $collate;
+    public string $site;
+    public string $source_site_id;
+    public string $clone_database;
+    public string $no_root_db_access;
+    public string $development_translations;
+    public string $new_theme;
+    public string $ippf_specific;
+    public string $conffile;
+    public string $main_sql;
+    public string $translation_sql;
+    public string $devel_translation_sql;
+    public string $ippf_sql;
+    public string $cvx;
+    public string $additional_users;
+    public array $dumpfiles;
+    public string $error_message;
+    public string $debug_message;
+    public mysqli|false $dbh;
 
-    public function __construct($cgi_variables)
+    public function __construct(array $cgi_variables)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -108,9 +107,9 @@ class Installer
         $this->dbh = false;
     }
 
-    public function login_is_valid()
+    public function login_is_valid(): bool
     {
-        if (($this->login == '') || (! isset($this->login))) {
+        if ($this->login === '') {
             $this->error_message = "login is invalid: '$this->login'";
             return false;
         }
@@ -118,10 +117,10 @@ class Installer
         return true;
     }
 
-    public function char_is_valid($input_text)
+    public function char_is_valid(string $input_text): bool
     {
         // to prevent php injection
-        trim($input_text);
+        $input_text = trim($input_text);
         if ($input_text == '') {
             return false;
         }
@@ -133,7 +132,7 @@ class Installer
         return true;
     }
 
-    public function databaseNameIsValid($name)
+    public function databaseNameIsValid($name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -141,7 +140,7 @@ class Installer
         return true;
     }
 
-    public function collateNameIsValid($name)
+    public function collateNameIsValid($name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -149,7 +148,7 @@ class Installer
         return true;
     }
 
-    public function iuser_is_valid()
+    public function iuser_is_valid(): bool
     {
         if (strpos($this->iuser, " ")) {
             $this->error_message = "Initial user is invalid: '$this->iuser'";
@@ -159,9 +158,9 @@ class Installer
         return true;
     }
 
-    public function iuname_is_valid()
+    public function iuname_is_valid(): bool
     {
-        if ($this->iuname == "" || !isset($this->iuname)) {
+        if ($this->iuname === '') {
             $this->error_message = "Initial user last name is invalid: '$this->iuname'";
             return false;
         }
@@ -169,9 +168,9 @@ class Installer
         return true;
     }
 
-    public function password_is_valid()
+    public function password_is_valid(): bool
     {
-        if ($this->pass == "" || !isset($this->pass)) {
+        if ($this->pass === '') {
             $this->error_message = "The password for the new database account is invalid: '$this->pass'";
             return false;
         }
@@ -179,9 +178,9 @@ class Installer
         return true;
     }
 
-    public function user_password_is_valid()
+    public function user_password_is_valid(): bool
     {
-        if ($this->iuserpass == "" || !isset($this->iuserpass)) {
+        if ($this->iuserpass === '') {
             $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
             return false;
         }
@@ -189,9 +188,7 @@ class Installer
         return true;
     }
 
-
-
-    public function root_database_connection()
+    public function root_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
@@ -233,7 +230,7 @@ class Installer
         return true;
     }
 
-    public function create_database()
+    public function create_database(): bool
     {
         $sql = "create database " . $this->escapeDatabaseName($this->dbname);
         if (empty($this->collate) || ($this->collate == 'utf8_general_ci')) {
@@ -245,7 +242,7 @@ class Installer
         return $this->execute_sql($sql);
     }
 
-    public function drop_database()
+    public function drop_database(): bool
     {
         $sql = "drop database if exists " . $this->escapeDatabaseName($this->dbname);
         return $this->execute_sql($sql);
@@ -286,7 +283,7 @@ class Installer
         }
     }
 
-    public function grant_privileges()
+    public function grant_privileges(): bool
     {
         return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "'");
     }
@@ -300,14 +297,15 @@ class Installer
    * This method creates any dumpfiles necessary.
    * This is actually only done if we're cloning an existing site
    * and we need to dump their database into a file.
-   * @return bool indicating success
+   *
+   * @return string name of the backup file
    */
-    public function create_dumpfiles()
+    public function create_dumpfiles(): string
     {
         return $this->dumpSourceDatabase();
     }
 
-    public function load_dumpfiles()
+    public function load_dumpfiles(): string|false
     {
         $sql_results = ''; // information string which is returned
         foreach ($this->dumpfiles as $filename => $title) {
@@ -368,7 +366,7 @@ class Installer
                     return false;
                 }
 
-                    $query = "";
+                $query = "";
             }
         }
 
@@ -386,7 +384,7 @@ class Installer
         return $sql_results;
     }
 
-    public function add_version_info()
+    public function add_version_info(): bool
     {
         include __DIR__ . "/../../version.php";
         /**
@@ -425,7 +423,7 @@ class Installer
         return false;
     }
 
-    public function add_initial_user()
+    public function add_initial_user(): bool
     {
         if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
@@ -468,9 +466,10 @@ class Installer
 
     /**
      * Handle the additional users now that our gacl's have finished installing.
+     *
      * @return bool
      */
-    public function install_additional_users()
+    public function install_additional_users(): bool
     {
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
@@ -479,7 +478,7 @@ class Installer
         return true;
     }
 
-    public function on_care_coordination()
+    public function on_care_coordination(): bool
     {
         $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
         $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
@@ -515,9 +514,10 @@ class Installer
 
     /**
      * Generates the initial user's 2FA QR Code
-     * @return bool|string|void
+     *
+     * @return Totp|false
      */
-    public function get_initial_user_mfa_totp()
+    public function get_initial_user_mfa_totp(): Totp|false
     {
         if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
             $adminTotp = new Totp($this->i2faSecret, $this->iuser);
@@ -528,10 +528,11 @@ class Installer
 
   /**
    * Create site directory if it is missing.
+   *
    * @global string $GLOBALS['OE_SITE_DIR'] contains the name of the site directory to create
-   * @return name of the site directory or False
+   * @return bool true if the site directory was created or false if it already exists
    */
-    public function create_site_directory()
+    public function create_site_directory(): bool
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
             $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
@@ -549,7 +550,7 @@ class Installer
         return true;
     }
 
-    public function write_configuration_file()
+    public function write_configuration_file(): bool
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
             $this->create_site_directory();
@@ -617,7 +618,7 @@ $config = 1; /////////////
         return true;
     }
 
-    public function insert_globals()
+    public function insert_globals(): true
     {
         $GLOBALS['temp_skip_translations'] = true;
         $skipGlobalEvent = true; // use in globals.inc.php script to skip event stuff
@@ -640,7 +641,7 @@ $config = 1; /////////////
         return true;
     }
 
-    public function install_gacl()
+    public function install_gacl(): bool
     {
 
         $gacl = new GaclApi();
@@ -873,13 +874,8 @@ $config = 1; /////////////
         // If this script is being used by OpenEMR's setup, then will
         //   incorporate the installation values. Otherwise will
         //    hardcode the 'admin' user.
-        if (isset($this->iuser)) {
-            $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
-            $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
-        } else {
-            $gacl->add_object('users', 'Administrator', 'admin', 10, 0, 'ARO');
-            $gacl->add_group_object($admin, 'users', 'admin', 'ARO');
-        }
+        $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
+        $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
 
         // Declare return terms for language translations
         //  xl('write') xl('wsome') xl('addonly') xl('view')
@@ -1192,7 +1188,7 @@ $config = 1; /////////////
         return true;
     }
 
-    public function quick_install()
+    public function quick_install(): bool
     {
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
@@ -1320,12 +1316,12 @@ $config = 1; /////////////
         return true;
     }
 
-    private function escapeSql($sql)
+    private function escapeSql(string $sql): string
     {
         return mysqli_real_escape_string($this->dbh, $sql);
     }
 
-    private function escapeDatabaseName($name)
+    private function escapeDatabaseName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             error_log("Illegal character(s) in database name");
@@ -1334,7 +1330,7 @@ $config = 1; /////////////
         return $name;
     }
 
-    private function escapeCollateName($name)
+    private function escapeCollateName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             error_log("Illegal character(s) in collation name");
@@ -1343,7 +1339,7 @@ $config = 1; /////////////
         return $name;
     }
 
-    private function execute_sql($sql, $showError = true)
+    private function execute_sql(string $sql, bool $showError = true): mysqli_result|bool
     {
         $this->error_message = '';
         if (! $this->dbh) {
@@ -1372,7 +1368,7 @@ $config = 1; /////////////
         }
     }
 
-    private function connect_to_database($server, $user, $password, $port, $dbname = '')
+    private function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
         $mysqlSsl = false;
@@ -1432,14 +1428,15 @@ $config = 1; /////////////
         return $this->execute_sql("SET NAMES 'utf8mb4'");
     }
 
-  /**
-   * innitialize $this->dumpfiles, an array of the dumpfiles that will
-   * be loaded into the database, including the correct translation
-   * dumpfile.
-   * The keys are the paths of the dumpfiles, and the values are the titles
-   * @return array
-   */
-    private function initialize_dumpfile_list()
+   /**
+    * Initialize $this->dumpfiles, an array of the dumpfiles that will
+    * be loaded into the database, including the correct translation
+    * dumpfile.
+    * The keys are the paths of the dumpfiles, and the values are the titles
+    *
+    * @return array
+    */
+    private function initialize_dumpfile_list(): array
     {
         if ($this->clone_database) {
             $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
@@ -1468,15 +1465,15 @@ $config = 1; /////////////
         return $this->dumpfiles;
     }
 
-  /**
-   *
-   * Directory copy logic borrowed from a user comment at
-   * http://www.php.net/manual/en/function.copy.php
-   * @param string $src name of the directory to copy
-   * @param string $dst name of the destination to copy to
-   * @return bool indicating success
-   */
-    private function recurse_copy($src, $dst)
+    /**
+     * Directory copy logic borrowed from a user comment at
+     * http://www.php.net/manual/en/function.copy.php
+     *
+     * @param string $src name of the directory to copy
+     * @param string $dst name of the destination to copy to
+     * @return bool indicating success
+     */
+    private function recurse_copy(string $src, string $dst): bool
     {
         $dir = opendir($src);
         if (! @mkdir($dst)) {
@@ -1498,13 +1495,13 @@ $config = 1; /////////////
         return true;
     }
 
-  /**
-   *
-   * dump a site's database to a temporary file.
-   * @param string $source_site_id the site_id of the site to dump
-   * @return filename of the backup
-   */
-    private function dumpSourceDatabase()
+    /**
+     * Dump a site's database to a temporary file.
+     *
+     * @param string $source_site_id the site_id of the site to dump
+     * @return string filename of the backup
+     */
+    private function dumpSourceDatabase(): string
     {
         global $OE_SITES_BASE;
         $source_site_id = $this->source_site_id;
@@ -1537,10 +1534,10 @@ $config = 1; /////////////
         return $backup_file;
     }
 
-  /**
-   * @return filename of the source backup database for cloning
-   */
-    private function get_backup_filename()
+    /**
+     * @return string filename of the source backup database for cloning
+     */
+    private function get_backup_filename(): string
     {
         if (stristr(PHP_OS, 'WIN')) {
             $backup_file = 'C:/windows/temp/setup_dump.sql';
@@ -1550,10 +1547,11 @@ $config = 1; /////////////
 
         return $backup_file;
     }
+
     //RP_ADDED
     public function getCurrentTheme()
     {
-        $current_theme =  $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
+        $current_theme = $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
         $current_theme = mysqli_fetch_array($current_theme);
         return $current_theme[0];
     }
@@ -1568,7 +1566,7 @@ $config = 1; /////////////
         return $this->execute_sql("UPDATE globals SET gl_value='" . $this->escapeSql($this->new_theme) . "' WHERE gl_name LIKE '%css_header%'");
     }
 
-    public function listThemes()
+    public function listThemes(): array
     {
         $themes_img_dir = "public/images/stylesheets/";
         $arr_themes_img = array_values(array_filter(scandir($themes_img_dir), function ($item) {
@@ -1577,7 +1575,7 @@ $config = 1; /////////////
         return $arr_themes_img;
     }
 
-    private function extractFileName($theme_file_name = '')
+    private function extractFileName(string $theme_file_name = ''): array
     {
         $under_score = strpos($theme_file_name, '_') + 1;
         $dot = strpos($theme_file_name, '.');
@@ -1586,7 +1584,7 @@ $config = 1; /////////////
         return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
     }
 
-    public function displayThemesDivs()
+    public function displayThemesDivs(): void
     {
         $themes_number = count($this->listThemes());
         for ($i = 0; $i < $themes_number; $i++) {
@@ -1631,10 +1629,9 @@ $config = 1; /////////////
                     break;
             }
         }
-        return;
     }
 
-    public function displaySelectedThemeDiv()
+    public function displaySelectedThemeDiv(): void
     {
         $theme_file_name = $this->getCurrentTheme();
         $arr_extracted_file_name = $this->extractFileName($theme_file_name);
@@ -1656,10 +1653,9 @@ $config = 1; /////////////
                         <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
-        return;
     }
 
-    public function displayNewThemeDiv()
+    public function displayNewThemeDiv(): void
     {
         // cloned sites don't get a chance to set a new theme
         if (!$this->new_theme) {
@@ -1684,10 +1680,9 @@ DSTD;
                         <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
-        return;
     }
 
-    public function setupHelpModal()
+    public function setupHelpModal(): void
     {
         $setup_help_modal = <<<SETHLP
     <div class="row">
@@ -1727,6 +1722,5 @@ DSTD;
         </script>
 SETHLP;
         echo $setup_help_modal  . "\r\n";
-        return;
     }
 }
