@@ -86,7 +86,7 @@ $data = [
 
     // Care plan
     'goals' => $goalsSave,
-    'interventions' => $interventionsSave ?? ''
+    'interventions' => $interventionsSave
 ];
 
 if ($rec_id) {

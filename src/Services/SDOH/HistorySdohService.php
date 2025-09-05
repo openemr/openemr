@@ -32,15 +32,15 @@ class HistorySdohService
         }
         if (is_array($cc)) {
             if (!empty($cc['text'])) {
-                return (string)$cc['text'];
+                return $cc['text'];
             }
             if (!empty($cc['coding'][0]['display'])) {
-                return (string)$cc['coding'][0]['display'];
+                return $cc['coding'][0]['display'];
             }
             if (!empty($cc['coding'][0]['code'])) {
                 $sys = $cc['coding'][0]['system'] ?? '';
                 $code = $cc['coding'][0]['code'];
-                return $sys && $code ? $code : (string)$code; // prefer code if no display
+                return $sys && $code ? $code : $code; // prefer code if no display
             }
         } elseif (is_string($cc)) {
             return $cc;
@@ -122,7 +122,7 @@ class HistorySdohService
             ],
         ];
 
-        $needsGoal = fn($status): bool => in_array((string)$status, ['present', 'at_risk', 'yes'], true);
+        $needsGoal = fn($status): bool => in_array($status, ['present', 'at_risk', 'yes'], true);
 
         $when = $info['assessment_date'] ?? $info['sdoh_assessment_date'] ?? $info['updated_at'] ?? null;
         $due = $info['goal_due_date'] ?? null;
@@ -189,7 +189,7 @@ class HistorySdohService
         $txt = fn($s): array => ['text' => $s];
 
         // Same trigger rule as goals
-        $needs = fn($status): bool => in_array((string)$status, ['present', 'at_risk', 'yes'], true);
+        $needs = fn($status): bool => in_array($status, ['present', 'at_risk', 'yes'], true);
 
         // Domain → default planned intervention text (kept conservative; sites can override codes)
         $map = [
@@ -349,13 +349,13 @@ class HistorySdohService
         $due  = $due ? substr($due, 0, 10) : null;
 
         $out = [];
-        foreach (preg_split('/\R+/', (string)$text) as $line) {
+        foreach (preg_split('/\R+/', $text) as $line) {
             $line = trim($line);
             if ($line === '') {
                 continue;
             }
             // Strip a leading bullet if present (•, -, *, etc.)
-            $line = preg_replace('/^\s*(?:[•\-\*\u2022]\s*)/', '', $line);
+            $line = preg_replace('/^\h*(?:[-*\x{2022}]\h*)/u', '', $line);
 
             $sr = [
                 'resourceType' => 'ServiceRequest',
@@ -405,9 +405,9 @@ class HistorySdohService
             if (!empty($t['detailCodeableConcept'])) {
                 $tDetail = self::ccDisplay($t['detailCodeableConcept']);
             } elseif (!empty($t['detailString'])) {
-                $tDetail = (string)$t['detailString'];
+                $tDetail = $t['detailString'];
             } elseif (!empty($t['detailQuantity']['value'])) {
-                $tDetail = (string)$t['detailQuantity']['value'];
+                $tDetail = $t['detailQuantity']['value'];
                 if (!empty($t['detailQuantity']['unit'])) {
                     $tDetail .= ' ' . $t['detailQuantity']['unit'];
                 }
@@ -494,7 +494,7 @@ class HistorySdohService
         if (empty($row['interventions'])) {
             return null;
         }
-        return self::parseManualInterventions((string)$row['interventions'], $pid, $row['updated_at'] ?? null, null);
+        return self::parseManualInterventions($row['interventions'], $pid, $row['updated_at'] ?? null, null);
     }
     /**
      * Map a FHIR system URL to our ccda "code_type" label.

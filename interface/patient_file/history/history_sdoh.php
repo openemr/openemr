@@ -106,7 +106,7 @@ $self = basename($_SERVER['PHP_SELF']);
 </head>
 <body class="body_top">
     <div class="container-xl mb-3">
-        <form method="post" action="history_sdoh_save.php?pid=<?php echo ($pid); ?>" onsubmit="top.restoreSession()">
+        <form method="post" action="history_sdoh_save.php?pid=<?php echo attr_js($pid); ?>" onsubmit="top.restoreSession()">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrf); ?>">
             <input type="hidden" name="history_sdoh_id" value="<?php echo attr($info['id'] ?? 0); ?>">
 
