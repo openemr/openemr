@@ -441,3 +441,76 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2024','2024 Reporting Period',30,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2025','2025 Reporting Period',40,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2026','2026 Reporting Period',50,0,0);
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
+-- Patient Finder Update
+
+-- Create new Patient List Detail form
+INSERT INTO `layout_group_properties` 
+    (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_subtitle`, `grp_mapping`, `grp_seq`, 
+     `grp_activity`, `grp_repeats`, `grp_columns`, `grp_size`, `grp_issue_type`, `grp_aco_spec`, 
+     `grp_save_close`, `grp_init_open`, `grp_referrals`, `grp_unchecked`, `grp_services`, 
+     `grp_products`, `grp_diags`) 
+VALUES
+    ('LBF_PATIENTLIST_DETAIL', '', 'Patient List Detail', '', 'Core', 0, 1, 0, 8, 9, '', '', 0, 0, 0, 0, '', '', ''),
+    ('LBF_PATIENTLIST_DETAIL', '1', 'Main', '', '', 0, 1, 0, 0, 0, '', '', 0, 0, 0, 0, '', '', '');
+
+-- Add layout options for the new Patient List Detail form
+INSERT INTO `layout_options` 
+    (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, 
+     `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, 
+     `description`, `fld_rows`, `list_backup_id`, `source`) 
+VALUES
+    ('LBF_PATIENTLIST_DETAIL', 'address_full', '1', 'Address', 40, 2, 1, 20, 200, '', 1, 7, '', '[\"J\"]', '', 0, '', 'F'),
+    ('LBF_PATIENTLIST_DETAIL', 'insurance_primary', '1', 'Insurance', 10, 2, 2, 20, 63, '', 1, 2, '', '', '', 0, '', 'F'),
+    ('LBF_PATIENTLIST_DETAIL', 'insurance_primary_policy', '1', 'Insurance ID', 30, 2, 1, 20, 60, '', 1, 2, '', '[\"J\"]', '', 0, '', 'F'),
+    ('LBF_PATIENTLIST_DETAIL', 'sex', '1', 'Sex', 20, 2, 1, 20, 60, '', 1, 2, '', '', '', 0, '', 'F');
+
+-- First, deactivate existing ptlistcols entries
+UPDATE `list_options` 
+SET `activity` = 0 
+WHERE `list_id` = 'ptlistcols';
+
+-- Add new/updated patient list column options with extended properties
+INSERT INTO `list_options` 
+    (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, 
+     `toggle_setting_1`, `activity`, `subtype`) 
+VALUES
+    ('ptlistcols', 'pubpid', 'ID', 10, 0, 0, 0, 1, '2rem'),
+    ('ptlistcols', 'name', 'Full Name', 20, 0, 0, 0, 1, '11rem'),
+    ('ptlistcols', 'DOB', 'DOB', 30, 0, 0, 0, 1, '1.5rem'),
+    ('ptlistcols', 'age', 'Age', 40, 0, 0, 0, 1, '1.5rem'),
+    ('ptlistcols', 'city_state', 'City State', 50, 0, 0, 0, 1, '10rem'),
+    ('ptlistcols', 'phone_home', 'Home Phone', 60, 0, 0, 0, 1, '5rem'),
+    ('ptlistcols', 'ss', 'SSN', 70, 0, 0, 0, 1, '4rem'),
+    ('ptlistcols', 'fname', 'First Name', 150, 0, 0, 0, 0, '8rem'),
+    ('ptlistcols', 'lname', 'Last Name', 160, 0, 0, 0, 0, '10rem'),
+    ('ptlistcols', 'address_full', 'Address', 170, 0, 0, 0, 0, '12rem'),
+    ('ptlistcols', 'city', 'City', 180, 0, 0, 0, 0, '10rem'),
+    ('ptlistcols', 'postal_code', 'ZIP', 190, 0, 0, 0, 0, '4rem'),
+    ('ptlistcols', 'status', 'Status', 200, 0, 0, 0, 0, '2rem'),
+    ('ptlistcols', 'next_appointment', 'Next Appt', 210, 0, 0, 0, 0, '11rem')
+ON DUPLICATE KEY UPDATE 
+    `title` = VALUES(`title`),
+    `seq` = VALUES(`seq`),
+    `is_default` = VALUES(`is_default`),
+    `option_value` = VALUES(`option_value`),
+    `toggle_setting_1` = VALUES(`toggle_setting_1`),
+    `activity` = VALUES(`activity`),
+    `subtype` = VALUES(`subtype`);
+
+
+-- Add new sort_direction_full list
+INSERT INTO `list_options` 
+    (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) 
+VALUES 
+    ('lists', 'sort_direction_full', 'Sort Direction Full', 2, 0, 0);
+
+-- Add options for sort_direction_full
+INSERT INTO `list_options` 
+    (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, 
+     `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) 
+VALUES
+    ('sort_direction_full', '0', 'Ascending', 10, 0, 0, '', '', '', 0, 0, 1, '', 1),
+    ('sort_direction_full', '1', 'Descending', 20, 0, 0, '', '', '', 0, 0, 1, '', 1);
+
