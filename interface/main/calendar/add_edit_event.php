@@ -1067,8 +1067,8 @@ function set_display() {
             style_prefcat.display = '';
             f.form_apptstatus.style.display = 'none';
             f.form_prefcat.style.display = '';
-            f.form_duration.disabled = true;
-            f.form_duration.value = '';
+            f.form_duration.disabled = false;
+            f.form_duration.value = 0;
             document.getElementById('tdallday4').style.color = 'var(--gray)';
         } else {
             style_prefcat.display = 'none';
@@ -1878,6 +1878,7 @@ function are_days_checked(){
 * */
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,valu){
+    let allDay = document.getElementById('rballday1').checked;
     collectvalidation.form_hour = {
         numericality: {
             onlyInteger: true,
@@ -1904,6 +1905,9 @@ function validateform(event,valu){
         }
     };
 
+    if ( allDay == true) {
+        collectvalidation.form_duration ={};
+    } else {
     collectvalidation.form_duration = {
         numericality: {
             onlyInteger: true,
@@ -1915,6 +1919,7 @@ function validateform(event,valu){
             message: "Duration is required"
         }
     };
+    }
 
     $('#form_save').attr('disabled', true);
     //Make sure if days_every_week is checked that at least one weekday is checked.
