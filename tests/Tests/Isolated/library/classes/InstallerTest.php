@@ -442,7 +442,7 @@ class InstallerTest extends TestCase
         $callCount = 0;
         $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
-            ->willReturnCallback(function($sql) use (&$callCount, $mockResult) {
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockResult) {
                 $callCount++;
                 if ($callCount === 1 && strpos($sql, 'SELECT user FROM mysql.user') !== false) {
                     return $mockResult;
@@ -473,7 +473,7 @@ class InstallerTest extends TestCase
         $callCount = 0;
         $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
-            ->willReturnCallback(function($sql) use (&$callCount, $mockResult) {
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockResult) {
                 $callCount++;
                 if ($callCount === 1 && strpos($sql, 'SELECT user FROM mysql.user') !== false) {
                     return $mockResult;
@@ -539,7 +539,7 @@ class InstallerTest extends TestCase
         $callCount = 0;
         $mockInstaller->expects($this->exactly(2))
             ->method('load_file')
-            ->willReturnCallback(function($filename, $title) use (&$callCount) {
+            ->willReturnCallback(function ($filename, $title) use (&$callCount) {
                 $callCount++;
                 if ($callCount === 1) {
                     return "Creating Main Database tables...\n<span class='text-success'><b>OK</b></span>.<br>\n";
@@ -566,7 +566,7 @@ class InstallerTest extends TestCase
         $callCount = 0;
         $mockInstaller->expects($this->exactly(2))
             ->method('load_file')
-            ->willReturnCallback(function($filename, $title) use (&$callCount) {
+            ->willReturnCallback(function ($filename, $title) use (&$callCount) {
                 $callCount++;
                 if ($callCount === 1) {
                     return "Creating Main Database tables...\n<span class='text-success'><b>OK</b></span>.<br>\n";
@@ -605,7 +605,7 @@ class InstallerTest extends TestCase
         $eofCallCount = 0;
         $mockInstaller->expects($this->exactly(3))
             ->method('atEndOfFile')
-            ->willReturnCallback(function($resource) use (&$eofCallCount) {
+            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
                 $eofCallCount++;
                 return $eofCallCount > 2;
             });
