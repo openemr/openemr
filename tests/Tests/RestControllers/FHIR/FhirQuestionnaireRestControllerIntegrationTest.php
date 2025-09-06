@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirQuestionnaireRestControllerTest.php
  * @package openemr
@@ -23,7 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 use PHPUnit\Framework\MockObject\Exception as MockException;
 use Exception;
 
-class FhirQuestionnaireRestControllerIntegrationTest extends TestCase {
+class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
+{
     const QUESTIONNAIRE_NAME_1 = 'PHPUnit Test Questionnaire';
     const QUESTIONNAIRE_NAME_2 = 'blah blah blah';
 
@@ -59,7 +61,8 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase {
      * @return void
      * @throws MockException|Exception
      */
-    public function testOneReturnsQuestionnaireResponseForUserContext(): void {
+    public function testOneReturnsQuestionnaireResponseForUserContext(): void
+    {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         // save the questionnaire we want returned and verify the system returns the questionnaire
         $uuid = $this->createQuestionnaireWithName(self::QUESTIONNAIRE_NAME_1);
@@ -78,7 +81,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase {
         $jsonObj = json_decode($content, true);
         $this->assertNotFalse($jsonObj, "Json response should be decodeable");
 
-        $this->assertEquals( $uuid, $jsonObj['id'], "Should return the proper questionnaire id");
+        $this->assertEquals($uuid, $jsonObj['id'], "Should return the proper questionnaire id");
         $this->assertEquals('4.0.0', $jsonObj['version']);
         // save mechanism lowers everything and removes spaces....
         $this->assertEquals('phpunittestquestionnaire', $jsonObj['name']);
@@ -115,15 +118,16 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase {
         $this->assertEquals("Bundle", $jsonObj['resourceType']);
         $this->assertCount(2, $jsonObj['entry']);
         $this->assertArrayHasKey("resource", $jsonObj['entry'][0]);
-        $this->assertEquals( $uuid, $jsonObj['entry'][0]['resource']['id'], "Should return the proper questionnaire id");
-        $this->assertEquals( $uuid2, $jsonObj['entry'][1]['resource']['id'], "Should return the proper questionnaire id");
+        $this->assertEquals($uuid, $jsonObj['entry'][0]['resource']['id'], "Should return the proper questionnaire id");
+        $this->assertEquals($uuid2, $jsonObj['entry'][1]['resource']['id'], "Should return the proper questionnaire id");
     }
 
     /**
      * @return void
      * @throws MockException|Exception
      */
-    public function testListWithSearchOnlyReturnsOneResult(): void {
+    public function testListWithSearchOnlyReturnsOneResult(): void
+    {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         // save the questionnaire we want returned and verify the system returns the questionnaire
 
@@ -155,7 +159,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase {
         $this->assertArrayHasKey("resource", $jsonObj['entry'][0]);
         $jsonObj = $jsonObj['entry'][0]['resource'];
 
-        $this->assertEquals( $uuid, $jsonObj['id'], "Should return the proper questionnaire id");
+        $this->assertEquals($uuid, $jsonObj['id'], "Should return the proper questionnaire id");
         $this->assertEquals('4.0.0', $jsonObj['version']);
         // save mechanism lowers everything and removes spaces....
         $this->assertEquals('phpunittestquestionnaire', $jsonObj['name']);
@@ -169,7 +173,8 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase {
      * @return string
      * @throws Exception
      */
-    private function createQuestionnaireWithName(string $name): string {
+    private function createQuestionnaireWithName(string $name): string
+    {
         $questionnaireContents = $this->questionnaireTemplate;
         $questionnaireAsJson = json_decode($questionnaireContents, true);
         $questionnaireAsJson['name'] = $questionnaireAsJson['title'] = $name;

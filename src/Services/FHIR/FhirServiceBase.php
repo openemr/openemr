@@ -188,9 +188,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Executes a FHIR Resource search given a set of parameters.
-     * @param $fhirSearchParameters The FHIR resource search parameters
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return processing result
+     * @param array $fhirSearchParameters The FHIR resource search parameters
+     * @param string $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult processing result
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {

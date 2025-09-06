@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirQuestionnaireResponseRestControllerTest.php
  * @package openemr
@@ -23,8 +24,8 @@ use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
-class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase {
-
+class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase
+{
     private array $originalSession;
 
     private string $questionnaireTemplate;
@@ -62,7 +63,8 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase {
         $this->markTestIncomplete("update is not exposed yet, so leaving test as incomplete until we choose to expose it");
     }
 
-    public function testOne() {
+    public function testOne()
+    {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         $patientService = new PatientService();
         $result = $patientService->insert([
@@ -128,7 +130,8 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase {
      * @return string
      * @throws Exception
      */
-    private function createQuestionnaireWithName(string $name): string {
+    private function createQuestionnaireWithName(string $name): string
+    {
         $questionnaireContents = $this->questionnaireTemplate;
         $questionnaireAsJson = json_decode($questionnaireContents, true);
         $questionnaireAsJson['name'] = $questionnaireAsJson['title'] = $name;
@@ -140,7 +143,8 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase {
         return UuidRegistry::uuidToString($binUuid);
     }
 
-    private function createQuestionnaireResponseForQuestionnaire(int $pid, string $puuid, string $name, ?int $encounter): string {
+    private function createQuestionnaireResponseForQuestionnaire(int $pid, string $puuid, string $name, ?int $encounter): string
+    {
         $this->createQuestionnaireWithName($name);
         $questionnaireResponseService = new QuestionnaireResponseService();
         // TODO: @adunsulag do we populate the puuid here?

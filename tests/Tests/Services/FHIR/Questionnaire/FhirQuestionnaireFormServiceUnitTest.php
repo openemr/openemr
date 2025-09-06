@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirQuestionnaireFormServiceTest.php
  * @package openemr
@@ -10,11 +11,13 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use PHPUnit\Framework\TestCase;
 
-class FhirQuestionnaireFormServiceUnitTest extends TestCase {
-
+class FhirQuestionnaireFormServiceUnitTest extends TestCase
+{
     public function testCreateProvenanceResource()
     {
         $this->markTestIncomplete("Not implemented yet");
@@ -35,8 +38,8 @@ class FhirQuestionnaireFormServiceUnitTest extends TestCase {
         $jsonQuestionnaire = file_get_contents(__DIR__ . '/../../../data/Services/FHIR/Questionnaire/questionnaire-sdc-pathology.json');
         $dataToParse = [
             'questionnaire' => $jsonQuestionnaire
-            ,'source_url' => 'http://example.com/source'
-            ,'uuid' => 'questionnaire-uuid-123'
+            , 'source_url' => 'http://example.com/source'
+            , 'uuid' => 'questionnaire-uuid-123'
         ];
         $parsedQuestionnaire = $service->parseOpenEMRRecord($dataToParse);
         $this->assertEquals($dataToParse['uuid'], $parsedQuestionnaire->getId()->getValue());

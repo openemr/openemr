@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirQuestionnaireResponseRestControllerTest.php
  * @package openemr
@@ -24,8 +25,8 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
-class FhirQuestionnaireResponseRestControllerTest extends TestCase {
-
+class FhirQuestionnaireResponseRestControllerTest extends TestCase
+{
     /**
      * @return void
      * @throws Exception
