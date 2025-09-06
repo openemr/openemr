@@ -13,9 +13,9 @@ namespace OpenEMR\Services\FHIR\QuestionnaireResponse;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
@@ -71,8 +71,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
      */
     public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
-        if (!($fhirResource instanceof FHIRQuestionnaireResponse)) {
-            throw new InvalidArgumentException("resource must be of type " . FHIRQuestionnaireResponse::class);
+        if (!($fhirResource instanceof OpenEMRFhirQuestionnaireResponse)) {
+            throw new InvalidArgumentException("resource must be of type " . OpenEMRFhirQuestionnaireResponse::class);
         }
 
         $parsedResource = [];
@@ -138,9 +138,9 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
     /**
      * @param array $dataRecord
      * @param bool $encode
-     * @return FHIRQuestionnaireResponse
+     * @return OpenEMRFhirQuestionnaireResponse
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): FHIRQuestionnaireResponse
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): OpenEMRFhirQuestionnaireResponse
     {
         // US Core 8.0 requires the following fields
         // identifier 0..1
@@ -177,7 +177,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
                 'trace' => $exception->getTraceAsString()]
             );
         }
-        $fhirResource = new FHIRQuestionnaireResponse($innerData);
+        $fhirResource = new OpenEMRFhirQuestionnaireResponse($innerData);
 
         $meta = new FHIRMeta();
         $meta->setVersionId($dataRecord['version'] ?? '1');
@@ -191,7 +191,11 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
 
         // we trust the db records rather than the JSON as our master record if we have it.
         if (!empty($dataRecord['questionnaire_id'])) {
-            $fhirResource->setQuestionnaire(UtilsService::createCanonicalUrlForResource('Questionnaire', $dataRecord['questionnaire_id']));
+            // TODO: @adunsulag how do we want to handle non-standard Questionnaires that are via the _questionnaire attribute
+            // currently we have nothing in OpenEMR that links to a pdf type survery.  I suppose a Document could be referenced
+            // as a questionnaire result... but then how to populate all the answers?
+            $questionnaire = UtilsService::createCanonicalUrlForResource('Questionnaire', $dataRecord['questionnaire_id']);
+            $fhirResource->setQuestionnaire($questionnaire);
         }
 
         if (!empty($dataRecord['encounter_uuid'])) {
@@ -199,10 +203,11 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         }
         if (!empty($dataRecord['puuid'])) {
             $fhirResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
+            if (empty($dataRecord['creator_user_id'])) {
+                $fhirResource->setSource(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
+            }
         }
-        if (empty($dataRecord['creator_user_id'])) {
-            $fhirResource->setSource(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
-        } else if (!empty($dataRecord['creator_user_uuid'])) {
+        if (!empty($dataRecord['creator_user_uuid'])) {
             $fhirResource->setSource(UtilsService::createRelativeReference('Practitioner', $dataRecord['creator_user_uuid']));
         }
         // TODO: @adunsulag this is a required field
@@ -212,21 +217,21 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         $responseStatus = new FHIRQuestionnaireResponseStatus();
         if (!empty($dataRecord['status'])) {
             // map the statii
-            switch ($dataRecord['status']) {
-                case 'completed':
-                case 'amended':
-                case 'entered-in-error':
-                case 'stopped':
-                    $responseStatus->setValue($dataRecord['status']);
-                    break;
-                case 'incomplete':
-                case 'active':
-                default:
-                    $responseStatus->setValue('in-progress');
-                    break;
-            }
+            $responseStatus->setValue(match ($dataRecord['status']) {
+                'completed','amended','entered-in-error','stopped' => $dataRecord['status'],
+                'incomplete','active' => 'in-progress',
+                default => 'in-progress'
+            });
+        } else if (is_string($fhirResource->getStatus())) {
+            // otherwise we use the status in the original questionnaire response status
+            $responseStatus = new FHIRQuestionnaireResponseStatus();
+            $responseStatus->setValue($fhirResource->getStatus());
+        } else {
+            $responseStatus = new FHIRQuestionnaireResponseStatus();
+            $responseStatus->setValue('in-progress');
         }
         $fhirResource->setStatus($responseStatus);
+
 
         return $fhirResource;
     }

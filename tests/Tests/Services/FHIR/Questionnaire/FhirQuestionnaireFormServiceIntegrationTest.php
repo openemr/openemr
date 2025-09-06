@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirQuestionnaireFormServiceTest.php
  * TODO: @adunsulag when we have a place to put integration tests, we should move this class.
@@ -20,8 +21,8 @@ use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
-class FhirQuestionnaireFormServiceIntegrationTest extends TestCase {
-
+class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
+{
     /**
      * @var array Saved off session storage while we run this test.
      */
@@ -49,7 +50,8 @@ class FhirQuestionnaireFormServiceIntegrationTest extends TestCase {
      * @return void
      * @throws Exception
      */
-    public function testSearchByIdWillReturnSingleQuestionnaire() {
+    public function testSearchByIdWillReturnSingleQuestionnaire()
+    {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         // save the questionnaire we want returned and verify the system returns the questionnaire
         $jsonQuestionnaire = file_get_contents(__DIR__ . '/../../../data/Services/FHIR/Questionnaire/questionnaire-sdc-pathology.json');
@@ -71,7 +73,7 @@ class FhirQuestionnaireFormServiceIntegrationTest extends TestCase {
         $this->assertCount(1, $processingResult->getData(), "Only one record should be returned");
         $questionnaireReturned = $processingResult->getFirstDataResult();
         $this->assertInstanceOf(FHIRQuestionnaire::class, $questionnaireReturned);
-        $this->assertEquals( $uuid, $questionnaireReturned->getId()->getValue(), "Should return the proper questionnaire id");
+        $this->assertEquals($uuid, $questionnaireReturned->getId()->getValue(), "Should return the proper questionnaire id");
         $this->assertEquals('4.0.0', $questionnaireReturned->getVersion());
         // save mechanism lowers everything and removes spaces....
         $this->assertEquals('phpunittestquestionnaire', $questionnaireReturned->getName());
