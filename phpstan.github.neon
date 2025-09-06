@@ -64,10 +64,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: apis/dispatch.php
-  - message: '#^Variable \$puuidStringCheck in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: apis/dispatch.php
   - message: '#^Variable \$userId might not be defined\.$#'
     identifier: variable.undefined
     count: 4

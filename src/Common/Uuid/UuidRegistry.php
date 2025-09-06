@@ -196,7 +196,7 @@ class UuidRegistry
 
     /**
      * Given a table name it returns the UuidRegistry object for that table name
-     * @param $table_name The name of the table that has a uuid column
+     * @param string $table_name The name of the table that has a uuid column
      * @return UuidRegistry
      */
     public static function getRegistryForTable($table_name): UuidRegistry
@@ -274,7 +274,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID byte value to a string representation
-     * @return the UUID string value
+     * @return string the UUID string value
      */
     public static function uuidToString($uuidBytes)
     {

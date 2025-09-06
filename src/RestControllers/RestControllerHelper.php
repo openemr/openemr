@@ -12,21 +12,17 @@
 
 namespace OpenEMR\RestControllers;
 
+use Http\Message\Encoding\GzipEncodeStream;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
-use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationDefinition;
-use OpenEMR\FHIR\R4\FHIRElement\FHIROperationKind;
-use OpenEMR\FHIR\R4\FHIRElement\FHIROperationParameterUse;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTypeRestfulInteraction;
 use OpenEMR\FHIR\R4\FHIRResource;
@@ -36,6 +32,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
 
 class RestControllerHelper
 {
@@ -56,19 +53,103 @@ class RestControllerHelper
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
-    private $restURL = "";
+    private string $restURL = "";
 
     public function __construct($restAPIUrl = "")
     {
         $this->restURL = $restAPIUrl;
     }
 
+    const FHIR_PREFER_HEADER_RETURN_VALUES = ['minimal', 'representation', 'OperationOutcome'];
+
+    public static function returnSingleObjectResponse($object, bool $gzipEncoded = false): ResponseInterface
+    {
+        $psrFactory = new Psr17Factory();
+        // should we gzip this?
+
+        $response = $psrFactory->createResponse(200);
+        $stream = $psrFactory->createStream(json_encode($object));
+        $stream->rewind(); // have to rewind the stream.
+        // TODO: @adunsulag the private module this came from supported gzip encoding, but do we want that in the generic core code?
+        if ($gzipEncoded) {
+            $encodedStream = new GzipEncodeStream($stream);
+            $response = $response->withAddedHeader('Content-Encoding', 'gzip')
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($encodedStream);
+        } else {
+            $response = $response->withHeader('Content-Type', 'application/json')
+                ->withBody($stream);
+        }
+        return $response;
+    }
+
+    public static function getEmptyResponse(): ResponseInterface
+    {
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse(200)->withBody($psrFactory->createStream(json_encode([])));
+    }
+
+    public static function getResponseForProcessingResult(ProcessingResult $processingResult): ResponseInterface
+    {
+        $status = 200;
+        $httpResponseBody = [];
+        if (!$processingResult->isValid()) {
+            $status = 400;
+            $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+        } elseif (count($processingResult->getData()) <= 0) {
+            return self::getNotFoundResponse();
+        } elseif ($processingResult->hasInternalErrors()) {
+            $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+        } else {
+            return self::returnSingleObjectResponse($processingResult->getData()[0]);
+        }
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse($status)->withBody($psrFactory->createStream(json_encode($httpResponseBody)));
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public static function getNotFoundResponse(): ResponseInterface
+    {
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse(404)->withBody($psrFactory->createStream(json_encode(['error' => xlt('Not Found')])));
+    }
+
+    public static function addFhirLocationHeader(ResponseInterface $response, string $resourceType, int|string $id): ResponseInterface
+    {
+        $serverConfig = new ServerConfig();
+        $url = $serverConfig->getFhirUrl() . "/" . $resourceType . "/" . $id;
+        return $response->withHeader("Location", $url);
+    }
+
+    public static function getFhirOperationOutcomeSuccessResponse(string $resourceType, int|string $id): ResponseInterface
+    {
+        $operationOutcome = UtilsService::createOperationOutcomeSuccess($resourceType, $id);
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse(200)->withBody($psrFactory->createStream(json_encode($operationOutcome)));
+    }
+
+    /**
+     * @param  string $preferHeaderValue
+     * @return 'minimal'|'representation'|'OperationOutcome'
+     */
+    public static function getReturnTypeFromPrefer(string $preferHeaderValue): string
+    {
+        $parts = explode("=", $preferHeaderValue);
+        $prefer = end($parts);
+        if (!in_array($prefer, self::FHIR_PREFER_HEADER_RETURN_VALUES)) {
+            return 'minimal';
+        }
+        return $prefer;
+    }
+
     /**
      * Configures the HTTP status code and payload returned within a response.
      *
-     * @param $serviceResult
-     * @param $customRespPayload
-     * @param $idealStatusCode
+     * @param  $serviceResult
+     * @param  $customRespPayload
+     * @param  $idealStatusCode
      * @return null
      */
     public static function responseHandler($serviceResult, $customRespPayload, $idealStatusCode)
@@ -114,9 +195,9 @@ class RestControllerHelper
      * The response data key conveys the data payload for a response. The payload is either a "top level" array for a
      * single result, or an array for multiple results.
      *
-     * @param        $processingResult         - The service processing result.
-     * @param        $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
-     * @param        $isMultipleResultResponse - Indicates if the response contains multiple results.
+     * @param  $processingResult         - The service processing result.
+     * @param  $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
+     * @param  $isMultipleResultResponse - Indicates if the response contains multiple results.
      * @return array[]
      */
     public static function handleProcessingResult(ProcessingResult $processingResult, $successStatusCode, $isMultipleResultResponse = false): array
@@ -173,8 +254,8 @@ class RestControllerHelper
      *
      * The response body has a normal Fhir Resource json:
      *
-     * @param        $processingResult  - The service processing result.
-     * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
+     * @param  $processingResult  - The service processing result.
+     * @param  $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
      * @return array|mixed
      */
     public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode)
@@ -249,11 +330,12 @@ class RestControllerHelper
     /**
      * Retrieves the fully qualified service class name for a given FHIR resource.  It will only return a class that
      * actually exists.
-     * @param $resource The name of the FHIR resource that we attempt to find the service class for.
-     * @param string $serviceClassNameSpace  The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
+     *
+     * @param  string $resource              The name of the FHIR resource that we attempt to find the service class for.
+     * @param  string $serviceClassNameSpace The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
      * @return string|null  Returns the fully qualified name if the class is found, otherwise it returns null.
      */
-    public function getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
+    public function getFullyQualifiedServiceClassForResource(string $resource, string $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
     {
         $serviceClass = $serviceClassNameSpace . $resource . "Service";
         if (class_exists($serviceClass)) {
@@ -416,7 +498,8 @@ class RestControllerHelper
     /**
      * Given a resource we've pulled from our rest route definitions figure out the type from our valueset
      * for the resource type: http://hl7.org/fhir/2021Mar/valueset-resource-types.html
-     * @param string $resource
+     *
+     * @param  string $resource
      * @return string
      */
     private static function getResourceTypeForResource(string $resource)
@@ -431,8 +514,9 @@ class RestControllerHelper
     /**
      * Fires off a system event for the given API resource to filter the serviceClass.  This gives module writers
      * the opportunity to extend the api, add / remove Implementation Guide profiles and declare different API conformance
-     * @param $resource The api resource that was parsed
-     * @param $serviceClass The service class that was found by default in the system or null if none was found
+     *
+     * @param  $resource     The api resource that was parsed
+     * @param  $serviceClass The service class that was found by default in the system or null if none was found
      * @return string|null The filtered service class property
      */
     private static function filterServiceClassForResource(string $resource, ?string $serviceClass)

@@ -57,9 +57,9 @@ class ProcessingResult
     }
 
     /**
-     * @return true if the instance does not contain validation messages/errors
+     * @return bool if the instance does not contain validation messages/errors
      */
-    public function isValid()
+    public function isValid(): bool
     {
         return count($this->validationMessages) == 0;
     }
@@ -171,9 +171,9 @@ class ProcessingResult
     }
 
     /**
-     * @return true if the instance has 1 or more internal errors.
+     * @return bool true if the instance has 1 or more internal errors.
      */
-    public function hasInternalErrors()
+    public function hasInternalErrors(): bool
     {
         return count($this->internalErrors) > 0;
     }

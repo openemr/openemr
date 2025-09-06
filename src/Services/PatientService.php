@@ -177,7 +177,7 @@ class PatientService extends BaseService
     /**
      * Inserts a new patient record.
      *
-     * @param $data The patient fields (array) to insert.
+     * @param array $data The patient fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
