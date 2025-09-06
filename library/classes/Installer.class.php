@@ -53,6 +53,11 @@ class Installer
     public string $debug_message;
     public mysqli|false $dbh;
 
+    /**
+     * Initialize the Installer with configuration variables.
+     *
+     * @param array $cgi_variables Configuration array containing installation parameters
+     */
     public function __construct(array $cgi_variables)
     {
         // Installation variables
@@ -107,6 +112,11 @@ class Installer
         $this->dbh = false;
     }
 
+    /**
+     * Validate if the database login is valid.
+     *
+     * @return bool True if login is valid, false otherwise
+     */
     public function login_is_valid(): bool
     {
         if ($this->login === '') {
@@ -117,6 +127,14 @@ class Installer
         return true;
     }
 
+    /**
+     * Validate if input text contains only safe characters.
+     *
+     * Prevents PHP injection by checking for dangerous characters.
+     *
+     * @param string $input_text Text to validate
+     * @return bool True if text is safe, false otherwise
+     */
     public function char_is_valid(string $input_text): bool
     {
         // to prevent php injection
@@ -132,7 +150,13 @@ class Installer
         return true;
     }
 
-    public function databaseNameIsValid($name): bool
+    /**
+     * Validate if database name contains only allowed characters.
+     *
+     * @param string $name Database name to validate
+     * @return bool True if name is valid, false otherwise
+     */
+    public function databaseNameIsValid(string $name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -140,7 +164,13 @@ class Installer
         return true;
     }
 
-    public function collateNameIsValid($name): bool
+    /**
+     * Validate if collation name contains only allowed characters.
+     *
+     * @param string $name Collation name to validate
+     * @return bool True if name is valid, false otherwise
+     */
+    public function collateNameIsValid(string $name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -148,6 +178,11 @@ class Installer
         return true;
     }
 
+    /**
+     * Validate if the initial user name is valid.
+     *
+     * @return bool True if initial user is valid, false otherwise
+     */
     public function iuser_is_valid(): bool
     {
         if (strpos($this->iuser, " ")) {
@@ -158,6 +193,11 @@ class Installer
         return true;
     }
 
+    /**
+     * Validate if the initial user last name is valid.
+     *
+     * @return bool True if initial user last name is valid, false otherwise
+     */
     public function iuname_is_valid(): bool
     {
         if ($this->iuname === '') {
@@ -168,6 +208,11 @@ class Installer
         return true;
     }
 
+    /**
+     * Validate if the database password is valid.
+     *
+     * @return bool True if password is valid, false otherwise
+     */
     public function password_is_valid(): bool
     {
         if ($this->pass === '') {
@@ -178,6 +223,11 @@ class Installer
         return true;
     }
 
+    /**
+     * Validate if the initial user password is valid.
+     *
+     * @return bool True if user password is valid, false otherwise
+     */
     public function user_password_is_valid(): bool
     {
         if ($this->iuserpass === '') {
@@ -188,6 +238,13 @@ class Installer
         return true;
     }
 
+    /**
+     * Establish a database connection using root credentials.
+     *
+     * Connects to the database server using root privileges and sets strict SQL mode.
+     *
+     * @return bool True if connection successful, false otherwise
+     */
     public function root_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
@@ -218,6 +275,14 @@ class Installer
         return mysqli_select_db($mysql, $dbname);
     }
 
+    /**
+     * Establish a database connection using user credentials.
+     *
+     * Connects to the database server using the configured user account,
+     * sets strict SQL mode, collation, and selects the target database.
+     *
+     * @return bool True if connection successful, false otherwise
+     */
     public function user_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->login, $this->pass, $this->port, $this->dbname);
@@ -244,6 +309,14 @@ class Installer
         return true;
     }
 
+    /**
+     * Create the target database with UTF8MB4 character set.
+     *
+     * Creates the database using the configured name and collation,
+     * defaulting to utf8mb4_general_ci if not specified.
+     *
+     * @return bool True if database creation successful, false otherwise
+     */
     public function create_database(): bool
     {
         $sql = "create database " . $this->escapeDatabaseName($this->dbname);
@@ -256,6 +329,11 @@ class Installer
         return $this->execute_sql($sql);
     }
 
+    /**
+     * Drop the target database if it exists.
+     *
+     * @return bool True if database drop successful, false otherwise
+     */
     public function drop_database(): bool
     {
         $sql = "drop database if exists " . $this->escapeDatabaseName($this->dbname);
@@ -275,6 +353,15 @@ class Installer
         return mysqli_num_rows($result);
     }
 
+    /**
+     * Create or update the database user account.
+     *
+     * Checks if the user exists in mysql.user (or mysql.global_priv for MariaDB 10.4+),
+     * creates the user if it doesn't exist, or updates the password if it does.
+     * Supports X509 and SSL connection requirements based on environment variables.
+     *
+     * @return mysqli_result|bool Query result or false on error
+     */
     public function create_database_user(): mysqli_result|bool
     {
         $escapedLogin = $this->escapeSql($this->login);
@@ -314,6 +401,11 @@ class Installer
         }
     }
 
+    /**
+     * Grant all privileges on the database to the user account.
+     *
+     * @return bool True if privileges granted successfully, false otherwise
+     */
     public function grant_privileges(): bool
     {
         return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "'");
@@ -343,6 +435,14 @@ class Installer
         return $this->dumpSourceDatabase();
     }
 
+    /**
+     * Load all configured database dump files.
+     *
+     * Iterates through the list of dump files and loads each one,
+     * accumulating results and returning combined output.
+     *
+     * @return string|false Combined results from all loaded files, or false on error
+     */
     public function load_dumpfiles(): string|false
     {
         $sql_results = ''; // information string which is returned
@@ -413,6 +513,17 @@ class Installer
         return fclose($stream);
     }
 
+    /**
+     * Load and execute SQL commands from a database dump file.
+     *
+     * Opens the specified file, reads it line by line, and executes
+     * SQL statements. Uses transactions for improved performance with InnoDB.
+     * Ignores comment lines starting with -- or #.
+     *
+     * @param string $filename Path to the SQL dump file
+     * @param string $title Descriptive title for the operation
+     * @return string|false Success message or false on error
+     */
     public function load_file(string $filename, string $title): string|false
     {
         $sql_results = ''; // information string which is returned
@@ -468,6 +579,14 @@ class Installer
         return $sql_results;
     }
 
+    /**
+     * Add version information to the database.
+     *
+     * Loads version constants from version.php and updates the version table
+     * with current OpenEMR version information.
+     *
+     * @return bool True if version info added successfully, false otherwise
+     */
     public function add_version_info(): bool
     {
         include __DIR__ . "/../../version.php";
@@ -507,6 +626,14 @@ class Installer
         return false;
     }
 
+    /**
+     * Add the initial administrator user to the database.
+     *
+     * Creates the initial user group, user account, secure password hash,
+     * and optionally sets up 2FA if enabled during installation.
+     *
+     * @return bool True if initial user added successfully, false otherwise
+     */
     public function add_initial_user(): bool
     {
         if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
@@ -562,6 +689,14 @@ class Installer
         return true;
     }
 
+    /**
+     * Configure Care Coordination module ACL permissions.
+     *
+     * Sets up module access control by linking the Carecoordination module
+     * to the admin group with appropriate permissions.
+     *
+     * @return bool True if configuration successful, false otherwise
+     */
     public function on_care_coordination(): bool
     {
         $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
@@ -634,6 +769,14 @@ class Installer
         return true;
     }
 
+    /**
+     * Write the database configuration file (sqlconf.php).
+     *
+     * Creates the site directory if needed and writes the database
+     * connection configuration to the sqlconf.php file.
+     *
+     * @return bool True if configuration written successfully, false otherwise
+     */
     public function write_configuration_file(): bool
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
@@ -702,6 +845,14 @@ $config = 1; /////////////
         return true;
     }
 
+    /**
+     * Insert global configuration settings into the database.
+     *
+     * Loads the global settings metadata and inserts default values
+     * into the globals table for system configuration.
+     *
+     * @return true Always returns true
+     */
     public function insert_globals(): true
     {
         $GLOBALS['temp_skip_translations'] = true;
@@ -725,6 +876,14 @@ $config = 1; /////////////
         return true;
     }
 
+    /**
+     * Install the Generic Access Control List (GACL) system.
+     *
+     * Creates all access control objects (ACOs), sections, and groups
+     * needed for OpenEMR's role-based access control system.
+     *
+     * @return bool True if GACL installation successful, false otherwise
+     */
     public function install_gacl(): bool
     {
 
@@ -1272,6 +1431,15 @@ $config = 1; /////////////
         return true;
     }
 
+    /**
+     * Perform a complete OpenEMR installation process.
+     *
+     * Orchestrates the entire installation by validating settings,
+     * creating databases and users, loading SQL files, configuring
+     * access controls, and setting up the initial system state.
+     *
+     * @return bool True if installation completed successfully, false otherwise
+     */
     public function quick_install(): bool
     {
         // Validation of OpenEMR user settings
@@ -1400,11 +1568,26 @@ $config = 1; /////////////
         return true;
     }
 
+    /**
+     * Escape SQL strings to prevent injection attacks.
+     *
+     * @param string $sql SQL string to escape
+     * @return string Escaped SQL string
+     */
     protected function escapeSql(string $sql): string
     {
         return mysqli_real_escape_string($this->dbh, $sql);
     }
 
+    /**
+     * Validate and escape database name.
+     *
+     * Ensures database name contains only safe characters.
+     *
+     * @param string $name Database name to validate
+     * @return string Validated database name
+     * @throws void Dies if invalid characters found
+     */
     protected function escapeDatabaseName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
@@ -1414,6 +1597,15 @@ $config = 1; /////////////
         return $name;
     }
 
+    /**
+     * Validate and escape collation name.
+     *
+     * Ensures collation name contains only safe characters.
+     *
+     * @param string $name Collation name to validate
+     * @return string Validated collation name
+     * @throws void Dies if invalid characters found
+     */
     protected function escapeCollateName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
@@ -1463,6 +1655,16 @@ $config = 1; /////////////
         return mysqli_errno($mysql);
     }
 
+    /**
+     * Execute SQL query with error handling.
+     *
+     * Executes a SQL query against the database connection,
+     * with optional error reporting and logging.
+     *
+     * @param string $sql SQL query to execute
+     * @param bool $showError Whether to log/display errors
+     * @return mysqli_result|bool Query result or false on error
+     */
     protected function execute_sql(string $sql, bool $showError = true): mysqli_result|bool
     {
         $this->error_message = '';
@@ -1609,12 +1811,28 @@ $config = 1; /////////////
         return $mysqli;
     }
 
+    /**
+     * Disable strict SQL mode for installation.
+     *
+     * Turns off MySQL strict mode to allow legacy SQL patterns
+     * during installation.
+     *
+     * @return mysqli_result|bool Result of SQL execution
+     */
     protected function set_sql_strict()
     {
         // Turn off STRICT SQL
         return $this->execute_sql("SET sql_mode = ''");
     }
 
+    /**
+     * Set database character encoding to UTF8MB4.
+     *
+     * Configures the connection to use UTF8MB4 character set
+     * for proper Unicode support.
+     *
+     * @return mysqli_result|bool Result of SQL execution
+     */
     protected function set_collation()
     {
         return $this->execute_sql("SET NAMES 'utf8mb4'");
@@ -1740,7 +1958,11 @@ $config = 1; /////////////
         return $backup_file;
     }
 
-    //RP_ADDED
+    /**
+     * Get the currently selected theme.
+     *
+     * @return string Current theme name from globals table
+     */
     public function getCurrentTheme()
     {
         $current_theme = $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
@@ -1748,6 +1970,14 @@ $config = 1; /////////////
         return $current_theme[0];
     }
 
+    /**
+     * Set the current theme in the database.
+     *
+     * Updates the globals table with the selected theme.
+     * For cloned sites, uses current theme if no new theme specified.
+     *
+     * @return mysqli_result|bool Result of the update operation
+     */
     public function setCurrentTheme()
     {
         $current_theme = $this->getCurrentTheme();
@@ -1758,6 +1988,13 @@ $config = 1; /////////////
         return $this->execute_sql("UPDATE globals SET gl_value='" . $this->escapeSql($this->new_theme) . "' WHERE gl_name LIKE '%css_header%'");
     }
 
+    /**
+     * Get list of available themes.
+     *
+     * Scans the themes directory and returns available theme files.
+     *
+     * @return array List of theme file names
+     */
     public function listThemes(): array
     {
         $themes_img_dir = "public/images/stylesheets/";
@@ -1776,6 +2013,14 @@ $config = 1; /////////////
         return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
     }
 
+    /**
+     * Display HTML divs for theme selection interface.
+     *
+     * Generates radio button interface with theme preview images
+     * for the installation theme selection step.
+     *
+     * @return void
+     */
     public function displayThemesDivs(): void
     {
         $themes_number = count($this->listThemes());
@@ -1823,6 +2068,13 @@ $config = 1; /////////////
         }
     }
 
+    /**
+     * Display the currently selected theme information.
+     *
+     * Shows theme preview and details for the currently active theme.
+     *
+     * @return void
+     */
     public function displaySelectedThemeDiv(): void
     {
         $theme_file_name = $this->getCurrentTheme();
@@ -1847,6 +2099,14 @@ DSTD;
         echo $display_selected_theme_div . "\r\n";
     }
 
+    /**
+     * Display the newly selected theme information.
+     *
+     * Shows preview of the theme that will be applied after installation.
+     * For cloned sites, defaults to current theme if no new theme selected.
+     *
+     * @return void
+     */
     public function displayNewThemeDiv(): void
     {
         // cloned sites don't get a chance to set a new theme
@@ -1874,6 +2134,14 @@ DSTD;
         echo $display_selected_theme_div . "\r\n";
     }
 
+    /**
+     * Display the installation help modal dialog.
+     *
+     * Generates HTML and JavaScript for a modal popup that shows
+     * installation help documentation in an iframe.
+     *
+     * @return void
+     */
     public function setupHelpModal(): void
     {
         $setup_help_modal = <<<SETHLP
