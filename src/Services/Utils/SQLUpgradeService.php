@@ -692,7 +692,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         ]
                     );
                     // update root node
-                    sqlStatementNoLog("UPDATE `categories` SET `rght` = (SELECT MAX(`id`) FROM `categories`) + 1 WHERE `id` = 1");
+                    sqlStatementNoLog("UPDATE `categories` SET `rght` = (SELECT MAX(`rght`) FROM `categories`) + 1 WHERE `id` = 1");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;
