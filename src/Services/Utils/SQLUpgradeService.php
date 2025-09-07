@@ -658,31 +658,41 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfEyeFormLaserCategoriesNeeded/', $line)) {
-                $eyeFormCategoryParent = sqlStatementNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Form'");
-                if (sqlNumRows($eyeFormCategoryParent) > 0) {
-                    $this->echo("<p>Inserting eye form laser categories.</p>\n");
+                $eyeFormCategoryParent = sqlQueryNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Module'");
+                $eyeFormAntSegLaser = sqlQueryNoLog("SELECT `id` FROM `categories` WHERE `name` = 'AntSeg Laser - Eye'");
+                if (!empty($eyeFormCategoryParent) && empty($eyeFormAntSegLaser)) {
+                    $this->echo("<p>Inserting eye module laser categories.</p>\n");
                     $this->flush_echo();
+                    // update non eye form categories affected
                     sqlStatementNoLog("UPDATE `categories` SET `rght` = `rght` + 6 WHERE `rght` >= ?", [$eyeFormCategoryParent['rght']]);
                     sqlStatementNoLog("UPDATE `categories` SET `lft` = `lft` + 6 WHERE `lft` >= ?", [$eyeFormCategoryParent['rght']]);
-                    sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'AntSeg Laser - Eye', '', ?, ?, ?, 'patients|docs', '')", 
+                    // insert new eye form categories
+                    sqlStatementNoLog(
+                        "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`, `codes`) select (select MAX(id) from categories) + 1, 'AntSeg Laser - Eye', '', ?, ?, ?, 'patients|docs', ''",
                         [
                             $eyeFormCategoryParent['id'],
                             $eyeFormCategoryParent['rght'],
                             $eyeFormCategoryParent['rght'] + 1
-                        ]);
-                    sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'Retina Laser - Eye', '', ?, ?, ?, 'patients|docs', '')",
+                        ]
+                    );
+                    sqlStatementNoLog(
+                        "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`, `codes`) select (select MAX(id) from categories) + 1, 'Retina Laser - Eye', '', ?, ?, ?, 'patients|docs', ''",
                         [
                             $eyeFormCategoryParent['id'],
                             $eyeFormCategoryParent['rght'] + 2,
                             $eyeFormCategoryParent['rght'] + 3
-                        ]);
-                    sqlStatementNoLog("INSERT INTO `categories` VALUES (select MAX(id) from categories) + 1, 'Injections - Eye', '', ?, ?, ?, 'patients|docs', '')",
+                        ]
+                    );
+                    sqlStatementNoLog(
+                        "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`, `codes`) select (select MAX(id) from categories) + 1, 'Injections - Eye', '', ?, ?, ?, 'patients|docs', ''",
                         [
                             $eyeFormCategoryParent['id'],
                             $eyeFormCategoryParent['rght'] + 4,
                             $eyeFormCategoryParent['rght'] + 5
                         ]
                     );
+                    // update root node
+                    sqlStatementNoLog("UPDATE `categories` SET `rght` = (SELECT MAX(`id`) FROM `categories`) + 1 WHERE `id` = 1");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;
