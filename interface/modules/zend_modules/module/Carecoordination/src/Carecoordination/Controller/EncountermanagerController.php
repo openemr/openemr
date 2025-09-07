@@ -264,7 +264,7 @@ class EncountermanagerController extends AbstractActionController
 
             // time to use our stylesheets
             // TODO: @adunsulag we need to put this transformation process into its own class that we can reuse
-            $stylesheet = dirname(__FILE__) . "/../../../../../public/xsl/cda.xsl";
+            $stylesheet = __DIR__ . "/../../../../../public/xsl/cda.xsl";
 
             if (!file_exists($stylesheet)) {
                 throw new \RuntimeException("Could not find stylesheet file at location: " . $stylesheet);

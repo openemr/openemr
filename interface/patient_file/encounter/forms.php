@@ -84,7 +84,7 @@ $esignApi = new Api();
 ?>
 
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
-if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
     </script>

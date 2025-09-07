@@ -441,6 +441,178 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2024','2024 Reporting Period',30,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2025','2025 Reporting Period',40,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `is_default`) VALUES ('ecqm_reporting_period','2026','2026 Reporting Period',50,0,0);
+#EndIf
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Social History SDOH
+
+#IfNotTable form_history_sdoh
+CREATE TABLE `form_history_sdoh`
+(
+    `id`                              bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uuid`                            binary(16)                   DEFAULT NULL,
+    `pid`                             int(10) UNSIGNED    NOT NULL,
+    `encounter`                       int(10) UNSIGNED             DEFAULT NULL,
+    `created_at`                      datetime            NOT NULL DEFAULT current_timestamp(),
+    `updated_at`                      datetime            NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`                      int(10) UNSIGNED             DEFAULT NULL,
+    `updated_by`                      int(10) UNSIGNED             DEFAULT NULL,
+    `assessment_date`                 date                         DEFAULT NULL,
+    `screening_tool`                  varchar(255)                 DEFAULT NULL,
+    `assessor`                        varchar(255)                 DEFAULT NULL,
+    `food_insecurity`                 varchar(50)                  DEFAULT NULL,
+    `food_insecurity_notes`           text,
+    `housing_instability`             varchar(50)                  DEFAULT NULL,
+    `housing_instability_notes`       text,
+    `transportation_insecurity`       varchar(50)                  DEFAULT NULL,
+    `transportation_insecurity_notes` text,
+    `utilities_insecurity`            varchar(50)                  DEFAULT NULL,
+    `utilities_insecurity_notes`      text,
+    `interpersonal_safety`            varchar(50)                  DEFAULT NULL,
+    `interpersonal_safety_notes`      text,
+    `financial_strain`                varchar(50)                  DEFAULT NULL,
+    `financial_strain_notes`          text,
+    `social_isolation`                varchar(50)                  DEFAULT NULL,
+    `social_isolation_notes`          text,
+    `childcare_needs`                 varchar(50)                  DEFAULT NULL,
+    `childcare_needs_notes`           text,
+    `digital_access`                  varchar(50)                  DEFAULT NULL,
+    `digital_access_notes`            text,
+    `employment_status`               varchar(50)                  DEFAULT NULL,
+    `education_level`                 varchar(50)                  DEFAULT NULL,
+    `caregiver_status`                varchar(20)                  DEFAULT NULL,
+    `veteran_status`                  varchar(20)                  DEFAULT NULL,
+    `pregnancy_status`                varchar(20)                  DEFAULT NULL,
+    `pregnancy_edd`                   date                         DEFAULT NULL,
+    `pregnancy_gravida`               smallint(6)                  DEFAULT NULL,
+    `pregnancy_para`                  smallint(6)                  DEFAULT NULL,
+    `postpartum_status`               varchar(20)                  DEFAULT NULL,
+    `postpartum_end`                  date                         DEFAULT NULL,
+    `goals`                           text,
+    `interventions`                   text,
+    PRIMARY KEY (`id`),
+    KEY `uuid_idx` (`uuid`),
+    KEY `pid_idx` (`pid`),
+    KEY `assessment_idx` (`assessment_date`),
+    KEY `encounter_idx` (`encounter`)
+) ENGINE = InnoDB;
+#EndIf
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Social History SDOHValuesets
+
+#IfNotRow list_options option_id sdoh_food_insecurity_risk
+INSERT INTO list_options (list_id, option_id, title, seq)
+VALUES ('lists', 'sdoh_food_insecurity_risk', 'SDOH – Food Insecurity (Risk)', 0),
+       ('lists', 'sdoh_housing_worry', 'SDOH – Housing Worry (Y/N)', 0),
+       ('lists', 'sdoh_housing_worry_freq', 'SDOH – Housing Worry (Freq)', 0),
+       ('lists', 'sdoh_transportation_barrier', 'SDOH – Transportation Barrier', 0),
+       ('lists', 'sdoh_utilities_shutoff', 'SDOH – Utilities Shutoff Risk', 0),
+       ('lists', 'sdoh_ipv_yesno', 'SDOH – Interpersonal Safety (Y/N)', 0),
+       ('lists', 'sdoh_financial_strain', 'SDOH – Financial Strain', 0),
+       ('lists', 'sdoh_social_isolation_freq', 'SDOH – Social Connection (Freq)', 0),
+       ('lists', 'sdoh_childcare_needs', 'SDOH – Childcare Needs (Y/N)', 0),
+       ('lists', 'sdoh_digital_access', 'SDOH – Digital Access (Y/N)', 0),
+       ('lists', 'sdoh_employment_status', 'SDOH – Employment Status', 0),
+       ('lists', 'sdoh_education_level', 'SDOH – Education Level', 0),
+       ('lists', 'pregnancy_status', 'Pregnancy Status', 0),
+       ('lists', 'postpartum_status', 'Postpartum Status', 0),
+       ('lists', 'sdoh_instruments', 'SDOH – Screening Instruments', 0);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_food_insecurity_risk', 'at_risk', 'At risk', 10, 'LOINC:LA19952-3', 'Question LOINC 88124-3'),
+       ('sdoh_food_insecurity_risk', 'no_risk', 'No risk', 20, 'LOINC:LA19983-8', 'Question LOINC 88124-3'),
+       ('sdoh_food_insecurity_risk', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 88124-3');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_housing_worry', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Question LOINC 93033-9'),
+       ('sdoh_housing_worry', 'no', 'No', 20, 'LOINC:LA32-8', 'Question LOINC 93033-9'),
+       ('sdoh_housing_worry', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 93033-9');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_housing_worry_freq', 'never', 'Never', 10, 'LOINC:LA26683-5', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'rarely', 'Rarely', 20, 'LOINC:LA30109-6', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'sometimes', 'Sometimes', 30, 'LOINC:LA30110-4', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'often', 'Often', 40, 'LOINC:LA30111-2', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'always', 'Always', 50, 'LOINC:LA30112-0', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 104561-6');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_transportation_barrier', 'yes_med', 'Yes – medical', 10, 'LOINC:LA30133-5', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'yes_nonmed', 'Yes – non-medical', 20, 'LOINC:LA30134-3', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'no', 'No', 30, 'LOINC:LA32-8', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'unable', 'Unable to respond', 95, 'LOINC:LA33608-3', 'Question LOINC 93030-5');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_utilities_shutoff', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Question LOINC 96779-4'),
+       ('sdoh_utilities_shutoff', 'no', 'No', 20, 'LOINC:LA32-8', 'Question LOINC 96779-4'),
+       ('sdoh_utilities_shutoff', 'already_off', 'Already shut off', 30, 'LOINC:LA32002-0', 'Question LOINC 96779-4'),
+       ('sdoh_utilities_shutoff', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 96779-4');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_ipv_yesno', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Use with HARK items'),
+       ('sdoh_ipv_yesno', 'no', 'No', 20, 'LOINC:LA32-8', 'Use with HARK items'),
+       ('sdoh_ipv_yesno', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_financial_strain', 'very_hard', 'Very hard', 10, 'LOINC:LA15832-1', 'Question LOINC 76513-1'),
+       ('sdoh_financial_strain', 'hard', 'Hard', 20, 'LOINC:LA14745-6', 'Question LOINC 76513-1'),
+       ('sdoh_financial_strain', 'somewhat_hard', 'Somewhat hard', 30, 'LOINC:LA22683-9', 'Question LOINC 76513-1'),
+       ('sdoh_financial_strain', 'not_very_hard', 'Not very hard', 40, 'LOINC:LA22682-1', 'Question LOINC 76513-1');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_social_isolation_freq', 'never', 'Never', 10, 'LOINC:LA26683-5', 'Pair with LOINC 93159-2'),
+       ('sdoh_social_isolation_freq', 'rarely', 'Rarely', 20, 'LOINC:LA30109-6', ''),
+       ('sdoh_social_isolation_freq', 'sometimes', 'Sometimes', 30, 'LOINC:LA30110-4', ''),
+       ('sdoh_social_isolation_freq', 'often', 'Often', 40, 'LOINC:LA30111-2', ''),
+       ('sdoh_social_isolation_freq', 'always', 'Always', 50, 'LOINC:LA30112-0', ''),
+       ('sdoh_social_isolation_freq', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_childcare_needs', 'yes', 'Yes', 10, 'LOINC:LA33-6', ''),
+       ('sdoh_childcare_needs', 'no', 'No', 20, 'LOINC:LA32-8', ''),
+       ('sdoh_childcare_needs', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_digital_access', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'e.g., access available'),
+       ('sdoh_digital_access', 'no', 'No', 20, 'LOINC:LA32-8', 'e.g., access not available'),
+       ('sdoh_digital_access', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_employment_status', 'unemployed', 'Unemployed', 10, 'LOINC:LA17956-6', 'PRAPARE/LOINC 67875-5 family'),
+       ('sdoh_employment_status', 'part_time', 'Part-time / temporary', 20, 'LOINC:LA30138-4', ''),
+       ('sdoh_employment_status', 'full_time', 'Full-time', 30, 'LOINC:LA30136-8', ''),
+       ('sdoh_employment_status', 'otherwise_unemployed', 'Otherwise unemployed (student/retired/disabled/caregiver)', 40, 'LOINC:LA30137-6', ''),
+       ('sdoh_employment_status', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_education_level', 'less_than_hs', '< High school', 5, 'LOINC:LA15606-9', 'Question LOINC 63504-5'),
+       ('sdoh_education_level', 'hs_grad', 'High school graduate', 10, 'LOINC:LA15564-0', ''),
+       ('sdoh_education_level', 'ged', 'GED or equivalent', 20, 'LOINC:LA15619-2', ''),
+       ('sdoh_education_level', 'some_college', 'Some college, no degree', 30, 'LOINC:LA15620-0', ''),
+       ('sdoh_education_level', 'assoc', 'Associate degree', 40, 'LOINC:LA15621-8', ''),
+       ('sdoh_education_level', 'bachelor', 'Bachelor’s degree', 50, 'LOINC:LA12460-4', ''),
+       ('sdoh_education_level', 'master', 'Master’s degree', 60, 'LOINC:LA12461-2', ''),
+       ('sdoh_education_level', 'professional', 'Professional school degree', 70, 'LOINC:LA15625-9', ''),
+       ('sdoh_education_level', 'doctorate', 'Doctoral degree', 80, 'LOINC:LA15626-7', ''),
+       ('sdoh_education_level', 'declined', 'Declined', 90, 'LOINC:LA4389-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('pregnancy_status', 'pregnant', 'Pregnant', 10, 'SNOMED-CT:77386006', ''),
+       ('pregnancy_status', 'not_pregnant', 'Not pregnant', 20, 'SNOMED-CT:60001007', ''),
+       ('pregnancy_status', 'possible', 'Possible pregnancy', 30, 'SNOMED-CT:146799005', ''),
+       ('pregnancy_status', 'unconfirmed', 'Pregnancy not yet confirmed', 40, 'SNOMED-CT:152231000119106', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('postpartum_status', 'postpartum', 'Postpartum (≤6 weeks)', 10, 'SNOMED-CT:10152009', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 10, 'LOINC:88121-9', 'Includes items 88122-7, 88123-5; risk 88124-3'),
+       ('sdoh_instruments', 'ahc_hrsn_core', 'AHC HRSN – Core', 20, 'LOINC:96777-8', ''),
+       ('sdoh_instruments', 'ahc_hrsn_supp', 'AHC HRSN – Supplemental', 30, 'LOINC:97023-6', 'Financial strain 76513-1; loneliness 93159-2'),
+       ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
+       ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
+#EndIf
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #IfEyeFormLaserCategoriesNeeded
 #EndIf

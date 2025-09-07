@@ -27,8 +27,8 @@
 /**
  * Include the main CDR engine library, email class and maviq class
  */
-require_once(dirname(__FILE__) . "/clinical_rules.php");
-require_once(dirname(__FILE__) . "/maviq_phone_api.php");
+require_once(__DIR__ . "/clinical_rules.php");
+require_once(__DIR__ . "/maviq_phone_api.php");
 
 //only used in commented out code
 use OpenEMR\Common\Crypto\CryptoGen;

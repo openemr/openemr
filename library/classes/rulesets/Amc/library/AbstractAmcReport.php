@@ -24,11 +24,11 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../../library/RsFilterIF.php");
+require_once(__DIR__ . "/../../library/RsFilterIF.php");
 require_once('AmcFilterIF.php');
 require_once('IAmcItemizedReport.php');
-require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
-require_once(dirname(__FILE__) . "/../../../../amc.php");
+require_once(__DIR__ . "/../../../../clinical_rules.php");
+require_once(__DIR__ . "/../../../../amc.php");
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
@@ -76,17 +76,17 @@ abstract class AbstractAmcReport implements RsReportIF
         // TODO: This really needs to be moved to using our namespace autoloader... no point in doing a file stat check
         // for every single rule we have, over and over again every time the rule is instantiated.
         $className = get_class($this);
-        foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
 
         // require common .php files
-        foreach (glob(dirname(__FILE__) . "/../reports/common/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
 
         // require clinical types
-        foreach (glob(dirname(__FILE__) . "/../../../ClinicalTypes/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 

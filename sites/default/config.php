@@ -77,12 +77,12 @@ $GLOBALS['oer_config']['druglabels']['disclaimer'] =
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 
-$GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['prescriptions']['logo'] = __DIR__ .
   "/../../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'];
-$GLOBALS['oer_config']['prescriptions']['signature'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['prescriptions']['signature'] = __DIR__ .
   "/../../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['sig_pic'];
 
-$GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['druglabels']['logo'] = __DIR__ .
   "/../../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 $GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];

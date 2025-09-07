@@ -14,7 +14,7 @@
 // See sample code in: interface/patient_tracker/patient_tracker_status.php
 // This updates the patient tracker board as well as the appointment.
 
-require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
+require_once(__DIR__ . '/patient_tracker.inc.php');
 
 function updateAppointmentStatus($pid, $encdate, $newstatus): void
 {

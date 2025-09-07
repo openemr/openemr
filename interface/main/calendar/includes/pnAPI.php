@@ -212,7 +212,7 @@ function pnInit()
 
     // ADODB configuration
     if (!defined('ADODB_DIR')) {
-        define('ADODB_DIR', dirname(__FILE__) . '/../../../../vendor/adodb/adodb-php');
+        define('ADODB_DIR', __DIR__ . '/../../../../vendor/adodb/adodb-php');
     }
 
     require_once ADODB_DIR . '/adodb.inc.php';

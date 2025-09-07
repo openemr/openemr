@@ -30,7 +30,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         }
     }
     $ignoreAuth_onsite_portal = true;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (empty($_SESSION['portal_username'])) {
         echo xlt("illegal Action");
         SessionUtil::portalSessionCookieDestroy();
@@ -64,7 +64,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID']) || empty($_SESSION['authUser'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -74,7 +74,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $owner = $_SESSION['authUser'];
 }
 
-require_once(dirname(__FILE__) . "/../lib/portal_mail.inc.php");
+require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

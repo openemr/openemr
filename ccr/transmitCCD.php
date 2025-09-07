@@ -25,8 +25,8 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../library/patient.inc.php");
-require_once(dirname(__FILE__) . "/../library/direct_message_check.inc.php");
+require_once(__DIR__ . "/../library/patient.inc.php");
+require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;

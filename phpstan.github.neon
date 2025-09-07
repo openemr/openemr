@@ -16036,54 +16036,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: library/spreadsheet.inc.php
-  - message: '#^Constant PRIV_DB not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: library/sql.inc.php
-  - message: '#^Function errorLogEscape invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/sql.inc.php
-  - message: '#^Variable \$dbase might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$disable_utf8_flag might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: library/sql.inc.php
-  - message: '#^Variable \$host might not be defined\.$#'
-    identifier: variable.undefined
-    count: 4
-    path: library/sql.inc.php
-  - message: '#^Variable \$login might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$pass might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$port might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_dbase might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_host might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_login might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
-  - message: '#^Variable \$secure_pass might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: library/sql.inc.php
   - message: '#^Variable \$handle1 might not be defined\.$#'
     identifier: variable.undefined
     count: 2

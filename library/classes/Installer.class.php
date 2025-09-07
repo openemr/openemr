@@ -85,17 +85,17 @@ class Installer
         $this->ippf_specific = false;
 
         // Record name of sql access file
-        $GLOBALS['OE_SITES_BASE'] = dirname(__FILE__) . '/../../sites';
+        $GLOBALS['OE_SITES_BASE'] = __DIR__ . '/../../sites';
         $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . '/' . $this->site;
         $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
 
         // Record names of sql table files
-        $this->main_sql = dirname(__FILE__) . '/../../sql/database.sql';
-        $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
+        $this->main_sql = __DIR__ . '/../../sql/database.sql';
+        $this->translation_sql = __DIR__ . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
         $this->devel_translation_sql = "http://translations.openemr.io/languageTranslations_utf8.sql";
-        $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
-        $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
-        $this->additional_users = dirname(__FILE__) . "/../../sql/official_additional_users.sql";
+        $this->ippf_sql = __DIR__ . "/../../sql/ippf_layout.sql";
+        $this->cvx = __DIR__ . "/../../sql/cvx_codes.sql";
+        $this->additional_users = __DIR__ . "/../../sql/official_additional_users.sql";
 
         // Prepare the dumpfile list
         $this->initialize_dumpfile_list();
@@ -388,7 +388,7 @@ class Installer
 
     public function add_version_info()
     {
-        include dirname(__FILE__) . "/../../version.php";
+        include __DIR__ . "/../../version.php";
         /**
          * This annotation declares variables from the legacy include
          * so PHPStan recognizes them.
@@ -621,7 +621,7 @@ $config = 1; /////////////
     {
         $GLOBALS['temp_skip_translations'] = true;
         $skipGlobalEvent = true; // use in globals.inc.php script to skip event stuff
-        require(dirname(__FILE__) . '/../globals.inc.php');
+        require(__DIR__ . '/../globals.inc.php');
         /** @phpstan-ignore variable.undefined */
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {

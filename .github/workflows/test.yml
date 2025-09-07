@@ -10,9 +10,11 @@ on:
   push:
     branches:
     - master
+    - rel-*
   pull_request:
     branches:
     - master
+    - rel-*
 
 permissions:
   contents: read
