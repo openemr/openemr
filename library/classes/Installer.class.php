@@ -789,7 +789,7 @@ class Installer
         if (!$this->fileExists($GLOBALS['OE_SITE_DIR'])) {
             $this->create_site_directory();
         }
-        @touch($this->conffile); // php bug
+        @$this->touchFile($this->conffile); // php bug
         $fd = @$this->openFile($this->conffile, 'w');
         if (! $fd) {
             $this->error_message = 'unable to open configuration file for writing: ' . $this->conffile;
@@ -1818,6 +1818,21 @@ $config = 1; /////////////
     protected function globPattern(string $pattern, int $flags = 0): array|false
     {
         return glob($pattern, $flags);
+    }
+
+    /**
+     * Wrapper for touch to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @param ?int $mtime
+     * @param ?int $atime
+     * @return bool
+     */
+    protected function touchFile(string $filename, ?int $mtime = null, ?int $atime = null): bool
+    {
+        return touch($filename, $mtime, $atime);
     }
 
     /**
