@@ -770,7 +770,7 @@ class InstallerTest extends TestCase
             'iuname' => 'TestLastName',
             'iufname' => 'TestFirstName',
             'iuserpass' => 'testpassword',
-            'i2faEnable' => false
+            'i2faenable' => false
         ];
 
         $mockInstaller = $this->createMockInstaller($config);
@@ -945,8 +945,8 @@ class InstallerTest extends TestCase
             'iuname' => 'TestLastName',
             'iufname' => 'TestFirstName',
             'iuserpass' => 'testpassword',
-            'i2faEnable' => true,
-            'i2faSecret' => 'test2fasecret'
+            'i2faenable' => true,
+            'i2fasecret' => 'test2fasecret'
         ];
 
         $mockInstaller = $this->createMockInstaller($config);
@@ -1034,8 +1034,8 @@ class InstallerTest extends TestCase
             'iuname' => 'TestLastName',
             'iufname' => 'TestFirstName',
             'iuserpass' => 'testpassword',
-            'i2faEnable' => false,
-            'i2faSecret' => 'test2fasecret'
+            'i2faenable' => false,
+            'i2fasecret' => 'test2fasecret'
         ];
 
         $mockInstaller = $this->createMockInstaller($config);
@@ -1075,8 +1075,8 @@ class InstallerTest extends TestCase
             'iuname' => 'TestLastName',
             'iufname' => 'TestFirstName',
             'iuserpass' => 'testpassword',
-            'i2faEnable' => true,
-            'i2faSecret' => ''
+            'i2faenable' => true,
+            'i2fasecret' => ''
         ];
 
         $mockInstaller = $this->createMockInstaller($config);
@@ -1116,8 +1116,8 @@ class InstallerTest extends TestCase
             'iuname' => 'TestLastName',
             'iufname' => 'TestFirstName',
             'iuserpass' => 'testpassword',
-            'i2faEnable' => true,
-            'i2faSecret' => 'test2fasecret'
+            'i2faenable' => true,
+            'i2fasecret' => 'test2fasecret'
         ];
 
         $mockInstaller = $this->createMockInstaller($config);
@@ -1473,5 +1473,244 @@ class InstallerTest extends TestCase
         $result = $mockInstaller->on_care_coordination();
 
         $this->assertTrue($result);
+    }
+
+    public function testGetInitialUserMfaTotpSuccess(): void
+    {
+        $config = [
+            'i2faenable' => true,
+            'i2fasecret' => 'test2fasecret',
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockTotp = $this->createMock(Totp::class);
+
+        $mockInstaller->expects($this->once())
+            ->method('totpClassExists')
+            ->willReturn(true);
+
+        $mockInstaller->expects($this->once())
+            ->method('createTotpInstance')
+            ->with('test2fasecret', 'testuser')
+            ->willReturn($mockTotp);
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertSame($mockTotp, $result);
+    }
+
+    public function testGetInitialUserMfaTotpWhen2faDisabled(): void
+    {
+        $config = [
+            'i2faenable' => false,
+            'i2fasecret' => 'test2fasecret',
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // These methods should not be called when 2FA is disabled
+        $mockInstaller->expects($this->never())
+            ->method('totpClassExists');
+
+        $mockInstaller->expects($this->never())
+            ->method('createTotpInstance');
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertFalse($result);
+    }
+
+    public function testGetInitialUserMfaTotpWithEmptySecret(): void
+    {
+        $config = [
+            'i2faenable' => true,
+            'i2fasecret' => '',
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // These methods should not be called when secret is empty
+        $mockInstaller->expects($this->never())
+            ->method('totpClassExists');
+
+        $mockInstaller->expects($this->never())
+            ->method('createTotpInstance');
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertFalse($result);
+    }
+
+    public function testGetInitialUserMfaTotpWhenTotpClassDoesNotExist(): void
+    {
+        $config = [
+            'i2faenable' => true,
+            'i2fasecret' => 'test2fasecret',
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockInstaller->expects($this->once())
+            ->method('totpClassExists')
+            ->willReturn(false);
+
+        // createTotpInstance should not be called when Totp class doesn't exist
+        $mockInstaller->expects($this->never())
+            ->method('createTotpInstance');
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertFalse($result);
+    }
+
+    public function testGetInitialUserMfaTotpWithTruthyString2faEnable(): void
+    {
+        $config = [
+            'i2faenable' => 'true',  // String 'true' should be truthy
+            'i2fasecret' => 'test2fasecret',
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockTotp = $this->createMock(Totp::class);
+
+        $mockInstaller->expects($this->once())
+            ->method('totpClassExists')
+            ->willReturn(true);
+
+        $mockInstaller->expects($this->once())
+            ->method('createTotpInstance')
+            ->with('test2fasecret', 'testuser')
+            ->willReturn($mockTotp);
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertSame($mockTotp, $result);
+    }
+
+    public function testGetInitialUserMfaTotpWithFalsyString2faEnable(): void
+    {
+        $config = [
+            'i2faenable' => '0',  // String '0' should be falsy
+            'i2fasecret' => 'test2fasecret',
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockInstaller->expects($this->never())
+            ->method('totpClassExists');
+
+        $mockInstaller->expects($this->never())
+            ->method('createTotpInstance');
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertFalse($result);
+    }
+
+    public function testGetInitialUserMfaTotpWithNullSecret(): void
+    {
+        $config = [
+            'i2faenable' => true,
+            'i2fasecret' => null,
+            'iuser' => 'testuser'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockInstaller->expects($this->never())
+            ->method('totpClassExists');
+
+        $mockInstaller->expects($this->never())
+            ->method('createTotpInstance');
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertFalse($result);
+    }
+
+    public function testGetInitialUserMfaTotpParameterPassing(): void
+    {
+        $config = [
+            'i2faenable' => true,
+            'i2fasecret' => 'my_secret_key_123',
+            'iuser' => 'admin_user'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockTotp = $this->createMock(Totp::class);
+
+        $mockInstaller->expects($this->once())
+            ->method('totpClassExists')
+            ->willReturn(true);
+
+        // Verify exact parameters are passed to createTotpInstance
+        $mockInstaller->expects($this->once())
+            ->method('createTotpInstance')
+            ->with(
+                $this->equalTo('my_secret_key_123'),
+                $this->equalTo('admin_user')
+            )
+            ->willReturn($mockTotp);
+
+        $result = $mockInstaller->get_initial_user_mfa_totp();
+
+        $this->assertSame($mockTotp, $result);
+    }
+
+    public function testGetInitialUserMfaTotpAllConditionsMustBeTrue(): void
+    {
+        // Test that ALL conditions must be satisfied for success
+        $scenarios = [
+            // 2FA disabled, has secret, class exists
+            [
+                'config' => ['i2faenable' => false, 'i2fasecret' => 'secret', 'iuser' => 'user'],
+                'totpClassExists' => true,
+                'expectedTotpClassCalls' => 0,
+                'expectedCreateTotpCalls' => 0
+            ],
+            // 2FA enabled, no secret, class exists
+            [
+                'config' => ['i2faenable' => true, 'i2fasecret' => '', 'iuser' => 'user'],
+                'totpClassExists' => true,
+                'expectedTotpClassCalls' => 0,
+                'expectedCreateTotpCalls' => 0
+            ],
+            // 2FA enabled, has secret, no class
+            [
+                'config' => ['i2faenable' => true, 'i2fasecret' => 'secret', 'iuser' => 'user'],
+                'totpClassExists' => false,
+                'expectedTotpClassCalls' => 1,
+                'expectedCreateTotpCalls' => 0
+            ]
+        ];
+
+        foreach ($scenarios as $scenario) {
+            $mockInstaller = $this->createMockInstaller($scenario['config']);
+
+            if ($scenario['expectedTotpClassCalls'] > 0) {
+                $mockInstaller->expects($this->exactly($scenario['expectedTotpClassCalls']))
+                    ->method('totpClassExists')
+                    ->willReturn($scenario['totpClassExists']);
+            } else {
+                $mockInstaller->expects($this->never())
+                    ->method('totpClassExists');
+            }
+
+            $mockInstaller->expects($this->exactly($scenario['expectedCreateTotpCalls']))
+                ->method('createTotpInstance');
+
+            $result = $mockInstaller->get_initial_user_mfa_totp();
+
+            $this->assertFalse($result, 'Expected false for scenario: ' . json_encode($scenario['config']));
+        }
     }
 }
