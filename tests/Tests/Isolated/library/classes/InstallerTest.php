@@ -37,7 +37,7 @@ class InstallerTest extends TestCase
 
         $config = array_merge($defaultConfig, $config);
 
-        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance', 'mysqliFetchArray', 'unlinkFile', 'globPattern', 'recurse_copy'];
+        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance', 'mysqliFetchArray', 'unlinkFile', 'globPattern', 'recurse_copy', 'touchFile', 'writeToFile'];
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
@@ -2019,5 +2019,275 @@ class InstallerTest extends TestCase
 
             $this->assertTrue($result, 'Failed for clone_database value: ' . json_encode($scenario['clone_database']));
         }
+    }
+
+    public function testWriteConfigurationFileSuccess(): void
+    {
+        $config = [
+            'server' => 'test.server.com',
+            'port' => '3307',
+            'login' => 'test_user',
+            'pass' => 'test_pass',
+            'dbname' => 'test_db'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals and conffile
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        // Directory already exists
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/test/site/dir')
+            ->willReturn(true);
+
+        // create_site_directory should not be called when directory exists (no mocking needed)
+
+        // touchFile should be called
+        $mockInstaller->expects($this->once())
+            ->method('touchFile')
+            ->with('/test/site/dir/sqlconf.php')
+            ->willReturn(true);
+
+        // openFile should succeed
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->with('/test/site/dir/sqlconf.php', 'w')
+            ->willReturn($mockFileHandle);
+
+        // All writeToFile calls should succeed
+        $mockInstaller->expects($this->exactly(10))
+            ->method('writeToFile')
+            ->willReturn(10); // Simulate successful writes
+
+        // closeFile should succeed
+        $mockInstaller->expects($this->once())
+            ->method('closeFile')
+            ->with($mockFileHandle)
+            ->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+
+        fclose($mockFileHandle);
+    }
+
+    public function testWriteConfigurationFileCreatesDirectoryWhenNotExists(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Set up globals and conffile
+        $GLOBALS['OE_SITE_DIR'] = '/test/new/site/dir';
+        $mockInstaller->conffile = '/test/new/site/dir/sqlconf.php';
+
+        // Directory does not exist
+        $mockInstaller->method('fileExists')
+            ->with('/test/new/site/dir')
+            ->willReturn(false);
+
+        // create_site_directory should be called (no mocking needed - it will call the real method)
+
+        // Mock successful file operations
+        $mockInstaller->method('touchFile')->willReturn(true);
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+        $mockInstaller->method('writeToFile')->willReturn(10);
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertTrue($result);
+
+        fclose($mockFileHandle);
+    }
+
+    public function testWriteConfigurationFileFailsWhenOpenFileFails(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Set up globals and conffile
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        // Directory exists
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        // openFile fails
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->with('/test/site/dir/sqlconf.php', 'w')
+            ->willReturn(false);
+
+        // writeToFile should not be called when file opening fails
+        $mockInstaller->expects($this->never())
+            ->method('writeToFile');
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertFalse($result);
+        $this->assertEquals('unable to open configuration file for writing: /test/site/dir/sqlconf.php', $mockInstaller->error_message);
+    }
+
+    public function testWriteConfigurationFileFailsWhenWritesFail(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Set up globals and conffile
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        // Simulate some write failures - return false for some calls
+        $writeCallCount = 0;
+        $mockInstaller->expects($this->exactly(10))
+            ->method('writeToFile')
+            ->willReturnCallback(function() use (&$writeCallCount) {
+                $writeCallCount++;
+                // Fail on calls 3 and 7 to simulate partial write failures
+                return ($writeCallCount === 3 || $writeCallCount === 7) ? false : 10;
+            });
+
+        $mockInstaller->method('closeFile')->willReturn(false); // Also fail closeFile
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertFalse($result);
+        // Should report 3 failed operations (2 writeToFile + 1 closeFile)
+        $this->assertStringContainsString("ERROR. Couldn't write 3 lines to config file '/test/site/dir/sqlconf.php'", $mockInstaller->error_message);
+
+        fclose($mockFileHandle);
+    }
+
+    public function testWriteConfigurationFileGeneratesCorrectContent(): void
+    {
+        $config = [
+            'server' => 'db.example.com',
+            'port' => '3308',
+            'login' => 'dbuser',
+            'pass' => 'dbpass',
+            'dbname' => 'mydb'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals and conffile
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        // Capture the content being written
+        $writtenContent = [];
+        $mockInstaller->expects($this->exactly(10))
+            ->method('writeToFile')
+            ->willReturnCallback(function($handle, $data) use (&$writtenContent) {
+                $writtenContent[] = $data;
+                return strlen($data);
+            });
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertTrue($result);
+
+        // Verify the content contains the expected configuration values
+        $allContent = implode('', $writtenContent);
+        $this->assertStringContainsString('db.example.com', $allContent);
+        $this->assertStringContainsString('3308', $allContent);
+        $this->assertStringContainsString('dbuser', $allContent);
+        $this->assertStringContainsString('dbpass', $allContent);
+        $this->assertStringContainsString('mydb', $allContent);
+        $this->assertStringContainsString('utf8mb4', $allContent);
+        $this->assertStringContainsString('$config = 1', $allContent);
+
+        fclose($mockFileHandle);
+    }
+
+    public function testWriteConfigurationFileHandlesSpecialCharactersInConfig(): void
+    {
+        $config = [
+            'server' => 'server-with-dashes.com',
+            'login' => 'user_with_underscores',
+            'pass' => 'p@ssw0rd!#$%',
+            'dbname' => 'db-name_123'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        $writtenContent = [];
+        $mockInstaller->method('writeToFile')
+            ->willReturnCallback(function($handle, $data) use (&$writtenContent) {
+                $writtenContent[] = $data;
+                return strlen($data);
+            });
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertTrue($result);
+
+        // Verify special characters are handled properly
+        $allContent = implode('', $writtenContent);
+        $this->assertStringContainsString('server-with-dashes.com', $allContent);
+        $this->assertStringContainsString('user_with_underscores', $allContent);
+        $this->assertStringContainsString('p@ssw0rd!#$%', $allContent);
+        $this->assertStringContainsString('db-name_123', $allContent);
+
+        fclose($mockFileHandle);
+    }
+
+    public function testWriteConfigurationFileCountsErrorsCorrectly(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        // Simulate exactly 5 write failures
+        $writeCallCount = 0;
+        $mockInstaller->method('writeToFile')
+            ->willReturnCallback(function() use (&$writeCallCount) {
+                $writeCallCount++;
+                // Fail on calls 2, 4, 6, 8, 10
+                return ($writeCallCount % 2 === 0) ? false : 10;
+            });
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString("ERROR. Couldn't write 5 lines to config file", $mockInstaller->error_message);
+
+        fclose($mockFileHandle);
     }
 }
