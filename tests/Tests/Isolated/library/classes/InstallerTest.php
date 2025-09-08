@@ -45,6 +45,7 @@ class InstallerTest extends TestCase
             'closeFile',
             'createTotpInstance',
             'cryptoGenClassExists',
+            'die',
             'encryptTotpSecret',
             'escapeSql',
             'execute_sql',
@@ -448,6 +449,28 @@ class InstallerTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function testCreateDatabaseWithInvalidCollationName(): void
+    {
+        // Create installer with invalid collation name containing illegal characters
+        $mockInstaller = $this->createMockInstaller(['collate' => 'utf8@invalid!']);
+
+        // create_database will die before getting here.
+        $mockInstaller->expects($this->never())
+            ->method('set_collation');
+
+        // Expect die() to be called with the error message for invalid collation
+        $mockInstaller->expects($this->once())
+            ->method('die')
+            ->with('Illegal character(s) in collation name')
+            ->willThrowException(new \Exception('Die called with: Illegal character(s) in collation name'));
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Die called with: Illegal character(s) in collation name');
+
+        // This should trigger die() in escapeCollateName when it validates the collation name
+        $mockInstaller->create_database();
+    }
+
     public function testDropDatabase(): void
     {
         $mockInstaller = $this->createMockInstaller();
@@ -557,6 +580,27 @@ class InstallerTest extends TestCase
         $result = $mockInstaller->grant_privileges();
 
         $this->assertTrue($result);
+    }
+
+    public function testGrantPrivilegesWithInvalidDatabaseName(): void
+    {
+        // Create installer with invalid database name containing illegal characters
+        $mockInstaller = $this->createMockInstaller(['dbname' => 'test$db!', 'login' => 'testuser', 'loginhost' => 'localhost']);
+
+        // grant_privileges will die before calling escapeSql
+        $mockInstaller->expects($this->never())
+            ->method('escapeSql');
+
+        $mockInstaller->expects($this->once())
+            ->method('die')
+            ->with('Illegal character(s) in database name')
+            ->willThrowException(new \Exception('Die called with: Illegal character(s) in database name'));
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Die called with: Illegal character(s) in database name');
+
+        // This should trigger die() in escapeDatabaseName when it validates the database name
+        $mockInstaller->grant_privileges();
     }
 
     public function testLoadDumpfilesSuccess(): void
