@@ -1158,4 +1158,65 @@ class InstallerTest extends TestCase
         $this->assertTrue($result);
         $this->assertEmpty($mockInstaller->error_message);
     }
+
+    public function testInstallAdditionalUsersSuccess(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockInstaller->expects($this->once())
+            ->method('load_file')
+            ->with($mockInstaller->additional_users, 'Additional Official Users')
+            ->willReturn("Creating Additional Official Users tables...\n<span class='text-success'><b>OK</b></span>.<br>\n");
+
+        $result = $mockInstaller->install_additional_users();
+
+        $this->assertTrue($result);
+    }
+
+    public function testInstallAdditionalUsersFailure(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockInstaller->expects($this->once())
+            ->method('load_file')
+            ->with($mockInstaller->additional_users, 'Additional Official Users')
+            ->willReturn(false);
+
+        $result = $mockInstaller->install_additional_users();
+
+        $this->assertFalse($result);
+    }
+
+    public function testInstallAdditionalUsersWithCorrectFilePath(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Verify the additional_users property contains the expected path
+        $expectedPath = __DIR__ . '/../../../../../sql/official_additional_users.sql';
+        $this->assertEquals(realpath($expectedPath), realpath($mockInstaller->additional_users));
+
+        $mockInstaller->expects($this->once())
+            ->method('load_file')
+            ->willReturn("Creating Additional Official Users tables...\n<span class='text-success'><b>OK</b></span>.<br>\n");
+
+        $result = $mockInstaller->install_additional_users();
+
+        $this->assertTrue($result);
+    }
+
+    public function testInstallAdditionalUsersWithLoadFileReturnString(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $expectedReturnString = "Creating Additional Official Users tables...\nLoading official users...\n<span class='text-success'><b>OK</b></span>.<br>\n";
+
+        $mockInstaller->expects($this->once())
+            ->method('load_file')
+            ->with($mockInstaller->additional_users, 'Additional Official Users')
+            ->willReturn($expectedReturnString);
+
+        $result = $mockInstaller->install_additional_users();
+
+        $this->assertTrue($result);
+    }
 }
