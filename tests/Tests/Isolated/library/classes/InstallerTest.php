@@ -43,7 +43,6 @@ class InstallerTest extends TestCase
         $defaultMockMethods = [
             'atEndOfFile',
             'closeFile',
-            'connect_to_database',
             'createTotpInstance',
             'cryptoGenClassExists',
             'encryptTotpSecret',
@@ -163,7 +162,7 @@ class InstallerTest extends TestCase
 
     public function testRootDatabaseConnectionSuccess(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
@@ -183,7 +182,7 @@ class InstallerTest extends TestCase
 
     public function testRootDatabaseConnectionFailsWhenConnectionFails(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
@@ -201,7 +200,7 @@ class InstallerTest extends TestCase
 
     public function testRootDatabaseConnectionFailsWhenSqlStrictFails(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
@@ -222,7 +221,7 @@ class InstallerTest extends TestCase
 
     public function testRootDatabaseConnectionWithSSLCertificates(): void
     {
-        $mockInstaller = $this->createMockInstaller(['site' => 'default']);
+        $mockInstaller = $this->createMockInstaller(['site' => 'default'], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
@@ -242,7 +241,7 @@ class InstallerTest extends TestCase
 
     public function testUserDatabaseConnectionSuccess(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
@@ -271,7 +270,7 @@ class InstallerTest extends TestCase
 
     public function testUserDatabaseConnectionFailsWhenConnectionFails(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
 
         $mockInstaller->expects($this->once())
             ->method('connect_to_database')
@@ -286,7 +285,7 @@ class InstallerTest extends TestCase
 
     public function testUserDatabaseConnectionFailsWhenSqlStrictFails(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
@@ -306,7 +305,7 @@ class InstallerTest extends TestCase
 
     public function testUserDatabaseConnectionFailsWhenCollationFails(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
@@ -330,7 +329,7 @@ class InstallerTest extends TestCase
 
     public function testUserDatabaseConnectionFailsWhenSelectDbFails(): void
     {
-        $mockInstaller = $this->createMockInstaller();
+        $mockInstaller = $this->createMockInstaller([], ['connect_to_database']);
         $mockMysqli = $this->createMock(mysqli::class);
 
         $mockInstaller->expects($this->once())
