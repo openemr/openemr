@@ -132,7 +132,7 @@ class FhirQuestionnaireRestControllerTest extends TestCase
         $this->assertEquals($fhirQuestionnaire->getId()->getValue(), $jsonBundle['entry'][0]['resource']['id'], "The id of the returned questionnaire should match");
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $this->markTestIncomplete("create is not exposed yet, so leaving test as incomplete until we choose to expose it");
     }
