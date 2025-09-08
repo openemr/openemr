@@ -9216,26 +9216,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/note/view.php
-  - message: '#^Variable \$rootdir might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/observation/new.php
-  - message: '#^Variable \$srcdir might not be defined\.$#'
-    identifier: variable.undefined
-    count: 3
-    path: interface/forms/observation/new.php
-  - message: '#^Variable \$encounter might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/observation/save.php
-  - message: '#^Variable \$srcdir might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/observation/save.php
-  - message: '#^Variable \$userauthorized might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/observation/save.php
   - message: '#^Variable \$key might not be defined\.$#'
     identifier: variable.undefined
     count: 1

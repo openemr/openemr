@@ -57,6 +57,48 @@ class FormService
         return $all;
     }
 
+    public function addForm(
+        $encounter,
+        $form_name,
+        $form_id,
+        $formdir,
+        $pid,
+        $authorized = "0",
+        $date = "NOW()",
+        $user = "",
+        $group = "",
+        $therapy_group = 'not_given'
+    ) {
+
+        global $attendant_type;
+        if (!$user) {
+            $user = $_SESSION['authUser'] ?? null;
+        }
+
+        if (!$group) {
+            $group = $_SESSION['authProvider'] ?? null;
+        }
+
+        if ($therapy_group == 'not_given') {
+            $therapy_group = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'];
+        }
+
+        //print_r($_SESSION['therapy_group']);die;
+        $arraySqlBind = array();
+        $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
+            "user, groupname, authorized, formdir, therapy_group_id) values (";
+        if ($date == "NOW()") {
+            $sql .= "$date";
+        } else {
+            $sql .= "?";
+            array_push($arraySqlBind, $date);
+        }
+
+        $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
+        return sqlInsert($sql, $arraySqlBind);
+    }
+
     public function saveEncounterForm(BaseForm $form): BaseForm
     {
         // first we insert the form
