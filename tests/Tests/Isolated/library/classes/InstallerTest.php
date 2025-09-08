@@ -37,7 +37,7 @@ class InstallerTest extends TestCase
 
         $config = array_merge($defaultConfig, $config);
 
-        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile'];
+        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance'];
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
@@ -760,5 +760,402 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('ERROR. Unable insert version information into database', $mockInstaller->error_message);
         $this->assertStringContainsString('Mock SQL error', $mockInstaller->error_message);
         $this->assertStringContainsString('1062', $mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserSuccess()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword',
+            'i2faEnable' => false
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Track expected SQL calls
+        $expectedSqlCalls = [
+            "INSERT INTO `groups`",
+            "INSERT INTO users",
+            "INSERT INTO users_secure"
+        ];
+        $callCount = 0;
+
+        // Mock the three SQL executions for groups, users, and users_secure
+        $mockInstaller->expects($this->exactly(3))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
+                $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
+                $callCount++;
+                return true;
+            });
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserGroupInsertFails()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // First SQL call (groups insert) fails
+        $mockInstaller->expects($this->once())
+            ->method('execute_sql')
+            ->with($this->stringContains("INSERT INTO `groups`"))
+            ->willReturn(false);
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliError')
+            ->willReturn('Mock groups error');
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliErrno')
+            ->willReturn(1062);
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR. Unable to add initial user group', $mockInstaller->error_message);
+        $this->assertStringContainsString('Mock groups error', $mockInstaller->error_message);
+        $this->assertStringContainsString('1062', $mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserUserInsertFails()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Track expected SQL calls
+        $expectedSqlCalls = [
+            "INSERT INTO `groups`",
+            "INSERT INTO users"
+        ];
+        $callCount = 0;
+
+        // First SQL call succeeds, second fails
+        $mockInstaller->expects($this->exactly(2))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
+                $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
+                $callCount++;
+                return $callCount === 1 ? true : false; // First succeeds, second fails
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliError')
+            ->willReturn('Mock user error');
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliErrno')
+            ->willReturn(1062);
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR. Unable to add initial user', $mockInstaller->error_message);
+        $this->assertStringContainsString('Mock user error', $mockInstaller->error_message);
+        $this->assertStringContainsString('1062', $mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserSecureInsertFails()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Track expected SQL calls
+        $expectedSqlCalls = [
+            "INSERT INTO `groups`",
+            "INSERT INTO users",
+            "INSERT INTO users_secure"
+        ];
+        $callCount = 0;
+
+        // First two SQL calls succeed, third fails
+        $mockInstaller->expects($this->exactly(3))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
+                $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
+                $callCount++;
+                return $callCount <= 2 ? true : false; // First two succeed, third fails
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliError')
+            ->willReturn('Mock secure error');
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliErrno')
+            ->willReturn(1062);
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR. Unable to add initial user login credentials', $mockInstaller->error_message);
+        $this->assertStringContainsString('Mock secure error', $mockInstaller->error_message);
+        $this->assertStringContainsString('1062', $mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserWith2FASuccess()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword',
+            'i2faEnable' => true,
+            'i2faSecret' => 'test2fasecret'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Mock class existence checks to return true
+        $mockInstaller->method('totpClassExists')
+            ->willReturn(true);
+
+        $mockInstaller->method('cryptoGenClassExists')
+            ->willReturn(true);
+
+        $mockInstaller->method('encryptTotpSecret')
+            ->willReturn('encrypted_secret');
+
+        // Mock execute_sql to succeed for all calls (including 2FA)
+        $mockInstaller->method('execute_sql')
+            ->willReturn(true);
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserWith2FAInsertFails()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword',
+            'i2faenable' => true,
+            'i2fasecret' => 'test2fasecret'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Mock class existence checks to return true
+        $mockInstaller->method('totpClassExists')
+            ->willReturn(true);
+
+        $mockInstaller->method('cryptoGenClassExists')
+            ->willReturn(true);
+
+        $mockInstaller->method('encryptTotpSecret')
+            ->willReturn('encrypted_secret');
+
+        // Mock execute_sql to succeed for non-2FA calls, fail for 2FA calls
+        $mockInstaller->method('execute_sql')
+            ->willReturnCallback(function ($sql) {
+                // Fail specifically on 2FA insert - return exactly false
+                if (stripos($sql, 'login_mfa_registrations') !== false) {
+                    return false;
+                }
+                // Succeed on all other calls
+                return true;
+            });
+
+        $mockInstaller->method('mysqliError')
+            ->willReturn('Mock 2FA error');
+
+        $mockInstaller->method('mysqliErrno')
+            ->willReturn(1062);
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString("ERROR. Unable to add initial user's 2FA credentials", $mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserWith2FADisabled()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword',
+            'i2faEnable' => false,
+            'i2faSecret' => 'test2fasecret'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Track expected SQL calls
+        $expectedSqlCalls = [
+            "INSERT INTO `groups`",
+            "INSERT INTO users",
+            "INSERT INTO users_secure"
+        ];
+        $callCount = 0;
+
+        // Only three SQL executions (no 2FA insert)
+        $mockInstaller->expects($this->exactly(3))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
+                $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
+                $callCount++;
+                return true;
+            });
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserWith2FANoSecret()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword',
+            'i2faEnable' => true,
+            'i2faSecret' => ''
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Track expected SQL calls
+        $expectedSqlCalls = [
+            "INSERT INTO `groups`",
+            "INSERT INTO users",
+            "INSERT INTO users_secure"
+        ];
+        $callCount = 0;
+
+        // Only three SQL executions (no 2FA insert due to empty secret)
+        $mockInstaller->expects($this->exactly(3))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
+                $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
+                $callCount++;
+                return true;
+            });
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    public function testAddInitialUserWith2FAClassesNotExist()
+    {
+        $config = [
+            'igroup' => 'testgroup',
+            'iuser' => 'testuser',
+            'iuname' => 'TestLastName',
+            'iufname' => 'TestFirstName',
+            'iuserpass' => 'testpassword',
+            'i2faEnable' => true,
+            'i2faSecret' => 'test2fasecret'
+        ];
+
+        $mockInstaller = $this->createMockInstaller($config);
+        $mockInstaller->dbh = $this->createMock(mysqli::class);
+
+        // Mock class existence checks to return false
+        $mockInstaller->method('totpClassExists')
+            ->willReturn(false);
+
+        $mockInstaller->method('cryptoGenClassExists')
+            ->willReturn(false);
+
+        $mockInstaller->method('encryptTotpSecret')
+            ->willReturn('encrypted_secret');
+
+        // Track expected SQL calls
+        $expectedSqlCalls = [
+            "INSERT INTO `groups`",
+            "INSERT INTO users",
+            "INSERT INTO users_secure"
+        ];
+        $callCount = 0;
+
+        // Only three SQL executions (no 2FA insert due to missing classes)
+        $mockInstaller->expects($this->exactly(3))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
+                $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
+                $callCount++;
+                return true;
+            });
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->add_initial_user();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
     }
 }

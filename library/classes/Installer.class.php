@@ -636,36 +636,41 @@ class Installer
      */
     public function add_initial_user(): bool
     {
-        if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
+        $escapedGroup = $this->escapeSql($this->igroup);
+        $escapedUser = $this->escapeSql($this->iuser);
+        $escapedFirstName = $this->escapeSql($this->iufname);
+        $escapedLastName = $this->escapeSql($this->iuname);
+        if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'{$escapedGroup}', '{$escapedUser}')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
             "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
-        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','NoLongerUsed',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
+        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'{$escapedUser}','NoLongerUsed',1,'{$escapedLastName}','{$escapedFirstName}',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
             "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
         $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
+        $escapedHash = $this->escapeSql($hash);
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
             die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
         }
-        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "',NOW())") == false) {
+        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'{$escapedUser}','{$escapedHash}',NOW())") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
             "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
         // Create new 2fa if enabled
-        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp')) && (class_exists('OpenEMR\Common\Crypto\CryptoGen'))) {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && $this->totpClassExists() && $this->cryptoGenClassExists()) {
             // Encrypt the new secret with the hashed password
-            $cryptoGen = new OpenEMR\Common\Crypto\CryptoGen();
-            $secret = $cryptoGen->encryptStandard($this->i2faSecret, $hash);
-            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '" . $this->escapeSql($secret) . "', '')") == false) {
+            $secret = $this->encryptTotpSecret($this->i2faSecret, $hash);
+            $escapedSecret = $this->escapeSql($secret);
+            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '{$escapedSecret}', '')") == false) {
                 $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n" .
                     "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
                 return false;
@@ -738,9 +743,8 @@ class Installer
      */
     public function get_initial_user_mfa_totp(): Totp|false
     {
-        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
-            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
-            return $adminTotp;
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && $this->totpClassExists()) {
+            return $this->createTotpInstance($this->i2faSecret, $this->iuser);
         }
         return false;
     }
@@ -1653,6 +1657,59 @@ $config = 1; /////////////
     protected function mysqliErrno(mysqli $mysql): int
     {
         return mysqli_errno($mysql);
+    }
+
+    /**
+     * Check if Totp class exists.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function totpClassExists(): bool
+    {
+        return class_exists('Totp');
+    }
+
+    /**
+     * Check if OpenEMR CryptoGen class exists.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function cryptoGenClassExists(): bool
+    {
+        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
+    }
+
+    /**
+     * Encrypt TOTP secret using CryptoGen.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $secret The TOTP secret to encrypt
+     * @param string $hash The password hash to use for encryption
+     * @return string Encrypted secret
+     */
+    protected function encryptTotpSecret(string $secret, string $hash): string
+    {
+        $cryptoGen = new \OpenEMR\Common\Crypto\CryptoGen();
+        return $cryptoGen->encryptStandard($secret, $hash);
+    }
+
+    /**
+     * Create a new Totp instance.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $secret The TOTP secret
+     * @param string $user The username
+     * @return Totp
+     */
+    protected function createTotpInstance(string $secret, string $user): Totp
+    {
+        return new Totp($secret, $user);
     }
 
     /**
