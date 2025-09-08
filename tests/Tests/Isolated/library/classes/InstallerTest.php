@@ -37,7 +37,7 @@ class InstallerTest extends TestCase
 
         $config = array_merge($defaultConfig, $config);
 
-        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance', 'mysqliFetchArray'];
+        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance', 'mysqliFetchArray', 'unlinkFile', 'globPattern', 'recurse_copy'];
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
@@ -1711,6 +1711,313 @@ class InstallerTest extends TestCase
             $result = $mockInstaller->get_initial_user_mfa_totp();
 
             $this->assertFalse($result, 'Expected false for scenario: ' . json_encode($scenario['config']));
+        }
+    }
+
+    public function testCreateSiteDirectoryWhenDirectoryAlreadyExists(): void
+    {
+        $mockInstaller = $this->createMockInstaller(['source_site_id' => 'default']);
+
+        // Set up globals
+        $GLOBALS['OE_SITE_DIR'] = '/path/to/existing/site';
+        $GLOBALS['OE_SITES_BASE'] = '/path/to/sites';
+
+        // Directory already exists
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/path/to/existing/site')
+            ->willReturn(true);
+
+        // These methods should not be called when directory exists
+        $mockInstaller->expects($this->never())
+            ->method('recurse_copy');
+
+        $mockInstaller->expects($this->never())
+            ->method('globPattern');
+
+        $mockInstaller->expects($this->never())
+            ->method('unlinkFile');
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertTrue($result);
+    }
+
+    public function testCreateSiteDirectorySuccess(): void
+    {
+        $config = [
+            'source_site_id' => 'source_site',
+            'clone_database' => ''
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals
+        $GLOBALS['OE_SITE_DIR'] = '/path/to/new/site';
+        $GLOBALS['OE_SITES_BASE'] = '/path/to/sites';
+
+        // Directory does not exist
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/path/to/new/site')
+            ->willReturn(false);
+
+        // Copy succeeds
+        $mockInstaller->expects($this->once())
+            ->method('recurse_copy')
+            ->with('/path/to/sites/source_site', '/path/to/new/site')
+            ->willReturn(true);
+
+        // Not cloning database, so files should be deleted
+        $mockFiles = [
+            '/path/to/new/site/documents/logs_and_misc/methods/file1.key',
+            '/path/to/new/site/documents/logs_and_misc/methods/file2.cert'
+        ];
+
+        $mockInstaller->expects($this->once())
+            ->method('globPattern')
+            ->with('/path/to/new/site/documents/logs_and_misc/methods/*')
+            ->willReturn($mockFiles);
+
+        $mockInstaller->expects($this->exactly(2))
+            ->method('unlinkFile')
+            ->willReturnCallback(function ($file) use ($mockFiles) {
+                $this->assertContains($file, $mockFiles);
+                return true;
+            });
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertTrue($result);
+    }
+
+    public function testCreateSiteDirectorySuccessWithCloneDatabase(): void
+    {
+        $config = [
+            'source_site_id' => 'source_site',
+            'clone_database' => 'true'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals
+        $GLOBALS['OE_SITE_DIR'] = '/path/to/new/site';
+        $GLOBALS['OE_SITES_BASE'] = '/path/to/sites';
+
+        // Directory does not exist
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/path/to/new/site')
+            ->willReturn(false);
+
+        // Copy succeeds
+        $mockInstaller->expects($this->once())
+            ->method('recurse_copy')
+            ->with('/path/to/sites/source_site', '/path/to/new/site')
+            ->willReturn(true);
+
+        // Cloning database, so files should NOT be deleted
+        $mockInstaller->expects($this->never())
+            ->method('globPattern');
+
+        $mockInstaller->expects($this->never())
+            ->method('unlinkFile');
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertTrue($result);
+    }
+
+    public function testCreateSiteDirectoryFailsWhenCopyFails(): void
+    {
+        $config = [
+            'source_site_id' => 'source_site',
+            'clone_database' => ''
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals
+        $GLOBALS['OE_SITE_DIR'] = '/path/to/new/site';
+        $GLOBALS['OE_SITES_BASE'] = '/path/to/sites';
+
+        // Directory does not exist
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/path/to/new/site')
+            ->willReturn(false);
+
+        // Copy fails
+        $mockInstaller->expects($this->once())
+            ->method('recurse_copy')
+            ->with('/path/to/sites/source_site', '/path/to/new/site')
+            ->willReturn(false);
+
+        // Set error message in the mock (simulating recurse_copy failure)
+        $mockInstaller->error_message = 'Copy failed';
+
+        // These methods should not be called when copy fails
+        $mockInstaller->expects($this->never())
+            ->method('globPattern');
+
+        $mockInstaller->expects($this->never())
+            ->method('unlinkFile');
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString("unable to copy directory: '/path/to/sites/source_site' to '/path/to/new/site'. Copy failed", $mockInstaller->error_message);
+    }
+
+    public function testCreateSiteDirectoryWithEmptyGlobResult(): void
+    {
+        $config = [
+            'source_site_id' => 'source_site',
+            'clone_database' => ''
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals
+        $GLOBALS['OE_SITE_DIR'] = '/path/to/new/site';
+        $GLOBALS['OE_SITES_BASE'] = '/path/to/sites';
+
+        // Directory does not exist
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/path/to/new/site')
+            ->willReturn(false);
+
+        // Copy succeeds
+        $mockInstaller->expects($this->once())
+            ->method('recurse_copy')
+            ->with('/path/to/sites/source_site', '/path/to/new/site')
+            ->willReturn(true);
+
+        // No files to delete
+        $mockInstaller->expects($this->once())
+            ->method('globPattern')
+            ->with('/path/to/new/site/documents/logs_and_misc/methods/*')
+            ->willReturn([]);
+
+        // unlinkFile should not be called when no files exist
+        $mockInstaller->expects($this->never())
+            ->method('unlinkFile');
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertTrue($result);
+    }
+
+    public function testCreateSiteDirectoryWithGlobReturnsFalse(): void
+    {
+        $config = [
+            'source_site_id' => 'source_site',
+            'clone_database' => ''
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up globals
+        $GLOBALS['OE_SITE_DIR'] = '/path/to/new/site';
+        $GLOBALS['OE_SITES_BASE'] = '/path/to/sites';
+
+        // Directory does not exist
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/path/to/new/site')
+            ->willReturn(false);
+
+        // Copy succeeds
+        $mockInstaller->expects($this->once())
+            ->method('recurse_copy')
+            ->with('/path/to/sites/source_site', '/path/to/new/site')
+            ->willReturn(true);
+
+        // glob() returns false (error case)
+        $mockInstaller->expects($this->once())
+            ->method('globPattern')
+            ->with('/path/to/new/site/documents/logs_and_misc/methods/*')
+            ->willReturn(false);
+
+        // unlinkFile should not be called when glob returns false
+        $mockInstaller->expects($this->never())
+            ->method('unlinkFile');
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertTrue($result);
+    }
+
+    public function testCreateSiteDirectoryUsesCorrectPaths(): void
+    {
+        $config = [
+            'source_site_id' => 'test_source',
+            'clone_database' => ''
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Set up specific globals to test path construction
+        $GLOBALS['OE_SITE_DIR'] = '/custom/site/path';
+        $GLOBALS['OE_SITES_BASE'] = '/custom/sites/base';
+
+        $mockInstaller->expects($this->once())
+            ->method('fileExists')
+            ->with('/custom/site/path')
+            ->willReturn(false);
+
+        // Verify exact source and destination paths
+        $mockInstaller->expects($this->once())
+            ->method('recurse_copy')
+            ->with('/custom/sites/base/test_source', '/custom/site/path')
+            ->willReturn(true);
+
+        $mockInstaller->expects($this->once())
+            ->method('globPattern')
+            ->with('/custom/site/path/documents/logs_and_misc/methods/*')
+            ->willReturn([]);
+
+        $result = $mockInstaller->create_site_directory();
+
+        $this->assertTrue($result);
+    }
+
+    public function testCreateSiteDirectoryWithVariousCloneDatabaseValues(): void
+    {
+        $scenarios = [
+            // These values should be considered "truthy" and skip file deletion
+            ['clone_database' => 'true', 'shouldDeleteFiles' => false],
+            ['clone_database' => '1', 'shouldDeleteFiles' => false],
+            ['clone_database' => 'yes', 'shouldDeleteFiles' => false],
+            ['clone_database' => 'anything_non_empty', 'shouldDeleteFiles' => false],
+            // These values should be considered "falsy" and allow file deletion
+            ['clone_database' => '', 'shouldDeleteFiles' => true],
+            ['clone_database' => '0', 'shouldDeleteFiles' => true],
+            ['clone_database' => false, 'shouldDeleteFiles' => true],
+            ['clone_database' => null, 'shouldDeleteFiles' => true]
+        ];
+
+        foreach ($scenarios as $scenario) {
+            $config = [
+                'source_site_id' => 'source',
+                'clone_database' => $scenario['clone_database']
+            ];
+            $mockInstaller = $this->createMockInstaller($config);
+
+            // Set up globals
+            $GLOBALS['OE_SITE_DIR'] = '/test/site';
+            $GLOBALS['OE_SITES_BASE'] = '/test/sites';
+
+            $mockInstaller->method('fileExists')->willReturn(false);
+            $mockInstaller->method('recurse_copy')->willReturn(true);
+
+            if ($scenario['shouldDeleteFiles']) {
+                $mockInstaller->expects($this->once())
+                    ->method('globPattern')
+                    ->willReturn([]);
+            } else {
+                $mockInstaller->expects($this->never())
+                    ->method('globPattern');
+            }
+
+            $result = $mockInstaller->create_site_directory();
+
+            $this->assertTrue($result, 'Failed for clone_database value: ' . json_encode($scenario['clone_database']));
         }
     }
 }
