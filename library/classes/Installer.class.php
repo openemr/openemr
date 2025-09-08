@@ -804,15 +804,15 @@ class Installer
 
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
-        fwrite($fd, $string) or $it_died++;
-        fwrite($fd, "global \$disable_utf8_flag;\n") or $it_died++;
-        fwrite($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
-        fwrite($fd, "\$host\t= '$this->server';\n") or $it_died++;
-        fwrite($fd, "\$port\t= '$this->port';\n") or $it_died++;
-        fwrite($fd, "\$login\t= '$this->login';\n") or $it_died++;
-        fwrite($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
-        fwrite($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
-        fwrite($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
+        $this->writeToFile($fd, $string) or $it_died++;
+        $this->writeToFile($fd, "global \$disable_utf8_flag;\n") or $it_died++;
+        $this->writeToFile($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
+        $this->writeToFile($fd, "\$host\t= '$this->server';\n") or $it_died++;
+        $this->writeToFile($fd, "\$port\t= '$this->port';\n") or $it_died++;
+        $this->writeToFile($fd, "\$login\t= '$this->login';\n") or $it_died++;
+        $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
+        $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
+        $this->writeToFile($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -835,7 +835,7 @@ $config = 1; /////////////
 ?>
 ';
 
-        fwrite($fd, $string) or $it_died++;
+        $this->writeToFile($fd, $string) or $it_died++;
         $this->closeFile($fd) or $it_died++;
 
         //it's rather irresponsible to not report errors when writing this file.
@@ -845,9 +845,11 @@ $config = 1; /////////////
         }
 
         // Tell PHP that its cached bytecode version of sqlconf.php is no longer usable.
+        // @codeCoverageIgnoreStart
         if (function_exists('opcache_invalidate')) {
             opcache_invalidate($this->conffile, true);
         }
+        // @codeCoverageIgnoreEnd
 
         return true;
     }
@@ -1833,6 +1835,21 @@ $config = 1; /////////////
     protected function touchFile(string $filename, ?int $mtime = null, ?int $atime = null): bool
     {
         return touch($filename, $mtime, $atime);
+    }
+
+    /**
+     * Wrapper for fwrite to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @param string $data
+     * @param ?int $length
+     * @return int|false
+     */
+    protected function writeToFile($stream, string $data, ?int $length = null): int|false
+    {
+        return $length !== null ? fwrite($stream, $data, $length) : fwrite($stream, $data);
     }
 
     /**
