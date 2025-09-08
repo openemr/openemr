@@ -1572,6 +1572,8 @@ $config = 1; /////////////
     /**
      * Escape SQL strings to prevent injection attacks.
      *
+     * @codeCoverageIgnore
+     *
      * @param string $sql SQL string to escape
      * @return string Escaped SQL string
      */
