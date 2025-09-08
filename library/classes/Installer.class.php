@@ -757,7 +757,7 @@ class Installer
    */
     public function create_site_directory(): bool
     {
-        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+        if (!$this->fileExists($GLOBALS['OE_SITE_DIR'])) {
             $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
             $destination_directory = $GLOBALS['OE_SITE_DIR'];
             if (! $this->recurse_copy($source_directory, $destination_directory)) {
@@ -766,7 +766,10 @@ class Installer
             }
             // the new site will create it's own keys so okay to delete these copied from the source site
             if (!$this->clone_database) {
-                array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+                $files = $this->globPattern($destination_directory . "/documents/logs_and_misc/methods/*");
+                if ($files !== false) {
+                    array_map([$this, 'unlinkFile'], $files);
+                }
             }
         }
 
@@ -783,7 +786,7 @@ class Installer
      */
     public function write_configuration_file(): bool
     {
-        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+        if (!$this->fileExists($GLOBALS['OE_SITE_DIR'])) {
             $this->create_site_directory();
         }
         @touch($this->conffile); // php bug
@@ -1791,6 +1794,33 @@ $config = 1; /////////////
     }
 
     /**
+     * Wrapper for unlink to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @return bool
+     */
+    protected function unlinkFile(string $filename): bool
+    {
+        return unlink($filename);
+    }
+
+    /**
+     * Wrapper for glob to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $pattern
+     * @param int $flags
+     * @return array|false
+     */
+    protected function globPattern(string $pattern, int $flags = 0): array|false
+    {
+        return glob($pattern, $flags);
+    }
+
+    /**
      * Wrapper for mysqli_ssl_set to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -1936,7 +1966,7 @@ $config = 1; /////////////
             }
 
             // Load CVX codes if present
-            if (file_exists($this->cvx)) {
+            if ($this->fileExists($this->cvx)) {
                 $dumpfiles[ $this->cvx ] = "CVX Immunization Codes";
             }
 
