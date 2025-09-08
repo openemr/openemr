@@ -705,7 +705,7 @@ class Installer
     public function on_care_coordination(): bool
     {
         $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
-        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $resource_array = $this->mysqliFetchArray($resource, MYSQLI_ASSOC);
         $modId = $resource_array['mod_id'];
         if (empty($modId)) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to get mod_id for Carecoordination module\n";
@@ -713,7 +713,7 @@ class Installer
         }
 
         $resource = $this->execute_sql("SELECT `section_id` FROM `module_acl_sections` WHERE `section_identifier` = 'carecoordination' LIMIT 1");
-        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $resource_array = $this->mysqliFetchArray($resource, MYSQLI_ASSOC);
         $sectionId = $resource_array['section_id'];
         if (empty($sectionId)) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to get section_id for carecoordination module section\n";
@@ -721,7 +721,7 @@ class Installer
         }
 
         $resource = $this->execute_sql("SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1");
-        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $resource_array = $this->mysqliFetchArray($resource, MYSQLI_ASSOC);
         $groupId = $resource_array['id'];
         if (empty($groupId)) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to get id for gacl_aro_groups admin section\n";
@@ -868,7 +868,7 @@ $config = 1; /////////////
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
                     $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
-                    $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
+                    $row = $this->mysqliFetchArray($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
                         $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
                            "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
@@ -1660,6 +1660,20 @@ $config = 1; /////////////
     }
 
     /**
+     * Wrapper for mysqli_fetch_array to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli_result $result
+     * @param int $mode
+     * @return array|null|false
+     */
+    protected function mysqliFetchArray(mysqli_result $result, int $mode = MYSQLI_BOTH): array|null|false
+    {
+        return mysqli_fetch_array($result, $mode);
+    }
+
+    /**
      * Check if Totp class exists.
      *
      * @codeCoverageIgnore
@@ -2023,7 +2037,7 @@ $config = 1; /////////////
     public function getCurrentTheme()
     {
         $current_theme = $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
-        $current_theme = mysqli_fetch_array($current_theme);
+        $current_theme = $this->mysqliFetchArray($current_theme);
         return $current_theme[0];
     }
 
