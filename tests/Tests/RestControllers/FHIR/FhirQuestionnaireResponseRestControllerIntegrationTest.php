@@ -16,6 +16,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
@@ -79,7 +80,9 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase
         $questionnaireResponseUuid = $this->createQuestionnaireResponseForQuestionnaire($patientIds['pid'], $patientIds['uuid'], "PHQ-9 Example", null);
         $restRequest = $this->createMock(HttpRestRequest::class);
         $dispatcher = new EventDispatcher();
-        $fhirService = new FhirQuestionnaireResponseService($dispatcher);
+        $fhirService = new FhirQuestionnaireResponseService();
+        $fhirService->addMappedService(new FhirQuestionnaireResponseFormService());
+        $fhirService->setEventDispatcher($dispatcher);
         $controller = new FhirQuestionnaireResponseRestController($fhirService);
         $response = $controller->one($restRequest, $questionnaireResponseUuid);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -106,8 +109,10 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase
         $patientIds = $result->getFirstDataResult();
         $questionnaireResponseUuid = $this->createQuestionnaireResponseForQuestionnaire($patientIds['pid'], $patientIds['uuid'], "PHQ-9 Example", null);
         $restRequest = $this->createMock(HttpRestRequest::class);
+        $fhirService = new FhirQuestionnaireResponseService();
+        $fhirService->addMappedService(new FhirQuestionnaireResponseFormService());
         $dispatcher = new EventDispatcher();
-        $fhirService = new FhirQuestionnaireResponseService($dispatcher);
+        $fhirService->setEventDispatcher($dispatcher);
         $controller = new FhirQuestionnaireResponseRestController($fhirService);
         $response = $controller->list($restRequest);
 

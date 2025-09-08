@@ -13430,8 +13430,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *  )
      */
     "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request) {
-        $fhirFormService = new FhirQuestionnaireResponseFormService();
-        $fhirQuestionnaireService = new FhirQuestionnaireResponseService($fhirFormService);
+        $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
+        $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
         RestConfig::apiLog($return);
         return $return;

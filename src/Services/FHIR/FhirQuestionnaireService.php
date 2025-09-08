@@ -38,10 +38,9 @@ class FhirQuestionnaireService extends FhirServiceBase implements IResourceReada
     use MappedServiceCodeTrait;
 
 
-    public function __construct(FhirQuestionnaireFormService $questionnaireService)
+    public function __construct()
     {
         parent::__construct();
-        $this->addMappedService($questionnaireService);
     }
 
     /**

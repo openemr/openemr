@@ -39,14 +39,22 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements IResou
     private EventDispatcher $dispatcher;
 
 
-    public function __construct(EventDispatcher $dispatcher, $fhirApiURL = null)
+    public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->dispatcher = $dispatcher;
+    }
 
-        // still debating on whether the other mapped services in this module will go here or not, it creates issues
-        // when we want to decouple this resource from the module.
-        $this->addMappedService(new FhirQuestionnaireResponseFormService());
+    public function setEventDispatcher(EventDispatcher $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+    }
+
+    public function getEventDispatcher()
+    {
+        if (!isset($this->dispatcher)) {
+            $this->dispatcher = new EventDispatcher();
+        }
+        return $this->dispatcher;
     }
 
     public function insert(FHIRDomainResource $fhirResource): ProcessingResult

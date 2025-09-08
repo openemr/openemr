@@ -69,7 +69,8 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
 
         // test that an inserted questionnaire form will retrieve the questionnaire via the service
         $formService = new FhirQuestionnaireFormService();
-        $questionnaireService = new FhirQuestionnaireService($formService);
+        $questionnaireService = new FhirQuestionnaireService();
+        $questionnaireService->addMappedService($formService);
         $controller = new FhirQuestionnaireRestController(new SystemLogger(), $questionnaireService);
         $request = $this->createMock(HttpRestRequest::class);
         $response = $controller->one($request, $uuid);
@@ -103,7 +104,8 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
         // create a second one that should be ignored in the search
         $uuid2 = $this->createQuestionnaireWithName(self::QUESTIONNAIRE_NAME_2);
         $formService = new FhirQuestionnaireFormService();
-        $questionnaireService = new FhirQuestionnaireService($formService);
+        $questionnaireService = new FhirQuestionnaireService();
+        $questionnaireService->addMappedService($formService);
         $controller = new FhirQuestionnaireRestController(new SystemLogger(), $questionnaireService);
         $request = $this->createMock(HttpRestRequest::class);
         $request->method('getQueryParams')->willReturn([]);
@@ -137,7 +139,8 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
 
         // test that an inserted questionnaire form will retrieve the questionnaire via the service
         $formService = new FhirQuestionnaireFormService();
-        $questionnaireService = new FhirQuestionnaireService($formService);
+        $questionnaireService = new FhirQuestionnaireService();
+        $questionnaireService->addMappedService($formService);
         $controller = new FhirQuestionnaireRestController(new SystemLogger(), $questionnaireService);
         $request = $this->createMock(HttpRestRequest::class);
         // modifier
