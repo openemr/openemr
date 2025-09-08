@@ -50,7 +50,7 @@ class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
      * @return void
      * @throws Exception
      */
-    public function testSearchByIdWillReturnSingleQuestionnaire()
+    public function testSearchByIdWillReturnSingleQuestionnaire(): void
     {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         // save the questionnaire we want returned and verify the system returns the questionnaire

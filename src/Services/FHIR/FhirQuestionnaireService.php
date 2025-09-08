@@ -37,12 +37,6 @@ class FhirQuestionnaireService extends FhirServiceBase implements IResourceReada
     use FhirServiceBaseEmptyTrait;
     use MappedServiceCodeTrait;
 
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * This method returns the FHIR search definition objects that are used to map FHIR search fields to OpenEMR fields.
      * Since the mapping can be one FHIR search object to many OpenEMR fields, we use the search definition objects.

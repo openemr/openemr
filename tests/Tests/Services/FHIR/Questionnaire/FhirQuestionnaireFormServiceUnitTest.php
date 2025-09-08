@@ -18,12 +18,12 @@ use PHPUnit\Framework\TestCase;
 
 class FhirQuestionnaireFormServiceUnitTest extends TestCase
 {
-    public function testCreateProvenanceResource()
+    public function testCreateProvenanceResource(): void
     {
         $this->markTestIncomplete("Not implemented yet");
     }
 
-    public function testSupportsCode()
+    public function testSupportsCode(): void
     {
         $loinCodes = ['1234-5', '6789-0', '1111-2', '2222-3'];
         $service = new FhirQuestionnaireFormService();
@@ -32,7 +32,7 @@ class FhirQuestionnaireFormServiceUnitTest extends TestCase
         }
     }
 
-    public function testParseOpenEMRRecord()
+    public function testParseOpenEMRRecord(): void
     {
         $service = new FhirQuestionnaireFormService();
         $jsonQuestionnaire = file_get_contents(__DIR__ . '/../../../data/Services/FHIR/Questionnaire/questionnaire-sdc-pathology.json');

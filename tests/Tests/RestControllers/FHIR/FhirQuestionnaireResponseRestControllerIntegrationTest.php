@@ -59,12 +59,12 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase
         QueryUtils::sqlStatementThrowException("DELETE FROM patient_data WHERE pubpid LIKE 'phpunit-test-'", []);
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $this->markTestIncomplete("update is not exposed yet, so leaving test as incomplete until we choose to expose it");
     }
 
-    public function testOne()
+    public function testOne(): void
     {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         $patientService = new PatientService();
@@ -94,7 +94,7 @@ class FhirQuestionnaireResponseRestControllerIntegrationTest extends TestCase
         $this->assertEquals($questionnaireResponseUuid, $jsonBundle['id']);
     }
 
-    public function testList()
+    public function testList(): void
     {
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
         $patientService = new PatientService();

@@ -39,7 +39,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements IResou
     private EventDispatcher $dispatcher;
 
 
-    public function __construct($fhirApiURL = null)
+    public function __construct(?string $fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
     }

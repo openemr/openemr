@@ -31,19 +31,19 @@ class FhirQuestionnaireResponseRestControllerTest extends TestCase
      * @return void
      * @throws Exception
      */
-    public function test__construct()
+    public function test__construct(): void
     {
         $resourceService = $this->createMock(FhirQuestionnaireResponseService::class);
         $controller = new FhirQuestionnaireResponseRestController($resourceService);
         $this->assertSame($resourceService, $controller->getFhirQuestionnaireResponseService());
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $this->markTestIncomplete("update is not exposed yet, so leaving test as incomplete until we choose to expose it");
     }
 
-    public function testList()
+    public function testList(): void
     {
         $restRequest = $this->createMock(HttpRestRequest::class);
         $fhirResponse = new FHIRQuestionnaireResponse();
@@ -77,7 +77,7 @@ class FhirQuestionnaireResponseRestControllerTest extends TestCase
         $this->assertEquals($fhirResponse->getId()->getValue(), $jsonBundle['entry'][0]['resource']['id'], "The id of the returned response should match");
     }
 
-    public function testOne()
+    public function testOne(): void
     {
         $restRequest = $this->createMock(HttpRestRequest::class);
         $restRequest->expects($this->once())
