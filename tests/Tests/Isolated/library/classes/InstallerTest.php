@@ -631,6 +631,125 @@ class InstallerTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
+    public function testQuickInstallSuccess(): void
+    {
+        $mockInstaller = $this->createMockInstaller([], [
+            'add_initial_user',
+            'add_version_info',
+            'create_database',
+            'create_database_user',
+            'create_dumpfiles',
+            'create_site_directory',
+            'disconnect',
+            'grant_privileges',
+            'install_additional_users',
+            'install_gacl',
+            'insert_globals',
+            'iuser_is_valid',
+            'load_dumpfiles',
+            'login_is_valid',
+            'on_care_coordination',
+            'password_is_valid',
+            'root_database_connection',
+            'user_database_connection',
+            'user_password_is_valid',
+            'write_configuration_file'
+        ]);
+
+        // Mock all validation methods to return true
+        $mockInstaller->expects($this->once())->method('login_is_valid')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('iuser_is_valid')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('user_password_is_valid')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('password_is_valid')->willReturn(true);
+
+        // Mock database connection methods
+        $mockInstaller->expects($this->exactly(2))->method('root_database_connection')->willReturn(true);
+        $mockInstaller->expects($this->exactly(2))->method('user_database_connection')->willReturnOnConsecutiveCalls(false, true);
+        $mockInstaller->expects($this->exactly(2))->method('disconnect')->willReturn(true);
+
+        // Mock database setup methods
+        $mockInstaller->expects($this->once())->method('create_database')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('create_database_user')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('grant_privileges')->willReturn(true);
+
+        // Mock configuration and setup methods
+        $mockInstaller->expects($this->once())->method('load_dumpfiles')->willReturn("Creating Main Database tables...\n<span class='text-success'><b>OK</b></span>.<br>\nCreating Language Translations tables...\n<span class='text-success'><b>OK</b></span>.<br>\n");
+        $mockInstaller->expects($this->once())->method('write_configuration_file')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('add_version_info')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('insert_globals')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('add_initial_user')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('install_gacl')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('install_additional_users')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('on_care_coordination')->willReturn(true);
+
+        $result = $mockInstaller->quick_install();
+
+        $this->assertTrue($result);
+    }
+
+    public function testQuickInstallFailsOnLoginValidation(): void
+    {
+        $mockInstaller = $this->createMockInstaller([], ['login_is_valid']);
+
+        $mockInstaller->expects($this->once())->method('login_is_valid')->willReturn(false);
+
+        $result = $mockInstaller->quick_install();
+
+        $this->assertFalse($result);
+    }
+
+    public function testQuickInstallWithCloneDatabaseSkipsValidation(): void
+    {
+        $mockInstaller = $this->createMockInstaller(['clone_database' => 'source_db'], [
+            'add_initial_user',
+            'add_version_info',
+            'create_database',
+            'create_database_user',
+            'create_dumpfiles',
+            'disconnect',
+            'grant_privileges',
+            'insert_globals',
+            'install_additional_users',
+            'install_gacl',
+            'iuser_is_valid',
+            'load_dumpfiles',
+            'login_is_valid',
+            'password_is_valid',
+            'root_database_connection',
+            'user_database_connection',
+            'user_password_is_valid',
+            'write_configuration_file'
+        ]);
+
+        // Should not call user validation methods when cloning
+        $mockInstaller->expects($this->never())->method('login_is_valid');
+        $mockInstaller->expects($this->never())->method('iuser_is_valid');
+        $mockInstaller->expects($this->never())->method('user_password_is_valid');
+
+        $mockInstaller->expects($this->once())->method('password_is_valid')->willReturn(true);
+        $mockInstaller->expects($this->exactly(2))->method('root_database_connection')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('create_dumpfiles')->willReturn("a string");
+        $mockInstaller->expects($this->exactly(2))->method('user_database_connection')->willReturnOnConsecutiveCalls(false, true);
+        $mockInstaller->expects($this->exactly(2))->method('disconnect')->willReturn(true);
+
+        $mockInstaller->expects($this->once())->method('create_database')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('create_database_user')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('grant_privileges')->willReturn(true);
+        $mockInstaller->expects($this->once())->method('load_dumpfiles')->willReturn("a string");
+        $mockInstaller->expects($this->once())->method('write_configuration_file')->willReturn(true);
+
+        // Should not call these methods when cloning
+        $mockInstaller->expects($this->never())->method('add_version_info');
+        $mockInstaller->expects($this->never())->method('insert_globals');
+        $mockInstaller->expects($this->never())->method('add_initial_user');
+        $mockInstaller->expects($this->never())->method('install_gacl');
+        $mockInstaller->expects($this->never())->method('install_additional_users');
+
+        $result = $mockInstaller->quick_install();
+
+        $this->assertTrue($result);
+    }
+
     public function testLoadDumpfilesFailure(): void
     {
         $mockInstaller = $this->createMockInstaller();
