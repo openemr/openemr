@@ -1,0 +1,86 @@
+# OpenEMR MariaDB Configuration for Vietnamese Physiotherapy Development
+# Optimized for local development with Vietnamese UTF-8mb4 support
+# Author: Dang Tran <tqvdang@msn.com>
+
+[mariadbd]
+# Character set and collation settings for Vietnamese support
+character-set-server = utf8mb4
+collation-server = utf8mb4_vietnamese_ci
+init-connect = 'SET NAMES utf8mb4'
+
+# Performance optimization for development
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_log_buffer_size = 16M
+innodb_flush_log_at_trx_commit = 2
+innodb_file_per_table = 1
+
+# Connection settings
+max_connections = 200
+max_connect_errors = 10000
+wait_timeout = 3600
+interactive_timeout = 3600
+
+# Query cache settings
+query_cache_type = 1
+query_cache_size = 32M
+query_cache_limit = 4M
+
+# Logging settings for development debugging
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+log_queries_not_using_indexes = 1
+
+general_log = 1
+general_log_file = /var/log/mysql/general.log
+
+# Error logging
+log_error = /var/log/mysql/error.log
+log_warnings = 2
+
+# Binary logging (useful for replication and backup)
+log_bin = /var/log/mysql/mysql-bin.log
+binlog_format = ROW
+expire_logs_days = 7
+max_binlog_size = 100M
+
+# Table settings
+table_open_cache = 400
+table_definition_cache = 400
+
+# MyISAM settings (for legacy tables if any)
+key_buffer_size = 32M
+myisam_sort_buffer_size = 8M
+
+# Thread settings
+thread_cache_size = 8
+thread_stack = 256K
+
+# Sort and group settings
+sort_buffer_size = 2M
+read_buffer_size = 128K
+read_rnd_buffer_size = 256K
+join_buffer_size = 2M
+
+# Temporary table settings
+tmp_table_size = 32M
+max_heap_table_size = 32M
+
+# SQL mode for compatibility
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+# Vietnamese locale settings
+lc_time_names = vi_VN
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqldump]
+default-character-set = utf8mb4
+single-transaction = true
+routines = true
+triggers = true
+
+[client]
+default-character-set = utf8mb4
