@@ -32,12 +32,46 @@ class InstallerTest extends TestCase
             'port' => '3306',
             'login' => 'openemr',
             'pass' => 'openemr',
-            'dbname' => 'openemr'
+            'dbname' => 'openemr',
+            'iuser' => 'openemr',
+            'iuname' => 'Administrator',
+            'iuserpass' => 'admin',
+            'igroup' => 'Default'
         ];
 
         $config = array_merge($defaultConfig, $config);
-
-        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance', 'mysqliFetchArray', 'unlinkFile', 'globPattern', 'recurse_copy', 'touchFile', 'writeToFile'];
+        $defaultMockMethods = [
+            'atEndOfFile',
+            'closeFile',
+            'connect_to_database',
+            'createTotpInstance',
+            'cryptoGenClassExists',
+            'encryptTotpSecret',
+            'escapeSql',
+            'execute_sql',
+            'fileExists',
+            'getLine',
+            'globPattern',
+            'load_file',
+            'mysqliErrno',
+            'mysqliError',
+            'mysqliFetchArray',
+            'mysqliInit',
+            'mysqliNumRows',
+            'mysqliQuery',
+            'mysqliRealConnect',
+            'mysqliSelectDb',
+            'mysqliSslSet',
+            'newGaclApi',
+            'openFile',
+            'recurse_copy',
+            'set_collation',
+            'set_sql_strict',
+            'totpClassExists',
+            'touchFile',
+            'unlinkFile',
+            'writeToFile',
+        ];
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
@@ -2289,5 +2323,322 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString("ERROR. Couldn't write 5 lines to config file", $mockInstaller->error_message);
 
         fclose($mockFileHandle);
+    }
+
+    public function testInstallGaclSuccess(): void
+    {
+        $config = [
+            'iuser' => 'admin_user',
+            'iuname' => 'Administrator Name'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Create a mock GACL API
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        // Mock the newGaclApi method to return our mock
+        $mockInstaller->expects($this->once())
+            ->method('newGaclApi')
+            ->willReturn($mockGacl);
+
+        // Mock all add_object_section calls - first one has error checking, others don't
+        $mockGacl->method('add_object_section')
+            ->willReturn(true);
+
+        // Mock all other GACL method calls that will be made
+        $mockGacl->method('add_object')->willReturn(true);
+        $mockGacl->method('add_group')->willReturn(1);
+        $mockGacl->method('add_group_object')->willReturn(true);
+        $mockGacl->method('add_acl')->willReturn(true);
+
+        // The method should succeed and return true
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    public function testInstallGaclFailsOnFirstAddObjectSection(): void
+    {
+        $config = [
+            'iuser' => 'admin_user',
+            'iuname' => 'Administrator Name'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        // Create a mock GACL API
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->expects($this->once())
+            ->method('newGaclApi')
+            ->willReturn($mockGacl);
+
+        // Mock add_object_section calls - first one fails (which should stop execution)
+        $callCount = 0;
+        $mockGacl->method('add_object_section')
+            ->willReturnCallback(function($name, $identifier) use (&$callCount) {
+                $callCount++;
+                if ($callCount === 1) {
+                    // First call (Accounting) should fail
+                    $this->assertEquals('Accounting', $name);
+                    $this->assertEquals('acct', $identifier);
+                    return false;
+                }
+                // Subsequent calls should not happen due to early return
+                return true;
+            });
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertFalse($result);
+        $this->assertEquals("ERROR, Unable to create the access controls for OpenEMR.", $mockInstaller->error_message);
+    }
+
+    public function testInstallGaclUsesCorrectUserInfo(): void
+    {
+        $config = [
+            'iuser' => 'test_admin',
+            'iuname' => 'Test Administrator'
+        ];
+        $mockInstaller = $this->createMockInstaller($config);
+
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')
+            ->willReturn($mockGacl);
+
+        // Mock basic calls
+        $mockGacl->method('add_object_section')->willReturn(true);
+        $mockGacl->method('add_acl')->willReturn(true);
+
+        // Mock add_group to return incremental IDs
+        $groupIdCounter = 0;
+        $mockGacl->method('add_group')
+            ->willReturnCallback(function() use (&$groupIdCounter) {
+                return ++$groupIdCounter;
+            });
+
+        // Mock add_object - verify the user ARO is created correctly
+        $addObjectCalls = [];
+        $mockGacl->method('add_object')
+            ->willReturnCallback(function($section, $name, $identifier, $order, $hidden, $type) use (&$addObjectCalls) {
+                $addObjectCalls[] = [$section, $name, $identifier, $type];
+                return true;
+            });
+
+        // Mock add_group_object - verify the user is added to admin group
+        $addGroupObjectCalls = [];
+        $mockGacl->method('add_group_object')
+            ->willReturnCallback(function($groupId, $section, $identifier, $type) use (&$addGroupObjectCalls) {
+                $addGroupObjectCalls[] = [$groupId, $section, $identifier, $type];
+                return true;
+            });
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+
+        // Verify the user ARO was created correctly
+        $this->assertContains(['users', 'Test Administrator', 'test_admin', 'ARO'], $addObjectCalls);
+
+        // Verify the user was added to the admin group (group ID 2)
+        $this->assertContains([2, 'users', 'test_admin', 'ARO'], $addGroupObjectCalls);
+    }
+
+    public function testInstallGaclCreatesExpectedSections(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')->willReturn($mockGacl);
+
+        // Define expected sections in order
+        $expectedSections = [
+            ['Accounting', 'acct'],
+            ['Administration', 'admin'],
+            ['Encounters', 'encounters'],
+            ['Lists', 'lists'],
+            ['Patients', 'patients'],
+            ['Squads', 'squads'],
+            ['Sensitivities', 'sensitivities'],
+            ['Placeholder', 'placeholder'],
+            ['Nation Notes', 'nationnotes'],
+            ['Patient Portal', 'patientportal'],
+            ['Menus', 'menus'],
+            ['Groups', 'groups'],
+            ['Inventory', 'inventory'],
+            ['Users', 'users'] // ARO section
+        ];
+
+        // Expect all sections to be created
+        $mockGacl->expects($this->exactly(count($expectedSections)))
+            ->method('add_object_section')
+            ->willReturnCallback(function($name, $identifier) use ($expectedSections) {
+                static $callCount = 0;
+                $expected = $expectedSections[$callCount];
+                $this->assertEquals($expected[0], $name);
+                $this->assertEquals($expected[1], $identifier);
+                $callCount++;
+                return true;
+            });
+
+        // Mock other methods to avoid errors
+        $mockGacl->method('add_object')->willReturn(true);
+        $mockGacl->method('add_group')->willReturn(1);
+        $mockGacl->method('add_group_object')->willReturn(true);
+        $mockGacl->method('add_acl')->willReturn(true);
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+    }
+
+    public function testInstallGaclCreatesExpectedGroups(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')->willReturn($mockGacl);
+
+        $expectedGroups = [
+            ['users', 'OpenEMR Users', 0],
+            ['admin', 'Administrators', 1], // 1 is the users group ID
+            ['clin', 'Clinicians', 1],
+            ['doc', 'Physicians', 1],
+            ['front', 'Front Office', 1],
+            ['back', 'Accounting', 1],
+            ['breakglass', 'Emergency Login', 1]
+        ];
+
+        // Mock add_group calls and return incremental IDs
+        $callCount = 0;
+        $mockGacl->expects($this->exactly(count($expectedGroups)))
+            ->method('add_group')
+            ->willReturnCallback(function($identifier, $name, $parent) use ($expectedGroups, &$callCount) {
+                $expected = $expectedGroups[$callCount];
+                $this->assertEquals($expected[0], $identifier);
+                $this->assertEquals($expected[1], $name);
+                $this->assertEquals($expected[2], $parent);
+                return ++$callCount; // Return group ID
+            });
+
+        // Mock other methods
+        $mockGacl->method('add_object_section')->willReturn(true);
+        $mockGacl->method('add_object')->willReturn(true);
+        $mockGacl->method('add_group_object')->willReturn(true);
+        $mockGacl->method('add_acl')->willReturn(true);
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+    }
+
+    public function testInstallGaclSetsAdministratorPermissions(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')->willReturn($mockGacl);
+
+        // Mock the basic setup calls
+        $mockGacl->method('add_object_section')->willReturn(true);
+        $mockGacl->method('add_object')->willReturn(true);
+        $mockGacl->method('add_group')->willReturn(2); // Return admin group ID = 2
+        $mockGacl->method('add_group_object')->willReturn(true);
+
+        // The key test: verify administrator ACL is created correctly
+        $expectedAdminAcos = [
+            'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+            'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+            'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+            'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
+            'lists' => ['default','state','country','language','ethrace'],
+            'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
+            'sensitivities' => ['normal', 'high'],
+            'nationnotes' => ['nn_configure'],
+            'patientportal' => ['portal'],
+            'menus' => ['modle'],
+            'groups' => ['gadd','gcalendar','glog','gdlog','gm']
+        ];
+
+        // Expect add_acl to be called multiple times, we'll verify the first one (admin)
+        $mockGacl->expects($this->atLeastOnce())
+            ->method('add_acl')
+            ->willReturnCallback(function($acos, $aros1, $aros2, $axos1, $axos2, $enabled, $enabled2, $access, $note) use ($expectedAdminAcos) {
+                static $firstCall = true;
+                if ($firstCall) {
+                    // Verify the first ACL call is for administrators
+                    $this->assertEquals($expectedAdminAcos, $acos);
+                    $this->assertEquals([2], $aros2); // Admin group ID
+                    $this->assertEquals('write', $access);
+                    $this->assertStringContainsString('Administrators can do anything', $note);
+                    $firstCall = false;
+                }
+                return true;
+            });
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+    }
+
+    public function testInstallGaclWithDefaultUserConfig(): void
+    {
+        // Test with default config values
+        $mockInstaller = $this->createMockInstaller(); // No custom config
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')->willReturn($mockGacl);
+
+        // Mock basic calls
+        $mockGacl->method('add_object_section')->willReturn(true);
+        $mockGacl->method('add_object')->willReturn(true);
+        $mockGacl->method('add_group')->willReturn(1);
+        $mockGacl->method('add_acl')->willReturn(true);
+
+        // Test default user values are used
+        $mockGacl->expects($this->once())
+            ->method('add_group_object')
+            ->with(1, 'users', 'openemr', 'ARO') // Default iuser value
+            ->willReturn(true);
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+    }
+
+    public function testInstallGaclCreatesAllObjectTypes(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')->willReturn($mockGacl);
+
+        // Track calls to add_object to ensure all expected objects are created
+        $addObjectCalls = [];
+        $mockGacl->method('add_object')
+            ->willReturnCallback(function($section, $name, $identifier, $order, $hidden, $type) use (&$addObjectCalls) {
+                $addObjectCalls[] = [$section, $identifier, $type];
+                return true;
+            });
+
+        // Mock other methods
+        $mockGacl->method('add_object_section')->willReturn(true);
+        $mockGacl->method('add_group')->willReturn(1);
+        $mockGacl->method('add_group_object')->willReturn(true);
+        $mockGacl->method('add_acl')->willReturn(true);
+
+        $result = $mockInstaller->install_gacl();
+
+        $this->assertTrue($result);
+
+        // Verify some key objects were created
+        $this->assertContains(['acct', 'bill', 'ACO'], $addObjectCalls);
+        $this->assertContains(['admin', 'super', 'ACO'], $addObjectCalls);
+        $this->assertContains(['patients', 'demo', 'ACO'], $addObjectCalls);
+        $this->assertContains(['users', 'openemr', 'ARO'], $addObjectCalls); // Default user
+
+        // Should have created many objects (ACOs and at least one ARO)
+        $this->assertGreaterThan(50, count($addObjectCalls));
     }
 }
