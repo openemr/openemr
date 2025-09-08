@@ -262,20 +262,6 @@ class Installer
     }
 
     /**
-     * Wrapper for mysqli_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $mysql
-     * @param string $dbname
-     * @return bool
-     */
-    protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
-    {
-        return mysqli_select_db($mysql, $dbname);
-    }
-
-    /**
      * Establish a database connection using user credentials.
      *
      * Connects to the database server using the configured user account,
@@ -341,19 +327,6 @@ class Installer
     }
 
     /**
-     * Wrapper for mysqli_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli_result $result
-     * @return int
-     */
-    protected function mysqliNumRows(mysqli_result $result): int
-    {
-        return mysqli_num_rows($result);
-    }
-
-    /**
      * Create or update the database user account.
      *
      * Checks if the user exists in mysql.user (or mysql.global_priv for MariaDB 10.4+),
@@ -411,18 +384,6 @@ class Installer
         return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "'");
     }
 
-    /**
-     * Close the mysqli connection.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return true
-     */
-    public function disconnect(): true
-    {
-        return mysqli_close($this->dbh);
-    }
-
   /**
    * This method creates any dumpfiles necessary.
    * This is actually only done if we're cloning an existing site
@@ -457,60 +418,6 @@ class Installer
         }
 
         return $sql_results;
-    }
-
-    /**
-     * Wrapper for fopen to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $filename
-     * @param string $mode
-     * @return resource|false
-     */
-    protected function openFile(string $filename, string $mode)
-    {
-        return fopen($filename, $mode);
-    }
-
-    /**
-     * Wrapper for feof to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param resource $stream
-     * @return bool
-     */
-    protected function atEndOfFile($stream): bool
-    {
-        return feof($stream);
-    }
-
-    /**
-     * Wrapper for fgets to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param resource $stream
-     * @param int $length
-     * @return string|false
-     */
-    protected function getLine($stream, int $length): string|false
-    {
-        return fgets($stream, $length);
-    }
-
-    /**
-     * Wrapper for fclose to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param resource $stream
-     * @return bool
-     */
-    protected function closeFile($stream): bool
-    {
-        return fclose($stream);
     }
 
     /**
@@ -657,7 +564,7 @@ class Installer
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-            die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            $this->die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
         }
         if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'{$escapedUser}','{$escapedHash}',NOW())") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
@@ -883,18 +790,6 @@ $config = 1; /////////////
         }
 
         return true;
-    }
-
-    /**
-     * Create a new instance of the GaclApi class.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return GaclApi New instance of GaclApi
-     */
-    protected function newGaclApi(): GaclApi
-    {
-        return new GaclApi();
     }
 
 
@@ -1570,19 +1465,6 @@ $config = 1; /////////////
     }
 
     /**
-     * Escape SQL strings to prevent injection attacks.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $sql SQL string to escape
-     * @return string Escaped SQL string
-     */
-    protected function escapeSql(string $sql): string
-    {
-        return mysqli_real_escape_string($this->dbh, $sql);
-    }
-
-    /**
      * Validate and escape database name.
      *
      * Ensures database name contains only safe characters.
@@ -1594,8 +1476,7 @@ $config = 1; /////////////
     protected function escapeDatabaseName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
-            error_log("Illegal character(s) in database name");
-            die("Illegal character(s) in database name");
+            $this->die("Illegal character(s) in database name");
         }
         return $name;
     }
@@ -1612,117 +1493,9 @@ $config = 1; /////////////
     protected function escapeCollateName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
-            error_log("Illegal character(s) in collation name");
-            die("Illegal character(s) in collation name");
+            $this->die("Illegal character(s) in collation name");
         }
         return $name;
-    }
-
-    /**
-     * Wrapper for mysqli_query to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $mysql
-     * @param string $query
-     * @return mysqli_result|bool
-     */
-    protected function mysqliQuery(mysqli $mysql, string $query): mysqli_result|bool
-    {
-        return mysqli_query($mysql, $query);
-    }
-
-    /**
-     * Wrapper for mysqli_error to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $mysql
-     * @return string
-     */
-    protected function mysqliError(mysqli $mysql): string
-    {
-        return mysqli_error($mysql);
-    }
-
-    /**
-     * Wrapper for mysqli_errno to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $mysql
-     * @return int
-     */
-    protected function mysqliErrno(mysqli $mysql): int
-    {
-        return mysqli_errno($mysql);
-    }
-
-    /**
-     * Wrapper for mysqli_fetch_array to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli_result $result
-     * @param int $mode
-     * @return array|null|false
-     */
-    protected function mysqliFetchArray(mysqli_result $result, int $mode = MYSQLI_BOTH): array|null|false
-    {
-        return mysqli_fetch_array($result, $mode);
-    }
-
-    /**
-     * Check if Totp class exists.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return bool
-     */
-    protected function totpClassExists(): bool
-    {
-        return class_exists('Totp');
-    }
-
-    /**
-     * Check if OpenEMR CryptoGen class exists.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return bool
-     */
-    protected function cryptoGenClassExists(): bool
-    {
-        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
-    }
-
-    /**
-     * Encrypt TOTP secret using CryptoGen.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $secret The TOTP secret to encrypt
-     * @param string $hash The password hash to use for encryption
-     * @return string Encrypted secret
-     */
-    protected function encryptTotpSecret(string $secret, string $hash): string
-    {
-        $cryptoGen = new \OpenEMR\Common\Crypto\CryptoGen();
-        return $cryptoGen->encryptStandard($secret, $hash);
-    }
-
-    /**
-     * Create a new Totp instance.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $secret The TOTP secret
-     * @param string $user The username
-     * @return Totp
-     */
-    protected function createTotpInstance(string $secret, string $user): Totp
-    {
-        return new Totp($secret, $user);
     }
 
     /**
@@ -1762,126 +1535,6 @@ $config = 1; /////////////
             }
             return false;
         }
-    }
-
-    /**
-     * Wrapper for mysqli_init to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return mysqli|false
-     */
-    protected function mysqliInit(): mysqli|false
-    {
-        return mysqli_init();
-    }
-
-    /**
-     * Wrapper for file_exists to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $fileName
-     * @return bool
-     */
-    protected function fileExists(string $fileName): bool
-    {
-        return file_exists($fileName);
-    }
-
-    /**
-     * Wrapper for unlink to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $filename
-     * @return bool
-     */
-    protected function unlinkFile(string $filename): bool
-    {
-        return unlink($filename);
-    }
-
-    /**
-     * Wrapper for glob to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $pattern
-     * @param int $flags
-     * @return array|false
-     */
-    protected function globPattern(string $pattern, int $flags = 0): array|false
-    {
-        return glob($pattern, $flags);
-    }
-
-    /**
-     * Wrapper for touch to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $filename
-     * @param ?int $mtime
-     * @param ?int $atime
-     * @return bool
-     */
-    protected function touchFile(string $filename, ?int $mtime = null, ?int $atime = null): bool
-    {
-        return touch($filename, $mtime, $atime);
-    }
-
-    /**
-     * Wrapper for fwrite to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param resource $stream
-     * @param string $data
-     * @param ?int $length
-     * @return int|false
-     */
-    protected function writeToFile($stream, string $data, ?int $length = null): int|false
-    {
-        return $length !== null ? fwrite($stream, $data, $length) : fwrite($stream, $data);
-    }
-
-    /**
-     * Wrapper for mysqli_ssl_set to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param ?string $key
-     * @param ?string $cert
-     * @param ?string $ca
-     * @param ?string $capath
-     * @param ?string $cipher
-     * @return bool
-     */
-    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
-    {
-        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
-    }
-
-    /**
-     * Wrapper for mysqli_real_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param string $host
-     * @param string $user
-     * @param string $password
-     * @param string $database
-     * @param int $port
-     * @param string $socket
-     * @param int $flags
-     * @return bool
-     */
-    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
-    {
-        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
     }
 
     protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
@@ -2046,7 +1699,7 @@ $config = 1; /////////////
         include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
 
         if (empty($config)) {
-            die("Source site $source_site_id has not been set up!");
+            $this->die("Source site $source_site_id has not been set up!");
         }
 
         /**
@@ -2065,7 +1718,7 @@ $config = 1; /////////////
         $tmp1 = [];
         $tmp0 = exec($cmd, $tmp1, $tmp2);
         if ($tmp2) {
-            die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+            $this->die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
         }
 
         return $backup_file;
@@ -2309,5 +1962,363 @@ DSTD;
         </script>
 SETHLP;
         echo $setup_help_modal  . "\r\n";
+    }
+
+    /**
+     * Wrapper for feof to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @return bool
+     */
+    protected function atEndOfFile($stream): bool
+    {
+        return feof($stream);
+    }
+
+    /**
+     * Wrapper for fclose to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @return bool
+     */
+    protected function closeFile($stream): bool
+    {
+        return fclose($stream);
+    }
+
+    /**
+     * Create a new Totp instance.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $secret The TOTP secret
+     * @param string $user The username
+     * @return Totp
+     */
+    protected function createTotpInstance(string $secret, string $user): Totp
+    {
+        return new Totp($secret, $user);
+    }
+
+    /**
+     * Check if OpenEMR CryptoGen class exists.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function cryptoGenClassExists(): bool
+    {
+        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
+    }
+
+    /**
+     * Wrapper for die() to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return never
+     */
+    protected function die(string $message): never
+    {
+        error_log($message);
+        die($message);
+    }
+
+    /**
+     * Close the mysqli connection.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return true
+     */
+    public function disconnect(): true
+    {
+        return mysqli_close($this->dbh);
+    }
+
+    /**
+     * Encrypt TOTP secret using CryptoGen.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $secret The TOTP secret to encrypt
+     * @param string $hash The password hash to use for encryption
+     * @return string Encrypted secret
+     */
+    protected function encryptTotpSecret(string $secret, string $hash): string
+    {
+        $cryptoGen = new \OpenEMR\Common\Crypto\CryptoGen();
+        return $cryptoGen->encryptStandard($secret, $hash);
+    }
+
+    /**
+     * Escape SQL strings to prevent injection attacks.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $sql SQL string to escape
+     * @return string Escaped SQL string
+     */
+    protected function escapeSql(string $sql): string
+    {
+        return mysqli_real_escape_string($this->dbh, $sql);
+    }
+
+    /**
+     * Wrapper for file_exists to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $fileName
+     * @return bool
+     */
+    protected function fileExists(string $fileName): bool
+    {
+        return file_exists($fileName);
+    }
+
+    /**
+     * Wrapper for fgets to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @param int $length
+     * @return string|false
+     */
+    protected function getLine($stream, int $length): string|false
+    {
+        return fgets($stream, $length);
+    }
+
+    /**
+     * Wrapper for glob to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $pattern
+     * @param int $flags
+     * @return array|false
+     */
+    protected function globPattern(string $pattern, int $flags = 0): array|false
+    {
+        return glob($pattern, $flags);
+    }
+
+    /**
+     * Wrapper for mysqli_errno to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @return int
+     */
+    protected function mysqliErrno(mysqli $mysql): int
+    {
+        return mysqli_errno($mysql);
+    }
+
+    /**
+     * Wrapper for mysqli_error to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @return string
+     */
+    protected function mysqliError(mysqli $mysql): string
+    {
+        return mysqli_error($mysql);
+    }
+
+    /**
+     * Wrapper for mysqli_fetch_array to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli_result $result
+     * @param int $mode
+     * @return array|null|false
+     */
+    protected function mysqliFetchArray(mysqli_result $result, int $mode = MYSQLI_BOTH): array|null|false
+    {
+        return mysqli_fetch_array($result, $mode);
+    }
+
+    /**
+     * Wrapper for mysqli_init to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return mysqli|false
+     */
+    protected function mysqliInit(): mysqli|false
+    {
+        return mysqli_init();
+    }
+
+    /**
+     * Wrapper for mysqli_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli_result $result
+     * @return int
+     */
+    protected function mysqliNumRows(mysqli_result $result): int
+    {
+        return mysqli_num_rows($result);
+    }
+
+    /**
+     * Wrapper for mysqli_query to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @param string $query
+     * @return mysqli_result|bool
+     */
+    protected function mysqliQuery(mysqli $mysql, string $query): mysqli_result|bool
+    {
+        return mysqli_query($mysql, $query);
+    }
+
+    /**
+     * Wrapper for mysqli_real_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $link
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $database
+     * @param int $port
+     * @param string $socket
+     * @param int $flags
+     * @return bool
+     */
+    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
+    {
+        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
+    }
+
+    /**
+     * Wrapper for mysqli_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @param string $dbname
+     * @return bool
+     */
+    protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
+    {
+        return mysqli_select_db($mysql, $dbname);
+    }
+
+    /**
+     * Wrapper for mysqli_ssl_set to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $link
+     * @param ?string $key
+     * @param ?string $cert
+     * @param ?string $ca
+     * @param ?string $capath
+     * @param ?string $cipher
+     * @return bool
+     */
+    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
+    {
+        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
+    }
+
+    /**
+     * Create a new instance of the GaclApi class.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return GaclApi New instance of GaclApi
+     */
+    protected function newGaclApi(): GaclApi
+    {
+        return new GaclApi();
+    }
+
+    /**
+     * Wrapper for fopen to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @param string $mode
+     * @return resource|false
+     */
+    protected function openFile(string $filename, string $mode)
+    {
+        return fopen($filename, $mode);
+    }
+
+    /**
+     * Check if Totp class exists.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function totpClassExists(): bool
+    {
+        return class_exists('Totp');
+    }
+
+    /**
+     * Wrapper for touch to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @param ?int $mtime
+     * @param ?int $atime
+     * @return bool
+     */
+    protected function touchFile(string $filename, ?int $mtime = null, ?int $atime = null): bool
+    {
+        return touch($filename, $mtime, $atime);
+    }
+
+    /**
+     * Wrapper for unlink to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @return bool
+     */
+    protected function unlinkFile(string $filename): bool
+    {
+        return unlink($filename);
+    }
+
+    /**
+     * Wrapper for fwrite to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @param string $data
+     * @param ?int $length
+     * @return int|false
+     */
+    protected function writeToFile($stream, string $data, ?int $length = null): int|false
+    {
+        return $length !== null ? fwrite($stream, $data, $length) : fwrite($stream, $data);
     }
 }
