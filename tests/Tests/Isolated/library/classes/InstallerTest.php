@@ -37,7 +37,7 @@ class InstallerTest extends TestCase
 
         $config = array_merge($defaultConfig, $config);
 
-        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance'];
+        $defaultMockMethods = ['mysqliInit', 'mysqliRealConnect', 'fileExists', 'mysqliSslSet', 'mysqliQuery', 'mysqliError', 'mysqliErrno', 'mysqliSelectDb', 'execute_sql', 'connect_to_database', 'set_sql_strict', 'set_collation', 'escapeSql', 'mysqliNumRows', 'load_file', 'openFile', 'atEndOfFile', 'getLine', 'closeFile', 'totpClassExists', 'cryptoGenClassExists', 'encryptTotpSecret', 'createTotpInstance', 'mysqliFetchArray'];
         $mockMethods = array_unique(array_merge($defaultMockMethods, $mockMethods));
 
         return $this->getMockBuilder(Installer::class)
@@ -1216,6 +1216,261 @@ class InstallerTest extends TestCase
             ->willReturn($expectedReturnString);
 
         $result = $mockInstaller->install_additional_users();
+
+        $this->assertTrue($result);
+    }
+
+    public function testOnCareCoordinationSuccess(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Mock the database query results
+        $mockModuleResult = $this->createMock(mysqli_result::class);
+        $mockSectionResult = $this->createMock(mysqli_result::class);
+        $mockGroupResult = $this->createMock(mysqli_result::class);
+
+        // Set up execute_sql expectations for the three SELECT queries and one INSERT
+        $callCount = 0;
+        $mockInstaller->expects($this->exactly(4))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockModuleResult, $mockSectionResult, $mockGroupResult) {
+                $callCount++;
+                switch ($callCount) {
+                    case 1:
+                        $this->assertStringContainsString("SELECT `mod_id` FROM `modules`", $sql);
+                        return $mockModuleResult;
+                    case 2:
+                        $this->assertStringContainsString("SELECT `section_id` FROM `module_acl_sections`", $sql);
+                        return $mockSectionResult;
+                    case 3:
+                        $this->assertStringContainsString("SELECT `id` FROM `gacl_aro_groups`", $sql);
+                        return $mockGroupResult;
+                    case 4:
+                        $this->assertStringContainsString("INSERT INTO `module_acl_group_settings`", $sql);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+
+        // Mock mysqliFetchArray to return the expected data
+        $mockInstaller->expects($this->exactly(3))
+            ->method('mysqliFetchArray')
+            ->willReturnOnConsecutiveCalls(
+                ['mod_id' => '123'],
+                ['section_id' => '456'],
+                ['id' => '789']
+            );
+
+        // Mock escapeSql to return the input unchanged for testing
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->on_care_coordination();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    public function testOnCareCoordinationFailsWhenModuleNotFound(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockModuleResult = $this->createMock(mysqli_result::class);
+
+        $mockInstaller->expects($this->once())
+            ->method('execute_sql')
+            ->with($this->stringContains("SELECT `mod_id` FROM `modules`"))
+            ->willReturn($mockModuleResult);
+
+        // Return empty mod_id to simulate module not found
+        $mockInstaller->expects($this->once())
+            ->method('mysqliFetchArray')
+            ->with($mockModuleResult, MYSQLI_ASSOC)
+            ->willReturn(['mod_id' => '']);
+
+        $result = $mockInstaller->on_care_coordination();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR configuring Care Coordination module. Unable to get mod_id for Carecoordination module', $mockInstaller->error_message);
+    }
+
+    public function testOnCareCoordinationFailsWhenSectionNotFound(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockModuleResult = $this->createMock(mysqli_result::class);
+        $mockSectionResult = $this->createMock(mysqli_result::class);
+
+        $callCount = 0;
+        $mockInstaller->expects($this->exactly(2))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockModuleResult, $mockSectionResult) {
+                $callCount++;
+                if ($callCount === 1) {
+                    $this->assertStringContainsString("SELECT `mod_id` FROM `modules`", $sql);
+                    return $mockModuleResult;
+                } else {
+                    $this->assertStringContainsString("SELECT `section_id` FROM `module_acl_sections`", $sql);
+                    return $mockSectionResult;
+                }
+            });
+
+        // First call returns valid mod_id, second call returns empty section_id
+        $mockInstaller->expects($this->exactly(2))
+            ->method('mysqliFetchArray')
+            ->willReturnOnConsecutiveCalls(
+                ['mod_id' => '123'],
+                ['section_id' => '']
+            );
+
+        $result = $mockInstaller->on_care_coordination();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR configuring Care Coordination module. Unable to get section_id for carecoordination module section', $mockInstaller->error_message);
+    }
+
+    public function testOnCareCoordinationFailsWhenGroupNotFound(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockModuleResult = $this->createMock(mysqli_result::class);
+        $mockSectionResult = $this->createMock(mysqli_result::class);
+        $mockGroupResult = $this->createMock(mysqli_result::class);
+
+        $callCount = 0;
+        $mockInstaller->expects($this->exactly(3))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockModuleResult, $mockSectionResult, $mockGroupResult) {
+                $callCount++;
+                switch ($callCount) {
+                    case 1:
+                        $this->assertStringContainsString("SELECT `mod_id` FROM `modules`", $sql);
+                        return $mockModuleResult;
+                    case 2:
+                        $this->assertStringContainsString("SELECT `section_id` FROM `module_acl_sections`", $sql);
+                        return $mockSectionResult;
+                    case 3:
+                        $this->assertStringContainsString("SELECT `id` FROM `gacl_aro_groups`", $sql);
+                        return $mockGroupResult;
+                    default:
+                        return false;
+                }
+            });
+
+        // First two calls succeed, third returns empty group id
+        $mockInstaller->expects($this->exactly(3))
+            ->method('mysqliFetchArray')
+            ->willReturnOnConsecutiveCalls(
+                ['mod_id' => '123'],
+                ['section_id' => '456'],
+                ['id' => '']
+            );
+
+        $result = $mockInstaller->on_care_coordination();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR configuring Care Coordination module. Unable to get id for gacl_aro_groups admin section', $mockInstaller->error_message);
+    }
+
+    public function testOnCareCoordinationFailsWhenInsertFails(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockModuleResult = $this->createMock(mysqli_result::class);
+        $mockSectionResult = $this->createMock(mysqli_result::class);
+        $mockGroupResult = $this->createMock(mysqli_result::class);
+
+        $callCount = 0;
+        $mockInstaller->expects($this->exactly(4))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockModuleResult, $mockSectionResult, $mockGroupResult) {
+                $callCount++;
+                switch ($callCount) {
+                    case 1:
+                        $this->assertStringContainsString("SELECT `mod_id` FROM `modules`", $sql);
+                        return $mockModuleResult;
+                    case 2:
+                        $this->assertStringContainsString("SELECT `section_id` FROM `module_acl_sections`", $sql);
+                        return $mockSectionResult;
+                    case 3:
+                        $this->assertStringContainsString("SELECT `id` FROM `gacl_aro_groups`", $sql);
+                        return $mockGroupResult;
+                    case 4:
+                        $this->assertStringContainsString("INSERT INTO `module_acl_group_settings`", $sql);
+                        return false; // Insert fails
+                    default:
+                        return false;
+                }
+            });
+
+        // All SELECT queries succeed
+        $mockInstaller->expects($this->exactly(3))
+            ->method('mysqliFetchArray')
+            ->willReturnOnConsecutiveCalls(
+                ['mod_id' => '123'],
+                ['section_id' => '456'],
+                ['id' => '789']
+            );
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->on_care_coordination();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('ERROR configuring Care Coordination module. Unable to add the module_acl_group_settings acl entry', $mockInstaller->error_message);
+    }
+
+    public function testOnCareCoordinationWithCorrectSqlQueries(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockModuleResult = $this->createMock(mysqli_result::class);
+        $mockSectionResult = $this->createMock(mysqli_result::class);
+        $mockGroupResult = $this->createMock(mysqli_result::class);
+
+        $expectedQueries = [
+            "SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1",
+            "SELECT `section_id` FROM `module_acl_sections` WHERE `section_identifier` = 'carecoordination' LIMIT 1",
+            "SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1"
+        ];
+
+        $callCount = 0;
+        $mockInstaller->expects($this->exactly(4))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$callCount, $mockModuleResult, $mockSectionResult, $mockGroupResult, $expectedQueries) {
+                $callCount++;
+                switch ($callCount) {
+                    case 1:
+                    case 2:
+                    case 3:
+                        $this->assertEquals($expectedQueries[$callCount - 1], $sql);
+                        return [$mockModuleResult, $mockSectionResult, $mockGroupResult][$callCount - 1];
+                    case 4:
+                        $this->assertStringContainsString("INSERT INTO `module_acl_group_settings`", $sql);
+                        $this->assertStringContainsString("'123'", $sql);
+                        $this->assertStringContainsString("'789'", $sql);
+                        $this->assertStringContainsString("'456'", $sql);
+                        $this->assertStringContainsString("1", $sql);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+
+        $mockInstaller->expects($this->exactly(3))
+            ->method('mysqliFetchArray')
+            ->willReturnOnConsecutiveCalls(
+                ['mod_id' => '123'],
+                ['section_id' => '456'],
+                ['id' => '789']
+            );
+
+        $mockInstaller->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $result = $mockInstaller->on_care_coordination();
 
         $this->assertTrue($result);
     }
