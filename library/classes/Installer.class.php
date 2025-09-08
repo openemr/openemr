@@ -886,6 +886,19 @@ $config = 1; /////////////
     }
 
     /**
+     * Create a new instance of the GaclApi class.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return GaclApi New instance of GaclApi
+     */
+    protected function newGaclApi(): GaclApi
+    {
+        return new GaclApi();
+    }
+
+
+    /**
      * Install the Generic Access Control List (GACL) system.
      *
      * Creates all access control objects (ACOs), sections, and groups
@@ -895,11 +908,9 @@ $config = 1; /////////////
      */
     public function install_gacl(): bool
     {
-
-        $gacl = new GaclApi();
+        $gacl = $this->newGaclApi();
 
         // Create the ACO sections.  Every ACO must have a section.
-        //
         if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
             $this->error_message = "ERROR, Unable to create the access controls for OpenEMR.";
             return false;
@@ -931,7 +942,6 @@ $config = 1; /////////////
         // xl('Inventory')
 
         // Create Accounting ACOs.
-        //
         $gacl->add_object('acct', 'Billing (write optional)', 'bill', 10, 0, 'ACO');
         // xl('Billing (write optional)')
         $gacl->add_object('acct', 'Price Discounting', 'disc', 10, 0, 'ACO');
@@ -944,7 +954,6 @@ $config = 1; /////////////
         // xl('Financial Reporting - anything')
 
         // Create Administration ACOs.
-        //
         $gacl->add_object('admin', 'Superuser', 'super', 10, 0, 'ACO');
         // xl('Superuser')
         $gacl->add_object('admin', 'Calendar Settings', 'calendar', 10, 0, 'ACO');
@@ -976,7 +985,6 @@ $config = 1; /////////////
 
 
         // Create ACOs for encounters.
-        //
         $gacl->add_object('encounters', 'Authorize - my encounters', 'auth', 10, 0, 'ACO');
         // xl('Authorize - my encounters')
         $gacl->add_object('encounters', 'Authorize - any encounters', 'auth_a', 10, 0, 'ACO');
@@ -995,7 +1003,6 @@ $config = 1; /////////////
         // xl('Less-protected information (write,addonly optional)')
 
         // Create ACOs for lists.
-        //
         $gacl->add_object('lists', 'Default List (write,addonly optional)', 'default', 10, 0, 'ACO');
         // xl('Default List (write,addonly optional)')
         $gacl->add_object('lists', 'State List (write,addonly optional)', 'state', 10, 0, 'ACO');
@@ -1008,17 +1015,14 @@ $config = 1; /////////////
         // xl('Ethnicity-Race List (write,addonly optional)')
 
         // Create ACOs for patientportal.
-        //
         $gacl->add_object('patientportal', 'Patient Portal', 'portal', 10, 0, 'ACO');
         // xl('Patient Portal')
 
         // Create ACOs for modules.
-        //
         $gacl->add_object('menus', 'Modules', 'modle', 10, 0, 'ACO');
         // xl('Modules')
 
         // Create ACOs for patients.
-        //
         $gacl->add_object('patients', 'Appointments (write,wsome optional)', 'appt', 10, 0, 'ACO');
         // xl('Appointments (write,wsome optional)')
         $gacl->add_object('patients', 'Demographics (write,addonly optional)', 'demo', 10, 0, 'ACO');
@@ -1063,24 +1067,20 @@ $config = 1; /////////////
         // xl('Send message from the permanent group therapist to the personal therapist')
 
         // Create ACOs for sensitivities.
-        //
         $gacl->add_object('sensitivities', 'Normal', 'normal', 10, 0, 'ACO');
         // xl('Normal')
         $gacl->add_object('sensitivities', 'High', 'high', 20, 0, 'ACO');
         // xl('High')
 
         // Create ACO for placeholder.
-        //
         $gacl->add_object('placeholder', 'Placeholder (Maintains empty ACLs)', 'filler', 10, 0, 'ACO');
         // xl('Placeholder (Maintains empty ACLs)')
 
         // Create ACO for nationnotes.
-        //
         $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');
         // xl('Nation Notes Configure')
 
         // Create ACOs for Inventory.
-        //
         $gacl->add_object('inventory', 'Lots', 'lots', 10, 0, 'ACO');
         // xl('Lots')
         $gacl->add_object('inventory', 'Sales', 'sales', 20, 0, 'ACO');
@@ -1099,7 +1099,6 @@ $config = 1; /////////////
         // xl('Reporting')
 
         // Create ARO groups.
-        //
         $users = $gacl->add_group('users', 'OpenEMR Users', 0, 'ARO');
         // xl('OpenEMR Users')
         $admin = $gacl->add_group('admin', 'Administrators', $users, 'ARO');
@@ -1117,7 +1116,6 @@ $config = 1; /////////////
 
 
         // Create a Users section for the AROs (humans).
-        //
         $gacl->add_object_section('Users', 'users', 10, 0, 'ARO');
         // xl('Users')
 
@@ -1133,7 +1131,6 @@ $config = 1; /////////////
         //  xl('write') xl('wsome') xl('addonly') xl('view')
 
         // Set permissions for administrators.
-        //
         $gacl->add_acl(
             array(
                 'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
@@ -1160,7 +1157,6 @@ $config = 1; /////////////
         // xl('Administrators can do anything')
 
         // Set permissions for physicians.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('pat_rep')
@@ -1225,7 +1221,6 @@ $config = 1; /////////////
         // xl('Things that physicians can read and modify')
 
         // Set permissions for clinicians.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('pat_rep')
@@ -1289,7 +1284,6 @@ $config = 1; /////////////
         // xl('Things that clinicians can read and modify')
 
         // Set permissions for front office staff.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('alert')
@@ -1349,7 +1343,6 @@ $config = 1; /////////////
         // xl('Things that front office can read and modify')
 
         // Set permissions for back office staff.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('alert')
@@ -1411,7 +1404,6 @@ $config = 1; /////////////
         // xl('Things that back office can read and modify')
 
         // Set permissions for Emergency Login.
-        //
         $gacl->add_acl(
             array(
                 'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
