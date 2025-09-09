@@ -65,6 +65,7 @@ class InstallerTest extends TestCase
             'newGaclApi',
             'openFile',
             'recurse_copy',
+            'scanDir',
             'set_collation',
             'set_sql_strict',
             'totpClassExists',
@@ -3372,5 +3373,370 @@ class InstallerTest extends TestCase
         $this->assertFalse($result);
         // user_database_connection sets its own error message for failed connections
         $this->assertStringContainsString("unable to connect to database as user: 'openemr'", $mockInstaller->error_message);
+    }
+
+    // Test extractFileName method through displayThemesDivs output
+    public function testExtractFileNameThroughDisplayThemes(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Mock scanDir to return specific theme files to test extractFileName logic
+        $mockInstaller->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn(['.', '..', 'theme_modern_light.png', 'theme_bootstrap_blue_dark.png']);
+
+        ob_start();
+        $mockInstaller->displayThemesDivs();
+        $output = ob_get_clean();
+
+        // Verify extractFileName correctly parsed the theme names
+        $this->assertStringContainsString('Modern Light', $output);  // theme_modern_light.png -> Modern Light
+        $this->assertStringContainsString('Bootstrap Blue Dark', $output);  // theme_bootstrap_blue_dark.png -> Bootstrap Blue Dark
+        $this->assertStringContainsString('value=\'modern_light\'', $output);
+        $this->assertStringContainsString('value=\'bootstrap_blue_dark\'', $output);
+    }
+
+    // Test listThemes method with mocked scanDir
+    public function testListThemes(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Mock scanDir to return sample directory listing
+        $mockInstaller->expects($this->once())
+            ->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn(['.', '..', 'theme_modern_light.png', 'theme_classic_dark.png', '.gitignore']);
+
+        $result = $mockInstaller->listThemes();
+
+        // Should filter out . and .. and other dot files
+        $expected = ['theme_modern_light.png', 'theme_classic_dark.png'];
+        $this->assertEquals($expected, $result);
+    }
+
+    // Test listThemes with empty directory
+    public function testListThemesEmptyDirectory(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockInstaller->expects($this->once())
+            ->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn(['.', '..']);
+
+        $result = $mockInstaller->listThemes();
+
+        $this->assertEmpty($result);
+    }
+
+    // Test listThemes with mixed file types
+    public function testListThemesMixedFiles(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockInstaller->expects($this->once())
+            ->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn(['.', '..', 'theme1.png', 'theme2.jpg', 'readme.txt', '.hidden', 'theme3.gif']);
+
+        $result = $mockInstaller->listThemes();
+
+        // Should include all non-dot files
+        $expected = ['theme1.png', 'theme2.jpg', 'readme.txt', 'theme3.gif'];
+        $this->assertEquals($expected, $result);
+    }
+
+    // Test displayThemesDivs with multiple themes using real listThemes and extractFileName
+    public function testDisplayThemesDivsIntegration(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Mock scanDir to provide theme files
+        $mockInstaller->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn(['.', '..', 'theme_modern_light.png', 'theme_classic_dark.png']);
+
+        ob_start();
+        $mockInstaller->displayThemesDivs();
+        $output = ob_get_clean();
+
+        // Verify the output contains expected elements from real extractFileName
+        $this->assertStringContainsString('<div class=\'row\'>', $output);
+        $this->assertStringContainsString('Modern Light', $output);
+        $this->assertStringContainsString('Classic Dark', $output);
+
+        // Verify radio button structure
+        $this->assertStringContainsString('name=\'stylesheet\'', $output);
+        $this->assertStringContainsString('type=\'radio\'', $output);
+        $this->assertStringContainsString('value=\'modern_light\'', $output);
+        $this->assertStringContainsString('value=\'classic_dark\'', $output);
+
+        // Verify image paths
+        $this->assertStringContainsString('public/images/stylesheets/theme_modern_light.png', $output);
+        $this->assertStringContainsString('public/images/stylesheets/theme_classic_dark.png', $output);
+    }
+
+    // Test displayThemesDivs with no themes
+    public function testDisplayThemesDivsNoThemes(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        // Mock scanDir to return empty directory
+        $mockInstaller->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn(['.', '..']);
+
+        ob_start();
+        $mockInstaller->displayThemesDivs();
+        $output = ob_get_clean();
+
+        // With no themes, the loop shouldn't execute, so output should be empty
+        $this->assertEmpty($output);
+    }
+
+    // Test displayThemesDivs with exactly 6 themes (one complete row)
+    public function testDisplayThemesDivsCompleteRow(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockFiles = ['.', '..',
+            'theme_1.png', 'theme_2.png', 'theme_3.png',
+            'theme_4.png', 'theme_5.png', 'theme_6.png'
+        ];
+
+        $mockInstaller->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn($mockFiles);
+
+        ob_start();
+        $mockInstaller->displayThemesDivs();
+        $output = ob_get_clean();
+
+        // Should have one complete row that starts and ends properly
+        $this->assertStringContainsString('<div class=\'row\'>', $output);
+        $this->assertStringContainsString('</div>', $output);
+        $this->assertStringContainsString('<br />', $output);
+
+        // Should have 6 radio buttons
+        $this->assertEquals(6, substr_count($output, 'type=\'radio\''));
+    }
+
+    // Test displayThemesDivs with 7 themes (partial second row)
+    public function testDisplayThemesDivsPartialRow(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        $mockFiles = ['.', '..',
+            'theme_1.png', 'theme_2.png', 'theme_3.png',
+            'theme_4.png', 'theme_5.png', 'theme_6.png',
+            'theme_7.png'
+        ];
+
+        $mockInstaller->method('scanDir')
+            ->with('public/images/stylesheets/')
+            ->willReturn($mockFiles);
+
+        ob_start();
+        $mockInstaller->displayThemesDivs();
+        $output = ob_get_clean();
+
+        // Should have two row starts (positions 0 and 6)
+        $this->assertEquals(2, substr_count($output, '<div class=\'row\'>'));
+        // Should have multiple </div> tags (one per theme div + row ending divs)
+        $this->assertGreaterThan(0, substr_count($output, '</div>'));
+        // Should have 7 radio buttons
+        $this->assertEquals(7, substr_count($output, 'type=\'radio\''));
+    }
+
+    // Test getCurrentTheme method
+    public function testGetCurrentTheme(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        $mockInstaller->expects($this->once())
+            ->method('execute_sql')
+            ->with("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'")
+            ->willReturn($mockResult);
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliFetchArray')
+            ->with($mockResult)
+            ->willReturn(['style_light.css']);
+
+        $result = $mockInstaller->getCurrentTheme();
+
+        $this->assertEquals('style_light.css', $result);
+    }
+
+    // Test setCurrentTheme method when new_theme is set
+    public function testSetCurrentThemeWithNewTheme(): void
+    {
+        $mockInstaller = $this->createMockInstaller(['new_theme' => 'style_dark.css']);
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        // setCurrentTheme calls getCurrentTheme first to get current theme
+        $mockInstaller->expects($this->exactly(2))
+            ->method('execute_sql')
+            ->willReturnCallback(function($sql) use ($mockResult) {
+                if (strpos($sql, 'SELECT') !== false) {
+                    return $mockResult;
+                } else {
+                    return true;
+                }
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliFetchArray')
+            ->with($mockResult)
+            ->willReturn(['style_light.css']);
+
+        $mockInstaller->expects($this->once())
+            ->method('escapeSql')
+            ->with('style_dark.css')
+            ->willReturn('style_dark.css');
+
+        $result = $mockInstaller->setCurrentTheme();
+
+        $this->assertTrue($result);
+    }
+
+    // Test setCurrentTheme method when new_theme is not set (gets current theme)
+    public function testSetCurrentThemeWithoutNewTheme(): void
+    {
+        $mockInstaller = $this->createMockInstaller(['new_theme' => '']);
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        // Should call getCurrentTheme when new_theme is empty
+        $mockInstaller->expects($this->exactly(2))
+            ->method('execute_sql')
+            ->willReturnCallback(function($sql) use ($mockResult) {
+                if (strpos($sql, 'SELECT') !== false) {
+                    return $mockResult;
+                } else {
+                    return true;
+                }
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliFetchArray')
+            ->with($mockResult)
+            ->willReturn(['style_light.css']);
+
+        $mockInstaller->expects($this->once())
+            ->method('escapeSql')
+            ->with('style_light.css')
+            ->willReturn('style_light.css');
+
+        $result = $mockInstaller->setCurrentTheme();
+
+        $this->assertTrue($result);
+        $this->assertEquals('style_light.css', $mockInstaller->new_theme);
+    }
+
+    // Test displaySelectedThemeDiv method
+    public function testDisplaySelectedThemeDiv(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        // Mock getCurrentTheme call
+        $mockInstaller->expects($this->once())
+            ->method('execute_sql')
+            ->with("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'")
+            ->willReturn($mockResult);
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliFetchArray')
+            ->with($mockResult)
+            ->willReturn(['style_modern_light.css']);
+
+        ob_start();
+        $mockInstaller->displaySelectedThemeDiv();
+        $output = ob_get_clean();
+
+        // Verify output contains expected elements
+        $this->assertStringContainsString('<div class="row">', $output);
+        $this->assertStringContainsString('Modern Light', $output);  // From extractFileName
+        $this->assertStringContainsString('public/images/stylesheets/style_modern_light.png', $output);
+        $this->assertStringContainsString('id="current_theme"', $output);
+        $this->assertStringContainsString('id="current_theme_title"', $output);
+    }
+
+    // Test displayNewThemeDiv method with new_theme set
+    public function testDisplayNewThemeDivWithNewTheme(): void
+    {
+        $mockInstaller = $this->createMockInstaller(['new_theme' => 'style_dark_blue.css']);
+
+        ob_start();
+        $mockInstaller->displayNewThemeDiv();
+        $output = ob_get_clean();
+
+        // Verify output contains expected elements
+        $this->assertStringContainsString('<div class="row">', $output);
+        $this->assertStringContainsString('Dark Blue', $output);  // From extractFileName
+        $this->assertStringContainsString('public/images/stylesheets/style_dark_blue.png', $output);
+        $this->assertStringContainsString('id="current_theme"', $output);
+        $this->assertStringContainsString('id="current_theme_title"', $output);
+    }
+
+    // Test displayNewThemeDiv method without new_theme (gets current theme)
+    public function testDisplayNewThemeDivWithoutNewTheme(): void
+    {
+        $mockInstaller = $this->createMockInstaller(['new_theme' => '']);
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        // Should call getCurrentTheme when new_theme is empty
+        $mockInstaller->expects($this->once())
+            ->method('execute_sql')
+            ->with("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'")
+            ->willReturn($mockResult);
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliFetchArray')
+            ->with($mockResult)
+            ->willReturn(['style_classic_green.css']);
+
+        ob_start();
+        $mockInstaller->displayNewThemeDiv();
+        $output = ob_get_clean();
+
+        // Verify output contains expected elements from current theme
+        $this->assertStringContainsString('<div class="row">', $output);
+        $this->assertStringContainsString('Classic Green', $output);  // From extractFileName
+        $this->assertStringContainsString('public/images/stylesheets/style_classic_green.png', $output);
+        $this->assertEquals('style_classic_green.css', $mockInstaller->new_theme);
+    }
+
+    // Test setupHelpModal method
+    public function testSetupHelpModal(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+
+        ob_start();
+        $mockInstaller->setupHelpModal();
+        $output = ob_get_clean();
+
+        // Verify modal HTML structure
+        $this->assertStringContainsString('<div class="modal fade" id="myModal"', $output);
+        $this->assertStringContainsString('class="modal-dialog modal-lg"', $output);
+        $this->assertStringContainsString('class="modal-content  oe-modal-content"', $output);
+        $this->assertStringContainsString('class="modal-header clearfix"', $output);
+        $this->assertStringContainsString('class="modal-body"', $output);
+        $this->assertStringContainsString('class="modal-footer"', $output);
+
+        // Verify iframe for help content
+        $this->assertStringContainsString('<iframe src="" id="targetiframe"', $output);
+
+        // Verify JavaScript functionality
+        $this->assertStringContainsString('<script>', $output);
+        $this->assertStringContainsString('#help-href', $output);
+        $this->assertStringContainsString('openemr_installation_help.php', $output);
+        $this->assertStringContainsString('drag-action', $output);
+        $this->assertStringContainsString('resize-action', $output);
+
+        // Verify modal controls
+        $this->assertStringContainsString('data-dismiss="modal"', $output);
+        $this->assertStringContainsString('Close', $output);
     }
 }

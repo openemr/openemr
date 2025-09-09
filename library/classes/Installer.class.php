@@ -1778,7 +1778,7 @@ $config = 1; /////////////
     public function listThemes(): array
     {
         $themes_img_dir = "public/images/stylesheets/";
-        $arr_themes_img = array_values(array_filter(scandir($themes_img_dir), function ($item) {
+        $arr_themes_img = array_values(array_filter($this->scanDir($themes_img_dir), function ($item) {
             return $item[0] !== '.';
         }));
         return $arr_themes_img;
@@ -2265,6 +2265,19 @@ SETHLP;
     protected function openFile(string $filename, string $mode)
     {
         return fopen($filename, $mode);
+    }
+
+    /**
+     * Wrapper for scandir to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $directory
+     * @return array|false
+     */
+    protected function scanDir(string $directory)
+    {
+        return scandir($directory);
     }
 
     /**
