@@ -5944,10 +5944,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$zone might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$va_dates might not be defined\.$#'
     identifier: variable.undefined
     count: 1

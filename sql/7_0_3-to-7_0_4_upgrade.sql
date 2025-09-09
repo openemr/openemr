@@ -613,3 +613,6 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 #EndIf
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#IfEyeFormLaserCategoriesNeeded
+#EndIf
