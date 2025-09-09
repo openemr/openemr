@@ -27,7 +27,7 @@
 *
 */
 
-require_once(dirname(__FILE__) . '/appointments.inc.php');
+require_once(__DIR__ . '/appointments.inc.php');
 
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientTrackerService;

@@ -16,7 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/sqlconf.php");
+require_once(__DIR__ . "/sqlconf.php");
 
 /**
  * Variables set by sqlconf.php or SqlConfigEvent
@@ -34,9 +34,9 @@ require_once(dirname(__FILE__) . "/sqlconf.php");
  * @var string $secure_dbase
  */
 
-require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-require_once(dirname(__FILE__) . "/ADODB_mysqli_log.php");
+require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(__DIR__ . "/ADODB_mysqli_log.php");
 
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);

@@ -12,4 +12,4 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require(dirname(__FILE__) . "/options_listadd.inc.php");
+require(__DIR__ . "/options_listadd.inc.php");

@@ -38,7 +38,7 @@ class BaseController
     protected function loadView($template, $data = array())
     {
 
-        $template = dirname(__FILE__) . '/../' . self::VIEW_FOLDER . '/' . $template . '.php';
+        $template = __DIR__ . '/../' . self::VIEW_FOLDER . '/' . $template . '.php';
 
         extract($data);
 
@@ -52,7 +52,7 @@ class BaseController
     protected function loadModel($name)
     {
         if (!isset($this->$name)) {
-            require(dirname(__FILE__) . '/../' . self::MODEL_FOLDER . '/' . strtolower($name) . '_model.php');
+            require(__DIR__ . '/../' . self::MODEL_FOLDER . '/' . strtolower($name) . '_model.php');
             $this->$name = new $name();
         }
 

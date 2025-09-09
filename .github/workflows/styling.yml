@@ -4,9 +4,11 @@ on:
   push:
     branches:
     - master
+    - rel-*
   pull_request:
     branches:
     - master
+    - rel-*
 
 permissions:
   contents: read
@@ -59,7 +61,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
     - name: Install npm package
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
     - name: Get NPM Cache Directory
@@ -93,7 +95,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
     - name: Install npm package
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
     - name: Get NPM Cache Directory

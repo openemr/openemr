@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services;
 
-require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
+require_once(__DIR__ . "/../../controllers/C_Document.class.php");
 
 use Document;
 use OpenEMR\Common\Database\QueryUtils;

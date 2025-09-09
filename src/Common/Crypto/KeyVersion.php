@@ -10,11 +10,11 @@
  * Version history:
  * - Version 1: Basic AES-256-CBC with simple key derivation
  * - Version 2-3: AES-256-CBC with HMAC-SHA256 authentication
- * - Version 4-6: Modern AES-256-CBC with HMAC-SHA384 authentication and improved key derivation
+ * - Version 4-7: Modern AES-256-CBC with HMAC-SHA384 authentication and improved key derivation
  *
  * Storage differences:
  * - Versions 1-4: Keys stored as base64 on drive (unencrypted)
- * - Versions 5-6: Keys encrypted using database keys before drive storage
+ * - Versions 5-7: Keys encrypted using database keys before drive storage
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -33,6 +33,7 @@ enum KeyVersion: int
     case FOUR = 4;
     case FIVE = 5;
     case SIX = 6;
+    case SEVEN = 7;
 
     /**
      * Get the string representation of the key version
@@ -47,7 +48,8 @@ enum KeyVersion: int
             self::THREE => 'three',
             self::FOUR => 'four',
             self::FIVE => 'five',
-            self::SIX => 'six'
+            self::SIX => 'six',
+            self::SEVEN => 'seven'
         };
     }
 
@@ -97,6 +99,7 @@ enum KeyVersion: int
             'four' => self::FOUR,
             'five' => self::FIVE,
             'six' => self::SIX,
+            'seven' => self::SEVEN,
             default => throw new \InvalidArgumentException("Invalid key version: $version")
         };
     }

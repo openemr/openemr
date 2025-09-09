@@ -24,7 +24,7 @@
 
 namespace OpenEMR\Billing;
 
-require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");
+require_once(__DIR__ . "/../../library/edihistory/codes/edih_271_code_class.php");
 
 use edih_271_codes;
 use GuzzleHttp\Client;

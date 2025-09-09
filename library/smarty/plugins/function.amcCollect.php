@@ -25,7 +25,7 @@
  * @param Smarty
  */
 
-require_once(dirname(__FILE__) . '/../../amc.php');
+require_once(__DIR__ . '/../../amc.php');
 
 function smarty_function_amcCollect($params, &$smarty): void
 {

@@ -23,7 +23,7 @@ use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Services\InsuranceCompanyService;
 
-require_once(dirname(__FILE__) . "/dupscore.inc.php");
+require_once(__DIR__ . "/dupscore.inc.php");
 
 global $facilityService;
 $facilityService = new FacilityService();

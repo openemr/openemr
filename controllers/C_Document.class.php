@@ -444,7 +444,7 @@ class C_Document extends Controller
     {
         global $ISSUE_TYPES;
 
-        require_once(dirname(__FILE__) . "/../library/lists.inc.php");
+        require_once(__DIR__ . "/../library/lists.inc.php");
 
         $d = new Document($doc_id);
         $notes = $d->get_notes();

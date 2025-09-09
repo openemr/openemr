@@ -54,7 +54,7 @@ $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
+require_once(__DIR__ . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;

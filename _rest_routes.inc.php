@@ -309,6 +309,7 @@
 //
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
@@ -7620,6 +7621,12 @@ use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
+use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
+use OpenEMR\Services\FHIR\FhirQuestionnaireService;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -13303,6 +13310,130 @@ RestConfig::$FHIR_ROUTE_MAP = array(
             RestConfig::authorization_check("admin", "super");
             $return = (new FhirProvenanceRestController($request))->getAll($request->getQueryParams());
         }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Questionnaire",
+     *      description="Returns a list of Questionnaire resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The id for the Questionnaire resource. ",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Questionnaire"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Questionnaire" => function (HttpRestRequest $request) {
+        $logger = new SystemLogger();
+        $fhirQuestionnaireService = new FhirQuestionnaireService();
+        $fhirFormService = new FhirQuestionnaireFormService();
+        $fhirQuestionnaireService->addMappedService($fhirFormService);
+        $return = (new FhirQuestionnaireRestController($logger, $fhirQuestionnaireService))->list($request);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Questionnaire",
+     *      description="Returns a list of QuestionnaireResponse resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The id for the QuestionnaireResponse resource. ",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/QuestionnaireResponse"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request) {
+        $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
+        $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
+        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
         RestConfig::apiLog($return);
         return $return;
     },

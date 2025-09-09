@@ -10,9 +10,11 @@ on:
   push:
     branches:
     - master
+    - rel-*
   pull_request:
     branches:
     - master
+    - rel-*
 
 permissions:
   contents: read
@@ -166,7 +168,7 @@ jobs:
           ${{ runner.os }}-composer-${{ matrix.configurations.php }}-
           ${{ runner.os }}-composer-
     - name: Install npm package
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.configurations.node_version }}
     - name: Get NPM Cache Directory

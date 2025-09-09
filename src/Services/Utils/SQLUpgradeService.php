@@ -984,8 +984,8 @@ class SQLUpgradeService implements ISQLUpgradeService
     private function clickOptionsMigrate()
     {
         // If the clickoptions.txt file exist, then import it.
-        if (file_exists(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
-            $file_handle = fopen(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
+        if (file_exists(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
+            $file_handle = fopen(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
             $seq = 10;
             $prev = '';
             $this->echo("Importing clickoption setting<br />");

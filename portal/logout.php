@@ -15,7 +15,7 @@
  */
 
 require_once("verify_session.php");
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once(__DIR__ . "/lib/appsql.class.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 
