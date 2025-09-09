@@ -98,7 +98,7 @@ ALTER TABLE `vietnamese_medical_terms` ADD FULLTEXT(`english_term`, `vietnamese_
 DELIMITER //
 CREATE PROCEDURE GetBilingualTerm(
     IN search_term VARCHAR(255),
-    IN search_language VARCHAR(2) DEFAULT 'en'
+    IN search_language VARCHAR(2)
 )
 BEGIN
     IF search_language = 'vi' THEN
@@ -137,5 +137,5 @@ SET SESSION collation_connection = utf8mb4_vietnamese_ci;
 SET SESSION character_set_client = utf8mb4;
 SET SESSION character_set_results = utf8mb4;
 
--- Set default time zone to Vietnam
-SET GLOBAL time_zone = '+07:00';
+-- Set session time zone to Vietnam (global requires SUPER privilege)
+SET SESSION time_zone = '+07:00';

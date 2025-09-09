@@ -23,8 +23,8 @@ DB_HOST="localhost"
 DB_PORT="3306"
 DB_NAME="openemr"
 DB_USER="openemr"
-DB_PASSWORD="openemr"
-DB_ROOT_PASSWORD="openemr_dev"
+DB_PASSWORD="openemr123!"
+DB_ROOT_PASSWORD="rootpass123!"
 
 # Helper functions
 log_info() {

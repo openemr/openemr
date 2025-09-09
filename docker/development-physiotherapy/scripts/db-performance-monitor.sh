@@ -21,7 +21,7 @@ NC='\033[0m'
 
 # Database settings
 DB_USER="openemr"
-DB_PASSWORD="openemr"
+DB_PASSWORD="openemr123!"
 DB_NAME="openemr"
 
 clear_screen() {
