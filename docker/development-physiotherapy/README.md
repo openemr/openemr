@@ -66,6 +66,26 @@ docker/development-physiotherapy/
     └── restore-db.sh             # Restore database
 ```
 
+## 🆕 Vietnamese Database Enhancements
+
+### Enhanced MariaDB Configuration
+- **Advanced Vietnamese Support**: Enhanced utf8mb4_vietnamese_ci collation with optimized settings
+- **Performance Tuning**: 1GB buffer pool, 256MB log files, optimized for Vietnamese text processing
+- **Full-text Search**: Advanced Vietnamese text search capabilities with proper indexing
+- **Bilingual Medical Terminology**: Comprehensive Vietnamese-English medical term database
+
+### Vietnamese PT Database Schema
+- **Bilingual Assessments**: PT assessments with parallel English and Vietnamese fields
+- **Vietnamese Insurance Integration**: BHYT (Bảo hiểm Y tế) support with Vietnamese insurance types
+- **Comprehensive Exercise Database**: Exercise prescriptions with Vietnamese instructions and precautions
+- **Outcome Measures**: Bilingual outcome tracking with Vietnamese interpretations
+- **Treatment Sessions**: Detailed session notes in both languages
+
+### Database Management Tools
+- **Vietnamese Database Tools**: `./scripts/vietnamese-db-tools.sh` - Search, validate, and manage Vietnamese data
+- **Performance Monitor**: `./scripts/db-performance-monitor.sh` - Real-time Vietnamese text search performance monitoring
+- **Enhanced phpMyAdmin**: Vietnamese-optimized configuration with proper character set handling
+
 ## 🐳 Services
 
 | Service | Port | URL | Credentials |
@@ -96,6 +116,15 @@ docker/development-physiotherapy/
 
 # Restore from backup
 ./scripts/restore-db.sh [backup-file.sql.gz]
+
+# Vietnamese database tools
+./scripts/vietnamese-db-tools.sh                    # Interactive menu
+./scripts/vietnamese-db-tools.sh test-vietnamese    # Test Vietnamese support
+./scripts/vietnamese-db-tools.sh search "đau" vi    # Search Vietnamese terms
+./scripts/vietnamese-db-tools.sh patient-summary 1  # Show patient summary
+
+# Database performance monitoring
+./scripts/db-performance-monitor.sh                 # Real-time monitoring
 
 # Direct database access
 docker-compose exec mariadb mysql -uopenemr -p openemr

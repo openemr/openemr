@@ -1,0 +1,115 @@
+# Vietnamese MariaDB Configuration for OpenEMR Physiotherapy
+# Enhanced bilingual support with performance optimizations
+# Author: Dang Tran <tqvdang@msn.com>
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+character-set-server = utf8mb4
+collation-server = utf8mb4_vietnamese_ci
+character-set-client-handshake = FALSE
+init-connect = 'SET NAMES utf8mb4 COLLATE utf8mb4_vietnamese_ci'
+
+# InnoDB optimizations for Vietnamese text and JSON data
+innodb_file_format = Barracuda
+innodb_file_per_table = 1
+innodb_large_prefix = 1
+innodb_row_format = DYNAMIC
+
+# Enhanced performance settings for development
+innodb_buffer_pool_size = 1G
+innodb_log_file_size = 256M
+innodb_log_buffer_size = 64M
+innodb_flush_log_at_trx_commit = 1
+innodb_flush_method = O_DIRECT
+
+# Network and connection settings
+max_allowed_packet = 1G
+max_connections = 300
+max_connect_errors = 10000
+wait_timeout = 7200
+interactive_timeout = 7200
+connect_timeout = 60
+
+# Query cache and performance
+query_cache_type = 1
+query_cache_size = 128M
+query_cache_limit = 16M
+
+# Table and index optimizations
+table_open_cache = 2000
+table_definition_cache = 1000
+key_buffer_size = 128M
+
+# MyISAM settings (for legacy tables)
+myisam_sort_buffer_size = 64M
+myisam_max_sort_file_size = 2G
+myisam_repair_threads = 1
+
+# Thread settings
+thread_cache_size = 16
+thread_stack = 512K
+
+# Sort and join buffers
+sort_buffer_size = 4M
+join_buffer_size = 4M
+read_buffer_size = 2M
+read_rnd_buffer_size = 4M
+
+# Temporary table settings
+tmp_table_size = 256M
+max_heap_table_size = 256M
+
+# Binary logging for replication and backup
+log_bin = mysql-bin
+binlog_format = ROW
+expire_logs_days = 7
+max_binlog_size = 256M
+binlog_cache_size = 32M
+
+# Slow query logging for optimization
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 1
+log_queries_not_using_indexes = 1
+log_slow_admin_statements = 1
+
+# General logging
+general_log = 1
+general_log_file = /var/log/mysql/general.log
+log_error = /var/log/mysql/error.log
+log_warnings = 2
+
+# Vietnamese specific settings
+lc_time_names = vi_VN
+default_time_zone = '+07:00'
+
+# SQL Mode optimized for OpenEMR with Vietnamese support
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+# Full-text search optimization for Vietnamese
+ft_min_word_len = 2
+ft_max_word_len = 84
+ft_stopword_file = ''
+
+# Performance schema settings
+performance_schema = ON
+performance_schema_max_table_instances = 400
+performance_schema_max_table_handles = 4000
+
+[mysqldump]
+default-character-set = utf8mb4
+single-transaction = true
+routines = true
+triggers = true
+events = true
+hex-blob = true
+
+[client]
+default-character-set = utf8mb4
+port = 3306
+socket = /var/run/mysqld/mysqld.sock
+
+[mysql_upgrade]
+default-character-set = utf8mb4

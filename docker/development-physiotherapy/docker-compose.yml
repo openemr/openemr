@@ -31,15 +31,16 @@ services:
     ports:
       - "${DB_PORT:-3306}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass123!}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openemr_dev}
       MYSQL_DATABASE: ${DB_NAME:-openemr}
       MYSQL_USER: ${MYSQL_USER:-openemr}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-openemr123!}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-openemr}
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
       MYSQL_COLLATION_SERVER: utf8mb4_vietnamese_ci
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./configs/mariadb/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
+      - ./configs/mariadb/vietnamese.cnf:/etc/mysql/conf.d/vietnamese.cnf:ro
       - ./configs/mariadb/init:/docker-entrypoint-initdb.d:ro
       - mariadb_logs:/var/log/mysql
     networks:
