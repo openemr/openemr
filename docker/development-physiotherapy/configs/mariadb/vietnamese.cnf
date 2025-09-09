@@ -12,10 +12,7 @@ character-set-client-handshake = FALSE
 init-connect = 'SET NAMES utf8mb4 COLLATE utf8mb4_vietnamese_ci'
 
 # InnoDB optimizations for Vietnamese text and JSON data
-innodb_file_format = Barracuda
 innodb_file_per_table = 1
-innodb_large_prefix = 1
-innodb_row_format = DYNAMIC
 
 # Enhanced performance settings for development
 innodb_buffer_pool_size = 1G

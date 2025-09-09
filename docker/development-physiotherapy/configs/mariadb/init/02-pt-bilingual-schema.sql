@@ -316,11 +316,11 @@ DELIMITER //
 -- Procedure to get patient assessment in preferred language
 CREATE PROCEDURE GetPatientAssessmentBilingual(
     IN p_patient_id INT,
-    IN p_assessment_id INT DEFAULT NULL,
-    IN p_language VARCHAR(10) DEFAULT 'en'
+    IN p_assessment_id INT,
+    IN p_language VARCHAR(10)
 )
 BEGIN
-    IF p_assessment_id IS NULL THEN
+    IF p_assessment_id = 0 THEN
         SELECT MAX(id) INTO p_assessment_id 
         FROM pt_assessments_bilingual 
         WHERE patient_id = p_patient_id;
@@ -347,7 +347,7 @@ END //
 -- Procedure to get active exercise prescriptions in preferred language
 CREATE PROCEDURE GetActiveExercisesBilingual(
     IN p_patient_id INT,
-    IN p_language VARCHAR(10) DEFAULT 'en'
+    IN p_language VARCHAR(10)
 )
 BEGIN
     SELECT 
