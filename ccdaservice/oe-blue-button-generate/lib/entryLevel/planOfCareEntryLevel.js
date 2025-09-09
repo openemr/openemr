@@ -149,6 +149,31 @@ exports.planOfCareActivityObservation = {
     }
 };
 
+exports.planOfCarePlannedProcedure = {
+    key: "procedure",
+    attributes: {
+        classCode: "PROC",
+        moodCode: "RQO"
+    },
+    content: [
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.41"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.41", "2014-06-09"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.41", "2022-06-01"),
+        fieldLevel.uniqueId,
+        fieldLevel.id, {
+            key: "code",
+            attributes: leafLevel.code,
+            dataKey: "plan"
+        },
+        fieldLevel.statusCodeActive,
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
+    ],
+    existsWhen: function (input) {
+        return input.type === "planned_procedure";
+    }
+};
+
 exports.planOfCareActivityProcedure = {
     key: "procedure",
     attributes: {
@@ -242,6 +267,7 @@ var carePlanMedicationInformation = {
         }
     ]
 };
+
 exports.planOfCareActivitySubstanceAdministration = {
     key: "substanceAdministration",
     attributes: {

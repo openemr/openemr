@@ -41,7 +41,6 @@ let webRoot = "";
 let authorDateTime = "";
 let documentLocation = "";
 
-
 function populateProviders(all) {
     let providerArray = [];
     let provider = {};
@@ -378,7 +377,7 @@ function populateMedication(pd) {
                 "code_system_name": "Medication Route FDA"
             },
             "dose": {
-                "value": parseFloat(pd.size),
+                "value": parseFloat(pd.size || '') || null,
                 "unit": pd.unit,
             },
             /*"rate": {
@@ -387,8 +386,8 @@ function populateMedication(pd) {
             },*/
             "interval": {
                 "period": {
-                    "value": parseFloat(pd.dosage),
-                    "unit": pd.interval
+                    "value": parseFloat(pd.dosage) || null,
+                    "unit": pd.interval || null
                 },
                 "frequency": true
             }
@@ -1149,6 +1148,9 @@ function getPlanOfCare(pd) {
         case 'procedure':
             planType = "procedure";
             break;
+        case 'planned_procedure':
+            planType = "planned_procedure";
+            break;
         case 'appointments':
             planType = "encounter";
             break;
@@ -1215,7 +1217,7 @@ function getPlanOfCare(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.date),
+                "date": pd.proposed_date ? fDate(pd.proposed_date) : fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -1363,7 +1365,7 @@ function getFunctionalStatus(pd) {
         "author": functionalStatusAuthor,
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000",
-            "extension": pd.extension || '',
+            "extension": pd.extension || null,
         }],
 
         "observation": {
@@ -1374,7 +1376,7 @@ function getFunctionalStatus(pd) {
             },
             "identifiers": [{
                 "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab",
-                "extension": pd.extension || '',
+                "extension": pd.extension || null,
             }],
             "date_time": {
                 "point": {
@@ -2018,12 +2020,16 @@ function populatePayer(pd) {
                 }],
                 code: {
                     code: payer.policy?.code?.code || "SELF",
-                    code_system_name: payer.policy?.code?.code_system_name || "HL7 RoleCode"
+                    code_system: payer.policy?.code?.code_system || "",
+                    code_system_name: payer.policy?.code?.code_system_name || "",
+                    name: payer.policy?.code?.name || "Self"
                 },
                 insurance: {
                     code: {
                         code: payer.policy?.insurance?.code?.code || "PAYOR",
-                        code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode"
+                        code_system: payer.policy?.insurance?.code?.code_system || "2.16.840.1.113883.5.110",
+                        code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode",
+                        name: payer.policy?.insurance?.code?.name || "Payor"
                     },
                     performer: {
                         identifiers: [{
@@ -2057,8 +2063,10 @@ function populatePayer(pd) {
                             }]
                         }],
                         code: [{
-                            code: "PAYOR",
-                            code_system_name: "HL7 RoleCode"
+                            code: payer.policy?.insurance?.code?.code || "PAYOR",
+                            code_system: payer.policy?.insurance?.code?.code_system || "2.16.840.1.113883.5.110",
+                            code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode",
+                            name: payer.policy?.insurance?.code?.name || "Payor"
                         }]
                     }
                 }
@@ -2070,7 +2078,7 @@ function populatePayer(pd) {
                 },
                 identifiers: [{
                     identifier: payer.guarantor?.identifiers?.identifier || ""
-                }],
+                }],/*
                 "date_time": {
                     "low": {
                         "date": fDate(payer.participant?.time_low, true),
@@ -2080,7 +2088,7 @@ function populatePayer(pd) {
                         "date": fDate(payer.participant?.time_high, true),
                         "precision": "day"
                     }
-                },
+                },*/
                 name: [{
                     prefix: payer.guarantor?.name?.prefix || "",
                     first: payer.guarantor?.name?.first || "",
@@ -2114,6 +2122,7 @@ function populatePayer(pd) {
                 code: {
                     name: payer.participant?.code?.name || "Self",
                     code: payer.participant?.code?.code || "SELF",
+                    code_system: payer.participant?.code?.code_system || "",
                     code_system_name: payer.participant?.code?.code_system_name || "HL7 Role"
                 },
                 performer: {
@@ -2140,7 +2149,8 @@ function populatePayer(pd) {
                     first: payer.participant?.name?.first || "",
                     middle: [payer.participant?.name?.middle || ""],
                     last: payer.participant?.name?.last || ""
-                }]
+                }],
+                birthTime: all.patient.dob
             },
             policy_holder: {
                 performer: {
@@ -2162,13 +2172,7 @@ function populatePayer(pd) {
                 identifiers: [{
                     identifier: payer.authorization?.identifiers?.identifier || ""
                 }],
-                procedure: {
-                    code: {
-                        name: payer.authorization?.procedure?.code?.name || "",
-                        code: payer.authorization?.procedure?.code?.code || "",
-                        code_system_name: payer.authorization?.procedure?.code?.code_system_name || ""
-                    }
-                }
+                plan_name: payer.policy.plan_name || "",
             }
         };
     });
@@ -2195,6 +2199,9 @@ function populateNote(pd) {
 }
 
 function populateParticipant(participant) {
+    if (!participant.code) {
+        cleanCode(participant.organization_taxonomy);
+    }
     return {
         "name": {
             "prefix": participant.prefix || "",
@@ -2204,16 +2211,16 @@ function populateParticipant(participant) {
             "first": participant.fname || ""
         },
         "typeCode": participant.type || "",
-        "classCode": "ASSIGNED",
+        "classCode": participant.class_code || "ASSIGNED",
         "code": {
-            "name": participant.organization_taxonomy_description || "",
-            "code": cleanCode(participant.organization_taxonomy) || "",
-            "code_system": "2.16.840.1.113883.6.101",
-            "code_system_name": "NUCC Health Care Provider Taxonomy"
+            "name": participant.organization_taxonomy_description || participant.code,
+            "code": participant.organization_taxonomy || participant.code || "",
+            "code_system": "2.16.840.1.113883.1.11.19563",
+            "code_system_name": "Personal Relationship Role Type Value Set"
         },
         "identifiers": [{
             "identifier": participant.organization_npi ? "2.16.840.1.113883.4.6" : participant.organization_id,
-            "extension": participant.organization_npi ? participant.organization_npi : ''
+            "extension": participant.organization_npi ? participant.organization_npi : participant.organization_ext || 'NI'
         }],
         "date_time": {
             "point": {
@@ -2247,7 +2254,7 @@ function populateHeader(pd) {
     let name = "Summarization of Episode Note";
     let docCode = "34133-9";
     let docOid = "2.16.840.1.113883.10.20.22.1.2";
-    if (pd.doc_type == 'referral') {
+    if (pd.doc_type === 'referral') {
         name = "Referral Note";
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
@@ -2397,8 +2404,14 @@ function populateHeader(pd) {
             },
         }
     };
+
     let participants = [];
-    let docParticipants = pd.document_participants || {participant: []};
+    let docParticipants = {
+        participant: [
+            ...(pd.document_participants?.participant || []),
+            ...(pd.patient.related_persons?.participant || []),
+        ],
+    };
     let count = 0;
     try {
         count = countEntities(docParticipants.participant);

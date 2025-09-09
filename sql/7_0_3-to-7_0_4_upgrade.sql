@@ -613,3 +613,110 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 #EndIf
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#IfNotTable patient_related_persons
+CREATE TABLE `patient_related_persons`
+(
+    `pid`                   BIGINT UNSIGNED NOT NULL,
+    `uuid`                  binary(16)   DEFAULT NULL,
+    `related_firstname_1`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_1`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_1` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_1`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_1`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_1`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_1`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_1`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_1`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_1`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_1`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_1`        VARCHAR(254) DEFAULT NULL,
+
+    `related_firstname_2`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_2`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_2` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_2`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_2`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_2`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_2`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_2`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_2`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_2`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_2`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_2`        VARCHAR(254) DEFAULT NULL,
+
+    `related_firstname_3`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_3`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_3` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_3`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_3`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_3`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_3`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_3`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_3`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_3`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_3`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_3`        VARCHAR(254) DEFAULT NULL,
+    PRIMARY KEY (`pid`),
+    KEY `uuid_idx` (`uuid`)
+) ENGINE = InnoDB;
+#EndIf
+
+#IfNotRow2D layout_group_properties grp_form_id DEM  grp_title Related
+SET @newgrp := (
+    SELECT COALESCE(MAX(grp_group_id), 0) + 1
+    FROM layout_group_properties
+    WHERE grp_form_id = 'DEM'
+);
+-- Create the new group (adjust grp_seq if you want order control)
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', @newgrp, 'Related','');
+-- Add the fields to the new group
+INSERT INTO `layout_options`
+(`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`,
+ `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`,
+ `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`)
+VALUES
+    ('DEM','related_firstname_1', @newgrp,'First Name',10, 2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','',''),
+    ('DEM','related_lastname_1',  @newgrp,'Last Name', 20, 2,1,25,63,'',1,1,'','','Last Name',        0,'','F','','',''),
+    ('DEM','related_relationship_1',@newgrp,'Relationship',30,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','related_sex_1',        @newgrp,'Sex',       40, 1,1,0,0,'sex',1,1,'','','Sex',             0,'','F','','',''),
+    ('DEM','related_address_1',    @newgrp,'Address',   50, 2,1,25,63,'',1,1,'','','Address',         0,'','F','','',''),
+    ('DEM','related_city_1',       @newgrp,'City',      60, 2,1,15,63,'',1,1,'','','City',            0,'','F','','',''),
+    ('DEM','related_state_1',      @newgrp,'State',     70,26,1,0, 0,'state',1,1,'','','State',       0,'','F','','',''),
+    ('DEM','related_postalcode_1', @newgrp,'Postal Code',80,2,1,6, 63,'',1,1,'','','Postal Code',     0,'','F','','',''),
+    ('DEM','related_country_1',    @newgrp,'Country',   90,26,1,0, 0,'country',1,1,'','','Country',   0,'','F','','',''),
+    ('DEM','related_phone_1',      @newgrp,'Phone',    100, 2,1,20,63,'',1,1,'','','Phone',           0,'','F','','',''),
+    ('DEM','related_workphone_1',  @newgrp,'Work Phone',110,2,1,20,63,'',1,1,'','','Work Phone',      0,'','F','','',''),
+    ('DEM','related_email_1',      @newgrp,'Email',    120, 2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','',''),
+
+    ('DEM','related_static_1',             @newgrp,'Related Person',125,31,1,0,0,'',1,3,'','[\"K\"]','Patient Second Related Person',0,'','F','','',''),
+
+    ('DEM','related_firstname_2',  @newgrp,'First Name',130, 2,1,25,63,'',1,1,'','[\"K\"]','Related First Name',0,'','F','','',''),
+    ('DEM','related_lastname_2',   @newgrp,'Last Name', 140, 2,1,25,63,'',1,1,'','','Last Name',        0,'','F','','',''),
+    ('DEM','related_relationship_2',@newgrp,'Relationship',150,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','related_sex_2',        @newgrp,'Sex',       160,1,1,0,0,'sex',1,1,'','','Sex',             0,'','F','','',''),
+    ('DEM','related_address_2',    @newgrp,'Address',   170, 2,1,25,63,'',1,1,'','','Address',         0,'','F','','',''),
+    ('DEM','related_city_2',       @newgrp,'City',      180, 2,1,15,63,'',1,1,'','','City',            0,'','F','','',''),
+    ('DEM','related_state_2',      @newgrp,'State',     190,26,1,0, 0,'state',1,1,'','','State',       0,'','F','','',''),
+    ('DEM','related_postalcode_2', @newgrp,'Postal Code',200,2,1,6, 63,'',1,1,'','','Postal Code',     0,'','F','','',''),
+    ('DEM','related_country_2',    @newgrp,'Country',   210,26,1,0, 0,'country',1,1,'','','Country',   0,'','F','','',''),
+    ('DEM','related_phone_2',      @newgrp,'Phone',     220, 2,1,20,63,'',1,1,'','','Phone',           0,'','F','','',''),
+    ('DEM','related_workphone_2',  @newgrp,'Work Phone',230, 2,1,20,63,'',1,1,'','','Work Phone',      0,'','F','','',''),
+    ('DEM','related_email_2',      @newgrp,'Email',     240, 2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','',''),
+
+    ('DEM','related_static_2',             @newgrp,'Related Person',245,31,1,0,0,'',1,3,'','[\"K\"]','Patient Third Related Person',0,'','F','','',''),
+
+    ('DEM','related_firstname_3',  @newgrp,'First Name',250, 2,1,25,63,'',1,1,'','[\"K\"]','Related First Name',0,'','F','','',''),
+    ('DEM','related_lastname_3',   @newgrp,'Last Name', 260, 2,1,25,63,'',1,1,'','','Last Name',        0,'','F','','',''),
+    ('DEM','related_relationship_3',@newgrp,'Relationship',270,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','related_sex_3',        @newgrp,'Sex',       280,1,1,0,0,'sex',1,1,'','','Sex',             0,'','F','','',''),
+    ('DEM','related_address_3',    @newgrp,'Address',   290, 2,1,25,63,'',1,1,'','','Address',         0,'','F','','',''),
+    ('DEM','related_city_3',       @newgrp,'City',      300, 2,1,15,63,'',1,1,'','','City',            0,'','F','','',''),
+    ('DEM','related_state_3',      @newgrp,'State',     310,26,1,0, 0,'state',1,1,'','','State',       0,'','F','','',''),
+    ('DEM','related_postalcode_3', @newgrp,'Postal Code',320,2,1,6, 63,'',1,1,'','','Postal Code',     0,'','F','','',''),
+    ('DEM','related_country_3',    @newgrp,'Country',   330,26,1,0, 0,'country',1,1,'','','Country',   0,'','F','','',''),
+    ('DEM','related_phone_3',      @newgrp,'Phone',     340, 2,1,20,63,'',1,1,'','','Phone',           0,'','F','','',''),
+    ('DEM','related_workphone_3',  @newgrp,'Work Phone',350, 2,1,20,63,'',1,1,'','','Work Phone',      0,'','F','','',''),
+    ('DEM','related_email_3',      @newgrp,'Email',     360, 2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
+#EndIf
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
