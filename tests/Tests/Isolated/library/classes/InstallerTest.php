@@ -2803,4 +2803,218 @@ class InstallerTest extends TestCase
         // Should have created many objects (ACOs and at least one ARO)
         $this->assertGreaterThan(50, count($addObjectCalls));
     }
+
+    private function createMockInstallerWithoutExecuteSql(array $config = []): MockObject
+    {
+        $defaultConfig = [
+            'server' => 'localhost',
+            'root' => 'root',
+            'rootpass' => 'password',
+            'port' => '3306',
+            'login' => 'openemr',
+            'pass' => 'openemr',
+            'dbname' => 'openemr',
+            'iuser' => 'openemr',
+            'iuname' => 'Administrator',
+            'iuserpass' => 'admin',
+            'igroup' => 'Default'
+        ];
+
+        $config = array_merge($defaultConfig, $config);
+
+        // Mock all methods except execute_sql so we can test it
+        $mockMethods = [
+            'atEndOfFile',
+            'closeFile',
+            'createTotpInstance',
+            'cryptoGenClassExists',
+            'die',
+            'encryptTotpSecret',
+            'escapeDatabaseName',
+            'escapeSql',
+            'fileExists',
+            'getLine',
+            'globPattern',
+            'load_file',
+            'mysqliErrno',
+            'mysqliError',
+            'mysqliFetchArray',
+            'mysqliInit',
+            'mysqliNumRows',
+            'mysqliQuery',
+            'mysqliRealConnect',
+            'mysqliSelectDb',
+            'mysqliSslSet',
+            'newGaclApi',
+            'openFile',
+            'recurse_copy',
+            'set_collation',
+            'set_sql_strict',
+            'totpClassExists',
+            'touchFile',
+            'unlinkFile',
+            'user_database_connection',
+            'writeToFile',
+        ];
+
+        return $this->getMockBuilder(Installer::class)
+            ->setConstructorArgs([$config])
+            ->onlyMethods($mockMethods)
+            ->getMock();
+    }
+
+    // Test execute_sql through drop_database() - Success case
+    public function testExecuteSqlSuccessViaDropDatabase(): void
+    {
+        $mockInstaller = $this->createMockInstallerWithoutExecuteSql();
+        $mockMysqli = $this->createMock(mysqli::class);
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        // Set up the database connection
+        $mockInstaller->dbh = $mockMysqli;
+
+        $mockInstaller->expects($this->once())
+            ->method('escapeDatabaseName')
+            ->with('openemr')
+            ->willReturn('`openemr`');
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliQuery')
+            ->with($mockMysqli, "drop database if exists `openemr`")
+            ->willReturn(true); // DDL statements return boolean
+
+        $result = $mockInstaller->drop_database();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($mockInstaller->error_message);
+    }
+
+    // Test execute_sql through drop_database() - Query failure with error logging
+    public function testExecuteSqlFailureWithErrorViaDropDatabase(): void
+    {
+        $mockInstaller = $this->createMockInstallerWithoutExecuteSql();
+        $mockMysqli = $this->createMock(mysqli::class);
+
+        // Set up the database connection
+        $mockInstaller->dbh = $mockMysqli;
+
+        $mockInstaller->expects($this->once())
+            ->method('escapeDatabaseName')
+            ->with('openemr')
+            ->willReturn('`openemr`');
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliQuery')
+            ->with($mockMysqli, "drop database if exists `openemr`")
+            ->willReturn(false);
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliError')
+            ->with($mockMysqli)
+            ->willReturn('Access denied for user');
+
+        $result = $mockInstaller->drop_database();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('unable to execute SQL', $mockInstaller->error_message);
+        $this->assertStringContainsString('Access denied for user', $mockInstaller->error_message);
+    }
+
+    // Test execute_sql auto-connection when no dbh exists
+    public function testExecuteSqlAutoConnectsWhenNoDbh(): void
+    {
+        $mockInstaller = $this->createMockInstallerWithoutExecuteSql();
+        $mockMysqli = $this->createMock(mysqli::class);
+
+        // Initially no database connection
+        $mockInstaller->dbh = false;
+
+        $mockInstaller->expects($this->once())
+            ->method('escapeDatabaseName')
+            ->with('openemr')
+            ->willReturn('`openemr`');
+
+        $mockInstaller->expects($this->once())
+            ->method('user_database_connection')
+            ->willReturnCallback(function() use ($mockInstaller, $mockMysqli) {
+                $mockInstaller->dbh = $mockMysqli;
+                return true;
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliQuery')
+            ->with($mockMysqli, "drop database if exists `openemr`")
+            ->willReturn(true);
+
+        $result = $mockInstaller->drop_database();
+
+        $this->assertTrue($result);
+    }
+
+    // Test execute_sql exception handling through mysqli_sql_exception
+    public function testExecuteSqlHandlesException(): void
+    {
+        $mockInstaller = $this->createMockInstallerWithoutExecuteSql();
+        $mockMysqli = $this->createMock(mysqli::class);
+
+        // Set up the database connection
+        $mockInstaller->dbh = $mockMysqli;
+
+        $mockInstaller->expects($this->once())
+            ->method('escapeDatabaseName')
+            ->with('openemr')
+            ->willReturn('`openemr`');
+
+        $exception = new mysqli_sql_exception('SQL exception occurred', 1234);
+
+        $mockInstaller->expects($this->once())
+            ->method('mysqliQuery')
+            ->with($mockMysqli, "drop database if exists `openemr`")
+            ->willThrowException($exception);
+
+        $result = $mockInstaller->drop_database();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString('unable to execute SQL', $mockInstaller->error_message);
+        $this->assertStringContainsString('SQL exception occurred', $mockInstaller->error_message);
+    }
+
+    // Test execute_sql with showError=false - no error message should be set when query fails
+    public function testExecuteSqlWithShowErrorFalse(): void
+    {
+        $mockInstaller = $this->createMockInstallerWithoutExecuteSql();
+        $mockMysqli = $this->createMock(mysqli::class);
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        // Set up the database connection
+        $mockInstaller->dbh = $mockMysqli;
+
+        // Mock escapeSql calls
+        $mockInstaller->expects($this->exactly(3))
+            ->method('escapeSql')
+            ->willReturnArgument(0);
+
+        // First query with showError=false fails - should not log error
+        // Second query (global_priv) succeeds
+        // Third query (CREATE USER) succeeds
+        $mockInstaller->expects($this->exactly(3))
+            ->method('mysqliQuery')
+            ->willReturnOnConsecutiveCalls(false, $mockResult, true);
+
+        // mysqliNumRows called for checking user existence
+        $mockInstaller->expects($this->once())
+            ->method('mysqliNumRows')
+            ->with($mockResult)
+            ->willReturn(0);
+
+        // mysqliError should NOT be called for the first query (showError=false)
+        $mockInstaller->expects($this->never())
+            ->method('mysqliError');
+
+        $result = $mockInstaller->create_database_user();
+
+        $this->assertTrue($result);
+        // Error message should be empty because the first failed query had showError=false
+        $this->assertEmpty($mockInstaller->error_message);
+    }
 }
