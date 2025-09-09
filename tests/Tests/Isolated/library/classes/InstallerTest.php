@@ -2348,7 +2348,7 @@ class InstallerTest extends TestCase
         $writeCallCount = 0;
         $mockInstaller->expects($this->exactly(10))
             ->method('writeToFile')
-            ->willReturnCallback(function() use (&$writeCallCount) {
+            ->willReturnCallback(function () use (&$writeCallCount) {
                 $writeCallCount++;
                 // Fail on calls 3 and 7 to simulate partial write failures
                 return ($writeCallCount === 3 || $writeCallCount === 7) ? false : 10;
@@ -2390,7 +2390,7 @@ class InstallerTest extends TestCase
         $writtenContent = [];
         $mockInstaller->expects($this->exactly(10))
             ->method('writeToFile')
-            ->willReturnCallback(function($handle, $data) use (&$writtenContent) {
+            ->willReturnCallback(function ($handle, $data) use (&$writtenContent) {
                 $writtenContent[] = $data;
                 return strlen($data);
             });
@@ -2435,7 +2435,7 @@ class InstallerTest extends TestCase
 
         $writtenContent = [];
         $mockInstaller->method('writeToFile')
-            ->willReturnCallback(function($handle, $data) use (&$writtenContent) {
+            ->willReturnCallback(function ($handle, $data) use (&$writtenContent) {
                 $writtenContent[] = $data;
                 return strlen($data);
             });
@@ -2472,7 +2472,7 @@ class InstallerTest extends TestCase
         // Simulate exactly 5 write failures
         $writeCallCount = 0;
         $mockInstaller->method('writeToFile')
-            ->willReturnCallback(function() use (&$writeCallCount) {
+            ->willReturnCallback(function () use (&$writeCallCount) {
                 $writeCallCount++;
                 // Fail on calls 2, 4, 6, 8, 10
                 return ($writeCallCount % 2 === 0) ? false : 10;
@@ -2539,7 +2539,7 @@ class InstallerTest extends TestCase
         // Mock add_object_section calls - first one fails (which should stop execution)
         $callCount = 0;
         $mockGacl->method('add_object_section')
-            ->willReturnCallback(function($name, $identifier) use (&$callCount) {
+            ->willReturnCallback(function ($name, $identifier) use (&$callCount) {
                 $callCount++;
                 if ($callCount === 1) {
                     // First call (Accounting) should fail
@@ -2577,14 +2577,14 @@ class InstallerTest extends TestCase
         // Mock add_group to return incremental IDs
         $groupIdCounter = 0;
         $mockGacl->method('add_group')
-            ->willReturnCallback(function() use (&$groupIdCounter) {
+            ->willReturnCallback(function () use (&$groupIdCounter) {
                 return ++$groupIdCounter;
             });
 
         // Mock add_object - verify the user ARO is created correctly
         $addObjectCalls = [];
         $mockGacl->method('add_object')
-            ->willReturnCallback(function($section, $name, $identifier, $order, $hidden, $type) use (&$addObjectCalls) {
+            ->willReturnCallback(function ($section, $name, $identifier, $order, $hidden, $type) use (&$addObjectCalls) {
                 $addObjectCalls[] = [$section, $name, $identifier, $type];
                 return true;
             });
@@ -2592,7 +2592,7 @@ class InstallerTest extends TestCase
         // Mock add_group_object - verify the user is added to admin group
         $addGroupObjectCalls = [];
         $mockGacl->method('add_group_object')
-            ->willReturnCallback(function($groupId, $section, $identifier, $type) use (&$addGroupObjectCalls) {
+            ->willReturnCallback(function ($groupId, $section, $identifier, $type) use (&$addGroupObjectCalls) {
                 $addGroupObjectCalls[] = [$groupId, $section, $identifier, $type];
                 return true;
             });
@@ -2636,7 +2636,7 @@ class InstallerTest extends TestCase
         // Expect all sections to be created
         $mockGacl->expects($this->exactly(count($expectedSections)))
             ->method('add_object_section')
-            ->willReturnCallback(function($name, $identifier) use ($expectedSections) {
+            ->willReturnCallback(function ($name, $identifier) use ($expectedSections) {
                 static $callCount = 0;
                 $expected = $expectedSections[$callCount];
                 $this->assertEquals($expected[0], $name);
@@ -2677,7 +2677,7 @@ class InstallerTest extends TestCase
         $callCount = 0;
         $mockGacl->expects($this->exactly(count($expectedGroups)))
             ->method('add_group')
-            ->willReturnCallback(function($identifier, $name, $parent) use ($expectedGroups, &$callCount) {
+            ->willReturnCallback(function ($identifier, $name, $parent) use ($expectedGroups, &$callCount) {
                 $expected = $expectedGroups[$callCount];
                 $this->assertEquals($expected[0], $identifier);
                 $this->assertEquals($expected[1], $name);
@@ -2727,7 +2727,7 @@ class InstallerTest extends TestCase
         // Expect add_acl to be called multiple times, we'll verify the first one (admin)
         $mockGacl->expects($this->atLeastOnce())
             ->method('add_acl')
-            ->willReturnCallback(function($acos, $aros1, $aros2, $axos1, $axos2, $enabled, $enabled2, $access, $note) use ($expectedAdminAcos) {
+            ->willReturnCallback(function ($acos, $aros1, $aros2, $axos1, $axos2, $enabled, $enabled2, $access, $note) use ($expectedAdminAcos) {
                 static $firstCall = true;
                 if ($firstCall) {
                     // Verify the first ACL call is for administrators
@@ -2780,7 +2780,7 @@ class InstallerTest extends TestCase
         // Track calls to add_object to ensure all expected objects are created
         $addObjectCalls = [];
         $mockGacl->method('add_object')
-            ->willReturnCallback(function($section, $name, $identifier, $order, $hidden, $type) use (&$addObjectCalls) {
+            ->willReturnCallback(function ($section, $name, $identifier, $order, $hidden, $type) use (&$addObjectCalls) {
                 $addObjectCalls[] = [$section, $identifier, $type];
                 return true;
             });
@@ -2937,7 +2937,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('user_database_connection')
-            ->willReturnCallback(function() use ($mockInstaller, $mockMysqli) {
+            ->willReturnCallback(function () use ($mockInstaller, $mockMysqli) {
                 $mockInstaller->dbh = $mockMysqli;
                 return true;
             });
@@ -3578,7 +3578,7 @@ class InstallerTest extends TestCase
         // setCurrentTheme calls getCurrentTheme first to get current theme
         $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
-            ->willReturnCallback(function($sql) use ($mockResult) {
+            ->willReturnCallback(function ($sql) use ($mockResult) {
                 if (strpos($sql, 'SELECT') !== false) {
                     return $mockResult;
                 } else {
@@ -3610,7 +3610,7 @@ class InstallerTest extends TestCase
         // Should call getCurrentTheme when new_theme is empty
         $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
-            ->willReturnCallback(function($sql) use ($mockResult) {
+            ->willReturnCallback(function ($sql) use ($mockResult) {
                 if (strpos($sql, 'SELECT') !== false) {
                     return $mockResult;
                 } else {
