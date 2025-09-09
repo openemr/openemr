@@ -959,7 +959,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('1062', $mockInstaller->error_message);
     }
 
-    public function testAddInitialUserSuccess()
+    public function testAddInitialUserSuccess(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -999,7 +999,7 @@ class InstallerTest extends TestCase
         $this->assertEmpty($mockInstaller->error_message);
     }
 
-    public function testAddInitialUserGroupInsertFails()
+    public function testAddInitialUserGroupInsertFails(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1037,7 +1037,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('1062', $mockInstaller->error_message);
     }
 
-    public function testAddInitialUserUserInsertFails()
+    public function testAddInitialUserUserInsertFails(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1085,7 +1085,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('1062', $mockInstaller->error_message);
     }
 
-    public function testAddInitialUserSecureInsertFails()
+    public function testAddInitialUserSecureInsertFails(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1134,7 +1134,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('1062', $mockInstaller->error_message);
     }
 
-    public function testAddInitialUserWith2FASuccess()
+    public function testAddInitialUserWith2FASuccess(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1172,7 +1172,7 @@ class InstallerTest extends TestCase
         $this->assertEmpty($mockInstaller->error_message);
     }
 
-    public function testAddInitialUserWith2FAInsertFails()
+    public function testAddInitialUserWith2FAInsertFails(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1223,7 +1223,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString("ERROR. Unable to add initial user's 2FA credentials", $mockInstaller->error_message);
     }
 
-    public function testAddInitialUserWith2FADisabled()
+    public function testAddInitialUserWith2FADisabled(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1264,7 +1264,7 @@ class InstallerTest extends TestCase
         $this->assertEmpty($mockInstaller->error_message);
     }
 
-    public function testAddInitialUserWith2FANoSecret()
+    public function testAddInitialUserWith2FANoSecret(): void
     {
         $config = [
             'igroup' => 'testgroup',
@@ -1305,7 +1305,7 @@ class InstallerTest extends TestCase
         $this->assertEmpty($mockInstaller->error_message);
     }
 
-    public function testAddInitialUserWith2FAClassesNotExist()
+    public function testAddInitialUserWith2FAClassesNotExist(): void
     {
         $config = [
             'igroup' => 'testgroup',
