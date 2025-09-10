@@ -1,16 +1,18 @@
 <?php
 
 /**
- * Installer class.
+ * Installer class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Andrew Moore <amoore@cpan.org>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,40 +20,41 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
-    public string $iuser;
-    public string $iuserpass;
-    public string $iuname;
-    public string $iufname;
-    public string $igroup;
+    public array $custom_globals;
+    public array $dumpfiles;
+    public mysqli|false $dbh;
+    public string $additional_users;
+    public string $clone_database;
+    public string $collate;
+    public string $conffile;
+    public string $cvx;
+    public string $dbname;
+    public string $debug_message;
+    public string $devel_translation_sql;
+    public string $development_translations;
+    public string $error_message;
     public string $i2faEnable;
     public string $i2faSecret;
-    public string $server;
+    public string $igroup;
+    public string $ippf_specific;
+    public string $ippf_sql;
+    public string $iufname;
+    public string $iuname;
+    public string $iuser;
+    public string $iuserpass;
+    public string $login;
     public string $loginhost;
+    public string $main_sql;
+    public string $new_theme;
+    public string $no_root_db_access;
+    public string $pass;
     public string $port;
     public string $root;
     public string $rootpass;
-    public string $login;
-    public string $pass;
-    public string $dbname;
-    public string $collate;
+    public string $server;
     public string $site;
     public string $source_site_id;
-    public string $clone_database;
-    public string $no_root_db_access;
-    public string $development_translations;
-    public string $new_theme;
-    public string $ippf_specific;
-    public string $conffile;
-    public string $main_sql;
     public string $translation_sql;
-    public string $devel_translation_sql;
-    public string $ippf_sql;
-    public string $cvx;
-    public string $additional_users;
-    public array $dumpfiles;
-    public string $error_message;
-    public string $debug_message;
-    public mysqli|false $dbh;
 
     /**
      * Initialize the Installer with configuration variables.
@@ -85,6 +88,7 @@ class Installer
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
         $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
         $this->new_theme                = isset($cgi_variables['new_theme']) ? ($cgi_variables['new_theme']) : '';
+        $this->custom_globals           = isset($cgi_variables['custom_globals']) ? json_decode($cgi_variables['custom_globals'], true) : [];
         // Make this true for IPPF.
         $this->ippf_specific = false;
 
@@ -779,12 +783,7 @@ $config = 1; /////////////
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
-                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
-                    $row = $this->mysqliFetchArray($res, MYSQLI_ASSOC);
-                    if (empty($row['count'])) {
-                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
-                    }
+                    $this->writeGlobal($fldid, $flddef, 0, true);
                 }
             }
         }
@@ -792,6 +791,62 @@ $config = 1; /////////////
         return true;
     }
 
+    /**
+     * Write a global setting to the database
+     *
+     * @param string $name Global name
+     * @param string $value Global value
+     * @param int $index Global index (default: 0)
+     * @param bool $insert_only If true, only insert if not exists; if false, use REPLACE INTO (default: false)
+     * @return bool True on success, false on failure
+     */
+    protected function writeGlobal(string $name, string $value, int $index = 0, bool $insert_only = false): bool
+    {
+        $expression = "%s INTO globals ( gl_name, gl_index, gl_value ) VALUES ( '%s', '%d', '%s' )";
+        if ($insert_only) {
+            $check_sql = "SELECT count(*) AS count FROM globals WHERE gl_name = '%s'";
+            $sql = sprintf($check_sql, $this->escapeSql($name));
+            $res = $this->execute_sql($sql);
+            $row = $this->mysqliFetchArray($res, MYSQLI_ASSOC);
+
+            if (!empty($row['count'])) {
+                return true; // Already exists, skip
+            }
+
+            $sql = sprintf($expression, 'INSERT', $this->escapeSql($name), $index, $this->escapeSql($value));
+        } else {
+            $sql = sprintf($expression, 'REPLACE', $this->escapeSql($name), $index, $this->escapeSql($value));
+        }
+
+        return $this->execute_sql($sql) !== false;
+    }
+
+    /**
+     * Add arbitrary custom globals to the database after insert_globals
+     *
+     * @param array $custom_globals Associative array where keys are global names and values are configuration arrays.
+     *                             Each configuration array can contain:
+     *                             - 'value' (string): The global value (default: '')
+     *                             - 'index' (int): The global index (default: 0)
+     * @return bool True on success, false on failure
+     */
+    public function upsertCustomGlobals(array $new_globals): bool
+    {
+        foreach ($new_globals as $global_name => $global_config) {
+            if (!is_array($global_config) || empty($global_name)) {
+                continue;
+            }
+
+            $global_value = isset($global_config['value']) ? $global_config['value'] : '';
+            $global_index = isset($global_config['index']) ? intval($global_config['index']) : 0;
+
+            if (!$this->writeGlobal($global_name, $global_value, $global_index, false)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Install the Generic Access Control List (GACL) system.
@@ -1434,13 +1489,17 @@ $config = 1; /////////////
 
         // Load the version information, globals settings,
         // initial user, and set up gacl access controls.
-        //  (applicable if not cloning from another database)
+        // (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
             if (! $this->add_version_info()) {
                 return false;
             }
 
             if (! $this->insert_globals()) {
+                return false;
+            }
+
+            if (is_array($this->custom_globals) && ! $this->upsertCustomGlobals($this->custom_globals)) {
                 return false;
             }
 
