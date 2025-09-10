@@ -3739,4 +3739,20 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('data-dismiss="modal"', $output);
         $this->assertStringContainsString('Close', $output);
     }
+
+    public function testUpsertCustomGlobal(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $mockResult = $this->createMock(mysqli_result::class);
+
+        $mockInstaller
+            ->method('escapeSql')
+            ->willReturnArgument(0);
+
+        $mockInstaller
+            ->method('execute_sql')
+            ->with("REPLACE INTO globals ( gl_name, gl_index, gl_value ) VALUES ( 'test_monkey', '0', 'sure is' )")
+            ->willReturn($mockResult);
+        $mockInstaller->upsertCustomGlobals(['test_monkey' => ['index' => 0, 'value' => 'sure is']]);
+    }
 }

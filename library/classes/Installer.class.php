@@ -824,10 +824,10 @@ $config = 1; /////////////
     /**
      * Add arbitrary custom globals to the database after insert_globals
      *
-     * @param array $custom_globals Associative array where keys are global names and values are configuration arrays.
-     *                             Each configuration array can contain:
-     *                             - 'value' (string): The global value (default: '')
-     *                             - 'index' (int): The global index (default: 0)
+     * @param array $new_globals Associative array where keys are global names and values are configuration arrays.
+     *                           Each configuration array can contain:
+     *                           - 'value' (string): The global value (default: '')
+     *                           - 'index' (int): The global index (default: 0)
      * @return bool True on success, false on failure
      */
     public function upsertCustomGlobals(array $new_globals): bool
