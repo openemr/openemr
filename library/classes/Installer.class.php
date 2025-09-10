@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * Installer class.
  *
  * @package   OpenEMR
@@ -19,42 +18,47 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
-    public $iuser;
-    public $iuserpass;
-    public $iuname;
-    public $iufname;
-    public $igroup;
-    public $i2faEnable;
-    public $i2faSecret;
-    public $server;
-    public $loginhost;
-    public $port;
-    public $root;
-    public $rootpass;
-    public $login;
-    public $pass;
-    public $dbname;
-    public $collate;
-    public $site;
-    public $source_site_id;
-    public $clone_database;
-    public $no_root_db_access;
-    public $development_translations;
-    public $new_theme;
-    public $ippf_specific;
-    public $conffile;
-    public $main_sql;
-    public $translation_sql;
-    public $devel_translation_sql;
-    public $ippf_sql;
-    public $cvx;
-    public $additional_users;
-    public $dumpfiles;
-    public $error_message;
-    public $debug_message;
-    public $dbh;
+    public string $iuser;
+    public string $iuserpass;
+    public string $iuname;
+    public string $iufname;
+    public string $igroup;
+    public string $i2faEnable;
+    public string $i2faSecret;
+    public string $server;
+    public string $loginhost;
+    public string $port;
+    public string $root;
+    public string $rootpass;
+    public string $login;
+    public string $pass;
+    public string $dbname;
+    public string $collate;
+    public string $site;
+    public string $source_site_id;
+    public string $clone_database;
+    public string $no_root_db_access;
+    public string $development_translations;
+    public string $new_theme;
+    public string $ippf_specific;
+    public string $conffile;
+    public string $main_sql;
+    public string $translation_sql;
+    public string $devel_translation_sql;
+    public string $ippf_sql;
+    public string $cvx;
+    public string $additional_users;
+    public array $dumpfiles;
+    public string $error_message;
+    public string $debug_message;
+    public mysqli|false $dbh;
 
-    public function __construct($cgi_variables)
+    /**
+     * Initialize the Installer with configuration variables.
+     *
+     * @param array $cgi_variables Configuration array containing installation parameters
+     */
+    public function __construct(array $cgi_variables)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -108,9 +112,14 @@ class Installer
         $this->dbh = false;
     }
 
-    public function login_is_valid()
+    /**
+     * Validate if the database login is valid.
+     *
+     * @return bool True if login is valid, false otherwise
+     */
+    public function login_is_valid(): bool
     {
-        if (($this->login == '') || (! isset($this->login))) {
+        if ($this->login === '') {
             $this->error_message = "login is invalid: '$this->login'";
             return false;
         }
@@ -118,10 +127,18 @@ class Installer
         return true;
     }
 
-    public function char_is_valid($input_text)
+    /**
+     * Validate if input text contains only safe characters.
+     *
+     * Prevents PHP injection by checking for dangerous characters.
+     *
+     * @param string $input_text Text to validate
+     * @return bool True if text is safe, false otherwise
+     */
+    public function char_is_valid(string $input_text): bool
     {
         // to prevent php injection
-        trim($input_text);
+        $input_text = trim($input_text);
         if ($input_text == '') {
             return false;
         }
@@ -133,7 +150,13 @@ class Installer
         return true;
     }
 
-    public function databaseNameIsValid($name)
+    /**
+     * Validate if database name contains only allowed characters.
+     *
+     * @param string $name Database name to validate
+     * @return bool True if name is valid, false otherwise
+     */
+    public function databaseNameIsValid(string $name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -141,7 +164,13 @@ class Installer
         return true;
     }
 
-    public function collateNameIsValid($name)
+    /**
+     * Validate if collation name contains only allowed characters.
+     *
+     * @param string $name Collation name to validate
+     * @return bool True if name is valid, false otherwise
+     */
+    public function collateNameIsValid(string $name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -149,7 +178,12 @@ class Installer
         return true;
     }
 
-    public function iuser_is_valid()
+    /**
+     * Validate if the initial user name is valid.
+     *
+     * @return bool True if initial user is valid, false otherwise
+     */
+    public function iuser_is_valid(): bool
     {
         if (strpos($this->iuser, " ")) {
             $this->error_message = "Initial user is invalid: '$this->iuser'";
@@ -159,9 +193,14 @@ class Installer
         return true;
     }
 
-    public function iuname_is_valid()
+    /**
+     * Validate if the initial user last name is valid.
+     *
+     * @return bool True if initial user last name is valid, false otherwise
+     */
+    public function iuname_is_valid(): bool
     {
-        if ($this->iuname == "" || !isset($this->iuname)) {
+        if ($this->iuname === '') {
             $this->error_message = "Initial user last name is invalid: '$this->iuname'";
             return false;
         }
@@ -169,9 +208,14 @@ class Installer
         return true;
     }
 
-    public function password_is_valid()
+    /**
+     * Validate if the database password is valid.
+     *
+     * @return bool True if password is valid, false otherwise
+     */
+    public function password_is_valid(): bool
     {
-        if ($this->pass == "" || !isset($this->pass)) {
+        if ($this->pass === '') {
             $this->error_message = "The password for the new database account is invalid: '$this->pass'";
             return false;
         }
@@ -179,9 +223,14 @@ class Installer
         return true;
     }
 
-    public function user_password_is_valid()
+    /**
+     * Validate if the initial user password is valid.
+     *
+     * @return bool True if user password is valid, false otherwise
+     */
+    public function user_password_is_valid(): bool
     {
-        if ($this->iuserpass == "" || !isset($this->iuserpass)) {
+        if ($this->iuserpass === '') {
             $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
             return false;
         }
@@ -189,9 +238,14 @@ class Installer
         return true;
     }
 
-
-
-    public function root_database_connection()
+    /**
+     * Establish a database connection using root credentials.
+     *
+     * Connects to the database server using root privileges and sets strict SQL mode.
+     *
+     * @return bool True if connection successful, false otherwise
+     */
+    public function root_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
@@ -207,7 +261,15 @@ class Installer
         }
     }
 
-    public function user_database_connection()
+    /**
+     * Establish a database connection using user credentials.
+     *
+     * Connects to the database server using the configured user account,
+     * sets strict SQL mode, collation, and selects the target database.
+     *
+     * @return bool True if connection successful, false otherwise
+     */
+    public function user_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->login, $this->pass, $this->port, $this->dbname);
         if (! $this->dbh) {
@@ -225,7 +287,7 @@ class Installer
             return false;
         }
 
-        if (! mysqli_select_db($this->dbh, $this->dbname)) {
+        if (! $this->mysqliSelectDb($this->dbh, $this->dbname)) {
             $this->error_message = "unable to select database: '$this->dbname'";
             return false;
         }
@@ -233,7 +295,15 @@ class Installer
         return true;
     }
 
-    public function create_database()
+    /**
+     * Create the target database with UTF8MB4 character set.
+     *
+     * Creates the database using the configured name and collation,
+     * defaulting to utf8mb4_general_ci if not specified.
+     *
+     * @return bool True if database creation successful, false otherwise
+     */
+    public function create_database(): bool
     {
         $sql = "create database " . $this->escapeDatabaseName($this->dbname);
         if (empty($this->collate) || ($this->collate == 'utf8_general_ci')) {
@@ -245,69 +315,96 @@ class Installer
         return $this->execute_sql($sql);
     }
 
-    public function drop_database()
+    /**
+     * Drop the target database if it exists.
+     *
+     * @return bool True if database drop successful, false otherwise
+     */
+    public function drop_database(): bool
     {
         $sql = "drop database if exists " . $this->escapeDatabaseName($this->dbname);
         return $this->execute_sql($sql);
     }
 
-    public function create_database_user()
+    /**
+     * Create or update the database user account.
+     *
+     * Checks if the user exists in mysql.user (or mysql.global_priv for MariaDB 10.4+),
+     * creates the user if it doesn't exist, or updates the password if it does.
+     * Supports X509 and SSL connection requirements based on environment variables.
+     *
+     * @return mysqli_result|bool Query result or false on error
+     */
+    public function create_database_user(): mysqli_result|bool
     {
+        $escapedLogin = $this->escapeSql($this->login);
+        $escapedHost = $this->escapeSql($this->loginhost);
+        $escapedPass = $this->escapeSql($this->pass);
+
         // First, check for database user in the mysql.user table (this works for all except mariadb 10.4+)
-        $checkUser = $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'", false);
+        $checkUser = $this->execute_sql("SELECT user FROM mysql.user WHERE user = '{$escapedLogin}' AND host = '{$escapedHost}'", false);
         if ($checkUser === false) {
             // Above caused error, so is MariaDB 10.4+, and need to do below query instead in the mysql.global_priv table
-            $checkUser = $this->execute_sql("SELECT user FROM mysql.global_priv WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
+            $checkUser = $this->execute_sql("SELECT user FROM mysql.global_priv WHERE user = '{$escapedLogin}' AND host = '{$escapedHost}'");
         }
 
         if ($checkUser === false) {
             // there was an error in the check database user query, so return false
             return false;
-        } elseif ($checkUser->num_rows > 0) {
+        } elseif ($this->mysqliNumRows($checkUser) > 0) {
             // the mysql user already exists, so do not need to create the user, but need to set the password
             // Note need to try two different methods, first is for newer mysql versions and second is for older mysql versions (if the first method fails)
-            $returnSql = $this->execute_sql("ALTER USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'", false);
+            $returnSql = $this->execute_sql("ALTER USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}'", false);
             if ($returnSql === false) {
                 error_log("Using older mysql version method to set password for the mysql user");
-                $returnSql = $this->execute_sql("SET PASSWORD FOR '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' = PASSWORD('" . $this->escapeSql($this->pass) . "')");
+                $returnSql = $this->execute_sql("SET PASSWORD FOR '{$escapedLogin}'@'{$escapedHost}' = PASSWORD('{$escapedPass}')");
             }
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
             if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
                 // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
-                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+                return $this->execute_sql("CREATE USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}' REQUIRE X509");
             } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
                 // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
-                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+                return $this->execute_sql("CREATE USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}' REQUIRE SSL");
             } else {
-                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+                return $this->execute_sql("CREATE USER '{$escapedLogin}'@'{$escapedHost}' IDENTIFIED BY '{$escapedPass}'");
             }
         }
     }
 
-    public function grant_privileges()
+    /**
+     * Grant all privileges on the database to the user account.
+     *
+     * @return bool True if privileges granted successfully, false otherwise
+     */
+    public function grant_privileges(): bool
     {
         return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "'");
-    }
-
-    public function disconnect()
-    {
-        return mysqli_close($this->dbh);
     }
 
   /**
    * This method creates any dumpfiles necessary.
    * This is actually only done if we're cloning an existing site
    * and we need to dump their database into a file.
-   * @return bool indicating success
+   *
+   * @return string name of the backup file
    */
-    public function create_dumpfiles()
+    public function create_dumpfiles(): string
     {
         return $this->dumpSourceDatabase();
     }
 
-    public function load_dumpfiles()
+    /**
+     * Load all configured database dump files.
+     *
+     * Iterates through the list of dump files and loads each one,
+     * accumulating results and returning combined output.
+     *
+     * @return string|false Combined results from all loaded files, or false on error
+     */
+    public function load_dumpfiles(): string|false
     {
         $sql_results = ''; // information string which is returned
         foreach ($this->dumpfiles as $filename => $title) {
@@ -323,11 +420,22 @@ class Installer
         return $sql_results;
     }
 
-    public function load_file($filename, $title)
+    /**
+     * Load and execute SQL commands from a database dump file.
+     *
+     * Opens the specified file, reads it line by line, and executes
+     * SQL statements. Uses transactions for improved performance with InnoDB.
+     * Ignores comment lines starting with -- or #.
+     *
+     * @param string $filename Path to the SQL dump file
+     * @param string $title Descriptive title for the operation
+     * @return string|false Success message or false on error
+     */
+    public function load_file(string $filename, string $title): string|false
     {
         $sql_results = ''; // information string which is returned
         $sql_results .= "Creating $title tables...\n";
-        $fd = fopen($filename, 'r');
+        $fd = $this->openFile($filename, 'r');
         if ($fd == false) {
             $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
             return false;
@@ -345,30 +453,22 @@ class Installer
             return false;
         }
 
-        while (!feof($fd)) {
-            $line = fgets($fd, 1024);
+        while (!$this->atEndOfFile($fd)) {
+            $line = $this->getLine($fd, 1024);
             $line = rtrim($line);
-            if (substr($line, 0, 2) == "--") { // Kill comments
-                    continue;
-            }
-
-            if (substr($line, 0, 1) == "#") { // Kill comments
-                    continue;
-            }
-
-            if ($line == "") {
-                    continue;
+            if ($line === "" || substr($line, 0, 2) === "--" || substr($line, 0, 1) === "#") {
+                continue;
             }
 
             $query .= $line;          // Check for full query
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
-                    $query = rtrim($query, ";");
+                $query = rtrim($query, ";");
                 if (! $this->execute_sql($query)) {
                     return false;
                 }
 
-                    $query = "";
+                $query = "";
             }
         }
 
@@ -382,11 +482,19 @@ class Installer
         }
 
         $sql_results .= "<span class='text-success'><b>OK</b></span>.<br>\n";
-        fclose($fd);
+        $this->closeFile($fd);
         return $sql_results;
     }
 
-    public function add_version_info()
+    /**
+     * Add version information to the database.
+     *
+     * Loads version constants from version.php and updates the version table
+     * with current OpenEMR version information.
+     *
+     * @return bool True if version info added successfully, false otherwise
+     */
+    public function add_version_info(): bool
     {
         include __DIR__ . "/../../version.php";
         /**
@@ -421,44 +529,57 @@ class Installer
             return true;
         }
         $this->error_message = "ERROR. Unable insert version information into database\n" .
-        "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+        "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
         return false;
     }
 
-    public function add_initial_user()
+    /**
+     * Add the initial administrator user to the database.
+     *
+     * Creates the initial user group, user account, secure password hash,
+     * and optionally sets up 2FA if enabled during installation.
+     *
+     * @return bool True if initial user added successfully, false otherwise
+     */
+    public function add_initial_user(): bool
     {
-        if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
+        $escapedGroup = $this->escapeSql($this->igroup);
+        $escapedUser = $this->escapeSql($this->iuser);
+        $escapedFirstName = $this->escapeSql($this->iufname);
+        $escapedLastName = $this->escapeSql($this->iuname);
+        if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'{$escapedGroup}', '{$escapedUser}')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+            "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
-        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','NoLongerUsed',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
+        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'{$escapedUser}','NoLongerUsed',1,'{$escapedLastName}','{$escapedFirstName}',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+            "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
         $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
+        $escapedHash = $this->escapeSql($hash);
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-            die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            $this->die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
         }
-        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "',NOW())") == false) {
+        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'{$escapedUser}','{$escapedHash}',NOW())") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+            "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
             return false;
         }
 
         // Create new 2fa if enabled
-        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp')) && (class_exists('OpenEMR\Common\Crypto\CryptoGen'))) {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && $this->totpClassExists() && $this->cryptoGenClassExists()) {
             // Encrypt the new secret with the hashed password
-            $cryptoGen = new OpenEMR\Common\Crypto\CryptoGen();
-            $secret = $cryptoGen->encryptStandard($this->i2faSecret, $hash);
-            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '" . $this->escapeSql($secret) . "', '')") == false) {
+            $secret = $this->encryptTotpSecret($this->i2faSecret, $hash);
+            $escapedSecret = $this->escapeSql($secret);
+            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '{$escapedSecret}', '')") == false) {
                 $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n" .
-                    "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+                    "<p>" . $this->mysqliError($this->dbh) . " (#" . $this->mysqliErrno($this->dbh) . ")\n";
                 return false;
             }
         }
@@ -468,9 +589,10 @@ class Installer
 
     /**
      * Handle the additional users now that our gacl's have finished installing.
+     *
      * @return bool
      */
-    public function install_additional_users()
+    public function install_additional_users(): bool
     {
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
@@ -479,10 +601,18 @@ class Installer
         return true;
     }
 
-    public function on_care_coordination()
+    /**
+     * Configure Care Coordination module ACL permissions.
+     *
+     * Sets up module access control by linking the Carecoordination module
+     * to the admin group with appropriate permissions.
+     *
+     * @return bool True if configuration successful, false otherwise
+     */
+    public function on_care_coordination(): bool
     {
         $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
-        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $resource_array = $this->mysqliFetchArray($resource, MYSQLI_ASSOC);
         $modId = $resource_array['mod_id'];
         if (empty($modId)) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to get mod_id for Carecoordination module\n";
@@ -490,7 +620,7 @@ class Installer
         }
 
         $resource = $this->execute_sql("SELECT `section_id` FROM `module_acl_sections` WHERE `section_identifier` = 'carecoordination' LIMIT 1");
-        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $resource_array = $this->mysqliFetchArray($resource, MYSQLI_ASSOC);
         $sectionId = $resource_array['section_id'];
         if (empty($sectionId)) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to get section_id for carecoordination module section\n";
@@ -498,7 +628,7 @@ class Installer
         }
 
         $resource = $this->execute_sql("SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1");
-        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $resource_array = $this->mysqliFetchArray($resource, MYSQLI_ASSOC);
         $groupId = $resource_array['id'];
         if (empty($groupId)) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to get id for gacl_aro_groups admin section\n";
@@ -515,25 +645,26 @@ class Installer
 
     /**
      * Generates the initial user's 2FA QR Code
-     * @return bool|string|void
+     *
+     * @return Totp|false
      */
-    public function get_initial_user_mfa_totp()
+    public function get_initial_user_mfa_totp(): Totp|false
     {
-        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
-            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
-            return $adminTotp;
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && $this->totpClassExists()) {
+            return $this->createTotpInstance($this->i2faSecret, $this->iuser);
         }
         return false;
     }
 
   /**
    * Create site directory if it is missing.
+   *
    * @global string $GLOBALS['OE_SITE_DIR'] contains the name of the site directory to create
-   * @return name of the site directory or False
+   * @return bool true if the site directory was created or false if it already exists
    */
-    public function create_site_directory()
+    public function create_site_directory(): bool
     {
-        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+        if (!$this->fileExists($GLOBALS['OE_SITE_DIR'])) {
             $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
             $destination_directory = $GLOBALS['OE_SITE_DIR'];
             if (! $this->recurse_copy($source_directory, $destination_directory)) {
@@ -542,20 +673,31 @@ class Installer
             }
             // the new site will create it's own keys so okay to delete these copied from the source site
             if (!$this->clone_database) {
-                array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+                $files = $this->globPattern($destination_directory . "/documents/logs_and_misc/methods/*");
+                if ($files !== false) {
+                    array_map([$this, 'unlinkFile'], $files);
+                }
             }
         }
 
         return true;
     }
 
-    public function write_configuration_file()
+    /**
+     * Write the database configuration file (sqlconf.php).
+     *
+     * Creates the site directory if needed and writes the database
+     * connection configuration to the sqlconf.php file.
+     *
+     * @return bool True if configuration written successfully, false otherwise
+     */
+    public function write_configuration_file(): bool
     {
-        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+        if (!$this->fileExists($GLOBALS['OE_SITE_DIR'])) {
             $this->create_site_directory();
         }
-        @touch($this->conffile); // php bug
-        $fd = @fopen($this->conffile, 'w');
+        @$this->touchFile($this->conffile); // php bug
+        $fd = @$this->openFile($this->conffile, 'w');
         if (! $fd) {
             $this->error_message = 'unable to open configuration file for writing: ' . $this->conffile;
             return false;
@@ -569,15 +711,15 @@ class Installer
 
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
-        fwrite($fd, $string) or $it_died++;
-        fwrite($fd, "global \$disable_utf8_flag;\n") or $it_died++;
-        fwrite($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
-        fwrite($fd, "\$host\t= '$this->server';\n") or $it_died++;
-        fwrite($fd, "\$port\t= '$this->port';\n") or $it_died++;
-        fwrite($fd, "\$login\t= '$this->login';\n") or $it_died++;
-        fwrite($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
-        fwrite($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
-        fwrite($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
+        $this->writeToFile($fd, $string) or $it_died++;
+        $this->writeToFile($fd, "global \$disable_utf8_flag;\n") or $it_died++;
+        $this->writeToFile($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
+        $this->writeToFile($fd, "\$host\t= '$this->server';\n") or $it_died++;
+        $this->writeToFile($fd, "\$port\t= '$this->port';\n") or $it_died++;
+        $this->writeToFile($fd, "\$login\t= '$this->login';\n") or $it_died++;
+        $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
+        $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
+        $this->writeToFile($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -600,8 +742,8 @@ $config = 1; /////////////
 ?>
 ';
 
-        fwrite($fd, $string) or $it_died++;
-        fclose($fd) or $it_died++;
+        $this->writeToFile($fd, $string) or $it_died++;
+        $this->closeFile($fd) or $it_died++;
 
         //it's rather irresponsible to not report errors when writing this file.
         if ($it_died != 0) {
@@ -610,14 +752,24 @@ $config = 1; /////////////
         }
 
         // Tell PHP that its cached bytecode version of sqlconf.php is no longer usable.
+        // @codeCoverageIgnoreStart
         if (function_exists('opcache_invalidate')) {
             opcache_invalidate($this->conffile, true);
         }
+        // @codeCoverageIgnoreEnd
 
         return true;
     }
 
-    public function insert_globals()
+    /**
+     * Insert global configuration settings into the database.
+     *
+     * Loads the global settings metadata and inserts default values
+     * into the globals table for system configuration.
+     *
+     * @return true Always returns true
+     */
+    public function insert_globals(): true
     {
         $GLOBALS['temp_skip_translations'] = true;
         $skipGlobalEvent = true; // use in globals.inc.php script to skip event stuff
@@ -628,7 +780,7 @@ $config = 1; /////////////
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
                     $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
-                    $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
+                    $row = $this->mysqliFetchArray($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
                         $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
                            "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
@@ -640,13 +792,20 @@ $config = 1; /////////////
         return true;
     }
 
-    public function install_gacl()
-    {
 
-        $gacl = new GaclApi();
+    /**
+     * Install the Generic Access Control List (GACL) system.
+     *
+     * Creates all access control objects (ACOs), sections, and groups
+     * needed for OpenEMR's role-based access control system.
+     *
+     * @return bool True if GACL installation successful, false otherwise
+     */
+    public function install_gacl(): bool
+    {
+        $gacl = $this->newGaclApi();
 
         // Create the ACO sections.  Every ACO must have a section.
-        //
         if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
             $this->error_message = "ERROR, Unable to create the access controls for OpenEMR.";
             return false;
@@ -678,7 +837,6 @@ $config = 1; /////////////
         // xl('Inventory')
 
         // Create Accounting ACOs.
-        //
         $gacl->add_object('acct', 'Billing (write optional)', 'bill', 10, 0, 'ACO');
         // xl('Billing (write optional)')
         $gacl->add_object('acct', 'Price Discounting', 'disc', 10, 0, 'ACO');
@@ -691,7 +849,6 @@ $config = 1; /////////////
         // xl('Financial Reporting - anything')
 
         // Create Administration ACOs.
-        //
         $gacl->add_object('admin', 'Superuser', 'super', 10, 0, 'ACO');
         // xl('Superuser')
         $gacl->add_object('admin', 'Calendar Settings', 'calendar', 10, 0, 'ACO');
@@ -723,7 +880,6 @@ $config = 1; /////////////
 
 
         // Create ACOs for encounters.
-        //
         $gacl->add_object('encounters', 'Authorize - my encounters', 'auth', 10, 0, 'ACO');
         // xl('Authorize - my encounters')
         $gacl->add_object('encounters', 'Authorize - any encounters', 'auth_a', 10, 0, 'ACO');
@@ -738,11 +894,10 @@ $config = 1; /////////////
         // xl('Notes - any encounters (write,addonly optional)')
         $gacl->add_object('encounters', 'Fix encounter dates - any encounters', 'date_a', 10, 0, 'ACO');
         // xl('Fix encounter dates - any encounters')
-        $gacl->add_object('encounters', 'Less-private information (write,addonly optional)', 'relaxed', 10, 0, 'ACO');
-        // xl('Less-private information (write,addonly optional)')
+        $gacl->add_object('encounters', 'Less-protected information (write,addonly optional)', 'relaxed', 10, 0, 'ACO');
+        // xl('Less-protected information (write,addonly optional)')
 
         // Create ACOs for lists.
-        //
         $gacl->add_object('lists', 'Default List (write,addonly optional)', 'default', 10, 0, 'ACO');
         // xl('Default List (write,addonly optional)')
         $gacl->add_object('lists', 'State List (write,addonly optional)', 'state', 10, 0, 'ACO');
@@ -755,17 +910,14 @@ $config = 1; /////////////
         // xl('Ethnicity-Race List (write,addonly optional)')
 
         // Create ACOs for patientportal.
-        //
         $gacl->add_object('patientportal', 'Patient Portal', 'portal', 10, 0, 'ACO');
         // xl('Patient Portal')
 
         // Create ACOs for modules.
-        //
         $gacl->add_object('menus', 'Modules', 'modle', 10, 0, 'ACO');
         // xl('Modules')
 
         // Create ACOs for patients.
-        //
         $gacl->add_object('patients', 'Appointments (write,wsome optional)', 'appt', 10, 0, 'ACO');
         // xl('Appointments (write,wsome optional)')
         $gacl->add_object('patients', 'Demographics (write,addonly optional)', 'demo', 10, 0, 'ACO');
@@ -810,24 +962,20 @@ $config = 1; /////////////
         // xl('Send message from the permanent group therapist to the personal therapist')
 
         // Create ACOs for sensitivities.
-        //
         $gacl->add_object('sensitivities', 'Normal', 'normal', 10, 0, 'ACO');
         // xl('Normal')
         $gacl->add_object('sensitivities', 'High', 'high', 20, 0, 'ACO');
         // xl('High')
 
         // Create ACO for placeholder.
-        //
         $gacl->add_object('placeholder', 'Placeholder (Maintains empty ACLs)', 'filler', 10, 0, 'ACO');
         // xl('Placeholder (Maintains empty ACLs)')
 
         // Create ACO for nationnotes.
-        //
         $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');
         // xl('Nation Notes Configure')
 
         // Create ACOs for Inventory.
-        //
         $gacl->add_object('inventory', 'Lots', 'lots', 10, 0, 'ACO');
         // xl('Lots')
         $gacl->add_object('inventory', 'Sales', 'sales', 20, 0, 'ACO');
@@ -846,7 +994,6 @@ $config = 1; /////////////
         // xl('Reporting')
 
         // Create ARO groups.
-        //
         $users = $gacl->add_group('users', 'OpenEMR Users', 0, 'ARO');
         // xl('OpenEMR Users')
         $admin = $gacl->add_group('admin', 'Administrators', $users, 'ARO');
@@ -864,7 +1011,6 @@ $config = 1; /////////////
 
 
         // Create a Users section for the AROs (humans).
-        //
         $gacl->add_object_section('Users', 'users', 10, 0, 'ARO');
         // xl('Users')
 
@@ -873,19 +1019,13 @@ $config = 1; /////////////
         // If this script is being used by OpenEMR's setup, then will
         //   incorporate the installation values. Otherwise will
         //    hardcode the 'admin' user.
-        if (isset($this->iuser)) {
-            $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
-            $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
-        } else {
-            $gacl->add_object('users', 'Administrator', 'admin', 10, 0, 'ARO');
-            $gacl->add_group_object($admin, 'users', 'admin', 'ARO');
-        }
+        $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
+        $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
 
         // Declare return terms for language translations
         //  xl('write') xl('wsome') xl('addonly') xl('view')
 
         // Set permissions for administrators.
-        //
         $gacl->add_acl(
             array(
                 'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
@@ -912,7 +1052,6 @@ $config = 1; /////////////
         // xl('Administrators can do anything')
 
         // Set permissions for physicians.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('pat_rep')
@@ -977,7 +1116,6 @@ $config = 1; /////////////
         // xl('Things that physicians can read and modify')
 
         // Set permissions for clinicians.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('pat_rep')
@@ -1041,7 +1179,6 @@ $config = 1; /////////////
         // xl('Things that clinicians can read and modify')
 
         // Set permissions for front office staff.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('alert')
@@ -1101,7 +1238,6 @@ $config = 1; /////////////
         // xl('Things that front office can read and modify')
 
         // Set permissions for back office staff.
-        //
         $gacl->add_acl(
             array(
                 'patients' => array('alert')
@@ -1163,7 +1299,6 @@ $config = 1; /////////////
         // xl('Things that back office can read and modify')
 
         // Set permissions for Emergency Login.
-        //
         $gacl->add_acl(
             array(
                 'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
@@ -1192,7 +1327,16 @@ $config = 1; /////////////
         return true;
     }
 
-    public function quick_install()
+    /**
+     * Perform a complete OpenEMR installation process.
+     *
+     * Orchestrates the entire installation by validating settings,
+     * creating databases and users, loading SQL files, configuring
+     * access controls, and setting up the initial system state.
+     *
+     * @return bool True if installation completed successfully, false otherwise
+     */
+    public function quick_install(): bool
     {
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
@@ -1320,30 +1464,51 @@ $config = 1; /////////////
         return true;
     }
 
-    private function escapeSql($sql)
-    {
-        return mysqli_real_escape_string($this->dbh, $sql);
-    }
-
-    private function escapeDatabaseName($name)
+    /**
+     * Validate and escape database name.
+     *
+     * Ensures database name contains only safe characters.
+     *
+     * @param string $name Database name to validate
+     * @return string Validated database name
+     * @throws void Dies if invalid characters found
+     */
+    protected function escapeDatabaseName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
-            error_log("Illegal character(s) in database name");
-            die("Illegal character(s) in database name");
+            $this->die("Illegal character(s) in database name");
         }
         return $name;
     }
 
-    private function escapeCollateName($name)
+    /**
+     * Validate and escape collation name.
+     *
+     * Ensures collation name contains only safe characters.
+     *
+     * @param string $name Collation name to validate
+     * @return string Validated collation name
+     * @throws void Dies if invalid characters found
+     */
+    protected function escapeCollateName(string $name): string
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
-            error_log("Illegal character(s) in collation name");
-            die("Illegal character(s) in collation name");
+            $this->die("Illegal character(s) in collation name");
         }
         return $name;
     }
 
-    private function execute_sql($sql, $showError = true)
+    /**
+     * Execute SQL query with error handling.
+     *
+     * Executes a SQL query against the database connection,
+     * with optional error reporting and logging.
+     *
+     * @param string $sql SQL query to execute
+     * @param bool $showError Whether to log/display errors
+     * @return mysqli_result|bool Query result or false on error
+     */
+    protected function execute_sql(string $sql, bool $showError = true): mysqli_result|bool
     {
         $this->error_message = '';
         if (! $this->dbh) {
@@ -1351,12 +1516,12 @@ $config = 1; /////////////
         }
 
         try {
-            $results = mysqli_query($this->dbh, $sql);
+            $results = $this->mysqliQuery($this->dbh, $sql);
             if ($results) {
                 return $results;
             } else {
                 if ($showError) {
-                    $error_mes = mysqli_error($this->dbh);
+                    $error_mes = $this->mysqliError($this->dbh);
                     $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
                     error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
                 }
@@ -1372,19 +1537,19 @@ $config = 1; /////////////
         }
     }
 
-    private function connect_to_database($server, $user, $password, $port, $dbname = '')
+    protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
         $mysqlSsl = false;
-        $mysqli = mysqli_init();
-        if (defined('MYSQLI_CLIENT_SSL') && file_exists($pathToCerts . "mysql-ca")) {
+        $mysqli = $this->mysqliInit();
+        if (defined('MYSQLI_CLIENT_SSL') && $this->fileExists($pathToCerts . "mysql-ca")) {
             $mysqlSsl = true;
             if (
-                file_exists($pathToCerts . "mysql-key") &&
-                file_exists($pathToCerts . "mysql-cert")
+                $this->fileExists($pathToCerts . "mysql-key") &&
+                $this->fileExists($pathToCerts . "mysql-cert")
             ) {
                 // with client side certificate/key
-                mysqli_ssl_set(
+                $this->mysqliSslSet(
                     $mysqli,
                     $pathToCerts . "mysql-key",
                     $pathToCerts . "mysql-cert",
@@ -1394,7 +1559,7 @@ $config = 1; /////////////
                 );
             } else {
                 // without client side certificate/key
-                mysqli_ssl_set(
+                $this->mysqliSslSet(
                     $mysqli,
                     null,
                     null,
@@ -1405,11 +1570,16 @@ $config = 1; /////////////
             }
         }
         try {
-            if ($mysqlSsl) {
-                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
-            } else {
-                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
-            }
+            $ok = $this->mysqliRealConnect(
+                $mysqli,
+                $server,
+                $user,
+                $password,
+                $dbname,
+                (int)$port != 0 ? (int)$port : 3306,
+                '',
+                $mysqlSsl ? MYSQLI_CLIENT_SSL : 0
+            );
         } catch (mysqli_sql_exception $e) {
             $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
             return false;
@@ -1421,25 +1591,42 @@ $config = 1; /////////////
         return $mysqli;
     }
 
-    private function set_sql_strict()
+    /**
+     * Disable strict SQL mode for installation.
+     *
+     * Turns off MySQL strict mode to allow legacy SQL patterns
+     * during installation.
+     *
+     * @return mysqli_result|bool Result of SQL execution
+     */
+    protected function set_sql_strict()
     {
         // Turn off STRICT SQL
         return $this->execute_sql("SET sql_mode = ''");
     }
 
-    private function set_collation()
+    /**
+     * Set database character encoding to UTF8MB4.
+     *
+     * Configures the connection to use UTF8MB4 character set
+     * for proper Unicode support.
+     *
+     * @return mysqli_result|bool Result of SQL execution
+     */
+    protected function set_collation()
     {
         return $this->execute_sql("SET NAMES 'utf8mb4'");
     }
 
-  /**
-   * innitialize $this->dumpfiles, an array of the dumpfiles that will
-   * be loaded into the database, including the correct translation
-   * dumpfile.
-   * The keys are the paths of the dumpfiles, and the values are the titles
-   * @return array
-   */
-    private function initialize_dumpfile_list()
+   /**
+    * Initialize $this->dumpfiles, an array of the dumpfiles that will
+    * be loaded into the database, including the correct translation
+    * dumpfile.
+    * The keys are the paths of the dumpfiles, and the values are the titles
+    *
+    * @return array
+    */
+    protected function initialize_dumpfile_list(): array
     {
         if ($this->clone_database) {
             $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
@@ -1458,7 +1645,7 @@ $config = 1; /////////////
             }
 
             // Load CVX codes if present
-            if (file_exists($this->cvx)) {
+            if ($this->fileExists($this->cvx)) {
                 $dumpfiles[ $this->cvx ] = "CVX Immunization Codes";
             }
 
@@ -1468,15 +1655,15 @@ $config = 1; /////////////
         return $this->dumpfiles;
     }
 
-  /**
-   *
-   * Directory copy logic borrowed from a user comment at
-   * http://www.php.net/manual/en/function.copy.php
-   * @param string $src name of the directory to copy
-   * @param string $dst name of the destination to copy to
-   * @return bool indicating success
-   */
-    private function recurse_copy($src, $dst)
+    /**
+     * Directory copy logic borrowed from a user comment at
+     * http://www.php.net/manual/en/function.copy.php
+     *
+     * @param string $src name of the directory to copy
+     * @param string $dst name of the destination to copy to
+     * @return bool indicating success
+     */
+    protected function recurse_copy(string $src, string $dst): bool
     {
         $dir = opendir($src);
         if (! @mkdir($dst)) {
@@ -1498,13 +1685,13 @@ $config = 1; /////////////
         return true;
     }
 
-  /**
-   *
-   * dump a site's database to a temporary file.
-   * @param string $source_site_id the site_id of the site to dump
-   * @return filename of the backup
-   */
-    private function dumpSourceDatabase()
+    /**
+     * Dump a site's database to a temporary file.
+     *
+     * @param string $source_site_id the site_id of the site to dump
+     * @return string filename of the backup
+     */
+    protected function dumpSourceDatabase(): string
     {
         global $OE_SITES_BASE;
         $source_site_id = $this->source_site_id;
@@ -1512,7 +1699,7 @@ $config = 1; /////////////
         include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
 
         if (empty($config)) {
-            die("Source site $source_site_id has not been set up!");
+            $this->die("Source site $source_site_id has not been set up!");
         }
 
         /**
@@ -1531,16 +1718,16 @@ $config = 1; /////////////
         $tmp1 = [];
         $tmp0 = exec($cmd, $tmp1, $tmp2);
         if ($tmp2) {
-            die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+            $this->die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
         }
 
         return $backup_file;
     }
 
-  /**
-   * @return filename of the source backup database for cloning
-   */
-    private function get_backup_filename()
+    /**
+     * @return string filename of the source backup database for cloning
+     */
+    protected function get_backup_filename(): string
     {
         if (stristr(PHP_OS, 'WIN')) {
             $backup_file = 'C:/windows/temp/setup_dump.sql';
@@ -1550,14 +1737,27 @@ $config = 1; /////////////
 
         return $backup_file;
     }
-    //RP_ADDED
+
+    /**
+     * Get the currently selected theme.
+     *
+     * @return string Current theme name from globals table
+     */
     public function getCurrentTheme()
     {
-        $current_theme =  $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
-        $current_theme = mysqli_fetch_array($current_theme);
+        $current_theme = $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
+        $current_theme = $this->mysqliFetchArray($current_theme);
         return $current_theme[0];
     }
 
+    /**
+     * Set the current theme in the database.
+     *
+     * Updates the globals table with the selected theme.
+     * For cloned sites, uses current theme if no new theme specified.
+     *
+     * @return mysqli_result|bool Result of the update operation
+     */
     public function setCurrentTheme()
     {
         $current_theme = $this->getCurrentTheme();
@@ -1568,16 +1768,23 @@ $config = 1; /////////////
         return $this->execute_sql("UPDATE globals SET gl_value='" . $this->escapeSql($this->new_theme) . "' WHERE gl_name LIKE '%css_header%'");
     }
 
-    public function listThemes()
+    /**
+     * Get list of available themes.
+     *
+     * Scans the themes directory and returns available theme files.
+     *
+     * @return array List of theme file names
+     */
+    public function listThemes(): array
     {
         $themes_img_dir = "public/images/stylesheets/";
-        $arr_themes_img = array_values(array_filter(scandir($themes_img_dir), function ($item) {
+        $arr_themes_img = array_values(array_filter($this->scanDir($themes_img_dir), function ($item) {
             return $item[0] !== '.';
         }));
         return $arr_themes_img;
     }
 
-    private function extractFileName($theme_file_name = '')
+    protected function extractFileName(string $theme_file_name = ''): array
     {
         $under_score = strpos($theme_file_name, '_') + 1;
         $dot = strpos($theme_file_name, '.');
@@ -1586,7 +1793,15 @@ $config = 1; /////////////
         return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
     }
 
-    public function displayThemesDivs()
+    /**
+     * Display HTML divs for theme selection interface.
+     *
+     * Generates radio button interface with theme preview images
+     * for the installation theme selection step.
+     *
+     * @return void
+     */
+    public function displayThemesDivs(): void
     {
         $themes_number = count($this->listThemes());
         for ($i = 0; $i < $themes_number; $i++) {
@@ -1631,10 +1846,16 @@ $config = 1; /////////////
                     break;
             }
         }
-        return;
     }
 
-    public function displaySelectedThemeDiv()
+    /**
+     * Display the currently selected theme information.
+     *
+     * Shows theme preview and details for the currently active theme.
+     *
+     * @return void
+     */
+    public function displaySelectedThemeDiv(): void
     {
         $theme_file_name = $this->getCurrentTheme();
         $arr_extracted_file_name = $this->extractFileName($theme_file_name);
@@ -1656,10 +1877,17 @@ $config = 1; /////////////
                         <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
-        return;
     }
 
-    public function displayNewThemeDiv()
+    /**
+     * Display the newly selected theme information.
+     *
+     * Shows preview of the theme that will be applied after installation.
+     * For cloned sites, defaults to current theme if no new theme selected.
+     *
+     * @return void
+     */
+    public function displayNewThemeDiv(): void
     {
         // cloned sites don't get a chance to set a new theme
         if (!$this->new_theme) {
@@ -1684,10 +1912,17 @@ DSTD;
                         <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
-        return;
     }
 
-    public function setupHelpModal()
+    /**
+     * Display the installation help modal dialog.
+     *
+     * Generates HTML and JavaScript for a modal popup that shows
+     * installation help documentation in an iframe.
+     *
+     * @return void
+     */
+    public function setupHelpModal(): void
     {
         $setup_help_modal = <<<SETHLP
     <div class="row">
@@ -1727,6 +1962,376 @@ DSTD;
         </script>
 SETHLP;
         echo $setup_help_modal  . "\r\n";
-        return;
+    }
+
+    /**
+     * Wrapper for feof to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @return bool
+     */
+    protected function atEndOfFile($stream): bool
+    {
+        return feof($stream);
+    }
+
+    /**
+     * Wrapper for fclose to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @return bool
+     */
+    protected function closeFile($stream): bool
+    {
+        return fclose($stream);
+    }
+
+    /**
+     * Create a new Totp instance.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $secret The TOTP secret
+     * @param string $user The username
+     * @return Totp
+     */
+    protected function createTotpInstance(string $secret, string $user): Totp
+    {
+        return new Totp($secret, $user);
+    }
+
+    /**
+     * Check if OpenEMR CryptoGen class exists.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function cryptoGenClassExists(): bool
+    {
+        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
+    }
+
+    /**
+     * Wrapper for die() to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return never
+     */
+    protected function die(string $message): never
+    {
+        error_log($message);
+        die($message);
+    }
+
+    /**
+     * Close the mysqli connection.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return true
+     */
+    public function disconnect(): true
+    {
+        return mysqli_close($this->dbh);
+    }
+
+    /**
+     * Encrypt TOTP secret using CryptoGen.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $secret The TOTP secret to encrypt
+     * @param string $hash The password hash to use for encryption
+     * @return string Encrypted secret
+     */
+    protected function encryptTotpSecret(string $secret, string $hash): string
+    {
+        $cryptoGen = new \OpenEMR\Common\Crypto\CryptoGen();
+        return $cryptoGen->encryptStandard($secret, $hash);
+    }
+
+    /**
+     * Escape SQL strings to prevent injection attacks.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $sql SQL string to escape
+     * @return string Escaped SQL string
+     */
+    protected function escapeSql(string $sql): string
+    {
+        return mysqli_real_escape_string($this->dbh, $sql);
+    }
+
+    /**
+     * Wrapper for file_exists to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $fileName
+     * @return bool
+     */
+    protected function fileExists(string $fileName): bool
+    {
+        return file_exists($fileName);
+    }
+
+    /**
+     * Wrapper for fgets to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @param int $length
+     * @return string|false
+     */
+    protected function getLine($stream, int $length): string|false
+    {
+        return fgets($stream, $length);
+    }
+
+    /**
+     * Wrapper for glob to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $pattern
+     * @param int $flags
+     * @return array|false
+     */
+    protected function globPattern(string $pattern, int $flags = 0): array|false
+    {
+        return glob($pattern, $flags);
+    }
+
+    /**
+     * Wrapper for mysqli_errno to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @return int
+     */
+    protected function mysqliErrno(mysqli $mysql): int
+    {
+        return mysqli_errno($mysql);
+    }
+
+    /**
+     * Wrapper for mysqli_error to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @return string
+     */
+    protected function mysqliError(mysqli $mysql): string
+    {
+        return mysqli_error($mysql);
+    }
+
+    /**
+     * Wrapper for mysqli_fetch_array to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli_result $result
+     * @param int $mode
+     * @return array|null|false
+     */
+    protected function mysqliFetchArray(mysqli_result $result, int $mode = MYSQLI_BOTH): array|null|false
+    {
+        return mysqli_fetch_array($result, $mode);
+    }
+
+    /**
+     * Wrapper for mysqli_init to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return mysqli|false
+     */
+    protected function mysqliInit(): mysqli|false
+    {
+        return mysqli_init();
+    }
+
+    /**
+     * Wrapper for mysqli_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli_result $result
+     * @return int
+     */
+    protected function mysqliNumRows(mysqli_result $result): int
+    {
+        return mysqli_num_rows($result);
+    }
+
+    /**
+     * Wrapper for mysqli_query to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @param string $query
+     * @return mysqli_result|bool
+     */
+    protected function mysqliQuery(mysqli $mysql, string $query): mysqli_result|bool
+    {
+        return mysqli_query($mysql, $query);
+    }
+
+    /**
+     * Wrapper for mysqli_real_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $link
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $database
+     * @param int $port
+     * @param string $socket
+     * @param int $flags
+     * @return bool
+     */
+    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
+    {
+        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
+    }
+
+    /**
+     * Wrapper for mysqli_connect to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $mysql
+     * @param string $dbname
+     * @return bool
+     */
+    protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
+    {
+        return mysqli_select_db($mysql, $dbname);
+    }
+
+    /**
+     * Wrapper for mysqli_ssl_set to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mysqli $link
+     * @param ?string $key
+     * @param ?string $cert
+     * @param ?string $ca
+     * @param ?string $capath
+     * @param ?string $cipher
+     * @return bool
+     */
+    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
+    {
+        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
+    }
+
+    /**
+     * Create a new instance of the GaclApi class.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return GaclApi New instance of GaclApi
+     */
+    protected function newGaclApi(): GaclApi
+    {
+        return new GaclApi();
+    }
+
+    /**
+     * Wrapper for fopen to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @param string $mode
+     * @return resource|false
+     */
+    protected function openFile(string $filename, string $mode)
+    {
+        return fopen($filename, $mode);
+    }
+
+    /**
+     * Wrapper for scandir to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $directory
+     * @return array|false
+     */
+    protected function scanDir(string $directory)
+    {
+        return scandir($directory);
+    }
+
+    /**
+     * Check if Totp class exists.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return bool
+     */
+    protected function totpClassExists(): bool
+    {
+        return class_exists('Totp');
+    }
+
+    /**
+     * Wrapper for touch to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @param ?int $mtime
+     * @param ?int $atime
+     * @return bool
+     */
+    protected function touchFile(string $filename, ?int $mtime = null, ?int $atime = null): bool
+    {
+        return touch($filename, $mtime, $atime);
+    }
+
+    /**
+     * Wrapper for unlink to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $filename
+     * @return bool
+     */
+    protected function unlinkFile(string $filename): bool
+    {
+        return unlink($filename);
+    }
+
+    /**
+     * Wrapper for fwrite to facilitate unit testing.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     * @param string $data
+     * @param ?int $length
+     * @return int|false
+     */
+    protected function writeToFile($stream, string $data, ?int $length = null): int|false
+    {
+        return $length !== null ? fwrite($stream, $data, $length) : fwrite($stream, $data);
     }
 }
