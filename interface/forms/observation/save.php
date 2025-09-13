@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FormService;
+use OpenEMR\Common\Twig\TwigContainer;
 
 $logger = new SystemLogger();
 
@@ -36,7 +38,7 @@ try {
     // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
     $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
     $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
-    $response = $controller->save($request);
+    $response = $controller->saveAction($request);
     $response->send();
 } catch (Exception $e) {
     // Handle any exceptions that may occur

@@ -1,30 +1,411 @@
-// AI Generated Note: Enhanced from original observation.js to support Design 1 card-based layout
-(function (window, oeUI) {
+/**
+ * observation.js - Enhanced with QuestionnaireResponse linking functionality
+ * AI Generated: Extended from existing observation.js to support FHIR QuestionnaireResponse dialog
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-    /**
-     *
-     * @type {string|null} The web root URL for constructing links
-     */
-    let urlWebRoot = null;
+// AI Generated: Global observation form object with QuestionnaireResponse functionality
+window.observationForm = {
+    webroot: null,
+    reasonCodeTypes: null,
+    translations: {},
+    fhirConfig: null,
+    csrfToken: null,
 
-    /**
-     * Translated message strings for UI prompts and confirmations
-     * @type {{}}
-     */
-    let translations = {};
+    // AI Generated: Initialize observation form with enhanced functionality
+    init: function(webroot, reasonCodeTypes, translations, fhirConfig, csrfToken) {
+        this.webroot = webroot;
+        this.reasonCodeTypes = reasonCodeTypes;
+        this.translations = translations;
+        this.fhirConfig = fhirConfig;
+        this.csrfToken = csrfToken;
 
-    function init(webroot, reasonCodeTypes, translationStrings) {
-        urlWebRoot = webroot;
-        translations = translationStrings || {};
-        // Initialize reason code widgets
+        this.initializeFormHandlers();
+        this.initializeSubObservations();
+        this.initializeQuestionnaireHandlers();
+        this.initializeFormValidation();
+    },
+
+
+
+    // AI Generated: Initialize questionnaire linking functionality
+    initializeQuestionnaireHandlers: function() {
+        const self = this;
+
+        // Link questionnaire button
+        $(document).on('click', '.questionnaire-link', function() {
+            self.openQuestionnaireDialog();
+        });
+
+        // Change questionnaire button
+        $(document).on('click', '.questionnaire-change', function() {
+            self.openQuestionnaireDialog();
+        });
+
+        // Remove questionnaire button
+        $(document).on('click', '.questionnaire-remove', function() {
+            if (confirm(self.getTranslation('CONFIRM_QUESTIONNAIRE_REMOVE'))) {
+                self.removeQuestionnaireLink();
+            }
+        });
+    },
+
+    // AI Generated: Open questionnaire selection dialog
+    openQuestionnaireDialog: function() {
+        const self = this;
+
+        if (!this.fhirConfig || !this.fhirConfig.patient_uuid) {
+            alert(this.getTranslation('QUESTIONNAIRE_LOAD_ERROR'));
+            return;
+        }
+
+        const dialogContent = document.getElementById('questionnaire-dialog-template').content.cloneNode(true);
+
+        dlgopen('', 'questionnaire-selector', 'modal-lg', 600, '',
+            this.getTranslation('QUESTIONNAIRE_DIALOG_TITLE'), {
+                type: 'alert',
+                html: dialogContent,
+                buttons: [
+                    {text: this.getTranslation('QUESTIONNAIRE_DIALOG_CANCEL'), close: true, style: 'secondary'}
+                ],
+                resolvePromiseOn: 'shown',
+                allowResize: true,
+                onClosed: false
+            }).then(function(dialog) {
+            self.setupDialogEvents(dialog);
+            self.loadInitialQuestionnaireData();
+        });
+    },
+
+    // AI Generated: Setup event handlers within the dialog
+    setupDialogEvents: function(dialog) {
+        const self = this;
+
+        // Search functionality
+        $('#questionnaire-search', dialog).on('input', function() {
+            self.debounceSearch();
+        });
+
+        $('#date-from, #date-to', dialog).on('change', function() {
+            self.loadQuestionnaireData();
+        });
+
+        $('#search-questionnaires', dialog).on('click', function() {
+            self.loadQuestionnaireData();
+        });
+
+        $('#clear-search', dialog).on('click', function() {
+            $('#questionnaire-search', dialog).val('');
+            $('#date-from', dialog).val('');
+            $('#date-to', dialog).val('');
+            self.loadQuestionnaireData();
+        });
+
+        // Result item interactions
+        $(dialog).on('click', '.select-questionnaire', function() {
+            const item = $(this).closest('.questionnaire-item');
+            self.selectQuestionnaireResponse(item);
+        });
+
+        $(dialog).on('click', '.toggle-summary', function() {
+            const summary = $(this).siblings('.questionnaire-summary');
+            const icon = $(this).find('i');
+
+            summary.collapse('toggle');
+
+            summary.on('shown.bs.collapse', function() {
+                icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                $(this).siblings('.toggle-summary').html('<i class="fa fa-chevron-up"></i> ' + this.getTranslation('QUESTIONNAIRE_ITEM_SUMMARY_DETAILS_HIDE'));
+            });
+
+            summary.on('hidden.bs.collapse', function() {
+                icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                $(this).siblings('.toggle-summary').html('<i class="fa fa-chevron-down"></i> ' + this.getTranslation('QUESTIONNAIRE_ITEM_SUMMARY_DETAILS_SHOW'));
+            });
+        });
+    },
+
+    // AI Generated: Load initial questionnaire data
+    loadInitialQuestionnaireData: function() {
+        this.loadQuestionnaireData();
+    },
+
+    // AI Generated: Load questionnaire responses from FHIR API
+    loadQuestionnaireData: function(searchTerm = '', dateFrom = '', dateTo = '') {
+        // Get search parameters from dialog if not provided
+        if (!searchTerm) searchTerm = $('#questionnaire-search').val() || '';
+        if (!dateFrom) dateFrom = $('#date-from').val() || '';
+        if (!dateTo) dateTo = $('#date-to').val() || '';
+
+        // Build FHIR query parameters
+        let queryParams = new URLSearchParams({
+            'subject': this.fhirConfig.patient_uuid,
+            '_sort': '-authored',
+            '_count': '20'
+        });
+
+        if (dateFrom) queryParams.append('authored', `ge${dateFrom}`);
+        if (dateTo) queryParams.append('authored', `le${dateTo}`);
+
+        const url = `${this.fhirConfig.base_url}/QuestionnaireResponse?${queryParams}`;
+
+        // Show loading state
+        const resultsContainerLoading = document.getElementById('questionnaire-results-loading');
+        if (resultsContainerLoading.classList.contains('d-none')) {
+            resultsContainerLoading.classList.remove('d-none');
+        }
+
+        console.debug("Attempting to fetch data from ", url);
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'APICSRFTOKEN': this.csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => this.renderQuestionnaireResults(data, searchTerm))
+            .catch(error => this.handleQuestionnaireError(error));
+    },
+
+    // AI Generated: Render questionnaire results in dialog
+    renderQuestionnaireResults: function(fhirBundle, searchTerm) {
+        document.querySelectorAll('.questionnaire-results').forEach(container => container.classList.add('d-none'));
+
+        const resultsContainer = document.getElementById('questionnaire-results');
+        const resultsContainerNoResults = document.getElementById('questionnaire-results-no-results');
+        const resultsContainerLoading = document.getElementById('questionnaire-results-loading');
+
+        resultsContainerLoading.classList.add('d-none'); // hide the loading
+        if (!fhirBundle.entry || fhirBundle.entry.length === 0) {
+            resultsContainerNoResults.classList.remove('d-none');
+            return;
+        }
+        resultsContainer.classList.remove('d-none');
+        resultsContainer.replaceChildren([]);
+
+        fhirBundle.entry.forEach(entry => {
+            const template = document.getElementById('questionnaire-result-template').content.cloneNode(true);
+            const response = entry.resource;
+
+            // Filter by search term if provided
+            if (searchTerm && !this.matchesSearchTerm(response, searchTerm)) {
+                return;
+            }
+
+            template.querySelector('.questionnaire-item').setAttribute('data-fhir-id', response.id);
+            template.querySelector('.questionnaire-item').setAttribute('data-response-id', response.id);
+
+            // Set questionnaire name
+            const questionnaireName = this.getQuestionnaireName(response);
+            let titleNode = template.querySelector('.questionnaire-title');
+            titleNode.textContent = questionnaireName;
+
+            // Set date
+            template.querySelector('.date-text').innerText = this.formatFhirDate(response.authored);
+
+            // Set status
+            const statusBadge = template.querySelector('.questionnaire-status');
+            statusBadge.textContent = response.status;
+            statusBadge.classList += `badge-${this.getStatusClass(response.status)}`;
+
+            // Set response ID
+            template.querySelector('.response-id').textContent = `ID: ${response.id}`;
+
+            // Set summary content
+            this.generateResponseSummary(template, response);
+            resultsContainer.appendChild(template);
+        });
+    },
+
+    // AI Generated: Check if questionnaire response matches search term
+    matchesSearchTerm: function(response, searchTerm) {
+        if (!searchTerm) return true;
+
+        const questionnaireName = this.getQuestionnaireName(response).toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
+
+        return questionnaireName.includes(searchLower) ||
+            response.id.toLowerCase().includes(searchLower) ||
+            (response.status && response.status.toLowerCase().includes(searchLower));
+    },
+
+    // AI Generated: Extract questionnaire name from FHIR response
+    getQuestionnaireName: function(response) {
+        if (response._questionnaire) {
+            // Check for display extension first
+            if (response._questionnaire.extension) {
+                const displayExt = response._questionnaire.extension.find(ext =>
+                    ext.url === 'http://hl7.org/fhir/StructureDefinition/display');
+                if (displayExt && displayExt.valueString) {
+                    return displayExt.valueString;
+                }
+            }
+        }
+        if (response.questionnaire) {
+            // Fall back to reference
+            let parts = response.questionnaire.split("Questionnaire/");
+            if (parts.length) {
+                return parts[parts.length - 1]; // find the end
+            }
+        }
+
+        return 'Unknown Questionnaire';
+    },
+
+    // AI Generated: Format FHIR date for display
+    formatFhirDate: function(fhirDate) {
+        if (!fhirDate) return 'Unknown Date';
+
+        try {
+            const date = new Date(fhirDate);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } catch (e) {
+            return fhirDate;
+        }
+    },
+
+    // AI Generated: Get CSS class for status badge
+    getStatusClass: function(status) {
+        const statusMap = {
+            'completed': 'success',
+            'in-progress': 'warning',
+            'stopped': 'danger',
+            'entered-in-error': 'danger',
+            'amended': 'info'
+        };
+        return statusMap[status] || 'secondary';
+    },
+
+    // AI Generated: Generate summary of questionnaire responses
+    generateResponseSummary: function(templateNode, response) {
+        if (!response.item || response.item.length === 0) {
+            templateNode.querySelector('.response-no-summary').classList.remove('d-none');
+            return;
+        } else {
+            templateNode.querySelector('.response-summary').classList.remove('d-none');
+        }
+
+        // let summary = '<div class="response-summary">';
+        //
+        let rowTemplateNode = document.getElementById('response-summary-row');
+        response.item.forEach((item, index) => {
+            if (index >= 30) {
+                return;
+            }
+            let row = rowTemplateNode.content.cloneNode(true);
+            if (item.answer && item.answer.length > 0) {
+                const firstAnswer = item.answer[0];
+                if (firstAnswer.valueString) answer = firstAnswer.valueString;
+                else if (firstAnswer.valueInteger) answer = firstAnswer.valueInteger.toString();
+                else if (firstAnswer.valueDecimal) answer = firstAnswer.valueDecimal.toString();
+                else if (firstAnswer.valueBoolean !== undefined) answer = firstAnswer.valueBoolean ? this.getTranslation('RESPONSE_ANSWER_YES') : this.getTranslation('RESPONSE_ANSWER_NO');
+                else if (firstAnswer.valueCoding) answer = firstAnswer.valueCoding.display || firstAnswer.valueCoding.code;
+            } else {
+                answer = this.getTranslation('RESPONSE_ANSWER_MISSING');
+            }
+            row.querySelector('.response-summary-question').textContent = item.text || item.linkId || this.getTranslation('RESPONSE_QUESTION_MISSING');
+            row.querySelector('.response-summary-answer').textContent = answer;
+            templateNode.querySelector('.response-summary').appendChild(row);
+        });
+        if (response.item.length > 30) {
+            templateNode.querySelector('.response-summary-more').classList.remove('d-none');
+        }
+    },
+
+    // AI Generated: Handle questionnaire selection
+    selectQuestionnaireResponse: function(item) {
+        const fhirId = item.data('fhir-id');
+        const questionnaireName = item.find('.questionnaire-title').text();
+        const responseId = item.find('.response-id').text();
+        const date = item.find('.date-text').text();
+        const status = item.find('.questionnaire-status').text();
+
+        if (!fhirId) {
+            alert(this.getTranslation('QUESTIONNAIRE_SELECT_ERROR'));
+            return;
+        }
+
+        // Update hidden form field
+        $('#questionnaire_response_fhir_id').val(fhirId);
+
+        // Update display
+        this.updateQuestionnaireDisplay(questionnaireName, responseId, date, status);
+
+        // Close dialog
+        $('.modal').modal('hide');
+    },
+
+    // AI Generated: Update questionnaire display on main form
+    updateQuestionnaireDisplay: function(name, responseId, date, status) {
+        const section = $('#questionnaire-section');
+        const linkedTemplate = document.getElementById('questionnaire-linked-template').content.cloneNode(true);
+
+        section.html(linkedTemplate);
+        section.find('.questionnaire-name').text(name);
+        section.find('.response-id').text(responseId);
+        section.find('.response-date').text(date);
+        section.find('.response-status').text(status);
+    },
+
+    // AI Generated: Remove questionnaire link
+    removeQuestionnaireLink: function() {
+        const section = $('#questionnaire-section');
+        const unlinkedTemplate = document.getElementById('questionnaire-unlinked-template').content.cloneNode(true);
+
+        section.html(unlinkedTemplate);
+        $('#questionnaire_response_fhir_id').val('');
+    },
+
+    // AI Generated: Handle FHIR API errors
+    handleQuestionnaireError: function(error) {
+        console.error('QuestionnaireResponse API Error:', error);
+        let resultContainers = document.querySelector('.questionnaire-results');
+        resultContainers.forEach(container => container.classList.add('d-none'));
+        document.getElementById('questionnaire-results-error').classList.remove('d-none');
+
+        document.querySelector("#questionnaire-results-error .questionnaire-error-details").textContent = error.message;
+        $('#questionnaire-results-error .btn').off('click').on('click', () => {
+            this.loadQuestionnaireData();
+        });
+    },
+
+    // AI Generated: Debounced search functionality
+    debounceSearch: function() {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            this.loadQuestionnaireData();
+        }, 500);
+    },
+
+    // AI Generated: Utility function to escape HTML
+    escapeHtml: function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    initializeFormHandlers: function() {
         if (oeUI.reasonCodeWidget) {
-            oeUI.reasonCodeWidget.init(webroot, reasonCodeTypes);
+            oeUI.reasonCodeWidget.init(this.webroot, this.reasonCodeTypes);
         } else {
             console.error("Missing required dependency reasonCodeWidget");
             return;
         }
 
 
+        const self = this;
         // Initialize datepickers
         $(function () {
             datetimepickerTranslated('.datepicker', {
@@ -32,45 +413,43 @@
                 showSecond: false,
                 formatInput: false,
             });
+            // setup cancel buttons
+            $("#observation_form .btn-cancel").on('click', function() {
+                self.closeTab();
+            });
         });
 
-        initEditObservationFormFeatures(webroot);
-        initializeFormValidation();
-        // initializeQuestionnaireFeatures();
-    }
-
-    function getTranslation(key) {
-        return translations[key] || key;
-    }
-
-    // AI Generated: Design 1 specific initialization
-    function initEditObservationFormFeatures(webroot) {
-        initializeCodePickerHandler(webroot);
-        // Initialize sub-observation management
-        initializeSubObservationHandlers();
-
-        // Initialize questionnaire linking
-        initializeQuestionnaireToggles();
+        this.initializeCodePickerHandler(this.webroot);
 
         // Initialize category-based field visibility
-        initializeCategoryHandlers();
-    }
+        this.initializeCategoryHandlers();
+    },
 
-    function initializeCodePickerHandler(webroot) {
-        $('.code').off('click');
-        $('.code').on('click', function(e) {
-            window.set_related = set_related.bind(this, this); // Make function globally accessible as required by popup, bind this, and send in the codeElement as first param
+    closeTab: function() {
+        if (window.parent.closeTab) {
+            window.parent.closeTab(window.name, true);
+        } else {
+            alert(this.getTranslation('CLOSE_TAB_ERROR'));
+        }
+    },
+
+    initializeCodePickerHandler: function (webroot) {
+        const self = this;
+        const $code = $('.code');
+        $code.off('click');
+        $code.on('click', function() {
+            window.set_related = self.set_related.bind(self, this); // Make function globally accessible as required by popup, bind this, and send in the codeElement as first param
             dlgopen(webroot + '/interface/patient_file/encounter/find_code_popup.php', '_blank', 700, 400);
         });
-    }
+    },
 
-    function set_related(codeElement, codetype, code, selector, codedesc) {
+    set_related: function(codeElement, codetype, code, selector, codedesc) {
         console.log(codeElement);
-        $codeElement = $(codeElement);
+        const $codeElement = $(codeElement);
         $codeElement.val(codetype + ':' + code);
         console.log($codeElement.data());
         if ($codeElement.data('description-target')) {
-            $('#' + $codeElement.data('description-target')).val(codedesc);
+            $($codeElement.data('description-target')).val(codedesc);
         }
         if ($codeElement.data('display-text-target')) {
             // Update display text, this originally was HTML, but we DO NOT want HTML here
@@ -79,71 +458,56 @@
         if ($codeElement.data('code-type-target')) {
             $('#' + $codeElement.data('code-type-target')).text(codetype);
         }
-    }
-
-    function initializeSubObservationHandlers() {
-        $(".btn-remove-sub-observation").off('click').on('click', function(e) {
-            e.preventDefault();
-            removeSubObservation(this);
-        });
-
-        $(".btn-add-sub-observation").off('click').on('click', function(e) {
-            e.preventDefault();
-            addSubObservation();
-        });
-    }
-
-    // AI Generated: Questionnaire linking functionality
-    function initializeQuestionnaireToggles() {
-        // Link questionnaire button
-        document.addEventListener('click', function(e) {
-            if (e.target.matches('[onclick*="linkQuestionnaire"]') ||
-                e.target.textContent.includes('Link Questionnaire')) {
-                e.preventDefault();
-                showQuestionnaireSelector();
-            }
-        });
-
-        // Remove questionnaire link button
-        document.addEventListener('click', function(e) {
-            if (e.target.textContent.includes('Remove Link')) {
-                e.preventDefault();
-                removeQuestionnaireLink();
-            }
-        });
-    }
-
+    },
     // AI Generated: Category-based field visibility
-    function initializeCategoryHandlers() {
+    initializeCategoryHandlers: function () {
+        const self = this;
         const categorySelects = document.querySelectorAll('select[name*="category"]');
         categorySelects.forEach(function(select) {
             select.addEventListener('change', function() {
-                handleCategoryChange(this.value, this.closest('.card'));
+                self.handleCategoryChange(this.value, this.closest('.card'));
             });
 
             // Initialize on page load
             if (select.value) {
-                handleCategoryChange(select.value, select.closest('.card'));
+                self.handleCategoryChange(select.value, select.closest('.card'));
             }
         });
-    }
+    },
 
-    // AI Generated: Form validation for Design 1
-    function initializeFormValidation() {
+    getTranslation: function(key) {
+        return this.translations[key] || key;
+    },
+
+    // AI Generated: Initialize sub-observations functionality
+    initializeSubObservations: function() {
+        const self = this;
+        $(".btn-remove-sub-observation").off('click').on('click', function(e) {
+            e.preventDefault();
+            self.removeSubObservation(this);
+        });
+
+        $(".btn-add-sub-observation").off('click').on('click', function(e) {
+            e.preventDefault();
+            self.addSubObservation();
+        });
+    },
+
+    // AI Generated: Initialize form validation
+    initializeFormValidation: function() {
+        const self = this;
         const form = document.querySelector('form[name="observation_form"]');
         if (form) {
             form.addEventListener('submit', function(e) {
-                if (!validateObservationForm()) {
+                if (!self.validateObservationForm()) {
                     e.preventDefault();
                     return false;
                 }
             });
         }
-    }
-
-
-// AI Generated: Enhanced sub-observation management
-    function addSubObservation() {
+    },
+    // AI Generated: Enhanced sub-observation management
+    addSubObservation: function () {
         const container = document.getElementById('sub-observations-container');
         if (!container) return;
 
@@ -164,41 +528,42 @@
 
         // Remove template ID and update numbering
         newSubObs.removeAttribute('id');
-        updateSubObservationNumber(newSubObs, container);
+        this.updateSubObservationNumber(newSubObs, container);
 
         // Add event listener for remove button
+        const self = this;
         const removeBtn = newSubObs.querySelector('.sub-obs-remove');
         if (removeBtn) {
             removeBtn.addEventListener('click', function() {
-                removeSubObservation(this);
+                self.removeSubObservation(this);
             });
         }
 
         container.appendChild(newSubObs);
 
         // Update all numbering
-        updateAllSubObservationNumbers();
+        this.updateAllSubObservationNumbers();
 
         // setup event handlers for remove buttons
-        initializeSubObservationHandlers();
+        this.initializeSubObservations();
 
         // setup code pickers
-        initializeCodePickerHandler(urlWebRoot);
-    }
+        this.initializeCodePickerHandler(this.webroot);
+    },
 
-    function removeSubObservation(button) {
+    removeSubObservation: function(button) {
         const subObs = button.closest('.sub-observation');
         const container = document.getElementById('sub-observations-container');
 
         if (subObs && container) {
-            if (!confirm(getTranslation('CONFIRM_SUB_OBSERVATION_DELETE'))) {
+            if (!confirm(this.getTranslation('CONFIRM_SUB_OBSERVATION_DELETE'))) {
                 return;
             }
 
             subObs.remove();
 
             // Update numbering
-            updateAllSubObservationNumbers();
+            this.updateAllSubObservationNumbers();
 
             // If no sub-observations remain, show empty state using template
             if (container.querySelectorAll('.sub-observation').length === 0) {
@@ -210,7 +575,7 @@
                     // Add event listener for add first button
                     const addFirstBtn = emptyState.querySelector('.add-first-sub-obs');
                     if (addFirstBtn) {
-                        addFirstBtn.addEventListener('click', addSubObservation);
+                        addFirstBtn.addEventListener('click', this.addSubObservation.bind(this));
                     }
 
                     container.appendChild(emptyState);
@@ -219,10 +584,10 @@
         } else {
             console.error('Failed to remove sub-observation: element not found');
         }
-    }
+    },
 
-// AI Generated: Update sub-observation numbering
-    function updateSubObservationNumber(subObsElement, container) {
+    // AI Generated: Update sub-observation numbering
+    updateSubObservationNumber: function (subObsElement, container) {
         if (!container) {
             container = document.getElementById('sub-observations-container');
         }
@@ -234,9 +599,8 @@
         if (numberSpan) {
             numberSpan.textContent = number;
         }
-    }
-
-    function updateAllSubObservationNumbers() {
+    },
+    updateAllSubObservationNumbers: function() {
         const container = document.getElementById('sub-observations-container');
         if (!container) return;
 
@@ -255,77 +619,23 @@
                 numberSpan.textContent = (index + 1).toString();
             }
         });
-    }
-
-// AI Generated: Questionnaire management functions
-    function showQuestionnaireSelector() {
-        // In a real implementation, this would open a modal or dropdown
-        // with available questionnaires
-        const questionnaires = [
-            'PHQ-9 Depression Screening',
-            'GAD-7 Anxiety Assessment',
-            'MMSE Cognitive Assessment',
-            'Social Determinants Assessment'
-        ];
-
-        const selection = prompt('Available Questionnaires:\n' +
-            questionnaires.map((q, i) => `${i + 1}. ${q}`).join('\n') +
-            '\n\nEnter the number of the questionnaire to link:');
-
-        if (selection && !isNaN(selection) && selection > 0 && selection <= questionnaires.length) {
-            linkQuestionnaire(questionnaires[selection - 1], Date.now());
-        }
-    }
-
-    function linkQuestionnaire(questionnaireName, responseId) {
-        const questionnaireSection = document.querySelector('.questionnaire-section');
-        if (questionnaireSection) {
-            questionnaireSection.outerHTML = `
-            <div class="questionnaire-linked bg-light-green border border-success rounded p-3 text-center">
-                <h5 class="text-success mb-2">Linked: ${questionnaireName}</h5>
-                <p class="text-muted mb-3">Response ID: ${responseId}</p>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary btn-sm">View Response</button>
-                    <button type="button" class="btn btn-secondary btn-sm">Change</button>
-                    <button type="button" class="btn btn-danger btn-sm">Remove Link</button>
-                </div>
-                <input type="hidden" name="questionnaire_response_id[]" value="${responseId}">
-            </div>
-        `;
-        }
-    }
-
-    function removeQuestionnaireLink() {
-        if (confirm('Are you sure you want to remove the questionnaire link?')) {
-            const questionnaireLinked = document.querySelector('.questionnaire-linked');
-            if (questionnaireLinked) {
-                questionnaireLinked.outerHTML = `
-                <div class="questionnaire-section bg-light border-2 border-dashed rounded p-4 text-center">
-                    <h5 class="text-muted mb-2">No Questionnaire Linked</h5>
-                    <p class="text-muted mb-3">Link a questionnaire response to provide additional context for this observation</p>
-                    <button type="button" class="btn btn-primary" onclick="showQuestionnaireSelector()">Link Questionnaire</button>
-                </div>
-            `;
-            }
-        }
-    }
-
-// AI Generated: Category-based field handling
-    function handleCategoryChange(category, card) {
+    },
+    // AI Generated: Category-based field handling
+    handleCategoryChange: function (category, card) {
         if (!card) return;
 
         const typeSelect = card.querySelector('select[name*="ob_type"]');
 
         // Update type options based on category
         if (typeSelect) {
-            updateTypeOptionsForCategory(typeSelect, category);
+            this.updateTypeOptionsForCategory(typeSelect, category);
         }
 
         // Show/hide category-specific fields
-        toggleCategorySpecificFields(card, category);
-    }
+        this.toggleCategorySpecificFields(card, category);
+    },
 
-    function updateTypeOptionsForCategory(typeSelect, category) {
+    updateTypeOptionsForCategory: function (typeSelect, category) {
         const categoryTypes = {
             'sdoh': [
                 'Housing Status',
@@ -368,9 +678,9 @@
                 typeSelect.appendChild(option);
             });
         }
-    }
+    },
 
-    function toggleCategorySpecificFields(card, category) {
+    toggleCategorySpecificFields: function(card, category) {
         // This could be used to show/hide specific fields based on category
         // For example, SDOH observations might need different fields than vital signs
 
@@ -378,50 +688,49 @@
         if (specificFieldsContainer) {
             specificFieldsContainer.className = 'category-specific-fields ' + (category || '');
         }
-    }
+    },
 
 // AI Generated: Form validation
-    function validateObservationForm() {
+        validateObservationForm: function () {
         let isValid = true;
-        const errors = [];
 
         // Clear previous validation messages
         document.querySelectorAll('.validation-error').forEach(el => el.remove());
 
         // Validate main observation fields
-        const codeInput = document.querySelector('input[name="code[]"]');
-        const descriptionInput = document.querySelector('input[name="description[]"]');
-        const dateInput = document.querySelector('input[name="code_date[]"]');
+        const codeInput = document.querySelector('input[name="code"]');
+        const descriptionInput = document.querySelector('input[name="description"]');
+        const dateInput = document.querySelector('input[name="date"]');
 
-        // TODO: @adunsulag need to handle translation of validation errors
         if (codeInput && !codeInput.value.trim()) {
-            showValidationError(codeInput, getTranslation('VALIDATION_CODE_REQUIRED'));
+            this.showValidationError(codeInput, this.getTranslation('VALIDATION_CODE_REQUIRED'));
             isValid = false;
         }
 
         if (descriptionInput && !descriptionInput.value.trim()) {
-            showValidationError(descriptionInput, getTranslation('VALIDATION_DESCRIPTION_REQUIRED'));
+            this.showValidationError(descriptionInput, this.getTranslation('VALIDATION_DESCRIPTION_REQUIRED'));
             isValid = false;
         }
 
         if (dateInput && !dateInput.value.trim()) {
-            showValidationError(dateInput, getTranslation('VALIDATION_DATE_REQUIRED'));
+            this.showValidationError(dateInput, this.getTranslation('VALIDATION_DATE_REQUIRED'));
             isValid = false;
         }
 
         // Validate sub-observations if any exist
         const subObservations = document.querySelectorAll('.sub-observation');
-        subObservations.forEach(function(subObs, index) {
+        const self = this;
+        subObservations.forEach(function(subObs) {
             const subCode = subObs.querySelector('input[name="sub_ob_code[]"]');
             const subValue = subObs.querySelector('input[name="sub_ob_value[]"]');
             const subDescription = subObs.querySelector('input[name="sub_description[]"]');
 
             if (subCode && subCode.value.trim() && !subValue.value.trim()) {
-                showValidationError(subValue, getTranslation('VALIDATION_SUB_VALUE_REQUIRED'));
+                self.showValidationError(subValue, self.getTranslation('VALIDATION_SUB_VALUE_REQUIRED'));
                 isValid = false;
             }
             if (subValue && subValue.value.trim() && !subDescription.value.trim()) {
-                showValidationError(subDescription, getTranslation('VALIDATION_SUB_DESCRIPTION_REQUIRED'));
+                self.showValidationError(subDescription, self.getTranslation('VALIDATION_SUB_DESCRIPTION_REQUIRED'));
                 isValid = false;
             }
         });
@@ -435,9 +744,8 @@
         }
 
         return isValid;
-    }
-
-    function showValidationError(field, message) {
+    },
+    showValidationError: function(field, message) {
         field.classList.add('is-invalid');
 
         const errorDiv = document.createElement('div');
@@ -446,74 +754,11 @@
 
         field.parentNode.appendChild(errorDiv);
     }
+};
 
-
-    let form = {
-        "init": init
+// AI Generated: Ensure xl function is available for translations
+if (typeof xl === 'undefined') {
+    window.xl = function(text) {
+        return text; // Fallback if translation function not available
     };
-    window.observationForm = form;
-
-})(window, window.oeUI || {});
-
-// Legacy functions maintained for backward compatibility
-function clearReasonCode(newRow) {
-    // Make sure we clear everything out
-    let inputs = newRow.querySelectorAll(".reasonCodeContainer input");
-    inputs.forEach(function (input) {
-        input.value = "";
-    });
-    // Make sure we are hiding the thing
-    let container = newRow.querySelector(".reasonCodeContainer");
-    if (container) {
-        container.classList.add("d-none");
-    }
-}
-
-function removeVal(rowid) {
-    rowid1 = rowid.split('tb_row_');
-    if (rowid1.length > 1) {
-        const id = rowid1[1];
-        ['comments', 'code', 'description', 'code_date', 'code_type', 'table_code',
-            'ob_value', 'ob_unit', 'ob_value_phin', 'code_date_end'].forEach(function(field) {
-            const element = document.getElementById(field + "_" + id);
-            if (element) {
-                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                    element.value = '';
-                } else {
-                    element.innerHTML = '';
-                }
-            }
-        });
-    }
-}
-
-function changeDatasetIds(propertySelector, dataSetProperty, keyPrefix) {
-    var elements = document.querySelectorAll('[data-' + propertySelector + ']');
-    if (elements) {
-        elements.forEach(function (element, index) {
-            element.dataset[dataSetProperty] = keyPrefix + "_" + (index + 1);
-        });
-    }
-}
-
-function changeIds(class_val) {
-    var elem = document.getElementsByClassName(class_val);
-    for (let i = 0; i < elem.length; i++) {
-        if (elem[i].id) {
-            index = i + 1;
-            elem[i].id = class_val + "_" + index;
-        }
-    }
-}
-
-function deleteRow(event, rowId, rowCount) {
-    if (rowCount > 1) {
-        let elem = document.getElementById(rowId);
-        if (elem && elem.parentNode) {
-            elem.parentNode.removeChild(elem);
-        }
-    }
-    if (window.oeUI && window.oeUI.reasonCodeWidget) {
-        window.oeUI.reasonCodeWidget.reload();
-    }
 }

@@ -1,5 +1,5 @@
 <div id="{{ nodeId|default("sub-observation-1")|attr }}" class="sub-observation bg-white border rounded p-3 mb-2">
-    <input type="hidden" name="sub_ob_id[]" value="{{ observation.id|default('')|attr }}">
+    <input type="hidden" name="sub_observation_id[]" value="{{ observation.id|default('')|attr }}">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <strong>{{ "Sub-observation"|xlt }} <span class="sub-obs-number">{{ observation.id }}</span></strong>
         <button type="button" class="btn btn-danger btn-sm btn-remove-sub-observation">

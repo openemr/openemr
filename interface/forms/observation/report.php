@@ -35,7 +35,7 @@ function observation_report($pid, $encounter, $cols, $id): void
         $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
         $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
         // This approach is consistent with the current design, even though the original report used session values.
-        $response = $controller->report($pid, $encounter, $cols, $id);
+        $response = $controller->reportAction($pid, $encounter, $cols, $id);
         $response->send();
     } catch (Exception $e) {
         // Handle any exceptions that may occur
