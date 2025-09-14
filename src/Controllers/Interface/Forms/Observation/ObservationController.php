@@ -303,6 +303,9 @@ class ObservationController
             $observation['groupname'] = $_SESSION['authProvider'];
             $observation['authorized'] = $_SESSION['userauthorized'] ?? 0;
 
+            // grab any ids before postData can overwrite them
+            $originalIds = array_filter(array_map(fn($sub) => $sub['id'] ?? 0, $observation['sub_observations'] ?? []));
+
             foreach ($postData as $fieldName => $value) {
                 // update only fields that exist in the observation
                 if (!in_array($fieldName, ['form_id', 'pid', 'encounter', 'userauthorized', 'groupname', 'user'])) {
@@ -326,24 +329,14 @@ class ObservationController
             }
 
             // Extract sub-observations data
-            $observation['sub_observations'] = $this->extractSubObservationsData($observation, $postData);
-            // end AI Generated
-            // now we need to go through and delete any sub-observations that were removed
-            // TODO: @adunsulag we should probably do this in a transaction
-            // TODO: do we want to delete or just mark them as entered-in-error?
-
-
-            // Delete existing observations for this form
-            // TODO: @adunsulag previous code deleted the observations which doesn't make sense to me, going to leave this commented
-            // out for now until we can verify why it was done this way
-            //        if ($formId > 0) {
-            //            $this->observationService->deleteObservationsByFormId(
-            //                $formId,
-            //                $_SESSION['pid'],
-            //                $_SESSION['encounter']
-            //            );
-            //        }
-
+            $submittedObservations = $this->extractSubObservationsData($observation, $postData);
+            // we cleanup the sub observations first so the final save will return the correct data structure
+            $submittedIds = array_filter(array_map(fn($sub) => $sub['id'] ?? 0, $submittedObservations));
+            $idsToDelete = array_diff($originalIds, $submittedIds);
+            foreach ($idsToDelete as $idToDelete) {
+                $this->observationService->deleteObservationById($idToDelete, $formId, $_SESSION['pid'], $_SESSION['encounter']);
+            }
+            $observation['sub_observations'] = $submittedObservations;
             // Save main observation with sub-observations
             $observation = $this->observationService->saveObservation(
                 $observation
