@@ -453,10 +453,10 @@ window.observationForm = {
         }
         if ($codeElement.data('display-text-target')) {
             // Update display text, this originally was HTML, but we DO NOT want HTML here
-            $('#' + $codeElement.data('display-text-target')).text(codedesc);
+            $($codeElement.data('display-text-target')).text(codedesc);
         }
         if ($codeElement.data('code-type-target')) {
-            $('#' + $codeElement.data('code-type-target')).text(codetype);
+            $($codeElement.data('code-type-target')).text(codetype);
         }
     },
     // AI Generated: Category-based field visibility
@@ -609,8 +609,8 @@ window.observationForm = {
         allSubObs.forEach(function(subObs, index) {
             subObs.id = 'sub-observation-' + (index + 1).toString();
             let $code = $(subObs).find('input[name="sub_ob_code[]"]');
-            $code.attr('data-description-target', 'sub-description-' + (index + 1).toString());
-            $code.attr('data-code-type-target', 'sub-code-type-' + (index + 1).toString());
+            $code.attr('data-description-target', '#sub-description-' + (index + 1).toString());
+            $code.attr('data-code-type-target', '#sub-code-type-' + (index + 1).toString());
             $(subObs).find('input[name="sub_description[]"]').attr('id', 'sub-description-' + (index + 1).toString());
             $(subObs).find('input[name="sub_code_type[]"]').attr('id', 'sub-code-type-' + (index + 1).toString());
 

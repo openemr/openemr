@@ -159,15 +159,15 @@
                                 <i class="fa fa-list text-secondary mr-2"></i>
                                 <strong>{{ "Sub-observations"|xlt }}</strong>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary add-sub-observation">
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-add-sub-observation">
                                 <i class="fa fa-plus"></i> {{ "Add Sub-observation"|xlt }}
                             </button>
                         </div>
                         <div class="card-body">
                             <div id="sub-observations-container">
                                 {# Sub-observation Template - existing content #}
-                                {% if observation.subObservations is not empty %}
-                                    {% for index,subObservation in observation.subObservations %}
+                                {% if observation.sub_observations is not empty %}
+                                    {% for index,subObservation in observation.sub_observations %}
                                         {% include "forms/observation/templates/partials/_sub-observation.html.twig" with {
                                             nodeId: "sub-observation-" ~ (index + 1),
                                             observation: subObservation
@@ -274,7 +274,11 @@
 
         {# AI Generated: Hidden Templates for Dialog Content #}
         <div id="templates" class="d-none">
-
+            {# Sub-observation Template #}
+            {% include "forms/observation/templates/partials/_sub-observation.html.twig" with {
+                nodeId: 'sub-observation-template'
+                , observation: {id: '', code: '', value: '', units: '', description: '', status: defaultStatusType}
+            } %}
             {# QuestionnaireResponse Dialog Template #}
             <template id="questionnaire-dialog-template">
                 <div class="questionnaire-selector">

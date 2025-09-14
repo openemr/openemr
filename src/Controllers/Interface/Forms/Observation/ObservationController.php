@@ -26,6 +26,9 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -184,7 +187,11 @@ class ObservationController
 
         try {
             // Get observations with filtering
-            $result = $this->observationService->search(['pid' => $pid, 'encounter' => $encounter, 'form_id' => $request->query->get('id', null)]);
+            // make sure we only get top-level observations (no parent_observation_id)
+            $parentObservation = new TokenSearchField("parent_observation_id", [new TokenSearchValue(null)]);
+            $parentObservation->setModifier(SearchModifier::MISSING);
+            $result = $this->observationService->search(['pid' => $pid, 'encounter' => $encounter
+                , 'form_id' => $request->query->get('id', null)]); //, 'parent_observation' => $parentObservation]);
             $observations = $result->getData();
 
             // Prepare template data
@@ -305,7 +312,7 @@ class ObservationController
             }
 
             // Extract sub-observations data
-            $subObservationsData = $this->extractSubObservationsData($observation, $postData);
+            $observation['sub_observations'] = $this->extractSubObservationsData($observation, $postData);
             // end AI Generated
             // now we need to go through and delete any sub-observations that were removed
             // TODO: @adunsulag we should probably do this in a transaction
@@ -324,9 +331,8 @@ class ObservationController
             //        }
 
             // Save main observation with sub-observations
-            $observation = $this->observationService->saveObservationWithSubObservations(
-                $observation,
-                $subObservationsData
+            $observation = $this->observationService->saveObservation(
+                $observation
             );
             QueryUtils::commitTransaction();
         }
@@ -583,7 +589,7 @@ class ObservationController
             'date' => $observation['date'] ?? '',
             'date_end' => $observation['date_end'] ?? '',
             'observation' => $observation['observation'] ?? '',
-            'questionnaire_name' => $observation['questionnaire_response']['name'] ?? '',
+            'questionnaire_name' => $observation['questionnaire_name'] ?? '',
             'questionnaire_response_id' => $observation['questionnaire_response_id'] ?? null,
             'parent_observation_id' => $observation['parent_observation_id'] ?? null,
             'ob_reason_code' => $observation['ob_reason_code'] ?? '',

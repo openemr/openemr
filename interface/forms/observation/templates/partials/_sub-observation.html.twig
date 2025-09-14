@@ -12,8 +12,8 @@
                 <label class="form-label">{{ "Code"|xlt }}:</label>
                 <input type="text" name="sub_ob_code[]" class="form-control code"
                        value="{{ observation.code|default('')|attr }}"
-                       data-description-target="sub-description-{{ nodeId|attr }}"
-                       data-code-type-target="sub-code-type-{{ nodeId|attr }}"
+                       data-description-target="#sub-description-{{ nodeId|attr }}"
+                       data-code-type-target="#sub-code-type-{{ nodeId|attr }}"
                 >
             </div>
         </div>
@@ -21,14 +21,14 @@
             <div class="form-group">
                 <label class="form-label">{{ "Value"|xlt }}:</label>
                 <input type="text" name="sub_ob_value[]" class="form-control"
-                       value="{{ observation.value|default('')|attr }}">
+                       value="{{ observation.ob_value|default('')|attr }}">
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
                 <label class="form-label">{{ "Units"|xlt }}:</label>
                 <input type="text" name="sub_ob_unit[]" class="form-control"
-                       value="{{ observation.unit|default('')|attr }}">
+                       value="{{ observation.ob_unit|default('')|attr }}">
             </div>
         </div>
         <div class="col-md-2">

@@ -19,6 +19,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use RuntimeException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -158,8 +161,14 @@ class ObservationService extends BaseService
      */
     public function getObservationById(int $id, int $pid, bool $includeChildObservations = false): ?array
     {
+        // need to do a compound join where we get the main observation and any sub-observations
+        $searchField = new CompositeSearchField('id-with-children', [], false);
+        $idField = new TokenSearchField('id', [(string)$id]);
+        $parentIdField = new TokenSearchField('parent_observation_id', [(string)$id]);
+        $searchField->addChild($idField);
+        $searchField->addChild($parentIdField);
         $result = $this->search([
-            'id' => $id,
+            'id-with-children' => $searchField,
             'pid' => $pid
         ]);
         if ($result->hasData()) {
@@ -320,20 +329,24 @@ class ObservationService extends BaseService
         // populate children
         foreach ($childRecords as $childRecordIndex) {
             $record = $records[$childRecordIndex];
-            if (!empty($recordsByObservationId[$record['parent_observation_id']])) {
+            if (isset($recordsByObservationId[$record['parent_observation_id']])) {
                 $parentIndex = $recordsByObservationId[$record['parent_observation_id']];
                 if (!isset($records[$parentIndex]['sub_observations'])) {
                     $records[$parentIndex]['sub_observations'] = [];
                 }
                 $record['parent_observation_uuid'] = $records[$parentIndex]['uuid'] ?? null;
                 $records[$parentIndex]['sub_observations'][] = $record;
+                $records[$childRecordIndex] = null; // clear out child record from main list
             }
         }
         $result = new ProcessingResult();
+        // make one final pass to create result records
+        // child records will now be part of the parent records and set to null so we'll make O(n) passes
         foreach ($records as $record) {
-            if (empty($record['parent_observation_id'])) {
-                $result->addData($this->createResultRecordFromDatabaseResult($record));
+            if (empty($record)) {
+                continue;
             }
+            $result->addData($this->createResultRecordFromDatabaseResult($record));
         }
         return $result;
     }
@@ -384,7 +397,7 @@ class ObservationService extends BaseService
      * @param array $observationData
      * @return array The updated observation data including the ID
      */
-    public function saveObservation(array $observationData): array
+    private function saveObservationRecord(array $observationData): array
     {
         $sets = "`form_id` = ?,
             `uuid`        = ?,
@@ -468,7 +481,11 @@ class ObservationService extends BaseService
             );
         }
         // fetch the saved data and return it, that way dates, and everything else is in correct format
-        return $this->getObservationById($observationData['id'], $pid);
+        $dbObservation = $this->getObservationById($observationData['id'], $pid);
+        if (empty($dbObservation)) {
+            throw new RuntimeException("Failed to fetch saved observation record for id: " . $observationData['id']);
+        }
+        return $dbObservation;
     }
 
     /**
@@ -478,19 +495,22 @@ class ObservationService extends BaseService
      * @param array $subObservationsData
      * @return array The updated observation data including sub-observations
      */
-    public function saveObservationWithSubObservations(array $mainObservationData, array $subObservationsData = []): array
+    public function saveObservation(array $observation): array
     {
-        // Save main observation first
-        $savedObservation = $this->saveObservation($mainObservationData);
+        // TODO: @adunsulag should we validate here or let controller handle it?
 
+        // Save main observation first
+        $savedObservation = $this->saveObservationRecord($observation);
+        $subObservationsData = $observation['sub_observations'] ?? [];
         // Save sub-observations
         $savedSubs = [];
         foreach ($subObservationsData as $subObsData) {
-            $subObsData['parent_observation_id'] = $mainObservationData['id'];
-            $subObsData['pid'] = $mainObservationData['pid'] ?? $_SESSION['pid'];
-            $subObsData['encounter'] = $mainObservationData['encounter'] ?? $_SESSION['encounter'];
+            $subObsData['parent_observation_id'] = $savedObservation['id'];
+            $subObsData['pid'] = $savedObservation['pid'];
+            $subObsData['encounter'] = $savedObservation['encounter'];
+            $subObsData['form_id'] = $savedObservation['form_id']; // make sure sub-observations have same form_id
 
-            $savedSubs[] = $this->saveObservation($subObsData);
+            $savedSubs[] = $this->saveObservationRecord($subObsData);
         }
         $savedObservation['sub_observations'] = $savedSubs;
         return $savedObservation;
@@ -506,6 +526,24 @@ class ObservationService extends BaseService
     public function validateObservationData(array $observationData): array
     {
         $errors = [];
+
+        if (empty($observationData['pid'])) {
+            $errors[] = 'Patient ID is required';
+        }
+        if (empty($observationData['encounter'])) {
+            $errors[] = 'Encounter ID is required';
+        }
+        if (empty($observationData['groupname'])) {
+            $errors[] = 'Group name is required';
+        }
+
+        if (empty($observationData['user'])) {
+            $errors[] = 'User is required';
+        }
+        // form_id can be 0 or positive integer
+        if (!isset($observationData['form_id'])) {
+            $errors[] = 'Form ID is required';
+        }
 
         // Required field validation
         if (empty($observationData['code'])) {
