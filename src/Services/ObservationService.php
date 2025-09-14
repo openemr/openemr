@@ -398,6 +398,19 @@ class ObservationService extends BaseService
             "UPDATE `form_observation` SET `activity`=0 WHERE (id =? OR parent_observation_id = ?) AND pid = ? AND encounter = ?",
             array($id, $id, $pid, $encounter)
         );
+        // TODO: @adunsulag do we want to delete the form if there are no more active observations? Originally I thought yes, but now I'm not sure.
+//        // find out if there are any active observations for this form if we disabled a child of a parent
+//        $cnt = QueryUtils::fetchSingleValue("SELECT count(*) AS cnt FROM `form_observation` WHERE form_id = ? "
+//            . " AND pid = ? AND encounter = ? AND activity = 1",
+//            'cnt', array($formId, $pid, $encounter)
+//        );
+//        if (intval($cnt) <= 0) {
+//            // no more active observations for this form, so disable the form also
+//            QueryUtils::sqlStatementThrowException("UPDATE `forms` SET `deleted`=1 WHERE `form_id` IN (SELECT form_id FROM `form_observation`"
+//                . " WHERE (id = ? OR parent_observation_id = ?) AND pid = ? AND encounter = ?) AND `form_name` = ?",
+//                array($id, $id, $pid, $encounter, self::FORM_NAME)
+//            );
+//        }
     }
 
     /**
