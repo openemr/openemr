@@ -24,8 +24,6 @@ use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
@@ -33,9 +31,8 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\InputBag;
 use Twig\Environment;
+use InvalidArgumentException;
 
 class ObservationController
 {
@@ -80,6 +77,9 @@ class ObservationController
      */
     public function newAction(Request $request): Response
     {
+        if (!$this->getFormService()->hasFormPermission("observation")) {
+            return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
+        }
         $formId = $request->query->getInt('form_id');
         $id = $request->query->getInt('id', 0);
         if ($formId <= 0) {
@@ -182,6 +182,10 @@ class ObservationController
      */
     public function listAction(Request $request): Response
     {
+        if (!$this->getFormService()->hasFormPermission("observation")) {
+            return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
+        }
+
         $pid = $_SESSION['pid'] ?? 0;
         $encounter = $_SESSION['encounter'] ?? 0;
 
@@ -203,6 +207,13 @@ class ObservationController
                 $templateData['statusMessage'] = xl('Observation saved successfully.');
                 $templateData['statusType'] = 'success';
                 $templateData['refreshParent'] = true;
+            } else if ($request->query->get('status') === 'delete_success') {
+                $templateData['statusMessage'] = xl('Observation deleted successfully.');
+                $templateData['statusType'] = 'success';
+                $templateData['refreshParent'] = true;
+            } else if ($request->query->get('status') === 'delete_failed') {
+                $templateData['statusMessage'] = xl('Failed to delete observation. Please try again.');
+                $templateData['statusType'] = 'danger';
             }
 
             // Render the Twig template
@@ -233,6 +244,9 @@ class ObservationController
      */
     public function saveAction(Request $request): Response
     {
+        if (!$this->getFormService()->hasFormPermission("observation")) {
+            return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
+        }
         if (!CsrfUtils::verifyCsrfToken($request->request->get('csrf_token_form'))) {
             return $this->createResponse(
                 xlt("Authentication Error"),
@@ -462,31 +476,61 @@ class ObservationController
      * @param Request $request
      * @return Response
      */
-    public function delete(Request $request): Response
+    public function deleteAction(Request $request): Response
     {
-        $formId = $request->query->getInt('id');
-        $pid = $request->query->getInt('pid', $_SESSION['pid'] ?? 0);
-        $encounter = $request->query->getInt('encounter', $_SESSION['encounter'] ?? 0);
-
+        if (!$this->getFormService()->hasFormPermission("observation")) {
+            return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
+        }
+        $observationId = $request->query->getInt('id');
+        $pid = $_SESSION['pid'];
+        $encounter = $_SESSION['encounter'];
+        $formId = $request->query->getInt('form_id', 0);
+        $committed = false;
         try {
-            if ($formId > 0) {
-                $this->observationService->deleteObservationsByFormId($formId, $pid, $encounter);
+            if ($observationId <= 0) {
+                throw new InvalidArgumentException('Missing observation form id');
             }
-
-            // Redirect back to list view
-            $listUrl = $GLOBALS['webroot'] . "/interface/forms/observation/observation_list.php?pid={$pid}&encounter={$encounter}";
-            return $this->createResponse("<script>window.location.href = '{$listUrl}';</script>");
+            // first grab the observation
+            QueryUtils::startTransaction();
+            $observation = $this->observationService->getObservationById($observationId, $pid);
+            if (!$observation) {
+                // observation may have already been deleted, just redirect to list with success to avoid error loops
+                return $this->createRedirectResponse(
+                    $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                    . "&status=delete_success" // still redirect to list with success to avoid error loops
+                );
+            }
+            if ($observation['form_id'] != $formId) {
+                throw new InvalidArgumentException('Mismatched observation form id');
+            }
+            if ($observation['pid'] != $pid) {
+                throw new InvalidArgumentException('Mismatched patient id');
+            }
+            if ($observation['encounter'] != $encounter) {
+                throw new InvalidArgumentException('Mismatched encounter id');
+            }
+            $this->observationService->deleteObservationById($observationId, $formId, $pid, $encounter);
+            QueryUtils::commitTransaction();
+            $committed = true;
+            return $this->createRedirectResponse(
+                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                . "&status=delete_success" // still redirect to list with success to avoid error loops
+            );
 
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error deleting observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId
             ]);
-
-            return $this->createResponse(
-                xlt("An error occurred deleting the observation"),
-                Response::HTTP_INTERNAL_SERVER_ERROR
+            return $this->createRedirectResponse(
+                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                . "&status=delete_failed" // let them know that the delete failed
             );
+        }
+        finally {
+            if (!$committed) {
+                QueryUtils::rollbackTransaction();
+            }
         }
     }
 
@@ -501,6 +545,10 @@ class ObservationController
      */
     public function reportAction(int $pid, int $encounter, int $cols, ?int $id): Response
     {
+        if (!$this->getFormService()->hasFormPermission("observation")) {
+            return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
+        }
+
         $content = $this->renderReport($pid, $encounter, $cols, $id);
 
         return $this->createResponse($content);
@@ -512,7 +560,7 @@ class ObservationController
      * @param Request $request
      * @return Response
      */
-    public function view(Request $request): Response
+    public function viewAction(Request $request): Response
     {
         return $this->newAction($request);
     }

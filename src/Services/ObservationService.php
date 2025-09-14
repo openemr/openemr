@@ -291,16 +291,32 @@ class ObservationService extends BaseService
      */
     public function search($search, $isAndCondition = true): ProcessingResult
     {
+        if (empty($search['activity'])) {
+            $search['activity'] = '1'; // default to active records only
+        }
+
         $sql = "SELECT fo.*
                 ,r.questionnaire_response_uuid
                 ,r.questionnaire_name
                 ,r.questionnaire_status
                 ,r.questionnaire_date
-                ,lo_type.title AS ob_type_display
-                ,lo_status.title AS ob_status_display
+                ,lo_type.ob_type_display
+                ,lo_status.ob_status_display
                 FROM form_observation fo
-                LEFT JOIN list_options lo_type ON (fo.ob_type = lo_type.option_id AND lo_type.list_id = 'Observation_Types')
-                left join list_options lo_status ON (fo.ob_status = lo_status.option_id AND lo_status.list_id = 'observation-status')
+                LEFT JOIN (
+                    SELECT
+                        title AS ob_type_display
+                        ,option_id
+                        ,list_id
+                    FROM list_options
+                ) lo_type ON (fo.ob_type = lo_type.option_id AND lo_type.list_id = 'Observation_Types')
+                LEFT JOIN (
+                    SELECT
+                        title AS ob_status_display
+                        ,option_id
+                        ,list_id
+                    FROM list_options
+                ) lo_status ON (fo.ob_status = lo_status.option_id AND lo_status.list_id = 'observation-status')
                 LEFT JOIN (
                     -- we limit the fields we bring in from questionnaire_response for performance and to avoid column conflicts
                     SELECT
@@ -367,27 +383,32 @@ class ObservationService extends BaseService
     }
 
     /**
-     * Delete existing observations for a form including sub-observations
-     * AI Generated: Enhanced to handle parent-child relationships
-     *
-     * @param int $formId
-     * @param int $pid
-     * @param int $encounter
+     * @param int $id Observation id to delete
+     * @param int $formId Form id to ensure we don't delete other observations in this form.
+     * @param int $pid Patient id to ensure we don't delete other patients data
+     * @param int $encounter Encounter id to ensure we don't delete other encounters data
      * @return void
      */
-    public function deleteObservationsByFormId(int $formId, int $pid, int $encounter): void
+    public function deleteObservationById(int $id, int $formId, int $pid, int $encounter): void
     {
-        // First delete sub-observations
+        // we don't delete the records, we just set the activity to be 0
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM `form_observation` WHERE parent_observation_id = ? AND pid = ? AND encounter = ?",
-            array($formId, $pid, $encounter)
+            "UPDATE `form_observation` SET `activity`=0 WHERE (id =? OR parent_observation_id = ?) AND pid = ? AND encounter = ?",
+            array($id, $id, $pid, $encounter)
         );
-
-        // Then delete main observation
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM `form_observation` WHERE id = ? AND pid = ? AND encounter = ?",
-            array($formId, $pid, $encounter)
-        );
+        // TODO: @adunsulag do we want to delete the form if there are no more active observations? Originally I thought yes, but now I'm not sure.
+//        // find out if there are any active observations for this form if we disabled a child of a parent
+//        $cnt = QueryUtils::fetchSingleValue("SELECT count(*) AS cnt FROM `form_observation` WHERE form_id = ? "
+//            . " AND pid = ? AND encounter = ? AND activity = 1",
+//            'cnt', array($formId, $pid, $encounter)
+//        );
+//        if (intval($cnt) <= 0) {
+//            // no more active observations for this form, so disable the form also
+//            QueryUtils::sqlStatementThrowException("UPDATE `forms` SET `deleted`=1 WHERE `form_id` IN (SELECT form_id FROM `form_observation`"
+//                . " WHERE (id = ? OR parent_observation_id = ?) AND pid = ? AND encounter = ?) AND `form_name` = ?",
+//                array($id, $id, $pid, $encounter, self::FORM_NAME)
+//            );
+//        }
     }
 
     /**
