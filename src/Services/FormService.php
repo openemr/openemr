@@ -126,8 +126,11 @@ class FormService
     public function hasFormPermission($formDir)
     {
         // get the aco spec from registry table
-        $acoSpec = QueryUtils::fetchSingleValue("SELECT aco_spec FROM registry WHERE directory = ?"
-            , 'aco_spec', array($formDir));
+        $acoSpec = QueryUtils::fetchSingleValue(
+            "SELECT aco_spec FROM registry WHERE directory = ?",
+            'aco_spec',
+            array($formDir)
+        );
         $permission = explode('|', ($acoSpec ?? ''));
         return AclMain::aclCheckCore($permission[0], $permission[1] ?? null);
     }

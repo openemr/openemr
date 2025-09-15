@@ -157,7 +157,6 @@ class ObservationController
             $content = $this->twig->render($this->getTemplatePath('observation_edit.html.twig'), $templateData);
 
             return $this->createResponse($content);
-
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error rendering observation form", [
                 'error' => $e->getMessage(),
@@ -220,7 +219,6 @@ class ObservationController
             $content = $this->twig->render($this->getTemplatePath('observation_list.html.twig'), $templateData);
 
             return $this->createResponse($content);
-
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error rendering observation list", [
                 'error' => $e->getMessage(),
@@ -267,7 +265,6 @@ class ObservationController
                 . urlencode($observation['form_id'])
                 . "&status=saved"
             );
-
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error saving observation", [
                 'error' => $e->getMessage(),
@@ -342,8 +339,7 @@ class ObservationController
                 $observation
             );
             QueryUtils::commitTransaction();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             QueryUtils::rollbackTransaction();
             throw $e; // rethrow to be handled in save()
         }
@@ -367,7 +363,6 @@ class ObservationController
             $result = QueryUtils::fetchSingleValue($sql, 'id', [$numericId, $numericId]);
 
             return $result ? (int)$result : null;
-
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error converting FHIR ID to local ID", [
                 'fhir_id' => $fhirId,
@@ -410,7 +405,6 @@ class ObservationController
                 'date' => $response['create_time'],
                 'questionnaire_data' => $questionnaireData
             ];
-
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error getting QuestionnaireResponse details", [
                 'questionnaire_response_id' => $questionnaireResponseId,
@@ -509,7 +503,6 @@ class ObservationController
                 $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
-
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("Error deleting observation", [
                 'error' => $e->getMessage(),
@@ -519,8 +512,7 @@ class ObservationController
                 $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_failed" // let them know that the delete failed
             );
-        }
-        finally {
+        } finally {
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }
@@ -669,8 +661,10 @@ class ObservationController
     {
 
         // if no id and no form_id provided we show the list view
-        if ($request->query->getInt('id') <= 0
-            && $request->query->getInt('form_id') <= 0) {
+        if (
+            $request->query->getInt('id') <= 0
+            && $request->query->getInt('form_id') <= 0
+        ) {
             // no id provided and no form_id provided
             // show new / edit view
             return false;
