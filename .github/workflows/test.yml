@@ -305,9 +305,9 @@ jobs:
       with:
         name: htmlcov
         path: ./htmlcov/
-    # - name: Upload coverage reports to Codecov
-    #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
-    #   uses: codecov/codecov-action@v5
-    #   with:
-    #     token: ${{ secrets.CODECOV_TOKEN }}
-    #     files: coverage.clover.xml
+    - name: Upload coverage reports to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.clover.xml
