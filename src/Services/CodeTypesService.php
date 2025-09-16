@@ -453,35 +453,17 @@ class CodeTypesService
             if (!$ct_arr['active']) {
                 continue;
             }
-
-            if ($category == "diagnosis") {
-                if (isset($ct_arr['diag']) && $ct_arr['diag']) {
-                    $return[] = $ct_key;
-                }
-            } elseif ($category == "procedure") {
-                if (isset($ct_arr['proc']) && ($ct_arr['proc'])) {
-                    $return[] = $ct_key;
-                }
-            } elseif ($category == "clinical_term") {
-                if (isset($ct_arr['term']) && ($ct_arr['term'])) {
-                    $return[] = $ct_key;
-                }
-            } elseif ($category == "active") {
-                if (isset($ct_arr['active']) && ($ct_arr['active'])) {
-                    $return[] = $ct_key;
-                }
-            } elseif ($category == "medical_problem") {
-                if (isset($ct_arr['problem']) && ($ct_arr['problem'])) {
-                    $return[] = $ct_key;
-                }
-            } elseif ($category == "drug") {
-                if (isset($ct_arr['drug']) && ($ct_arr['drug'])) {
-                    $return[] = $ct_key;
-                }
-            } else {
-                //return nothing since no supported category was chosen
-            }
+            match ($category) {
+                "diagnosis" => isset($ct_arr['diag']) && $ct_arr['diag'] ? $return[] = $ct_key : null,
+                "procedure" => isset($ct_arr['proc']) && $ct_arr['proc'] ? $return[] = $ct_key : null,
+                "clinical_term" => isset($ct_arr['term']) && $ct_arr['term'] ? $return[] = $ct_key : null,
+                "active" => $return[] = $ct_key, // since active already checked above, we can add it here.
+                "medical_problem" => isset($ct_arr['problem']) && $ct_arr['problem'] ? $return[] = $ct_key : null,
+                "drug" => isset($ct_arr['drug']) && $ct_arr['drug'] ? $return[] = $ct_key : null,
+                default => null, // return nothing since no supported category was chosen
+            };
         }
+
 
         if ($return_format == "csv") {
             //return it as a csv string
