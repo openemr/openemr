@@ -66,10 +66,7 @@ $dateOrNull = function ($k) {
     return ($v === '') ? null : $v;
 };
 
-$goals = HistorySdohService::buildGoals($_POST, $pid, [
-    'include_category' => true,
-    'include_due' => true,
-    'include_measure' => true]);
+$goals = HistorySdohService::buildGoals($_POST, $pid);
 $goalsSave = ($goals !== []) ? json_encode($goals) : '';
 
 $interventions = HistorySdohService::buildInterventions($_POST, $pid, [

@@ -382,6 +382,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         // Ensure we have UUIDs for patient identifier in document.
         UuidRegistry::createMissingUuidsForTables(['patient_data']);
 
+        $patient_data = '';
+
         $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion
         , l3.notes as religion_code, l4.notes as language_code, l4.title as language_title, l5.title as tribal_title, l5.notes as tribal_code
         ,patient_data.updated_by AS provenance_updated_by
@@ -399,8 +401,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         // --- Related persons (pull once; reuse in XML) ---
         $relatedPersonService = new DemographicsRelatedPersonsService();
         $relatedPersonMap = $relatedPersonService->getMapForPid((int)$pid);
-
-        // Build <related_persons> XML once; include only non-empty persons
+            // Build <related_persons> XML once; include only non-empty persons
         $related_persons_xml = "<related_persons>";
         for ($i = 1; $i <= 3; $i++) {
             $rp = [
@@ -4039,7 +4040,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $extension = base64_encode($_SESSION['site_id'] . $encId);
 
                 // Goals
-                $calcGoals = HistorySdohService::buildGoals($sdoh, (int)$pid);
+                $calcGoals = HistorySdohService::buildGoals($sdoh, $pid);
                 foreach ((array)$calcGoals as $g) {
                     $measure = $g['target'][0]['measure'] ?? null; // CodeableConcept
                     $code = $measure['coding'][0]['code'] ?? '';
@@ -4077,7 +4078,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 </item>';
                 }
                 // End Goals
-
                 // --- SDOH Health Concerns from current assessment (mirrors goals/interventions)
                 $sdohConcerns = HistorySdohService::concernsFromCurrentAssessmentV3($pid);
                 foreach ((array)$sdohConcerns as $c) {

@@ -195,12 +195,6 @@ $updated_at = $info['updated_at'] ?? '';
                         <?php endif; ?>
                     <?php endif; ?>
                 </div> <!-- /card-body -->
-                <div class="m-0 p-0 form-group-sm">
-                    <?php
-                    $extHtml = HistorySdohService::renderExtendedDomainsHtml($info['extended_domains'] ?? '[]');
-                    echo $extHtml; // Renders a compact card with (Domain, Status, Score, Code, Notes)
-                    ?>
-                </div>
             </div> <!-- /card -->
         <?php endif; ?>
     </div>
