@@ -612,7 +612,10 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 #EndIf
--- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ------------------------------------------------------------------ NEW ---------------------------------------------------------------------------------------------------------
+
+#IfEyeFormLaserCategoriesNeeded
+#EndIf
 
 #IfNotTable patient_related_persons
 CREATE TABLE `patient_related_persons`
@@ -720,3 +723,274 @@ VALUES
     ('DEM','related_email_3',      @newgrp,'Email',     360, 2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
 #EndIf
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE form_history_sdoh
+    ADD COLUMN instrument_score INT NULL,
+    ADD COLUMN positive_domain_count INT NULL ,
+    ADD COLUMN extended_domains JSON NULL,
+    ADD COLUMN declined_flag TINYINT(1) NULL;
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('sdoh_instruments', 'ahc-hrsn', 'AHC-HRSN', 10, '{"system":"LOINC","code":"96799-9","display":"AHC HRSN panel"}'), ('sdoh_instruments', 'prapare', 'PRAPARE', 20, '{"system":"LOINC","code":"93025-5","display":"PRAPARE panel"}')
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('sdoh_domain_status_generic', 'yes', 'Yes/Positive screen', 10, '{"system":"SNOMED","code":"373066001","display":"Yes"}'),
+       ('sdoh_domain_status_generic', 'no', 'No/Negative screen', 20, '{"system":"SNOMED","code":"373067005","display":"No"}'),
+       ('sdoh_domain_status_generic', 'unknown', 'Unknown', 30, '{"system":"SNOMED","code":"261665006","display":"Unknown"}'),
+       ('sdoh_domain_status_generic', 'declined', 'Declined', 40, '{"system":"SNOMED","code":"2667000","display":"Refused"}')
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('sdoh_additional_domains', 'digital_access', 'Digital inclusion & access', 10, '{"system":"LOINC","code":"96764-5","display":"Digital inclusion assessment"}'),
+       ('sdoh_additional_domains', 'health_literacy', 'Health literacy', 20, '{"system":"LOINC","code":"93029-7","display":"Health literacy panel"}'),
+       ('sdoh_additional_domains', 'stress', 'Stress', 30, '{"system":"LOINC","code":"10157-6","display":"Psychosocial stressors note"}'),
+       ('sdoh_additional_domains', 'legal', 'Legal needs', 40, '{"system":"SNOMED","code":"11851006","display":"Legal problem"}')
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+/* ================================
+   Create list containers (under `lists`)
+   ================================ */
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value)
+VALUES
+    ('lists','sdoh_domain_status_generic','SDOH – Domain Status (Generic)',0,1,0),
+    ('lists','sdoh_additional_domains','SDOH – Additional Domains',0,1,0),
+    ('lists','sdoh_food_insecurity_risk','SDOH – Food Insecurity (Risk)',0,1,0),
+    ('lists','tribal_affiliations','Tribal Affiliations',0,1,0)
+ON DUPLICATE KEY UPDATE title=VALUES(title);
+
+/* ================================
+   SDOH Domain Status (Generic) — prefixed codes
+   ================================ */
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES
+    ('sdoh_domain_status_generic','yes','Yes/Positive screen',10,'SNOMED:373066001'),
+    ('sdoh_domain_status_generic','no','No/Negative screen',20,'SNOMED:373067005'),
+    ('sdoh_domain_status_generic','unknown','Unknown',30,'SNOMED:261665006'),
+    ('sdoh_domain_status_generic','declined','Declined',40,'SNOMED:2667000')
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+/* ================================
+   SDOH Additional Domains — prefixed codes
+   ================================ */
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES
+    ('sdoh_additional_domains','digital_access','Digital inclusion & access',10,'LOINC:96764-5'),
+    ('sdoh_additional_domains','health_literacy','Health literacy',20,'LOINC:93029-7'),
+    ('sdoh_additional_domains','stress','Stress',30,'LOINC:10157-6'),
+    ('sdoh_additional_domains','legal','Legal needs',40,'SNOMED:11851006')
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+-- Missing USCDI v3 Lists for OpenEMR 7.0 ONC Certification
+-- OpenEMR already has: sex, race, ethnicity, language, marital_status
+-- These are the missing required lists:
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('lists', 'sdoh_problems', 'SDOH Problems/Health Concerns', 50, 0, 0, '', 'USCDI v3 SDOH - Gravity Project', '', 1);
+-- Key SDOH problems (minimal set for compliance)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `codes`, `activity`)
+VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
+       ('sdoh_problems', '224130005', 'Difficulty accessing healthcare', 20, 'SNOMED:224130005', 1),
+       ('sdoh_problems', '182964004', 'Medication not available', 30, 'SNOMED:182964004', 1),
+       ('sdoh_problems', '73438004', 'Educational problem', 40, 'SNOMED:73438004', 1),
+       ('sdoh_problems', '266948004', 'Unemployed', 50, 'SNOMED:266948004', 1),
+       ('sdoh_problems', 'Z59.1', 'Inadequate housing', 60, 'ICD10CM:Z59.1', 1),
+       ('sdoh_problems', 'Z59.4', 'Lack of adequate food', 70, 'ICD10CM:Z59.4', 1),
+       ('sdoh_problems', 'Z59.6', 'Low income', 80, 'ICD10CM:Z59.6', 1),
+       ('sdoh_problems', 'Z62.9', 'Problem related to upbringing', 90, 'ICD10CM:Z62.9', 1),
+       ('sdoh_problems', '266944006', 'Lives in poverty', 100, 'SNOMED:266944006', 1);
+
+-- 6. SDOH INTERVENTIONS (Social services/referrals)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('lists', 'sdoh_interventions', 'SDOH Interventions', 60, 0, 0, '', 'USCDI v3 SDOH Interventions - Gravity Project', '', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `codes`, `activity`)
+VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance program', 10, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', '467711000124100', 'Referral to housing assistance program', 20, 'SNOMED:467711000124100', 1),
+       ('sdoh_interventions', '467721000124107', 'Referral to transportation assistance program', 30, 'SNOMED:467721000124107', 1),
+       ('sdoh_interventions', '467731000124109', 'Referral to utility assistance program', 40, 'SNOMED:467731000124109', 1),
+       ('sdoh_interventions', '428191000124101', 'Education about community resources', 50, 'SNOMED:428191000124101', 1),
+       ('sdoh_interventions', '464031000124108', 'Referral to social worker', 60, 'SNOMED:464031000124108', 1),
+       ('sdoh_interventions', '385763009', 'Lifestyle education', 70, 'SNOMED:385763009', 1),
+       ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1);
+
+-- ========================================
+-- 1. SEXUAL ORIENTATION - LOINC 76690-7
+-- ========================================
+
+-- Clear existing sexual orientation entries (optional - comment out if you want to keep some)
+-- DELETE FROM list_options WHERE list_id = 'sexual_orientation' AND option_id != '';
+
+-- Insert/Update Sexual Orientation with correct LOINC answer codes
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('sexual_orientation', 'LA22876-9', 'Straight or heterosexual', 10, 0, 0, '', 'USCDI v3', 'LOINC:LA22876-9', 1),
+       ('sexual_orientation', 'LA22875-1', 'Lesbian, gay or homosexual', 20, 0, 0, '', 'USCDI v3', 'LOINC:LA22875-1', 1),
+       ('sexual_orientation', 'LA22877-7', 'Bisexual', 30, 0, 0, '', 'USCDI v3', 'LOINC:LA22877-7', 1),
+       ('sexual_orientation', 'LA46-8', 'Something else, please describe', 40, 0, 0, '', 'USCDI v3', 'LOINC:LA46-8', 1),
+       ('sexual_orientation', 'LA20384-6', 'Asked but unknown', 50, 0, 0, '', 'USCDI v3', 'LOINC:LA20384-6', 1),
+       ('sexual_orientation', 'LA4489-6', 'Choose not to disclose', 60, 0, 0, '', 'USCDI v3', 'LOINC:LA4489-6', 1)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `codes` = VALUES(`codes`), `notes` = VALUES(`notes`);
+
+-- Optional: Add expanded Gender Harmony options
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('sexual_orientation', 'LA22878-5', 'Asexual', 35, 0, 0, '', 'Gender Harmony Expanded', 'LOINC:LA22878-5', 1),
+       ('sexual_orientation', 'LA22879-3', 'Pansexual', 36, 0, 0, '', 'Gender Harmony Expanded', 'LOINC:LA22879-3', 1),
+       ('sexual_orientation', 'LA22880-1', 'Questioning', 37, 0, 0, '', 'Gender Harmony Expanded', 'LOINC:LA22880-1', 1)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `codes` = VALUES(`codes`), `notes` = VALUES(`notes`);
+
+-- ========================================
+-- 2. GENDER IDENTITY - LOINC 76691-5
+-- ========================================
+-- Clear existing gender identity entries (optional)
+-- DELETE FROM list_options WHERE list_id = 'gender_identity' AND option_id != '';
+-- Insert/Update Gender Identity with correct LOINC/SNOMED codes
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('gender_identity', 'LA22864-5', 'Female', 10, 0, 0, '', 'USCDI v3', 'LOINC:LA22864-5', 1),
+       ('gender_identity', 'LA22878-5', 'Male', 20, 0, 0, '', 'USCDI v3', 'LOINC:LA22878-5', 1),
+       ('gender_identity', 'LA22876-9', 'Transgender female', 30, 0, 0, '', 'USCDI v3', 'LOINC:LA22876-9', 1),
+       ('gender_identity', 'LA22877-7', 'Transgender male', 40, 0, 0, '', 'USCDI v3', 'LOINC:LA22877-7', 1),
+       ('gender_identity', 'LA22885-0', 'Non-binary', 50, 0, 0, '', 'USCDI v3', 'LOINC:LA22885-0', 1),
+       ('gender_identity', 'LA46-8', 'Other', 60, 0, 0, '', 'USCDI v3', 'LOINC:LA46-8', 1),
+       ('gender_identity', 'LA22886-8', 'Choose not to disclose', 70, 0, 0, '', 'USCDI v3', 'LOINC:LA22886-8', 1),
+       ('gender_identity', 'UNK', 'Unknown', 80, 0, 0, '', 'USCDI v3', 'HL7:UNK', 1)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `codes` = VALUES(`codes`), `notes` = VALUES(`notes`);
+
+-- Optional: Add culturally specific options (Gender Harmony Project)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('gender_identity', 'SNOMED:772004004', 'Two-Spirit', 45, 0, 0, '', 'Cultural/Indigenous', 'SNOMED:772004004', 1),
+       ('gender_identity', 'SNOMED:446131000124102', 'Genderqueer', 46, 0, 0, '', 'Non-conforming', 'SNOMED:446131000124102', 1)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `codes` = VALUES(`codes`), `notes` = VALUES(`notes`);
+
+-- ========================================
+-- 3. UPDATE LIST HEADERS WITH CORRECT CODES
+-- ========================================
+-- Update the main list definitions to include proper LOINC codes
+UPDATE `list_options`
+SET `codes` = 'LOINC:76690-7', `notes` = 'USCDI v3 Required - Sexual Orientation'
+WHERE `list_id` = 'lists'
+  AND `option_id` = 'sexual_orientation';
+UPDATE `list_options`
+SET `codes` = 'LOINC:76691-5', `notes` = 'USCDI v3 Required - Gender Identity'
+WHERE `list_id` = 'lists' AND `option_id` = 'gender_identity';
+
+-- Note: 2025 Executive Order may affect enforcement of SOGI data collection
+-- Check current ONC guidance: https://www.healthit.gov/topic/uscdi-v3-data-elements-enforcement-discretion
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- TRIBAL AFFILIATIONS (USCDI v3 Required)
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES
+    ('lists', 'tribal_affiliation', 'Tribal Affiliation', 10, 0, 0, '', 'USCDI v3 Required - HL7 TribalEntityUS', '', 1)
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`)
+VALUES
+    -- ONC example (exact from your validator)
+    ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65'),
+    ('tribal_affiliations', 'cherokee_nation', 'Cherokee Nation (OK)', 20, '40'),
+    ('tribal_affiliations', 'chickasaw_nation', 'Chickasaw Nation (OK)', 30, '43'),
+    ('tribal_affiliations', 'choctaw_nation', 'Choctaw Nation of Oklahoma', 40, '47'),
+    ('tribal_affiliations', 'gila_river', 'Gila River Indian Community (AZ)', 50, '93'),
+    ('tribal_affiliations', 'hopi', 'Hopi Tribe (AZ)', 60, '104'),
+    ('tribal_affiliations', 'navajo_nation', 'Navajo Nation (AZ/NM/UT)', 70, '170'),
+    ('tribal_affiliations', 'standing_rock', 'Standing Rock Sioux Tribe (ND/SD)', 80, '289'),
+    ('tribal_affiliations', 'tohono_oodham', 'Tohono O\'odham Nation (AZ)', 90, '302'),
+    ('tribal_affiliations', 'white_mountain_apache', 'White Mountain Apache Tribe (AZ)', 100, '325'),
+    ('tribal_affiliations', 'zuni', 'Zuni Tribe (NM)', 110, '337'),
+    ('tribal_affiliations', 'other_specify', 'Other (specify)', 120, '000')
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+-- DISABILITY STATUS - USCDI v3 Required
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`option_value`)
+VALUES ('lists','disability_status','Disability Status',0,1,0)
+ON DUPLICATE KEY UPDATE `title`=VALUES(`title`);
+
+-- Disability Status (CUBS) – LOINC 89571-4 answer list
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `codes`)
+VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7'),
+       ('disability_status', 'im_vulnerable',  'I''m Vulnerable.', 20, 'LOINC:LA29243-5'),
+       ('disability_status', 'im_at_risk',  'I''m at risk.',  30, 'LOINC:LA29244-3'),
+       ('disability_status', 'im_in_crisis',  'I''m in crisis.', 40, 'LOINC:LA29245-0')
+ON DUPLICATE KEY UPDATE `title`=VALUES(`title`), `codes`=VALUES(`codes`);
+
+ALTER TABLE form_history_sdoh
+    ADD COLUMN disability_status VARCHAR(50) NULL,
+    ADD COLUMN disability_status_notes TEXT,
+    ADD COLUMN disability_scale TEXT,
+    ADD COLUMN hunger_q1 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88122-7 response',
+    ADD COLUMN hunger_q2 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88123-5 response',
+    ADD COLUMN hunger_score INT DEFAULT NULL COMMENT 'Calculated HVS score';
+
+-- Update SDOH list options with Gravity Project codes
+UPDATE list_options SET codes = '{"system":"SNOMED","code":"733423003","display":"Food insecurity"}' WHERE list_id = 'sdoh_food_insecurity_risk' AND option_id = 'at_risk';
+
+UPDATE list_options SET codes = '{"system":"SNOMED","code":"32911000","display":"Homeless"}' WHERE list_id = 'sdoh_housing_worry' AND option_id = 'yes';
+
+-- Add Gravity Project intervention codes
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('sdoh_interventions', '467681000124101', 'Assistance with application for food program', 1, 'SNOMED:467681000124101'),
+       ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 2, 'SNOMED:467701000124103'),
+       ('sdoh_interventions', '467721000124107', 'Assistance with transportation', 3, 'SNOMED:467721000124107')
+ON DUPLICATE KEY UPDATE codes = VALUES(codes);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes) VALUES
+    ('lists', 'vital_signs_answers', 'Vital Signs Answers', 0, '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('vital_signs_answers', 'LA28397-0', 'Often true', 10, 'LOINC:LA28397-0'),
+       ('vital_signs_answers', 'LA28398-8', 'Sometimes true', 20, 'LOINC:LA28398-8'),
+       ('vital_signs_answers', 'LA28399-6', 'Never true', 30, 'LOINC:LA28399-6');
+
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('lists','Industry','ODH Industry (USCDI v3)',0,0,0,'','NAICS-based industry codes from ODH','',1)
+    ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`)
+VALUES ('lists','Occupation','ODH Occupation (USCDI v3)',0,0,0,'','O*NET-SOC based occupation codes from ODH','',1)
+    ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+-- Industry codes (NAICS-based from ODH)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `codes`, `activity`)
+VALUES ('Industry', '541110', 'Offices of Lawyers', 10, '541110.008099', 1),
+       ('Industry', '541330', 'Engineering Services', 20, '541330.008117', 1),
+       ('Industry', '236220', 'Commercial and Institutional Building Construction', 30, '236220.004781', 1),
+       ('Industry', '622110', 'General Medical and Surgical Hospitals', 40, '622110.009243', 1),
+       ('Industry', '611110', 'Elementary and Secondary Schools', 50, '611110.008684', 1),
+       ('Industry', '561720', 'Janitorial Services', 60, '561720.002294', 1),
+       ('Industry', '722511', 'Full-Service Restaurants', 70, '722511.010339', 1),
+       ('Industry', '445110', 'Supermarkets and Other Grocery Stores', 80, '445110.006564', 1),
+       ('Industry', '238210', 'Electrical Contractors', 90, '238210.004871', 1),
+       ('Industry', '621111', 'Offices of Physicians (except Mental Health)', 100, '621111.009165', 1),
+       ('Industry', '531110', 'Lessors of Residential Buildings', 110, '531110.007615', 1),
+       ('Industry', '484121', 'General Freight Trucking, Long-Distance', 120, '484121.007193', 1),
+       ('Industry', '812111', 'Barber Shops', 130, '812111.011099', 1),
+       ('Industry', '522110', 'Commercial Banking', 140, '522110.007773', 1),
+       ('Industry', '999999', 'Unemployed', 150, '999999', 1),
+       ('Industry', 'UNKNOWN', 'Unknown', 160, 'UNKNOWN', 1)
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);
+
+-- Occupation codes (O*NET-SOC based from ODH)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `codes`, `activity`)
+VALUES ('Occupation', '23-1011.00', 'Lawyers', 10, '23-1011.00.031000', 1),
+       ('Occupation', '17-2051.00', 'Civil Engineers', 20, '17-2051.00.019051', 1),
+       ('Occupation', '47-2061.00', 'Construction Laborers', 30, '47-2061.00.051621', 1),
+       ('Occupation', '29-1141.00', 'Registered Nurses', 40, '29-1141.00.038232', 1),
+       ('Occupation', '25-2021.00', 'Elementary School Teachers', 50, '25-2021.00.032102', 1),
+       ('Occupation', '37-2011.00', 'Janitors and Cleaners', 60, '37-2011.00.028742', 1),
+       ('Occupation', '35-3031.00', 'Waiters and Waitresses', 70, '35-3031.00.045251', 1),
+       ('Occupation', '41-2011.00', 'Cashiers', 80, '41-2011.00.047211', 1),
+       ('Occupation', '11-1021.00', 'General and Operations Managers', 90, '11-1021.00.003891', 1),
+       ('Occupation', '43-9061.00', 'Office Clerks, General', 100, '43-9061.00.049705', 1),
+       ('Occupation', '53-3032.00', 'Heavy and Tractor-Trailer Truck Drivers', 110, '53-3032.00.057651', 1),
+       ('Occupation', '29-1211.00', 'Physician Assistants', 120, '29-1211.00.038302', 1),
+       ('Occupation', '39-5012.00', 'Hairdressers, Hairstylists, and Cosmetologists', 130, '39-5012.00.046262', 1),
+       ('Occupation', '13-2011.00', 'Accountants and Auditors', 140, '13-2011.00.010350', 1),
+       ('Occupation', '15-1252.00', 'Software Developers', 150, '15-1252.00.016221', 1),
+       ('Occupation', '33-9032.00', 'Security Guards', 160, '33-9032.00.042562', 1),
+       ('Occupation', '49-9071.00', 'Maintenance and Repair Workers, General', 170, '49-9071.00.053722', 1),
+       ('Occupation', '31-1120.00', 'Home Health Aides', 180, '31-1120.00.039792', 1),
+       ('Occupation', '25-9045.00', 'Teaching Assistants', 190, '25-9045.00.032175', 1),
+       ('Occupation', '21-1093.00', 'Social Workers', 200, '21-1093.00.027030', 1),
+       ('Occupation', '999999', 'Unemployed', 210, '999999', 1),
+       ('Occupation', 'UNKNOWN', 'Unknown', 220, 'UNKNOWN', 1)
+ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes);

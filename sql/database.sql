@@ -297,7 +297,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 61, 'patients|docs', '');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 67, 'patients|docs', '');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|demo', '');
@@ -310,7 +310,7 @@ INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patient
 INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs', '');
 INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs', 'LOINC:34133-9');
 INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs', '');
-INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs', '');
+INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 56, 'patients|docs', '');
 INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs', '');
 INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs','');
 INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs','');
@@ -323,11 +323,15 @@ INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'pat
 INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs','');
 INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs','');
 INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs','');
-INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs','');
-INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs','');
-INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs','LOINC:LP173394-0');
-INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super','LOINC:LP173421-1');
-INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 59, 60, 'encounters|coding', '');
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 57, 62, 'patients|docs','');
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 58, 59, 'patients|docs','');
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 60, 61, 'patients|docs','LOINC:LP173394-0');
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 63, 64, 'admin|super','LOINC:LP173421-1');
+INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 65, 66, 'encounters|coding', '');
+INSERT INTO `categories` VALUES (32, 'AntSeg Laser - Eye', '', 14, 50, 51, 'patients|docs', '');
+INSERT INTO `categories` VALUES (33, 'Retina Laser - Eye', '', 14, 52, 53, 'patients|docs', '');
+INSERT INTO `categories` VALUES (34, 'Injections - Eye', '', 14, 54, 55, 'patients|docs', '');
+
 -- --------------------------------------------------------
 
 --

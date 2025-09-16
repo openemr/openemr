@@ -34,7 +34,7 @@
  $out = "";
 
  // Add a string to output with some basic sanitizing.
-function Add($field)
+function custom_labworks_Add($field)
 {
     return "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
 }
@@ -147,84 +147,84 @@ if ($row['providerID']) {
  // Patient Section.
  //
  $out .= $pid;                     // patient id
- $out .= Add($row['pubpid']);              // chart number
- $out .= Add($row['lname']);               // last name
- $out .= Add($row['fname']);               // first name
- $out .= Add(substr($row['mname'], 0, 1)); // middle initial
- $out .= Add("");                          // alias
- $out .= Add(Digits($row['ss']));          // ssn
- $out .= Add(LWDate($row['DOB']));         // dob
- $out .= Add(Sex($row['sex']));            // gender
- $out .= Add("");                          // notes
- $out .= Add($row['street']);              // address 1
- $out .= Add("");                          // address2
- $out .= Add($row['city']);                // city
- $out .= Add($row['state']);               // state
- $out .= Add($row['postal_code']);         // zip
- $out .= Add(Digits($row['phone_home']));  // home phone
+ $out .= custom_labworks_Add($row['pubpid']);              // chart number
+ $out .= custom_labworks_Add($row['lname']);               // last name
+ $out .= custom_labworks_Add($row['fname']);               // first name
+ $out .= custom_labworks_Add(substr($row['mname'], 0, 1)); // middle initial
+ $out .= custom_labworks_Add("");                          // alias
+ $out .= custom_labworks_Add(Digits($row['ss']));          // ssn
+ $out .= custom_labworks_Add(LWDate($row['DOB']));         // dob
+ $out .= custom_labworks_Add(Sex($row['sex']));            // gender
+ $out .= custom_labworks_Add("");                          // notes
+ $out .= custom_labworks_Add($row['street']);              // address 1
+ $out .= custom_labworks_Add("");                          // address2
+ $out .= custom_labworks_Add($row['city']);                // city
+ $out .= custom_labworks_Add($row['state']);               // state
+ $out .= custom_labworks_Add($row['postal_code']);         // zip
+ $out .= custom_labworks_Add(Digits($row['phone_home']));  // home phone
 
  // Guarantor Section.  OpenEMR does not have guarantors so we use the primary
  // insurance subscriber if there is one, otherwise the patient.
  //
 if (trim($row['lname1'])) {
-    $out .= Add($row['lname1']);
-    $out .= Add($row['fname1']);
-    $out .= Add(substr($row['mname1'], 0, 1));
-    $out .= Add($row['sstreet1']);
-    $out .= Add("");
-    $out .= Add($row['scity1']);
-    $out .= Add($row['sstate1']);
-    $out .= Add($row['szip1']);
+    $out .= custom_labworks_Add($row['lname1']);
+    $out .= custom_labworks_Add($row['fname1']);
+    $out .= custom_labworks_Add(substr($row['mname1'], 0, 1));
+    $out .= custom_labworks_Add($row['sstreet1']);
+    $out .= custom_labworks_Add("");
+    $out .= custom_labworks_Add($row['scity1']);
+    $out .= custom_labworks_Add($row['sstate1']);
+    $out .= custom_labworks_Add($row['szip1']);
 } else {
-    $out .= Add($row['lname']);
-    $out .= Add($row['fname']);
-    $out .= Add(substr($row['mname'], 0, 1));
-    $out .= Add($row['street']);
-    $out .= Add("");
-    $out .= Add($row['city']);
-    $out .= Add($row['state']);
-    $out .= Add($row['postal_code']);
+    $out .= custom_labworks_Add($row['lname']);
+    $out .= custom_labworks_Add($row['fname']);
+    $out .= custom_labworks_Add(substr($row['mname'], 0, 1));
+    $out .= custom_labworks_Add($row['street']);
+    $out .= custom_labworks_Add("");
+    $out .= custom_labworks_Add($row['city']);
+    $out .= custom_labworks_Add($row['state']);
+    $out .= custom_labworks_Add($row['postal_code']);
 }
 
  // Primary Insurance Section.
  //
- $out .= Add($row['provider1']);
- $out .= Add($row['name1']);
- $out .= Add($row['street11']);
- $out .= Add($row['street21']);
- $out .= Add($row['city1']);
- $out .= Add($row['state1']);
- $out .= Add($row['zip1']);
- $out .= Add("");
- $out .= Add(InsType($row['instype1']));
- $out .= Add($row['fname1'] . " " . $row['lname1']);
- $out .= Add(ucfirst($row['relationship1']));
- $out .= Add($row['group1']);
- $out .= Add($row['policy1']);
+ $out .= custom_labworks_Add($row['provider1']);
+ $out .= custom_labworks_Add($row['name1']);
+ $out .= custom_labworks_Add($row['street11']);
+ $out .= custom_labworks_Add($row['street21']);
+ $out .= custom_labworks_Add($row['city1']);
+ $out .= custom_labworks_Add($row['state1']);
+ $out .= custom_labworks_Add($row['zip1']);
+ $out .= custom_labworks_Add("");
+ $out .= custom_labworks_Add(InsType($row['instype1']));
+ $out .= custom_labworks_Add($row['fname1'] . " " . $row['lname1']);
+ $out .= custom_labworks_Add(ucfirst($row['relationship1']));
+ $out .= custom_labworks_Add($row['group1']);
+ $out .= custom_labworks_Add($row['policy1']);
 
  // Secondary Insurance Section.
  //
- $out .= Add($row['provider2']);
- $out .= Add($row['name2']);
- $out .= Add($row['street12']);
- $out .= Add($row['street22']);
- $out .= Add($row['city2']);
- $out .= Add($row['state2']);
- $out .= Add($row['zip2']);
- $out .= Add("");
- $out .= Add(InsType($row['instype2']));
- $out .= Add($row['fname2'] . " " . $row['lname2']);
- $out .= Add(ucfirst($row['relationship2']));
- $out .= Add($row['group2']);
- $out .= Add($row['policy2']);
+ $out .= custom_labworks_Add($row['provider2']);
+ $out .= custom_labworks_Add($row['name2']);
+ $out .= custom_labworks_Add($row['street12']);
+ $out .= custom_labworks_Add($row['street22']);
+ $out .= custom_labworks_Add($row['city2']);
+ $out .= custom_labworks_Add($row['state2']);
+ $out .= custom_labworks_Add($row['zip2']);
+ $out .= custom_labworks_Add("");
+ $out .= custom_labworks_Add(InsType($row['instype2']));
+ $out .= custom_labworks_Add($row['fname2'] . " " . $row['lname2']);
+ $out .= custom_labworks_Add(ucfirst($row['relationship2']));
+ $out .= custom_labworks_Add($row['group2']);
+ $out .= custom_labworks_Add($row['policy2']);
 
  // Primary Care Physician Section.
  //
- $out .= Add($prow['id']);
- $out .= Add($prow['lname']);
- $out .= Add($prow['fname']);
- $out .= Add(substr($prow['mname'], 0, 1));
- $out .= Add(""); // UPIN not available
+ $out .= custom_labworks_Add($prow['id']);
+ $out .= custom_labworks_Add($prow['lname']);
+ $out .= custom_labworks_Add($prow['fname']);
+ $out .= custom_labworks_Add(substr($prow['mname'], 0, 1));
+ $out .= custom_labworks_Add(""); // UPIN not available
 
  // All done.
  $out .= "\rEND";
