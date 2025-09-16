@@ -1,4 +1,5 @@
 <?php
+
 /*
  * CodeTypesServiceTest.php
  * @package openemr
@@ -13,8 +14,8 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Services\CodeTypesService;
 use PHPUnit\Framework\TestCase;
 
-class CodeTypesServiceTest extends TestCase {
-
+class CodeTypesServiceTest extends TestCase
+{
     private $codeTypesService;
     private $originalCodeTypes;
 
@@ -36,92 +37,92 @@ class CodeTypesServiceTest extends TestCase {
         parent::tearDown();
     }
 
-    public function testFormatCodeType()
+    public function testFormatCodeType(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testGetCodeWithType()
+    public function testGetCodeWithType(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testResolveCode()
+    public function testResolveCode(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testLookup_code_description()
+    public function testLookup_code_description(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testLookupFromValueset()
+    public function testLookupFromValueset(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testGetSystemForCode()
+    public function testGetSystemForCode(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testParseCode()
+    public function testParseCode(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testGetCodeSystemNameFromSystem()
+    public function testGetCodeSystemNameFromSystem(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testDischargeCodeFromOptionId()
+    public function testDischargeCodeFromOptionId(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testIsSnomedCodesInstalled()
+    public function testIsSnomedCodesInstalled(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testGetInstalledCodeTypes()
+    public function testGetInstalledCodeTypes(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testGetCodeTypeForCode()
+    public function testGetCodeTypeForCode(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testIsCPT4Installed()
+    public function testIsCPT4Installed(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testDischargeOptionIdFromCode()
+    public function testDischargeOptionIdFromCode(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testParseCodesIntoCodeableConcepts()
+    public function testParseCodesIntoCodeableConcepts(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testIsInstalledCodeType()
+    public function testIsInstalledCodeType(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testGetSystemForCodeType()
+    public function testGetSystemForCodeType(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
 
-    public function testIsRXNORMInstalled()
+    public function testIsRXNORMInstalled(): void
     {
         $this->markTestIncomplete("This test has not been implemented yet.");
     }
