@@ -166,7 +166,6 @@ class ObservationServiceTest extends TestCase
             'encounter' => $encounter,
             'groupname' => 'Default',
             'user' => 'admin',
-            'form_id' => 2,
             'code' => 'OETest:123',
             'ob_value' => 'test_value',
             'ob_unit' => 'mg'
