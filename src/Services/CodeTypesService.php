@@ -455,27 +455,27 @@ class CodeTypesService
             }
 
             if ($category == "diagnosis") {
-                if ($ct_arr['diag']) {
+                if (isset($ct_arr['diag']) && $ct_arr['diag']) {
                     $return[] = $ct_key;
                 }
             } elseif ($category == "procedure") {
-                if ($ct_arr['proc']) {
+                if (isset($ct_arr['proc']) && ($ct_arr['proc'])) {
                     $return[] = $ct_key;
                 }
             } elseif ($category == "clinical_term") {
-                if ($ct_arr['term']) {
+                if (isset($ct_arr['term']) && ($ct_arr['term'])) {
                     $return[] = $ct_key;
                 }
             } elseif ($category == "active") {
-                if ($ct_arr['active']) {
+                if (isset($ct_arr['active']) && ($ct_arr['active'])) {
                     $return[] = $ct_key;
                 }
             } elseif ($category == "medical_problem") {
-                if ($ct_arr['problem']) {
+                if (isset($ct_arr['problem']) && ($ct_arr['problem'])) {
                     $return[] = $ct_key;
                 }
             } elseif ($category == "drug") {
-                if ($ct_arr['drug']) {
+                if (isset($ct_arr['drug']) && ($ct_arr['drug'])) {
                     $return[] = $ct_key;
                 }
             } else {
