@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\PatientService;
@@ -41,6 +42,9 @@ class ObservationControllerTest extends TestCase
     private Environment $mockTwig;
     private PatientService $mockPatientService;
 
+    private $globalWebrootBackup;
+    private ?Kernel $globalKernelBackup = null;
+
     private array $sessionBackup = [];
 
     /**
@@ -62,6 +66,8 @@ class ObservationControllerTest extends TestCase
         ];
 
         // Mock global variables that may be used
+        $this->globalWebrootBackup = $GLOBALS['webroot'] ?? null;
+        $this->globalKernelBackup = $GLOBALS['kernel'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
         $GLOBALS['kernel'] = null;
 
@@ -86,6 +92,8 @@ class ObservationControllerTest extends TestCase
     protected function tearDown(): void
     {
         $_SESSION = $this->sessionBackup;
+        $GLOBALS['webroot'] = $this->globalWebrootBackup;
+        $GLOBALS['kernel'] = $this->globalKernelBackup;
         parent::tearDown();
     }
 
