@@ -37,10 +37,10 @@ class ObservationControllerTest extends TestCase
     private ObservationController $controller;
 
     // AI Generated: Mock objects for dependencies
-    private ObservationService $mockObservationService;
-    private FormService $mockFormService;
-    private Environment $mockTwig;
-    private PatientService $mockPatientService;
+    private MockObject $mockObservationService;
+    private MockObject $mockFormService;
+    private MockObject $mockTwig;
+    private MockObject $mockPatientService;
 
     private $globalWebrootBackup;
     private ?Kernel $globalKernelBackup = null;
