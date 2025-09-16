@@ -441,9 +441,9 @@ class CodeTypesService
      *
      * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
      * @param  string       $return_format  format or returned code types ('array' or 'csv')
-     * @return string/array
+     * @return string|array
      */
-    public function collectCodeTypes($category, $return_format = "array")
+    public function collectCodeTypes($category, $return_format = "array"): string|array
     {
         global $code_types;
 
