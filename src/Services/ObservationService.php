@@ -163,16 +163,12 @@ class ObservationService extends BaseService
      */
     public function getObservationById(int $id, int $pid, bool $includeChildObservations = false): ?array
     {
-        // need to do a compound join where we get the main observation and any sub-observations
-        $searchField = new CompositeSearchField('id-with-children', [], false);
-        $idField = new TokenSearchField('id', [(string)$id]);
-        $parentIdField = new TokenSearchField('parent_observation_id', [(string)$id]);
-        $searchField->addChild($idField);
-        $searchField->addChild($parentIdField);
-        $result = $this->search([
-            'id-with-children' => $searchField,
-            'pid' => $pid
-        ]);
+        $search = ['id' => $id, 'pid' => $pid];
+        if ($includeChildObservations) {
+            $result = $this->searchAndPopulateChildObservations($search);
+        } else {
+            $result = $this->search($search);
+        }
         if ($result->hasData()) {
             $observation = $result->getFirstDataResult();
         } else {
@@ -184,12 +180,6 @@ class ObservationService extends BaseService
             $observation['questionnaire_response'] = $this->getLinkedQuestionnaireResponse(
                 $observation['questionnaire_response_id']
             );
-        }
-
-        if ($includeChildObservations) {
-            // Get sub-observations
-            $subObservations = $this->getSubObservations($id);
-            $observation['sub_observations'] = $subObservations;
         }
 
         return $observation;
@@ -286,6 +276,39 @@ class ObservationService extends BaseService
         }
     }
 
+    public function searchAndPopulateChildObservations($search, $isAndCondition = true): ProcessingResult
+    {
+        $foundResult = $this->search($search);
+
+        // we need to loop through any found results and grab all records that do NOT have a parent_observation_uuid
+        // because those are the top level observations, we will then search for the observation and their children
+        // and replace the foundResult with the merged set
+        $topLevelIds = [];
+        $records = $foundResult->getData();
+        $recordIndex = [];
+        foreach ($records as $index => $result) {
+            $recordIndex[$result['id']] = $index;
+            if (empty($result['parent_observation_id'])) {
+                $topLevelIds[] = (string)$result['id'];
+            }
+        }
+        // need to populate sub_observations for each top level observation
+        $parentSearch = new TokenSearchField('parent_observation_id', $topLevelIds);
+        $childRecordResult = $this->search([$parentSearch]);
+        foreach ($childRecordResult->getData() as $childRecord) {
+            if (isset($recordIndex[$childRecord['parent_observation_id']])) {
+                $parentIndex = $recordIndex[$childRecord['parent_observation_id']];
+                if (!isset($records[$parentIndex]['sub_observations'])) {
+                    $records[$parentIndex]['sub_observations'] = [];
+                }
+                $records[$parentIndex]['sub_observations'][] = $childRecord;
+            }
+        }
+        $finalResult = new ProcessingResult();
+        $finalResult->setData($records);
+        return $finalResult;
+    }
+
     /**
      * @param ISearchField[]|string[]|array $search
      * @param bool $isAndCondition
@@ -296,8 +319,18 @@ class ObservationService extends BaseService
         if (empty($search['activity'])) {
             $search['activity'] = '1'; // default to active records only
         }
+        // we first need to grab all of the record ids that match the search criteria
+        // then we fetch all records where the id matches either the id or the parent_observation id in the list
+        // so that we can grab the entire relationship.
 
-        $sql = "SELECT fo.*
+        $sql = "SELECT
+                fo.id, fo.uuid, fo.form_id, fo.date, fo.pid, fo.encounter, fo.user, fo.groupname, fo.authorized, fo.activity, fo.code
+                ,fo.observation, fo.ob_value, fo.ob_unit, fo.description, fo.code_type, fo.table_code, fo.ob_code, fo.ob_type, fo.ob_status
+                ,fo.result_status, fo.ob_reason_status, fo.ob_reason_code, fo.ob_documentationof_table, fo.ob_documentationof_table_id
+                ,fo.date_end, fo.parent_observation_id, fo.category, fo.questionnaire_response_id
+                ,patient.puuid
+                ,encounter.euuid
+                ,observation_parent.parent_observation_uuid
                 ,r.questionnaire_response_uuid
                 ,r.questionnaire_name
                 ,r.questionnaire_status
@@ -320,7 +353,24 @@ class ObservationService extends BaseService
                     FROM list_options
                 ) lo_status ON (fo.ob_status = lo_status.option_id AND lo_status.list_id = 'observation-status')
                 LEFT JOIN (
-                    -- we limit the fields we bring in from questionnaire_response for performance and to avoid column conflicts
+                    select
+                        id AS parent_observation_fk_id
+                        ,uuid AS parent_observation_uuid
+                    FROM form_observation
+                ) observation_parent ON observation_parent.parent_observation_fk_id = fo.parent_observation_id
+                LEFT JOIN (
+                    select
+                        pid AS patient_pid
+                        ,uuid AS puuid
+                    FROM patient_data
+                ) patient ON patient.patient_pid = fo.pid
+                LEFT JOIN (
+                    select
+                        encounter AS eid
+                        ,uuid AS euuid
+                    FROM form_encounter
+                ) encounter ON encounter.eid = fo.encounter
+                LEFT JOIN (
                     SELECT
                         id AS response_id
                         ,questionnaire_name
@@ -334,29 +384,6 @@ class ObservationService extends BaseService
         // TODO: @adunsulag need to implement pagination and sorting
         $sql .= " ORDER BY fo.date DESC, fo.parent_observation_id, fo.id";
         $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
-        $recordsByObservationId = [];
-        $childRecords = [];
-        if (!empty($records)) {
-            foreach ($records as $index => $rec) {
-                $recordsByObservationId[$rec['id']] = $index;
-                if (!empty($rec['parent_observation_id'])) {
-                    $childRecords[] = $index;
-                }
-            }
-        }
-        // populate children
-        foreach ($childRecords as $childRecordIndex) {
-            $record = $records[$childRecordIndex];
-            if (isset($recordsByObservationId[$record['parent_observation_id']])) {
-                $parentIndex = $recordsByObservationId[$record['parent_observation_id']];
-                if (!isset($records[$parentIndex]['sub_observations'])) {
-                    $records[$parentIndex]['sub_observations'] = [];
-                }
-                $record['parent_observation_uuid'] = $records[$parentIndex]['uuid'] ?? null;
-                $records[$parentIndex]['sub_observations'][] = $record;
-                $records[$childRecordIndex] = null; // clear out child record from main list
-            }
-        }
         $result = new ProcessingResult();
         // make one final pass to create result records
         // child records will now be part of the parent records and set to null so we'll make O(n) passes

@@ -284,7 +284,7 @@ class ObservationControllerTest extends TestCase
         $processingResult->method('getData')->willReturn([]);
         $this->mockObservationService
             ->expects($this->once())
-            ->method('search')
+            ->method('searchAndPopulateChildObservations')
             ->willReturn($processingResult);
 
         // Mock the renderReport method (would need to be made public or protected for testing)

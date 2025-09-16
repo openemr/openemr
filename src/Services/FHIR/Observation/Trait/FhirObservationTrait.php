@@ -40,6 +40,8 @@ trait FhirObservationTrait
 {
     use FhirServiceBaseEmptyTrait;
 
+    protected FhirProvenanceService $fhirProvenanceService;
+
     protected CodeTypesService $codeTypesService;
 
     public function setCodeTypesService(CodeTypesService $service)
@@ -55,6 +57,11 @@ trait FhirObservationTrait
         return $this->codeTypesService;
     }
 
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): FHIRDomainResource|string
+    {
+        return $this->parseObservationOpenEMRRecord($dataRecord, $encode);
+    }
+
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *
@@ -62,7 +69,7 @@ trait FhirObservationTrait
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return FHIRObservation|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): FHIRDomainResource|string
+    public function parseObservationOpenEMRRecord($dataRecord = array(), $encode = false): FHIRDomainResource|string
     {
         // AI-generated implementation start
         if (empty($dataRecord)) {
@@ -334,7 +341,7 @@ trait FhirObservationTrait
         $value = $dataRecord['value'] ?? null;
         $valueUnit = $dataRecord['value_unit'] ?? null;
         $codeDescription = $dataRecord['value_code_description'] ?? null;
-        $children = $dataRecord['children'] ?? array();
+        $children = $dataRecord['sub_observations'] ?? array();
         $this->setObservationValueWithDetails($observation, $value, $valueUnit, $codeDescription, $children);
     }
 
@@ -343,8 +350,8 @@ trait FhirObservationTrait
      */
     protected function setObservationHasMember(FHIRObservation $observation, array $dataRecord): void
     {
-        if (!empty($dataRecord['children']) && is_array($dataRecord['children'])) {
-            foreach ($dataRecord['children'] as $child) {
+        if (!empty($dataRecord['sub_observations']) && is_array($dataRecord['sub_observations'])) {
+            foreach ($dataRecord['sub_observations'] as $child) {
                 if (!empty($child['uuid'])) {
                     $memberRef = new FHIRReference();
                     $memberRef->setReference(new FHIRString('Observation/' . $child['uuid']));
@@ -366,9 +373,9 @@ trait FhirObservationTrait
             $observation->addDerivedFrom($qrRef);
         }
 
-        if (!empty($dataRecord['parent_uuid'])) {
+        if (!empty($dataRecord['observation_parent_uuid'])) {
             $parentRef = new FHIRReference();
-            $parentRef->setReference(new FHIRString('Observation/' . $dataRecord['parent_uuid']));
+            $parentRef->setReference(new FHIRString('Observation/' . $dataRecord['observation_parent_uuid']));
             $observation->addDerivedFrom($parentRef);
         }
     }
@@ -457,6 +464,19 @@ trait FhirObservationTrait
         return !in_array($unit, $nonUCUMUnits);
     }
 
+    public function getProvenanceService(): FhirProvenanceService
+    {
+        if (!isset($this->fhirProvenanceService)) {
+            $this->fhirProvenanceService = new FhirProvenanceService();
+        }
+        return $this->fhirProvenanceService;
+    }
+
+    public function setProvenanceService(FhirProvenanceService $service)
+    {
+        $this->fhirProvenanceService = $service;
+    }
+
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
@@ -469,7 +489,7 @@ trait FhirObservationTrait
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenanceService = $this->getProvenanceService();
         $performer = null;
         if (!empty($dataRecord->getPerformer())) {
             // grab the first one

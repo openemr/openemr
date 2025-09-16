@@ -8,6 +8,7 @@ use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -61,6 +62,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationSocialHistoryService());
         $this->addMappedService(new FhirObservationVitalsService());
         $this->addMappedService(new FhirObservationLaboratoryService());
+        $this->addMappedService(new FhirObservationObservationFormService());
         $this->logger = new SystemLogger();
     }
 

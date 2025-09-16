@@ -12,20 +12,32 @@
 namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
+use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationObservationFormService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirObservationTrait;
 
+    private ObservationService $observationService;
+
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation';
     const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'therapy'];
+
+    public function __construct($fhirApiURL = null)
+    {
+        parent::__construct($fhirApiURL);
+        $this->observationService = new ObservationService();
+    }
 
     public function supportsCategory($category): bool
     {
@@ -51,7 +63,9 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['result_code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('result_uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
+                new ServiceField('uuid', ServiceField::TYPE_UUID)
+                ]),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
@@ -61,16 +75,20 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
     }
 
-
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param array $openEMRSearchParameters OpenEMR search fields
+     * @param ISearchField $openEMRSearchParameters OpenEMR search fields
      * @param string|null $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, ?string $puuidBind = null): ProcessingResult
     {
-        throw new \RuntimeException("Not Implemented yet");
+        if (!empty($puuidBind)) {
+            $puuidSearch = $this->getPatientContextSearchField();
+            $openEMRSearchParameters[$puuidSearch->getName()] = $puuidSearch;
+        }
+        // we grab the records and grab any children records and populate them if we have them.
+        return $this->observationService->searchAndPopulateChildObservations($openEMRSearchParameters);
     }
 
     /**
@@ -83,7 +101,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
             $dataRecord['ob_value'] ?? null,
             $dataRecord['ob_unit'] ?? null,
             $dataRecord['ob_value_code_description'] ?? null,
-            $dataRecord['children'] ?? []
+            $dataRecord['sub_observations'] ?? []
         );
     }
 

@@ -193,8 +193,8 @@ class ObservationController
             // make sure we only get top-level observations (no parent_observation_id)
             $parentObservation = new TokenSearchField("parent_observation_id", [new TokenSearchValue(null)]);
             $parentObservation->setModifier(SearchModifier::MISSING);
-            $result = $this->observationService->search(['pid' => $pid, 'encounter' => $encounter
-                , 'form_id' => $request->query->get('id', null)]); //, 'parent_observation' => $parentObservation]);
+            $result = $this->observationService->searchAndPopulateChildObservations(['pid' => $pid, 'encounter' => $encounter
+                ,'parent_observation_id' => $parentObservation, 'form_id' => $request->query->get('id', null)]); //, 'parent_observation' => $parentObservation]);
             $observations = $result->getData();
 
             // Prepare template data
@@ -287,7 +287,7 @@ class ObservationController
             $observationId = intval($postData['observation_id'] ?? 0);
             if ($observationId > 0) {
                 $observation = $this->observationService->getObservationById($observationId, $_SESSION['pid']);
-                if (!$observation) {
+                if (empty($observation)) {
                     throw new \Exception("Observation with ID {$observationId} not found for patient.");
                 }
             } else {
@@ -593,7 +593,10 @@ class ObservationController
             return "";
         }
 
-        $result = $this->observationService->search(['form_id' => $id, 'pid' => $pid, 'encounter' => $encounter]);
+        $parentObservation = new TokenSearchField("parent_observation_id", [new TokenSearchValue(null)]);
+        $parentObservation->setModifier(SearchModifier::MISSING);
+        $result = $this->observationService->searchAndPopulateChildObservations(['form_id' => $id, 'pid' => $pid, 'encounter' => $encounter,
+            'parent_observation_id' => $parentObservation]);
         $observations = $result->getData();
         $formattedObs = array_map(fn($observation): array => $this->formatObservationForDisplay($observation), $observations);
         return $this->twig->render($this->getTemplatePath("observation_report.html.twig"), ['observations' => $formattedObs]);

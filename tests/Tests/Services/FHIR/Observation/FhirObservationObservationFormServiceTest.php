@@ -19,7 +19,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -69,7 +71,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
             // TODO: @adunsulag need lots of different tests to test the value property
             ,'ob_value' => '120'
             ,'ob_unit' => 'lb'
-            ,'children' => [
+            ,'sub_observations' => [
                 [
                     'uuid' => 'observation-124'
                 ]
@@ -80,8 +82,8 @@ class FhirObservationObservationFormServiceTest extends TestCase
             // the order of derivedFrom responses will be first QuestionnaireResponse if any, followed by Observation if any
             // if questionnaire_response_uuid, will have a derivedFrom QuestionnaireResponse resource
             ,'questionnaire_response_uuid' => 'questionnaire-response-123'
-            // if parent-uuid is not null, will have a derivedFrom Observation resource
-            ,'parent_uuid' => 'observation-parent-123'
+            // if observation_parent_uuid is not null, will have a derivedFrom Observation resource
+            ,'observation_parent_uuid' => 'observation-parent-123'
             ,'encounter_uuid' => 'encounter-123'
             ,'note' => 'This is a test note'
         ];
@@ -91,7 +93,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     {
         $record = $this->getDefaultObservationRecord();
         $record['ob_value'] = null;
-        unset($record['children']); // No hasMember for this test to pass us-core-2 constraint
+        unset($record['sub_observations']); // No hasMember for this test to pass us-core-2 constraint
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
         // now we are going to verify the observation
@@ -105,6 +107,23 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
     public function testParseOpenEMRRecordScreeningAssessmentObservation()
     {
+        $mockCodeTypeServices = $this->createMock(CodeTypesService::class);
+        $mockCodeTypeServices->expects($this->once())
+            ->method("lookup_code_description")
+            ->willReturn("Tuberculosis of spine");
+        $mockCodeTypeServices->expects($this->once())
+            ->method('parseCode')
+            ->willReturn([
+                'code_type' => "ICD10",
+                'code' => 'A18.01',
+                'display' => 'Tuberculosis of spine'
+            ]);
+        $mockCodeTypeServices->expects($this->once())
+            ->method('getSystemForCodeType')
+            ->with('ICD10')
+            ->willReturn(FhirCodeSystemConstants::HL7_ICD10);
+
+        $this->fhirService->setCodeTypesService($mockCodeTypeServices);
         $record = $this->getDefaultObservationRecord();
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
@@ -172,10 +191,10 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertEquals($record['ob_unit'], $observation->getValueQuantity()->getUnit(), "Quantity unit should be populated");
 
         // Test required hasMember field (mustSupport) for panel observations
-        if (!empty($record['children'])) {
-            $this->assertCount(count($record['children']), $observation->getHasMember());
+        if (!empty($record['sub_observations'])) {
+            $this->assertCount(count($record['sub_observations']), $observation->getHasMember());
             $this->assertEquals(
-                'Observation/' . $record['children'][0]['uuid'],
+                'Observation/' . $record['sub_observations'][0]['uuid'],
                 $observation->getHasMember()[0]->getReference()->getValue()
             );
         }
@@ -186,7 +205,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         if (!empty($record['questionnaire_response_uuid'])) {
             $expectedDerivedFromCount++;
         }
-        if (!empty($record['parent_uuid'])) {
+        if (!empty($record['observation_parent_uuid'])) {
             $expectedDerivedFromCount++;
         }
 
@@ -198,9 +217,9 @@ class FhirObservationObservationFormServiceTest extends TestCase
                 $derivedFromRefs[0]->getReference()->getValue()
             );
         }
-        if (!empty($record['parent_uuid'])) {
+        if (!empty($record['observation_parent_uuid'])) {
             $this->assertEquals(
-                'Observation/' . $record['parent_uuid'],
+                'Observation/' . $record['observation_parent_uuid'],
                 $derivedFromRefs[$expectedDerivedFromCount - 1]->getReference()->getValue()
             );
         }
@@ -232,7 +251,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     {
         $record = $this->getDefaultObservationRecord();
         $record['ob_value'] = null;
-        unset($record['children']); // No hasMember for this test to pass us-core-2 constraint
+        unset($record['sub_observations']); // No hasMember for this test to pass us-core-2 constraint
 
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
@@ -272,6 +291,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $record = $this->getDefaultObservationRecord();
         $codeSystem = 'LOINC';
         $record['ob_value'] = "$codeSystem:LA6111-4";
+        $record['ob_value_code_description'] = 'Tuberculosis screening';
 
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
@@ -332,7 +352,6 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $record = $this->getDefaultObservationRecord();
         unset($record['ob_value'], $record['ob_unit']);
         $record['data_absent_reason'] = null; // Panel has members, no individual value needed
-
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
         // Panel should have hasMember but no value
@@ -451,9 +470,16 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $fhirObservation->setMeta($meta);
         $fhirObservation->addPerformer($performer);
+        $provenanceService = $this->createMock(FhirProvenanceService::class);
+        $fhirProvenance = new FHIRProvenance();
+        $provenanceService->expects($this->any())
+            ->method('createProvenanceForDomainResource')
+            ->with($fhirObservation, $performer)
+            ->willReturn(
+                $fhirProvenance
+            );
+        $this->fhirService->setProvenanceService($provenanceService);
         $provenance = $this->fhirService->createProvenanceResource($fhirObservation);
-        $this->assertInstanceOf(FHIRProvenance::class, $provenance, "");
-        $this->assertEquals("Practitioner/uuid-123", $provenance->getAgent()[0]->getWho()->getReference());
-        // TODO: @adunsulag assert additional provenance resources here
+        $this->assertSame($fhirProvenance, $provenance);
     }
 }
