@@ -48,7 +48,7 @@ exports.mentalStatusObservation = {
             dataKey: "value",
             existsWhen: condition.codeOrDisplayname
         }
-        ,fieldLevel.author
+        , fieldLevel.author
     ]
 };
 
@@ -93,7 +93,7 @@ var functionalStatusObservation = {
             dataKey: "value",
             existsWhen: condition.codeOrDisplayname
         }
-        ,fieldLevel.author
+        , fieldLevel.author
     ]
 };
 
@@ -122,7 +122,7 @@ var functionalStatusSelfCareObservation = {
                 displayName: "Independent"
             }
         }
-        ,fieldLevel.author
+        , fieldLevel.author
     ]
 };
 
@@ -150,18 +150,62 @@ exports.functionalStatusOrganizer = {
             attributes: {
                 code: leafLevel.inputProperty("status")
             }
-        }
-        ,fieldLevel.author
-        ,[{
+        },
+        fieldLevel.author,
+        [{
             key: "component",
             content: functionalStatusObservation,
             dataKey: "observation",
             required: true
-        }], [{
+        }],
+        [{
             key: "component",
             content: functionalStatusSelfCareObservation,
             dataKey: "observation",
             required: true
         }]
     ],
+};
+
+exports.disabilityStatusObservation = {
+    key: "observation",
+    attributes: {
+        classCode: "OBS",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.505", "2023-05-01"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.505"),
+        fieldLevel.uniqueId,
+        fieldLevel.id,
+        {
+            key: "code",
+            attributes: {
+                code: "89571-4",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "Disability status"
+            }
+        },
+        fieldLevel.statusCodeCompleted,
+        [fieldLevel.effectiveTime, contentModifier.dataKey("disability_status.date_time"), required],
+        {
+            key: "value",
+            attributes: [
+                {
+                    "xsi:type": "CD"
+                }, {
+                    code: leafLevel.inputProperty("disability_code"),
+                    codeSystem: "2.16.840.1.113883.6.1",
+                    codeSystemName: "LOINC",
+                    displayName: leafLevel.inputProperty("disability_title")
+                },
+            ],
+            dataKey: "disability_status"
+        },
+        //fieldLevel.author
+    ],
+    existsWhen: function (input) {
+        return input && input.disability_status;
+    }
 };

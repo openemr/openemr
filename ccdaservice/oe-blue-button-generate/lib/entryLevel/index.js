@@ -39,6 +39,7 @@ exports.planOfCareActivityEncounter = planOfCareEntryLevel.planOfCareActivityEnc
 exports.planOfCareActivitySubstanceAdministration = planOfCareEntryLevel.planOfCareActivitySubstanceAdministration;
 exports.planOfCareActivitySupply = planOfCareEntryLevel.planOfCareActivitySupply;
 exports.planOfCareActivityInstructions = planOfCareEntryLevel.planOfCareActivityInstructions;
+exports.healthConcernActWithProblemObservation = planOfCareEntryLevel.healthConcernActWithProblemObservation;
 exports.healthConcernActivityAct = planOfCareEntryLevel.healthConcernActivityAct;
 exports.healthConcernObservation = planOfCareEntryLevel.healthConcernObservation;
 
@@ -49,11 +50,17 @@ exports.coverageActivity = payerEntryLevel.coverageActivity;
 exports.vitalSignsOrganizer = vitalSignEntryLevel.vitalSignsOrganizer;
 exports.functionalStatusOrganizer = functionalStatusEntryLevel.functionalStatusOrganizer;
 exports.mentalStatusObservation = functionalStatusEntryLevel.mentalStatusObservation;
+exports.disabilityStatusObservation = functionalStatusEntryLevel.disabilityStatusObservation;
 exports.resultOrganizer = resultEntryLevel.resultOrganizer;
 exports.careTeamOrganizer = careTeamEntryLevel.careTeamOrganizer;
 
 exports.socialHistoryObservation = socialHistoryEntryLevel.socialHistoryObservation;
 exports.smokingStatusObservation = socialHistoryEntryLevel.smokingStatusObservation;
 exports.genderStatusObservation = socialHistoryEntryLevel.genderStatusObservation;
+exports.occupationObservation = socialHistoryEntryLevel.occupationObservation;
+exports.tribalAffiliationObservation = socialHistoryEntryLevel.tribalAffiliationObservation;
+exports.pregnancyStatusObservation = socialHistoryEntryLevel.pregnancyStatusObservation;
+exports.hungerVitalSignsObservation = socialHistoryEntryLevel.hungerVitalSignsObservation;
+exports.disabilityAssessmentObservation = socialHistoryEntryLevel.disabilityAssessmentObservation;
 
 exports.medicalDeviceActivityProcedure = medicalDeviceEntryLevel.medicalDeviceActivityProcedure;

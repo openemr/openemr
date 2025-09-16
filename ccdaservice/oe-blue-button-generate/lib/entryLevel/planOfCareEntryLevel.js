@@ -10,6 +10,59 @@ var key = contentModifier.key;
 var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 
+// Builds one Health Concern Act with nested Problem Observation (REFR)
+exports.healthConcernActWithProblemObservation = function (c) {
+    // c is the normalized concern from getHealthConcerns()
+    const actTpls = (c.act_template_ids || []).map(t =>
+        `<templateId root="${t.root}"${t.extension ? ` extension="${t.extension}"` : ''}/>`
+    ).join('');
+
+    const obsTpls = (c.obs_template_ids || []).map(t =>
+        `<templateId root="${t.root}"${t.extension ? ` extension="${t.extension}"` : ''}/>`
+    ).join('');
+
+    const authorXml = c.author ? c.author : ''; // pass-through if your pipeline injects author blocks
+
+    // optional LOINC translation on the observation code
+    const translation = c.obs_code && c.obs_code.translation
+        ? `<translation code="${c.obs_code.translation.code}"
+         codeSystem="${c.obs_code.translation.codeSystem}"
+         codeSystemName="${c.obs_code.translation.codeSystemName}"
+         displayName="${c.obs_code.translation.displayName}"/>`
+        : '';
+
+    const effLow = c.obs_effective_low ? `
+    <effectiveTime xsi:type="IVL_TS">
+      <low value="${c.obs_effective_low}"/>
+    </effectiveTime>` : '';
+
+    return `
+  <entry>
+    <act classCode="ACT" moodCode="EVN">
+      ${actTpls}
+      <id root="${c.act_id.root}" extension="${c.act_id.extension}"/>
+      <code code="${c.act_code.code}" codeSystem="${c.act_code.codeSystem}" codeSystemName="${c.act_code.codeSystemName}" displayName="${c.act_code.displayName}"/>
+      <statusCode code="${c.act_status}"/>
+      ${authorXml}
+      <entryRelationship typeCode="REFR">
+        <observation classCode="OBS" moodCode="EVN">
+          ${obsTpls}
+          <id root="${c.obs_id.root}" extension="${c.obs_id.extension}"/>
+          <code code="${c.obs_code.code}" codeSystem="${c.obs_code.codeSystem}" codeSystemName="${c.obs_code.codeSystemName}" displayName="${c.obs_code.displayName}">
+            ${translation}
+          </code>
+          <statusCode code="${c.obs_status}"/>
+          ${effLow}
+          <value xsi:type="CD" code="${c.value.code}"
+                 displayName="${c.value.displayName}"
+                 codeSystem="${c.value.codeSystem}"
+                 codeSystemName="${c.value.codeSystemName}"/>
+        </observation>
+      </entryRelationship>
+    </act>
+  </entry>`;
+};
+
 exports.healthConcernObservation = {
     key: "observation",
     attributes: {
@@ -51,50 +104,101 @@ exports.healthConcernActivityAct = {
         classCode: "ACT",
         moodCode: "EVN"
     },
+    existsWhen: condition.keyExists("value"),
     content: [
+        // Health Concern Act (V2)
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.132"),
         fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.132", "2015-08-01"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.132", "2022-06-01"),
         fieldLevel.uniqueId,
-        fieldLevel.id, {
+        fieldLevel.id,
+        {
             key: "code",
             attributes: {
                 code: "75310-3",
                 codeSystem: "2.16.840.1.113883.6.1",
                 codeSystemName: "LOINC",
                 displayName: "Health Concern"
-            },
+            }
         },
         fieldLevel.statusCodeActive,
+        // Optional effectiveTime.low (when concern began)
+        fieldLevel.effectiveTime, // consume input.effective_time.{low,high} if present
         fieldLevel.author,
-        [{
+        {
             key: "entryRelationship",
-            attributes: {
-                typeCode: "REFR"
-            },
-            content: {
-                key: "act",
-                attributes: {
-                    classCode: "ACT",
-                    moodCode: "EVN"
-                },
+            attributes: { typeCode: "REFR" },
+            content: [{
+                key: "observation",
+                attributes: { classCode: "OBS", moodCode: "EVN" },
                 content: [
-                    fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.122"),
-                    fieldLevel.id, {
+                    // Problem Observation (V3)
+                    fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.4"),
+                    fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.4","2015-08-01"),
+                    fieldLevel.uniqueId,
+                    fieldLevel.id,
+                    // code = “Clinical finding” with LOINC translation as in ONC sample
+                    {
                         key: "code",
                         attributes: {
-                            nullFlavor: "NP",
+                            code: "404684003",
+                            displayName: "Clinical finding (finding)",
+                            codeSystem: "2.16.840.1.113883.6.96",
+                            codeSystemName: "SNOMED CT"
                         },
-                        datakey: "problems.identifiers",
+                        content: [{
+                            key: "translation",
+                            attributes: {
+                                code: "75321-0",
+                                displayName: "Clinical Finding",
+                                codeSystem: "2.16.840.1.113883.6.1",
+                                codeSystemName: "LOINC"
+                            }
+                        }]
                     },
-                    fieldLevel.statusCodeCompleted
+                    fieldLevel.statusCodeCompleted,
+                    fieldLevel.effectiveTime,
+                    {
+                        key: "value",
+                        attributes: [leafLevel.typeCD, leafLevel.code],
+                        dataKey: "value",
+                        existsWhen: require("../condition").codeOrDisplayname
+                    },
+                    fieldLevel.author
                 ]
-            },
-            dataKey: "problems"
-        }],
+            }],
+            // NEW: ensure 'value' and effective_time.low exist for the nested observation
+            dataTransform: function (input) {
+                // map code system name -> OID
+                function oid(sysName) {
+                    const n = (sysName || '').toLowerCase().replace(/\s+/g, '');
+                    if (n.includes('snomed')) return '2.16.840.1.113883.6.96';
+                    if (n.includes('loinc'))  return '2.16.840.1.113883.6.1';
+                    if (n.includes('icd10'))  return '2.16.840.1.113883.6.90';
+                    return input.value && input.value.code_system || ''; // leave as-is if pre-set
+                }
+                // normalize "SNOMED-CT" -> "SNOMED CT"
+                function normName(sysName) {
+                    if (!sysName) return '';
+                    return sysName.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+                }
+
+                // synthesize <value> if missing
+                const v = Object.assign({}, input.value || {});
+                if (!v.code && input.code) v.code = (''+input.code).trim();
+                if (!v.name && input.code_text) v.name = input.code_text;
+                if (!v.code_system_name && input.code_type) v.code_system_name = normName(input.code_type);
+                if (!v.code_system && (v.code_system_name || input.code_type)) v.code_system = oid(v.code_system_name || input.code_type);
+
+                input.value = v;
+
+                return input;
+
+            }
+        }
     ],
-    existsWhen: function (input) {
-        return input.type === "act";
-    }
 };
+
 
 exports.planOfCareActivityAct = {
     key: "act",
