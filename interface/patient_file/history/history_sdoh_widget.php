@@ -80,8 +80,8 @@ $goals_text = HistorySdohService::goalsToText($goals_arr, [
 $interventions_arr = json_decode($info['interventions'] ?? '[]', true);
 $interventions_text = HistorySdohService::interventionsToText($interventions_arr, [
     'include_category' => true,
-    'include_measure'  => true,
-    'include_due'      => true
+    'include_measure' => true,
+    'include_due' => true
 ]);
 
 // Domain → list_id mapping (match your form)
@@ -181,7 +181,6 @@ $updated_at = $info['updated_at'] ?? '';
                                 </tbody>
                             </table>
                         </div>
-
                         <?php if ($goals_text || $interventions_text) : ?>
                             <div class="row small">
                                 <div class="form-group col-md-12 mb-2">
@@ -196,6 +195,12 @@ $updated_at = $info['updated_at'] ?? '';
                         <?php endif; ?>
                     <?php endif; ?>
                 </div> <!-- /card-body -->
+                <div class="m-0 p-0 form-group-sm">
+                    <?php
+                    $extHtml = HistorySdohService::renderExtendedDomainsHtml($info['extended_domains'] ?? '[]');
+                    echo $extHtml; // Renders a compact card with (Domain, Status, Score, Code, Notes)
+                    ?>
+                </div>
             </div> <!-- /card -->
         <?php endif; ?>
     </div>

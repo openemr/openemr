@@ -25,6 +25,33 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     die(xlt("Not authorized"));
 }
 
+$instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
+$declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
+$extended_domains = !empty($_POST['extended_domains']) ? $_POST['extended_domains'] : '[]';
+
+// --- Functional sub-observations -> JSON (disability_scale)
+$dscale = $_POST['dscale'] ?? [];
+// Normalize into {"walk_climb":{"code":"LA33-6","notes":"..."} , ...}
+$scaleOut = [];
+foreach (['walk_climb','seeing','hearing','cognitive','dressing_bathing','errands'] as $k) {
+    $row = $dscale[$k] ?? [];
+    $code = trim($row['code'] ?? '');
+    $notes = trim($row['notes'] ?? '');
+    if ($code !== '' || $notes !== '') {
+        $scaleOut[$k] = ['code' => $code, 'notes' => $notes];
+    }
+}
+$disability_scale_json = json_encode($scaleOut, JSON_UNESCAPED_UNICODE);
+
+$data['instrument_score'] = $instrument_score;
+$data['declined_flag'] = $declined_flag;
+$data['extended_domains'] = $extended_domains;
+
+// Optional convenience metric for reporting dashboards
+$data['positive_domain_count'] = \OpenEMR\Services\Sdoh\HistorySdohService::countPositiveDomains(
+    array_merge($_POST, ['extended_domains' => $extended_domains])
+);
+
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
 $uid = $_SESSION['authUserID'] ?? null;
@@ -39,12 +66,22 @@ $dateOrNull = function ($k) {
     return ($v === '') ? null : $v;
 };
 
-$goals = HistorySdohService::buildGoals($_POST, $pid);
+$goals = HistorySdohService::buildGoals($_POST, $pid, [
+    'include_category' => true,
+    'include_due' => true,
+    'include_measure' => true]);
 $goalsSave = ($goals !== []) ? json_encode($goals) : '';
-$interventions =  HistorySdohService::buildInterventions($_POST, $pid);
-$interventionsSave = ($interventions !== []) ? json_encode($interventions) : '';
 
-// Build data array using new (prefixless) names
+$interventions = HistorySdohService::buildInterventions($_POST, $pid, [
+    'include_category' => true,
+    'include_measure' => true,
+    'include_due' => true]);
+$interventionsSave = ($interventions !== []) ? json_encode($interventions) : '';
+// --- Disability Status (overall)
+$disability_status       = trim($_POST['disability_status'] ?? '');
+$disability_status_notes = trim($_POST['disability_status_notes'] ?? '');
+
+// Build data array for save
 $data = [
     'assessment_date' => $dateOrNull('assessment_date'),
     'screening_tool' => $clean('screening_tool'),
@@ -86,8 +123,24 @@ $data = [
 
     // Care plan
     'goals' => $goalsSave,
-    'interventions' => $interventionsSave
+    'interventions' => $interventionsSave,
+    // Disability
+    'disability_status' => $clean('disability_status'),
+    'disability_status_notes' => $clean('disability_status_notes'),
+    'disability_scale' => $disability_scale_json,
+    // Hunger Vital Sign
+    'hunger_q1' => $clean('hunger_q1'),
+    'hunger_q2' => $clean('hunger_q2'),
+    'hunger_score' => $clean('hunger_score'),
 ];
+// Fallback: force-persist extended_domains if your base save omitted it
+$sdoh_id = (int)($_POST['history_sdoh_id'] ?? 0);
+if (!empty($sdoh_id)) {
+    sqlStatement(
+        "UPDATE form_history_sdoh SET extended_domains = ? WHERE id = ?",
+        [$extended_domains, $sdoh_id]
+    );
+}
 
 if ($rec_id) {
     // UPDATE existing
