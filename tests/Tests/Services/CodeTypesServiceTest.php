@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Tests\Services;
 
+use InvalidArgumentException;
 use OpenEMR\Services\CodeTypesService;
 use PHPUnit\Framework\TestCase;
 
@@ -395,4 +396,10 @@ class CodeTypesServiceTest extends TestCase
     }
 
     // end AI Generated Tests for collectCodeTypes method
+
+    public function testCollectCodeTypesInvalidReturnTypeThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->codeTypesService->collectCodeTypes("diagnosis", "invalid_format");
+    }
 }

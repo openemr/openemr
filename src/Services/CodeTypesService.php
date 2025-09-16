@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use InvalidArgumentException;
 
 /**
  * Service for code type
@@ -447,31 +448,25 @@ class CodeTypesService
     {
         global $code_types;
 
-        $return = array();
-
-        foreach ($code_types as $ct_key => $ct_arr) {
-            if (!$ct_arr['active']) {
-                continue;
-            }
-            match ($category) {
-                "diagnosis" => isset($ct_arr['diag']) && $ct_arr['diag'] ? $return[] = $ct_key : null,
-                "procedure" => isset($ct_arr['proc']) && $ct_arr['proc'] ? $return[] = $ct_key : null,
-                "clinical_term" => isset($ct_arr['term']) && $ct_arr['term'] ? $return[] = $ct_key : null,
-                "active" => $return[] = $ct_key, // since active already checked above, we can add it here.
-                "medical_problem" => isset($ct_arr['problem']) && $ct_arr['problem'] ? $return[] = $ct_key : null,
-                "drug" => isset($ct_arr['drug']) && $ct_arr['drug'] ? $return[] = $ct_key : null,
-                default => null, // return nothing since no supported category was chosen
-            };
+        // could turn this into an enum later if desired
+        if (!in_array($return_format, ['array','csv'])) {
+            throw new InvalidArgumentException("Unsupported return format: $return_format");
         }
 
+        $code_remap = [
+            'active' => 'active',
+            'clinical_term' => 'term',
+            'diagnosis' => 'diag',
+            'drug' => 'drug',
+            'medical_problem' => 'problem',
+            'procedure' => 'proc',
+        ];
+        $cat_code = $code_remap[$category] ?? null;
 
-        if ($return_format == "csv") {
-            //return it as a csv string
-            return csv_like_join($return);
-        }
+        $return = array_keys(array_filter($code_types, function ($ct_arr) use ($cat_code) {
+            return ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false);
+        }));
 
-        //$return_format == "array"
-        //return the array
-        return $return;
+        return $return_format === 'csv' ? csv_like_join($return) : $return;
     }
 }
