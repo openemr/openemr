@@ -741,18 +741,17 @@ ALTER TABLE `patient_data` ADD `tribal_affiliations` TEXT;
 -- =========================
 -- form_history_sdoh: grouped adds
 -- =========================
-#IfTable form_history_sdoh
+#IfMissingColumn form_history_sdoh instrument_score
 ALTER TABLE form_history_sdoh
-    ADD COLUMN IF NOT EXISTS instrument_score INT NULL,
-    ADD COLUMN IF NOT EXISTS positive_domain_count INT NULL,
-    ADD COLUMN IF NOT EXISTS extended_domains JSON NULL,
-    ADD COLUMN IF NOT EXISTS declined_flag TINYINT(1) NULL,
-    ADD COLUMN IF NOT EXISTS disability_status VARCHAR(50) NULL,
-    ADD COLUMN IF NOT EXISTS disability_status_notes TEXT NULL,
-    ADD COLUMN IF NOT EXISTS disability_scale TEXT NULL,
-    ADD COLUMN IF NOT EXISTS hunger_q1 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88122-7 response',
-    ADD COLUMN IF NOT EXISTS hunger_q2 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88123-5 response',
-    ADD COLUMN IF NOT EXISTS hunger_score INT DEFAULT NULL COMMENT 'Calculated HVS score';
+    ADD COLUMN instrument_score INT NULL,
+    ADD COLUMN positive_domain_count INT NULL,
+    ADD COLUMN declined_flag TINYINT(1) NULL,
+    ADD COLUMN disability_status VARCHAR(50) NULL,
+    ADD COLUMN disability_status_notes TEXT,
+    ADD COLUMN disability_scale TEXT,
+    ADD COLUMN hunger_q1 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88122-7 response',
+    ADD COLUMN hunger_q2 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88123-5 response',
+    ADD COLUMN hunger_score INT DEFAULT NULL COMMENT 'Calculated HVS score';
 #EndIf
 -- =========================
 -- Lists & Options (grouped; parent first, then options)
@@ -849,7 +848,7 @@ ON DUPLICATE KEY UPDATE title=VALUES(title), notes=VALUES(notes), activity=VALUE
 #EndIf
 
 /* -------- ODH Industry (optional; used if you capture industry) -------- */
-#IfNotRow2D list_options list_id lists option_id Industry
+#IfNotRow2D list_options list_id Industry option_id 541110
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','Industry','ODH Industry',0,0,0,'NAICS-based industry codes from ODH',1)
 ON DUPLICATE KEY UPDATE title=VALUES(title), notes=VALUES(notes);
@@ -871,11 +870,11 @@ VALUES ('Industry','541110','Offices of Lawyers',10,'541110.008099',1),
        ('Industry','522110','Commercial Banking',140,'522110.007773',1),
        ('Industry','999999','Unemployed',150,'999999',1),
        ('Industry','UNKNOWN','Unknown',160,'UNKNOWN',1)
-ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes), activity=VALUES(activity);
+ON DUPLICATE KEY UPDATE option_id=VALUES(option_id), title=VALUES(title), codes=VALUES(codes), activity=VALUES(activity);
 #EndIf
 
-/* -------- ODH Occupation (optional; used if you capture occupation) -------- */
-#IfNotRow2D list_options list_id lists option_id Occupation
+/* -------- ODH Occupation -------- */
+#IfNotRow2D list_options list_id Occupation option_id 23-1011.00
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','Occupation','ODH Occupation',0,0,0,'O*NET-SOC based occupation codes from ODH',1)
 ON DUPLICATE KEY UPDATE title=VALUES(title), notes=VALUES(notes);
@@ -903,5 +902,5 @@ VALUES ('Occupation','23-1011.00','Lawyers',10,'23-1011.00.031000',1),
        ('Occupation','21-1093.00','Social Workers',200,'21-1093.00.027030',1),
        ('Occupation','999999','Unemployed',210,'999999',1),
        ('Occupation','UNKNOWN','Unknown',220,'UNKNOWN',1)
-ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes), activity=VALUES(activity);
+ON DUPLICATE KEY UPDATE option_id=VALUES(option_id), title=VALUES(title), codes=VALUES(codes), activity=VALUES(activity);
 #EndIf
