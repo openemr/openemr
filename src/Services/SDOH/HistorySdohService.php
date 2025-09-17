@@ -30,20 +30,20 @@ class HistorySdohService
     public static function getDomainHealthConcernCodes(): array
     {
         $SNOMED_OID = '2.16.840.1.113883.6.96';
-        $ICD10_OID  = '2.16.840.1.113883.6.90';
+        $ICD10_OID = '2.16.840.1.113883.6.90';
 
         return [
             'food_insecurity' => [
                 'snomed' => [
-                    'code'        => '733423003',
-                    'display'     => 'Food insecurity (finding)',
-                    'system'      => $SNOMED_OID,
+                    'code' => '733423003',
+                    'display' => 'Food insecurity (finding)',
+                    'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code'        => 'Z59.41',
-                    'display'     => 'Food insecurity',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z59.41',
+                    'display' => 'Food insecurity',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
@@ -53,24 +53,24 @@ class HistorySdohService
             'housing_instability' => [
                 // 'snomed' => [ 'code' => '105531004', 'display' => 'Housing unsatisfactory (finding)', 'system' => $SNOMED_OID, 'system_name' => 'SNOMED CT' ],
                 'icd10' => [
-                    'code'        => 'Z59.819',
-                    'display'     => 'Housing instability, housed, unspecified',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z59.819',
+                    'display' => 'Housing instability, housed, unspecified',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
 
             'transportation_insecurity' => [
                 'snomed' => [
-                    'code'        => '713458007',
-                    'display'     => 'Lack of access to transportation (finding)',
-                    'system'      => $SNOMED_OID,
+                    'code' => '713458007',
+                    'display' => 'Lack of access to transportation (finding)',
+                    'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code'        => 'Z59.82',
-                    'display'     => 'Transportation insecurity',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z59.82',
+                    'display' => 'Transportation insecurity',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
@@ -79,54 +79,54 @@ class HistorySdohService
                 // No single, broadly-used SNOMED finding for general “utility insecurity” yet.
                 // (Specifics like “Inadequate water supply (441987004)” exist but are too narrow.)
                 'icd10' => [
-                    'code'        => 'Z59.12',
-                    'display'     => 'Inadequate housing utilities',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z59.12',
+                    'display' => 'Inadequate housing utilities',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
             // “Interpersonal safety concern” → use a safety/violence-risk finding when available.
             'interpersonal_safety' => [
                 'snomed' => [
-                    'code'        => '706892001',
-                    'display'     => 'At risk of intimate partner abuse (finding)',
-                    'system'      => $SNOMED_OID,
+                    'code' => '706892001',
+                    'display' => 'At risk of intimate partner abuse (finding)',
+                    'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code'        => 'Z65.8',
-                    'display'     => 'Other specified problems related to psychosocial circumstances',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z65.8',
+                    'display' => 'Other specified problems related to psychosocial circumstances',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
 
             'financial_strain' => [
                 'snomed' => [
-                    'code'        => '1184702004',
-                    'display'     => 'Financial insecurity (finding)',
-                    'system'      => $SNOMED_OID,
+                    'code' => '1184702004',
+                    'display' => 'Financial insecurity (finding)',
+                    'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code'        => 'Z59.86',
-                    'display'     => 'Financial insecurity',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z59.86',
+                    'display' => 'Financial insecurity',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
 
             'social_isolation' => [
                 'snomed' => [
-                    'code'        => '105412007',
-                    'display'     => 'Social isolation (finding)',
-                    'system'      => $SNOMED_OID,
+                    'code' => '105412007',
+                    'display' => 'Social isolation (finding)',
+                    'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code'        => 'Z60.2',
-                    'display'     => 'Problems related to living alone',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z60.2',
+                    'display' => 'Problems related to living alone',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
@@ -135,9 +135,9 @@ class HistorySdohService
             'childcare_needs' => [
                 // 'snomed' => [ 'code' => '671461000124109', 'display' => 'Unable to obtain childcare due to limited financial resources (finding)', 'system' => $SNOMED_OID, 'system_name' => 'SNOMED CT' ],
                 'icd10' => [
-                    'code'        => 'Z60.8',
-                    'display'     => 'Other problems related to social environment',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z60.8',
+                    'display' => 'Other problems related to social environment',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
@@ -145,9 +145,9 @@ class HistorySdohService
             // concept is universally adopted yet (local extensions exist). Use ICD-10 catch-all.
             'digital_access' => [
                 'icd10' => [
-                    'code'        => 'Z60.9',
-                    'display'     => 'Problem related to social environment, unspecified',
-                    'system'      => $ICD10_OID,
+                    'code' => 'Z60.9',
+                    'display' => 'Problem related to social environment, unspecified',
+                    'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
                 ],
             ],
@@ -421,14 +421,14 @@ class HistorySdohService
             $v = strtolower(trim((string)$v));
             $v = str_replace([' — ', ' – ', '—', '–'], '-', $v);
             $map = [
-                'yes-medical'      => 'yes',
+                'yes-medical' => 'yes',
                 'already shut off' => 'present',
-                'very hard'        => 'present',
-                'somewhat hard'    => 'present',
-                'often'            => 'present',
-                'sometimes'        => 'present',
-                'rarely'           => 'present',
-                'never'            => 'no',
+                'very hard' => 'present',
+                'somewhat hard' => 'present',
+                'often' => 'present',
+                'sometimes' => 'present',
+                'rarely' => 'present',
+                'never' => 'no',
             ];
             return $map[$v] ?? $v;
         };
@@ -491,11 +491,11 @@ class HistorySdohService
     {
         $now = date('Y-m-d');
         $when = $info['assessment_date'] ?? $info['sdoh_assessment_date'] ?? $info['updated_at'] ?? $now;
-        $due  = $info['intervention_due_date'] ?? $info['goal_due_date'] ?? null;
+        $due = $info['intervention_due_date'] ?? $info['goal_due_date'] ?? null;
 
         // helper
         $cc = fn($system, $code, $display): array => [
-            'coding' => [[ 'system' => $system, 'code' => $code, 'display' => $display ]],
+            'coding' => [['system' => $system, 'code' => $code, 'display' => $display]],
             'text' => $display
         ];
         $txt = fn($s): array => ['text' => $s];
@@ -508,48 +508,48 @@ class HistorySdohService
             'food_insecurity' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'food-insecurity', 'Food Insecurity'),
                 // mirrors your CCD sample wording
-                'code'     => $txt('Assistance with application for food pantry program'),
-                'reason'   => $txt('Food insecurity risk'),
+                'code' => $txt('Assistance with application for food pantry program'),
+                'reason' => $txt('Food insecurity risk'),
             ],
             'housing_instability' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'housing-instability', 'Housing Instability'),
-                'code'     => $txt('Referral to local housing assistance resources'),
-                'reason'   => $txt('Housing instability risk'),
+                'code' => $txt('Referral to local housing assistance resources'),
+                'reason' => $txt('Housing instability risk'),
             ],
             'transportation_insecurity' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'transportation-insecurity', 'Transportation Insecurity'),
-                'code'     => $txt('Arrange transportation for appointments (medical or social services)'),
-                'reason'   => $txt('Transportation barrier present'),
+                'code' => $txt('Arrange transportation for appointments (medical or social services)'),
+                'reason' => $txt('Transportation barrier present'),
             ],
             'utilities_insecurity' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'utility-insecurity', 'Utility Insecurity'),
-                'code'     => $txt('Referral to utility bill assistance program'),
-                'reason'   => $txt('Utility shutoff risk'),
+                'code' => $txt('Referral to utility bill assistance program'),
+                'reason' => $txt('Utility shutoff risk'),
             ],
             'financial_strain' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'financial-insecurity', 'Financial Insecurity'),
-                'code'     => $txt('Referral to financial counseling / benefits navigator'),
-                'reason'   => $txt('Financial strain'),
+                'code' => $txt('Referral to financial counseling / benefits navigator'),
+                'reason' => $txt('Financial strain'),
             ],
             'social_isolation' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'social-connection', 'Social Connection'),
-                'code'     => $txt('Referral to community/social connection programs'),
-                'reason'   => $txt('Loneliness / social isolation'),
+                'code' => $txt('Referral to community/social connection programs'),
+                'reason' => $txt('Loneliness / social isolation'),
             ],
             'childcare_needs' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'material-hardship', 'Material Hardship'),
-                'code'     => $txt('Provide childcare resources and referral'),
-                'reason'   => $txt('Childcare needs present'),
+                'code' => $txt('Provide childcare resources and referral'),
+                'reason' => $txt('Childcare needs present'),
             ],
             'digital_access' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'digital-access', 'Digital Access'),
-                'code'     => $txt('Assist with device/internet access and digital literacy'),
-                'reason'   => $txt('Limited digital access'),
+                'code' => $txt('Assist with device/internet access and digital literacy'),
+                'reason' => $txt('Limited digital access'),
             ],
             'interpersonal_safety' => [
                 'category' => $cc('http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'intimate-partner-violence', 'Intimate Partner Violence'),
-                'code'     => $txt('Provide IPV resources and safety planning; social work referral'),
-                'reason'   => $txt('IPV risk present'),
+                'code' => $txt('Provide IPV resources and safety planning; social work referral'),
+                'reason' => $txt('IPV risk present'),
             ],
         ];
 
@@ -658,7 +658,7 @@ class HistorySdohService
     protected static function parseManualInterventions(string $text, int $pid = 0, ?string $when = null, ?string $due = null): array
     {
         $when = $when ? substr($when, 0, 10) : date('Y-m-d');
-        $due  = $due ? substr($due, 0, 10) : null;
+        $due = $due ? substr($due, 0, 10) : null;
 
         $out = [];
         foreach (preg_split('/\R+/', $text) as $line) {
@@ -776,13 +776,13 @@ class HistorySdohService
         if (strpos($s, '113883.6.96') !== false || strpos($s, 'snomed') !== false) {
             return 'SNOMED CT';
         }
-        if (strpos($s, '113883.6.1')  !== false || strpos($s, 'loinc')   !== false) {
+        if (strpos($s, '113883.6.1') !== false || strpos($s, 'loinc') !== false) {
             return 'LOINC';
         }
-        if (strpos($s, '113883.6.90') !== false || strpos($s, 'icd10')   !== false) {
+        if (strpos($s, '113883.6.90') !== false || strpos($s, 'icd10') !== false) {
             return 'ICD10-CM';
         }
-        if (strpos($s, 'omb')         !== false) {
+        if (strpos($s, 'omb') !== false) {
             return 'OMB';
         }
         // Names/prefix
@@ -799,10 +799,10 @@ class HistorySdohService
         if (strcasecmp($t, 'SNOMED-CT') === 0) {
             return 'SNOMED CT';
         }
-        if (strcasecmp($t, 'SNOMED')    === 0) {
+        if (strcasecmp($t, 'SNOMED') === 0) {
             return 'SNOMED CT';
         }
-        if (strcasecmp($t, 'LOINC')     === 0) {
+        if (strcasecmp($t, 'LOINC') === 0) {
             return 'LOINC';
         }
         if (stripos($t, 'ICD10') !== false) {
@@ -820,9 +820,9 @@ class HistorySdohService
                 $j = json_decode($c, true);
                 if (is_array($j)) {
                     $code = (string)($j['code'] ?? '');
-                    $sys  = (string)($j['system'] ?? '');
+                    $sys = (string)($j['system'] ?? '');
                     $type = $this->ccSystemToCodeType($sys) ?: ($rec['code_type'] ?? '');
-                    $txt  = (string)($j['display'] ?? ($rec['description'] ?? $rec['codetext'] ?? ''));
+                    $txt = (string)($j['display'] ?? ($rec['description'] ?? $rec['codetext'] ?? ''));
                     return [$code, $this->normalizeSystemName($type), $txt];
                 }
             } elseif (strpos($c, ':') !== false) {
@@ -886,9 +886,9 @@ class HistorySdohService
             $j = json_decode($codes, true);
             if (is_array($j)) {
                 $code = (string)($j['code'] ?? '');
-                $sys  = (string)($j['system'] ?? '');
+                $sys = (string)($j['system'] ?? '');
                 $type = $this->ccSystemToCodeType($sys);
-                $txt  = (string)($j['display'] ?? $title);
+                $txt = (string)($j['display'] ?? $title);
                 return [$code, $type, $txt];
             }
         }
@@ -910,68 +910,68 @@ class HistorySdohService
             return [];
         }
 
-        $site     = $_SESSION['site_id'] ?? 'default';
-        $encId    = (int)($row['encounter'] ?? 0);
+        $site = $_SESSION['site_id'] ?? 'default';
+        $encId = (int)($row['encounter'] ?? 0);
         $assessDt = (string)($row['assessment_date'] ?? substr((string)($row['updated_at'] ?? ''), 0, 10));
         $assessDt = $assessDt ?: date('Y-m-d');
 
         $author = [
             'author_id' => $row['updated_by'] ?? $row['created_by'] ?? null,
-            'time'      => $row['updated_at'] ?? $row['created_at'] ?? $assessDt
+            'time' => $row['updated_at'] ?? $row['created_at'] ?? $assessDt
         ];
 
         // --- Domain → SNOMED Health-Concern codes (value for Problem Observation) ---
         // These are condition *findings* appropriate for Health Concern <value xsi:type="CD"...>.
         // (No LA-* or LOINC answers here.)
         $DOMAIN_SNOMED = [
-            'food_insecurity'           => ['733423003', 'Food insecurity (finding)'],
-            'housing_instability'       => ['160734000', 'Inadequate housing (finding)'],
+            'food_insecurity' => ['733423003', 'Food insecurity (finding)'],
+            'housing_instability' => ['160734000', 'Inadequate housing (finding)'],
             'transportation_insecurity' => ['281647001', 'Transportation problem (finding)'],
-            'utilities_insecurity'      => ['248539003', 'Lack of electricity (finding)'], // adjust if you have a better code
-            'interpersonal_safety'      => ['225337009', 'Victim of violence (finding)'],  // use a more specific code if you capture it
-            'financial_strain'          => ['105480006', 'Economic problem (finding)'],
-            'social_isolation'          => ['40917007',  'Social isolation (finding)'],
-            'childcare_needs'           => ['364703007', 'Needs assistance with childcare (finding)'],
+            'utilities_insecurity' => ['248539003', 'Lack of electricity (finding)'], // adjust if you have a better code
+            'interpersonal_safety' => ['225337009', 'Victim of violence (finding)'],  // use a more specific code if you capture it
+            'financial_strain' => ['105480006', 'Economic problem (finding)'],
+            'social_isolation' => ['40917007', 'Social isolation (finding)'],
+            'childcare_needs' => ['364703007', 'Needs assistance with childcare (finding)'],
             // Add more domains you record in form_history_sdoh here as needed
-            'digital_access'            => ['713879003', 'Lack of access to digital technology (finding)'],
+            'digital_access' => ['713879003', 'Lack of access to digital technology (finding)'],
         ];
 
         // Which answers from the assessment should become a “positive” concern per domain
         $POSITIVE = [
-            'food_insecurity'           => ['yes','positive','at_risk','often','sometimes'],
-            'housing_instability'       => ['yes','positive','at_risk'],
-            'transportation_insecurity' => ['yes','positive','at_risk'],
-            'utilities_insecurity'      => ['yes','positive','at_risk'],
-            'interpersonal_safety'      => ['yes','positive'],
-            'financial_strain'          => ['yes','positive','high','very hard','hard'],
-            'social_isolation'          => ['yes','positive'],
-            'childcare_needs'           => ['yes','positive','needs'],
-            'digital_access'            => ['no','lack','limited','barrier'],
+            'food_insecurity' => ['yes', 'positive', 'at_risk', 'often', 'sometimes'],
+            'housing_instability' => ['yes', 'positive', 'at_risk'],
+            'transportation_insecurity' => ['yes', 'positive', 'at_risk'],
+            'utilities_insecurity' => ['yes', 'positive', 'at_risk'],
+            'interpersonal_safety' => ['yes', 'positive'],
+            'financial_strain' => ['yes', 'positive', 'high', 'very hard', 'hard'],
+            'social_isolation' => ['yes', 'positive'],
+            'childcare_needs' => ['yes', 'positive', 'needs'],
+            'digital_access' => ['no', 'lack', 'limited', 'barrier'],
         ];
 
         // Human-friendly labels for the domain column to include in narrative if needed
         $LABEL = [
-            'food_insecurity'           => 'Food insecurity (finding)',
-            'housing_instability'       => 'Housing instability (finding)',
+            'food_insecurity' => 'Food insecurity (finding)',
+            'housing_instability' => 'Housing instability (finding)',
             'transportation_insecurity' => 'Transportation insecurity (finding)',
-            'utilities_insecurity'      => 'Utilities insecurity (finding)',
-            'interpersonal_safety'      => 'Interpersonal safety risk (finding)',
-            'financial_strain'          => 'Financial strain (finding)',
-            'social_isolation'          => 'Social isolation (finding)',
-            'childcare_needs'           => 'Childcare needs (finding)',
-            'digital_access'            => 'Digital inclusion/access need (finding)',
+            'utilities_insecurity' => 'Utilities insecurity (finding)',
+            'interpersonal_safety' => 'Interpersonal safety risk (finding)',
+            'financial_strain' => 'Financial strain (finding)',
+            'social_isolation' => 'Social isolation (finding)',
+            'childcare_needs' => 'Childcare needs (finding)',
+            'digital_access' => 'Digital inclusion/access need (finding)',
         ];
 
         $domains = array_keys($DOMAIN_SNOMED);
         $out = [];
 
         foreach ($domains as $col) {
-            $rawAns   = (string)($row[$col] ?? '');
+            $rawAns = (string)($row[$col] ?? '');
             if ($rawAns === '') {
                 continue;
             }
 
-            $ans      = strtolower(trim($rawAns));
+            $ans = strtolower(trim($rawAns));
             $positive = in_array($ans, $POSITIVE[$col] ?? [], true);
             if (!$positive) {
                 continue;
@@ -979,33 +979,33 @@ class HistorySdohService
 
             // Pick the domain’s SNOMED Health Concern code
             [$code, $display] = $DOMAIN_SNOMED[$col];
-            $codeType         = 'SNOMED CT';
+            $codeType = 'SNOMED CT';
 
             // Pull any free-text notes to enrich the <text> narrative
             $notesCol = $col . '_notes';
-            $notes    = trim((string)($row[$notesCol] ?? ''));
+            $notes = trim((string)($row[$notesCol] ?? ''));
 
             // Build the narrative; keep your “<date> <label> - <notes>” style
             $label = $LABEL[$col] ?? $display;
-            $narr  = $assessDt . ' ' . $label;
+            $narr = $assessDt . ' ' . $label;
             if ($notes !== '') {
                 $narr .= ' - ' . $notes;
             }
 
             $out[] = [
-                'text'           => $narr,
-                'code'           => $code,        // SNOMED finding for Health Concern <value>
-                'code_type'      => $codeType,    // “SNOMED CT”
-                'code_text'      => $display,     // display for the code
-                'date'           => $assessDt,
+                'text' => $narr,
+                'code' => $code,        // SNOMED finding for Health Concern <value>
+                'code_type' => $codeType,    // “SNOMED CT”
+                'code_text' => $display,     // display for the code
+                'date' => $assessDt,
                 'date_formatted' => str_replace('-', '', $assessDt),
-                'author'         => $author,
-                'issues'         => ['issue_uuid' => []], // keep structure your dispatcher expects
+                'author' => $author,
+                'issues' => ['issue_uuid' => []], // keep structure your dispatcher expects
                 // optional: identify that this came from the SDOH assessment
-                'assessment'     => 'SDOH',
-                'encounter'      => (string)$encId,
-                'extension'      => base64_encode($site . $encId),
-                'sha_extension'  => sha1($site . '|sdoh_concern|' . $pid . '|' . $col . '|' . $assessDt),
+                'assessment' => 'SDOH',
+                'encounter' => (string)$encId,
+                'extension' => base64_encode($site . $encId),
+                'sha_extension' => sha1($site . '|sdoh_concern|' . $pid . '|' . $col . '|' . $assessDt),
             ];
         }
 
@@ -1028,49 +1028,31 @@ class HistorySdohService
         return json_decode($goals['goals'], true);
     }
 
-    /**
-     * Return manual interventions from the latest form row as ServiceRequest-like resources.
-     * (Each newline-delimited entry becomes one intervention.)
-     */
-    public function getCurrentInterventionsResource(int $pid): ?array
-    {
-        $row = sqlQuery(
-            "SELECT interventions, updated_at FROM form_history_sdoh WHERE pid = ? ORDER BY updated_at DESC, id DESC LIMIT 1",
-            [$pid]
-        ) ?: null;
-        if (empty($row['interventions'])) {
-            return null;
-        }
-        return self::parseManualInterventions($row['interventions'], $pid, $row['updated_at'] ?? null, null);
-    }
-    /**
-     * Map a FHIR system URL to our ccda "code_type" label.
-     */
-
     private function ccText($cc): string
     {
         return HistorySdohService::ccDisplay($cc);
     }
+
     public static function sdohProblemMap(): array
     {
         return [
-            'food_insecurity'           => ['icd10' => 'Z59.41', 'snomed' => '733423003'],
-            'housing_instability'       => ['icd10' => 'Z59.819', 'snomed' => '161036002'],
+            'food_insecurity' => ['icd10' => 'Z59.41', 'snomed' => '733423003'],
+            'housing_instability' => ['icd10' => 'Z59.819', 'snomed' => '161036002'],
             'transportation_insecurity' => ['icd10' => 'Z59.82', 'snomed' => '46578006'],
-            'utilities_insecurity'      => ['icd10' => 'Z59.12', 'snomed' => '160632005'],
-            'interpersonal_safety'      => ['icd10' => 'Z65.4',  'snomed' => '225337009'],
-            'financial_strain'          => ['icd10' => 'Z59.86', 'snomed' => '702479006'],
-            'social_isolation'          => ['icd10' => 'Z60.4',  'snomed' => '105531004'],
-            'childcare_needs'           => ['icd10' => 'Z59.89', 'snomed' => '713404003'],
-            'digital_access'            => ['icd10' => 'Z59.89', 'snomed' => '1141000195109'],
+            'utilities_insecurity' => ['icd10' => 'Z59.12', 'snomed' => '160632005'],
+            'interpersonal_safety' => ['icd10' => 'Z65.4', 'snomed' => '225337009'],
+            'financial_strain' => ['icd10' => 'Z59.86', 'snomed' => '702479006'],
+            'social_isolation' => ['icd10' => 'Z60.4', 'snomed' => '105531004'],
+            'childcare_needs' => ['icd10' => 'Z59.89', 'snomed' => '713404003'],
+            'digital_access' => ['icd10' => 'Z59.89', 'snomed' => '1141000195109'],
         ];
     }
 
     public static function countPositiveDomains(array $postOrRow): int
     {
         $keys = [
-            'food_insecurity','housing_instability','transportation_insecurity','utilities_insecurity',
-            'interpersonal_safety','financial_strain','social_isolation','childcare_needs','digital_access'
+            'food_insecurity', 'housing_instability', 'transportation_insecurity', 'utilities_insecurity',
+            'interpersonal_safety', 'financial_strain', 'social_isolation', 'childcare_needs', 'digital_access'
         ];
         $n = 0;
         foreach ($keys as $k) {
@@ -1092,11 +1074,11 @@ class HistorySdohService
         $out = [];
         $map = self::sdohProblemMap();
 
-        $push = function (string $domain, string $code, string $display, string $system = 'ICD-10-CM') use (&$out) {
+        $push = function (string $domain, string $code, string $display, string $system = 'ICD-10-CM') use (&$out): void {
             $out[] = [
-                'domain'  => $domain,
-                'system'  => $system,
-                'code'    => $code,
+                'domain' => $domain,
+                'system' => $system,
+                'code' => $code,
                 'display' => $display,
             ];
         };
@@ -1261,8 +1243,8 @@ class HistorySdohService
         $bundle = ['resourceType' => 'Bundle', 'type' => 'collection', 'entry' => []];
 
         $domains = [
-            'food_insecurity','housing_instability','transportation_insecurity','utilities_insecurity',
-            'interpersonal_safety','financial_strain','social_isolation','childcare_needs','digital_access'
+            'food_insecurity', 'housing_instability', 'transportation_insecurity', 'utilities_insecurity',
+            'interpersonal_safety', 'financial_strain', 'social_isolation', 'childcare_needs', 'digital_access'
         ];
         foreach ($domains as $k) {
             if (!empty($row[$k])) {
@@ -1321,61 +1303,9 @@ class HistorySdohService
     {
         $map = [
             'ICD-10-CM' => 'http://hl7.org/fhir/sid/icd-10-cm',
-            'SNOMED'    => 'http://snomed.info/sct',
-            'LOINC'     => 'http://loinc.org'
+            'SNOMED' => 'http://snomed.info/sct',
+            'LOINC' => 'http://loinc.org'
         ];
         return $map[$short] ?? $short;
-    }
-
-    /**
-     * Render a simple HTML list for the widget.
-     * Accepts raw JSON string or decoded array.
-     */
-    public static function renderExtendedDomainsHtml($jsonOrArray): string
-    {
-        $arr = is_string($jsonOrArray) ? json_decode($jsonOrArray, true) : $jsonOrArray;
-        if (!is_array($arr) || !count($arr)) {
-            return '';
-        }
-        ob_start();
-        ?>
-        <div class="card mb-2">
-            <div class="card-header font-weight-bold"><?php echo xlt('Additional Domains'); ?></div>
-            <div class="card-body p-2">
-                <ul class="list-group list-group-flush">
-                    <?php foreach ($arr as $row) : ?>
-                        <?php
-                        $dd = $row['domain_display'] ?? '';
-                        $sd = $row['status_display'] ?? '';
-                        $sc = $row['score'] ?? '';
-                        $nt = $row['notes'] ?? '';
-                        $dc = $row['status_code'] ?? '';
-                        $ds = $row['status_system'] ?? '';
-                        ?>
-                        <li class="list-group-item px-2 py-1 text-dark bg-light">
-                            <div class="d-flex justify-content-between align-items-center text-dark bg-light">
-                                <div>
-                                    <strong><?php echo text($dd ?: ($row['domain'] ?? '')); ?></strong>
-                                    <?php if (!empty($sd)) : ?>
-                                        <span class="badge badge-secondary ml-1 text-dark bg-light"><?php echo text($sd); ?></span>
-                                    <?php endif; ?>
-                                    <?php if (!empty($dc)) : ?>
-                                        <small class="text-muted ml-2 text-dark bg-light"><?php echo text(($ds ? ($ds . ': ') : '') . $dc); ?></small>
-                                    <?php endif; ?>
-                                </div>
-                                <?php if ($sc !== '') : ?>
-                                    <span class="badge badge-ligh text-dark bg-lightt"><?php echo xlt('Score'); ?>: <?php echo text((string)$sc); ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <?php if (!empty($nt)) : ?>
-                                <div class="mt-1"><small><?php echo text($nt); ?></small></div>
-                            <?php endif; ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
     }
 }

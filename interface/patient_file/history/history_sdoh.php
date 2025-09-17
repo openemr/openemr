@@ -308,7 +308,7 @@ $self = basename($_SERVER['PHP_SELF']);
                     $get       = function ($key) use ($scale) {
                         return $scale[$key]['code'] ?? '';
                     };
-                    function fn_row($fieldKey, $label, $yesNoList, $get)
+                    function fn_row($fieldKey, $label, $yesNoList, $get): void
                     {
                         echo "<div class='form-row align-items-end mb-2'>";
                         echo "  <div class='form-group col-md'>";
