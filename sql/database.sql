@@ -348,7 +348,7 @@ CREATE TABLE `categories_seq` (
 -- Inserting data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (31);
+INSERT INTO `categories_seq` VALUES (34);
 
 -- --------------------------------------------------------
 
