@@ -3625,6 +3625,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',12, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 13, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 14, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations','5','Tribal Affiliations',15,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
 --
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
@@ -14158,6 +14159,16 @@ CREATE TABLE `form_history_sdoh`
     `postpartum_end`                  date                         DEFAULT NULL,
     `goals`                           text,
     `interventions`                   text,
+    `instrument_score`                INT                          DEFAULT NULL,
+    `positive_domain_count`           INT                          DEFAULT NULL,
+    `extended_domains`                JSON                         DEFAULT NULL,
+    `declined_flag`                   TINYINT(1)                   DEFAULT NULL,
+    `disability_status`               VARCHAR(50)                  DEFAULT NULL,
+    `disability_status_notes`         TEXT,
+    `disability_scale`                TEXT,
+    `hunger_q1`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88122-7 response',
+    `hunger_q2`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88123-5 response',
+    `hunger_score`                    INT                          DEFAULT NULL COMMENT 'Calculated HVS score',
     PRIMARY KEY (`id`),
     KEY `uuid_idx` (`uuid`),
     KEY `pid_idx` (`pid`),
@@ -14280,3 +14291,120 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- =========================
+-- Lists & Options
+-- =========================
+-- Parents List (guarded)
+
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists', 'sdoh_problems', 'SDOH Problems/Health Concerns', 50, 0, 0, 'USCDI v3 SDOH - Gravity Project', 1),
+       ('lists', 'sdoh_interventions', 'SDOH Interventions', 60, 0, 0, 'USCDI v3 SDOH Interventions - Gravity Project', 1),
+       ('lists', 'tribal_affiliations', 'Tribal Affiliation', 10, 0, 0, 'USCDI v3 Required - HL7 TribalEntityUS', 1),
+       ('lists', 'disability_status', 'Disability Status', 0, 1, 0, '', 1),
+       ('lists', 'vital_signs_answers', 'Vital Signs Answers', 0, 0, 0, '', 1),
+       ('lists', 'Industry', 'ODH Industry (USCDI v3)', 0, 0, 0, 'NAICS-based industry codes from ODH', 1),
+       ('lists', 'Occupation', 'ODH Occupation (USCDI v3)', 0, 0, 0, 'O*NET-SOC based occupation codes from ODH', 1);
+
+-- Instruments (JSON codes kept) new add to existing
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_instruments', 'ahc-hrsn', 'AHC-HRSN', 10, '{"system":"LOINC","code":"96799-9","display":"AHC HRSN panel"}', 1),
+       ('sdoh_instruments', 'prapare', 'PRAPARE', 20, '{"system":"LOINC","code":"93025-5","display":"PRAPARE panel"}', 1);
+
+-- Vital Signs Answers (single set; no duplicate parent)
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('vital_signs_answers', 'LA28397-0', 'Often true', 10, 'LOINC:LA28397-0', 1),
+       ('vital_signs_answers', 'LA28398-8', 'Sometimes true', 20, 'LOINC:LA28398-8', 1),
+       ('vital_signs_answers', 'LA28399-6', 'Never true', 30, 'LOINC:LA28399-6', 1);
+
+-- Tribal Affiliations
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity)
+VALUES ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65', 1),
+       ('tribal_affiliations', 'cherokee_nation', 'Cherokee Nation (OK)', 20, '40', 1),
+       ('tribal_affiliations', 'chickasaw_nation', 'Chickasaw Nation (OK)', 30, '43', 1),
+       ('tribal_affiliations', 'choctaw_nation', 'Choctaw Nation of Oklahoma', 40, '47', 1),
+       ('tribal_affiliations', 'gila_river', 'Gila River Indian Community (AZ)', 50, '93', 1),
+       ('tribal_affiliations', 'hopi', 'Hopi Tribe (AZ)', 60, '104', 1),
+       ('tribal_affiliations', 'navajo_nation', 'Navajo Nation (AZ/NM/UT)', 70, '170', 1),
+       ('tribal_affiliations', 'standing_rock', 'Standing Rock Sioux Tribe (ND/SD)', 80, '289', 1),
+       ('tribal_affiliations', 'tohono_oodham', 'Tohono O''odham Nation (AZ)', 90, '302', 1),
+       ('tribal_affiliations', 'white_mountain_apache', 'White Mountain Apache Tribe (AZ)', 100, '325', 1),
+       ('tribal_affiliations', 'zuni', 'Zuni Tribe (NM)', 110, '337', 1),
+       ('tribal_affiliations', 'other_specify', 'Other (specify)', 120, '000', 1);
+
+-- Disability Status parent exists above; now the answers
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7', 1),
+       ('disability_status', 'im_vulnerable', 'I''m Vulnerable.', 20, 'LOINC:LA29243-5', 1),
+       ('disability_status', 'im_at_risk', 'I''m at risk.', 30, 'LOINC:LA29244-3', 1),
+       ('disability_status', 'im_in_crisis', 'I''m in crisis.', 40, 'LOINC:LA29245-0', 1);
+
+-- SDOH Problems (single set)
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
+       ('sdoh_problems', '224130005', 'Difficulty accessing healthcare', 20, 'SNOMED:224130005', 1),
+       ('sdoh_problems', '182964004', 'Medication not available', 30, 'SNOMED:182964004', 1),
+       ('sdoh_problems', '73438004', 'Educational problem', 40, 'SNOMED:73438004', 1),
+       ('sdoh_problems', '266948004', 'Unemployed', 50, 'SNOMED:266948004', 1),
+       ('sdoh_problems', 'Z59.1', 'Inadequate housing', 60, 'ICD10CM:Z59.1', 1),
+       ('sdoh_problems', 'Z59.4', 'Lack of adequate food', 70, 'ICD10CM:Z59.4', 1),
+       ('sdoh_problems', 'Z59.6', 'Low income', 80, 'ICD10CM:Z59.6', 1),
+       ('sdoh_problems', 'Z62.9', 'Problem related to upbringing', 90, 'ICD10CM:Z62.9', 1),
+       ('sdoh_problems', '266944006', 'Lives in poverty', 100, 'SNOMED:266944006', 1);
+
+-- SDOH Interventions (fixed duplicate option_id for 467681000124101)
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance program', 10, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', 'assist_food_program', 'Assistance with application for food program', 90, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', '467711000124100', 'Referral to housing assistance program', 20, 'SNOMED:467711000124100', 1),
+       ('sdoh_interventions', '467721000124107', 'Referral to transportation assistance program', 30, 'SNOMED:467721000124107', 1),
+       ('sdoh_interventions', '467731000124109', 'Referral to utility assistance program', 40, 'SNOMED:467731000124109', 1),
+       ('sdoh_interventions', '428191000124101', 'Education about community resources', 50, 'SNOMED:428191000124101', 1),
+       ('sdoh_interventions', '464031000124108', 'Referral to social worker', 60, 'SNOMED:464031000124108', 1),
+       ('sdoh_interventions', '385763009', 'Lifestyle education', 70, 'SNOMED:385763009', 1),
+       ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1),
+       ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 100, 'SNOMED:467701000124103', 1),
+       ('sdoh_interventions', 'assist_transport', 'Assistance with transportation', 110, 'SNOMED:467721000124107', 1);
+
+-- ODH Industry / Occupation (parents exist above)
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('Industry', '541110', 'Offices of Lawyers', 10, '541110.008099', 1),
+       ('Industry', '541330', 'Engineering Services', 20, '541330.008117', 1),
+       ('Industry', '236220', 'Commercial and Institutional Building Construction', 30, '236220.004781', 1),
+       ('Industry', '622110', 'General Medical and Surgical Hospitals', 40, '622110.009243', 1),
+       ('Industry', '611110', 'Elementary and Secondary Schools', 50, '611110.008684', 1),
+       ('Industry', '561720', 'Janitorial Services', 60, '561720.002294', 1),
+       ('Industry', '722511', 'Full-Service Restaurants', 70, '722511.010339', 1),
+       ('Industry', '445110', 'Supermarkets and Other Grocery Stores', 80, '445110.006564', 1),
+       ('Industry', '238210', 'Electrical Contractors', 90, '238210.004871', 1),
+       ('Industry', '621111', 'Offices of Physicians (except Mental Health)', 100, '621111.009165', 1),
+       ('Industry', '531110', 'Lessors of Residential Buildings', 110, '531110.007615', 1),
+       ('Industry', '484121', 'General Freight Trucking, Long-Distance', 120, '484121.007193', 1),
+       ('Industry', '812111', 'Barber Shops', 130, '812111.011099', 1),
+       ('Industry', '522110', 'Commercial Banking', 140, '522110.007773', 1),
+       ('Industry', '999999', 'Unemployed', 150, '999999', 1),
+       ('Industry', 'UNKNOWN', 'Unknown', 160, 'UNKNOWN', 1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('Occupation', '23-1011.00', 'Lawyers', 10, '23-1011.00.031000', 1),
+       ('Occupation', '17-2051.00', 'Civil Engineers', 20, '17-2051.00.019051', 1),
+       ('Occupation', '47-2061.00', 'Construction Laborers', 30, '47-2061.00.051621', 1),
+       ('Occupation', '29-1141.00', 'Registered Nurses', 40, '29-1141.00.038232', 1),
+       ('Occupation', '25-2021.00', 'Elementary School Teachers', 50, '25-2021.00.032102', 1),
+       ('Occupation', '37-2011.00', 'Janitors and Cleaners', 60, '37-2011.00.028742', 1),
+       ('Occupation', '35-3031.00', 'Waiters and Waitresses', 70, '35-3031.00.045251', 1),
+       ('Occupation', '41-2011.00', 'Cashiers', 80, '41-2011.00.047211', 1),
+       ('Occupation', '11-1021.00', 'General and Operations Managers', 90, '11-1021.00.003891', 1),
+       ('Occupation', '43-9061.00', 'Office Clerks, General', 100, '43-9061.00.049705', 1),
+       ('Occupation', '53-3032.00', 'Heavy and Tractor-Trailer Truck Drivers', 110, '53-3032.00.057651', 1),
+       ('Occupation', '29-1211.00', 'Physician Assistants', 120, '29-1211.00.038302', 1),
+       ('Occupation', '39-5012.00', 'Hairdressers, Hairstylists, and Cosmetologists', 130, '39-5012.00.046262', 1),
+       ('Occupation', '13-2011.00', 'Accountants and Auditors', 140, '13-2011.00.010350', 1),
+       ('Occupation', '15-1252.00', 'Software Developers', 150, '15-1252.00.016221', 1),
+       ('Occupation', '33-9032.00', 'Security Guards', 160, '33-9032.00.042562', 1),
+       ('Occupation', '49-9071.00', 'Maintenance and Repair Workers, General', 170, '49-9071.00.053722', 1),
+       ('Occupation', '31-1120.00', 'Home Health Aides', 180, '31-1120.00.039792', 1),
+       ('Occupation', '25-9045.00', 'Teaching Assistants', 190, '25-9045.00.032175', 1),
+       ('Occupation', '21-1093.00', 'Social Workers', 200, '21-1093.00.027030', 1),
+       ('Occupation', '999999', 'Unemployed', 210, '999999', 1),
+       ('Occupation', 'UNKNOWN', 'Unknown', 220, 'UNKNOWN', 1);
