@@ -758,18 +758,6 @@ ALTER TABLE form_history_sdoh
 -- Lists & Options (grouped; parent first, then options)
 -- =========================
 
-/* -------- SDOH Instruments -------- */
-#IfNotRow2D list_options list_id lists option_id sdoh_instruments
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists','sdoh_instruments','SDOH Instruments',0,0,0,'',1)
-ON DUPLICATE KEY UPDATE title=VALUES(title), notes=VALUES(notes);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('sdoh_instruments','ahc-hrsn','AHC-HRSN',10,'{"system":"LOINC","code":"96799-9","display":"AHC HRSN panel"}',1),
-       ('sdoh_instruments','prapare','PRAPARE',20,'{"system":"LOINC","code":"93025-5","display":"PRAPARE panel"}',1)
-ON DUPLICATE KEY UPDATE title=VALUES(title), codes=VALUES(codes), activity=VALUES(activity);
-#EndIf
-
 /* -------- Vital Signs Answers -------- */
 #IfNotRow2D list_options list_id lists option_id vital_signs_answers
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)

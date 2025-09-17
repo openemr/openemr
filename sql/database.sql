@@ -5295,18 +5295,47 @@ INSERT INTO list_options (list_id, option_id, codes,title, seq) VALUES ('physici
 
 -- Industry
 
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES('lists','Industry','Industry');
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Industry', 'law_firm', 'Law Firm', 10);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Industry', 'engineering_firm', 'Engineering Firm', 20);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Industry', 'construction_firm', 'Construction Firm', 30);
-
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('lists','Industry','ODH Industry',0,0,0,'','NAICS-based industry codes from ODH','',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','541110','Offices of Lawyers',10,0,0,'',NULL,'541110.008099',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','541330','Engineering Services',20,0,0,'',NULL,'541330.008117',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','236220','Commercial and Institutional Building Construction',30,0,0,'',NULL,'236220.004781',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','622110','General Medical and Surgical Hospitals',40,0,0,'',NULL,'622110.009243',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','611110','Elementary and Secondary Schools',50,0,0,'',NULL,'611110.008684',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','561720','Janitorial Services',60,0,0,'',NULL,'561720.002294',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','722511','Full-Service Restaurants',70,0,0,'',NULL,'722511.010339',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','445110','Supermarkets and Other Grocery Stores',80,0,0,'',NULL,'445110.006564',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','238210','Electrical Contractors',90,0,0,'',NULL,'238210.004871',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','621111','Offices of Physicians (except Mental Health)',100,0,0,'',NULL,'621111.009165',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','531110','Lessors of Residential Buildings',110,0,0,'',NULL,'531110.007615',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','484121','General Freight Trucking, Long-Distance',120,0,0,'',NULL,'484121.007193',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','812111','Barber Shops',130,0,0,'',NULL,'812111.011099',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','522110','Commercial Banking',140,0,0,'',NULL,'522110.007773',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','999999','Unemployed',150,0,0,'',NULL,'999999',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','UNKNOWN','Unknown',160,0,0,'',NULL,'UNKNOWN',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 -- Occupation
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES('lists','Occupation','Occupation');
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'lawyer', 'Lawyer', 10);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'engineer', 'Engineer', 20);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'site_worker', 'Site Worker', 30);
-
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('lists','Occupation','ODH Occupation',0,0,0,'','O*NET-SOC based occupation codes from ODH','',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','23-1011.00','Lawyers',10,0,0,'',NULL,'23-1011.00.031000',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','17-2051.00','Civil Engineers',20,0,0,'',NULL,'17-2051.00.019051',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','47-2061.00','Construction Laborers',30,0,0,'',NULL,'47-2061.00.051621',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','29-1141.00','Registered Nurses',40,0,0,'',NULL,'29-1141.00.038232',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','25-2021.00','Elementary School Teachers',50,0,0,'',NULL,'25-2021.00.032102',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','37-2011.00','Janitors and Cleaners',60,0,0,'',NULL,'37-2011.00.028742',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','35-3031.00','Waiters and Waitresses',70,0,0,'',NULL,'35-3031.00.045251',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','41-2011.00','Cashiers',80,0,0,'',NULL,'41-2011.00.047211',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','11-1021.00','General and Operations Managers',90,0,0,'',NULL,'11-1021.00.003891',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','43-9061.00','Office Clerks, General',100,0,0,'',NULL,'43-9061.00.049705',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','53-3032.00','Heavy and Tractor-Trailer Truck Drivers',110,0,0,'',NULL,'53-3032.00.057651',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','29-1211.00','Physician Assistants',120,0,0,'',NULL,'29-1211.00.038302',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','39-5012.00','Hairdressers, Hairstylists, and Cosmetologists',130,0,0,'',NULL,'39-5012.00.046262',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','13-2011.00','Accountants and Auditors',140,0,0,'',NULL,'13-2011.00.010350',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','15-1252.00','Software Developers',150,0,0,'',NULL,'15-1252.00.016221',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','33-9032.00','Security Guards',160,0,0,'',NULL,'33-9032.00.042562',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','49-9071.00','Maintenance and Repair Workers, General',170,0,0,'',NULL,'49-9071.00.053722',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','31-1120.00','Home Health Aides',180,0,0,'',NULL,'31-1120.00.039792',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','25-9045.00','Teaching Assistants',190,0,0,'',NULL,'25-9045.00.032175',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','21-1093.00','Social Workers',200,0,0,'',NULL,'21-1093.00.027030',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','999999','Unemployed',210,0,0,'',NULL,'999999',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','UNKNOWN','Unknown',220,0,0,'',NULL,'UNKNOWN',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 -- Reaction
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES('lists','reaction','Reaction');
@@ -14292,32 +14321,19 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
--- =========================
--- Lists & Options
--- =========================
--- Parents List (guarded)
-
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists', 'sdoh_problems', 'SDOH Problems/Health Concerns', 50, 0, 0, 'USCDI v3 SDOH - Gravity Project', 1),
-       ('lists', 'sdoh_interventions', 'SDOH Interventions', 60, 0, 0, 'USCDI v3 SDOH Interventions - Gravity Project', 1),
-       ('lists', 'tribal_affiliations', 'Tribal Affiliation', 10, 0, 0, 'USCDI v3 Required - HL7 TribalEntityUS', 1),
-       ('lists', 'disability_status', 'Disability Status', 0, 1, 0, '', 1),
-       ('lists', 'vital_signs_answers', 'Vital Signs Answers', 0, 0, 0, '', 1),
-       ('lists', 'Industry', 'ODH Industry (USCDI v3)', 0, 0, 0, 'NAICS-based industry codes from ODH', 1),
-       ('lists', 'Occupation', 'ODH Occupation (USCDI v3)', 0, 0, 0, 'O*NET-SOC based occupation codes from ODH', 1);
-
--- Instruments (JSON codes kept) new add to existing
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('sdoh_instruments', 'ahc-hrsn', 'AHC-HRSN', 10, '{"system":"LOINC","code":"96799-9","display":"AHC HRSN panel"}', 1),
-       ('sdoh_instruments', 'prapare', 'PRAPARE', 20, '{"system":"LOINC","code":"93025-5","display":"PRAPARE panel"}', 1);
-
 -- Vital Signs Answers (single set; no duplicate parent)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
+
 INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
 VALUES ('vital_signs_answers', 'LA28397-0', 'Often true', 10, 'LOINC:LA28397-0', 1),
        ('vital_signs_answers', 'LA28398-8', 'Sometimes true', 20, 'LOINC:LA28398-8', 1),
        ('vital_signs_answers', 'LA28399-6', 'Never true', 30, 'LOINC:LA28399-6', 1);
 
 -- Tribal Affiliations
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
+
 INSERT INTO list_options (list_id, option_id, title, seq, notes, activity)
 VALUES ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65', 1),
        ('tribal_affiliations', 'cherokee_nation', 'Cherokee Nation (OK)', 20, '40', 1),
@@ -14333,6 +14349,9 @@ VALUES ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65', 1)
        ('tribal_affiliations', 'other_specify', 'Other (specify)', 120, '000', 1);
 
 -- Disability Status parent exists above; now the answers
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','disability_status','Disability Status',0,1,0,'',1);
+
 INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
 VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7', 1),
        ('disability_status', 'im_vulnerable', 'I''m Vulnerable.', 20, 'LOINC:LA29243-5', 1),
@@ -14340,6 +14359,9 @@ VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7', 1),
        ('disability_status', 'im_in_crisis', 'I''m in crisis.', 40, 'LOINC:LA29245-0', 1);
 
 -- SDOH Problems (single set)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
+
 INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
 VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
        ('sdoh_problems', '224130005', 'Difficulty accessing healthcare', 20, 'SNOMED:224130005', 1),
@@ -14353,6 +14375,9 @@ VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
        ('sdoh_problems', '266944006', 'Lives in poverty', 100, 'SNOMED:266944006', 1);
 
 -- SDOH Interventions (fixed duplicate option_id for 467681000124101)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
+
 INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
 VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance program', 10, 'SNOMED:467681000124101', 1),
        ('sdoh_interventions', 'assist_food_program', 'Assistance with application for food program', 90, 'SNOMED:467681000124101', 1),
@@ -14365,46 +14390,3 @@ VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance pr
        ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1),
        ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 100, 'SNOMED:467701000124103', 1),
        ('sdoh_interventions', 'assist_transport', 'Assistance with transportation', 110, 'SNOMED:467721000124107', 1);
-
--- ODH Industry / Occupation (parents exist above)
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('Industry', '541110', 'Offices of Lawyers', 10, '541110.008099', 1),
-       ('Industry', '541330', 'Engineering Services', 20, '541330.008117', 1),
-       ('Industry', '236220', 'Commercial and Institutional Building Construction', 30, '236220.004781', 1),
-       ('Industry', '622110', 'General Medical and Surgical Hospitals', 40, '622110.009243', 1),
-       ('Industry', '611110', 'Elementary and Secondary Schools', 50, '611110.008684', 1),
-       ('Industry', '561720', 'Janitorial Services', 60, '561720.002294', 1),
-       ('Industry', '722511', 'Full-Service Restaurants', 70, '722511.010339', 1),
-       ('Industry', '445110', 'Supermarkets and Other Grocery Stores', 80, '445110.006564', 1),
-       ('Industry', '238210', 'Electrical Contractors', 90, '238210.004871', 1),
-       ('Industry', '621111', 'Offices of Physicians (except Mental Health)', 100, '621111.009165', 1),
-       ('Industry', '531110', 'Lessors of Residential Buildings', 110, '531110.007615', 1),
-       ('Industry', '484121', 'General Freight Trucking, Long-Distance', 120, '484121.007193', 1),
-       ('Industry', '812111', 'Barber Shops', 130, '812111.011099', 1),
-       ('Industry', '522110', 'Commercial Banking', 140, '522110.007773', 1),
-       ('Industry', '999999', 'Unemployed', 150, '999999', 1),
-       ('Industry', 'UNKNOWN', 'Unknown', 160, 'UNKNOWN', 1);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('Occupation', '23-1011.00', 'Lawyers', 10, '23-1011.00.031000', 1),
-       ('Occupation', '17-2051.00', 'Civil Engineers', 20, '17-2051.00.019051', 1),
-       ('Occupation', '47-2061.00', 'Construction Laborers', 30, '47-2061.00.051621', 1),
-       ('Occupation', '29-1141.00', 'Registered Nurses', 40, '29-1141.00.038232', 1),
-       ('Occupation', '25-2021.00', 'Elementary School Teachers', 50, '25-2021.00.032102', 1),
-       ('Occupation', '37-2011.00', 'Janitors and Cleaners', 60, '37-2011.00.028742', 1),
-       ('Occupation', '35-3031.00', 'Waiters and Waitresses', 70, '35-3031.00.045251', 1),
-       ('Occupation', '41-2011.00', 'Cashiers', 80, '41-2011.00.047211', 1),
-       ('Occupation', '11-1021.00', 'General and Operations Managers', 90, '11-1021.00.003891', 1),
-       ('Occupation', '43-9061.00', 'Office Clerks, General', 100, '43-9061.00.049705', 1),
-       ('Occupation', '53-3032.00', 'Heavy and Tractor-Trailer Truck Drivers', 110, '53-3032.00.057651', 1),
-       ('Occupation', '29-1211.00', 'Physician Assistants', 120, '29-1211.00.038302', 1),
-       ('Occupation', '39-5012.00', 'Hairdressers, Hairstylists, and Cosmetologists', 130, '39-5012.00.046262', 1),
-       ('Occupation', '13-2011.00', 'Accountants and Auditors', 140, '13-2011.00.010350', 1),
-       ('Occupation', '15-1252.00', 'Software Developers', 150, '15-1252.00.016221', 1),
-       ('Occupation', '33-9032.00', 'Security Guards', 160, '33-9032.00.042562', 1),
-       ('Occupation', '49-9071.00', 'Maintenance and Repair Workers, General', 170, '49-9071.00.053722', 1),
-       ('Occupation', '31-1120.00', 'Home Health Aides', 180, '31-1120.00.039792', 1),
-       ('Occupation', '25-9045.00', 'Teaching Assistants', 190, '25-9045.00.032175', 1),
-       ('Occupation', '21-1093.00', 'Social Workers', 200, '21-1093.00.027030', 1),
-       ('Occupation', '999999', 'Unemployed', 210, '999999', 1),
-       ('Occupation', 'UNKNOWN', 'Unknown', 220, 'UNKNOWN', 1);
