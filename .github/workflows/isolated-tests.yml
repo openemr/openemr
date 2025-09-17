@@ -63,6 +63,7 @@ jobs:
     - name: Run isolated tests with coverage
       run: |
         vendor/bin/phpunit -c phpunit-isolated.xml \
+                           --coverage-clover=clover.xml \
                            --coverage-filter=apis \
                            --coverage-filter=gacl \
                            --coverage-filter=interface \
@@ -73,9 +74,15 @@ jobs:
                            --coverage-filter=sites \
                            --coverage-filter=src \
                            --coverage-filter=tests \
-                           --coverage-clover=clover.xml \
                            --coverage-html=htmlcov \
+                           --log-junit=junit.xml \
                            --testdox
+
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Check if coverage files exist
       if: ${{ (success() || failure()) }}
@@ -83,6 +90,7 @@ jobs:
       run: |
         echo "clover_exists=$(test -f clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
         echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
     - name: Upload coverage reports
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && steps.check-files.outputs.html_exists == 'true' && (success() || failure()) }}
       uses: actions/upload-artifact@v4
@@ -91,6 +99,7 @@ jobs:
         path: |
           clover.xml
           htmlcov/
+
     - name: Upload coverage reports to Codecov
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
       uses: codecov/codecov-action@v5
