@@ -186,8 +186,8 @@ class CryptoGen implements CryptoInterface
             throw new CryptoGenException("OpenEMR Error: Random Bytes error - exiting");
         }
 
-        $processedValue = empty($sValue) ? '' : $this->openSSLEncrypt(
-            $sValue,
+        $processedValue = $this->openSSLEncrypt(
+            $sValue ?? '',
             'aes-256-cbc',
             $sSecretKey,
             $iv
