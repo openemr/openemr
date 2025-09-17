@@ -151,10 +151,17 @@ if (empty($collectthis)) {
     $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 }
 
-$group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled ) ? ' disabled=true; ' : '';
-if ($group_disabled) {
-    echo '<script>$(function () {$("input").prop("disabled", true);$("select").prop("disabled", true);}) </script>';
-}
+
+$group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled);
+?>
+<script type="text/javascript">
+    var phpData = {
+        groupDisabled: <?php echo $group_disabled ? 'true' : 'false'; ?>,
+        validationRules: <?php echo json_encode($collectthis); ?>
+    };
+</script>
+<?php
+
 
 function InsertEventFull()
 {
