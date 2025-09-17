@@ -650,6 +650,14 @@ ALTER TABLE `form_observation` ADD INDEX `idx_questionnaire_response` (`question
 ALTER TABLE `form_observation` ADD INDEX `idx_form_id` (`form_id`);
 #EndIf
 
+#IfNotIndex form_observation idx_pid_encounter
+ALTER TABLE `form_observation` ADD INDEX  `idx_pid_encounter` (`pid`, `encounter`);
+#EndIf
+
+#IfNotIndex form_observation idx_date
+ALTER TABLE `form_observation` ADD INDEX `idx_date` (`date`);
+#EndIf
+
 #IfNotRow2D list_options list_id Observation_Types option_id sdoh
 -- assessment, procedure_diagnostic, physical_exam_performed exist, so only adding missing ones
 -- procedure_diagnostic, physical_exam_performed exist but are deprecated

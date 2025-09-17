@@ -34,6 +34,7 @@ CREATE TABLE `form_observation` (
   `category` varchar(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)',
   `questionnaire_response_id` bigint(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table',
   PRIMARY KEY (`id`),
+  KEY `idx_form_id` (`form_id`),
   KEY `idx_parent_observation` (`parent_observation_id`),
   KEY `idx_category` (`category`),
   KEY `idx_questionnaire_response` (`questionnaire_response_id`),

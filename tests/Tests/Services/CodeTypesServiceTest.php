@@ -247,15 +247,6 @@ class CodeTypesServiceTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testCollectCodeTypesUnsupportedCategory(): void
-    {
-        $this->setupMockCodeTypes();
-
-        $result = $this->codeTypesService->collectCodeTypes('unsupported_category', 'array');
-
-        $this->assertEquals([], $result);
-    }
-
     public function testCollectCodeTypesExcludesInactiveCodeTypes(): void
     {
         $this->setupMockCodeTypes();
@@ -285,16 +276,6 @@ class CodeTypesServiceTest extends TestCase
         $result = $this->codeTypesService->collectCodeTypes('drug', 'csv');
 
         $expected = 'RXNORM';
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testCollectCodeTypesCsvFormatEmptyResult(): void
-    {
-        $this->setupMockCodeTypes();
-
-        $result = $this->codeTypesService->collectCodeTypes('unsupported_category', 'csv');
-
-        $expected = '';
         $this->assertEquals($expected, $result);
     }
 
@@ -385,8 +366,7 @@ class CodeTypesServiceTest extends TestCase
             'clinical_term' => ['SNOMED-CT', 'LOINC'],
             'active' => ['ICD10', 'CPT4', 'SNOMED-CT', 'RXNORM', 'LOINC'],
             'medical_problem' => ['ICD10', 'SNOMED-CT'],
-            'drug' => ['RXNORM'],
-            'invalid_category' => []
+            'drug' => ['RXNORM']
         ];
 
         foreach ($testCases as $category => $expected) {
@@ -401,5 +381,11 @@ class CodeTypesServiceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->codeTypesService->collectCodeTypes("diagnosis", "invalid_format");
+    }
+
+    public function testCollectCodeTypesInvalidCategoryThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->codeTypesService->collectCodeTypes("invalid_category");
     }
 }

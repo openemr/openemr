@@ -462,6 +462,9 @@ class CodeTypesService
             'procedure' => 'proc',
         ];
         $cat_code = $code_remap[$category] ?? null;
+        if ($cat_code === null) {
+            throw new InvalidArgumentException("Unsupported code category: $category");
+        }
 
         $return = array_keys(array_filter($code_types, function ($ct_arr) use ($cat_code) {
             return ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false);
