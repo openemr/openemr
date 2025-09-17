@@ -691,8 +691,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                             $eyeFormCategoryParent['rght'] + 5
                         ]
                     );
-                    // update root node
-                    sqlStatementNoLog("UPDATE `categories` SET `rght` = (SELECT MAX(`rght`) FROM `categories`) + 1 WHERE `id` = 1");
+                    // update categories_seq
+                    sqlStatementNoLog("UPDATE `categories_seq` SET `id` = (SELECT MAX(`id`) FROM `categories`)");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;
