@@ -616,7 +616,6 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
 #IfEyeFormLaserCategoriesNeeded
 #EndIf
 
--- ------------------------------------------------------------------ NEW SW Last---------------------------------------------------------------------------------------------------------
 -- =========================
 -- Patient Related Persons
 -- =========================
