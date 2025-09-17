@@ -23,9 +23,12 @@ require_once(dirname(__FILE__, 3) . "/globals.php");
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\Sdoh\HistorySdohService;
+
+$logger = new SystemLogger();
 
 /** Lookup a list option title by (list_id, option_id). */
 function hs_lo_title(string $listId, ?string $value): string
@@ -71,7 +74,11 @@ if ($authorized && !empty($pid)) {
     ) ?: [];
 }
 
-$goals_arr = json_decode($info['goals'] ?? '[]', true);
+$goals_arr = json_decode($info['goals'] ?? '', true) ?? [];
+if (!is_array($goals_arr)) {
+    $logger->warning("Dropping goals json because it is not an array.");
+    $goals_arr = [];
+}
 $goals_text = HistorySdohService::goalsToText($goals_arr, [
     'include_category' => true,
     'include_measure'  => true,
