@@ -1,0 +1,52 @@
+{
+    "name": "datatables.net-scroller-jqui",
+    "description": "Scroller for DataTables with styling for [jQueryUI](http://jqueryui.com/)",
+    "main": "js/scroller.jqueryui.js",
+    "module": "js/scroller.jqueryui.mjs",
+    "style": "css/scroller.jqueryui.css",
+    "types": "./types/scroller.jqueryui.d.ts",
+    "version": "2.4.3",
+    "files": [
+        "css/**/*.css",
+        "js/**/*.js",
+        "js/**/*.mjs",
+        "types/**/*.d.ts"
+    ],
+    "keywords": [
+        "Scroller",
+        "Virtual Scrolling",
+        "jQuery UI",
+        "jQueryUI",
+        "Datatables",
+        "jQuery",
+        "table",
+        "filter",
+        "sort"
+    ],
+    "dependencies": {
+        "datatables.net-scroller": "2.4.3",
+        "datatables.net-jqui": "1.11 - 2",
+        "jquery": ">=1.7"
+    },
+    "moduleType": [
+        "globals",
+        "amd",
+        "node"
+    ],
+    "ignore": [
+        "composer.json",
+        "datatables.json",
+        "package.json"
+    ],
+    "author": {
+        "name": "SpryMedia Ltd",
+        "url": "http://datatables.net"
+    },
+    "homepage": "https://datatables.net",
+    "bugs": "https://datatables.net/forums",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DataTables/Dist-DataTables-Scroller-jQueryUI.git"
+    }
+}

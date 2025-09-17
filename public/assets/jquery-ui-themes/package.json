@@ -1,0 +1,11 @@
+{
+  "name": "jquery-ui-themes",
+  "version": "0.0.0",
+  "description": "-",
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "readme": "-",
+  "_napaResolved": "https://jqueryui.com/resources/download/jquery-ui-themes-1.12.1.zip"
+}

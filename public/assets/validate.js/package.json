@@ -1,0 +1,44 @@
+{
+  "name": "validate.js",
+  "version": "0.13.1",
+  "author": "Nicklas Ansman <nicklas@ansman.se>",
+  "description": "Declarative validations for JavaScript",
+  "main": "validate.js",
+  "typings": "validate.d.ts",
+  "homepage": "http://validatejs.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ansman/validate.js.git"
+  },
+  "files": [
+    "typings.json",
+    "validate.d.ts",
+    "validate.js",
+    "validate.min.js",
+    "validate.min.map"
+  ],
+  "scripts": {
+    "test": "grunt test",
+    "build": "grunt build",
+    "watch": "grunt watch",
+    "docs": "grunt docco"
+  },
+  "keywords": [
+    "validation",
+    "validate",
+    "server",
+    "client"
+  ],
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-notify": "0.4.5",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-uglify": "1.0.1",
+    "grunt-contrib-jasmine": "1.0.3",
+    "grunt-docco": "0.4.0",
+    "grunt-template-jasmine-istanbul": "0.4.0",
+    "coveralls": "2.11.9"
+  },
+  "license": "MIT"
+}

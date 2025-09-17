@@ -1,0 +1,49 @@
+{
+  "name": "checklist-model",
+  "description": "AngularJS directive for list of checkboxes",
+  "license": "MIT",
+  "version": "1.0.0",
+  "homepage": "http://vitalets.github.io/checklist-model",
+  "author": {
+    "name": "Vitaliy Potapov",
+    "email": "noginsk@rambler.ru"
+  },
+  "contributors": [
+    {
+      "name": "Adrian Ber",
+      "email": "beradrian@yahoo.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vitalets/checklist-model.git"
+  },
+  "main": "checklist-model.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "peerDependencies": {
+    "angular": ">=1.0.8"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.2",
+    "grunt-bump": "^0.8.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-compress": "^1.4.3",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^2.2.1",
+    "grunt-contrib-jade": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^3.3.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-jsdoc": "^2.2.1",
+    "grunt-replace": "^1.0.1",
+    "grunt-shell": "^2.1.0",
+    "jstransformer-markdown": "^1.2.1",
+    "marked": "^0.3.19"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,51 @@
+{
+  "name": "jquery-datetimepicker",
+  "version": "2.5.21",
+  "description": "jQuery Plugin DateTimePicker it is DatePicker and TimePicker in one",
+  "main": "build/jquery.datetimepicker.full.min.js",
+  "scripts": {
+    "test": "karma start --browsers Firefox karma.conf.js --single-run",
+    "concat": "concat-cli -f node_modules/php-date-formatter/js/php-date-formatter.min.js jquery.datetimepicker.js node_modules/jquery-mousewheel/jquery.mousewheel.js -o build/jquery.datetimepicker.full.js",
+    "minify": "uglifyjs jquery.datetimepicker.js -c -m -o build/jquery.datetimepicker.min.js && uglifycss jquery.datetimepicker.css > build/jquery.datetimepicker.min.css",
+    "minifyconcat": "uglifyjs build/jquery.datetimepicker.full.js -c -m -o build/jquery.datetimepicker.full.min.js",
+    "github": "git add --all  && git commit -m \"New version %npm_package_version% \" && git tag %npm_package_version% && git push --tags origin HEAD:master && npm publish",
+    "build": "npm run minify && npm run concat && npm run minifyconcat",
+    "public": "npm run test && npm version patch --no-git-tag-version && npm run build && npm run github"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xdan/datetimepicker.git"
+  },
+  "keywords": [
+    "jquery-plugin",
+    "calendar",
+    "date",
+    "time",
+    "datetime",
+    "datepicker",
+    "timepicker"
+  ],
+  "author": "Chupurnov <chupurnov@gmail.com> (https://xdsoft.net/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xdan/datetimepicker/issues"
+  },
+  "homepage": "https://github.com/xdan/datetimepicker",
+  "dependencies": {
+    "jquery": ">= 1.7.2",
+    "jquery-mousewheel": ">= 3.1.13",
+    "php-date-formatter": "^1.3.4"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "concat": "azer/concat",
+    "concat-cli": "^4.0.0",
+    "karma": "^2.0.0",
+    "karma-chai": "^0.1.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-mocha": "^1.3.0",
+    "mocha": "^5.0.4",
+    "uglify-js": "^3.4.9",
+    "uglifycss": "^0.0.27"
+  }
+}

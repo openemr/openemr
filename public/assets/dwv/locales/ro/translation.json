@@ -1,0 +1,236 @@
+{
+    "basics": {
+        "open": "Deschide",
+        "close": "Închide",
+        "help": "Ajutor",
+        "back": "Înapoi",
+        "reset": "Resetare",
+        "apply": "Aplicare",
+        "name": "Nume",
+        "value": "Valoare",
+        "dicomTags": "Etichete",
+        "columns": "Coloane",
+        "group": "Grupă",
+        "element": "Element",
+        "vr": "VR",
+        "vl": "VL",
+        "presets": "Presetări",
+        "toolbox": "Trusă de scule",
+        "history": "Istorie",
+        "image": "Imagine",
+        "info": "Info",
+        "downloadState": "Statut descărcare",
+        "drawList": "Adnotări",
+        "search": "Căutare",
+        "id": "ID",
+        "slice": "Secțiune",
+        "frame": "Cadru",
+        "type": "Tip",
+        "color": "Culoare",
+        "label": "Marcaj",
+        "description": "Descriere",
+        "editMode": "Mod Editare",
+        "deleteDraws": "Șterge Tot",
+        "visible": "Vizibil"
+    },
+    "colour": {
+        "Yellow": {
+            "name": "Galben"
+        },
+        "Red": {
+            "name": "Roșu"
+        },
+        "White": {
+            "name": "Alb"
+        },
+        "Green": {
+            "name": "Verde"
+        },
+        "Blue": {
+            "name": "Albastru"
+        },
+        "Lime": {
+            "name": "Lămâie Verde"
+        },
+        "Fuchsia": {
+            "name": "Fucsie"
+        },
+        "Black": {
+            "name": "Negru"
+        }
+    },
+    "unit": {
+        "mm": "mm",
+        "cm2": "cm²",
+        "degree": "°"
+    },
+    "help": {
+        "intro": {
+            "p0": "DWV (DICOM Web Viewer) este un vizualizator medical cu amprentă zero și sursă deschisă. Utilizează doar tehnologii javascript și HTML5, ceea ce înseamnă că poate fi rulat pe orice platformă care oferă un browser modern (laptop, tabletă, telefon și chiar televizoare moderne). Poate încărca date locale sau la distanță în format DICOM (standard pentru datele medicale imagistice, cum ar fi MR, CT, Echo, Mammo, NM ...) și oferă instrumente standard pentru manipularea lor, cum ar fi contrastul, zoom, tragerea, regiuni deasupra imaginilor și filtrelor de imagine, cum ar fi pragul și ascuțirea.",
+            "p1": "Toate etichetele DICOM sunt disponibile într-un tabel unde pot fi căutate, apăsați butoanele \"etichetă\" sau grilă. Puteți alege să afișați suprapunerea informațiilor de imagine apăsând butonul \"info\" sau \"i\"."
+        },
+        "tool_intro": "Fiecare instrument definește posibilele interacțiuni ale utilizatorilor. Iată instrumentele disponibile:"
+    },
+    "tool": {
+        "WindowLevel": {
+            "name": "Contrast/Luminozitate",
+            "brief": "Modifică Contrastul și Luminozitatea imaginii.",
+            "mouse_drag": "O tragere simplă a mouse-ului modifică contrastul în direcția orizontală, iar luminozitatea vertical.",
+            "double_click": "Un dublu clic va centra contrastul și luminozitatea la intensitatea pe care ați dat clic.",
+            "touch_drag": "O tragere cu o singură atingere modifică contrastul în direcția orizontală, iar luminozitatea vertical."
+        },
+        "ZoomAndPan": {
+            "name": "Mărire/Deplasare",
+            "brief": "Instrumentul Mărire/Deplasare permite mărirea și mișcarea imaginii.",
+            "mouse_wheel": "Rotița mouse-ului este utilizată pentru a mări imaginea.",
+            "mouse_drag": "O singură apăsare și trageți imaginea în direcția dorită.",
+            "twotouch_pinch": "O apăsare în sau în afara permite să măriți imaginea.",
+            "touch_drag": "O atingere și tragere simplă trage imaginea în direcția dorită."
+        },
+        "Scroll": {
+            "name": "Derulare",
+            "brief": "Instrumentul de derulare permite derularea prin secțiuni/cadre.",
+            "double_click": "Un dublu clic lansează o secținue sau un cadru. Un singur clic îl oprește.",
+            "tap_and_hold": "O apăsare și o menținere lansează o redare a secțiunii sau a cadrului. O singură apăsare o oprește.",
+            "mouse_drag": "Trageți mouse-ul pe verticală pentru a schimba secțiunea, orizontal pentru a schimba cadrul. Comenzi rapide de la tastatură: CTRL + săgeată în sus sau în jos pentru a modifica secțiuni, CTRL + săgeată stânga sau dreapta pentru a schimba cadrele.",
+            "touch_drag": "Glisați degetul vertical pentru a schimba secținunea, orizontal pentru a schimba cadrul."
+        },
+        "Draw": {
+            "name": "Desenare",
+            "brief": "Permite să desenați forme pe imagine. Alegeți forma și culoarea din meniurile derulante. Odată creat, formele pot fi editate selectându-le. Ancorele vor apărea și vor permite editarea specifică a formei. Trageți forma pe crucea roșie de sus pentru a o șterge. Toate acțiunile sunt reversibile.",
+            "mouse_drag": "O tragere simplă a mouse-ului desenează forma dorită. Pentru protractor, faceți clic pentru a începe, trageți prima rază la vârf, așteptați o jumătate de secundă și trageți a doua rază.",
+            "touch_drag": "O tragere cu o singură atingere desenează forma dorită. Pentru protractor, atingeți pentru a începe, trageți prima rază la vârf, așteptați o jumătate de secundă și trageți a doua rază."
+        },
+        "Filter": {
+            "name": "Filtru",
+            "brief": "Sunt disponibile câteva filtre de imagine simple: un filtru Ștergere artefacte pentru a limita intensitățile imaginii între un minim și cel maxim ales, un filtru pentru Ascuțire a imaginii cu o matriță de ascuțire, un Filtru Sobel pentru a obține gradientul imaginii în ambele direcții."
+        },
+        "Livewire": {
+            "name": "Construcție contur",
+            "brief": "Instrumentul Construcție contur este un instrument de segmentare semi-automat care propune utilizatorului căi care urmează marginile intensității. Faceți clic o dată pentru a inițializa și apoi deplasați mouse-ul pentru a vedea căile propuse. Dați din nou clic pentru a crea conturul. Procesul se oprește când faceți clic pe primul punct rădăcină. ATENȚIE: procesul poate dura ceva timp!"
+        },
+        "Floodfill": {
+            "name": "Umplere",
+            "brief": "Instrumentul Umplere este un instrument de segmentare semi-automat care conturează pixelii cu valori similare.",
+            "click": "Faceți clic pe pixel pentru a crea un contur în funcție de intensitatea acestuia.",
+            "tap": "Atingeți un pixel pentru a crea un contur în funcție de intensitatea acestuia."
+        },
+        "info": {
+            "position": "Poz = {{value}}",
+            "value": "Valoare = {{value}}",
+            "frame": "Cadru = {{value}}",
+            "window_center": "ContrastCentru = {{value}}",
+            "window_width": "ContrastÎntindere = {{value}}"
+        }
+    },
+    "shape": {
+        "Line": {
+            "name": "Linie"
+        },
+        "Ruler": {
+            "name": "Riglă"
+        },
+        "Protractor": {
+            "name": "Protractor"
+        },
+        "Rectangle": {
+            "name": "Dreptunghi"
+        },
+        "Roi": {
+            "name": "Roi"
+        },
+        "Ellipse": {
+            "name": "Elipsă"
+        },
+        "Arrow": {
+            "name": "Săgeată"
+        },
+        "FreeHand": {
+            "name": "Mâini libere"
+        }
+    },
+    "io": {
+        "File": {
+            "name": "Fișier"
+        },
+        "Folder": {
+            "name": "Mapă"
+        },
+        "Url": {
+            "name": "Url"
+        },
+        "GoogleDrive": {
+            "name": "GoogleDrive",
+            "auth": {
+                "title": "Google Drive Autorizare",
+                "body": "Autorizați DWV să acceseze Discul Google. \nAcest lucru este necesar numai la prima conectare.",
+                "button": "Autorizare"
+            }
+        },
+        "Dropbox": {
+            "name": "Dropbox"
+        }
+    },
+    "filter": {
+        "Threshold": {
+            "name": "Ștergere artefacte"
+        },
+        "Sharpen": {
+            "name": "Ascuțire"
+        },
+        "Sobel": {
+            "name": "Sobel"
+        }
+    },
+    "colourmap": {
+        "plain": {
+            "name": "Implicit"
+        },
+        "invplain": {
+            "name": "Negativ"
+        },
+        "rainbow": {
+            "name": "Curcubeu"
+        },
+        "hot": {
+            "name": "Fierbinte"
+        },
+        "hotiron": {
+            "name": "Fier fierbinte"
+        },
+        "pet": {
+            "name": "PET"
+        },
+        "hotmetalblue": {
+            "name": "Metal Albastru Fierbinte"
+        },
+        "pet20step": {
+            "name": "PET 20 pași"
+        }
+    },
+    "wl": {
+        "presets": {
+            "mediastinum": {
+                "name": "Mediastin"
+            },
+            "lung": {
+                "name": "Pulmoni"
+            },
+            "bone": {
+                "name": "Oase"
+            },
+            "brain": {
+                "name": "Creier"
+            },
+            "head": {
+                "name": "Cap"
+            },
+            "manual": {
+                "name": "Manual"
+            },
+            "minmax": {
+                "name": "Min/Max"
+            }
+        }
+    }
+}

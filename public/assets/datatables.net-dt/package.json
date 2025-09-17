@@ -1,0 +1,48 @@
+{
+    "name": "datatables.net-dt",
+    "description": "DataTables for jQuery with styling for [DataTables](https://datatables.net/)",
+    "main": "js/dataTables.dataTables.js",
+    "module": "js/dataTables.dataTables.mjs",
+    "style": "css/jquery.dataTables.css",
+    "types": "./types/dataTables.dataTables.d.ts",
+    "version": "1.13.11",
+    "files": [
+        "css/**/*.css",
+        "js/**/*.js",
+        "js/**/*.mjs",
+        "types/**/*.d.ts",
+        "images/*"
+    ],
+    "keywords": [
+        "Datatables",
+        "jQuery",
+        "table",
+        "filter",
+        "sort"
+    ],
+    "dependencies": {
+        "datatables.net": "1.13.11",
+        "jquery": "1.8 - 4"
+    },
+    "moduleType": [
+        "globals",
+        "amd",
+        "node"
+    ],
+    "ignore": [
+        "composer.json",
+        "datatables.json",
+        "package.json"
+    ],
+    "author": {
+        "name": "SpryMedia Ltd",
+        "url": "http://datatables.net"
+    },
+    "homepage": "https://datatables.net",
+    "bugs": "https://datatables.net/forums",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DataTables/Dist-DataTables-DataTables.git"
+    }
+}

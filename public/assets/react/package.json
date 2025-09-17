@@ -1,0 +1,11 @@
+{
+  "name": "react",
+  "version": "0.0.0",
+  "description": "-",
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "readme": "-",
+  "_napaResolved": "https://github.com/facebook/react/releases/download/v15.1.0/react-15.1.0.zip"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "lforms",
+  "version": "0.0.0",
+  "description": "-",
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "readme": "-",
+  "_napaResolved": "https://clinicaltables.nlm.nih.gov/lforms-versions/lforms-33.0.0.zip"
+}

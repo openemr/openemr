@@ -1,0 +1,6 @@
+<div ng-repeat="role in roles">
+  <label style="display:inline-block;">
+    <input type="checkbox" checklist-model="user.roles" checklist-value="role.text">
+  </label>
+  <input type="text" ng-model="role.text" style="display:inline-block;">
+</div>

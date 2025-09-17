@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>checklist-model</id>
+    <version>0.11.0</version>
+    <title>AngularJS directive for list of checkboxes</title>
+    <authors>https://github.com/vitalets</authors>
+    <owners>Vitaliy Potapov (noginsk@rambler.ru)</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+        In Angular one checkbox is linked with one model. But in practice
+        we usually want one model to store array of checked values from
+        several checkboxes. Checklist-model solves that task without
+        additional code in controller.
+    </description>
+    <licenseUrl>https://raw.githubusercontent.com/vitalets/checklist-model/master/LICENSE.txt</licenseUrl>
+    <tags>angularjs checklist model angular-checklist-model checklist-model checklistmodel</tags>
+    <dependencies>
+      <dependency id="AngularJS.Core" version="1.0.8" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="checklist-model.js" target="content\Scripts\checklist-model.js" />
+  </files>
+</package>

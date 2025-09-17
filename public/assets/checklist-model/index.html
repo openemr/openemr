@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist-model - AngularJS directive for list of checkboxes</title>
+    <!-- Bootstrap 3-->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
+    <!--docs css-->
+    <link href="docs/main.css" rel="stylesheet" media="screen">
+    <!--angular-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular.js"></script>
+    <!--google-code-prettify-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <!--app-->
+    <script src="docs/app.js"></script>
+    <!--checklist-model-->
+    <script src="checklist-model.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-8">
+          <h1 class="title">Checklist-model</h1>
+          <h1 style="margin-top: 0"><small><a href="http://angularjs.org/">AngularJS</a> directive for list of checkboxes</small></h1>
+        </div>
+        <div style="padding-top: 20px; text-align: right" class="col-xs-12 col-sm-4"><a href="checklist-model.js" class="btn btn-primary topbtn"><span style="margin-right:10px" class="glyphicon glyphicon-save"></span><strong>Download</strong></a><a href="https://github.com/vitalets/checklist-model" style="margin-left: 15px;" class="btn btn-default topbtn"><strong>View on GitHub</strong></a></div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12"><h3>Why this is needed?</h3>
+
+<p>In Angular one checkbox <code>&lt;input type=&quot;checkbox&quot; ng-model=&quot;...&quot;&gt;</code> is linked
+with one model.
+But in practice we usually want one model to store array of checked values
+from several checkboxes.
+<strong>Checklist-model</strong> solves that task without additional code in controller.
+You should play with attributes of <code>&lt;input type=&quot;checkbox&quot;&gt;</code> tag:</p>
+
+<ol><li>set <code>checklist-model</code> instead of <code>ng-model</code></li><li>set <code>checklist-value</code> - what should be picked as array item</li></ol>
+
+<p>Please, try out demos below:</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of numbers</h2>
+        </div>
+      </div>
+      <div ng-controller="NumbersCtrl" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label class="checkbox-inline"><input type="checkbox" checklist-model="user.numbers" value="1"> 1</label>
+<label class="checkbox-inline"><input type="checkbox" checklist-model="user.numbers" value="2"> 2</label>
+<label class="checkbox-inline"><input type="checkbox" checklist-model="user.numbers" value="3"> 3</label>
+<label class="checkbox-inline"><input type="checkbox" checklist-model="user.numbers" value="4"> 4</label></div>
+          <script>app.controller('NumbersCtrl', function($scope) {
+  $scope.numbers = [
+    1,
+    2,
+    3,
+    4
+  ];
+  $scope.user = {
+    numbers: [2]
+  };
+
+  $scope.checkAll = function() {
+    $scope.user.numbers = angular.copy($scope.numbers);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.numbers = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.numbers.splice(0, $scope.user.numbers.length);
+    $scope.user.numbers.push(1);
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.numbers</h3>
+          <pre>{{user.numbers|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label class=&quot;checkbox-inline&quot;&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.numbers&quot; value=&quot;1&quot;&gt; 1&lt;/label&gt;
+&lt;label class=&quot;checkbox-inline&quot;&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.numbers&quot; value=&quot;2&quot;&gt; 2&lt;/label&gt;
+&lt;label class=&quot;checkbox-inline&quot;&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.numbers&quot; value=&quot;3&quot;&gt; 3&lt;/label&gt;
+&lt;label class=&quot;checkbox-inline&quot;&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.numbers&quot; value=&quot;4&quot;&gt; 4&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('NumbersCtrl', function($scope) {
+  $scope.numbers = [
+    1,
+    2,
+    3,
+    4
+  ];
+  $scope.user = {
+    numbers: [2]
+  };
+
+  $scope.checkAll = function() {
+    $scope.user.numbers = angular.copy($scope.numbers);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.numbers = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.numbers.splice(0, $scope.user.numbers.length);
+    $scope.user.numbers.push(1);
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of primitives</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl1" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="role in roles">
+  <input type="checkbox" checklist-model="user.roles" checklist-value="role"> {{role}}
+</label></div>
+          <script>app.controller('Ctrl1', function($scope) {
+  $scope.roles = [
+    'guest', 
+    'user', 
+    'customer', 
+    'admin'
+  ];
+  $scope.user = {
+    roles: ['user']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('guest');
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; checklist-value=&quot;role&quot;&gt; {{role}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl1', function($scope) {
+  $scope.roles = [
+    'guest', 
+    'user', 
+    'customer', 
+    'admin'
+  ];
+  $scope.user = {
+    roles: ['user']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('guest');
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of objects (pick id)</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl2" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="role in roles">
+  <input type="checkbox" checklist-model="user.roles" checklist-value="role.id"> {{role.text}}
+</label></div>
+          <script>app.controller('Ctrl2', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'}
+  ];
+  $scope.user = {
+    roles: [2, 4]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = $scope.roles.map(function(item) { return item.id; });
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push(1);
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; checklist-value=&quot;role.id&quot;&gt; {{role.text}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl2', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'}
+  ];
+  $scope.user = {
+    roles: [2, 4]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = $scope.roles.map(function(item) { return item.id; });
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push(1);
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of objects (pick object)</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl3" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="role in roles">
+  <input type="checkbox" data-checklist-model="user.roles" data-checklist-value="role"> {{role.text}}
+</label></div>
+          <script>app.controller('Ctrl3', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'}
+  ];
+  $scope.user = {
+    roles: [$scope.roles[1]]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles = [];
+    $scope.user.roles.push($scope.roles[0]);
+  };
+  $scope.setToNull = function() {
+    $scope.user.roles = null;
+  };
+
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; data-checklist-model=&quot;user.roles&quot; data-checklist-value=&quot;role&quot;&gt; {{role.text}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl3', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'}
+  ];
+  $scope.user = {
+    roles: [$scope.roles[1]]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles = [];
+    $scope.user.roles.push($scope.roles[0]);
+  };
+  $scope.setToNull = function() {
+    $scope.user.roles = null;
+  };
+
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of objects (dynamic values)</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl9" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><div ng-repeat="role in roles">
+  <label style="display:inline-block;">
+    <input type="checkbox" checklist-model="user.roles" checklist-value="role.text">
+  </label>
+  <input type="text" ng-model="role.text" style="display:inline-block;">
+</div></div>
+          <script>app.controller('Ctrl9', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'},
+  ];
+  $scope.user = {
+    roles: ['user']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = $scope.roles.map(function(item) { return item.text; });
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push($scope.roles[0].text);
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;div ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;label style=&quot;display:inline-block;&quot;&gt;
+    &lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; checklist-value=&quot;role.text&quot;&gt;
+  &lt;/label&gt;
+  &lt;input type=&quot;text&quot; ng-model=&quot;role.text&quot; style=&quot;display:inline-block;&quot;&gt;
+&lt;/div&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl9', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'},
+  ];
+  $scope.user = {
+    roles: ['user']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = $scope.roles.map(function(item) { return item.text; });
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push($scope.roles[0].text);
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of only one object</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl7" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="role in roles">
+  <input type="checkbox" data-checklist-model="user.roles" data-checklist-value="role"> {{role.text}}
+</label></div>
+          <script>app.controller('Ctrl7', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'}
+  ];
+  $scope.user = {
+    roles: [$scope.roles[0]]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push($scope.roles[0]);
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; data-checklist-model=&quot;user.roles&quot; data-checklist-value=&quot;role&quot;&gt; {{role.text}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl7', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'}
+  ];
+  $scope.user = {
+    roles: [$scope.roles[0]]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push($scope.roles[0]);
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Object properties</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl4" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="(key, text) in roles">
+  <input type="checkbox" checklist-model="user.roles" checklist-value="key"> {{text}}
+</label></div>
+          <script>app.controller('Ctrl4', function($scope) {
+  $scope.roles = {
+    a: 'Administrator',
+    c: 'Customer',
+    g: 'Guest',
+    u: 'User'
+  };
+  $scope.user = {
+    roles: ['c']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = Object.keys($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('a');
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;(key, text) in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; checklist-value=&quot;key&quot;&gt; {{text}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl4', function($scope) {
+  $scope.roles = {
+    a: 'Administrator',
+    c: 'Customer',
+    g: 'Guest',
+    u: 'User'
+  };
+  $scope.user = {
+    roles: ['c']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = Object.keys($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('a');
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Static list of objects (without ng-repeat)</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl4a" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label><input type="checkbox" checklist-model="user.roles" value="a"> Administrator</label>
+<label><input type="checkbox" checklist-model="user.roles" value="c"> Customer</label>
+<label><input type="checkbox" checklist-model="user.roles" value="g"> Guest</label>
+<label><input type="checkbox" checklist-model="user.roles" value="u"> User</label></div>
+          <script>app.controller('Ctrl4a', function($scope) {
+  $scope.roles = {
+    a: 'Administrator',
+    c: 'Customer',
+    g: 'Guest',
+    u: 'User'
+  };
+  $scope.user = {
+    roles: ['c']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = Object.keys($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('a');
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; value=&quot;a&quot;&gt; Administrator&lt;/label&gt;
+&lt;label&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; value=&quot;c&quot;&gt; Customer&lt;/label&gt;
+&lt;label&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; value=&quot;g&quot;&gt; Guest&lt;/label&gt;
+&lt;label&gt;&lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; value=&quot;u&quot;&gt; User&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl4a', function($scope) {
+  $scope.roles = {
+    a: 'Administrator',
+    c: 'Customer',
+    g: 'Guest',
+    u: 'User'
+  };
+  $scope.user = {
+    roles: ['c']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = Object.keys($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('a');
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Use a function as checklist-model</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl8" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="role in roles">
+  <input type="checkbox" checklist-model="getRoles()" checklist-value="role" ng-change="check(role, checked)"> {{role}}
+</label></div>
+          <script>app.controller('Ctrl8', function($scope) {
+  $scope.roles = [
+    'guest', 
+    'user', 
+    'customer', 
+    'admin'
+  ];
+  $scope.user = {
+    roles: ['user']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('guest');
+  };
+  $scope.getRoles = function() {
+    return $scope.user.roles;
+  };
+  $scope.check = function(value, checked) {
+    var idx = $scope.user.roles.indexOf(value);
+    if (idx >= 0 && !checked) {
+      $scope.user.roles.splice(idx, 1);
+    }
+    if (idx < 0 && checked) {
+      $scope.user.roles.push(value);
+    }
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>getRoles()</h3>
+          <pre>{{getRoles()|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;getRoles()&quot; checklist-value=&quot;role&quot; ng-change=&quot;check(role, checked)&quot;&gt; {{role}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl8', function($scope) {
+  $scope.roles = [
+    'guest', 
+    'user', 
+    'customer', 
+    'admin'
+  ];
+  $scope.user = {
+    roles: ['user']
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push('guest');
+  };
+  $scope.getRoles = function() {
+    return $scope.user.roles;
+  };
+  $scope.check = function(value, checked) {
+    var idx = $scope.user.roles.indexOf(value);
+    if (idx &gt;= 0 &amp;&amp; !checked) {
+      $scope.user.roles.splice(idx, 1);
+    }
+    if (idx &lt; 0 &amp;&amp; checked) {
+      $scope.user.roles.push(value);
+    }
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Array of object, specifying also the ngModel attribute</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl3a" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="role in roles">
+  <input type="checkbox" checklist-model="user.roles" checklist-value="role" ng-model="justAnotherCheckedVar"> {{role.text}}
+</label></div>
+          <script>app.controller('Ctrl3a', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'}
+  ];
+  $scope.user = {
+    roles: [$scope.roles[1]]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push($scope.roles[0]);
+  };
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>user.roles</h3>
+          <pre>{{user.roles|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;role in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;user.roles&quot; checklist-value=&quot;role&quot; ng-model=&quot;justAnotherCheckedVar&quot;&gt; {{role.text}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl3a', function($scope) {
+  $scope.roles = [
+    {id: 1, text: 'guest'},
+    {id: 2, text: 'user'},
+    {id: 3, text: 'customer'},
+    {id: 4, text: 'admin'}
+  ];
+  $scope.user = {
+    roles: [$scope.roles[1]]
+  };
+  $scope.checkAll = function() {
+    $scope.user.roles = angular.copy($scope.roles);
+  };
+  $scope.uncheckAll = function() {
+    $scope.user.roles = [];
+  };
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length); 
+    $scope.user.roles.push($scope.roles[0]);
+  };
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Comparator</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl6" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="user in users">
+  <input type="checkbox" checklist-model="selectedUsers" checklist-value="user" checklist-comparator="compareFn"> {{user.name}}
+</label></div>
+          <script>app.controller('Ctrl6', function($scope) {
+    $scope.users = [
+        {id: 1, name: 'Aaron'},
+        {id: 2, name: 'David'},
+        {id: 3, name: 'Moses'}
+    ];
+
+    $scope.selectedUsers = [];
+
+    $scope.compareFn = function(obj1, obj2){
+        return obj1.id === obj2.id;
+    };
+
+    $scope.checkFirst = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length, $scope.users[0]);
+    };
+
+    $scope.checkAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+        for (var i in $scope.users) {
+             $scope.selectedUsers.push($scope.users[i]);
+        }
+    };
+
+    $scope.uncheckAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+    }
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>selectedUsers</h3>
+          <pre>{{selectedUsers|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;user in users&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;selectedUsers&quot; checklist-value=&quot;user&quot; checklist-comparator=&quot;compareFn&quot;&gt; {{user.name}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl6', function($scope) {
+    $scope.users = [
+        {id: 1, name: 'Aaron'},
+        {id: 2, name: 'David'},
+        {id: 3, name: 'Moses'}
+    ];
+
+    $scope.selectedUsers = [];
+
+    $scope.compareFn = function(obj1, obj2){
+        return obj1.id === obj2.id;
+    };
+
+    $scope.checkFirst = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length, $scope.users[0]);
+    };
+
+    $scope.checkAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+        for (var i in $scope.users) {
+             $scope.selectedUsers.push($scope.users[i]);
+        }
+    };
+
+    $scope.uncheckAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+    }
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Comparator expression</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl6a" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="user in users">
+  <input type="checkbox" checklist-model="selectedUsers" checklist-value="user" checklist-comparator=".id"> {{user.name}}
+</label></div>
+          <script>app.controller('Ctrl6a', function($scope) {
+    $scope.users = [
+        {id: 1, name: 'Aaron'},
+        {id: 2, name: 'David'},
+        {id: 2, name: 'Moses'}
+    ];
+
+    $scope.selectedUsers = [];
+
+    $scope.checkFirst = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length, $scope.users[0]);
+    };
+
+    $scope.checkAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+        for (var i in $scope.users) {
+             $scope.selectedUsers.push($scope.users[i]);
+        }
+    };
+
+    $scope.uncheckAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+    }
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>selectedUsers</h3>
+          <pre>{{selectedUsers|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;user in users&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-model=&quot;selectedUsers&quot; checklist-value=&quot;user&quot; checklist-comparator=&quot;.id&quot;&gt; {{user.name}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl6a', function($scope) {
+    $scope.users = [
+        {id: 1, name: 'Aaron'},
+        {id: 2, name: 'David'},
+        {id: 2, name: 'Moses'}
+    ];
+
+    $scope.selectedUsers = [];
+
+    $scope.checkFirst = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length, $scope.users[0]);
+    };
+
+    $scope.checkAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+        for (var i in $scope.users) {
+             $scope.selectedUsers.push($scope.users[i]);
+        }
+    };
+
+    $scope.uncheckAll = function() {
+        $scope.selectedUsers.splice(0, $scope.selectedUsers.length);
+    }
+});</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 style="margin-bottom: 0">Event</h2>
+        </div>
+      </div>
+      <div ng-controller="Ctrl5" class="row">
+        <div class="col-xs-12 col-sm-6">
+          <h3>demo</h3>
+          <div class="well"><label ng-repeat="(key, text) in roles">
+  <input type="checkbox" checklist-before-change="shouldChange(key)" checklist-change="imChanged()" checklist-model="user.roles" checklist-value="key"> {{text}}
+</label></div>
+          <script>app.controller('Ctrl5', function($scope) {
+  $scope.roles = {
+    a: 'Administrator',
+    c: 'Customer',
+    g: 'Guest',
+    u: 'User'
+  };
+
+  $scope.testValue = 'Im not changed yet!';
+  $scope.imChanged = function(){
+    $scope.testValue = $scope.user.roles.join(',');
+  }
+  $scope.shouldChange = function(key){
+console.log("should change " + key);
+    return key !== "g";
+  }
+
+  $scope.user = {
+    roles: ['c']
+  };
+
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length);
+    $scope.user.roles.push('a');
+  };
+
+  $scope.uncheckAll = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length);
+  };
+
+  $scope.checkAll = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length);
+    for (var r in $scope.roles) {
+      $scope.user.roles.push(r);
+    }
+  };
+
+});</script>
+          <button ng-click="checkAll()" style="margin-right: 10px">Check all</button>
+          <button ng-click="uncheckAll()" style="margin-right: 10px">Uncheck all</button>
+          <button ng-click="checkFirst()">Check first</button>
+          <button ng-click="setToNull()" ng-if="setToNull">Set to null</button>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <h3>testValue</h3>
+          <pre>{{testValue|json}}</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>html</h3>
+          <pre class="prettyprint ng-non-bindable">&lt;label ng-repeat=&quot;(key, text) in roles&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; checklist-before-change=&quot;shouldChange(key)&quot; checklist-change=&quot;imChanged()&quot; checklist-model=&quot;user.roles&quot; checklist-value=&quot;key&quot;&gt; {{text}}
+&lt;/label&gt;</pre>
+          <h3>js</h3>
+          <pre class="prettyprint">var app = angular.module(&quot;app&quot;, [&quot;checklist-model&quot;]);
+app.controller('Ctrl5', function($scope) {
+  $scope.roles = {
+    a: 'Administrator',
+    c: 'Customer',
+    g: 'Guest',
+    u: 'User'
+  };
+
+  $scope.testValue = 'Im not changed yet!';
+  $scope.imChanged = function(){
+    $scope.testValue = $scope.user.roles.join(',');
+  }
+  $scope.shouldChange = function(key){
+console.log(&quot;should change &quot; + key);
+    return key !== &quot;g&quot;;
+  }
+
+  $scope.user = {
+    roles: ['c']
+  };
+
+  $scope.checkFirst = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length);
+    $scope.user.roles.push('a');
+  };
+
+  $scope.uncheckAll = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length);
+  };
+
+  $scope.checkAll = function() {
+    $scope.user.roles.splice(0, $scope.user.roles.length);
+    for (var r in $scope.roles) {
+      $scope.user.roles.push(r);
+    }
+  };
+
+});</pre>
+        </div>
+      </div>
+      <footer>
+        <hr><p>If you have question or idea please feel free to <a href="https://github.com/vitalets/checklist-model/issues">open issue on github</a>.
+© <a href="https://github.com/vitalets">Vitaliy Potapov</a> 2013. Released under the MIT license.</p>
+      </footer>
+    </div>
+  </body>
+</html>
