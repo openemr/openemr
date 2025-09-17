@@ -3959,7 +3959,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $issue_uuid = "<issues>\n";
                 if (!empty($row['note_issues'])) {
                     $issues = json_decode($row['note_issues'], true);
-                    foreach ((array)$issues as $issue) {
+                    foreach ($issues as $issue) {
                         $q = "SELECT uuid FROM lists WHERE id = ?";
                         $uuid = sqlQuery($q, array($issue))['uuid'];
                         if (empty($uuid)) {
@@ -4041,7 +4041,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                 // Goals
                 $calcGoals = HistorySdohService::buildGoals($sdoh, $pid);
-                foreach ((array)$calcGoals as $g) {
+                foreach ($calcGoals as $g) {
                     $measure = $g['target'][0]['measure'] ?? null; // CodeableConcept
                     $code = $measure['coding'][0]['code'] ?? '';
                     $codeType = $this->ccSystemToCodeType($measure['coding'][0]['system'] ?? '');
@@ -4080,7 +4080,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 // End Goals
                 // --- SDOH Health Concerns from current assessment (mirrors goals/interventions)
                 $sdohConcerns = HistorySdohService::concernsFromCurrentAssessmentV3($pid);
-                foreach ((array)$sdohConcerns as $c) {
+                foreach ($sdohConcerns as $c) {
                     $provXml = $this->getAuthorXmlForRecord(
                         ['author_id' => $c['author']['author_id'] ?? null, 'time' => $c['author']['time'] ?? ($c['date'] ?? null)],
                         $pid,
@@ -4088,7 +4088,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     );
 
                     $issuesXml = "<issues>";
-                    foreach ((array)($c['issues']['issue_uuid'] ?? []) as $u) {
+                    foreach (($c['issues']['issue_uuid'] ?? []) as $u) {
                         if ($u === '' || $u === null) {
                             continue;
                         }
@@ -4117,7 +4117,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                 // Interventions
                 $calcInterventions = HistorySdohService::buildInterventions($sdoh, (int)$pid, ['include_manual' => true]);
-                foreach ((array)$calcInterventions as $sr) {
+                foreach ($calcInterventions as $sr) {
                     $codeCC = $sr['code'] ?? []; // CodeableConcept
                     $coding0 = $codeCC['coding'][0] ?? [];
                     $icode = $coding0['code'] ?? '';
