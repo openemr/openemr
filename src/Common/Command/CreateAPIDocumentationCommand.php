@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class CreateAPIDocumentationCommand extends Command
 {
@@ -38,7 +39,13 @@ class CreateAPIDocumentationCommand extends Command
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
         $site = $input->getOption('site') ?? 'default';
 
-        $openapi = \OpenApi\Generator::scan([$routesLocation]);
+        $finder = new Finder();
+        $finder->in($GLOBALS['fileroot'] . '/apis/routes')
+            ->name('*.php');
+        $openapi = \OpenApi\Generator::scan([
+            $routesLocation
+            ,$finder
+        ]);
 
         $resultYaml = file_put_contents($fileDestinationYaml, $openapi->toYaml());
 

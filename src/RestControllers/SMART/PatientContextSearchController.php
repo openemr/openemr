@@ -49,6 +49,9 @@ class PatientContextSearchController
         }
         $user = new UserService();
         $user = $user->getUserByUUID($userUUID);
+        if (empty($user)) {
+            throw new AccessDeniedException('patients', 'demo', "Illegal access to patients requested");
+        }
 
         $this->checkUserAccessPatientData($user);
         $result = $this->service->getOne($patientUUID);

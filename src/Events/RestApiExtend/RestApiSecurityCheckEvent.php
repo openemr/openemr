@@ -91,7 +91,7 @@ class RestApiSecurityCheckEvent extends Event
         $this->resource = $resource;
     }
 
-    public function getResource()
+    public function getResource(): string
     {
         return $this->resource;
     }

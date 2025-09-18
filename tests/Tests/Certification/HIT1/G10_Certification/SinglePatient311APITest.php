@@ -12,6 +12,8 @@ class SinglePatient311APITest extends TestCase
 {
     use G10ApiTestTrait;
 
+    const FHIR_SCOPES_V2 = "openid offline_access api:fhir user/AllergyIntolerance.rs user/CareTeam.rs user/Condition.rs user/Coverage.rs user/Encounter.rs user/Immunization.rs user/Location.rs user/Medication.rs user/MedicationRequest.rs user/Observation.rs user/Organization.rs user/Organization.rs user/Patient.rs user/Patient.rs user/Practitioner.rs user/Practitioner.rs user/PractitionerRole.rs user/Procedure.rs user/DocumentReference.rs user/Goal.rs patient/AllergyIntolerance.rs patient/CareTeam.rs patient/Condition.rs patient/Coverage.rs patient/Encounter.rs patient/Immunization.rs patient/MedicationRequest.rs patient/Observation.rs patient/Patient.rs patient/Procedure.rs patient/DocumentReference.rs patient/Goal.rs patient/DiagnosticReport.rs user/DiagnosticReport.rs user/CarePlan.rs patient/CarePlan.rs user/Device.rs patient/Device.rs patient/Provenance.rs user/Provenance.rs";
+
     /**
      * @return void
      * @throws Exception
@@ -29,36 +31,38 @@ class SinglePatient311APITest extends TestCase
     /**
      * @throws Exception
      */
-    public function testSingleApiRun(): void
+    public function testSingleApiRunWithV1Scopes(): void
     {
         // we will use the filesystem to write out the test run settings so that we can see them in the code coverage report
+        $testInputs = $this->getTestInputs('smart_auth_info');
         $response = $this->getTestGroupResponse(
             $this->getTestSuitePrefix() . 'g10_single_patient_api',
             $this->getTestInputs('smart_auth_info')
         );
-        // useful for debugging the unit test...
-        $this->assertNotEmpty($response['results'], "Test run results are empty for single patient API tests");
-        // assert that the results are all passed
-        $testsFailed = 0;
-        $testsTotal = count($response['results']);
-        foreach ($response['results'] as $result) {
-            echo self::getDisplayName($result['test_id'] ?? $result['test_group_id']) . ": " . $result['result'] . "\n";
-            // we have omit, skip, warn, etc we'll just key off fail at this point
-            if ($result['result'] == 'fail') {
-                $testsFailed += 1;
+        $this->assertFhirTestResultResponse($response['results']);
+    }
+
+    public function testSingleApiRunWithV2Scopes(): void
+    {
+        $scopes = self::FHIR_SCOPES_V2;
+        self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [
+            'username' => 'admin',
+            'password' => 'pass',
+            'scopes' => $scopes
+        ]);
+
+        $testInputs = $this->getTestInputs('smart_auth_info');
+        foreach ($testInputs as $index => $testInput) {
+            if ($testInput['name'] == 'smart_app_launch_version') {
+                // we need to remove the smart_app_launch_version as it is not supported in the v2 scopes
+                $testInputs[$index]['value'] = 'smart_app_launch_2';
             }
         }
-        if ($testsFailed > 0) {
-            echo "Detailed Test Results:\n\n";
-            $this->renderResults($response['results'], "Single patient API tests did not pass", [
-                // TODO: @adunsulag remove these skips as they aren't needed anymore I believe.
-                // we skip the standalone auth TLS test for now as the unit test environment does not support TLS
-                'us_core_v311-us_core_v311_fhir_api-us_core_v311_capability_statement-standalone_auth_tls'
-                // we skip the overall group failure test as the sub test failing triggers the group failure
-                ,'us_core_v311-us_core_v311_fhir_api-us_core_v311_capability_statement'
-            ]);
-        }
-        $this->assertEquals(0, $testsFailed, "Single API Test Failed.  Total tests failed " . $testsFailed . " out of " . $testsTotal . " tests run. Please see above for details.");
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'g10_single_patient_api',
+            $testInputs
+        );
+        $this->assertFhirTestResultResponse($response['results']);
     }
 
     protected function getTestInputs(string $credentialsKeyName): array
@@ -77,8 +81,10 @@ class SinglePatient311APITest extends TestCase
             return [
                 ['name' => 'url', 'value' => self::$baseUrl . '/apis/default/fhir'],
                 ['name' => 'patient_id', 'value' => self::PATIENT_ID_PRIMARY],
-//                ['name' => 'patient_ids', 'value' => self::PATIENT_IDS],
                 ['name' => 'additional_patient_ids', 'value' => self::ADDITIONAL_PATIENT_IDS],
+                ['name' => 'smart_app_launch_version', 'value' => 'smart_app_launch_1'],
+                ['name' => 'us_core_version', 'value' => 'us_core_3'],
+                ['name' => 'multi_patient_version', 'value' => 'multi_patient_api_stu1'],
                 ['name' => $credentialsKeyName, 'value' => $credentialsArray]
             ];
         } else {
@@ -88,5 +94,34 @@ class SinglePatient311APITest extends TestCase
                 ['name' => $credentialsKeyName, 'value' => $credentialsArray]
             ];
         }
+    }
+
+    /**
+     * @param $results
+     * @return void
+     */
+    private function assertFhirTestResultResponse($results): void
+    {
+        // useful for debugging the unit test...
+        $this->assertNotEmpty($results, "Test run results are empty for single patient API tests");
+        // assert that the results are all passed
+        $testsFailed = 0;
+        $testsTotal = count($results);
+        foreach ($results as $result) {
+            echo self::getDisplayName($result['test_id'] ?? $result['test_group_id']) . ": " . $result['result'] . "\n";
+            // we have omit, skip, warn, etc we'll just key off fail at this point
+            if ($result['result'] == 'fail') {
+                $testsFailed += 1;
+                var_dump($result['result']);
+            }
+            if ($result['result'] == 'error') {
+                $testsFailed += 1;
+            }
+        }
+        if ($testsFailed > 0) {
+            echo "Detailed Test Results:\n\n";
+            $this->renderResults($results, "Single patient API tests did not pass");
+        }
+        $this->assertEquals(0, $testsFailed, "Single API Test Failed.  Total tests failed " . $testsFailed . " out of " . $testsTotal . " tests run. Please see above for details.");
     }
 }

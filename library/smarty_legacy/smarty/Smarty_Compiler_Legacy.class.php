@@ -965,7 +965,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
         $this->_add_plugin('insert', $name, $delayed_loading);
 
-        $_params = "array('args' => array(".implode(', ', (array)$arg_list)."))";
+        $_params = "array('args' => array(".implode(', ', $arg_list)."))";
 
         return "<?php require_once(SMARTY_CORE_DIR . 'core.run_insert_handler.php');\necho smarty_core_run_insert_handler($_params, \$this); ?>" . $this->_additional_newline;
     }

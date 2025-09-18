@@ -1,0 +1,31 @@
+
+{% extends "interface/smart/admin-client/token-tools.html.twig" %}
+{% block toolContents %}
+<form method="POST" action="{{ actionUrl}}">
+    {% include "interface/smart/admin-client/partials/textarea.html.twig" with {key: 'token', 'setting': tokenSettings} %}
+    <input type="submit" class="btn btn-sm btn-primary" value="{{ "Parse Token"|xla }}" />
+
+    {% if databaseRecord %}
+    <hr />
+    <h3>{{ "Token details"|xlt }}
+        {% if databaseRecord.revoked == 0 %}
+        <a href="{{ parts.revoke_link|attr }}" class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()">
+            {{ 'Revoke Token'|xlt }}
+        </a>
+        {% endif %}
+    </h3>
+    <ul>
+        <li>{{ "Token JTI(DB token value)"|xlt }}: {{ parts.jti|text }}</li>
+        <li>{{ "Token DB Id"|xlt }}: {{ databaseRecord.id|text }}</li>
+        <li>{{ "Token Status"|xlt }}: {{ parts.status|text }}</li>
+        <li>{{ "Token Type"|xlt }}: {{ parts.token_type|text }}</li>
+        <li>{{ "Token Expiration"|xlt }}: {{ databaseRecord.expiry|text }}</li>
+        <li>{{ "User UUID"|xlt }}:
+            <a href="{{ parts.user_link|attr_url }}">
+                {{ databaseRecord.user_id|text }}
+            </a>
+        </li>
+    </ul>
+    <pre>{{ encodedParts|text }}</pre>
+    {% endif %}
+{% endblock %}
