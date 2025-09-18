@@ -152,7 +152,9 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "11.*",
         "rector/rector": "^2.1",
-        "symfony/panther": "2.*"
+        "symfony/panther": "2.*",
+	"squizlabs/php_codesniffer": "^3.13",
+        "zircote/swagger-php": "3.*"
     },
     "repositories": [
         {
