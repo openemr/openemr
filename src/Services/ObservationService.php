@@ -279,6 +279,9 @@ class ObservationService extends BaseService
     public function searchAndPopulateChildObservations($search, $isAndCondition = true): ProcessingResult
     {
         $foundResult = $this->search($search);
+        if (!$foundResult->hasData()) {
+            return $foundResult;
+        }
 
         // we need to loop through any found results and grab all records that do NOT have a parent_observation_uuid
         // because those are the top level observations, we will then search for the observation and their children
