@@ -1,4 +1,5 @@
 <?php
+
 /*
  * SessionConfigurationBuilder.php
  * @package openemr
