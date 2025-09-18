@@ -65,7 +65,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements IResou
 
         // TODO: @adunsulag if we bring this into core we need to refactor out the generic event
         // TODO: @adunsulag we originally had events then needed to switch to the mapped service for searching, do we drop the event?
-        $event = $this->dispatcher->dispatch(new GenericEvent($fhirResource), 'fhir.questionnaire_response.pre_insert');
+        $event = $this->getEventDispatcher()->dispatch(new GenericEvent($fhirResource), 'fhir.questionnaire_response.pre_insert');
         if ($event->isPropagationStopped()) {
             return $event->getArgument('result');
         } else {
@@ -75,7 +75,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements IResou
 
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
-        $event = $this->dispatcher->dispatch(new GenericEvent($fhirSearchParameters), 'fhir.questionnaire_response.search');
+        $event = $this->getEventDispatcher()->dispatch(new GenericEvent($fhirSearchParameters), 'fhir.questionnaire_response.search');
         if ($event->hasArgument('result')) {
             $result = $event->getArgument('result');
             if ($result instanceof ProcessingResult) {

@@ -17,6 +17,7 @@ use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -167,6 +168,17 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         try {
             // parse the json data in dataRecord questionnaire
             $innerData = json_decode($dataRecord['questionnaire_response'], true, 512, JSON_THROW_ON_ERROR);
+            if (!isset($innerData['_questionnaire']) && isset($dataRecord['questionnaire_name'])) {
+                // if we don't have an US Core 8.0 compliant questionnaire response then we will fallback on the questionnaire_title if we have one
+                $innerData['_questionnaire'] = [
+                    'extension' => [
+                        [
+                            'url' => 'http://hl7.org/fhir/StructureDefinition/display',
+                            'valueString' => $dataRecord['questionnaire_name']
+                        ],
+                    ]
+                ];
+            }
         } catch (JsonException $exception) {
             // log the error and move on
             $innerData = []; // nothing we can do here, but skip the questionnaire data as its invalid
@@ -195,6 +207,12 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
             // currently we have nothing in OpenEMR that links to a pdf type survery.  I suppose a Document could be referenced
             // as a questionnaire result... but then how to populate all the answers?
             $questionnaire = UtilsService::createCanonicalUrlForResource('Questionnaire', $dataRecord['questionnaire_id']);
+            if (!empty($dataRecord['questionnaire_name'])) {
+                $questionnaire->addExtension(new FHIRExtension([
+                    'valueString' => $dataRecord['questionnaire_name']
+                    ,'url' => 'http://hl7.org/fhir/StructureDefinition/display'
+                ]));
+            }
             $fhirResource->setQuestionnaire($questionnaire);
         }
 

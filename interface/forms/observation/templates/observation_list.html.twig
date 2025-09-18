@@ -1,0 +1,405 @@
+{# AI Generated Note: This template implements the list view from observation_list_screen.html using Twig #}
+
+{% extends "core/base.html.twig" %}
+
+{% block pagetitle %}{{ "Observation List"|xlt }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {{ setupHeader(['datetime-picker']) }}
+
+    {# Custom CSS for Observation List #}
+    <link rel="stylesheet" href="{{ webroot }}/interface/forms/observation/observation.css?v={{ assetVersion }}" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="observation-list-container">
+
+            {# Page Header #}
+            <div class="page-header bg-white rounded shadow-sm p-4 mb-4">
+                <div class="header-content d-flex justify-content-between align-items-start">
+                    <div class="header-info">
+                        <h1 class="h2 text-dark mb-2">{{ "Patient Observations"|xlt }}</h1>
+                    </div>
+                    <div class="header-actions d-flex gap-3">
+                        {# TODO: @adunsulag if we add in trends we can show them here. #}
+{#                        <button class="btn btn-secondary d-flex align-items-center gap-2">#}
+{#                            <i class="fa fa-chart-line"></i> {{ "View Trends"|xlt }}#}
+{#                        </button>#}
+                        <button class="btn btn-secondary d-flex align-items-center gap-2 mr-2 btn-form-close">
+                            <i class="fa fa-times pr-2"></i> {{ "Close Form"|xlt }}
+                        </button>
+                        <a href="{{ webroot }}/interface/forms/observation/new.php?form_id={{ formId|attr_url }}&pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
+                           class="btn btn-primary d-flex align-items-center gap-2">
+                            <i class="fa fa-plus pr-2"></i> {{ "Add New Observation"|xlt }}
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+
+            {# Filters and Search Section #}
+{#            <div class="filters-section bg-white rounded shadow-sm p-4 mb-4">#}
+{#                <div class="filters-content">#}
+{#                    <div class="row align-items-end">#}
+{#                        <div class="col-md-4">#}
+{#                            <div class="form-group">#}
+{#                                <label class="form-label">{{ "Search Observations"|xlt }}</label>#}
+{#                                <input type="text" class="form-control" id="search-input"#}
+{#                                       value="{{ searchCriteria.searchTerm|default('')|attr }}"#}
+{#                                       placeholder="{{ 'Search by code, type, or description...'|xla }}">#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-md-3">#}
+{#                            <div class="form-group">#}
+{#                                <label class="form-label">{{ "Type"|xlt }}</label>#}
+{#                                {{ selectList('type-filter', 'Observation_Types', searchCriteria.obType|default(''), 'Select Type'|xla, {empty_name: 'Select Type'|xlt}) }}#}
+{#                            </div>#}
+{#                        </div>#}
+                        {# Date Filtering is stubbed out if we can do it #}
+{#                        <div class="col-md-3">#}
+{#                            <div class="form-group">#}
+{#                                <label class="form-label">{{ "Date Range"|xlt }}</label>#}
+{#                                <select class="form-control" id="date-filter">#}
+{#                                    <option value="today">{{ "Today"|xlt }}</option>#}
+{#                                    <option value="week">{{ "This Week"|xlt }}</option>#}
+{#                                    <option value="month">{{ "This Month"|xlt }}</option>#}
+{#                                    <option value="all">{{ "All Time"|xlt }}</option>#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-md-2">#}
+{#                            <div class="form-group d-flex">#}
+{#                                <button class="btn btn-secondary d-flex align-items-center mr-1">#}
+{#                                    <i class="fa fa-search mr-1"></i> {{ "Search"|xlt }}#}
+{#                                </button>#}
+{#                                <button class="btn btn-secondary d-flex align-items-center mr-1">#}
+{#                                    <i class="fa fa-refresh mr-1"></i> {{ "Reset"|xlt }}#}
+{#                                </button>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+            {% if statusMessage  %}
+                <div class="alert alert-{{ statusType|attr }} alert-dismissible fade show" role="alert">
+                    {{ statusMessage|text }}
+                    <button type="button" class="btn-close btn" data-bs-dismiss="alert" aria-label="{{ 'Close'|xlt }}"></button>
+                </div>
+            {% endif %}
+
+            {# Observations List Container #}
+            <div class="observations-container bg-white rounded shadow-sm overflow-hidden">
+                <div class="observations-header bg-light border-bottom p-3 d-flex justify-content-between align-items-center">
+                    <div class="observations-title h5 mb-0 d-flex align-items-center gap-2">
+                        {{ "Observations for this Encounter"|xlt }}
+                        <span class="ml-2 observation-count badge bg-primary">{{ observations|length }}</span>
+                    </div>
+                </div>
+
+                <div class="observations-list">
+                    {% if observations|length > 0 %}
+                        {% for observation in observations %}
+                            <div class="observation-item border-bottom p-4" data-type="{{ observation.ob_type|attr }}">
+                                <div class="observation-header d-flex justify-content-between align-items-start mb-3">
+                                    <div class="observation-main-info flex-grow-1">
+                                        <div class="observation-title h6 mb-2 d-flex align-items-center gap-2">
+                                            {{ observation.description|text }}
+                                            {% if observation.code %}
+                                                <span class="observation-code badge bg-light text-dark font-monospace">
+                                                {{ observation.code|text }}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="observation-meta d-flex flex-wrap gap-3 text-muted small">
+                                            <span class="mr-1">
+                                                <strong>{{ "Observation Date"|xlt }}:</strong>
+                                                {{ observation.date|oeFormatDateTime }}
+                                            </span>
+                                            <span class="mr-1">
+                                                <strong>{{ "Type"|xlt }}:</strong>
+                                                {% if observation.ob_type_display %}
+                                                    {{ observation.ob_type_display|text }}
+                                                {% else %}
+                                                    {{ "Unknown"|xlt }}
+                                                {% endif %}
+                                            </span>
+                                            <span class="mr-1">
+                                                <strong>{{ "Status"|xlt }}:</strong>
+                                                {{ observation.ob_status_display|text }}
+                                            </span>
+                                            {% if observation.ob_reason_code %}
+                                                <span class="mr-1">
+                                                    <strong>{{ "Reason Code"|xlt }}:</strong>
+                                                    {{ observation.ob_reason_code|text }}
+                                                    {% if observation.ob_reason_text %}
+                                                        &nbsp;{{ observation.ob_reason_text|text }}
+                                                    {% endif %}
+                                                </span>
+                                            {% endif %}
+                                            {% if observation.ob_reason_status %}
+                                                <span class="mr-1">
+                                                    <strong>{{ "Reason Status"|xlt }}:</strong>
+                                                    {{ observation.ob_reason_status_display|text }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="observation-actions d-flex gap-2">
+                                        <a href="{{ webroot }}/interface/forms/observation/new.php?id={{ observation.id|attr_url }}&form_id={{ observation.form_id|attr_url }}&pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
+                                           class="btn btn-sm btn-outline-success mr-1">
+                                            <i class="fa fa-edit"></i> {{ "Edit"|xlt }}
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteObservation({{ observation.id|attr_js }}, {{ observation.form_id|attr_js }})">
+                                            <i class="fa fa-trash"></i> {{ "Delete"|xlt }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="observation-content">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="observation-details">
+                                                <div class="row">
+                                                    {% if observation.ob_value %}
+                                                        <div class="col-md-4">
+                                                            <div class="detail-item bg-light border rounded p-2">
+                                                                <div class="detail-label small text-muted text-uppercase">
+                                                                    {{ "Primary Value"|xlt }}
+                                                                </div>
+                                                                <div class="detail-value fw-bold">
+                                                                    {{ observation.ob_value|text }}
+                                                                    {% if observation.ob_unit %}
+                                                                        {{ observation.ob_unit|text }}
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {% if observation.code_type %}
+                                                        <div class="col-md-4">
+                                                            <div class="detail-item bg-light border rounded p-2">
+                                                                <div class="detail-label small text-muted text-uppercase">
+                                                                    {{ "Code Type"|xlt }}
+                                                                </div>
+                                                                <div class="detail-value fw-bold">
+                                                                    {{ observation.code_type|text }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {# do we want a date end? #}
+{#                                                    {% if observation.date_end %}#}
+{#                                                        <div class="col-md-4">#}
+{#                                                            <div class="detail-item bg-light border rounded p-2">#}
+{#                                                                <div class="detail-label small text-muted text-uppercase">#}
+{#                                                                    {{ "End Date"|xlt }}#}
+{#                                                                </div>#}
+{#                                                                <div class="detail-value fw-bold">#}
+{#                                                                    {% if observation.date_end %}#}
+{#                                                                    {{ observation.date_end|oeFormatDateTime }}#}
+{#                                                                    {% endif %}#}
+{#                                                                </div>#}
+{#                                                            </div>#}
+{#                                                        </div>#}
+{#                                                    {% endif %}#}
+
+                                                    {% if observation.observation %}
+                                                        <div class="col-12 mt-2">
+                                                            <div class="detail-item bg-light border rounded p-2">
+                                                                <div class="detail-label small text-muted text-uppercase">
+                                                                    {{ "Comments"|xlt }}
+                                                                </div>
+                                                                <div class="detail-value">
+                                                                    {{ observation.observation|text }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            {% if observation.questionnaire_response_id %}
+                                                <div class="questionnaire-info bg-light-green border border-success rounded p-2 text-center">
+                                                    <div class="questionnaire-name small fw-bold text-success mb-1">
+                                                        <i class="fa fa-clipboard-list"></i> {{ "Linked Questionnaire"|xlt }}
+                                                    </div>
+                                                    <div class="questionnaire-date text-muted small">
+                                                        {{ observation.questionnaire_name|text }}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="questionnaire-info bg-light border rounded p-2 text-center">
+                                                    <div class="questionnaire-name small text-muted mb-1">
+                                                        <i class="fa fa-clipboard-list"></i> {{ "No Questionnaire"|xlt }}
+                                                    </div>
+                                                    <div class="questionnaire-date text-muted small">
+                                                        {{ "Not linked"|xlt }}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            {% set subObservations = observation.sub_observations %}
+                                            <div class="sub-observations bg-light border rounded p-2">
+                                                <div class="sub-obs-header small fw-bold text-muted text-uppercase mb-2">
+                                                    {{ "Sub-observations"|xlt }} ({{ subObservations|length }})
+                                                </div>
+                                                {% if subObservations|length > 0 %}
+                                                    <div class="sub-obs-list small">
+                                                        {% for subObs in subObservations|slice(0, 3) %}
+                                                            <div class="sub-obs-item d-flex justify-content-between align-items-center mb-1">
+                                                                <span>{{ subObs.description|text }}</span>
+                                                                <span class="sub-obs-value text-primary fw-bold">
+                                                                {{ subObs.ob_value|text }}
+                                                            </span>
+                                                            </div>
+                                                        {% endfor %}
+                                                        {% if subObservations|length > 3 %}
+                                                            <div class="text-muted small">
+                                                                {{ subObservations|length - 3 }} {{ "more..."|xlt }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-muted small text-center">
+                                                        {{ "None"|xlt }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        {# Empty State #}
+                        <div class="empty-state text-center py-5">
+                            <div class="empty-state-icon text-muted mb-3" style="font-size: 48px;">
+                                <i class="fa fa-clipboard-list"></i>
+                            </div>
+                            <h4 class="text-muted mb-3">{{ "No Observations Found"|xlt }}</h4>
+                            <p class="text-muted mb-4">
+                                {{ "There are no observations recorded for this encounter yet."|xlt }}
+                            </p>
+                            <a href="{{ webroot }}/interface/forms/observation/new.php?pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
+                               class="btn btn-primary">
+                                <i class="fa fa-plus"></i> {{ "Add First Observation"|xlt }}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="page-footer bg-white rounded shadow-sm p-4 mb-4">
+                    <div class="header-content">
+                        <div class="header-actions d-flex gap-3 align-items-end">
+                            {# TODO: @adunsulag if we add in trends we can show them here. #}
+                            {#                        <button class="btn btn-secondary d-flex align-items-center gap-2">#}
+                            {#                            <i class="fa fa-chart-line"></i> {{ "View Trends"|xlt }}#}
+                            {#                        </button>#}
+                            <button class="btn btn-secondary d-flex ml-auto mr-2 btn-form-close">
+                                <i class="fa fa-times pr-2"></i> {{ "Close Form"|xlt }}
+                            </button>
+                            <a href="{{ webroot }}/interface/forms/observation/new.php?form_id={{ formId|attr_url }}&pid={{ session.pid|attr_url }}&encounter={{ session.encounter|attr_url }}"
+                               class="btn btn-primary d-flex gap-2">
+                                <i class="fa fa-plus pr-2"></i> {{ "Add New Observation"|xlt }}
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        {# TODO: when there is time this needs to be merged into observation.js #}
+        // AI Generated JavaScript: Enhanced from observation_list_screen.html for Twig implementation
+        var obsPid = {{ session.pid|json_encode }};
+        var obsEncounter = {{ session.encounter|json_encode }};
+
+        function deleteObservation(id, formId) {
+            if (confirm({{ 'Are you sure you want to delete this observation? This action cannot be undone.'|xlj }})) {
+                // In real implementation, this would make an AJAX call to delete the observation
+                window.location.href = '{{ webroot }}/interface/forms/observation/delete.php?id=' + encodeURIComponent(id)
+                + '&form_id=' + encodeURIComponent(formId);
+            }
+        }
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeBtns = document.querySelectorAll('.btn-form-close');
+            const searchInput = document.getElementById('search-input');
+            const typeFilter = document.getElementById('type-filter');
+            // const dateFilter = document.getElementById('date-filter');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    filterObservations();
+                });
+            }
+
+            if (typeFilter) {
+                typeFilter.addEventListener('change', function(e) {
+                    filterObservations();
+                });
+            }
+            closeBtns.forEach(btn => btn.addEventListener('click', function() {
+                // see encounter_top.php for function
+                if (parent.closeTab) {
+                    parent.closeTab(window.name, true);
+                }
+                else {
+                    alert({{ 'Close function not available.'|xlj }});
+                }
+            }));
+            //
+            // if (dateFilter) {
+            //     dateFilter.addEventListener('change', function(e) {
+            //         filterObservations();
+            //     });
+            // }
+        });
+
+        function filterObservations() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedType = document.getElementById('type-filter').value;
+            const observations = document.querySelectorAll('.observation-item');
+
+            observations.forEach(function(obs) {
+                const text = obs.textContent.toLowerCase();
+                const type = obs.getAttribute('data-type');
+
+                const matchesSearch = text.includes(searchTerm);
+                const matchesType = type === '' || type === selectedType;
+
+                obs.style.display = (matchesSearch && matchesType) ? 'block' : 'none';
+            });
+
+            // Update observation count
+            const visibleCount = Array.from(observations).filter(obs => obs.style.display !== 'none').length;
+            const countBadge = document.querySelector('.observation-count');
+            if (countBadge) {
+                countBadge.textContent = visibleCount;
+            }
+        }
+        {% if refreshParent %}
+        // see encounter_top.php for function
+        // if we've saved an observation, refresh the visit display
+        if (parent.refreshVisitDisplay) {
+            parent.refreshVisitDisplay();
+        }
+        {% endif %}
+    </script>
+{% endblock %}

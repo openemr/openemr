@@ -19,6 +19,8 @@ require_once($GLOBALS["srcdir"] . "/api.inc.php");
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FormService;
+use OpenEMR\Common\Twig\TwigContainer;
 
 function observation_report($pid, $encounter, $cols, $id): void
 {
@@ -28,9 +30,12 @@ function observation_report($pid, $encounter, $cols, $id): void
     try {
         // Create controller and handle request
         $service = new ObservationService();
-        $controller = new ObservationController($service);
+        $formService = new FormService();
+        // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
+        $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
+        $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
         // This approach is consistent with the current design, even though the original report used session values.
-        $response = $controller->report($pid, $encounter, $cols, $id);
+        $response = $controller->reportAction($pid, $encounter, $cols, $id);
         $response->send();
     } catch (Exception $e) {
         // Handle any exceptions that may occur

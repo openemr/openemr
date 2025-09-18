@@ -47,6 +47,7 @@ class UuidRegistry
         'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
         'form_encounter' => ['table_name' => 'form_encounter'],
         'form_vitals' => ['table_name' => 'form_vitals'],
+        'form_observation' => ['table_name' => 'form_observation'],
         'history_data' => ['table_name' => 'history_data'],
         'immunizations' => ['table_name' => 'immunizations'],
         'insurance_companies' => ['table_name' => 'insurance_companies'],
@@ -99,7 +100,7 @@ class UuidRegistry
     }
 
     /**
-     * @return string
+     * @return string The uuid in bytes format
      */
     public function createUuid()
     {

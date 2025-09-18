@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Observation Form Save
+ * Observation Form Delete action.
+ * TODO: would be better to just make all of this a controller action, but in the desire to just quickly finish this
+ * , I went this route.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -38,7 +40,7 @@ try {
     // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
     $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
     $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
-    $response = $controller->saveAction($request);
+    $response = $controller->deleteAction($request);
     $response->send();
 } catch (Exception $e) {
     // Handle any exceptions that may occur
