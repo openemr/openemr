@@ -309,7 +309,7 @@ class ObservationController
                     $observation[$fieldName] = $value;
                 }
             }
-            $observation['date'] = DateFormatterUtils::dateStringToDateTime($postData["date"])->format(self::DATE_FORMAT_SAVE);
+            $observation['date'] = $postData["date"];
             // AI Generated: Handle QuestionnaireResponse ID conversion
             if (!empty($postData['questionnaire_response_fhir_id'])) {
                 $fhirId = $postData['questionnaire_response_fhir_id'];
@@ -324,6 +324,9 @@ class ObservationController
             if (!empty($validationErrors)) {
                 throw new \Exception("Validation failed: " . implode(", ", $validationErrors));
             }
+            // Format date for saving, no seconds on this one
+            // TODO: @adunsulag do we want to preserve seconds on the observation?
+            $observation['date'] = (DateFormatterUtils::dateStringToDateTime($observation['date']))->format(self::DATE_FORMAT_SAVE);
 
             // Extract sub-observations data
             $submittedObservations = $this->extractSubObservationsData($observation, $postData);
