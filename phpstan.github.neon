@@ -9204,18 +9204,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/note/view.php
-  - message: '#^Variable \$key might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/observation/templates/observation_actions.php
-  - message: '#^Variable \$key might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/observation/templates/observation_reason_row.php
-  - message: '#^Variable \$reasonCodeStatii might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/observation/templates/observation_reason_row.php
   - message: '#^Variable \$rootdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2

@@ -2094,7 +2094,7 @@ class CdaTemplateImportDispose
         }
         $newid = '';
         $appTable = new ApplicationTable();
-        $res = $appTable->zQuery('SELECT MAX(id) as largestId FROM `form_observation`');
+        $res = $appTable->zQuery('SELECT MAX(form_id) as largestId FROM `form_observation`');
         foreach ($res as $val) {
             if ($val['largestId']) {
                 $newid = $val['largestId'] + 1;
@@ -2132,9 +2132,10 @@ class CdaTemplateImportDispose
                 }
             }
 
+            // TODO: @adunsulag need to write a test for this code change...
             $res = $appTable->zQuery(
                 'INSERT INTO form_observation(
-                id,date,pid,groupname,user,encounter, activity,
+                form_id,date,pid,groupname,user,encounter, activity,
                              code,
                              observation,
                              ob_value,

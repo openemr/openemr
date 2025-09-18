@@ -647,7 +647,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;

@@ -5312,7 +5312,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','522110','Commercial Banking',140,0,0,'',NULL,'522110.007773',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','999999','Unemployed',150,0,0,'',NULL,'999999',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Industry','UNKNOWN','Unknown',160,0,0,'',NULL,'UNKNOWN',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+
 -- Occupation
+
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('lists','Occupation','ODH Occupation',0,0,0,'','O*NET-SOC based occupation codes from ODH','',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','23-1011.00','Lawyers',10,0,0,'',NULL,'23-1011.00.031000',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('Occupation','17-2051.00','Civil Engineers',20,0,0,'',NULL,'17-2051.00.019051',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
@@ -6804,8 +6806,24 @@ INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity)
 -- Observation Types
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('lists','Observation_Types','Observation Types',0,1,0,'',NULL,'',0,0,1,'');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','assessment','Assessment',10,0,0,'','','',0,0,1,'');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,1,'');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,0,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,0,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','activity','Activity',5,1,'Observations that measure or record any bodily activity that enhances or maintains physical fitness and overall health and wellness. Not under direct supervision of practitioner such as a physical therapist. (e.g., laps swum, steps, sleep data)');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','care-experience-preference','Care Experience Preference',20,1,'Personal thoughts about something a person feels is relevant to their care experience and may be pertinent when planning their care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','cognitive-status','Cognitive Status',30,1,'Cognitive Status category');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','disability-status','Disability Status',40,1,'Disability Status category');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','exam','Exam',50,1,'Observations generated by physical exam findings including direct observations made by a clinician and use of simple instruments and the result of simple maneuvers performed directly on the patient\'s body.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','functional-status','Functional Status',60,1,'Functional Status category');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','imaging','Imaging',70,1,'Observations generated by imaging. The scope includes observations regarding plain x-ray, ultrasound, CT, MRI, angiography, echocardiography, and nuclear medicine.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','laboratory','Laboratory',80,1,'The results of observations generated by laboratories. Laboratory results are typically generated by laboratories providing analytic services in areas such as chemistry, hematology, serology, histology, cytology, anatomic pathology (including digital pathology), microbiology, and/or virology. These observations are based on analysis of specimens obtained from the patient and submitted to the laboratory.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','observation-adi-documentation','Observation ADI Documentation',90,1,'Statement of presence and properties of patient or provider authored documents that record a patient\'s goals, preferences and priorities should a patient be unable to communicate them to a provider.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','procedure','Procedure',100,1,'Observations generated by other procedures. This category includes observations resulting from interventional and non-interventional procedures excluding laboratory and imaging (e.g., cardiology catheterization, endoscopy, electrodiagnostics, etc.). Procedure results are typically generated by a clinician to provide more granular information about component observations made during a procedure. An example would be when a gastroenterologist reports the size of a polyp observed during a colonoscopy.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','sdoh','Social Determinants of Health (SDOH)',110,1,'Social, economic, and environmental factors affecting health');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','social-history','Social History',120,1,'Social History Observations define the patient''s occupational, personal (e.g., lifestyle), social, familial, and environmental history and health risk factors that may impact the patient''s health.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','survey','Survey',130,1,'Assessment tool/survey instrument observations (e.g., Apgar Scores, Montreal Cognitive Assessment (MoCA)).');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','therapy','Therapy',140,1,'Observations generated by non-interventional treatment protocols (e.g. occupational, physical, radiation, nutritional and medication therapy)');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','treatment-intervention-preference','Treatment Intervention Preference',150,1,'A personal preference for a type of medical intervention (treatment) request under certain conditions.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','vital-signs','Vital Signs',160,1,'Clinical observations measure the body''s basic functions such as blood pressure, heart rate, respiratory rate, height, weight, body mass index, head circumference, pulse oximetry, temperature, and body surface area.');
 -- --------------------------------------------------------
 
 -- CCDA Sections for sort orders
@@ -11943,7 +11961,9 @@ CREATE TABLE `form_functional_cognitive_status` (
 
 DROP TABLE IF EXISTS `form_observation`;
 CREATE TABLE `form_observation` (
-  `id` bigint(20) NOT NULL,
+   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+   `uuid` binary(16) DEFAULT NULL,
+   `form_id` bigint(20) NOT NULL COMMENT 'FK to forms.form_id',
   `date` DATETIME DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` varchar(255) DEFAULT NULL,
@@ -11967,7 +11987,17 @@ CREATE TABLE `form_observation` (
   `ob_reason_text` text,
   `ob_documentationof_table` varchar(255) DEFAULT NULL,
   `ob_documentationof_table_id` bigint(21) DEFAULT NULL,
-  `date_end` DATETIME DEFAULT NULL
+   `date_end` DATETIME DEFAULT NULL,
+   `parent_observation_id` bigint(20) DEFAULT NULL COMMENT 'FK to parent observation for sub-observations',
+   `category` varchar(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)',
+   `questionnaire_response_id` bigint(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table',
+   PRIMARY KEY (`id`),
+   KEY `idx_form_id` (`form_id`),
+   KEY `idx_parent_observation` (`parent_observation_id`),
+   KEY `idx_category` (`category`),
+   KEY `idx_questionnaire_response` (`questionnaire_response_id`),
+   KEY `idx_pid_encounter` (`pid`, `encounter`),
+   KEY `idx_date` (`date`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\BaseForm;
 
@@ -96,7 +97,7 @@ class FormService
 
         $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
-        return sqlInsert($sql, $arraySqlBind);
+        return QueryUtils::sqlInsert($sql, $arraySqlBind);
     }
 
     public function saveEncounterForm(BaseForm $form): BaseForm
@@ -120,5 +121,17 @@ class FormService
         $id = QueryUtils::sqlInsert($encounterFormSql, $encounterFormBind);
         $form->setId($id);
         return $form;
+    }
+
+    public function hasFormPermission($formDir)
+    {
+        // get the aco spec from registry table
+        $acoSpec = QueryUtils::fetchSingleValue(
+            "SELECT aco_spec FROM registry WHERE directory = ?",
+            'aco_spec',
+            array($formDir)
+        );
+        $permission = explode('|', ($acoSpec ?? ''));
+        return AclMain::aclCheckCore($permission[0], $permission[1] ?? null);
     }
 }

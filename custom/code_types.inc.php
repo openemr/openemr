@@ -375,6 +375,7 @@ function check_code_set_filters($key, $filters = array())
  *
  * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
  * @param  string       $return_format  format or returned code types ('array' or 'csv')
+ * @deprecated use CodeTypesService::collectCodeTypes()
  * @return string/array
  */
 function collect_codetypes($category, $return_format = "array")
