@@ -121,7 +121,7 @@ class ObservationController
                 'csrf_token' => CsrfUtils::collectCsrfToken(),
                 'apiCsrfToken' => CsrfUtils::collectCsrfToken('api'),
                 'title' => xl('Observation Form'),
-                'reasonCodeTypes' => $this->codeTypeService->collectCodeTypes("problem", "csv"),
+                'reasonCodeTypes' => $this->codeTypeService->collectCodeTypes("medical_problem", "csv"),
                 'linkedQuestionnaireResponse' => $observation['questionnaire_response'] ?? null,
                 // AI Generated: FHIR configuration for QuestionnaireResponse dialog
                 'fhir_config' => [
