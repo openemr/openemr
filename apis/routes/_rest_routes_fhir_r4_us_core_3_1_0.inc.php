@@ -53,6 +53,12 @@ use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestControlle
 use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FHIR\FhirQuestionnaireService;
+use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
+use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -5799,7 +5805,6 @@ return array(
         $fhirFormService = new FhirQuestionnaireFormService();
         $fhirQuestionnaireService->addMappedService($fhirFormService);
         $return = (new FhirQuestionnaireRestController($logger, $fhirQuestionnaireService))->list($request);
-        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -5860,7 +5865,6 @@ return array(
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
-        RestConfig::apiLog($return);
         return $return;
     },
 

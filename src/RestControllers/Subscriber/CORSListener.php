@@ -47,7 +47,7 @@ class CORSListener implements EventSubscriberInterface
         $response = new Response('', Response::HTTP_OK, [
             'Access-Control-Allow-Credentials' => 'true',
             "Access-Control-Allow-Headers" => "origin, authorization, accept, content-type, content-encoding, x-requested-with",
-            "Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS"
+            "Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, PATCH, TRACE, OPTIONS"
         ]);
         $origins = $request->getHeader('Origin');
         // TODO: @adunsulag should we allow all origins or just the first one?

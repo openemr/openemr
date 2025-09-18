@@ -15,14 +15,14 @@
         {% endif %}
     </h3>
     <ul>
-        <li>{{ "Token JTI(DB token value)" }}: {{ parts.jti }}</li>
-        <li>{{ "Token DB Id" }}: {{ databaseRecord.id }}</li>
-        <li>{{ "Token Status" }}: {{ parts.status }}</li>
-        <li>{{ "Token Type" }}: {{ parts.token_type }}</li>
-        <li>{{ "Token Expiration" }}: {{ databaseRecord.expiry }}</li>
-        <li>{{ "User UUID" }}:
+        <li>{{ "Token JTI(DB token value)"|xlt }}: {{ parts.jti|text }}</li>
+        <li>{{ "Token DB Id"|xlt }}: {{ databaseRecord.id|text }}</li>
+        <li>{{ "Token Status"|xlt }}: {{ parts.status|text }}</li>
+        <li>{{ "Token Type"|xlt }}: {{ parts.token_type|text }}</li>
+        <li>{{ "Token Expiration"|xlt }}: {{ databaseRecord.expiry|text }}</li>
+        <li>{{ "User UUID"|xlt }}:
             <a href="{{ parts.user_link|attr_url }}">
-                {{ databaseRecord.user_id }}
+                {{ databaseRecord.user_id|text }}
             </a>
         </li>
     </ul>

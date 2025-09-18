@@ -4,6 +4,7 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use OpenEMR\Common\Session\SessionConfigurationBuilder;
 use OpenEMR\Common\Session\SessionUtil;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -57,58 +58,8 @@ class HttpSessionFactory implements SessionFactoryInterface
     }
     public function createSession(): SessionInterface
     {
-        $sessionKey = SessionUtil::CORE_SESSION_ID;
-        $settings = [];
-        if ($this->sessionType == self::SESSION_TYPE_OAUTH) {
-            $sessionKey = SessionUtil::OAUTH_SESSION_ID;
-            $settings = [
-                'cookie_samesite' => "None",
-                'cookie_secure' => true,
-                'name' => SessionUtil::OAUTH_SESSION_ID,
-                'cookie_httponly' => true,
-                'cookie_path' => ((!empty($this->web_root)) ? $this->web_root . SessionUtil::OAUTH_WEBROOT : SessionUtil::OAUTH_WEBROOT),
-                'gc_maxlifetime' => SessionUtil::DEFAULT_GC_MAXLIFETIME, // 4 hours
-                'use_strict_mode' => true,
-                'use_cookies' => true,
-                'use_only_cookies' => true
-            ];
-        } else if ($this->sessionType == self::SESSION_TYPE_API) {
-            $settings = [
-                'cookie_samesite' => "Strict",
-                'cookie_secure' => true,
-                'name' => SessionUtil::API_SESSION_ID,
-                'cookie_httponly' => true,
-                'cookie_path' => ((!empty($this->web_root)) ? $this->web_root . SessionUtil::API_WEBROOT : SessionUtil::API_WEBROOT),
-                'gc_maxlifetime' => SessionUtil::DEFAULT_GC_MAXLIFETIME, // 4 hours
-                'use_strict_mode' => true,
-                'use_cookies' => true,
-                'use_only_cookies' => true
-            ];
-        } else if ($this->sessionType == self::SESSION_TYPE_CORE) {
-            $sessionKey = SessionUtil::CORE_SESSION_ID;
-            $settings = [
-                'read_and_close' => $this->readOnly,
-                'cookie_samesite' => "Strict",
-                'cookie_secure' => false,
-                'name' => SessionUtil::CORE_SESSION_ID,
-                'cookie_httponly' => false,
-                'cookie_path' => ((!empty($this->web_root)) ? $this->web_root . '/' : '/'),
-                'gc_maxlifetime' => SessionUtil::DEFAULT_GC_MAXLIFETIME, // 4 hours
-                'use_strict_mode' => true,
-                'use_cookies' => true,
-                'use_only_cookies' => true
-            ];
-        }
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => 6,
-                'sid_length' => 48
-            ], $settings);
-        }
+        $settings = $this->getSessionSettings();
+        $sessionKey = $this->getSessionKey();
         $sessionHandler = $this->getSessionHandlerInterface($settings);
         if ($this->useBridge) {
             // Use the existing session bridge if it exists
@@ -121,6 +72,35 @@ class HttpSessionFactory implements SessionFactoryInterface
         $session->start();
         $this->populateSessionFromGlobals($session);
         return $session;
+    }
+    private function getSessionSettings(): array
+    {
+        switch ($this->sessionType) {
+            case self::SESSION_TYPE_OAUTH:
+                return SessionConfigurationBuilder::forOAuth($this->web_root);
+
+            case self::SESSION_TYPE_API:
+                return SessionConfigurationBuilder::forApi($this->web_root);
+
+            case self::SESSION_TYPE_CORE:
+                return SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly);
+
+            default:
+                throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}");
+        }
+    }
+
+    private function getSessionKey(): string
+    {
+        switch ($this->sessionType) {
+            case self::SESSION_TYPE_OAUTH:
+                return SessionUtil::OAUTH_SESSION_ID;
+            case self::SESSION_TYPE_API:
+                return SessionUtil::API_SESSION_ID;
+            case self::SESSION_TYPE_CORE:
+            default:
+                return SessionUtil::CORE_SESSION_ID;
+        }
     }
     private function getSessionHandlerInterface(array $settings): ?\SessionHandlerInterface
     {
