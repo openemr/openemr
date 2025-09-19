@@ -18,7 +18,7 @@
  * All generated code has been reviewed and tested for compliance with project standards.
  */
 
-namespace OpenEMR\Services\Sdoh;
+namespace OpenEMR\Services\SDOH;
 
 class HistorySdohService
 {
@@ -1060,12 +1060,6 @@ class HistorySdohService
                 $n++;
             }
         }
-        $ext = json_decode($postOrRow['extended_domains'] ?? '[]', true) ?: [];
-        foreach ($ext as $row) {
-            if (self::isPositiveStatus($row['status'] ?? null)) {
-                $n++;
-            }
-        }
         return $n;
     }
 
@@ -1099,16 +1093,6 @@ class HistorySdohService
             if (self::isPositiveStatus($row[$k] ?? null)) {
                 $code = $map[$k]['icd10'] ?? 'Z59.89';
                 $push($k, $code, $disp, 'ICD-10-CM');
-            }
-        }
-
-        $ext = json_decode($row['extended_domains'] ?? '[]', true) ?: [];
-        foreach ($ext as $e) {
-            if (self::isPositiveStatus($e['status'] ?? null)) {
-                $sys = $e['status_system'] ?: 'ICD-10-CM';
-                $code = $e['status_code'] ?: 'Z59.89';
-                $disp = $e['domain_display'] ?: 'Social risk';
-                $push($e['domain'] ?: 'extended', $code, $disp, $sys);
             }
         }
 
