@@ -614,9 +614,6 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
 #EndIf
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#IfEyeFormLaserCategoriesNeeded
-#EndIf
-
 -- Observation Form Changes
 
 -- Fix the issue that we don't have a primary key on the form_observation table
@@ -707,6 +704,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 -- Add uuid for form_observation if missing
 #IfMissingColumn form_observation uuid
 ALTER TABLE `form_observation` ADD `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for the observation, used as unique logical identifier';
+#EndIf
+
+#IfEyeFormLaserCategoriesNeeded
 #EndIf
 
 -- =========================
