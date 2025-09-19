@@ -19,9 +19,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\Sdoh\HistorySdohService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 
-$pid    = (int)($_GET['pid'] ?? 0);
+$pid = (int)($_GET['pid'] ?? 0);
 $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $is_new = isset($_GET['new']) ? (int)$_GET['new'] : 0;
 
@@ -44,11 +44,11 @@ if ($is_new) {
 $goals_arr = [];
 $interventions_arr = [];
 if (!empty($info)) {
-    $goals_arr         = HistorySdohService::buildGoals($info, $pid);
+    $goals_arr = HistorySdohService::buildGoals($info, $pid);
     $interventions_arr = HistorySdohService::buildInterventions($info, $pid, ['include_manual' => false]);
 }
 
-$goals_text         = HistorySdohService::goalsToText($goals_arr);
+$goals_text = HistorySdohService::goalsToText($goals_arr);
 $interventions_text = HistorySdohService::interventionsToText($interventions_arr);
 
 // Helpers
@@ -84,13 +84,13 @@ function render_list_select(string $field, string $list_id, $current, string $pl
     echo "<select$attrs_str>";
     echo "<option value=''>" . xlt($placeholder) . "</option>";
     foreach ($opts as $o) {
-        $sel   = ($current === $o['option_id']) ? " selected" : "";
+        $sel = ($current === $o['option_id']) ? " selected" : "";
         $codes = $o['codes'] ?? '';
         $code = $system = '';
         if ($codes) {
             if ($codes[0] === '{') {
-                $cd     = json_decode($codes, true) ?: [];
-                $code   = $cd['code'] ?? '';
+                $cd = json_decode($codes, true) ?: [];
+                $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
             } elseif (strpos($codes, ':') !== false) {
                 [$system, $code] = explode(':', $codes, 2);
@@ -111,16 +111,37 @@ $self = basename($_SERVER['PHP_SELF']);
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt("SDOH Assessment (USCDI v3)"); ?></title>
     <style>
-      .card-header { padding: .5rem .75rem; }
-      .card-body { padding: .75rem; }
-      .form-group { margin-bottom: .75rem; }
-      label { margin-bottom: .25rem; font-weight: 500; }
-      textarea.form-control { min-height: 2.5rem; }
-      .domain-card { height: 100%; }
-      .text-muted { font-size: 0.875rem; }
+      .card-header {
+        padding: .5rem .75rem;
+      }
+
+      .card-body {
+        padding: .75rem;
+      }
+
+      .form-group {
+        margin-bottom: .75rem;
+      }
+
+      label {
+        margin-bottom: .25rem;
+        font-weight: 500;
+      }
+
+      textarea.form-control {
+        min-height: 2.5rem;
+      }
+
+      .domain-card {
+        height: 100%;
+      }
+
+      .text-muted {
+        font-size: 0.875rem;
+      }
     </style>
 </head>
-<body class="body_top">
+<body class="body_top mt-3">
     <div class="container-xl mb-3">
         <form method="post" action="history_sdoh_save.php?pid=<?php echo attr_url($pid); ?>" onsubmit="top.restoreSession()">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrf); ?>">
@@ -182,57 +203,103 @@ $self = basename($_SERVER['PHP_SELF']);
                     </div>
                 </div>
             </div>
-
-            <!-- Hunger Vital Signs (Required for ONC) -->
-            <div class="card mb-3">
-                <div class="card-header font-weight-bold">
-                    <?php echo xlt("Hunger Vital Signs"); ?>
-                    <small class="text-muted ml-2"><?php echo xlt("LOINC 88121-9 (Required)"); ?></small>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label><?php echo xlt("Within the past 12 months, we worried whether our food would run out before we got money to buy more"); ?></label>
-                        <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88122-7"); ?></small>
-                        <?php render_list_select('hunger_q1', 'vital_signs_answers', v($info, 'hunger_q1')); ?>
-                    </div>
-                    <div class="form-group">
-                        <label><?php echo xlt("Within the past 12 months, the food we bought just didn't last and we didn't have money to get more"); ?></label>
-                        <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88123-5"); ?></small>
-                        <?php render_list_select('hunger_q2', 'vital_signs_answers', v($info, 'hunger_q2')); ?>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label><?php echo xlt("Hunger Score"); ?></label>
-                            <input type="number" class="form-control" name="hunger_score" id="hunger_score" readonly
-                                value="<?php echo attr(v($info, 'hunger_score', 0)); ?>">
-                            <small class="text-muted"><?php echo xlt("0 = No risk, ≥1 = At risk"); ?></small>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label><?php echo xlt("Food Insecurity Status"); ?></label>
-                            <?php render_list_select(
-                                'food_insecurity',
-                                'sdoh_food_insecurity_risk',
-                                v($info, 'food_insecurity'),
-                                'Auto-determined',
-                                ['readonly' => true]
-                            ); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- SDOH Domains Grid -->
             <div class="row">
+                <!-- Hunger Vital Signs (Required for ONC) -->
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="card mb-3">
+                        <div class="card-header font-weight-bold">
+                            <?php echo xlt("Hunger Vital Signs"); ?>
+                            <small class="text-muted ml-2"><?php echo xlt("LOINC 88121-9 (Required)"); ?></small>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <label><?php echo xlt("Food Insecurity Status"); ?></label>
+                                    <?php render_list_select(
+                                        'food_insecurity',
+                                        'sdoh_food_insecurity_risk',
+                                        v($info, 'food_insecurity'),
+                                        'Auto-determined',
+                                    ); ?>
+                                </div>
+                                <div class="form-group">
+                                    <label><?php echo xlt("Additional Notes"); ?></label>
+                                    <textarea class="form-control" rows="1" name="food_insecurity_notes"><?php echo text(v($info, 'food_insecurity_notes')); ?></textarea>
+                                </div>
+                                <label><?php echo xlt("Within the past 12 months, we worried whether our food would run out before we got money to buy more"); ?></label>
+                                <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88122-7"); ?></small>
+                                <?php render_list_select('hunger_q1', 'vital_signs_answers', v($info, 'hunger_q1')); ?>
+                            </div>
+                            <div class="form-group">
+                                <label><?php echo xlt("Within the past 12 months, the food we bought just didn't last and we didn't have money to get more"); ?></label>
+                                <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88123-5"); ?></small>
+                                <?php render_list_select('hunger_q2', 'vital_signs_answers', v($info, 'hunger_q2')); ?>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label><?php echo xlt("Hunger Score"); ?></label>
+                                    <input type="number" class="form-control" name="hunger_score" id="hunger_score" readonly
+                                        value="<?php echo attr(v($info, 'hunger_score', 0)); ?>">
+                                    <small class="text-muted"><?php echo xlt("0 = No risk, ≥1 = At risk"); ?></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Disability Status -->
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="card mb-3">
+                        <div class="card-header font-weight-bold">
+                            <?php echo xlt("Disability Status"); ?>
+                            <small class="text-muted ml-2"><?php echo xlt("ACS 6-item set"); ?></small>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label><?php echo xlt("Overall Disability Status"); ?></label>
+                                <?php render_list_select('disability_status', 'disability_status', v($info, 'disability_status')); ?>
+                            </div>
+                            <div class="form-group">
+                                <label><?php echo xlt("Additional Notes"); ?></label>
+                                <textarea class="form-control" rows="1" name="disability_status_notes"><?php echo text(v($info, 'disability_status_notes')); ?></textarea>
+                            </div>
+                            <?php
+                            $yesNoList = 'sdoh_ipv_yesno';
+                            $scale = json_decode($info['disability_scale'] ?? '[]', true) ?: [];
+                            $get = function ($key) use ($scale) {
+                                return $scale[$key]['code'] ?? '';
+                            };
+                            function fn_row($fieldKey, $label, $yesNoList, $get): void
+                            {
+                                echo "<div class='form-row align-items-end mb-2'>";
+                                echo "  <div class='form-group col-md'>";
+                                echo "    <label>" . text($label) . "</label>";
+                                render_list_select("dscale[$fieldKey][code]", $yesNoList, call_user_func($get, $fieldKey), 'Select...');
+                                echo "  </div>";
+                                echo "</div>";
+                            }
+
+                            fn_row('walk_climb', 'Do you have serious difficulty walking or climbing stairs? (LOINC 69859-7)', $yesNoList, $get);
+                            fn_row('seeing', 'Do you have serious difficulty seeing, even when wearing glasses? (LOINC 69861-3)', $yesNoList, $get);
+                            fn_row('hearing', 'Do you have serious difficulty hearing? (LOINC 69860-5)', $yesNoList, $get);
+                            fn_row('cognitive', 'Do you have serious difficulty concentrating, remembering, or making decisions? (LOINC 69862-1)', $yesNoList, $get);
+                            fn_row('dressing_bathing', 'Do you have difficulty dressing or bathing? (LOINC 69863-9)', $yesNoList, $get);
+                            fn_row('errands', 'Do you have difficulty doing errands alone? (LOINC 69864-7)', $yesNoList, $get);
+                            ?>
+                        </div>
+                    </div>
+                </div>
+
                 <?php
                 $domains = [
-                    ['key' => 'housing_instability',       'label' => 'Housing Instability',         'list' => 'sdoh_housing_worry'],
-                    ['key' => 'transportation_insecurity', 'label' => 'Transportation Insecurity',  'list' => 'sdoh_transportation_barrier'],
-                    ['key' => 'utilities_insecurity',      'label' => 'Utilities Insecurity',       'list' => 'sdoh_utilities_shutoff'],
-                    ['key' => 'interpersonal_safety',      'label' => 'Interpersonal Safety',       'list' => 'sdoh_ipv_yesno'],
-                    ['key' => 'financial_strain',          'label' => 'Financial Strain',           'list' => 'sdoh_financial_strain'],
-                    ['key' => 'social_isolation',          'label' => 'Social Isolation',           'list' => 'sdoh_social_isolation_freq'],
-                    ['key' => 'childcare_needs',           'label' => 'Childcare Needs',            'list' => 'sdoh_childcare_needs'],
-                    ['key' => 'digital_access',            'label' => 'Digital Access',             'list' => 'sdoh_digital_access'],
+                    ['key' => 'housing_instability', 'label' => 'Housing Instability', 'list' => 'sdoh_housing_worry'],
+                    ['key' => 'transportation_insecurity', 'label' => 'Transportation Insecurity', 'list' => 'sdoh_transportation_barrier'],
+                    ['key' => 'utilities_insecurity', 'label' => 'Utilities Insecurity', 'list' => 'sdoh_utilities_shutoff'],
+                    ['key' => 'interpersonal_safety', 'label' => 'Interpersonal Safety', 'list' => 'sdoh_ipv_yesno'],
+                    ['key' => 'financial_strain', 'label' => 'Financial Strain', 'list' => 'sdoh_financial_strain'],
+                    ['key' => 'social_isolation', 'label' => 'Social Isolation', 'list' => 'sdoh_social_isolation_freq'],
+                    ['key' => 'childcare_needs', 'label' => 'Childcare Needs', 'list' => 'sdoh_childcare_needs'],
+                    ['key' => 'digital_access', 'label' => 'Digital Access', 'list' => 'sdoh_digital_access'],
                 ];
 
                 foreach ($domains as $d) : ?>
@@ -272,7 +339,7 @@ $self = basename($_SERVER['PHP_SELF']);
                             <select class="form-control" name="caregiver_status">
                                 <option value=""><?php echo xlt("Select"); ?></option>
                                 <option value="yes" <?php echo v($info, 'caregiver_status') == 'yes' ? 'selected' : ''; ?>><?php echo xlt("Yes"); ?></option>
-                                <option value="no"  <?php echo v($info, 'caregiver_status') == 'no'  ? 'selected' : ''; ?>><?php echo xlt("No"); ?></option>
+                                <option value="no" <?php echo v($info, 'caregiver_status') == 'no' ? 'selected' : ''; ?>><?php echo xlt("No"); ?></option>
                             </select>
                         </div>
                         <div class="form-group col-md-3">
@@ -280,50 +347,10 @@ $self = basename($_SERVER['PHP_SELF']);
                             <select class="form-control" name="veteran_status">
                                 <option value=""><?php echo xlt("Select"); ?></option>
                                 <option value="yes" <?php echo v($info, 'veteran_status') == 'yes' ? 'selected' : ''; ?>><?php echo xlt("Yes"); ?></option>
-                                <option value="no"  <?php echo v($info, 'veteran_status') == 'no'  ? 'selected' : ''; ?>><?php echo xlt("No"); ?></option>
+                                <option value="no" <?php echo v($info, 'veteran_status') == 'no' ? 'selected' : ''; ?>><?php echo xlt("No"); ?></option>
                             </select>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Disability Status -->
-            <div class="card mb-3">
-                <div class="card-header font-weight-bold">
-                    <?php echo xlt("Disability Status"); ?>
-                    <small class="text-muted ml-2"><?php echo xlt("ACS 6-item set"); ?></small>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label><?php echo xlt("Overall Disability Status"); ?></label>
-                        <?php render_list_select('disability_status', 'disability_status', v($info, 'disability_status')); ?>
-                    </div>
-                    <div class="form-group">
-                        <label><?php echo xlt("Additional Notes"); ?></label>
-                        <textarea class="form-control" rows="2" name="disability_status_notes"><?php echo text(v($info, 'disability_status_notes')); ?></textarea>
-                    </div>
-                    <?php
-                    $yesNoList = 'sdoh_ipv_yesno';
-                    $scale     = json_decode($info['disability_scale'] ?? '[]', true) ?: [];
-                    $get       = function ($key) use ($scale) {
-                        return $scale[$key]['code'] ?? '';
-                    };
-                    function fn_row($fieldKey, $label, $yesNoList, $get): void
-                    {
-                        echo "<div class='form-row align-items-end mb-2'>";
-                        echo "  <div class='form-group col-md'>";
-                        echo "    <label>" . text($label) . "</label>";
-                        render_list_select("dscale[$fieldKey][code]", $yesNoList, call_user_func($get, $fieldKey), 'Select...');
-                        echo "  </div>";
-                        echo "</div>";
-                    }
-                    fn_row('walk_climb', 'Do you have serious difficulty walking or climbing stairs? (LOINC 69859-7)', $yesNoList, $get);
-                    fn_row('seeing', 'Do you have serious difficulty seeing, even when wearing glasses? (LOINC 69861-3)', $yesNoList, $get);
-                    fn_row('hearing', 'Do you have serious difficulty hearing? (LOINC 69860-5)', $yesNoList, $get);
-                    fn_row('cognitive', 'Do you have serious difficulty concentrating, remembering, or making decisions? (LOINC 69862-1)', $yesNoList, $get);
-                    fn_row('dressing_bathing', 'Do you have difficulty dressing or bathing? (LOINC 69863-9)', $yesNoList, $get);
-                    fn_row('errands', 'Do you have difficulty doing errands alone? (LOINC 69864-7)', $yesNoList, $get);
-                    ?>
                 </div>
             </div>
 
@@ -355,7 +382,7 @@ $self = basename($_SERVER['PHP_SELF']);
             </div>
 
             <!-- Goals and Interventions -->
-            <div class="card mb-3">
+            <div class="card mb-1">
                 <div class="card-header font-weight-bold"><?php echo xlt("Care Planning"); ?></div>
                 <div class="card-body">
                     <div class="form-group">
@@ -371,13 +398,12 @@ $self = basename($_SERVER['PHP_SELF']);
                     <div class="form-group">
                         <label><?php echo xlt("Additional Interventions (Manual)"); ?></label>
                         <textarea class="form-control" rows="3" name="interventions"
-                            placeholder="<?php echo xla("Enter any additional interventions, one per line"); ?>"><?php echo text(v($info, 'interventions')); ?></textarea>
+                            placeholder="<?php echo xla("Enter any additional interventions, one per line"); ?>" readonly><?php echo text(v($info, 'interventions')); ?></textarea>
                     </div>
                 </div>
             </div>
-
             <!-- Form Actions -->
-            <div class="mb-4">
+            <div class="mb-4 mt-2 float-right">
                 <button type="submit" class="btn btn-primary"><?php echo xlt("Save Assessment"); ?></button>
                 <a class="btn btn-secondary" href="history_sdoh_widget.php?pid=<?php echo attr_url($pid); ?>">
                     <?php echo xlt("Cancel"); ?>
@@ -420,6 +446,14 @@ $self = basename($_SERVER['PHP_SELF']);
 
                 updateTotalScore();
             }
+            // Warn on save if total score < 6
+            $('form').on('submit', function () {
+                let total = parseInt($('#total_score').val(), 10) || 0;
+                if (total <= 3) {
+                    alert(<?php echo xlj("Total SDOH score is less than 6. Please review before saving."); ?>);
+                    return false; // Prevent form submission
+                }
+            });
 
             $('[name="hunger_q1"], [name="hunger_q2"]').on('change', calculateHungerScore);
 

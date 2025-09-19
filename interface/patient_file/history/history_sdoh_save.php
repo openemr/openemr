@@ -14,7 +14,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\Sdoh\HistorySdohService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 
 $pid = (int)($_GET['pid'] ?? 0);
 
@@ -27,7 +27,6 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
 
 $instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
 $declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
-$extended_domains = !empty($_POST['extended_domains']) ? $_POST['extended_domains'] : '[]';
 
 // --- Functional sub-observations -> JSON (disability_scale)
 $dscale = $_POST['dscale'] ?? [];
@@ -45,12 +44,9 @@ $disability_scale_json = json_encode($scaleOut, JSON_UNESCAPED_UNICODE);
 
 $data['instrument_score'] = $instrument_score;
 $data['declined_flag'] = $declined_flag;
-$data['extended_domains'] = $extended_domains;
 
 // Optional convenience metric for reporting dashboards
-$data['positive_domain_count'] = \OpenEMR\Services\Sdoh\HistorySdohService::countPositiveDomains(
-    array_merge($_POST, ['extended_domains' => $extended_domains])
-);
+$data['positive_domain_count'] = \OpenEMR\Services\SDOH\HistorySdohService::countPositiveDomains($_POST);
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
@@ -130,14 +126,6 @@ $data = [
     'hunger_q2' => $clean('hunger_q2'),
     'hunger_score' => $clean('hunger_score'),
 ];
-// Fallback: force-persist extended_domains if your base save omitted it
-$sdoh_id = (int)($_POST['history_sdoh_id'] ?? 0);
-if (!empty($sdoh_id)) {
-    sqlStatement(
-        "UPDATE form_history_sdoh SET extended_domains = ? WHERE id = ?",
-        [$extended_domains, $sdoh_id]
-    );
-}
 
 if ($rec_id) {
     // UPDATE existing

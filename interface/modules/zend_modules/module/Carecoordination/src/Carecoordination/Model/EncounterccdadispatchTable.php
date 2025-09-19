@@ -36,7 +36,7 @@ use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Sdoh\HistorySdohService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
