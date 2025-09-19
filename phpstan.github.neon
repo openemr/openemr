@@ -13204,10 +13204,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/summary/demographics_full.php
-  - message: '#^Variable \$pid might not be defined\.$#'
-    identifier: variable.undefined
-    count: 3
-    path: interface/patient_file/summary/demographics_full.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 6

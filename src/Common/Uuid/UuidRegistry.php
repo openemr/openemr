@@ -63,6 +63,8 @@ class UuidRegistry
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
+        'patient_related_persons' => ['table_name' => 'patient_related_persons', 'table_id' => 'pid'],
+        'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
@@ -100,7 +102,7 @@ class UuidRegistry
     }
 
     /**
-     * @return string The uuid in bytes format
+     * @return string
      */
     public function createUuid()
     {
