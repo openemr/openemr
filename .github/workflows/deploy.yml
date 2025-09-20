@@ -1,0 +1,26 @@
+# This is the name of the workflow
+name: Deploy to VPS
+
+# This section defines the trigger for the workflow
+on:
+  push:
+    branches:
+      - main  # Runs only when you push to the 'main' branch
+
+# This section defines the jobs to be run
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # The type of virtual machine to run the job on
+
+    steps:
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        script: |
+          cd /var/www/openemr
+          git pull origin main
+          docker compose restart openemr
+          echo "Deployment successful!"
