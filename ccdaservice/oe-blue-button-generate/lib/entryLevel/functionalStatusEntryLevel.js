@@ -181,31 +181,72 @@ exports.disabilityStatusObservation = {
         {
             key: "code",
             attributes: {
-                code: "89571-4",
-                codeSystem: "2.16.840.1.113883.6.1",
-                codeSystemName: "LOINC",
-                displayName: "Disability status"
+                code: leafLevel.deepInputProperty("overall_status.code"),
+                codeSystem: leafLevel.deepInputProperty("overall_status.code_system"),
+                codeSystemName: leafLevel.deepInputProperty("overall_status.code_system_name"),
+                displayName: leafLevel.deepInputProperty("overall_status.display")
             }
         },
         fieldLevel.statusCodeCompleted,
-        [fieldLevel.effectiveTime, contentModifier.dataKey("disability_status.date_time"), required],
+        [fieldLevel.effectiveTime, required],
         {
             key: "value",
             attributes: [
                 {
                     "xsi:type": "CD"
                 }, {
-                    code: leafLevel.inputProperty("disability_code"),
+                    code: leafLevel.deepInputProperty("overall_status.answer_code"),
                     codeSystem: "2.16.840.1.113883.6.1",
                     codeSystemName: "LOINC",
-                    displayName: leafLevel.inputProperty("disability_title")
-                },
-            ],
-            dataKey: "disability_status"
+                    displayName: leafLevel.deepInputProperty("overall_status.answer_display")
+                }
+            ]
         },
-        //fieldLevel.author
+        // Add individual disability questions as entryRelationship components
+        {
+            key: "entryRelationship",
+            attributes: {
+                typeCode: "COMP"
+            },
+            content: {
+                key: "observation",
+                attributes: {
+                    classCode: "OBS",
+                    moodCode: "EVN"
+                },
+                content: [
+                    fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.86"),
+                    fieldLevel.uniqueId,
+                    fieldLevel.id, // Add required id element
+                    {
+                        key: "code",
+                        attributes: {
+                            code: leafLevel.inputProperty("code"),
+                            codeSystem: leafLevel.inputProperty("code_system"),
+                            codeSystemName: leafLevel.inputProperty("code_system_name"),
+                            displayName: leafLevel.inputProperty("display")
+                        }
+                    },
+                    fieldLevel.statusCodeCompleted,
+                    {
+                        key: "value",
+                        attributes: [
+                            {
+                                "xsi:type": "CD"
+                            }, {
+                                code: leafLevel.inputProperty("answer_code"),
+                                codeSystem: leafLevel.inputProperty("answer_code_system") || "2.16.840.1.113883.6.1",
+                                codeSystemName: "LOINC",
+                                displayName: leafLevel.inputProperty("answer_display")
+                            }
+                        ]
+                    }
+                ]
+            },
+            dataKey: "disability_questions.question"
+        }
     ],
     existsWhen: function (input) {
-        return input && input.disability_status;
+        return input && input.overall_status;
     }
 };

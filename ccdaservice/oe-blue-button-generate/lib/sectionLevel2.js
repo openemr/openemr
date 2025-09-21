@@ -501,16 +501,6 @@ exports.socialHistorySection = function (htmlHeader, na) {
                         entryLevel.hungerVitalSignsObservation
                     ],
                     dataKey: "social_history",
-                }, {
-                    key: "entry",
-                    attributes: {
-                        typeCode: "DRIV"
-                    },
-                    content: [
-                        entryLevel.disabilityAssessmentObservation
-                    ],
-                    dataKey: "social_history",
-                    existsWhen: condition.keyExists("social_history.disability_assessment")
                 }
             ]
         }]
@@ -633,7 +623,7 @@ exports.functionalStatusSection = function (htmlHeader, na) {
                         typeCode: "DRIV"
                     },
                     content: [entryLevel.disabilityStatusObservation],
-                    dataKey: "functional_status"
+                    dataKey: "disability_status"
                 }
             ]
         }]

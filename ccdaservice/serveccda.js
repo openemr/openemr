@@ -1331,7 +1331,8 @@ function getFunctionalStatus(pd) {
         "code": {
             "name": all.author.physician_type || '',
             "code": all.author.physician_type_code || '',
-            "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
+            "code_system": all.author.physician_type_system,
+            "code_system_name": all.author.physician_type_system_name
         },
         "date_time": {
             "point": {
@@ -1390,17 +1391,64 @@ function getFunctionalStatus(pd) {
             },
             "status": "completed",
             "author": functionalStatusAuthor
+        }
+    }
+}
+
+function getDisabilityAssessment(pd) {
+    let disabilityAssessmentAuthor = {
+        "code": {
+            "name": all.author.physician_type || '',
+            "code": all.author.physician_type_code || '',
+            "code_system": all.author.physician_type_system,
+            "code_system_name": all.author.physician_type_system_name
         },
-        "disability_status": {
-            "date_time": {
-                "point": {
-                    "date": fDate(pd.date),
-                    "precision": "day"
-                }
-            },
-            "disability": all.sdoh_data.disability,
-            "disability_code": all.sdoh_data.disability_code,
-            "disability_title": all.sdoh_data.disability_title
+        "date_time": {
+            "point": {
+                "date": authorDateTime,
+                "precision": "tz"
+            }
+        },
+        "identifiers": [
+            {
+                "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                "extension": all.author.npi ? all.author.npi : 'NI'
+            }
+        ],
+        "name": [
+            {
+                "last": all.author.lname,
+                "first": all.author.fname
+            }
+        ],
+        "organization": [
+            {
+                "identity": [
+                    {
+                        "root": oidFacility || "2.16.840.1.113883.4.6",
+                        "extension": npiFacility || ""
+                    }
+                ],
+                "name": [
+                    all.encounter_provider.facility_name
+                ]
+            }
+        ]
+    };
+    return {
+        "status": "completed",
+        "author": disabilityAssessmentAuthor,
+        "identifiers": [{
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ddd",
+            "extension": pd.extension || null,
+        }],
+        "overall_status": pd.overall_status,
+        "disability_questions": pd.disability_questions,
+        "date_time": {
+            "point": {
+                "date": fDate(pd.date || all.created_time_timezone),
+                "precision": "day"
+            }
         }
     };
 }
@@ -2926,7 +2974,6 @@ function generateCcda(pd) {
     if (count !== 0) {
         data.clinicalNoteAssessments = Object.assign(many.clinicalNoteAssessments);
     }
-
 // Functional Status.
     many = [];
     theone = {};
@@ -2949,6 +2996,58 @@ function generateCcda(pd) {
         data.functional_status = Object.assign(many.functional_status);
     }
 
+// Add disability status as a separate data key for the section template
+    if (all.sdoh_data && all.sdoh_data.disability_assessment) {
+        data.disability_status = {
+            "overall_status": all.sdoh_data.disability_assessment.overall_status,
+            "disability_questions": all.sdoh_data.disability_assessment.disability_questions,
+            "date_time": {
+                "point": {
+                    "date": fDate(all.created_time_timezone),
+                    "precision": "day"
+                }
+            },
+            "author": {
+                "code": {
+                    "name": all.author.physician_type || '',
+                    "code": all.author.physician_type_code || '',
+                    "code_system": all.author.physician_type_system,
+                    "code_system_name": all.author.physician_type_system_name
+                },
+                "date_time": {
+                    "point": {
+                        "date": authorDateTime,
+                        "precision": "tz"
+                    }
+                },
+                "identifiers": [
+                    {
+                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                        "extension": all.author.npi ? all.author.npi : 'NI'
+                    }
+                ],
+                "name": [
+                    {
+                        "last": all.author.lname,
+                        "first": all.author.fname
+                    }
+                ],
+                "organization": [
+                    {
+                        "identity": [
+                            {
+                                "root": oidFacility || "2.16.840.1.113883.4.6",
+                                "extension": npiFacility || ""
+                            }
+                        ],
+                        "name": [
+                            all.encounter_provider.facility_name
+                        ]
+                    }
+                ]
+            }
+        };
+    }
 // Mental Status.
     many = [];
     theone = {};

@@ -4236,51 +4236,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $xml .= '</hunger_vital_signs>';
         }
 
-        // Disability Assessment (ACS 6-item)
-        if (!empty($sdoh['disability_scale'])) {
-            $scale = json_decode($sdoh['disability_scale'], true) ?: [];
-
-            $questions = [
-                'walk_climb' => ['code' => '69859-7', 'display' => 'Difficulty walking or climbing stairs'],
-                'seeing' => ['code' => '69861-3', 'display' => 'Difficulty seeing'],
-                'hearing' => ['code' => '69860-5', 'display' => 'Difficulty hearing'],
-                'cognitive' => ['code' => '69862-1', 'display' => 'Difficulty concentrating, remembering, or making decisions'],
-                'dressing_bathing' => ['code' => '69863-9', 'display' => 'Difficulty dressing or bathing'],
-                'errands' => ['code' => '69864-7', 'display' => 'Difficulty doing errands alone']
-            ];
-
-            $xml .= '<disability_assessment>';
-            $xml .= '<assessment_date>' . xmlEscape($assessDateFormatted) . '</assessment_date>';
-
-            foreach ($questions as $key => $info) {
-                if (isset($scale[$key]['code'])) {
-                    $answer = $scale[$key]['code'];
-                    $answer_code = '';
-                    $answer_display = '';
-
-                    if (in_array($answer, ['yes', 'LA33-6'])) {
-                        $answer_code = 'LA33-6';
-                        $answer_display = 'Yes';
-                    } elseif (in_array($answer, ['no', 'LA32-8'])) {
-                        $answer_code = 'LA32-8';
-                        $answer_display = 'No';
-                    }
-
-                    if ($answer_code) {
-                        $xml .= '<question>';
-                        $xml .= '<code>' . xmlEscape($info['code']) . '</code>';
-                        $xml .= '<code_system>2.16.840.1.113883.6.1</code_system>';
-                        $xml .= '<display>' . xmlEscape($info['display']) . '</display>';
-                        $xml .= '<answer_code>' . xmlEscape($answer_code) . '</answer_code>';
-                        $xml .= '<answer_display>' . xmlEscape($answer_display) . '</answer_display>';
-                        $xml .= '</question>';
-                    }
-                }
-            }
-
-            $xml .= '</disability_assessment>';
-        }
-
         $xml .= '</social_history_sdoh>';
         return $xml;
     }
