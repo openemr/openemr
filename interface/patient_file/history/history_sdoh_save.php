@@ -14,6 +14,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
 $pid = (int)($_GET['pid'] ?? 0);
@@ -165,7 +166,7 @@ if ($rec_id) {
 
     $id = sqlInsert("INSERT INTO form_history_sdoh ($cols) VALUES ($qs)", $params);
 }
-
+UuidRegistry::createMissingUuidsForTables(['form_history_sdoh']);
 // Return to demographics (or wherever you prefer)
 header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid));
 exit;
