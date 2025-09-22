@@ -1,0 +1,23 @@
+!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+authList	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^$authList = $listData->getAllAuthorizations();$/;"	v	language:PHP
+datetimepicker_formatInput	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^                <?php $datetimepicker_formatInput = true; ?>$/;"	v	language:PHP
+datetimepicker_showseconds	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^                <?php $datetimepicker_showseconds = false; ?>$/;"	v	language:PHP
+datetimepicker_timepicker	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^                <?php $datetimepicker_timepicker = false; ?>$/;"	v	language:PHP
+dt	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^    $dt = DateTime::createFromFormat($format, $date);$/;"	v	language:PHP
+editData	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^                        $editData = json_encode($iter);$/;"	v	language:PHP
+endDate	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^        $endDate = $postEndDate;$/;"	v	language:PHP
+endDate	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^        $endDate = $_POST['end_date'];$/;"	v	language:PHP
+format	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^function isValid($date, $format = 'Y-m-d')$/;"	v	language:PHP
+getRowData	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^    function getRowData(jsonData) {$/;"	f	language:PHP
+isValid	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^function isValid($date, $format = 'Y-m-d')$/;"	f	language:PHP
+listData	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^$listData = new ListAuthorizations();$/;"	v	language:PHP
+pid	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^$pid = $_SESSION['pid'];$/;"	v	language:PHP
+postData	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^    $postData = new AuthorizationService();$/;"	v	language:PHP
+postEndDate	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^    $postEndDate = DateToYYYYMMDD($_POST['end_date']);$/;"	v	language:PHP
+postStartDate	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^    $postStartDate = DateToYYYYMMDD($_POST['start_date']);$/;"	v	language:PHP
+refreshme	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^        function refreshme() {$/;"	f	language:PHP
+remaining	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^                        $remaining = $iter['init_units'] - $used;$/;"	v	language:PHP
+removeEntry	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^    function removeEntry(id) {$/;"	f	language:PHP
+startDate	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^        $startDate = $postStartDate ;$/;"	v	language:PHP
+startDate	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^        $startDate = $_POST['start_date'];$/;"	v	language:PHP
+used	/home2/traffid0/public_html/website_db2061ef/emr/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php	/^                        $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);$/;"	v	language:PHP

@@ -16,8 +16,10 @@ use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-$pid = $_SESSION['pid'] ?? null;
-function isValid($date, $format = 'Y-m-d'): bool
+$pid = $_SESSION['pid'];
+
+
+function isValid($date, $format = 'Y-m-d')
 {
     $dt = DateTime::createFromFormat($format, $date);
     return $dt && $dt->format($format) === $date;
@@ -92,7 +94,7 @@ const TABLE_TD = "</td><td>";
                 <span style="font-size: xx-large; padding-right: 20px"><?php echo xlt('Prior Authorization Manager'); ?></span>
                 <a href="../../../../patient_file/summary/demographics.php" onclick="top.restoreSession()"
                    title="<?php echo xla('Go Back') ?>">
-                    <i id="advanced-tooltip" class="fa fa-undo fa-2x" aria-hidden="true"></i></a>
+                    <i id="advanced-tooltip" class="fa fa-undo fa-2x small" aria-hidden="true"></i></a>
 
         </div>
         <div class="m-4">
@@ -108,7 +110,8 @@ const TABLE_TD = "</td><td>";
                 <input type="hidden" id="id" name="id" value="">
                 <div class="form-row">
                     <div class="col">
-                        <input class="form-control" id="authorization" name="authorization" value="" placeholder="<?php echo xla('Authorization Number') ?>">
+                        <input class="form-control" id="authorization" name="authorization" value="" placeholder="
+                        <?php echo xla('Authorization Number') ?>">
                     </div>
                     <div class="col">
                         <input class="form-control" id="units" name="units" value="" placeholder="<?php echo xla('Units') ?>">
@@ -121,7 +124,7 @@ const TABLE_TD = "</td><td>";
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="col my-1">
+                    <div class="col">
                         <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPTs') ?>">
                     </div>
                 </div>
@@ -150,7 +153,7 @@ const TABLE_TD = "</td><td>";
                     while ($iter = sqlFetchArray($authList)) {
                         $editData = json_encode($iter);
                         $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);
-                        $remaining = $iter['init_units'] - $used['count'];
+                        $remaining = $iter['init_units'] - $used;
                         print "<tr><td>";
                         print text($iter['auth_num']);
                         print TABLE_TD . text($iter['init_units']);

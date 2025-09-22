@@ -12,17 +12,22 @@ namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller;
 
 class ListAuthorizations
 {
-    private int $pid;
+    private $pid;
 
     /**
-     * @param int $pid
+     * @param mixed $pid
      */
-    public function setPid(int $pid): void
+    public function setPid($pid): void
     {
         $this->pid = $pid;
     }
 
-    public function getAllAuthorizations(): false|array
+    public function __construct()
+    {
+        //do epic stuff
+    }
+
+    public function getAllAuthorizations()
     {
         $sql = "SELECT *
                       FROM module_prior_authorizations
@@ -30,7 +35,7 @@ class ListAuthorizations
         return sqlStatement($sql, [$this->pid]);
     }
 
-    private static function getAuthsFromModulePriorAuth(): false|array
+    private static function getAuthsFromModulePriorAuth(): array
     {
         $sql = "SELECT auth_num FROM module_prior_authorizations WHERE pid = ?";
         $auths = sqlStatement($sql, [$_SESSION['pid'] ?? null]);
@@ -79,7 +84,7 @@ class ListAuthorizations
      * @return array
      * from form prior auth
      */
-    private static function formPriorAuth(): false|array
+    private static function formPriorAuth(): array
     {
         $doesExist = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'form_form_prior_auth'");
         $auths_array = [];
@@ -97,7 +102,7 @@ class ListAuthorizations
     /**
      * @return array
      */
-    private static function formMiscBilling(): array
+    private static function formMiscBilling()
     {
         $sql = "select prior_auth_number from form_misc_billing_options where pid = ?";
         $auths = sqlStatement($sql, [$_SESSION['pid'] ?? null]);
@@ -108,7 +113,7 @@ class ListAuthorizations
         return $auths_array;
     }
 
-    public function findTriwestClients(): array
+    public function findTriwestClients()
     {
         $list = [];
         $sql = "SELECT `pid`  FROM `insurance_data` WHERE `provider` LIKE '133' ORDER BY `id` ASC";

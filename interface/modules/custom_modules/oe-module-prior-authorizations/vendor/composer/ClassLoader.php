@@ -574,7 +574,7 @@ class ClassLoader
          * @param  string $file
          * @return void
          */
-        self::$includeFile = static function($file): void {
+        self::$includeFile = static function($file) {
             include $file;
         };
     }

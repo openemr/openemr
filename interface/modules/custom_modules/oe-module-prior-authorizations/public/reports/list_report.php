@@ -8,6 +8,8 @@
  *  All Rights Reserved
  */
 
+
+
 require_once dirname(__FILE__, 6) . "/globals.php";
 require_once dirname(__FILE__, 3) . '/vendor/autoload.php';
 
@@ -59,22 +61,23 @@ $patients = $data->listPatientAuths();
                     } else {
                         $pid = $iter['mrn'];
                     }
-		    // this requires a custom layout form and custom table to work
-		    /*
-                    $requireAuth = AuthorizationService::requiresAuthorization($iter['pid']);
-                    $status = AuthorizationService::patientInactive($pid);
-
+                    // this requires a custom layout form
+                    //$requireAuth = AuthorizationService::requiresAuthorization($iter['pid']);
+                    // this requires custom table
+                    //$status = AuthorizationService::patientInactive($pid);
+                    // this requires a custom layout form
+                    /*
                     if ($iter['provider'] != 133 && ($requireAuth['field_value'] != 'YES')) {
                         continue;
                     }
-
+                    // this requires custom table
                     if ($status['status'] == 'inactive') {
                         continue;
                     }
-		    */
-
+                    */
+// Old Code
                     $numbers = AuthorizationService::countUsageOfAuthNumber(
-			$iter['auth_num'],
+                        $iter['auth_num'],
                         $pid,
                         $iter['cpt'],
                         $iter['start_date'],
