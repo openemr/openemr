@@ -88,7 +88,7 @@ if (!empty($count)) {
         $reason_high        = trim($reasonDateHigh[$key] ?? '');
 
         if (empty($reasonCode)) {
-            // Failsafe: if there is no reason code array at all, clear the rest
+            // just as a failsafe we will set everything else to be empty if we don't have a reason code
             $reason_status      = '';
             $reason_description = '';
             $reason_low         = '';
@@ -107,7 +107,7 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date = ?,
-            end_date = ?, 
+            date_end = ?, 
             plan_status = ?, 
             care_plan_type = ?,
             note_related_to = ?,

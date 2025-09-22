@@ -145,14 +145,14 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                                         id="end_date_<?php echo attr($key) + 1; ?>"
                                                         name='end_date[]'
                                                         class="form-control end_date datepicker"
-                                                        value='<?php echo attr($obj["end_date"] ?? ""); ?>'
+                                                        value='<?php echo attr($obj["date_end"] ?? ""); ?>'
                                                         title='<?php echo xla('yyyy-mm-dd HH:MM planned end date'); ?>' />
                                                 </div>
                                                 <div class="forms col-md-3">
                                                     <label for="status_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Status'); ?>:</label>
                                                     <select name="plan_status[]" id="status_<?php echo attr($key) + 1; ?>" class="form-control plan_status">
                                                         <option value=""></option>
-                                                        <?php foreach (($care_plan_status ?? []) as $opt) :
+                                                        <?php foreach (($care_plan_status) as $opt) :
                                                             $sel = ($opt['value'] == ($obj["plan_status"] ?? '')) ? 'selected="selected"' : ''; ?>
                                                             <option value="<?php echo attr($opt['value']); ?>" <?php echo $sel; ?>>
                                                                 <?php echo text($opt['title']); ?>
@@ -210,14 +210,14 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                                     id="end_date_1"
                                                     name='end_date[]'
                                                     class="form-control end_date datepicker"
-                                                    value='<?php echo attr($obj["end_date"] ?? ""); ?>'
+                                                    value='<?php echo attr($obj["date_end"] ?? ""); ?>'
                                                     title='<?php echo xla('yyyy-mm-dd planned end date'); ?>' />
                                             </div>
                                             <div class="forms col-md-3">
                                                 <label for="status_1" class="h5"><?php echo xlt('Status'); ?>:</label>
                                                 <select name="plan_status[]" id="status_1" class="form-control plan_status">
                                                     <option value=""></option>
-                                                    <?php foreach (($care_plan_status ?? []) as $opt) : ?>
+                                                    <?php foreach (($care_plan_status) as $opt) : ?>
                                                         <option value="<?php echo attr($opt['value']); ?>">
                                                             <?php echo text($opt['title']); ?>
                                                         </option>
