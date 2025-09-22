@@ -44,11 +44,26 @@ class AuthorizationService
         QueryUtils::sqlInsert($statement, $binding);
     }
 
-    public static function getUnitsUsed($number): false|array|null
+    public static function getUnitsUsed($authnum, $pid, $cpt, $start_date, $end_date): int
     {
-        $statement = "SELECT count(prior_auth_number) AS count FROM `form_misc_billing_options` WHERE `prior_auth_number` = ?";
-        $binds = [$number];
-        return sqlQuery($statement, $binds);
+       $statement = "SELECT SUM(b.units) AS count
+                    FROM billing b
+                    JOIN forms f
+                        ON b.encounter = f.encounter
+                    JOIN form_misc_billing_options fmbo
+                        ON f.form_id = fmbo.id
+                    JOIN form_encounter fe
+                        ON f.encounter = fe.encounter
+                    WHERE
+                        f.form_name = 'Misc Billing Options'
+                        AND fmbo.prior_auth_number = ?
+                        AND fmbo.pid = ?
+                        AND b.code = ?
+                        AND fe.date BETWEEN ? AND ?";
+
+      $binds = [$authnum, $pid, $cpt, $start_date, $end_date];
+      $result = sqlQuery($statement, $binds);
+      return (int) ($result['count'] ?? 0);
     }
 
     public function setId($id): void
@@ -216,6 +231,28 @@ class AuthorizationService
                          WHERE pid = ? AND `prior_auth_number` = ?", [$pid, $authnum]);
     }
 
+    public static function countUsageOfAuthNumber($authnum, $pid, $cpt, $start_date, $end_date): int
+    {
+    $result_array = sqlQuery("SELECT COALESCE(SUM(b.units), 0) AS count
+                             FROM billing b
+                             JOIN forms f
+                               ON b.encounter = f.encounter
+                             JOIN form_misc_billing_options fmbo
+                               ON f.form_id = fmbo.id
+                             JOIN form_encounter fe
+                               ON f.encounter = fe.encounter
+                             WHERE
+                               f.form_name = 'Misc Billing Options'
+                               AND fmbo.prior_auth_number = ?
+                               AND fmbo.pid = ?
+                               AND b.code = ?
+                               AND fe.date BETWEEN ? AND ?",
+                             [$authnum, $pid, $cpt, $start_date, $end_date]);
+
+    if (is_array($result_array) && array_key_exists('count', $result_array)) {
+        return (int) $result_array['count'];
+    }
+
     public static function requiresAuthorization($pid): false|array|null
     {
         $sql = "SELECT `d`.`field_value` FROM `lbt_data` d
@@ -223,7 +260,8 @@ JOIN `transactions` t ON `t`.`id` = `d`.`form_id` AND `t`.`title` = 'LBT_authori
 WHERE `t`.`pid` = ? AND `d`.`field_id` = 'authorization_001'";
         return sqlQuery($sql, [$pid]);
     }
-
+    
+    // Note: this is a non standard table 'patient_status'
     public static function patientInactive($pid): false|array|null
     {
         return sqlQuery("SELECT `ps`.`status` FROM `patient_status` ps WHERE `ps`.`pid` = ? ORDER BY `ps`.`statusId` DESC", [$pid]);

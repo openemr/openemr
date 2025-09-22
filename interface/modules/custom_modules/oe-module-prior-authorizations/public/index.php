@@ -149,7 +149,7 @@ const TABLE_TD = "</td><td>";
                 if (!empty($authList)) {
                     while ($iter = sqlFetchArray($authList)) {
                         $editData = json_encode($iter);
-                        $used = AuthorizationService::getUnitsUsed($iter['auth_num']);
+                        $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);
                         $remaining = $iter['init_units'] - $used['count'];
                         print "<tr><td>";
                         print text($iter['auth_num']);
