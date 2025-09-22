@@ -11,7 +11,7 @@
 
 "use strict";
 
-const enableDebug = false;
+const enableDebug = true;
 
 const net = require("net");
 const server = net.createServer();
@@ -40,7 +40,6 @@ let npiFacility = "";
 let webRoot = "";
 let authorDateTime = "";
 let documentLocation = "";
-
 
 function populateProviders(all) {
     let providerArray = [];
@@ -378,7 +377,7 @@ function populateMedication(pd) {
                 "code_system_name": "Medication Route FDA"
             },
             "dose": {
-                "value": parseFloat(pd.size),
+                "value": parseFloat(pd.size || '') || null,
                 "unit": pd.unit,
             },
             /*"rate": {
@@ -387,8 +386,8 @@ function populateMedication(pd) {
             },*/
             "interval": {
                 "period": {
-                    "value": parseFloat(pd.dosage),
-                    "unit": pd.interval
+                    "value": parseFloat(pd.dosage) || null,
+                    "unit": pd.interval || null
                 },
                 "frequency": true
             }
@@ -580,9 +579,9 @@ function populateEncounter(pd) {
     return {
         "encounter": {
             "name": pd.visit_category ? (pd.visit_category + " | " + pd.encounter_reason) : pd.code_description,
-            "code": pd.code || "185347001",
-            //"code_system": "2.16.840.1.113883.6.96",
-            "code_system_name": pd.code_type || "SNOMED CT",
+            "code": pd.encounter_procedures.procedures.code || "185347001",
+            "code_system": pd.encounter_procedures.procedures.code_type || "2.16.840.1.113883.6.96",
+            "code_system_name": pd.encounter_procedures.procedures.code_type_name || "SNOMED CT",
             "translations": [{
                 "name": "Ambulatory",
                 "code": "AMB",
@@ -1149,6 +1148,9 @@ function getPlanOfCare(pd) {
         case 'procedure':
             planType = "procedure";
             break;
+        case 'planned_procedure':
+            planType = "planned_procedure";
+            break;
         case 'appointments':
             planType = "encounter";
             break;
@@ -1215,7 +1217,7 @@ function getPlanOfCare(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.date),
+                "date": pd.proposed_date ? fDate(pd.proposed_date) : fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -1293,6 +1295,7 @@ function getPlanOfCare(pd) {
 }
 
 function getGoals(pd) {
+    pd.description = pd.value_type !== "CD" ? safeTrim(pd.description) : '';
     return {
         "goal_code": {
             "name": pd.code_text !== "NULL" ? pd.code_text : "",
@@ -1309,12 +1312,17 @@ function getGoals(pd) {
                 "precision": "day"
             }
         },
+        "sdoh_name": pd.sdoh_code_text || "",
+        "sdoh_code": pd.sdoh_code || "",
+        "sdoh_code_system": pd.sdoh_code_system || "",
+        "sdoh_code_system_name": pd.sdoh_code_type || "",
+        "value_type": pd.value_type || "ST",
         "type": "observation",
         "status": {
             "code": "active", //cleanCode(pd.status)
         },
         "author": populateAuthorFromAuthorContainer(pd),
-        "name": pd.description
+        "name": pd.description || '',
     };
 }
 
@@ -1323,7 +1331,8 @@ function getFunctionalStatus(pd) {
         "code": {
             "name": all.author.physician_type || '',
             "code": all.author.physician_type_code || '',
-            "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
+            "code_system": all.author.physician_type_system,
+            "code_system_name": all.author.physician_type_system_name
         },
         "date_time": {
             "point": {
@@ -1357,15 +1366,13 @@ function getFunctionalStatus(pd) {
             }
         ]
     };
-
     return {
         "status": "completed",
         "author": functionalStatusAuthor,
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000",
-            "extension": pd.extension || '',
+            "extension": pd.extension || null,
         }],
-
         "observation": {
             "value": {
                 "name": pd.code_text !== "NULL" ? safeTrim(pd.code_text) : "",
@@ -1374,7 +1381,7 @@ function getFunctionalStatus(pd) {
             },
             "identifiers": [{
                 "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab",
-                "extension": pd.extension || '',
+                "extension": pd.extension || null,
             }],
             "date_time": {
                 "point": {
@@ -1384,6 +1391,64 @@ function getFunctionalStatus(pd) {
             },
             "status": "completed",
             "author": functionalStatusAuthor
+        }
+    }
+}
+
+function getDisabilityAssessment(pd) {
+    let disabilityAssessmentAuthor = {
+        "code": {
+            "name": all.author.physician_type || '',
+            "code": all.author.physician_type_code || '',
+            "code_system": all.author.physician_type_system,
+            "code_system_name": all.author.physician_type_system_name
+        },
+        "date_time": {
+            "point": {
+                "date": authorDateTime,
+                "precision": "tz"
+            }
+        },
+        "identifiers": [
+            {
+                "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                "extension": all.author.npi ? all.author.npi : 'NI'
+            }
+        ],
+        "name": [
+            {
+                "last": all.author.lname,
+                "first": all.author.fname
+            }
+        ],
+        "organization": [
+            {
+                "identity": [
+                    {
+                        "root": oidFacility || "2.16.840.1.113883.4.6",
+                        "extension": npiFacility || ""
+                    }
+                ],
+                "name": [
+                    all.encounter_provider.facility_name
+                ]
+            }
+        ]
+    };
+    return {
+        "status": "completed",
+        "author": disabilityAssessmentAuthor,
+        "identifiers": [{
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ddd",
+            "extension": pd.extension || null,
+        }],
+        "overall_status": pd.overall_status,
+        "disability_questions": pd.disability_questions,
+        "date_time": {
+            "point": {
+                "date": fDate(pd.date || all.created_time_timezone),
+                "precision": "day"
+            }
         }
     };
 }
@@ -1453,49 +1518,71 @@ function getAssessments(pd) {
 }
 
 function getHealthConcerns(pd) {
-    let one = true;
-    let issue_uuid;
-    let problems = [], problem = {};
-    if (countEntities(pd.issues.issue_uuid) !== 0) {
+    // Build linked problems (issue UUIDs) if present
+    let problems = [];
+    const addProblem = (uuid) => {
+        if (!uuid) return;
+        problems.push({"identifiers": [{"identifier": uuid}]});
+    };
+
+    const hasMany = countEntities(pd.issues?.issue_uuid) !== 0;
+    if (hasMany) {
         for (let key in pd.issues.issue_uuid) {
-            issue_uuid = pd.issues.issue_uuid[key];
-            if (issue_uuid) {
-                one = false;
-            }
-            problem = {
-                "identifiers": [{
-                    "identifier": issue_uuid
-                }]
-            };
-            problems.push(problem);
+            if (!Object.prototype.hasOwnProperty.call(pd.issues.issue_uuid, key)) continue;
+            addProblem(pd.issues.issue_uuid[key]);
         }
+    } else {
+        addProblem(pd.issues?.issue_uuid);
     }
-    if (one) {
-        if (pd.issues.issue_uuid) {
-            problem = {
-                "identifiers": [{
-                    "identifier": pd.issues.issue_uuid
-                }]
-            };
-            problems.push(problem);
+
+    // Normalize incoming concern coding
+    let valueName = safeTrim(pd.code_text || pd.text || '');
+    let valueCode = cleanCode(pd.code) || "";
+    let valueSystemName = (pd.code_type || "").trim();
+    if (!valueSystemName) {
+        // default SDOH concerns to SNOMED CT if caller didn’t set one
+        valueSystemName = "SNOMED CT";
+    } else if (valueSystemName === "SNOMED-CT") {
+        valueSystemName = "SNOMED CT";
+    }
+    // Optional OID (the templates can work from code_system_name, but include when we can)
+    let valueSystemOid = "";
+    if (valueSystemName === "SNOMED CT") {
+        valueSystemOid = "2.16.840.1.113883.6.96";
+    } else if (valueSystemName === "LOINC") {
+        valueSystemOid = "2.16.840.1.113883.6.1";
+    }
+    // Effective time for both the Act and nested Observation
+    const lowDate = fDate(pd.date) || fDate(pd.date_formatted) || fDate(pd.effective_time?.low?.date) || fDate("");
+    const date_time = {
+        low: {
+            date: lowDate,
+            precision: "day"
         }
-    }
+        // high optional — omit unless track resolution
+    };
+
+    // Compose the concern entry for section → entry → healthConcernActivityAct
     return {
-        // todo need to make array of health concerns
-        "type": "act",
-        "text": safeTrim(pd.text),
-        "value": {
-            "name": pd.code_text || "",
-            "code": cleanCode(pd.code) || "",
-            "code_system_name": pd.code_type || "SNOMED CT"
+        type: "act",                       // REQUIRED by planOfCareEntryLevel.healthConcernActivityAct
+        text: safeTrim(pd.text || valueName),
+        date_time,                    // drives <effectiveTime> in both Act and nested Observation
+        value: {
+            // used by nested Problem Observation’s <value xsi:type="CD"...>
+            name: valueName,
+            code: valueCode,
+            code_system: valueSystemOid,   // optional; generator can also use code_system_name
+            code_system_name: valueSystemName
         },
-        "author": populateAuthorFromAuthorContainer(pd),
-        "identifiers": [{
-            "identifier": pd.sha_extension,
-            "extension": pd.extension,
+        author: populateAuthorFromAuthorContainer(pd),
+        identifiers: [{
+            identifier: pd.sha_extension,
+            extension: pd.extension
         }],
-        problems: problems
-    }
+        category: pd.category || undefined,
+        assessment: pd.assessment || '',
+        problems
+    };
 }
 
 function getReferralReason(pd) {
@@ -1798,6 +1885,8 @@ function populateVital(pd) {
 }
 
 function populateSocialHistory(pd) {
+    let food = all.social_history_sdoh.hunger_vital_signs;
+    let occupation = all.occupation || {};
     return {
         "date_time": {
             "low": templateDate(pd.date, "day")
@@ -1813,11 +1902,65 @@ function populateSocialHistory(pd) {
         "element": pd.element,
         "value": pd.description,
         "gender": all.patient.gender,
+        "effective_date": {
+            "point": {
+                "date": fDate(pd.date),
+                "precision": "day"
+            }
+        },
+        "occupation": {
+            "occupation_code": occupation.occupation_code || "",
+            "occupation_title": occupation.occupation_title || "",
+            "start_date": fDate(occupation.start_date, true),
+            "industry": {
+                "industry_code": occupation.industry_code || "",
+                "industry_title": occupation.industry_title || "",
+                "industry_start_date": fDate(occupation.industry_start_date, true) || "",
+            }
+        },
+        "tribal_affiliation": {
+            "tribal": all.patient.tribal,
+            "tribal_code": all.patient.tribal_code,
+            "tribal_title": all.patient.tribal_title,
+        },
+        "pregnancy_status": {
+            "pregnancy": all.sdoh_data.pregnancy,
+            "pregnancy_code": all.sdoh_data.pregnancy_code,
+            "pregnancy_title": all.sdoh_data.pregnancy_title
+        },
+        "hunger_vital_signs": {
+            "assessment_date": food.assessment_date || "",
+            "score": food.score || "",
+            "risk_status": {
+                "code": food.risk_status.code,
+                "code_system": food.risk_status.code_system,
+                "display": food.risk_status.answer_display,
+                "answer_code": food.risk_status.answer_code,
+                "answer_display": food.risk_status.answer_display,
+            },
+            "question1": {
+                "effective_date": food.assessment_date || "",
+                "code": food.question1.code,
+                "code_system": food.question1.code_system,
+                "display": food.question1.display,
+                "answer_code": food.question1.answer_code,
+                "answer_display": food.question1.answer_display,
+            },
+            "question2": {
+                "effective_date": food.assessment_date || "",
+                "code": food.question2.code,
+                "code_system": food.question2.code_system,
+                "display": food.question2.display,
+                "answer_code": food.question2.answer_code,
+                "answer_display": food.question2.answer_display,
+            },
+        },
         "author": {
             "code": {
                 "name": pd.author.physician_type || '',
                 "code": pd.author.physician_type_code || '',
-                "code_system": pd.author.physician_type_system, "code_system_name": pd.author.physician_type_system_name
+                "code_system": pd.author.physician_type_system,
+                "code_system_name": pd.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1850,12 +1993,13 @@ function populateSocialHistory(pd) {
                     ]
                 }
             ]
-        }
-        , "gender_author": {
+        },
+        "gender_author": {
             "code": {
                 "name": all.patient.author.physician_type || '',
                 "code": all.patient.author.physician_type_code || '',
-                "code_system": all.patient.author.physician_type_system, "code_system_name": all.patient.author.physician_type_system_name
+                "code_system": all.patient.author.physician_type_system,
+                "code_system_name": all.patient.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -2004,7 +2148,6 @@ function populateImmunization(pd) {
 }
 
 function populatePayer(pd) {
-
     const safeArray = (v) => Array.isArray(v) ? v : [v];
     return safeArray(pd.payer).map((payer) => {
         return {
@@ -2017,13 +2160,17 @@ function populatePayer(pd) {
                     extension: payer.policy?.identifiers?.extension || ""
                 }],
                 code: {
-                    code: payer.policy?.code?.code || "SELF",
-                    code_system_name: payer.policy?.code?.code_system_name || "HL7 RoleCode"
+                    code: payer.policy?.code?.code || "72",
+                    code_system: payer.policy?.code?.code_system || "",
+                    code_system_name: payer.policy?.code?.code_system_name || "",
+                    name: payer.policy?.code?.name || "Self"
                 },
                 insurance: {
                     code: {
                         code: payer.policy?.insurance?.code?.code || "PAYOR",
-                        code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode"
+                        code_system: payer.policy?.insurance?.code?.code_system || "2.16.840.1.113883.5.110",
+                        code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode",
+                        name: payer.policy?.insurance?.code?.name || "Payor"
                     },
                     performer: {
                         identifiers: [{
@@ -2057,8 +2204,10 @@ function populatePayer(pd) {
                             }]
                         }],
                         code: [{
-                            code: "PAYOR",
-                            code_system_name: "HL7 RoleCode"
+                            code: payer.policy?.insurance?.code?.code || "PAYOR",
+                            code_system: payer.policy?.insurance?.code?.code_system || "2.16.840.1.113883.5.110",
+                            code_system_name: payer.policy?.insurance?.code?.code_system_name || "HL7 RoleCode",
+                            name: payer.policy?.insurance?.code?.name || "Payor"
                         }]
                     }
                 }
@@ -2070,7 +2219,7 @@ function populatePayer(pd) {
                 },
                 identifiers: [{
                     identifier: payer.guarantor?.identifiers?.identifier || ""
-                }],
+                }],/*
                 "date_time": {
                     "low": {
                         "date": fDate(payer.participant?.time_low, true),
@@ -2080,7 +2229,7 @@ function populatePayer(pd) {
                         "date": fDate(payer.participant?.time_high, true),
                         "precision": "day"
                     }
-                },
+                },*/
                 name: [{
                     prefix: payer.guarantor?.name?.prefix || "",
                     first: payer.guarantor?.name?.first || "",
@@ -2114,6 +2263,7 @@ function populatePayer(pd) {
                 code: {
                     name: payer.participant?.code?.name || "Self",
                     code: payer.participant?.code?.code || "SELF",
+                    code_system: payer.participant?.code?.code_system || "",
                     code_system_name: payer.participant?.code?.code_system_name || "HL7 Role"
                 },
                 performer: {
@@ -2140,7 +2290,8 @@ function populatePayer(pd) {
                     first: payer.participant?.name?.first || "",
                     middle: [payer.participant?.name?.middle || ""],
                     last: payer.participant?.name?.last || ""
-                }]
+                }],
+                birthTime: all.patient.dob
             },
             policy_holder: {
                 performer: {
@@ -2162,13 +2313,8 @@ function populatePayer(pd) {
                 identifiers: [{
                     identifier: payer.authorization?.identifiers?.identifier || ""
                 }],
-                procedure: {
-                    code: {
-                        name: payer.authorization?.procedure?.code?.name || "",
-                        code: payer.authorization?.procedure?.code?.code || "",
-                        code_system_name: payer.authorization?.procedure?.code?.code_system_name || ""
-                    }
-                }
+                authorization_code: payer.authorization.authorization_code || "72",
+                plan_name: payer.policy.plan_name || "",
             }
         };
     });
@@ -2195,6 +2341,9 @@ function populateNote(pd) {
 }
 
 function populateParticipant(participant) {
+    if (!participant.code) {
+        cleanCode(participant.organization_taxonomy);
+    }
     return {
         "name": {
             "prefix": participant.prefix || "",
@@ -2204,16 +2353,16 @@ function populateParticipant(participant) {
             "first": participant.fname || ""
         },
         "typeCode": participant.type || "",
-        "classCode": "ASSIGNED",
+        "classCode": participant.class_code || "ASSIGNED",
         "code": {
-            "name": participant.organization_taxonomy_description || "",
-            "code": cleanCode(participant.organization_taxonomy) || "",
-            "code_system": "2.16.840.1.113883.6.101",
-            "code_system_name": "NUCC Health Care Provider Taxonomy"
+            "name": participant.organization_taxonomy_description || participant.code,
+            "code": participant.organization_taxonomy || participant.code || "",
+            "code_system": "2.16.840.1.113883.1.11.19563",
+            "code_system_name": "Personal Relationship Role Type Value Set"
         },
         "identifiers": [{
             "identifier": participant.organization_npi ? "2.16.840.1.113883.4.6" : participant.organization_id,
-            "extension": participant.organization_npi ? participant.organization_npi : ''
+            "extension": participant.organization_npi ? participant.organization_npi : participant.organization_ext || 'NI'
         }],
         "date_time": {
             "point": {
@@ -2247,7 +2396,7 @@ function populateHeader(pd) {
     let name = "Summarization of Episode Note";
     let docCode = "34133-9";
     let docOid = "2.16.840.1.113883.10.20.22.1.2";
-    if (pd.doc_type == 'referral') {
+    if (pd.doc_type === 'referral') {
         name = "Referral Note";
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
@@ -2397,8 +2546,14 @@ function populateHeader(pd) {
             },
         }
     };
+
     let participants = [];
-    let docParticipants = pd.document_participants || {participant: []};
+    let docParticipants = {
+        participant: [
+            ...(pd.document_participants?.participant || []),
+            ...(pd.patient.related_persons?.participant || []),
+        ],
+    };
     let count = 0;
     try {
         count = countEntities(docParticipants.participant);
@@ -2697,30 +2852,35 @@ function generateCcda(pd) {
     } else {
         data.referral_reason = {}; // leave as empty so we can get our null flavor section.
     }
+
 // Health Concerns
     many = [];
     theone = {};
+    count = 0;
     many.health_concerns = [];
     try {
         count = countEntities(pd.health_concerns.concern);
     } catch (e) {
-        count = 0
+        count = 0;
     }
+
     if (count > 1) {
         for (let i in pd.health_concerns.concern) {
+            if (!Object.prototype.hasOwnProperty.call(pd.health_concerns.concern, i)) continue;
             theone[i] = getHealthConcerns(pd.health_concerns.concern[i]);
             many.health_concerns.push(theone[i]);
-            break;
         }
-    } else if (count !== 0) {
+    } else if (count === 1) {
         theone = getHealthConcerns(pd.health_concerns.concern);
         many.health_concerns.push(theone);
     }
-    if (count !== 0) {
-        data.health_concerns = Object.assign(many.health_concerns);
+    if (many.health_concerns.length) {
+        data.health_concerns = {concern: many.health_concerns};
     } else {
-        data.health_concerns = {"type": "act"}; // leave it as an empty section that we'll null flavor
+        // Leave as an empty section that templates can null-flavor
+        data.health_concerns = {type: "act"};
     }
+
 // Immunizations
     many = [];
     theone = {};
@@ -2814,7 +2974,6 @@ function generateCcda(pd) {
     if (count !== 0) {
         data.clinicalNoteAssessments = Object.assign(many.clinicalNoteAssessments);
     }
-
 // Functional Status.
     many = [];
     theone = {};
@@ -2837,6 +2996,58 @@ function generateCcda(pd) {
         data.functional_status = Object.assign(many.functional_status);
     }
 
+// Add disability status as a separate data key for the section template
+    if (all.sdoh_data && all.sdoh_data.disability_assessment) {
+        data.disability_status = {
+            "overall_status": all.sdoh_data.disability_assessment.overall_status,
+            "disability_questions": all.sdoh_data.disability_assessment.disability_questions,
+            "date_time": {
+                "point": {
+                    "date": fDate(all.created_time_timezone),
+                    "precision": "day"
+                }
+            },
+            "author": {
+                "code": {
+                    "name": all.author.physician_type || '',
+                    "code": all.author.physician_type_code || '',
+                    "code_system": all.author.physician_type_system,
+                    "code_system_name": all.author.physician_type_system_name
+                },
+                "date_time": {
+                    "point": {
+                        "date": authorDateTime,
+                        "precision": "tz"
+                    }
+                },
+                "identifiers": [
+                    {
+                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                        "extension": all.author.npi ? all.author.npi : 'NI'
+                    }
+                ],
+                "name": [
+                    {
+                        "last": all.author.lname,
+                        "first": all.author.fname
+                    }
+                ],
+                "organization": [
+                    {
+                        "identity": [
+                            {
+                                "root": oidFacility || "2.16.840.1.113883.4.6",
+                                "extension": npiFacility || ""
+                            }
+                        ],
+                        "name": [
+                            all.encounter_provider.facility_name
+                        ]
+                    }
+                ]
+            }
+        };
+    }
 // Mental Status.
     many = [];
     theone = {};
@@ -2881,6 +3092,7 @@ function generateCcda(pd) {
     if (count !== 0) {
         data.social_history = Object.assign(many.social_history);
     }
+
 // Notes
     for (let currentNote in pd.clinical_notes) {
         many = [];

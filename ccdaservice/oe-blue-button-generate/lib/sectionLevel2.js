@@ -315,6 +315,7 @@ exports.payersSection = function (htmlHeader, na) {
             attributes: condition.isNullFlavorSection('payers'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.18"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.18", "2015-08-01"),
                 fieldLevel.templateCode("PayersSection"),
                 fieldLevel.templateTitle("PayersSection"), {
                     key: "text",
@@ -390,6 +391,7 @@ exports.planOfCareSection = function (htmlHeader, na) {
                         entryLevel.planOfCareActivityAct,
                         entryLevel.planOfCareActivityObservation,
                         entryLevel.planOfCareActivityProcedure,
+                        entryLevel.planOfCarePlannedProcedure,
                         entryLevel.planOfCareActivityEncounter,
                         entryLevel.planOfCareActivitySubstanceAdministration,
                         entryLevel.planOfCareActivitySupply,
@@ -410,6 +412,7 @@ exports.goalSection = function (htmlHeader, na) {
             attributes: condition.isNullFlavorSection('goals'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.60"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.60", "2015-08-01"),
                 fieldLevel.templateCode("GoalSection"),
                 fieldLevel.templateTitle("GoalSection"), {
                     key: "text",
@@ -450,7 +453,6 @@ exports.socialHistorySection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("social_history")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -467,13 +469,41 @@ exports.socialHistorySection = function (htmlHeader, na) {
                     },
                     content: [entryLevel.genderStatusObservation],
                     dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.tribalAffiliationObservation],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.pregnancyStatusObservation],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    content: [
+                        entryLevel.occupationObservation
+                    ],
+                    dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.occupation && input.occupation.occupation_code;
+                    }
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [
+                        entryLevel.hungerVitalSignsObservation
+                    ],
+                    dataKey: "social_history",
                 }
             ]
-        }],
-        notImplemented: [
-            "pregnancyObservation",
-            "tobaccoUse"
-        ]
+        }]
     };
 };
 
@@ -576,7 +606,8 @@ exports.functionalStatusSection = function (htmlHeader, na) {
                     text: na,
                     existsWhen: condition.keyDoesntExist("functional_status")
                 },
-                htmlHeader, {
+                htmlHeader,
+                {
                     key: "entry",
                     attributes: {
                         typeCode: "DRIV"
@@ -585,6 +616,14 @@ exports.functionalStatusSection = function (htmlHeader, na) {
                         entryLevel.functionalStatusOrganizer
                     ],
                     dataKey: "functional_status"
+                },
+                {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.disabilityStatusObservation],
+                    dataKey: "disability_status"
                 }
             ]
         }]
@@ -652,38 +691,34 @@ exports.healthConcernSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('author'),
+            attributes: condition.isNullFlavorSection('concern'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.58", "2015-08-01"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.58"),
                 fieldLevel.templateCode("HealthConcernSection"),
-                fieldLevel.templateTitle("HealthConcernSection"), {
-                    key: "text",
-                    text: "Health Concerns Not Available",
-                    existsWhen: condition.keyDoesntExist("text")
-                }, {
-                    key: "text",
-                    text: leafLevel.input,
-                    dataKey: "text"
-                },
-                fieldLevel.author,
+                fieldLevel.templateTitle("HealthConcernSection"),
                 {
+                    key: "text", content: [htmlHeader.healthConcernSectionHtmlHeader], dataKey: "health_concerns",
+                    existsWhen: condition.keyExists("concern")
+                },
+                {
+                    key: "text", text: htmlHeader.healthConcernSectionHtmlHeaderNA,
+                    existsWhen: condition.keyDoesntExist("concern")
+                },
+                /*{ key: "text", text: leafLevel.input, dataKey: "text" },*/
+                fieldLevel.author,
+                htmlHeader, {
                     key: "entry",
-                    content: [
-                        entryLevel.healthConcernObservation
-                    ],
-                    existsWhen: condition.keyExists("text")
-                }, {
-                    key: "entry",
-                    content: [
-                        [entryLevel.healthConcernActivityAct]
-                    ],
-                    existsWhen: condition.keyExists("text")
+                    content: [[entryLevel.healthConcernActivityAct]],
+                    dataKey: "concern",
+                    existsWhen: condition.keyExists("value")
                 }
             ],
             dataKey: "health_concerns"
         }]
     }
 };
+
 
 exports.historyNoteSection = function (htmlHeader, noteData) {
     return {
