@@ -618,20 +618,24 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
 
 -- Fix the issue that we don't have a primary key on the form_observation table
 #IfMissingColumn form_observation form_id
-ALTER TABLE `form_observation` RENAME COLUMN `id` TO `form_id`;
+ALTER TABLE `form_observation` CHANGE COLUMN `id` `form_id` BIGINT(20) NOT NULL;
+#EndIf
+
+#IfMissingColumn form_observation id
 ALTER TABLE `form_observation` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id`);
 #EndIf
 
 #IfMissingColumn form_observation parent_observation_id
-ALTER TABLE `form_observation` ADD `parent_observation_id` bigint(20) DEFAULT NULL COMMENT 'FK to parent observation for sub-observations';
+ALTER TABLE `form_observation` ADD `parent_observation_id` BIGINT(20) DEFAULT NULL  COMMENT 'FK to parent observation for sub-observations';
 #EndIf
 
 #IfMissingColumn form_observation category
-ALTER TABLE `form_observation` ADD `category` varchar(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)';
+ALTER TABLE `form_observation`
+    ADD `category` VARCHAR(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)';
 #EndIf
 
 #IfMissingColumn form_observation questionnaire_response_id
-ALTER TABLE `form_observation` ADD `questionnaire_response_id` bigint(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table';
+ALTER TABLE `form_observation` ADD `questionnaire_response_id` BIGINT(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table';
 #EndIf
 
 #IfNotIndex form_observation idx_parent_observation
@@ -651,7 +655,7 @@ ALTER TABLE `form_observation` ADD INDEX `idx_form_id` (`form_id`);
 #EndIf
 
 #IfNotIndex form_observation idx_pid_encounter
-ALTER TABLE `form_observation` ADD INDEX  `idx_pid_encounter` (`pid`, `encounter`);
+ALTER TABLE `form_observation` ADD INDEX `idx_pid_encounter` (`pid`, `encounter`);
 #EndIf
 
 #IfNotIndex form_observation idx_date
@@ -928,4 +932,58 @@ VALUES ('tribal_affiliations','coquille','Coquille Indian Tribe',10,'65',1),
        ('tribal_affiliations','white_mountain_apache','White Mountain Apache Tribe (AZ)',100,'325',1),
        ('tribal_affiliations','zuni','Zuni Tribe (NM)',110,'337',1),
        ('tribal_affiliations','other_specify','Other (specify)',120,'000',1);
+#EndIf
+
+/* -------- ODH IndustryODH (optional; used if you capture industry) -------- */
+#IfNotRow2D list_options list_id IndustryODH option_id 541110
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','IndustryODH','ODH Industry',0,0,0,'NAICS-based industry codes from ODH',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('IndustryODH','541110','Offices of Lawyers',10,'541110.008099',1),
+       ('IndustryODH','541330','Engineering Services',20,'541330.008117',1),
+       ('IndustryODH','236220','Commercial and Institutional Building Construction',30,'236220.004781',1),
+       ('IndustryODH','622110','General Medical and Surgical Hospitals',40,'622110.009243',1),
+       ('IndustryODH','611110','Elementary and Secondary Schools',50,'611110.008684',1),
+       ('IndustryODH','561720','Janitorial Services',60,'561720.002294',1),
+       ('IndustryODH','722511','Full-Service Restaurants',70,'722511.010339',1),
+       ('IndustryODH','445110','Supermarkets and Other Grocery Stores',80,'445110.006564',1),
+       ('IndustryODH','238210','Electrical Contractors',90,'238210.004871',1),
+       ('IndustryODH','621111','Offices of Physicians (except Mental Health)',100,'621111.009165',1),
+       ('IndustryODH','531110','Lessors of Residential Buildings',110,'531110.007615',1),
+       ('IndustryODH','484121','General Freight Trucking, Long-Distance',120,'484121.007193',1),
+       ('IndustryODH','812111','Barber Shops',130,'812111.011099',1),
+       ('IndustryODH','522110','Commercial Banking',140,'522110.007773',1),
+       ('IndustryODH','999999','Unemployed',150,'999999',1),
+       ('IndustryODH','UNKNOWN','Unknown',160,'UNKNOWN',1);
+#EndIf
+
+/* -------- ODH OccupationODH -------- */
+#IfNotRow2D list_options list_id OccupationODH option_id 23-1011.00
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','OccupationODH','ODH Occupation',0,0,0,'O*NET-SOC based occupation codes from ODH',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('OccupationODH','23-1011.00','Lawyers',10,'23-1011.00.031000',1),
+       ('OccupationODH','17-2051.00','Civil Engineers',20,'17-2051.00.019051',1),
+       ('OccupationODH','47-2061.00','Construction Laborers',30,'47-2061.00.051621',1),
+       ('OccupationODH','29-1141.00','Registered Nurses',40,'29-1141.00.038232',1),
+       ('OccupationODH','25-2021.00','Elementary School Teachers',50,'25-2021.00.032102',1),
+       ('OccupationODH','37-2011.00','Janitors and Cleaners',60,'37-2011.00.028742',1),
+       ('OccupationODH','35-3031.00','Waiters and Waitresses',70,'35-3031.00.045251',1),
+       ('OccupationODH','41-2011.00','Cashiers',80,'41-2011.00.047211',1),
+       ('OccupationODH','11-1021.00','General and Operations Managers',90,'11-1021.00.003891',1),
+       ('OccupationODH','43-9061.00','Office Clerks, General',100,'43-9061.00.049705',1),
+       ('OccupationODH','53-3032.00','Heavy and Tractor-Trailer Truck Drivers',110,'53-3032.00.057651',1),
+       ('OccupationODH','29-1211.00','Physician Assistants',120,'29-1211.00.038302',1),
+       ('OccupationODH','39-5012.00','Hairdressers, Hairstylists, and Cosmetologists',130,'39-5012.00.046262',1),
+       ('OccupationODH','13-2011.00','Accountants and Auditors',140,'13-2011.00.010350',1),
+       ('OccupationODH','15-1252.00','Software Developers',150,'15-1252.00.016221',1),
+       ('OccupationODH','33-9032.00','Security Guards',160,'33-9032.00.042562',1),
+       ('OccupationODH','49-9071.00','Maintenance and Repair Workers, General',170,'49-9071.00.053722',1),
+       ('OccupationODH','31-1120.00','Home Health Aides',180,'31-1120.00.039792',1),
+       ('OccupationODH','25-9045.00','Teaching Assistants',190,'25-9045.00.032175',1),
+       ('OccupationODH','21-1093.00','Social Workers',200,'21-1093.00.027030',1),
+       ('OccupationODH','999999','Unemployed',210,'999999',1),
+       ('OccupationODH','UNKNOWN','Unknown',220,'UNKNOWN',1);
 #EndIf
