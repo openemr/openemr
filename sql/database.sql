@@ -11956,7 +11956,9 @@ CREATE TABLE `form_care_plan` (
   `reason_description` text,
   `reason_date_low` datetime DEFAULT NULL COMMENT 'The date the reason was recorded',
   `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
-  `reason_status` varchar(31) DEFAULT NULL
+  `reason_status` varchar(31) DEFAULT NULL,
+  `plan_status` varchar(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)',
+  KEY `idx_status_date` (`status`,`date`,`end_date`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -14446,3 +14448,12 @@ VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance pr
        ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1),
        ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 100, 'SNOMED:467701000124103', 1),
        ('sdoh_interventions', 'assist_transport', 'Assistance with transportation', 110, 'SNOMED:467721000124107', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_status', 'Care Plan Status', 0);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','draft','Draft',10);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','active','Active',20);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','on-hold','On hold',30);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','revoked','Revoked',40);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);

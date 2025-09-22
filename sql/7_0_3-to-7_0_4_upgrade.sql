@@ -987,3 +987,39 @@ VALUES ('OccupationODH','23-1011.00','Lawyers',10,'23-1011.00.031000',1),
        ('OccupationODH','999999','Unemployed',210,'999999',1),
        ('OccupationODH','UNKNOWN','Unknown',220,'UNKNOWN',1);
 #EndIf
+-- =========================
+-- Care Plan (form_care_plan table, status list, etc)
+-- =========================
+#IfMissingColumn form_care_plan plan_status
+ALTER TABLE `form_care_plan` ADD COLUMN `plan_status` VARCHAR(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)';
+#EndIf
+
+#IfNotIndex form_care_plan idx_status_date
+ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`status`, `date`, `end_date`);
+#EndIf
+
+-- Care plan status list aligned to FHIR R4 CarePlan.status (titles are user-facing)
+#IfNotRow2D list_options list_id lists option_id care_plan_status
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_status', 'Care Plan Status', 0);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id draft
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','draft','Draft',10);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id active
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','active','Active',20);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id on-hold
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','on-hold','On hold',30);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id revoked
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','revoked','Revoked',40);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id completed
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id entered-in-error
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id unknown
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
+#EndIf
