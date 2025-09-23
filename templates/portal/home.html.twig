@@ -659,9 +659,10 @@
                                     , id: "help-go"
                                 } %}
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
+                                <!-- Infeg: Updated logout URL to point to portal/logout.php -->
                                 {% include "portal/partial/_nav_icon.html.twig"
                                     with {
-                                    url:  webroot ~ "./logout.php"
+                                    url:  webroot ~ "/portal/logout.php"
                                     ,localLink: false
                                     , icon: "right-from-bracket"
                                     , navText: "Logout"|xl
