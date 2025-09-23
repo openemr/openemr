@@ -1,0 +1,88 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="list-group list-group-flush cds-cards">
+    {% if cdsCards is empty %}
+        <div class="list-group-item p-2 text-muted text-center">
+            {{ "No CDS Hook recommendations available"|xlt }}
+        </div>
+    {% else %}
+        {% for card in cdsCards %}
+            <div class="list-group-item p-2 cds-card" data-uuid="{{ card.uuid|attr }}">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">
+                            {% if card.indicator == 'critical' %}
+                                <i class="fas fa-exclamation-triangle text-danger"></i>
+                            {% elseif card.indicator == 'warning' %}
+                                <i class="fas fa-exclamation-circle text-warning"></i>
+                            {% elseif card.indicator == 'info' %}
+                                <i class="fas fa-info-circle text-info"></i>
+                            {% else %}
+                                <i class="fas fa-lightbulb text-secondary"></i>
+                            {% endif %}
+                            {{ card.summary|text }}
+                        </h6>
+                        {% if card.detail %}
+                            <p class="mb-1 text-muted">{{ card.detail|text }}</p>
+                        {% endif %}
+                        {% if card.source and card.source.label %}
+                            <small class="text-muted">
+                                <i class="fas fa-tag"></i> {{ card.source.label|text }}
+                            </small>
+                        {% endif %}
+                    </div>
+                    {% if card.suggestions %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ "Actions"|xlt }}
+                            </button>
+                            <div class="dropdown-menu">
+                                {% for suggestion in card.suggestions %}
+                                    <a class="dropdown-item" href="#" 
+                                       onclick="handleCDSSuggestion('{{ suggestion.uuid|attr }}', '{{ suggestion.label|attr }}')">
+                                        {{ suggestion.label|text }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if card.links %}
+                    <div class="mt-2">
+                        {% for link in card.links %}
+                            <a href="{{ link.url|attr }}" target="_blank" class="btn btn-sm btn-link">
+                                <i class="fas fa-external-link-alt"></i> {{ link.label|text }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script>
+function handleCDSSuggestion(uuid, label) {
+    // 處理 CDS Hook 建議的動作
+    console.log('CDS Suggestion clicked:', {uuid: uuid, label: label});
+    
+    // 可以在這裡添加具體的處理邏輯
+    // 例如：添加藥物、安排檢查、顯示更多資訊等
+    
+    alert('CDS Hook suggestion: ' + label);
+}
+
+// 自動隱藏過期的 CDS Cards（如果有的話）
+$(document).ready(function() {
+    $('.cds-card').each(function() {
+        const $card = $(this);
+        const uuid = $card.data('uuid');
+        
+        // 可以在這裡添加自動隱藏邏輯
+        // 例如：5分鐘後自動隱藏
+    });
+});
+</script>
+{% endblock %}

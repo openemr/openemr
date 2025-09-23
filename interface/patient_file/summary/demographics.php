@@ -94,6 +94,21 @@ $smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventD
 $smartLaunchController->registerContextEvents();
 $hiddenCards = getHiddenDashboardCards();
 
+// CDS Hook integration
+$cdsCards = [];
+$cdsEnabled = ($GLOBALS['enable_cds_hooks'] ?? false) || getGlobalSetting('enable_cds_hooks');
+error_log("CDS Hook: enabled = " . ($cdsEnabled ? 'true' : 'false') . ", pid = $pid");
+
+if ($cdsEnabled) {
+    try {
+        $cdsHookService = new \OpenEMR\Services\CDSHookService();
+        $cdsCards = $cdsHookService->triggerPatientView($pid);
+        error_log("CDS Hook: demographics.php received " . count($cdsCards) . " cards");
+    } catch (Exception $e) {
+        error_log("CDS Hook error: " . $e->getMessage());
+    }
+}
+
 /**
  * @var EventDispatcher
  */
@@ -1258,6 +1273,38 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'deceasedDays' => deceasedDays($deceased),
                         ]);
                     endif;
+
+                    // CDS Hook Cards
+                    if (!empty($cdsCards) && !in_array('card_cds_hooks', $hiddenCards)) {
+                        echo "<div class='mb-2'>";
+                        echo $twig->getTwig()->render('patient/card/cds_hooks.html.twig', [
+                            'title' => 'CDS Hook Recommendations',
+                            'id' => 'cds_hooks',
+                            'cdsCards' => $cdsCards,
+                            'initiallyCollapsed' => false,
+                            'card_bg_color' => 'bg-light',
+                            'card_text_color' => 'text-dark',
+                            'forceAlwaysOpen' => false
+                        ]);
+                        echo "</div>";
+                    } elseif (($GLOBALS['enable_cds_hooks'] ?? false) || getGlobalSetting('enable_cds_hooks')) {
+                        // Show settings link if CDS Hooks enabled but no cards
+                        echo "<div class='mb-2'>";
+                        echo "<div class='card'>";
+                        echo "<div class='card-header'>";
+                        echo "<h6 class='card-title'>";
+                        echo "<i class='fas fa-brain'></i> CDS Hook Recommendations";
+                        echo "</h6>";
+                        echo "</div>";
+                        echo "<div class='card-body'>";
+                        echo "<p class='text-muted'>No CDS Hook recommendations available for this patient.</p>";
+                        echo "<a href='cds_hooks_settings.php' class='btn btn-sm btn-outline-primary'>";
+                        echo "<i class='fas fa-cogs'></i> CDS Hook Settings";
+                        echo "</a>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</div>";
+                    }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('primary'), SectionEvent::EVENT_HANDLE);
                     $sectionRenderEvents->addCard(new DemographicsViewCard($result, $result2, ['dispatcher' => $ed]));
