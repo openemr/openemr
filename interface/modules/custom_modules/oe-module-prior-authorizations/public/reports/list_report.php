@@ -58,7 +58,10 @@ $patients = $data->listPatientAuths();
                         $pid = $iter['pid'];
                     } else {
                         $pid = $iter['mrn'];
-                    }
+		    }
+
+		    // This part requires custom form and custom table to function
+		    /*
                     $requireAuth = AuthorizationService::requiresAuthorization($iter['pid']);
                     $status = AuthorizationService::patientInactive($pid);
 
@@ -69,14 +72,21 @@ $patients = $data->listPatientAuths();
                     if ($status['status'] == 'inactive') {
                         continue;
                     }
+		    */
 
-                    $numbers = AuthorizationService::countUsageOfAuthNumber($pid, $iter['auth_num']);
+                    $numbers = AuthorizationService::countUsageOfAuthNumber(
+			$iter['auth_num'],
+			$pid,
+			$iter['cpt'],
+			$iter['start_date'],
+			$iter['end_date']
+		    );
                     $insurance = AuthorizationService::insuranceName($pid);
 
                     if ($name !== $iter['fname'] . " " . $iter['lname']) {
                         print "<tr><td><a href='#' onclick='openNewTopWindow(" . attr_js($pid) . ")'>" . text($pid) . "</a></td>";
                         print "<td><strong>" . text($iter['lname']) . ", " . text($iter['fname']) . "</strong></td>";
-                        print "<td style='max-width:75px;'>" . text($insurance['name']) . "</td>";
+                        print "<td style='max-width:75px;'>" . text($insurance) . "</td>";
                     } else {
                         print "<td></td>";
                         print "<td></td>";
@@ -90,7 +100,7 @@ $patients = $data->listPatientAuths();
                         print "<td></td>";
                     } else {
                         print "<td>" . text($iter['init_units']) . "</td>";
-                        $unitCount = $iter['init_units'] - $numbers['count'];
+                        $unitCount = $iter['init_units'] - $numbers;
                         if ($unitCount > 0) {
                             print "<td>" . text($unitCount) . "</td>";
                         } else {

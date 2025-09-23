@@ -44,11 +44,26 @@ class AuthorizationService
         QueryUtils::sqlInsert($statement, $binding);
     }
 
-    public static function getUnitsUsed($number): false|array|null
+    public static function getUnitsUsed($authnum, $pid, $cpt, $start_date, $end_date): int
     {
-        $statement = "SELECT count(prior_auth_number) AS count FROM `form_misc_billing_options` WHERE `prior_auth_number` = ?";
-        $binds = [$number];
-        return sqlQuery($statement, $binds);
+       $statement = "SELECT SUM(b.units) AS count
+                    FROM billing b
+                    JOIN forms f
+                        ON b.encounter = f.encounter
+                    JOIN form_misc_billing_options fmbo
+                        ON f.form_id = fmbo.id
+                    JOIN form_encounter fe
+                        ON f.encounter = fe.encounter
+                    WHERE
+                        f.form_name = 'Misc Billing Options'
+                        AND fmbo.prior_auth_number = ?
+                        AND fmbo.pid = ?
+                        AND b.code = ?
+                        AND fe.date BETWEEN ? AND ?";
+
+      $binds = [$authnum, $pid, $cpt, $start_date, $end_date];
+      $result = sqlQuery($statement, $binds);
+      return (int) ($result['count'] ?? 0);
     }
 
     public function setId($id): void
@@ -167,14 +182,22 @@ class AuthorizationService
         $this->remaining_units = $remaining_units;
     }
 
-    public function listPatientAuths(): false|array
+    public function listPatientAuths(): false|array|\ADORecordSet_mysqli 
     {
         $sql = "SELECT DISTINCT pd.pid AS mrn, pd.fname, pd.lname, mpa.pid, mpa.auth_num, mpa.start_date, mpa.end_date, mpa.cpt, mpa.init_units, ins.provider " . "
             FROM `patient_data` pd " . "
             LEFT JOIN  `module_prior_authorizations` mpa ON pd.pid = mpa.pid " . "
             LEFT JOIN `insurance_data` ins ON  `ins`.`pid` = `pd`.`pid` " . "
             ORDER BY pd.lname";
-        return sqlStatement($sql);
+
+        try {
+            $result = sqlStatement($sql);
+            return $result;
+        } catch (\Throwable $e) {
+            error_log("Database error in listPatientAuths: " . $e->getMessage());
+            return false;
+        }
+ 
     }
 
     public static function registerFacility(): false|array
@@ -203,17 +226,42 @@ class AuthorizationService
         return $response;
     }
 
-    public static function insuranceName($pid): false|array|null
+    public static function insuranceName($pid): string 
     {
-        return sqlQuery("SELECT ic.name  FROM `insurance_data` id
+        $insurance = sqlQuery("SELECT ic.name FROM `insurance_data` id
             JOIN insurance_companies ic ON id.provider = ic.id
             WHERE `pid` = ? AND type = 'primary'", [$pid]);
+
+        if (is_array($insurance) && array_key_exists('name', $insurance)) {
+            return (string) $insurance['name'];
+        }
+
+        return '';
     }
 
-    public static function countUsageOfAuthNumber($pid, $authnum): false|array|null
+    public static function countUsageOfAuthNumber($authnum, $pid, $cpt, $start_date, $end_date): int
     {
-        return sqlQuery("SELECT count(*) AS count FROM `form_misc_billing_options`
-                         WHERE pid = ? AND `prior_auth_number` = ?", [$pid, $authnum]);
+    $result_array = sqlQuery("SELECT COALESCE(SUM(b.units), 0) AS count
+                             FROM billing b
+                             JOIN forms f
+                               ON b.encounter = f.encounter
+                             JOIN form_misc_billing_options fmbo
+                               ON f.form_id = fmbo.id
+                             JOIN form_encounter fe
+                               ON f.encounter = fe.encounter
+                             WHERE
+                               f.form_name = 'Misc Billing Options'
+                               AND fmbo.prior_auth_number = ?
+                               AND fmbo.pid = ?
+                               AND b.code = ?
+                               AND fe.date BETWEEN ? AND ?",
+                             [$authnum, $pid, $cpt, $start_date, $end_date]);
+
+    if (is_array($result_array) && array_key_exists('count', $result_array)) {
+        return (int) $result_array['count'];
+    }
+
+    return 0;
     }
 
     public static function requiresAuthorization($pid): false|array|null
@@ -224,6 +272,7 @@ WHERE `t`.`pid` = ? AND `d`.`field_id` = 'authorization_001'";
         return sqlQuery($sql, [$pid]);
     }
 
+    // This is a custom table patient_status table doesnt exist normally
     public static function patientInactive($pid): false|array|null
     {
         return sqlQuery("SELECT `ps`.`status` FROM `patient_status` ps WHERE `ps`.`pid` = ? ORDER BY `ps`.`statusId` DESC", [$pid]);
