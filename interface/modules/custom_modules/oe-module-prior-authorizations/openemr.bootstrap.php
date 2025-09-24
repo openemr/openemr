@@ -29,16 +29,20 @@ function oe_module_priorauth_add_menu_item(MenuEvent $event)
     $menuItem->requirement = 0;
     $menuItem->target = 'mod';
     $menuItem->menu_id = 'mod0';
-    $menuItem->label = xlt("Prior Authorization Report");
+    $menuItem->label = xlt("Authorizations");
     $menuItem->url = "/interface/modules/custom_modules/oe-module-prior-authorizations/public/reports/list_report.php";
     $menuItem->children = [];
     $menuItem->acl_req = ["patients", "docs"];
     $menuItem->global_req = [];
 
     foreach ($menu as $item) {
-        if ($item->menu_id == 'patimg') {
-            $item->children[] = $menuItem;
-            break;
+        if ($item->menu_id == 'repimg') {
+           foreach ($item->children as $childItem) {
+                if ($childItem->label == 'Insurance') {
+                    $childItem->children[] = $menuItem;
+                    break 2;
+                }
+            }
         }
     }
 
@@ -49,10 +53,18 @@ function oe_module_priorauth_add_menu_item(MenuEvent $event)
 
 function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent)
 {
-    $menu = file_get_contents(__DIR__ . '/public/patient_menu/custom_patient_menu.json');
-    $menu_parsed = json_decode($menu);
-    $menu_parsed = (new PatientMenuRole())->setPatientMenuUrl($menu_parsed);
-    $menuEvent->setMenu($menu_parsed);
+    $existingMenu = $menuEvent->getMenu();
+
+    $menuItem = new stdClass();
+    $menuItem->label = "Auths"; 
+    $menuItem->url = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php";
+    $menuItem->menu_id = "mod_pa"; 
+    $menuItem->target = "mod";
+
+    $existingMenu[] = $menuItem;
+
+    $menuEvent->setMenu($existingMenu);
+
     return $menuEvent;
 }
 
