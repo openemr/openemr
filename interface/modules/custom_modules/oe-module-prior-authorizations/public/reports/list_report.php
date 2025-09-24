@@ -9,7 +9,6 @@
  */
 
 require_once dirname(__FILE__, 6) . "/globals.php";
-require_once dirname(__FILE__, 3) . '/vendor/autoload.php';
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use OpenEMR\Core\Header;
