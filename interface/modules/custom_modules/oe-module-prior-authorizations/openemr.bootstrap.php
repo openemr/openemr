@@ -37,7 +37,7 @@ function oe_module_priorauth_add_menu_item(MenuEvent $event)
 
     foreach ($menu as $item) {
         if ($item->menu_id == 'repimg') {
-           foreach ($item->children as $childItem) {
+            foreach ($item->children as $childItem) {
                 if ($childItem->label == 'Insurance') {
                     $childItem->children[] = $menuItem;
                     break 2;
@@ -56,9 +56,9 @@ function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent)
     $existingMenu = $menuEvent->getMenu();
 
     $menuItem = new stdClass();
-    $menuItem->label = "Auths"; 
+    $menuItem->label = "Auths";
     $menuItem->url = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php";
-    $menuItem->menu_id = "mod_pa"; 
+    $menuItem->menu_id = "mod_pa";
     $menuItem->target = "mod";
 
     $existingMenu[] = $menuItem;

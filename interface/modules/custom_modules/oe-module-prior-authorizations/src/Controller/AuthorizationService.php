@@ -46,7 +46,7 @@ class AuthorizationService
 
     public static function getUnitsUsed($authnum, $pid, $cpt, $start_date, $end_date): int
     {
-       $statement = "SELECT SUM(b.units) AS count
+        $statement = "SELECT SUM(b.units) AS count
                     FROM billing b
                     JOIN forms f
                         ON b.encounter = f.encounter
@@ -61,9 +61,9 @@ class AuthorizationService
                         AND b.code = ?
                         AND fe.date BETWEEN ? AND ?";
 
-      $binds = [$authnum, $pid, $cpt, $start_date, $end_date];
-      $result = sqlQuery($statement, $binds);
-      return (int) ($result['count'] ?? 0);
+        $binds = [$authnum, $pid, $cpt, $start_date, $end_date];
+        $result = sqlQuery($statement, $binds);
+        return (int) ($result['count'] ?? 0);
     }
 
     public function setId($id): void
@@ -182,7 +182,7 @@ class AuthorizationService
         $this->remaining_units = $remaining_units;
     }
 
-    public function listPatientAuths(): false|array|\ADORecordSet_mysqli 
+    public function listPatientAuths(): false|array|\ADORecordSet_mysqli
     {
         $sql = "SELECT DISTINCT pd.pid AS mrn, pd.fname, pd.lname, mpa.pid, mpa.auth_num, mpa.start_date, mpa.end_date, mpa.cpt, mpa.init_units, ins.provider " . "
             FROM `patient_data` pd " . "
@@ -197,7 +197,6 @@ class AuthorizationService
             error_log("Database error in listPatientAuths: " . $e->getMessage());
             return false;
         }
- 
     }
 
     public static function registerFacility(): false|array
@@ -226,7 +225,7 @@ class AuthorizationService
         return $response;
     }
 
-    public static function insuranceName($pid): string 
+    public static function insuranceName($pid): string
     {
         $insurance = sqlQuery("SELECT ic.name FROM `insurance_data` id
             JOIN insurance_companies ic ON id.provider = ic.id
@@ -241,7 +240,8 @@ class AuthorizationService
 
     public static function countUsageOfAuthNumber($authnum, $pid, $cpt, $start_date, $end_date): int
     {
-    $result_array = sqlQuery("SELECT COALESCE(SUM(b.units), 0) AS count
+        $result_array = sqlQuery(
+            "SELECT COALESCE(SUM(b.units), 0) AS count
                              FROM billing b
                              JOIN forms f
                                ON b.encounter = f.encounter
@@ -255,13 +255,14 @@ class AuthorizationService
                                AND fmbo.pid = ?
                                AND b.code = ?
                                AND fe.date BETWEEN ? AND ?",
-                             [$authnum, $pid, $cpt, $start_date, $end_date]);
+            [$authnum, $pid, $cpt, $start_date, $end_date]
+        );
 
-    if (is_array($result_array) && array_key_exists('count', $result_array)) {
-        return (int) $result_array['count'];
-    }
+        if (is_array($result_array) && array_key_exists('count', $result_array)) {
+            return (int) $result_array['count'];
+        }
 
-    return 0;
+        return 0;
     }
 
     public static function requiresAuthorization($pid): false|array|null

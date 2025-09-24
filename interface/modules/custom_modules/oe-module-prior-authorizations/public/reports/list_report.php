@@ -58,10 +58,10 @@ $patients = $data->listPatientAuths();
                         $pid = $iter['pid'];
                     } else {
                         $pid = $iter['mrn'];
-		    }
+                    }
 
-		    // This part requires custom form and custom table to function
-		    /*
+            // This part requires custom form and custom table to function
+            /*
                     $requireAuth = AuthorizationService::requiresAuthorization($iter['pid']);
                     $status = AuthorizationService::patientInactive($pid);
 
@@ -72,15 +72,15 @@ $patients = $data->listPatientAuths();
                     if ($status['status'] == 'inactive') {
                         continue;
                     }
-		    */
+            */
 
                     $numbers = AuthorizationService::countUsageOfAuthNumber(
-			$iter['auth_num'],
-			$pid,
-			$iter['cpt'],
-			$iter['start_date'],
-			$iter['end_date']
-		    );
+                        $iter['auth_num'],
+                        $pid,
+                        $iter['cpt'],
+                        $iter['start_date'],
+                        $iter['end_date']
+                    );
                     $insurance = AuthorizationService::insuranceName($pid);
 
                     if ($name !== $iter['fname'] . " " . $iter['lname']) {
