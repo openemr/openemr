@@ -1023,3 +1023,10 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_p
 #IfNotRow2D list_options list_id care_plan_status option_id unknown
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
 #EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2025-10-01 load_filename icd10orderfiles.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'icd10orderfiles.zip', '781ce6e72697181f1ef0d4230921e902');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
+#EndIf

@@ -8967,6 +8967,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2024-10-01', 'icd10OrderFiles2025_0.zip', '783c2e3c92778295a76b8d7e0ebcf8fd');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2024-10-01', 'Zip File 3 2025 ICD-10-PCS Codes File.zip', 'a47ceb9a09fcc475fec19cee6526a335');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'icd10orderfiles.zip', '781ce6e72697181f1ef0d4230921e902');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
+
 -- --------------------------------------------------------
 
 --
