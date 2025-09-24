@@ -114,6 +114,7 @@ class AppointmentService extends BaseService
             }
             return true;
         });
+        $validator->optional('pc_website')->string();
 
         return $validator->validate($appointment);
     }
@@ -309,6 +310,7 @@ class AppointmentService extends BaseService
         $sql .= "     pc_pid=?,";
         $sql .= "     pc_catid=?,";
         $sql .= "     pc_title=?,";
+        $sql .= "     pc_time=NOW(),";
         $sql .= "     pc_duration=?,";
         $sql .= "     pc_hometext=?,";
         $sql .= "     pc_eventDate=?,";
@@ -317,10 +319,11 @@ class AppointmentService extends BaseService
         $sql .= "     pc_endTime=?,";
         $sql .= "     pc_facility=?,";
         $sql .= "     pc_billing_location=?,";
-        $sql .= "     pc_informant=1,";
+        $sql .= "     pc_informant=?,";
         $sql .= "     pc_eventstatus=1,";
         $sql .= "     pc_sharing=1,";
-        $sql .= "     pc_aid=?";
+        $sql .= "     pc_aid=?,";
+        $sql .= "     pc_website=?";
 
         $results = sqlInsert(
             $sql,
@@ -337,7 +340,9 @@ class AppointmentService extends BaseService
                 $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
-                $data["pc_aid"] ?? null
+                $_SESSION['authUserID'] ?? 1, // Grab authenticated user ID or default to 1
+                $data["pc_aid"] ?? null,
+                $data["pc_website"] ?? null,
             )
         );
 
