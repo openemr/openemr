@@ -526,7 +526,7 @@ exports.planOfCareSectionHtmlHeader = {
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Order/Program', 'Start Date', 'Status', 'Planned Care'];
+                        return ['Order/Program', 'Start Date', 'Plan Type', 'Status', 'Planned Care'];
                     }
                 }]
             }]
@@ -543,6 +543,9 @@ exports.planOfCareSectionHtmlHeader = {
                 }, {
                     key: "td",
                     text: leafLevel.deepInputDate("date_time.point", nda)
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputPropertyDisplay("type", nda)
                 }, {
                     key: "td",
                     text: leafLevel.deepInputProperty("status.code", nda)
@@ -895,6 +898,65 @@ exports.careTeamSectionHtmlHeader = {
     dataKey: 'care_team'
 };
 
+exports.healthConcernSectionHtmlHeader = {
+    key: "text",
+    content: [{
+        key: "table",
+        attributes: { border: "1", width: "100%" },
+        content: [
+            { // optional caption helps human reviewers
+                key: "caption",
+                text: "Health Concerns"
+            },
+            {
+                key: "thead",
+                content: [{
+                    key: "tr",
+                    content: [
+                        { key: "th", text: "Assessment" },
+                        { key: "th", text: "Concern (Narrative)" },
+                        { key: "th", text: "Concern (Description)" },
+                        { key: "th", text: "Code" },
+                        { key: "th", text: "CodeSystem" },
+                        { key: "th", text: "Status" },
+                        { key: "th", text: "Onset(Low)" },
+                        { key: "th", text: "Author(First,Last)" }
+                    ]
+                }]
+            },
+            {
+                key: "tbody",
+                dataKey: "concern",          // iterate rows
+                content: [{
+                    key: "tr",
+                    content: [
+                        { key: "td", text: leafLevel.deepInputProperty("assessment", nda) },
+                        // Narrative text first (Scorecard likes human-readable)
+                        { key: "td", text: leafLevel.inputProperty("text", nda) },
+                        // Code + System (machine-readable view)
+                        { key: "td", text: leafLevel.deepInputProperty("value.name", nda) },
+                        { key: "td", text: leafLevel.deepInputProperty("value.code", nda) },
+                        { key: "td", text: leafLevel.deepInputProperty("value.code_system_name", nda) },
+                        // Status (default active if not present)
+                        { key: "td", text: "active" },
+                        // Onset date (IVL_TS low)
+                        { key: "td", text: leafLevel.deepInputDate("date_time.low", nda) },
+                        // Author display (e.g., “Davis, Albert”)
+                        {
+                            key: "td",
+                            text: function (input) {
+                                const first = leafLevel.deepInputProperty("author.name.0.first", "")(input);
+                                const last = leafLevel.deepInputProperty("author.name.0.last", "")(input);
+                                return (first || last) ? `${first} ${last}`.trim() : "—";
+                            }
+                        }
+                    ]
+                }]
+            }
+        ]
+    }]
+};
+
 exports.assessmentSectionHtmlHeaderNA = "Not Available";
 exports.careTeamSectionHtmlHeaderNA = "Not Available";
 exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
@@ -911,3 +973,4 @@ exports.goalSectionHtmlHeaderNA = "Not Available";
 exports.socialHistorySectionHtmlHeaderNA = "Not Available";
 exports.vitalSignsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA = "Not Available";
+exports.healthConcernSectionHtmlHeaderNA = "Not Available";

@@ -12,7 +12,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2012 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019, 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,14 +36,14 @@ $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['sea
 // list_options to provide that.
 // Addition of an any column search from dem layouts. sjp 05/04/2019
 // Probably could have used a session var here because datatable server url
-// presists not allowing easy way to unset any for normal search but opted not.
+// persists not allowing easy way to unset any for normal search but opted not.
 //
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(
         "SELECT field_id FROM layout_options WHERE form_id = 'DEM'
-            AND field_id not like ? AND field_id not like ? AND uor !=0",
-        array('em\_%', 'add%')
+            AND field_id not like ? AND field_id not like ? AND field_id not like ? AND uor !=0",
+        array('em\_%', 'add%', 'related\_%')
     );
     for ($iter = 0; $row = sqlFetchArray($layoutCols); $iter++) {
         $aColumns[] = $row['field_id'];

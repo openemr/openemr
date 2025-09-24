@@ -618,20 +618,24 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
 
 -- Fix the issue that we don't have a primary key on the form_observation table
 #IfMissingColumn form_observation form_id
-ALTER TABLE `form_observation` RENAME COLUMN `id` TO `form_id`;
+ALTER TABLE `form_observation` CHANGE COLUMN `id` `form_id` BIGINT(20) NOT NULL;
+#EndIf
+
+#IfMissingColumn form_observation id
 ALTER TABLE `form_observation` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id`);
 #EndIf
 
 #IfMissingColumn form_observation parent_observation_id
-ALTER TABLE `form_observation` ADD `parent_observation_id` bigint(20) DEFAULT NULL COMMENT 'FK to parent observation for sub-observations';
+ALTER TABLE `form_observation` ADD `parent_observation_id` BIGINT(20) DEFAULT NULL  COMMENT 'FK to parent observation for sub-observations';
 #EndIf
 
 #IfMissingColumn form_observation category
-ALTER TABLE `form_observation` ADD `category` varchar(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)';
+ALTER TABLE `form_observation`
+    ADD `category` VARCHAR(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)';
 #EndIf
 
 #IfMissingColumn form_observation questionnaire_response_id
-ALTER TABLE `form_observation` ADD `questionnaire_response_id` bigint(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table';
+ALTER TABLE `form_observation` ADD `questionnaire_response_id` BIGINT(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table';
 #EndIf
 
 #IfNotIndex form_observation idx_parent_observation
@@ -651,7 +655,7 @@ ALTER TABLE `form_observation` ADD INDEX `idx_form_id` (`form_id`);
 #EndIf
 
 #IfNotIndex form_observation idx_pid_encounter
-ALTER TABLE `form_observation` ADD INDEX  `idx_pid_encounter` (`pid`, `encounter`);
+ALTER TABLE `form_observation` ADD INDEX `idx_pid_encounter` (`pid`, `encounter`);
 #EndIf
 
 #IfNotIndex form_observation idx_date
@@ -707,4 +711,322 @@ ALTER TABLE `form_observation` ADD `uuid` binary(16) DEFAULT NULL COMMENT 'UUID 
 #EndIf
 
 #IfEyeFormLaserCategoriesNeeded
+#EndIf
+
+-- =========================
+-- Patient Related Persons
+-- =========================
+#IfNotTable patient_related_persons
+CREATE TABLE `patient_related_persons`
+(
+    `pid`                    BIGINT UNSIGNED NOT NULL,
+    `uuid`                   BINARY(16)   DEFAULT NULL,
+    `related_firstname_1`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_1`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_1` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_1`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_1`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_1`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_1`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_1`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_1`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_1`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_1`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_1`        VARCHAR(254) DEFAULT NULL,
+    `related_firstname_2`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_2`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_2` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_2`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_2`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_2`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_2`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_2`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_2`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_2`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_2`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_2`        VARCHAR(254) DEFAULT NULL,
+    `related_firstname_3`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_3`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_3` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_3`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_3`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_3`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_3`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_3`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_3`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_3`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_3`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_3`        VARCHAR(254) DEFAULT NULL,
+    PRIMARY KEY (`pid`),
+    KEY `uuid_idx` (`uuid`)
+) ENGINE = InnoDB;
+#EndIf
+
+
+-- =========================
+-- DEM Layout: Related group (guarded)
+-- =========================
+#IfNotRow2D layout_group_properties grp_form_id DEM grp_title Related
+SET @newgrp := (
+    SELECT COALESCE(MAX(grp_group_id),0)+1 FROM layout_group_properties WHERE grp_form_id='DEM'
+);
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping)
+VALUES ('DEM', @newgrp, 'Related','');
+
+-- (fields are inserted once because group/title is guarded)
+INSERT INTO `layout_options`
+(`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,
+ `list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,
+ `fld_rows`,`list_backup_id`,`source`,`conditions`,`validation`,`codes`)
+VALUES
+    ('DEM','related_firstname_1',@newgrp,'First Name',10,2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','',''),
+    ('DEM','related_lastname_1',@newgrp,'Last Name',20,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','',''),
+    ('DEM','related_relationship_1',@newgrp,'Relationship',30,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','related_sex_1',@newgrp,'Sex',40,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','',''),
+    ('DEM','related_address_1',@newgrp,'Address',50,2,1,25,63,'',1,1,'','','Address',0,'','F','','',''),
+    ('DEM','related_city_1',@newgrp,'City',60,2,1,15,63,'',1,1,'','','City',0,'','F','','',''),
+    ('DEM','related_state_1',@newgrp,'State',70,26,1,0,0,'state',1,1,'','','State',0,'','F','','',''),
+    ('DEM','related_postalcode_1',@newgrp,'Postal Code',80,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','',''),
+    ('DEM','related_country_1',@newgrp,'Country',90,26,1,0,0,'country',1,1,'','','Country',0,'','F','','',''),
+    ('DEM','related_phone_1',@newgrp,'Phone',100,2,1,20,63,'',1,1,'','','Phone',0,'','F','','',''),
+    ('DEM','related_workphone_1',@newgrp,'Work Phone',110,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','',''),
+    ('DEM','related_email_1',@newgrp,'Email',120,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','',''),
+    ('DEM','related_static_1',@newgrp,'Related Person',125,31,1,0,0,'',1,3,'','["K"]','Patient Second Related Person',0,'','F','','',''),
+
+    ('DEM','related_firstname_2',@newgrp,'First Name',130,2,1,25,63,'',1,1,'','["K"]','Related First Name',0,'','F','','',''),
+    ('DEM','related_lastname_2',@newgrp,'Last Name',140,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','',''),
+    ('DEM','related_relationship_2',@newgrp,'Relationship',150,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','related_sex_2',@newgrp,'Sex',160,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','',''),
+    ('DEM','related_address_2',@newgrp,'Address',170,2,1,25,63,'',1,1,'','','Address',0,'','F','','',''),
+    ('DEM','related_city_2',@newgrp,'City',180,2,1,15,63,'',1,1,'','','City',0,'','F','','',''),
+    ('DEM','related_state_2',@newgrp,'State',190,26,1,0,0,'state',1,1,'','','State',0,'','F','','',''),
+    ('DEM','related_postalcode_2',@newgrp,'Postal Code',200,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','',''),
+    ('DEM','related_country_2',@newgrp,'Country',210,26,1,0,0,'country',1,1,'','','Country',0,'','F','','',''),
+    ('DEM','related_phone_2',@newgrp,'Phone',220,2,1,20,63,'',1,1,'','','Phone',0,'','F','','',''),
+    ('DEM','related_workphone_2',@newgrp,'Work Phone',230,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','',''),
+    ('DEM','related_email_2',@newgrp,'Email',240,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','',''),
+    ('DEM','related_static_2',@newgrp,'Related Person',245,31,1,0,0,'',1,3,'','["K"]','Patient Third Related Person',0,'','F','','',''),
+
+    ('DEM','related_firstname_3',@newgrp,'First Name',250,2,1,25,63,'',1,1,'','["K"]','Related First Name',0,'','F','','',''),
+    ('DEM','related_lastname_3',@newgrp,'Last Name',260,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','',''),
+    ('DEM','related_relationship_3',@newgrp,'Relationship',270,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','',''),
+    ('DEM','related_sex_3',@newgrp,'Sex',280,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','',''),
+    ('DEM','related_address_3',@newgrp,'Address',290,2,1,25,63,'',1,1,'','','Address',0,'','F','','',''),
+    ('DEM','related_city_3',@newgrp,'City',300,2,1,15,63,'',1,1,'','','City',0,'','F','','',''),
+    ('DEM','related_state_3',@newgrp,'State',310,26,1,0,0,'state',1,1,'','','State',0,'','F','','',''),
+    ('DEM','related_postalcode_3',@newgrp,'Postal Code',320,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','',''),
+    ('DEM','related_country_3',@newgrp,'Country',330,26,1,0,0,'country',1,1,'','','Country',0,'','F','','',''),
+    ('DEM','related_phone_3',@newgrp,'Phone',340,2,1,20,63,'',1,1,'','','Phone',0,'','F','','',''),
+    ('DEM','related_workphone_3',@newgrp,'Work Phone',350,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','',''),
+    ('DEM','related_email_3',@newgrp,'Email',360,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
+#EndIf
+
+-- =========================
+-- DEM Layout: Tribal Affiliations
+-- Resequence group by order of 10
+-- =========================
+#IfNotRow2D layout_options form_id DEM field_id tribal_affiliations
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='religion' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='religion' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations',@group_id,'Tribal Affiliations',@seq_add_to+10,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
+ALTER TABLE `patient_data` ADD `tribal_affiliations` TEXT;
+#Endif
+
+-- =========================
+-- form_history_sdoh: grouped adds
+-- =========================
+#IfMissingColumn form_history_sdoh instrument_score
+ALTER TABLE form_history_sdoh
+    ADD COLUMN instrument_score INT NULL,
+    ADD COLUMN positive_domain_count INT NULL,
+    ADD COLUMN declined_flag TINYINT(1) NULL,
+    ADD COLUMN disability_status VARCHAR(50) NULL,
+    ADD COLUMN disability_status_notes TEXT,
+    ADD COLUMN disability_scale TEXT,
+    ADD COLUMN hunger_q1 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88122-7 response',
+    ADD COLUMN hunger_q2 VARCHAR(50) DEFAULT NULL COMMENT 'LOINC 88123-5 response',
+    ADD COLUMN hunger_score INT DEFAULT NULL COMMENT 'Calculated HVS score';
+#EndIf
+-- =========================
+-- Lists & Options (grouped; parent first, then options)
+-- =========================
+
+/* -------- Vital Signs Answers -------- */
+#IfNotRow2D list_options list_id lists option_id vital_signs_answers
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('vital_signs_answers','LA28397-0','Often true',10,'LOINC:LA28397-0',1),
+       ('vital_signs_answers','LA28398-8','Sometimes true',20,'LOINC:LA28398-8',1),
+       ('vital_signs_answers','LA28399-6','Never true',30,'LOINC:LA28399-6',1);
+#EndIf
+
+/* -------- Disability Status -------- */
+#IfNotRow2D list_options list_id lists option_id disability_status
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','disability_status','Disability Status',0,1,0,'',1)
+ON DUPLICATE KEY UPDATE title=VALUES(title), notes=VALUES(notes);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('disability_status','im_safe','I''m Safe.',10,'LOINC:LA29242-7',1),
+       ('disability_status','im_vulnerable','I''m Vulnerable.',20,'LOINC:LA29243-5',1),
+       ('disability_status','im_at_risk','I''m at risk.',30,'LOINC:LA29244-3',1),
+       ('disability_status','im_in_crisis','I''m in crisis.',40,'LOINC:LA29245-0',1);
+#EndIf
+
+/* -------- SDOH Problems (optional catalog) -------- */
+#IfNotRow2D list_options list_id lists option_id sdoh_problems
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_problems','160903007','Lives alone',10,'SNOMED:160903007',1),
+       ('sdoh_problems','224130005','Difficulty accessing healthcare',20,'SNOMED:224130005',1),
+       ('sdoh_problems','182964004','Medication not available',30,'SNOMED:182964004',1),
+       ('sdoh_problems','73438004','Educational problem',40,'SNOMED:73438004',1),
+       ('sdoh_problems','266948004','Unemployed',50,'SNOMED:266948004',1),
+       ('sdoh_problems','Z59.1','Inadequate housing',60,'ICD10CM:Z59.1',1),
+       ('sdoh_problems','Z59.4','Lack of adequate food',70,'ICD10CM:Z59.4',1),
+       ('sdoh_problems','Z59.6','Low income',80,'ICD10CM:Z59.6',1),
+       ('sdoh_problems','Z62.9','Problem related to upbringing',90,'ICD10CM:Z62.9',1),
+       ('sdoh_problems','266944006','Lives in poverty',100,'SNOMED:266944006',1);
+#EndIf
+
+/* -------- SDOH Interventions (optional catalog) -------- */
+#IfNotRow2D list_options list_id lists option_id sdoh_interventions
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_interventions','467681000124101','Referral to food assistance program',10,'SNOMED:467681000124101',1),
+       ('sdoh_interventions','assist_food_program','Assistance with application for food program',90,'SNOMED:467681000124101',1),
+       ('sdoh_interventions','467711000124100','Referral to housing assistance program',20,'SNOMED:467711000124100',1),
+       ('sdoh_interventions','467721000124107','Referral to transportation assistance program',30,'SNOMED:467721000124107',1),
+       ('sdoh_interventions','467731000124109','Referral to utility assistance program',40,'SNOMED:467731000124109',1),
+       ('sdoh_interventions','428191000124101','Education about community resources',50,'SNOMED:428191000124101',1),
+       ('sdoh_interventions','464031000124108','Referral to social worker',60,'SNOMED:464031000124108',1),
+       ('sdoh_interventions','385763009','Lifestyle education',70,'SNOMED:385763009',1),
+       ('sdoh_interventions','467741000124103','Referral to financial assistance program',80,'SNOMED:467741000124103',1),
+       ('sdoh_interventions','467701000124103','Assistance with application for housing program',100,'SNOMED:467701000124103',1),
+       ('sdoh_interventions','assist_transport','Assistance with transportation',110,'SNOMED:467721000124107',1);
+#EndIf
+
+/* -------- Tribal Affiliations -------- */
+#IfNotRow2D list_options list_id lists option_id tribal_affiliations
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity)
+VALUES ('tribal_affiliations','coquille','Coquille Indian Tribe',10,'65',1),
+       ('tribal_affiliations','cherokee_nation','Cherokee Nation (OK)',20,'40',1),
+       ('tribal_affiliations','chickasaw_nation','Chickasaw Nation (OK)',30,'43',1),
+       ('tribal_affiliations','choctaw_nation','Choctaw Nation of Oklahoma',40,'47',1),
+       ('tribal_affiliations','gila_river','Gila River Indian Community (AZ)',50,'93',1),
+       ('tribal_affiliations','hopi','Hopi Tribe (AZ)',60,'104',1),
+       ('tribal_affiliations','navajo_nation','Navajo Nation (AZ/NM/UT)',70,'170',1),
+       ('tribal_affiliations','standing_rock','Standing Rock Sioux Tribe (ND/SD)',80,'289',1),
+       ('tribal_affiliations','tohono_oodham','Tohono O''odham Nation (AZ)',90,'302',1),
+       ('tribal_affiliations','white_mountain_apache','White Mountain Apache Tribe (AZ)',100,'325',1),
+       ('tribal_affiliations','zuni','Zuni Tribe (NM)',110,'337',1),
+       ('tribal_affiliations','other_specify','Other (specify)',120,'000',1);
+#EndIf
+
+/* -------- ODH IndustryODH (optional; used if you capture industry) -------- */
+#IfNotRow2D list_options list_id IndustryODH option_id 541110
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','IndustryODH','ODH Industry',0,0,0,'NAICS-based industry codes from ODH',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('IndustryODH','541110','Offices of Lawyers',10,'541110.008099',1),
+       ('IndustryODH','541330','Engineering Services',20,'541330.008117',1),
+       ('IndustryODH','236220','Commercial and Institutional Building Construction',30,'236220.004781',1),
+       ('IndustryODH','622110','General Medical and Surgical Hospitals',40,'622110.009243',1),
+       ('IndustryODH','611110','Elementary and Secondary Schools',50,'611110.008684',1),
+       ('IndustryODH','561720','Janitorial Services',60,'561720.002294',1),
+       ('IndustryODH','722511','Full-Service Restaurants',70,'722511.010339',1),
+       ('IndustryODH','445110','Supermarkets and Other Grocery Stores',80,'445110.006564',1),
+       ('IndustryODH','238210','Electrical Contractors',90,'238210.004871',1),
+       ('IndustryODH','621111','Offices of Physicians (except Mental Health)',100,'621111.009165',1),
+       ('IndustryODH','531110','Lessors of Residential Buildings',110,'531110.007615',1),
+       ('IndustryODH','484121','General Freight Trucking, Long-Distance',120,'484121.007193',1),
+       ('IndustryODH','812111','Barber Shops',130,'812111.011099',1),
+       ('IndustryODH','522110','Commercial Banking',140,'522110.007773',1),
+       ('IndustryODH','999999','Unemployed',150,'999999',1),
+       ('IndustryODH','UNKNOWN','Unknown',160,'UNKNOWN',1);
+#EndIf
+
+/* -------- ODH OccupationODH -------- */
+#IfNotRow2D list_options list_id OccupationODH option_id 23-1011.00
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','OccupationODH','ODH Occupation',0,0,0,'O*NET-SOC based occupation codes from ODH',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('OccupationODH','23-1011.00','Lawyers',10,'23-1011.00.031000',1),
+       ('OccupationODH','17-2051.00','Civil Engineers',20,'17-2051.00.019051',1),
+       ('OccupationODH','47-2061.00','Construction Laborers',30,'47-2061.00.051621',1),
+       ('OccupationODH','29-1141.00','Registered Nurses',40,'29-1141.00.038232',1),
+       ('OccupationODH','25-2021.00','Elementary School Teachers',50,'25-2021.00.032102',1),
+       ('OccupationODH','37-2011.00','Janitors and Cleaners',60,'37-2011.00.028742',1),
+       ('OccupationODH','35-3031.00','Waiters and Waitresses',70,'35-3031.00.045251',1),
+       ('OccupationODH','41-2011.00','Cashiers',80,'41-2011.00.047211',1),
+       ('OccupationODH','11-1021.00','General and Operations Managers',90,'11-1021.00.003891',1),
+       ('OccupationODH','43-9061.00','Office Clerks, General',100,'43-9061.00.049705',1),
+       ('OccupationODH','53-3032.00','Heavy and Tractor-Trailer Truck Drivers',110,'53-3032.00.057651',1),
+       ('OccupationODH','29-1211.00','Physician Assistants',120,'29-1211.00.038302',1),
+       ('OccupationODH','39-5012.00','Hairdressers, Hairstylists, and Cosmetologists',130,'39-5012.00.046262',1),
+       ('OccupationODH','13-2011.00','Accountants and Auditors',140,'13-2011.00.010350',1),
+       ('OccupationODH','15-1252.00','Software Developers',150,'15-1252.00.016221',1),
+       ('OccupationODH','33-9032.00','Security Guards',160,'33-9032.00.042562',1),
+       ('OccupationODH','49-9071.00','Maintenance and Repair Workers, General',170,'49-9071.00.053722',1),
+       ('OccupationODH','31-1120.00','Home Health Aides',180,'31-1120.00.039792',1),
+       ('OccupationODH','25-9045.00','Teaching Assistants',190,'25-9045.00.032175',1),
+       ('OccupationODH','21-1093.00','Social Workers',200,'21-1093.00.027030',1),
+       ('OccupationODH','999999','Unemployed',210,'999999',1),
+       ('OccupationODH','UNKNOWN','Unknown',220,'UNKNOWN',1);
+#EndIf
+-- =========================
+-- Care Plan (form_care_plan table, status list, etc)
+-- =========================
+#IfMissingColumn form_care_plan plan_status
+ALTER TABLE `form_care_plan` ADD COLUMN `plan_status` VARCHAR(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)';
+#EndIf
+
+#IfNotIndex form_care_plan idx_status_date
+ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`status`, `date`, `end_date`);
+#EndIf
+
+-- Care plan status list aligned to FHIR R4 CarePlan.status (titles are user-facing)
+#IfNotRow2D list_options list_id lists option_id care_plan_status
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_status', 'Care Plan Status', 0);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id draft
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','draft','Draft',10);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id active
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','active','Active',20);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id on-hold
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','on-hold','On hold',30);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id revoked
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','revoked','Revoked',40);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id completed
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id entered-in-error
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
+#EndIf
+#IfNotRow2D list_options list_id care_plan_status option_id unknown
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2025-10-01 load_filename icd10orderfiles.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'icd10orderfiles.zip', '781ce6e72697181f1ef0d4230921e902');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
 #EndIf
