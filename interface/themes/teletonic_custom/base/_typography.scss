@@ -1,0 +1,629 @@
+/**
+ * TeletonicMD Typography System
+ * Professional Medical Interface Typography
+ * WCAG AA Compliant & Optimized for Clinical Readability
+ *
+ * @package   OpenEMR
+ * @author    TeletonicMD Design System
+ * @copyright 2025 TeletonicMD
+ * @license   HIPAA Compliant Medical Theme
+ */
+
+// ============================================================================
+// FONT IMPORTS
+// Professional Medical Typography Fonts
+// ============================================================================
+
+// Import Inter font family for optimal medical interface readability
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+// ============================================================================
+// BASE TYPOGRAPHY
+// Foundation Typography Styles
+// ============================================================================
+
+/**
+ * Reset and base typography
+ */
+html {
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: $font-family-primary;
+  font-weight: $font-weight-normal;
+  color: $neutral-900;
+  background-color: $neutral-50;
+  line-height: $line-height-normal;
+}
+
+// ============================================================================
+// HEADINGS
+// Medical Interface Heading Hierarchy
+// ============================================================================
+
+/**
+ * Heading base styles
+ */
+%heading-base {
+  font-family: $font-family-primary;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $neutral-900;
+  margin: 0 0 $space-4 0;
+  letter-spacing: -0.025em;
+}
+
+/**
+ * Heading level 1 - Page titles
+ * Used for main page headings and primary content titles
+ */
+h1,
+.h1 {
+  @extend %heading-base;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  margin-bottom: $space-6;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-4xl;
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    font-size: $font-size-5xl;
+  }
+}
+
+/**
+ * Heading level 2 - Section titles
+ * Used for major section headings within pages
+ */
+h2,
+.h2 {
+  @extend %heading-base;
+  font-size: $font-size-2xl;
+  margin-bottom: $space-5;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-3xl;
+  }
+}
+
+/**
+ * Heading level 3 - Subsection titles
+ * Used for subsections and component titles
+ */
+h3,
+.h3 {
+  @extend %heading-base;
+  font-size: $font-size-xl;
+  margin-bottom: $space-4;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-2xl;
+  }
+}
+
+/**
+ * Heading level 4 - Component headings
+ * Used for smaller component headings and cards
+ */
+h4,
+.h4 {
+  @extend %heading-base;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $space-3;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-xl;
+  }
+}
+
+/**
+ * Heading level 5 - Sub-component headings
+ */
+h5,
+.h5 {
+  @extend %heading-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $space-2;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-lg;
+  }
+}
+
+/**
+ * Heading level 6 - Minor headings
+ */
+h6,
+.h6 {
+  @extend %heading-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $space-2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $neutral-700;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-base;
+  }
+}
+
+// ============================================================================
+// BODY TEXT
+// Medical Content Typography
+// ============================================================================
+
+/**
+ * Paragraph text
+ * Optimized for medical content readability
+ */
+p {
+  margin: 0 0 $space-4 0;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $neutral-800;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  // Large paragraph text for important medical information
+  &.text-large {
+    font-size: $font-size-lg;
+    line-height: $line-height-relaxed;
+  }
+
+  // Small paragraph text for secondary information
+  &.text-small {
+    font-size: $font-size-sm;
+    line-height: $line-height-normal;
+    color: $neutral-600;
+  }
+}
+
+/**
+ * Lead paragraph
+ * For important introductory text
+ */
+.lead {
+  font-size: $font-size-lg;
+  line-height: $line-height-relaxed;
+  font-weight: $font-weight-normal;
+  color: $neutral-700;
+  margin-bottom: $space-6;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-xl;
+  }
+}
+
+// ============================================================================
+// SPECIALIZED TEXT STYLES
+// Medical Interface Specific Typography
+// ============================================================================
+
+/**
+ * Medical data text
+ * For displaying patient data, measurements, etc.
+ */
+.text-medical-data {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $neutral-900;
+  background-color: $neutral-100;
+  padding: $space-1 $space-2;
+  border-radius: $border-radius-sm;
+  border: $border-width-1 solid $neutral-200;
+}
+
+/**
+ * Patient name styling
+ * Professional patient identification
+ */
+.patient-name {
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-lg;
+  color: $primary-700;
+  margin-bottom: $space-1;
+}
+
+/**
+ * Medical record number
+ */
+.medical-record-number {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $neutral-600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/**
+ * Medical alert text
+ * For critical medical information
+ */
+.text-medical-alert {
+  font-weight: $font-weight-semibold;
+  color: $error-700;
+  background-color: $error-50;
+  padding: $space-2 $space-3;
+  border-radius: $border-radius-md;
+  border-left: 4px solid $error-500;
+}
+
+/**
+ * Medication text
+ * For medication names and dosages
+ */
+.text-medication {
+  font-weight: $font-weight-medium;
+  color: $primary-700;
+
+  .dosage {
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    color: $neutral-700;
+    margin-left: $space-2;
+  }
+}
+
+/**
+ * Diagnosis text
+ * For medical diagnoses and conditions
+ */
+.text-diagnosis {
+  font-weight: $font-weight-medium;
+  color: $secondary-700;
+
+  .icd-code {
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    color: $neutral-600;
+    margin-left: $space-2;
+  }
+}
+
+// ============================================================================
+// TEXT UTILITIES
+// Utility Classes for Text Styling
+// ============================================================================
+
+/**
+ * Font size utilities
+ */
+.text-xs { font-size: $font-size-xs; }
+.text-sm { font-size: $font-size-sm; }
+.text-base { font-size: $font-size-base; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+.text-2xl { font-size: $font-size-2xl; }
+.text-3xl { font-size: $font-size-3xl; }
+
+/**
+ * Font weight utilities
+ */
+.font-light { font-weight: $font-weight-light; }
+.font-normal { font-weight: $font-weight-normal; }
+.font-medium { font-weight: $font-weight-medium; }
+.font-semibold { font-weight: $font-weight-semibold; }
+.font-bold { font-weight: $font-weight-bold; }
+
+/**
+ * Text alignment utilities
+ */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/**
+ * Text color utilities
+ */
+.text-primary { color: $primary-500; }
+.text-secondary { color: $secondary-500; }
+.text-success { color: $success-600; }
+.text-warning { color: $warning-600; }
+.text-error { color: $error-600; }
+.text-info { color: $info-600; }
+
+.text-neutral-50 { color: $neutral-50; }
+.text-neutral-100 { color: $neutral-100; }
+.text-neutral-200 { color: $neutral-200; }
+.text-neutral-300 { color: $neutral-300; }
+.text-neutral-400 { color: $neutral-400; }
+.text-neutral-500 { color: $neutral-500; }
+.text-neutral-600 { color: $neutral-600; }
+.text-neutral-700 { color: $neutral-700; }
+.text-neutral-800 { color: $neutral-800; }
+.text-neutral-900 { color: $neutral-900; }
+
+// ============================================================================
+// LINKS
+// Professional Medical Interface Links
+// ============================================================================
+
+/**
+ * Base link styling
+ */
+a {
+  color: $primary-600;
+  text-decoration: none;
+  font-weight: $font-weight-medium;
+  transition: $transition-colors;
+  cursor: pointer;
+
+  &:hover {
+    color: $primary-700;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+    color: $primary-700;
+    text-decoration: underline;
+    box-shadow: 0 0 0 2px $primary-200;
+    border-radius: $border-radius-sm;
+  }
+
+  &:active {
+    color: $primary-800;
+  }
+
+  // Medical record links
+  &.medical-link {
+    font-family: $font-family-mono;
+    font-size: $font-size-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  // External links indicator
+  &.external-link::after {
+    content: ' ↗';
+    font-size: $font-size-xs;
+    opacity: 0.7;
+  }
+
+  // Disabled links
+  &.disabled,
+  &:disabled {
+    color: $neutral-400;
+    cursor: not-allowed;
+    text-decoration: none;
+
+    &:hover {
+      color: $neutral-400;
+      text-decoration: none;
+    }
+  }
+}
+
+// ============================================================================
+// CODE & PRE-FORMATTED TEXT
+// Technical Medical Data Display
+// ============================================================================
+
+/**
+ * Inline code
+ * For small code snippets and technical values
+ */
+code {
+  font-family: $font-family-mono;
+  font-size: 0.875em;
+  color: $primary-700;
+  background-color: $primary-50;
+  padding: 0.125rem 0.25rem;
+  border-radius: $border-radius-sm;
+  border: $border-width-1 solid $primary-100;
+}
+
+/**
+ * Code blocks
+ * For larger code snippets and medical data exports
+ */
+pre {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $neutral-900;
+  background-color: $neutral-100;
+  padding: $space-4;
+  border-radius: $border-radius-md;
+  border: $border-width-1 solid $neutral-200;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+
+  code {
+    font-size: inherit;
+    color: inherit;
+    background: none;
+    padding: 0;
+    border: none;
+  }
+}
+
+// ============================================================================
+// LISTS
+// Medical Information Lists
+// ============================================================================
+
+/**
+ * Unordered lists
+ */
+ul {
+  margin: 0 0 $space-4 0;
+  padding-left: $space-5;
+
+  li {
+    margin-bottom: $space-2;
+    line-height: $line-height-relaxed;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Medical symptom lists
+  &.symptom-list {
+    li {
+      padding-left: $space-2;
+      position: relative;
+
+      &::before {
+        content: '•';
+        color: $primary-500;
+        font-weight: $font-weight-bold;
+        position: absolute;
+        left: -$space-4;
+      }
+    }
+  }
+}
+
+/**
+ * Ordered lists
+ */
+ol {
+  margin: 0 0 $space-4 0;
+  padding-left: $space-5;
+
+  li {
+    margin-bottom: $space-2;
+    line-height: $line-height-relaxed;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Medical procedure lists
+  &.procedure-list {
+    counter-reset: procedure-counter;
+
+    li {
+      counter-increment: procedure-counter;
+      padding-left: $space-3;
+      position: relative;
+
+      &::before {
+        content: counter(procedure-counter);
+        position: absolute;
+        left: -$space-6;
+        background-color: $primary-500;
+        color: white;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+      }
+    }
+  }
+}
+
+/**
+ * Description lists
+ * Perfect for medical data key-value pairs
+ */
+dl {
+  margin: 0 0 $space-4 0;
+
+  dt {
+    font-weight: $font-weight-semibold;
+    color: $neutral-900;
+    margin-bottom: $space-1;
+  }
+
+  dd {
+    margin: 0 0 $space-3 0;
+    padding-left: $space-4;
+    color: $neutral-700;
+    border-left: 2px solid $primary-200;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Medical data description list
+  &.medical-data {
+    dt {
+      font-size: $font-size-sm;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $neutral-600;
+      margin-bottom: $space-1;
+    }
+
+    dd {
+      font-family: $font-family-mono;
+      font-size: $font-size-base;
+      font-weight: $font-weight-medium;
+      color: $neutral-900;
+      margin-bottom: $space-4;
+    }
+  }
+}
+
+// ============================================================================
+// ACCESSIBILITY FEATURES
+// Enhanced Typography Accessibility
+// ============================================================================
+
+/**
+ * High contrast mode adjustments
+ */
+@media (prefers-contrast: high) {
+  body {
+    color: $neutral-900;
+    background-color: white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: $neutral-900;
+  }
+
+  a {
+    color: $primary-700;
+    text-decoration: underline;
+
+    &:hover, &:focus {
+      color: $primary-900;
+    }
+  }
+
+  .text-medical-alert {
+    color: $error-900;
+    background-color: $error-100;
+    border-color: $error-700;
+  }
+}
+
+/**
+ * Reduced motion support
+ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

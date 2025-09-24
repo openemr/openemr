@@ -1,0 +1,17 @@
+{#
+A block to render the primary logo and small logos.
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% block logo %}
+
+{% include "login/partials/html/primary_logo.html.twig" %}
+
+{% include "login/partials/html/small_logo.html.twig" %}
+
+{% endblock %}

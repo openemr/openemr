@@ -1,0 +1,52 @@
+{#
+A partial used to build out the login form.
+
+* Set google_signin_info_container_class_list with an array of class names to override the form group row
+
+@todo Break this out to make a parital _just_ for the form
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if displaySmallLogo %}
+    <div class="mb-5 small-logos-container">
+        {% include "login/partials/html/small_logo.html.twig" %}
+    </div>
+{% endif %}
+
+{% include "login/partials/html/tagline.html.twig" %}
+
+{% include "login/partials/html/relogin.html.twig" %}
+
+{% include "login/partials/html/login_failure.html.twig" %}
+
+<form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr_url }}" target="_top" name="login_form">
+    <input type="hidden" name="new_login_session_management" value="1">
+    <input type="hidden" name="languageChoice" value="{{ defaultLangID|attr }}">
+    {% include "login/partials/input/username.html.twig" %}
+    {% include "login/partials/input/password.html.twig" %}
+    {{ divApp }}
+    {% include "login/partials/input/languages.html.twig" %}
+    {% include "login/partials/input/facilities.html.twig" %}
+    {% include "login/partials/input/buttons.html.twig" %}
+
+    {% if displayGoogleSignin %}
+    <div class="{{ google_signin_info_container_class_list|default(['form-group', 'row'])|join(' ') }}">
+        <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+        <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+        <div id="google-signin" onclick="return do_google_signin();">
+            <!-- This message is displayed if the google platform API cannot render the button -->
+            <span id="google-signin-service-unreachable-alert" style="display:none;">
+                {{ "Google Sign-In is enabled but the service is unreachable."|xlt }}
+            </span>
+        </div>
+        <div id="google-signout">
+            <a href="#" onclick="signOut();">{{ "Sign out"|xlt }}</a>
+        </div>
+    </div>
+    {% endif %}
+</form>

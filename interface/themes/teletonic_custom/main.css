@@ -1,0 +1,19 @@
+/* Error: Undefined variable.
+ *     ,
+ * 314 |   color: $success-800;
+ *     |          ^^^^^^^^^^^^
+ *     '
+ *   base/_mixins.scss 314:10     alert-success()
+ *   base/_components.scss 398:5  @import
+ *   main.scss 35:9               root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined variable.\a     \2577 \a 314 \2502    color: $success-800;\a     \2502           ^^^^^^^^^^^^\a     \2575 \a   base/_mixins.scss 314:10     alert-success()\a   base/_components.scss 398:5  @import\a   main.scss 35:9               root stylesheet";
+}

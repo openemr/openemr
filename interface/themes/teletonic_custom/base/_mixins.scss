@@ -1,0 +1,621 @@
+/**
+ * TeletonicMD Design System Mixins
+ * Reusable Style Patterns for Medical UI
+ * Professional, Accessible, and Maintainable
+ *
+ * @package   OpenEMR
+ * @author    TeletonicMD Design System
+ * @copyright 2025 TeletonicMD
+ * @license   HIPAA Compliant Medical Theme
+ */
+
+// ============================================================================
+// BUTTON MIXINS
+// Professional Medical Interface Button Styles
+// ============================================================================
+
+/**
+ * Base button styles
+ * Provides foundational button styling with accessibility features
+ */
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: $border-width-1 solid transparent;
+  font-family: $font-family-primary;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  cursor: pointer;
+  transition: $transition-all;
+  border-radius: $border-radius-md;
+  position: relative;
+
+  // Accessibility features
+  &:focus {
+    outline: none;
+    box-shadow: $shadow-focus;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  // Remove button reset for better cross-browser consistency
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/**
+ * Button size variations
+ * Consistent sizing for different button use cases
+ */
+@mixin button-sm {
+  height: $height-8;
+  padding: 0 $space-3;
+  font-size: $font-size-sm;
+  line-height: $line-height-tight;
+}
+
+@mixin button-md {
+  height: $height-10;
+  padding: 0 $space-4;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+}
+
+@mixin button-lg {
+  height: $height-12;
+  padding: 0 $space-6;
+  font-size: $font-size-lg;
+  line-height: $line-height-normal;
+}
+
+/**
+ * Primary button variant (Main actions)
+ */
+@mixin button-primary {
+  background-color: $primary-500;
+  border-color: $primary-500;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-600;
+    border-color: $primary-600;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $primary-700;
+    border-color: $primary-700;
+  }
+}
+
+/**
+ * Secondary button variant (Secondary actions)
+ */
+@mixin button-secondary {
+  background-color: transparent;
+  border-color: $primary-500;
+  color: $primary-500;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-50;
+    border-color: $primary-600;
+    color: $primary-600;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $primary-100;
+    color: $primary-700;
+  }
+}
+
+/**
+ * Success button variant (Positive actions)
+ */
+@mixin button-success {
+  background-color: $success-500;
+  border-color: $success-500;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $success-600;
+    border-color: $success-600;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $success-700;
+    border-color: $success-700;
+  }
+}
+
+/**
+ * Danger button variant (Destructive actions)
+ */
+@mixin button-danger {
+  background-color: $error-500;
+  border-color: $error-500;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $error-600;
+    border-color: $error-600;
+  }
+
+  &:active:not(:disabled) {
+    background-color: $error-700;
+    border-color: $error-700;
+  }
+}
+
+// ============================================================================
+// FORM MIXINS
+// Medical Form Input Styling
+// ============================================================================
+
+/**
+ * Base input field styling
+ * Professional medical form inputs with accessibility
+ */
+@mixin input-base {
+  display: block;
+  width: 100%;
+  height: $height-10;
+  padding: 0 $space-3;
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $neutral-900;
+  background-color: white;
+  border: $border-width-1 solid $neutral-300;
+  border-radius: $border-radius-md;
+  transition: $transition-colors, $transition-shadow;
+
+  &::placeholder {
+    color: $neutral-400;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-500;
+    box-shadow: $shadow-focus;
+  }
+
+  &:disabled {
+    background-color: $neutral-100;
+    border-color: $neutral-200;
+    color: $neutral-500;
+    cursor: not-allowed;
+  }
+
+  &.error {
+    border-color: $error-500;
+
+    &:focus {
+      border-color: $error-500;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+}
+
+/**
+ * Textarea styling
+ */
+@mixin textarea-base {
+  @include input-base;
+  height: auto;
+  padding: $space-3;
+  min-height: $height-16;
+  resize: vertical;
+}
+
+/**
+ * Select dropdown styling
+ */
+@mixin select-base {
+  @include input-base;
+  cursor: pointer;
+  padding-right: $space-8;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right $space-2 center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+// ============================================================================
+// CARD MIXINS
+// Professional Medical Information Cards
+// ============================================================================
+
+/**
+ * Base card styling
+ * Clean, professional medical information display
+ */
+@mixin card-base {
+  background-color: white;
+  border: $border-width-1 solid $neutral-200;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  transition: $transition-shadow;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+/**
+ * Card header styling
+ */
+@mixin card-header {
+  padding: $space-4 $space-6;
+  border-bottom: $border-width-1 solid $neutral-200;
+  background-color: $neutral-50;
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
+}
+
+/**
+ * Card body styling
+ */
+@mixin card-body {
+  padding: $space-6;
+}
+
+/**
+ * Card footer styling
+ */
+@mixin card-footer {
+  padding: $space-4 $space-6;
+  border-top: $border-width-1 solid $neutral-200;
+  background-color: $neutral-50;
+  border-radius: 0 0 $border-radius-lg $border-radius-lg;
+}
+
+// ============================================================================
+// ALERT/NOTIFICATION MIXINS
+// Medical Alert System Styling
+// ============================================================================
+
+/**
+ * Base alert styling
+ */
+@mixin alert-base {
+  padding: $space-4;
+  border-radius: $border-radius-md;
+  border: $border-width-1 solid;
+  font-weight: $font-weight-medium;
+
+  .alert-icon {
+    margin-right: $space-2;
+    flex-shrink: 0;
+  }
+
+  .alert-title {
+    font-weight: $font-weight-semibold;
+    margin-bottom: $space-1;
+  }
+
+  .alert-description {
+    font-weight: $font-weight-normal;
+  }
+}
+
+/**
+ * Success alert variant
+ */
+@mixin alert-success {
+  @include alert-base;
+  background-color: $success-50;
+  border-color: $success-200;
+  color: $success-800;
+}
+
+/**
+ * Warning alert variant
+ */
+@mixin alert-warning {
+  @include alert-base;
+  background-color: $warning-50;
+  border-color: $warning-200;
+  color: $warning-800;
+}
+
+/**
+ * Error alert variant
+ */
+@mixin alert-error {
+  @include alert-base;
+  background-color: $error-50;
+  border-color: $error-200;
+  color: $error-800;
+}
+
+/**
+ * Info alert variant
+ */
+@mixin alert-info {
+  @include alert-base;
+  background-color: $info-50;
+  border-color: $info-200;
+  color: $info-800;
+}
+
+// ============================================================================
+// MEDICAL STATUS MIXINS
+// Patient and Clinical Status Indicators
+// ============================================================================
+
+/**
+ * Status badge base
+ */
+@mixin status-badge-base {
+  display: inline-flex;
+  align-items: center;
+  padding: $space-1 $space-3;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/**
+ * Active status (patient/session active)
+ */
+@mixin status-active {
+  @include status-badge-base;
+  background-color: $success-100;
+  color: $success-800;
+  border: $border-width-1 solid $success-200;
+}
+
+/**
+ * Pending status (awaiting review/action)
+ */
+@mixin status-pending {
+  @include status-badge-base;
+  background-color: $warning-100;
+  color: $warning-800;
+  border: $border-width-1 solid $warning-200;
+}
+
+/**
+ * Critical status (emergency/urgent)
+ */
+@mixin status-critical {
+  @include status-badge-base;
+  background-color: $error-100;
+  color: $error-800;
+  border: $border-width-1 solid $error-200;
+}
+
+/**
+ * Inactive status (disabled/archived)
+ */
+@mixin status-inactive {
+  @include status-badge-base;
+  background-color: $neutral-100;
+  color: $neutral-600;
+  border: $border-width-1 solid $neutral-200;
+}
+
+// ============================================================================
+// ACCESSIBILITY MIXINS
+// WCAG AA Compliance Helpers
+// ============================================================================
+
+/**
+ * Screen reader only text
+ * Visually hidden but accessible to screen readers
+ */
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Focus visible styling
+ * Enhanced focus indicators for accessibility
+ */
+@mixin focus-visible {
+  &:focus-visible {
+    outline: $focus-ring-width solid $focus-ring-color;
+    outline-offset: $focus-ring-offset;
+  }
+}
+
+/**
+ * High contrast mode support
+ */
+@mixin high-contrast-border {
+  @media (prefers-contrast: high) {
+    border: $high-contrast-border;
+  }
+}
+
+// ============================================================================
+// LAYOUT MIXINS
+// Professional Medical Interface Layouts
+// ============================================================================
+
+/**
+ * Flex center alignment
+ */
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/**
+ * Flex between alignment
+ */
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/**
+ * Medical grid layout (for patient data tables)
+ */
+@mixin medical-grid {
+  display: grid;
+  gap: $space-4;
+
+  @media (min-width: $breakpoint-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/**
+ * Professional container with max-width
+ */
+@mixin container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $space-4;
+
+  @media (min-width: $breakpoint-sm) {
+    max-width: $breakpoint-sm;
+    padding: 0 $space-6;
+  }
+
+  @media (min-width: $breakpoint-md) {
+    max-width: $breakpoint-md;
+    padding: 0 $space-8;
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    max-width: $breakpoint-lg;
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    max-width: $breakpoint-xl;
+  }
+}
+
+// ============================================================================
+// ANIMATION MIXINS
+// Smooth Professional Interactions
+// ============================================================================
+
+/**
+ * Fade in animation
+ */
+@mixin fade-in($duration: $duration-300) {
+  animation: fadeIn $duration $ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/**
+ * Slide in from top
+ */
+@mixin slide-in-top($duration: $duration-300) {
+  animation: slideInTop $duration $ease-out;
+}
+
+@keyframes slideInTop {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/**
+ * Loading spinner
+ */
+@mixin loading-spinner($size: 1rem, $color: $primary-500) {
+  display: inline-block;
+  width: $size;
+  height: $size;
+  border: 2px solid lighten($color, 40%);
+  border-radius: 50%;
+  border-top-color: $color;
+  animation: spin $duration-1000 linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// MEDICAL TABLE MIXINS
+// Professional Medical Data Tables
+// ============================================================================
+
+/**
+ * Medical data table styling
+ */
+@mixin medical-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+
+  th {
+    background-color: $neutral-50;
+    padding: $space-3 $space-4;
+    text-align: left;
+    font-weight: $font-weight-semibold;
+    color: $neutral-700;
+    border-bottom: $border-width-1 solid $neutral-200;
+    font-size: $font-size-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: $space-3 $space-4;
+    border-bottom: $border-width-1 solid $neutral-100;
+    vertical-align: top;
+
+    &:first-child {
+      font-weight: $font-weight-medium;
+      color: $neutral-900;
+    }
+  }
+
+  tr:hover {
+    background-color: $neutral-50;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}

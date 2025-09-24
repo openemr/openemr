@@ -516,6 +516,7 @@ $GLOBALS_METADATA = array(
         'login_page_layout' => array(
             xl('Login Page Layout') . '*',
             array(
+                'login/layouts/teletonicmd_custom.html.twig' => xl("TeletonicMD Custom - Modern Medical Interface"),
                 'login/layouts/vertical_box.html.twig' => xl("Vertical Box"),
                 'login/layouts/horizontal_box_left_logo.html.twig' => xl("Horizontal Box, Logo on Left"),
                 'login/layouts/horizontal_box_right_logo.html.twig' => xl("Horizontal Box, Logo on Right"),
@@ -523,7 +524,7 @@ $GLOBALS_METADATA = array(
                 'login/layouts/horizontal_band_left_logo.html.twig' => xl("Horizontal Band, Logo on Left"),
                 "login/layouts/vertical_band.html.twig" => xl("Vertical Band"),
             ),
-            'login/layouts/vertical_band.html.twig',
+            'login/layouts/teletonicmd_custom.html.twig',
             xl('Changes the layout of the login page.')
         ),
 

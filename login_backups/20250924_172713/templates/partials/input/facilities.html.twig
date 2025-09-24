@@ -1,0 +1,29 @@
+{#
+Render the facility list, label and selectbox
+
+* Set facilities_container_class_list with an array of classes to override the default classes
+* Set facilities_label_class_list with an array of classes to override the default classes
+* Set facilities_select_class_list with an array of classes to override the default classes
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if displayFacilities %}
+{% block facilities %}
+<div class="{{ facilities_container_class_list|default(['form-group', 'row'])|join(' ') }}">
+    <label for="facility" class="{{ srOnly }} {{ facilities_label_class_list|default(['col-form-label', 'col-sm-4'])|join(' ') }}">{{ "Facility"|xlt }}</label>
+    <div class="{{ facilities_select_container_class_list|default(['col'])|join(' ') }}">
+        <select class="{{ facilities_select_class_list|default(['form-control'])|join(' ') }}" name="facility" size="1">
+            <option value="user_default">{{ "My default facility"|xlt }}</option>
+            {% for f in facilityList %}
+                <option value="{{ f.id|attr }}" {{ facilitySelected == f.id ? "selected" : "" }}>{{ f.name|text }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+{% endblock %}
+{% endif %}

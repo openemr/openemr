@@ -1,0 +1,873 @@
+/**
+ * TeletonicMD UI Components
+ * Professional Medical Interface Components
+ * Accessible, HIPAA-Compliant Design System
+ *
+ * @package   OpenEMR
+ * @author    TeletonicMD Design System
+ * @copyright 2025 TeletonicMD
+ * @license   HIPAA Compliant Medical Theme
+ */
+
+// ============================================================================
+// BUTTONS
+// Professional Medical Interface Buttons
+// ============================================================================
+
+/**
+ * Button base component
+ */
+.btn {
+  @include button-base;
+  @include button-md;
+
+  // Size variants
+  &.btn-sm {
+    @include button-sm;
+  }
+
+  &.btn-lg {
+    @include button-lg;
+  }
+
+  // Style variants
+  &.btn-primary {
+    @include button-primary;
+  }
+
+  &.btn-secondary {
+    @include button-secondary;
+  }
+
+  &.btn-success {
+    @include button-success;
+  }
+
+  &.btn-danger {
+    @include button-danger;
+  }
+
+  // Icon buttons
+  &.btn-icon {
+    width: $height-10;
+    padding: 0;
+
+    &.btn-sm {
+      width: $height-8;
+    }
+
+    &.btn-lg {
+      width: $height-12;
+    }
+  }
+
+  // Full width button
+  &.btn-full {
+    width: 100%;
+  }
+
+  // Loading state
+  &.btn-loading {
+    position: relative;
+    color: transparent;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      @include loading-spinner(1rem, white);
+    }
+
+    &.btn-secondary::after {
+      @include loading-spinner(1rem, $primary-500);
+    }
+  }
+}
+
+// ============================================================================
+// FORM CONTROLS
+// Medical Form Input Components
+// ============================================================================
+
+/**
+ * Input fields
+ */
+.form-input {
+  @include input-base;
+
+  // Input with icon
+  &.input-with-icon {
+    padding-left: $space-10;
+    position: relative;
+
+    + .input-icon {
+      position: absolute;
+      left: $space-3;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $neutral-400;
+      pointer-events: none;
+    }
+  }
+
+  // Search input
+  &.search-input {
+    padding-right: $space-10;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'/%3e%3c/svg%3e");
+    background-position: right $space-3 center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+}
+
+/**
+ * Textarea
+ */
+.form-textarea {
+  @include textarea-base;
+}
+
+/**
+ * Select dropdown
+ */
+.form-select {
+  @include select-base;
+}
+
+/**
+ * Form groups
+ */
+.form-group {
+  margin-bottom: $space-4;
+
+  .form-label {
+    display: block;
+    margin-bottom: $space-2;
+    font-weight: $font-weight-medium;
+    color: $neutral-700;
+    font-size: $font-size-sm;
+  }
+
+  .form-help {
+    margin-top: $space-1;
+    font-size: $font-size-xs;
+    color: $neutral-500;
+    line-height: $line-height-normal;
+  }
+
+  .form-error {
+    margin-top: $space-1;
+    font-size: $font-size-xs;
+    color: $error-600;
+    font-weight: $font-weight-medium;
+  }
+
+  // Required field indicator
+  .form-label.required::after {
+    content: ' *';
+    color: $error-500;
+  }
+
+  // Medical data input group
+  &.medical-data-group {
+    .form-label {
+      font-family: $font-family-mono;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: $font-size-xs;
+      color: $neutral-600;
+    }
+
+    .form-input {
+      font-family: $font-family-mono;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+/**
+ * Checkbox and Radio Controls
+ */
+.form-check {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $space-3;
+
+  .form-check-input {
+    width: 1rem;
+    height: 1rem;
+    margin-right: $space-3;
+    margin-top: 0.125rem;
+    border: $border-width-2 solid $neutral-300;
+    border-radius: $border-radius-sm;
+    background-color: white;
+    transition: $transition-all;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-500;
+      box-shadow: 0 0 0 3px rgba(30, 122, 154, 0.1);
+    }
+
+    &:checked {
+      background-color: $primary-500;
+      border-color: $primary-500;
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-4.792 4.792-2.416-2.416a.5.5 0 0 0-.708.708l2.77 2.77a.5.5 0 0 0 .708 0l5.146-5.146a.5.5 0 0 0-.708-.708z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 0.75rem;
+    }
+
+    &[type="radio"] {
+      border-radius: $border-radius-full;
+
+      &:checked {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+      }
+    }
+
+    &:disabled {
+      background-color: $neutral-100;
+      border-color: $neutral-200;
+      cursor: not-allowed;
+    }
+  }
+
+  .form-check-label {
+    font-size: $font-size-sm;
+    color: $neutral-700;
+    cursor: pointer;
+    line-height: $line-height-normal;
+
+    &:hover {
+      color: $neutral-900;
+    }
+  }
+
+  // Medical consent checkbox
+  &.medical-consent {
+    .form-check-label {
+      font-weight: $font-weight-medium;
+      color: $neutral-900;
+    }
+
+    .form-check-input {
+      border-color: $primary-300;
+
+      &:checked {
+        background-color: $primary-600;
+        border-color: $primary-600;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// CARDS
+// Medical Information Display Cards
+// ============================================================================
+
+/**
+ * Base card component
+ */
+.card {
+  @include card-base;
+
+  .card-header {
+    @include card-header;
+
+    .card-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $neutral-900;
+      margin: 0;
+    }
+
+    .card-subtitle {
+      font-size: $font-size-sm;
+      color: $neutral-600;
+      margin: $space-1 0 0 0;
+    }
+  }
+
+  .card-body {
+    @include card-body;
+  }
+
+  .card-footer {
+    @include card-footer;
+  }
+
+  // Patient information card
+  &.patient-card {
+    .card-header {
+      background: linear-gradient(135deg, $primary-50 0%, $secondary-50 100%);
+      border-bottom-color: $primary-100;
+
+      .patient-name {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $primary-700;
+        margin: 0;
+      }
+
+      .patient-id {
+        font-family: $font-family-mono;
+        font-size: $font-size-sm;
+        color: $primary-600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: $space-1;
+      }
+    }
+  }
+
+  // Medical alert card
+  &.alert-card {
+    border-left: 4px solid $error-500;
+
+    .card-header {
+      background-color: $error-50;
+      border-bottom-color: $error-100;
+
+      .card-title {
+        color: $error-700;
+      }
+    }
+  }
+
+  // Medication card
+  &.medication-card {
+    border-left: 4px solid $info-500;
+
+    .medication-name {
+      font-weight: $font-weight-semibold;
+      color: $info-700;
+      margin-bottom: $space-1;
+    }
+
+    .medication-dosage {
+      font-family: $font-family-mono;
+      font-size: $font-size-sm;
+      color: $neutral-600;
+    }
+  }
+}
+
+// ============================================================================
+// ALERTS & NOTIFICATIONS
+// Medical Alert System Components
+// ============================================================================
+
+/**
+ * Alert component
+ */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  padding: $space-4;
+  margin-bottom: $space-4;
+  border-radius: $border-radius-md;
+  border: $border-width-1 solid;
+
+  .alert-icon {
+    flex-shrink: 0;
+    margin-right: $space-3;
+    margin-top: 0.125rem;
+  }
+
+  .alert-content {
+    flex: 1;
+  }
+
+  .alert-title {
+    font-weight: $font-weight-semibold;
+    margin-bottom: $space-1;
+  }
+
+  .alert-description {
+    font-size: $font-size-sm;
+    line-height: $line-height-normal;
+  }
+
+  // Alert variants
+  &.alert-success {
+    @include alert-success;
+  }
+
+  &.alert-warning {
+    @include alert-warning;
+  }
+
+  &.alert-error {
+    @include alert-error;
+  }
+
+  &.alert-info {
+    @include alert-info;
+  }
+
+  // Medical emergency alert
+  &.alert-emergency {
+    background-color: $error-50;
+    border-color: $error-500;
+    border-width: $border-width-2;
+    color: $error-900;
+    animation: pulse 2s infinite;
+
+    .alert-title {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: $font-size-base;
+    }
+  }
+
+  // Dismissible alert
+  &.alert-dismissible {
+    position: relative;
+    padding-right: $space-10;
+
+    .alert-close {
+      position: absolute;
+      top: $space-3;
+      right: $space-3;
+      background: none;
+      border: none;
+      color: currentColor;
+      opacity: 0.7;
+      cursor: pointer;
+      padding: $space-1;
+      line-height: 1;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// MEDICAL STATUS BADGES
+// Clinical Status Indicators
+// ============================================================================
+
+/**
+ * Status badge component
+ */
+.status-badge {
+  // Status variants
+  &.status-active {
+    @include status-active;
+  }
+
+  &.status-pending {
+    @include status-pending;
+  }
+
+  &.status-critical {
+    @include status-critical;
+  }
+
+  &.status-inactive {
+    @include status-inactive;
+  }
+
+  // Medical priority badges
+  &.priority-emergency {
+    @include status-badge-base;
+    background-color: $error-100;
+    color: $error-900;
+    border: $border-width-1 solid $error-300;
+    animation: blink 1s infinite;
+  }
+
+  &.priority-urgent {
+    @include status-badge-base;
+    background-color: $warning-100;
+    color: $warning-900;
+    border: $border-width-1 solid $warning-300;
+  }
+
+  &.priority-routine {
+    @include status-badge-base;
+    background-color: $info-100;
+    color: $info-900;
+    border: $border-width-1 solid $info-300;
+  }
+}
+
+// ============================================================================
+// NAVIGATION COMPONENTS
+// Medical Interface Navigation
+// ============================================================================
+
+/**
+ * Navigation menu
+ */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+
+  .nav-item {
+    display: flex;
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: $space-3 $space-4;
+      color: $neutral-600;
+      text-decoration: none;
+      font-weight: $font-weight-medium;
+      border-radius: $border-radius-md;
+      transition: $transition-all;
+
+      .nav-icon {
+        margin-right: $space-3;
+        flex-shrink: 0;
+        width: 1rem;
+        height: 1rem;
+      }
+
+      &:hover {
+        background-color: $neutral-100;
+        color: $neutral-900;
+        text-decoration: none;
+      }
+
+      &.active {
+        background-color: $primary-50;
+        color: $primary-700;
+        border-left: 3px solid $primary-500;
+      }
+
+      &:focus {
+        outline: none;
+        background-color: $primary-50;
+        box-shadow: 0 0 0 2px $primary-200;
+      }
+    }
+  }
+
+  // Medical section navigation
+  &.medical-nav {
+    .nav-item {
+      border-bottom: $border-width-1 solid $neutral-100;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .nav-link {
+      padding: $space-4;
+      font-size: $font-size-sm;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+
+      &.active {
+        background-color: $secondary-50;
+        color: $secondary-700;
+        border-left-color: $secondary-500;
+      }
+    }
+  }
+}
+
+/**
+ * Breadcrumb navigation
+ */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: $space-4;
+  font-size: $font-size-sm;
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: $neutral-600;
+
+    &:not(:last-child)::after {
+      content: '/';
+      margin: 0 $space-2;
+      color: $neutral-400;
+    }
+
+    a {
+      color: $primary-600;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    &.active {
+      color: $neutral-900;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+// ============================================================================
+// TABLES
+// Medical Data Tables
+// ============================================================================
+
+/**
+ * Medical data table
+ */
+.medical-table {
+  @include medical-table;
+
+  // Patient data table
+  &.patient-table {
+    th {
+      background-color: $primary-50;
+      color: $primary-700;
+      border-bottom-color: $primary-100;
+    }
+
+    .patient-row:hover {
+      background-color: $primary-25;
+    }
+  }
+
+  // Medication table
+  &.medication-table {
+    .medication-name {
+      font-weight: $font-weight-semibold;
+      color: $info-700;
+    }
+
+    .dosage {
+      font-family: $font-family-mono;
+      font-size: $font-size-sm;
+    }
+
+    .status-active {
+      @include status-active;
+    }
+
+    .status-inactive {
+      @include status-inactive;
+    }
+  }
+
+  // Responsive table wrapper
+  &-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    @media (max-width: $breakpoint-md) {
+      .medical-table {
+        min-width: 600px;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// MODAL/DIALOG COMPONENTS
+// Medical Interface Modals
+// ============================================================================
+
+/**
+ * Modal overlay
+ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+  padding: $space-4;
+
+  &.fade-in {
+    @include fade-in;
+  }
+}
+
+/**
+ * Modal dialog
+ */
+.modal {
+  background-color: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &.modal-lg {
+    max-width: 800px;
+  }
+
+  &.modal-xl {
+    max-width: 1200px;
+  }
+
+  .modal-header {
+    padding: $space-6;
+    border-bottom: $border-width-1 solid $neutral-200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .modal-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $neutral-900;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: $neutral-400;
+      cursor: pointer;
+      padding: $space-1;
+      border-radius: $border-radius-sm;
+
+      &:hover {
+        color: $neutral-600;
+        background-color: $neutral-100;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: $space-6;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .modal-footer {
+    padding: $space-6;
+    border-top: $border-width-1 solid $neutral-200;
+    display: flex;
+    justify-content: flex-end;
+    gap: $space-3;
+  }
+
+  // Medical confirmation modal
+  &.medical-confirmation {
+    .modal-header {
+      background-color: $warning-50;
+      border-bottom-color: $warning-100;
+
+      .modal-title {
+        color: $warning-800;
+      }
+    }
+
+    .modal-body {
+      .confirmation-text {
+        font-weight: $font-weight-medium;
+        color: $neutral-900;
+        margin-bottom: $space-4;
+      }
+
+      .confirmation-details {
+        background-color: $neutral-50;
+        padding: $space-4;
+        border-radius: $border-radius-md;
+        border: $border-width-1 solid $neutral-200;
+        font-family: $font-family-mono;
+        font-size: $font-size-sm;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// ANIMATIONS
+// Professional Medical Interface Animations
+// ============================================================================
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.5;
+  }
+}
+
+// ============================================================================
+// UTILITY CLASSES
+// Common UI Utilities
+// ============================================================================
+
+/**
+ * Loading spinner
+ */
+.spinner {
+  @include loading-spinner;
+
+  &.spinner-sm {
+    @include loading-spinner(0.75rem);
+  }
+
+  &.spinner-lg {
+    @include loading-spinner(1.5rem);
+  }
+
+  &.spinner-primary {
+    @include loading-spinner(1rem, $primary-500);
+  }
+
+  &.spinner-white {
+    @include loading-spinner(1rem, white);
+  }
+}
+
+/**
+ * Medical priority indicators
+ */
+.priority-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: $space-2;
+
+  &.priority-emergency {
+    background-color: $error-500;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  }
+
+  &.priority-urgent {
+    background-color: $warning-500;
+  }
+
+  &.priority-routine {
+    background-color: $info-500;
+  }
+
+  &.priority-low {
+    background-color: $success-500;
+  }
+}

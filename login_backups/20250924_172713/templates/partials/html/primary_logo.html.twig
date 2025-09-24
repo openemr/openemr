@@ -1,0 +1,28 @@
+{#
+Render the primary and secondary (if set) logos.
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% set secondaryLogoPosition = (secondaryLogoPosition == 'first') ? 'flex-column-reverse' : ''  %}
+<div class="{{ logo_container_class_list|default(['d-flex', logoPosition, 'justify-content-between', 'align-items-center', 'mb-5'])|join(' ')|attr }} {{ logo_flex_direction|default([])|join(' ')|attr }} {{ secondaryLogoPosition|attr }}">
+    {% if displayPrimaryLogo %}
+    <div class="{{ primary_logo_container_class_list|default(['flex-fill', primaryLogoWidth])|join(' ')|attr }}">
+        <img src="{{ primaryLogo|attr }}" class="img-fluid" alt="">
+    </div>
+    {% endif %}
+    {% if displaySecondaryLogo and secondaryLogo %}
+        <div class="{{ secondary_logo_container_class_list|default(['flex-fill', secondaryLogoWidth])|join(' ')|attr }}">
+            <img src="{{ secondaryLogo|attr }}" alt="" class="img-fluid">
+        </div>
+    {% endif %}
+</div>
+{% if showTitleOnLogin %}
+<div class="w-100 text-center my-3">
+    <h1>{{ title|text }}</h1>
+</div>
+{% endif %}
