@@ -13,10 +13,8 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\VersionService;
-use OpenEMR\Telemetry\TelemetryRepository;
-use OpenEMR\Telemetry\TelemetryService;
+use OpenEMR\Services\ServiceLocator;
+use OpenEMR\Telemetry\TelemetryServiceInterface;
 
 header("Content-Type: application/json");
 
@@ -35,10 +33,7 @@ function handleRequest(): void
         CsrfUtils::csrfNotVerified();
     }
 
-    $telemetryRepo = new TelemetryRepository();
-    $versionService = new VersionService();
-    $logger = new SystemLogger();
-    $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
+    $telemetryService = ServiceLocator::get(TelemetryServiceInterface::class);
 
     $action = $data['action'] ?? '';
     switch ($action) {
