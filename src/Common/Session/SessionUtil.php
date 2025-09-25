@@ -80,18 +80,8 @@ class SessionUtil
 
     public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
 
-    private static $gc_maxlifetime = 14400;
-    private static $use_strict_mode = true;
-    private static $use_cookies = true;
-    private static $use_only_cookies = true;
-    private static $use_cookie_samesite = "Strict";
-    private static $use_cookie_httponly = true;
-    private static $use_cookie_secure = false;
-
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
-    private static $sid_bits_per_character = 6;
-    private static $sid_length = 48;
 
     public static function sessionStartWrapper(array $settings = []): bool
     {

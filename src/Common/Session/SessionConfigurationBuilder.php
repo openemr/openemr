@@ -80,7 +80,6 @@ class SessionConfigurationBuilder
         return (new self())
             ->setName(SessionUtil::CORE_SESSION_ID)
             ->setCookiePath((!empty($webRoot)) ? $webRoot . '/' : '/')
-            ->setCookieSecure(false)
             ->setCookieHttpOnly(false)
             ->setReadOnly($readOnly)
             ->build();
