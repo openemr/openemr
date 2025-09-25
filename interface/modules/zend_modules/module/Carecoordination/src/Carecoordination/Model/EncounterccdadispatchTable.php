@@ -349,8 +349,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             ind.title     AS industry_title,
             ind.codes     AS industry_codes
         FROM patient_data p
-        LEFT JOIN list_options occ ON occ.list_id = 'occupation' AND occ.option_id = p.occupation
-        LEFT JOIN list_options ind ON ind.list_id = 'industry' AND ind.option_id = p.industry
+        LEFT JOIN list_options occ ON occ.list_id = 'OccupationODH' AND occ.option_id = p.occupation
+        LEFT JOIN list_options ind ON ind.list_id = 'IndustryODH' AND ind.option_id = p.industry
         WHERE p.pid = ?";
         $row = sqlQuery($sql, [$pid]) ?: [];
         if (empty($row)) {

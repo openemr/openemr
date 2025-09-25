@@ -20,10 +20,15 @@ function getGuardianNames(display_name) {
 function getGuardianInfo(guardian) {
     return [
         {
-            relation: guardian.relation,
+            code: {
+                name: guardian.relation || "",
+                code: guardian.code || "",
+                code_system: "2.16.840.1.113883.5.111",
+                code_system_name: "HL7 Role code"
+            },
             addresses: [
                 {
-                    street_lines: [guardian.address],
+                    street_lines: [guardian.street],
                     city: guardian.city,
                     state: guardian.state,
                     zip: guardian.postalCode,
