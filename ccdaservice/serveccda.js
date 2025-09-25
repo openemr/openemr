@@ -245,7 +245,11 @@ function populateMedication(pd) {
         "date_time": {
             "low": {
                 "date": fDate(pd.start_date) || fDate(""),
-                "precision": "tz"
+                "precision": "day"
+            },
+            "high": {
+                "date": fDate(pd.end_date),
+                "precision": "day"
             }
         },
         "identifiers": [{
@@ -393,6 +397,10 @@ function populateMedication(pd) {
                 "value": parseFloat(pd.size || '') || null,
                 "unit": pd.unit || "",
             },
+            /*"rate": {
+                "value": parseFloat(pd.dosage),
+                "unit": ""
+            },*/
             "interval": {
                 "period": {
                     "value": parseFloat(pd.dosage) || null,
@@ -415,10 +423,85 @@ function populateMedication(pd) {
             }]
         },
         "drug_vehicle": {
-            "name": pd.form || "",
-            "code": cleanCode(pd.form_code) || "",
+            "name": pd.form,
+            "code": cleanCode(pd.form_code),
             "code_system_name": "RXNORM"
+        },
+        /*"precondition": {
+            "code": {
+                "code": "ASSERTION",
+                "code_system_name": "ActCode"
+            },
+            "value": {
+                "name": "none",
+                "code": "none",
+                "code_system_name": "SNOMED CT"
+            }
+        },
+        "indication": {
+            "identifiers": [{
+                "identifier": "db734647-fc99-424c-a864-7e3cda82e703",
+                "extension": "45665"
+            }],
+            "code": {
+                "name": "Finding",
+                "code": "404684003",
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "low": {
+                    "date": fDate(pd.start_date),
+                    "precision": "day"
+                }
+            },
+            "value": {
+                "name": pd.indications,
+                "code": pd.indications_code,
+                "code_system_name": "SNOMED CT"
+            }
+        },
+        "dispense": {
+            "identifiers": [{
+                "identifier": "1.2.3.4.56789.1",
+                "extension": "cb734647-fc99-424c-a864-7e3cda82e704"
+            }],
+            "performer": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.19.5.9999.456",
+                    "extension": "2981823"
+                }],
+                "address": [{
+                    "street_lines": [pd.address],
+                    "city": pd.city,
+                    "state": pd.state,
+                    "zip": pd.zip,
+                    "country": "US"
+                }],
+                "organization": [{
+                    "identifiers": [{
+                        "identifier": "2.16.840.1.113883.19.5.9999.1393"
+                    }],
+                    "name": [pd.performer_name]
+                }]
+            },
+            "product": {
+                "identifiers": [{
+                    "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8"
+                }],
+                "unencoded_name": pd.drug,
+                "product": {
+                    "name": pd.drug,
+                    "code": pd.rxnorm,
+                    "translations": [{
+                        "name": pd.drug,
+                        "code": pd.rxnorm,
+                        "code_system_name": "RXNORM"
+                    }],
+            "code_system_name": "RXNORM"
+                },
+                "manufacturer": ""
         }
+        }*/
     };
 }
 
@@ -1722,7 +1805,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.temperature) || "",
+            "value": Math.ceil(parseFloat(pd.temperature)) || "",
             "unit": pd.unit_temperature || "",
             "author": populateAuthorFromAuthorContainer(pd),
         }, {
@@ -2983,7 +3066,7 @@ function generateCcda(pd) {
     }
 
 // Add disability status as a separate data key for the section template
-    if (all?.sdoh_data?.disability_assessment) {
+    if (all?.sdoh_data?.disability_assessment?.overall_status) {
         const allAuthor = all.author || {};
         const encounterProvider = all.encounter_provider || {};
 
