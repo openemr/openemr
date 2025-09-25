@@ -12,7 +12,10 @@
  */
 
 // need to make sure our autoloader is present.
-require_once("../globals.php");
+/**
+ * @var \OpenEMR\Core\OEGlobalsBag $oeGlobals
+ */
+$oeGlobals = require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -20,18 +23,26 @@ use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\FHIR\SMART\ClientAdminController;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use Symfony\Component\HttpFoundation\Request;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\HttpSessionFactory;
 
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 
-$router = new ClientAdminController(new ClientRepository(), new SystemLogger(), $twig, 'admin-client.php');
 try {
+    // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that
+    $request = HttpRestRequest::createFromGlobals();
+    $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_CORE);
+    $sessionFactory->setUseExistingSessionBridge(true);
+    $session = $sessionFactory->createSession();
     $request = Request::createFromGlobals();
+    $router = new ClientAdminController(
+        $oeGlobals,
+        $session,
+        new ClientRepository(),
+        'admin-client.php'
+    );
     $response = $router->dispatch($request);
-    if (isset($response) && $response instanceof \Symfony\Component\HttpFoundation\Response) {
-        $response->send();
-    }
+    $response->send();
 } catch (CsrfInvalidException $exception) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {

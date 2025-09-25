@@ -16,18 +16,13 @@ use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 
 class FhirExportServiceLocator
 {
-    /**
-     * @var $restConfig
-     */
-    private $restConfig;
-
+    private FhirServiceLocator $innerLocator;
     /**
      * FhirExportServiceLocator constructor.
-     * @param \RestConfig $restConfig
      */
-    public function __construct($restConfig)
+    public function __construct(FhirServiceLocator $serviceLocator)
     {
-        $this->restConfig = $restConfig;
+        $this->innerLocator = $serviceLocator;
     }
 
     /**
@@ -37,7 +32,6 @@ class FhirExportServiceLocator
      */
     public function findExportServices()
     {
-        $locator = new FhirServiceLocator($this->restConfig);
-        return $locator->findServices(IFhirExportableResourceService::class);
+        return $this->innerLocator->findServices(IFhirExportableResourceService::class);
     }
 }

@@ -40,7 +40,7 @@ class EDI270
 // SEGMENT FUNCTION START
 // ISA Segment  - EDI-270 format
 
-    // @sjpadgett's recommendation to try singleton class, see _rest_config.php
+    // @sjpadgett's recommendation to try singleton class
     // basically prevents external construction
     private function __construct()
     {

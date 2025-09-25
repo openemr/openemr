@@ -131,9 +131,9 @@ class ProcessingResult
 
     /**
      * Appends a new data item to the current instance.
-     * @param $newData The new data item.
+     * @param mixed $newData The new data item.
      */
-    public function addData($newData)
+    public function addData(mixed $newData)
     {
         $count = count($this->data);
         $limit = max(0, $this->getPagination()->getLimit());

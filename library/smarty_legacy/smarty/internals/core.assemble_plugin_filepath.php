@@ -43,7 +43,7 @@ function smarty_core_assemble_plugin_filepath($params, &$smarty)
     if($_return === false) {
         // still not found, try PHP include_path
         if(isset($_relative_paths)) {
-            foreach ((array)$_relative_paths as $_plugin_dir) {
+            foreach ($_relative_paths as $_plugin_dir) {
 
                 $_plugin_filepath = $_plugin_dir . DIRECTORY_SEPARATOR . $_plugin_filename;
 

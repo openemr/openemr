@@ -67,7 +67,7 @@ class UserService
      * @param $username
      * @return string|bool
      */
-    public static function getAuthGroupForUser($username)
+    public function getAuthGroupForUser($username)
     {
         $return = false;
         $result = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);

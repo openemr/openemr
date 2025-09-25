@@ -15,23 +15,21 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    use SystemLoggerAwareTrait;
 
     private $cryptoGen;
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
         $this->cryptoGen = new CryptoGen();
     }
 
@@ -53,6 +51,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $this;
     }
 
+    // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
@@ -78,7 +77,13 @@ class ClientRepository implements ClientRepositoryInterface
         $scopes = explode(" ", $info['scope']);
         $scopeRepo = new ScopeRepository();
 
-        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
+        if (
+            $scopeRepo->hasScopesThatRequireManualApproval(
+                $is_confidential_client == 1,
+                $scopes,
+                $GLOBALS['oauth_app_manual_approval'] ?? '0'
+            )
+        ) {
             $is_client_enabled = 0; // disabled
         } else {
             $is_client_enabled = 1; // enabled
@@ -146,20 +151,20 @@ class ClientRepository implements ClientRepositoryInterface
         return $list;
     }
 
-    public function getClientEntity($clientIdentifier)
+    public function getClientEntity($clientIdentifier): ClientEntity|false
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 
         // Check if client is registered
         if ($clients === false) {
-            $this->logger->error(
+            $this->getSystemLogger()->error(
                 "ClientRepository->getClientEntity() no client found for identifier ",
                 ["client" => $clientIdentifier]
             );
             return false;
         }
 
-        $this->logger->debug(
+        $this->getSystemLogger()->debug(
             "ClientRepository->getClientEntity() client found",
             [
                 "client" => [
@@ -174,7 +179,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        $this->logger->debug(
+        $this->getSystemLogger()->debug(
             "ClientRepository->validateClient() checking client validation",
             ["client" => $clientIdentifier, "grantType" => $grantType]
         );
@@ -183,7 +188,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Check if client is registered
             if ($client === false) {
-                $this->logger->error(
+                $this->getSystemLogger()->error(
                     "ClientRepository->validateClient() no client found for identifier ",
                     ["client" => $clientIdentifier]
                 );
@@ -198,7 +203,7 @@ class ClientRepository implements ClientRepositoryInterface
                 }
                 $secretMatches = hash_equals($clientSecret, $secret);
                 if (!$secretMatches) {
-                    $this->logger->error(
+                    $this->getSystemLogger()->error(
                         "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
                         ["client" => $clientIdentifier, "grantType" => $grantType]
                     );
@@ -292,5 +297,10 @@ class ClientRepository implements ClientRepositoryInterface
             throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
         }
         return true;
+    }
+
+    public function remove(ClientEntity $clientEntity, bool $noLog = false)
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM oauth_clients WHERE client_id = ?", [$clientEntity->getIdentifier()], $noLog);
     }
 }

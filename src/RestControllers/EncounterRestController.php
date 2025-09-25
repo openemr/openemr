@@ -12,8 +12,10 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EncounterRestController
 {
@@ -27,7 +29,7 @@ class EncounterRestController
         "provider_id"
     );
 
-    public function __construct()
+    public function __construct(private SessionInterface $session)
     {
         $this->encounterService = new EncounterService();
     }
@@ -38,10 +40,11 @@ class EncounterRestController
      * @param $data - array of encounter fields.
      * @return a 201/Created status code and the encounter identifier if successful.
      */
-    public function post($puuid, $data)
+    public function post($puuid, $data, HttpRestRequest $request)
     {
-        $data['user'] = $_SESSION['authUser'];
-        $data['group'] = $_SESSION['authProvider'];
+        $session = $request->getSession();
+        $data['user'] = $session->get('authUser');
+        $data['group'] = $session->get('authProvider');
         $processingResult = $this->encounterService->insertEncounter($puuid, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
