@@ -142,6 +142,8 @@ class AppointmentService extends BaseService
                        pce.pc_pid,
                        pce.pc_duration,
                        pce.pc_title,
+                       pce.pc_website,
+                       pce.pc_informant,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -161,7 +163,9 @@ class AppointmentService extends BaseService
                                pc_billing_location,
                                pc_catid,
                                pc_pid,
-                               pc_title
+                               pc_title,
+                               pc_website,
+                               pc_informant
                             FROM
                                  openemr_postcalendar_events
                        ) pce
@@ -218,6 +222,8 @@ class AppointmentService extends BaseService
                        pce.pc_catid,
                        pce.pc_pid,
                        pce.pc_title,
+                       pce.pc_website,
+                       pce.pc_informant,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -270,6 +276,8 @@ class AppointmentService extends BaseService
                        pce.pc_pid,
                        pce.pc_hometext,
                        pce.pc_title,
+                       pce.pc_website,
+                       pce.pc_informant,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
