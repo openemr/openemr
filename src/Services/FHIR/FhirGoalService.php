@@ -24,6 +24,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -35,6 +36,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var CarePlanService
@@ -188,7 +190,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

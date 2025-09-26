@@ -16,6 +16,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ObservationLabService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -39,6 +40,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     use PatientSearchTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var ObservationLabService
@@ -201,20 +203,65 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
     public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/R4/observation-vitalsigns'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-weight-for-height'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-pulse-oximetry'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus'
-            ,'http://hl7.org/fhir/StructureDefinition/bp'
-            ,'http://hl7.org/fhir/StructureDefinition/bodyheight'
-            ,'http://hl7.org/fhir/StructureDefinition/bodyweight'
-            ,'http://hl7.org/fhir/StructureDefinition/heartrate'
-            ,'http://hl7.org/fhir/StructureDefinition/resprate'
-            ,'http://hl7.org/fhir/StructureDefinition/bodytemp'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/head-occipital-frontal-circumference-percentile'
+        $allVersions = [
+            'us-core-observation-lab'
+            ,'pediatric-weight-for-height'
+            ,'us-core-pulse-oximetry'
+            ,'pediatric-bmi-for-age'
+            ,'us-core-bmi'
+            ,'us-core-smokingstatus'
+            ,'us-core-head-circumference'
+            ,'head-occipital-frontal-circumference-percentile'
         ];
+        // these were US-Core 3.1.1 profiles but removed in later versions
+        $oldVersions = [
+            'bp'
+            ,'bodyheight'
+            ,'bodyweight'
+            ,'bodytemp'
+            ,'heartrate'
+            ,'resprate'
+        ];
+        $latestVersions = [
+            'us-core-blood-pressure'
+            ,'us-core-care-experience-preference'
+            ,'us-core-body-height'
+            ,'us-core-body-weight'
+            ,'us-core-body-temperature'
+            ,'us-core-heart-rate'
+            ,'us-core-respiratory-rate'
+            ,'us-core-medicationdispense'
+            ,'us-core-observation-clinical-result'
+            ,'us-core-observation-occupation'
+            ,'us-core-observation-pregnancyintent'
+            ,'us-core-observation-pregnancystatus'
+            ,'us-core-observation-screening-assessment'
+            ,'us-core-observation-sexual-orientation'
+            ,'us-core-simple-observation'
+            ,'us-core-treatment-intervention-preference'
+            ,'us-core-vital-signs'
+        ];
+        $v8Versions = [
+            'us-core-average-blood-pressure',
+            'us-core-observation-adi-documentation'
+        ];
+        $profileSets = [];
+        foreach ($allVersions as $resource) {
+            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, $this->getSupportedVersions());
+        }
+        foreach ($oldVersions as $resource) {
+            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/StructureDefinition/' . $resource, ['', '3.1.1']);
+        }
+        //             ,'observation-vitalsigns'
+        $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/R4/observation-vitalsigns', ['', '3.1.1']);
+        foreach ($latestVersions as $resource) {
+            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, ['', '7.0.0', '8.0.0']);
+        }
+        foreach ($v8Versions as $resource) {
+            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, ['8.0.0']);
+        }
+
+        $profiles = array_merge(...$profileSets);
+        return $profiles;
     }
 }
