@@ -203,33 +203,16 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
     public function getProfileURIs(): array
     {
-        $allVersions = [
-            'us-core-observation-lab'
-            ,'pediatric-weight-for-height'
-            ,'us-core-pulse-oximetry'
-            ,'pediatric-bmi-for-age'
-            ,'us-core-bmi'
-            ,'us-core-smokingstatus'
-            ,'us-core-head-circumference'
-            ,'head-occipital-frontal-circumference-percentile'
-        ];
-        // these were US-Core 3.1.1 profiles but removed in later versions
-        $oldVersions = [
-            'bp'
-            ,'bodyheight'
-            ,'bodyweight'
-            ,'bodytemp'
-            ,'heartrate'
-            ,'resprate'
-        ];
+        $profileSets = [];
+        foreach ($this->getMappedServices() as $service) {
+            if ($service instanceof IResourceUSCIGProfileService) {
+                $profileSets[] = $service->getProfileURIs();
+            }
+        }
+
+        // TODO: @adunsulag As we implement more profiles and sub-resource mappings we'll push them down to the sub-services
         $latestVersions = [
-            'us-core-blood-pressure'
-            ,'us-core-care-experience-preference'
-            ,'us-core-body-height'
-            ,'us-core-body-weight'
-            ,'us-core-body-temperature'
-            ,'us-core-heart-rate'
-            ,'us-core-respiratory-rate'
+            'us-core-care-experience-preference'
             ,'us-core-medicationdispense'
             ,'us-core-observation-clinical-result'
             ,'us-core-observation-occupation'
@@ -237,23 +220,11 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             ,'us-core-observation-pregnancystatus'
             ,'us-core-observation-screening-assessment'
             ,'us-core-observation-sexual-orientation'
-            ,'us-core-simple-observation'
             ,'us-core-treatment-intervention-preference'
-            ,'us-core-vital-signs'
         ];
         $v8Versions = [
-            'us-core-average-blood-pressure',
             'us-core-observation-adi-documentation'
         ];
-        $profileSets = [];
-        foreach ($allVersions as $resource) {
-            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, $this->getSupportedVersions());
-        }
-        foreach ($oldVersions as $resource) {
-            $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/StructureDefinition/' . $resource, ['', '3.1.1']);
-        }
-        //             ,'observation-vitalsigns'
-        $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/R4/observation-vitalsigns', ['', '3.1.1']);
         foreach ($latestVersions as $resource) {
             $profileSets[] = $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/' . $resource, ['', '7.0.0', '8.0.0']);
         }

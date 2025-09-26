@@ -1,4 +1,5 @@
 <?php
+
 /*
  * CapabilityStatementTest.php
  * @package openemr
@@ -14,7 +15,8 @@ use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class CapabilityStatementTest extends TestCase {
+class CapabilityStatementTest extends TestCase
+{
     use G10ApiTestTrait;
 
     const V3_HISTORICAL_PROFILES = [
@@ -129,7 +131,8 @@ class CapabilityStatementTest extends TestCase {
         $this->assertProfilesSupported($supportedProfiles, $expectedProfiles, $version);
     }
 
-    protected function getSupportedProfiles() {
+    protected function getSupportedProfiles()
+    {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: self::DEFAULT_OPENEMR_BASE_URL_API;
         $url = $baseUrl . '/apis/default/fhir/metadata';
         $response = file_get_contents($url);
@@ -163,5 +166,4 @@ class CapabilityStatementTest extends TestCase {
             $this->assertContains($profile . $suffix, $supportedProfiles, "Profile {$profile} is expected in US Core " . $version . " CapabilityStatement");
         }
     }
-
 }

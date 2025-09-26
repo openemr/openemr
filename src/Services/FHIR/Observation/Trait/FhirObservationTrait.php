@@ -266,9 +266,9 @@ trait FhirObservationTrait
         $codeDescription = $this->getCodeTypesService()->lookup_code_description($dataRecord['code']);
         // Parse system and code from format like "LOINC:72133-2"
         $codeParts = $this->getCodeTypesService()->parseCode($dataRecord['code']);
-        $codeType = $codeParts['code_type'];
+        $codeType = $codeParts['code_type'] ?? FhirCodeSystemConstants::LOINC;
         $system = $this->getCodeSystem($codeType);
-        $coding->setSystem($system ?? new FHIRUri(FhirCodeSystemConstants::LOINC));
+        $coding->setSystem($system);
         $coding->setCode(new FHIRCode($codeParts['code']));
 
         $coding->setDisplay(trim($codeDescription));
