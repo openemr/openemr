@@ -19,6 +19,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -34,6 +35,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     use MappedServiceCodeTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     public function __construct($fhirApiURL = null)
     {
@@ -115,9 +117,10 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
 
     public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note'
-            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab'
+        $profileSets = [
+            $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note', $this->getSupportedVersions())
+            ,$this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab', $this->getSupportedVersions())
         ];
+        return array_merge(...$profileSets);
     }
 }

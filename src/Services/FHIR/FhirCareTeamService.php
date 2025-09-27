@@ -23,6 +23,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -34,6 +35,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     // @see http://hl7.org/fhir/R4/valueset-care-team-status.html
     private const CARE_TEAM_STATUS_ACTIVE = "active";
@@ -207,7 +209,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

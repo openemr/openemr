@@ -48,9 +48,10 @@ class DateFormatterUtils
      * then it returns false.  The DateTime must be in the format of Y-m-d, d/m/Y, or m/d/Y depending on the global settings
      * to be parsed correct.  If an empty string is passed in then the current date is returned as a DateTime object.
      * @param string $DateValue
+     * @param bool $includeSeconds Whether seconds are included in the time portion of the string and should be parsed
      * @return bool|DateTime false if the date could not be parsed
      */
-    public static function dateStringToDateTime(string $DateValue)
+    public static function dateStringToDateTime(string $DateValue, bool $includeSeconds = false)
     {
         $dateTime = new DateTime();
         //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
@@ -58,7 +59,7 @@ class DateFormatterUtils
         //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
         $timeFormat = '';
         if (strpos($DateValue, ":") !== false) {
-            $timeFormat = " H:i:s";
+            $timeFormat = " " . self::getTimeFormat($includeSeconds);
         }
         if (trim($DateValue ?? '') == '') {
             $dateTime = new DateTime();

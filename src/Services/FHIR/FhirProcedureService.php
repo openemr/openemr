@@ -22,6 +22,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -36,6 +37,7 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     const FHIR_PROCEDURE_STATUS_COMPLETED = "completed";
     const FHIR_PROCEDURE_STATUS_IN_PROGRESS = "in-progress";
@@ -45,7 +47,7 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
     const PROCEDURE_STATUS_COMPLETED = "completed";
     const PROCEDURE_STATUS_PENDING = "pending";
     const PROCEDURE_STATUS_CANCELLED = "cancelled";
-
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure';
 
 
     /**
@@ -115,8 +117,6 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
      */
     public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

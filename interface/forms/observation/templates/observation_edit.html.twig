@@ -6,7 +6,7 @@
 
 {% block head %}
     {{ parent() }}
-    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
+    {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
     <link rel="stylesheet" href="{{ webroot }}/interface/forms/observation/observation.css?v={{ assetVersion|attr_url }}" type="text/css"/>
 {% endblock %}
 
@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label class="form-label">{{ "Date"|xlt }}:</label>
                                         <input type="text" name="date" class="form-control datepicker"
-                                               value="{{ observation.date|default('now')|date('Y-m-d H:i:s') }}"
+                                               value="{{ observation.date|default('now')|oeFormatDateTime }}"
                                                required>
                                     </div>
                                 </div>
@@ -328,7 +328,7 @@
                             <div class="mt-3">
                                 {# TODO: move this to observation.js #}
                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="observationForm.loadQuestionnaireData()">
-                                    <i class="fa fa-refresh"></i> {{ 'Retry'|xlt )}
+                                    <i class="fa fa-refresh"></i> {{ 'Retry'|xlt }}
                                 </button>
                             </div>
                         </div>

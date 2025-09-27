@@ -23,9 +23,11 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -38,9 +40,10 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
+    use VersionedProfileTrait;
 
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -61,6 +64,8 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             ,'column' => ['smoking_status_codes', 'tobacco']
         ]
     ];
+
+    const USCGI_PROFILE_SMOKING_STATUS = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus';
 
     /**
      * @var SocialHistoryService
@@ -342,5 +347,10 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions());
     }
 }

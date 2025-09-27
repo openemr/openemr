@@ -19,6 +19,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -34,6 +35,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
     use MappedServiceCodeTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     const US_CORE_PROFILE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference";
 
@@ -120,8 +122,9 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
      */
     function getProfileURIs(): array
     {
-        return [
-            self::US_CORE_PROFILE
+        $profileSets = [
+            $this->getProfileForVersions(self::US_CORE_PROFILE, $this->getSupportedVersions())
         ];
+        return array_merge(...$profileSets);
     }
 }

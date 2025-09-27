@@ -123,7 +123,8 @@ class ClientRepository implements ClientRepositoryInterface
             $info['dsi_type'] ?? 0
         );
 
-        return sqlQueryNoLog($sql, $i_vals, true); // throw an exception if it fails
+        $result = QueryUtils::sqlInsert($sql, $i_vals);
+        return $result !== false;
     }
 
     public function generateClientId()

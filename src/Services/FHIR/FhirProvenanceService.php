@@ -30,6 +30,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ReferenceSearchValue;
@@ -44,6 +45,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
+    use VersionedProfileTrait;
 
     // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
     // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
@@ -342,9 +344,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     /**

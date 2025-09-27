@@ -19,6 +19,7 @@ use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormSer
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -27,7 +28,11 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use InvalidArgumentException;
 
-class FhirQuestionnaireResponseService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService
+class FhirQuestionnaireResponseService extends FhirServiceBase implements
+    IResourceReadableService,
+    IResourceSearchableService,
+    IResourceCreatableService,
+    IResourceUSCIGProfileService
 {
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
@@ -35,6 +40,9 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements IResou
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
     use MappedServiceTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaireresponse';
 
     private EventDispatcher $dispatcher;
 
@@ -95,6 +103,22 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements IResou
         }
     }
 
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
+    }
+
+    protected function getSupportedVersions(): array
+    {
+        return ['', '7.0.0', '8.0.0'];
+    }
     /**
      * This method returns the FHIR search definition objects that are used to map FHIR search fields to OpenEMR fields.
      * Since the mapping can be one FHIR search object to many OpenEMR fields, we use the search definition objects.

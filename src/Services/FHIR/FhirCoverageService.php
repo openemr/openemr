@@ -12,6 +12,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -29,9 +30,12 @@ use OpenEMR\Validators\ProcessingResult;
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-class FhirCoverageService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirCoverageService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage';
 
     /**
      * @var CoverageService
@@ -134,5 +138,10 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, ['', '7.0.0', '8.0.0']);
     }
 }
