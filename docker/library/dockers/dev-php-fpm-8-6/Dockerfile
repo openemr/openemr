@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Copyright (C) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+# Copyright (C) 2018-2025 Brady Miller <brady.g.miller@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ RUN apt-get update \
                        mariadb-client
 
 # Install correct version nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x \
+RUN curl -sL https://deb.nodesource.com/setup_22.x \
   | bash - \
  && apt-get update \
  && apt-get install -y nodejs
@@ -32,15 +32,15 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x \
 # TODO:
 # TODO: intermittently try to remove this block of code and uncomment ldap in below ../install-php-extensions run
 # TODO:
-RUN apt-get update \
- && apt-get install -y libldap-common \
-                       libldap2-dev \
-                       libsasl2-dev \
-                       pkg-config
-RUN LDAP_CFLAGS="-I/usr/include" \
-    LDAP_LIBS="-lldap -llber" \
-    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
- && docker-php-ext-install ldap
+#RUN apt-get update \
+# && apt-get install -y libldap-common \
+#                       libldap2-dev \
+#                       libsasl2-dev \
+#                       pkg-config
+#RUN LDAP_CFLAGS="-I/usr/include" \
+#    LDAP_LIBS="-lldap -llber" \
+#    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
+# && docker-php-ext-install ldap
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -50,6 +50,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
                            gd \
                            gettext \
                            intl \
+                           ldap \
                            mysqli \
                            pdo_mysql \
                            soap \
