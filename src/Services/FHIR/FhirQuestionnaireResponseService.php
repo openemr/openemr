@@ -28,8 +28,11 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use InvalidArgumentException;
 
-class FhirQuestionnaireResponseService extends FhirServiceBase implements IResourceReadableService
-    , IResourceSearchableService, IResourceCreatableService, IResourceUSCIGProfileService
+class FhirQuestionnaireResponseService extends FhirServiceBase implements
+    IResourceReadableService,
+    IResourceSearchableService,
+    IResourceCreatableService,
+    IResourceUSCIGProfileService
 {
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
