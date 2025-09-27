@@ -23,6 +23,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\RefreshTokenEntity;
 //use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
@@ -121,23 +122,25 @@ class GenerateAccessTokenTestCommand extends Command implements IGlobalsAwareCom
             // if we have been given specific resources then we will limit the scopes to those resources
             if (!empty($input->getOption('resources'))) {
                 $requestedResources = array_map('trim', explode(',', $input->getOption('resources')));
-                $fhirScopes = array_map(fn($resource): string => "user/{$resource}.read", $requestedResources);
-                $scopeRepository = new ScopeRepository();
-                $scopeIdentifiers = array_unique(array_merge($scopeRepository->oidcScopes(), $fhirScopes));
+                $fhirScopes = array_map(fn($resource): string => "user/{$resource}.rs", $requestedResources);
+                $scopeList = new ServerScopeListEntity();
+
+                $scopeIdentifiers = array_unique(array_merge($fhirScopes, $scopeList->requiredSmartOnFhirScopes()));
             }
+
             $hasOfflineScope = in_array('offline_access', $scopeIdentifiers, true);
-//            $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
-            $scopes = array_map(function($scope): ScopeEntity { $entity = new ScopeEntity(); $entity->setIdentifier($scope); return $entity; }
-            , $scopeIdentifiers);
+            $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
+//            $scopes = array_map(function($scope): ScopeEntity { $entity = new ScopeEntity(); $entity->setIdentifier($scope); return $entity; }
+//            , $scopeIdentifiers);
             $session = new Session(new MockFileSessionStorage());
             $session->set('trusted', 1); // just to have something in the cache
-//            $accessTokenRepository = new AccessTokenRepository($this->getGlobalsBag(), $session);
-            $accessTokenRepository = new AccessTokenRepository();
+            $accessTokenRepository = new AccessTokenRepository($this->getGlobalsBag(), $session);
+//            $accessTokenRepository = new AccessTokenRepository();
             $token = $accessTokenRepository->getNewToken($client, $scopes);
             // we could allow the cli to determine the access token expiration time, but for now we will set it to 1 hour
             $token->setExpiryDateTime((new DateTimeImmutable())->add(new DateInterval("PT1H"))); // 1 hour expiration
-//            $oauth2KeyConfig = new OAuth2KeyConfig($this->globalsBag->get('OE_SITE_DIR'));
-            $oauth2KeyConfig = new OAuth2KeyConfig();
+            $oauth2KeyConfig = new OAuth2KeyConfig($this->globalsBag->get('OE_SITE_DIR'));
+//            $oauth2KeyConfig = new OAuth2KeyConfig();
             $oauth2KeyConfig->configKeyPairs();
             $keyLocation = $oauth2KeyConfig->getPrivateKeyLocation();
             $privateKey = new CryptKey($keyLocation, $oauth2KeyConfig->getPassPhrase());
