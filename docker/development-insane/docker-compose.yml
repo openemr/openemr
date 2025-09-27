@@ -24,11 +24,13 @@
 #        http://localhost:8105 (with Nginx and PHP-FPM 8.3)
 #        http://localhost:8106 (with Nginx and PHP-FPM 8.4)
 #        http://localhost:8107 (with Nginx and PHP-FPM 8.5)
+#        http://localhost:8108 (with Nginx and PHP-FPM 8.6)
 #        http://localhost:8153 (with Nginx and PHP-FPM 8.1 with redis)
 #        http://localhost:8154 (with Nginx and PHP-FPM 8.2 with redis)
 #        http://localhost:8155 (with Nginx and PHP-FPM 8.3 with redis)
 #        http://localhost:8156 (with Nginx and PHP-FPM 8.4 with redis)
 #        http://localhost:8157 (with Nginx and PHP-FPM 8.5 with redis)
+#        http://localhost:8158 (with Nginx and PHP-FPM 8.6 with redis)
 #        https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 #        https://localhost:9084 with SSL and Alpine 3.22 (with Apache and PHP 8.2)
 #        https://localhost:9085 with SSL and Alpine 3.22 (with Apache and PHP 8.3)
@@ -44,11 +46,13 @@
 #        https://localhost:9105 with SSL (with Nginx and PHP-FPM 8.3)
 #        https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.4)
 #        https://localhost:9107 with SSL (with Nginx and PHP-FPM 8.5)
+#        https://localhost:9108 with SSL (with Nginx and PHP-FPM 8.6)
 #        https://localhost:9153 with SSL (with Nginx and PHP-FPM 8.1 with redis)
 #        https://localhost:9154 with SSL (with Nginx and PHP-FPM 8.2 with redis)
 #        https://localhost:9155 with SSL (with Nginx and PHP-FPM 8.3 with redis)
 #        https://localhost:9156 with SSL (with Nginx and PHP-FPM 8.4 with redis)
 #        https://localhost:9157 with SSL (with Nginx and PHP-FPM 8.5 with redis)
+#        https://localhost:9158 with SSL (with Nginx and PHP-FPM 8.6 with redis)
 
 #
 #    On the main setup input screen:
@@ -554,6 +558,8 @@ services:
     - 9106:446
     - 8107:87
     - 9107:447
+    - 8108:88
+    - 9108:448
     - 8153:93
     - 9153:453
     - 8154:94
@@ -564,6 +570,8 @@ services:
     - 9156:456
     - 8157:97
     - 9157:457
+    - 8158:98
+    - 9158:458
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -575,11 +583,13 @@ services:
     - dev-php-fpm-8-3
     - dev-php-fpm-8-4
     - dev-php-fpm-8-5
+    - dev-php-fpm-8-6
     - dev-php-fpm-8-1-redis
     - dev-php-fpm-8-2-redis
     - dev-php-fpm-8-3-redis
     - dev-php-fpm-8-4-redis
     - dev-php-fpm-8-5-redis
+    - dev-php-fpm-8-6-redis
   dev-php-fpm-8-1:
     restart: always
     image: openemr/dev-php-fpm:8.1
@@ -620,6 +630,14 @@ services:
     - ../library/dockers/dev-php-fpm-8-5/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+  dev-php-fpm-8-6:
+    restart: always
+    image: openemr/dev-php-fpm:8.6
+    volumes:
+    - ../..:/usr/share/nginx/html/openemr
+    - ../library/dockers/dev-php-fpm-8-6/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-1-redis:
     restart: always
     image: openemr/dev-php-fpm:8.1-redis
@@ -658,6 +676,14 @@ services:
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+  dev-php-fpm-8-6-redis:
+    restart: always
+    image: openemr/dev-php-fpm:8.6-redis
+    volumes:
+    - ../..:/usr/share/nginx/html/openemr
+    - ../library/dockers/dev-php-fpm-8-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
