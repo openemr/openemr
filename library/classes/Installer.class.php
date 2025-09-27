@@ -565,6 +565,7 @@ class Installer
 
         $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
         $escapedHash = $this->escapeSql($hash);
+        /** @phpstan-ignore empty.variable */
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
