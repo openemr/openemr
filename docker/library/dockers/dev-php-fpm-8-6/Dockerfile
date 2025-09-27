@@ -27,20 +27,16 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x \
  && apt-get update \
  && apt-get install -y nodejs
 
-# Temporary fix to get ldap install working by bypassing below install-php-extensions run (these issues are usually temporary
+# Temporary fix to get intl install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
-# TODO: intermittently try to remove this block of code and uncomment ldap in below ../install-php-extensions run
+# TODO: intermittently try to remove this block of code and uncomment intl in below ../install-php-extensions run
 # TODO:
-#RUN apt-get update \
-# && apt-get install -y libldap-common \
-#                       libldap2-dev \
-#                       libsasl2-dev \
-#                       pkg-config
-#RUN LDAP_CFLAGS="-I/usr/include" \
-#    LDAP_LIBS="-lldap -llber" \
-#    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-# && docker-php-ext-install ldap
+# Install newer ICU library before installing intl
+RUN apt-get update \
+ && apt-get install -y libicu-dev \
+ && docker-php-ext-configure intl \
+ && docker-php-ext-install intl
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -49,7 +45,6 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
  && install-php-extensions calendar \
                            gd \
                            gettext \
-                           intl \
                            ldap \
                            mysqli \
                            pdo_mysql \
