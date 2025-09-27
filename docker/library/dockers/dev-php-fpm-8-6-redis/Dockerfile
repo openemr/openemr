@@ -10,7 +10,7 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM php:8.5-rc-fpm
+FROM openemr/dev-php-fpm:pre-build-dev-86
 
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
@@ -52,6 +52,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
                            intl \
                            mysqli \
                            pdo_mysql \
+                           redis \
                            soap \
                            sockets \
                            tokenizer \
