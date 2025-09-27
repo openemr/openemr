@@ -74,7 +74,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     const USCDI_PROFILE_VITAL_SIGNS_V3_1_1 = 'http://hl7.org/fhir/R4/observation-vitalsigns';
     const USCDI_PROFILE_VITAL_SIGNS = self::USCDI_URI_BASE_PATH . 'us-core-vital-signs';
 
-    const USCDI_PROFILE_HEAD_OCCIPITAL_FRONTAL_CIRCUMFERENCE = self::USCDI_URI_BASE_PATH . 'head-occipital-frontal-circumference';
+    const USCDI_PROFILE_HEAD_OCCIPITAL_FRONTAL_CIRCUMFERENCE = self::USCDI_URI_BASE_PATH . 'head-occipital-frontal-circumference-percentile';
     const USCDI_PROFILE_PEDIATRIC_WEIGHT_FOR_HEIGHT = self::USCDI_URI_BASE_PATH . 'pediatric-weight-for-height';
 
     /**
