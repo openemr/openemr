@@ -27,29 +27,22 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x \
  && apt-get update \
  && apt-get install -y nodejs
 
-# Temporary fix to get ldap install working by bypassing below install-php-extensions run (these issues are usually temporary
-#  in dev versions of PHP, so this is not a permanent solution)
-# TODO:
-# TODO: intermittently try to remove this block of code and uncomment ldap in below ../install-php-extensions run
-# TODO:
-#RUN apt-get update \
-# && apt-get install -y libldap-common \
-#                       libldap2-dev \
-#                       libsasl2-dev \
-#                       pkg-config
-#RUN LDAP_CFLAGS="-I/usr/include" \
-#    LDAP_LIBS="-lldap -llber" \
-#    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-# && docker-php-ext-install ldap
-
 # Temporary fix to get redis install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
-# TODO: intermittently try to remove this block of code and uncomment ldap in below ../install-php-extensions run
+# TODO: intermittently try to remove this block of code and uncomment redis in below ../install-php-extensions run
 # TODO:
-# Install Redis extension from source (development version)
-RUN pecl install redis-dev \
- && docker-php-ext-enable redis
+# Install Redis from GitHub develop branch
+RUN apt-get update && apt-get install -y git \
+ && mkdir -p /tmp/redis \
+ && cd /tmp/redis \
+ && git clone https://github.com/phpredis/phpredis.git . \
+ && git checkout develop \
+ && phpize \
+ && ./configure \
+ && make && make install \
+ && docker-php-ext-enable redis \
+ && rm -rf /tmp/redis
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/

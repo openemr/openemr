@@ -27,21 +27,6 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x \
  && apt-get update \
  && apt-get install -y nodejs
 
-# Temporary fix to get ldap install working by bypassing below install-php-extensions run (these issues are usually temporary
-#  in dev versions of PHP, so this is not a permanent solution)
-# TODO:
-# TODO: intermittently try to remove this block of code and uncomment ldap in below ../install-php-extensions run
-# TODO:
-#RUN apt-get update \
-# && apt-get install -y libldap-common \
-#                       libldap2-dev \
-#                       libsasl2-dev \
-#                       pkg-config
-#RUN LDAP_CFLAGS="-I/usr/include" \
-#    LDAP_LIBS="-lldap -llber" \
-#    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-# && docker-php-ext-install ldap
-
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions \
