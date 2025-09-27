@@ -32,10 +32,19 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x \
 # TODO:
 # TODO: intermittently try to remove this block of code and uncomment intl in below ../install-php-extensions run
 # TODO:
-# Install newer ICU library before installing intl
-RUN apt-get update \
- && apt-get install -y libicu-dev \
- && docker-php-ext-configure intl \
+# Build and install ICU 74 from source (supports unumberrangeformatter.h)
+RUN cd /tmp \
+ && curl -LO https://github.com/unicode-org/icu/releases/download/release-74-2/icu4c-74_2-src.tgz \
+ && tar -xzf icu4c-74_2-src.tgz \
+ && cd icu/source \
+ && ./configure --prefix=/usr/local \
+ && make -j$(nproc) \
+ && make install \
+ && ldconfig \
+ && rm -rf /tmp/icu*
+# Now install intl with the newer ICU
+RUN PKG_CONFIG_PATH=/usr/local/lib/pkgconfig \
+    docker-php-ext-configure intl --with-icu-dir=/usr/local \
  && docker-php-ext-install intl
 
 # Temporary fix to get redis install working by bypassing below install-php-extensions run (these issues are usually temporary
