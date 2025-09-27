@@ -139,7 +139,7 @@ exports.tribalAffiliationObservation = {
         //fieldLevel.author
     ],
     existsWhen: function (input) {
-        return input && input.tribal_affiliation;
+        return input && input.tribal_affiliation.tribal_code;
     }
 };
 
@@ -160,7 +160,7 @@ exports.pregnancyStatusObservation = {
                 code: "ASSERTION",
                 codeSystem: "2.16.840.1.113883.5.4",
                 //codeSystemName: "LOINC",
-                //displayName: "Tribal affiliation",
+                //displayName: "",
             }
         },
         fieldLevel.statusCodeCompleted,
@@ -180,7 +180,7 @@ exports.pregnancyStatusObservation = {
         //fieldLevel.author
     ],
     existsWhen: function (input) {
-        return input && input.pregnancy_status;
+        return input && input.pregnancy_status.pregnancy_code;
     }
 };
 

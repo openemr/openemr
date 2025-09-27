@@ -13,33 +13,26 @@ function getGuardianNames(display_name) {
     return parts.length === 3
         ? [{ first: parts[0], last: parts[2] }]
         : parts.length === 2
-        ? [{ first: parts[0], last: parts[1] }]
-        : [{ first: NOT_INFORMED, last: NOT_INFORMED }];
+            ? [{ first: parts[0], last: parts[1] }]
+            : [{ first: NOT_INFORMED, last: NOT_INFORMED }];
 }
 
 function getGuardianInfo(guardian) {
-    return [
-        {
-            relation: guardian.relation,
-            addresses: [
-                {
-                    street_lines: [guardian.address],
-                    city: guardian.city,
-                    state: guardian.state,
-                    zip: guardian.postalCode,
-                    country: guardian.country || 'US',
-                    use: 'primary home',
-                },
-            ],
-            names: getGuardianNames(guardian.display_name),
-            phone: [
-                {
-                    number: guardian.telecom,
-                    type: 'primary home',
-                },
-            ],
-        },
-    ];
+    return [{
+        // test expects a simple string relation, not a coded object
+        relation: guardian.relation,
+        addresses: [{
+            // tests supply "address"; fall back to "street" if present
+            street_lines: [guardian.address || guardian.street],
+            city: guardian.city,
+            state: guardian.state,
+            zip: guardian.postalCode,
+            country: guardian.country || 'US',
+            use: 'primary home',
+        }],
+        names: getGuardianNames(guardian.display_name),
+        phone: [{ number: guardian.telecom, type: 'primary home' }],
+    }];
 }
 
 function setNullFlavorIfUnspecifiedOrEmpty(patient, property) {
@@ -58,8 +51,8 @@ function getLanguageCode(patient) {
 
 function getNpiFacility(documentData, useFallback) {
     return useFallback
-    ? documentData.encounter_provider.facility_npi || NOT_INFORMED
-    : documentData.encounter_provider.facility_npi;
+        ? documentData.encounter_provider.facility_npi || NOT_INFORMED
+        : documentData.encounter_provider.facility_npi;
 }
 
 function populateDemographics(documentData, npiFacility) {
@@ -92,7 +85,8 @@ function populateDemographics(documentData, npiFacility) {
                 precision: 'day',
             },
         },
-        gender: patient.gender.toUpperCase() || NULL_FLAVOR,
+        // safe uppercasing; falls back to NULL_FLAVOR for '', undefined, etc.
+        gender: (patient.gender || '').toUpperCase() || NULL_FLAVOR,
         identifiers: [
             {
                 identifier: oidFacility || npiFacility,
@@ -102,26 +96,11 @@ function populateDemographics(documentData, npiFacility) {
         marital_status: patient.status.toUpperCase(),
         addresses: fetchPreviousAddresses(patient),
         phone: [
-            {
-                number: patient.phone_home,
-                type: 'primary home',
-            },
-            {
-                number: patient.phone_mobile,
-                type: 'primary mobile',
-            },
-            {
-                number: patient.phone_work,
-                type: 'work place',
-            },
-            {
-                number: patient.phone_emergency,
-                type: 'emergency contact',
-            },
-            {
-                email: patient.email,
-                type: 'contact_email',
-            },
+            { number: patient.phone_home, type: 'primary home' },
+            { number: patient.phone_mobile, type: 'primary mobile' },
+            { number: patient.phone_work, type: 'work place' },
+            { number: patient.phone_emergency, type: 'emergency contact' },
+            { email: patient.email, type: 'contact_email' },
         ],
         ethnicity: patient.ethnicity || '',
         race: patient.race || NULL_FLAVOR,
@@ -143,26 +122,18 @@ function populateDemographics(documentData, npiFacility) {
             ],
             phone: [
                 {
-                    number:
-                        documentData.encounter_provider.facility_phone || '',
+                    number: documentData.encounter_provider.facility_phone || '',
                 },
             ],
-            name: [
-                {
-                    full: documentData.encounter_provider.facility_name || '',
-                },
-            ],
+            name: [{ full: documentData.encounter_provider.facility_name || '' }],
             address: [
                 {
-                    street_lines: [
-                        documentData.encounter_provider.facility_street,
-                    ],
+                    street_lines: [documentData.encounter_provider.facility_street],
                     city: documentData.encounter_provider.facility_city,
                     state: documentData.encounter_provider.facility_state,
                     zip: documentData.encounter_provider.facility_postal_code,
                     country:
-                        documentData.encounter_provider.facility_country_code ||
-                        'US',
+                        documentData.encounter_provider.facility_country_code || 'US',
                     use: 'work place',
                 },
             ],

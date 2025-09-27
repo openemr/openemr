@@ -240,6 +240,7 @@ var participants = (exports.participant = [
         ],
         /* eslint-enable no-sparse-arrays */
         dataKey: "meta.ccda_header.participants",
+        existsWhen: condition.propertyNotEmpty('meta.ccda_header.participants'),
     },
 ]);
 

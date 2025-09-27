@@ -475,14 +475,20 @@ exports.socialHistorySection = function (htmlHeader, na) {
                         typeCode: "DRIV"
                     },
                     content: [entryLevel.tribalAffiliationObservation],
-                    dataKey: "social_history"
+                    dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.tribal_affiliation && input.tribal_affiliation.tribal_code;
+                    }
                 }, {
                     key: "entry",
                     attributes: {
                         typeCode: "DRIV"
                     },
                     content: [entryLevel.pregnancyStatusObservation],
-                    dataKey: "social_history"
+                    dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.pregnancy_status && input.pregnancy_status.pregnancy_code;
+                    }
                 }, {
                     key: "entry",
                     content: [
@@ -501,6 +507,9 @@ exports.socialHistorySection = function (htmlHeader, na) {
                         entryLevel.hungerVitalSignsObservation
                     ],
                     dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.hunger_vital_signs && input.hunger_vital_signs.risk_status.answer_code;
+                    }
                 }
             ]
         }]
