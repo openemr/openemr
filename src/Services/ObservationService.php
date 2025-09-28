@@ -37,6 +37,12 @@ class ObservationService extends BaseService
     const FORM_NAME = "Observation Form";
     const FORM_DIR = "observation";
 
+    const DATE_RANGE_FILTERS = [
+        'today' => " AND DATE(date) = CURDATE()",
+        'week' => " AND date >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+        'month' => " AND date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
+    ];
+
     private UuidRegistry $uuidRegistry;
 
     private ListService $listService;
@@ -672,18 +678,7 @@ class ObservationService extends BaseService
         }
 
         if (!empty($searchCriteria['date_range'])) {
-            switch ($searchCriteria['date_range']) {
-                case 'today':
-                    $sql .= " AND DATE(date) = CURDATE()";
-                    break;
-                case 'week':
-                    $sql .= " AND date >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
-                    break;
-                case 'month':
-                    $sql .= " AND date >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
-                    break;
-                // 'all' or default - no additional filter
-            }
+            $sql .= self::DATE_RANGE_FILTERS[$searchCriteria['date_range']] ?? ""; // 'all' or default - no additional filter
         }
 
         $sql .= " ORDER BY date DESC, id DESC";

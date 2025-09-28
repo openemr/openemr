@@ -149,60 +149,64 @@ class EDI270
         return trim($HL['Created']);
     }
 
-// NM1 Segment  - EDI-270 format
+    // NM1 Segment  - EDI-270 format
     public static function createNM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
     {
-        $NM1 = array();
-        $NM1[0] = "NM1";                    // Subscriber Name Segment ID
-        if ($nm1Cast == 'PR') {
-            $NM1[1] = "PR";                         // Entity ID Code - Payer [PR Payer]
-            $NM1[2] = "2";                      // Entity Type - Non-Person
-            $NM1[3] = $row["payer_name"];       // Organizational Name
-            $NM1[4] = "";                       // Data Element not required.
-            $NM1[5] = "";                       // Data Element not required.
-            $NM1[6] = "";                       // Data Element not required.
-            $NM1[7] = "";                       // Data Element not required.
-            $NM1[8] = "PI";                     // 5010 no longer uses "46"
-            if ($GLOBALS['enable_eligibility_requests']) {
-                $payerId = $row['eligibility_id'];
-            } else {
-                $payerId = $row['cms_id'];
-            }
-            $NM1[9] = $payerId; // Application Sender's ID
-        } elseif ($nm1Cast == 'FA') {
-            $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
-            $NM1[2] = "2";                      // Entity Type - Non-Person
-            $NM1[3] = $row['facility_name'];            // Organizational Name
-            $NM1[4] = "";           // Data Element not required.
-            $NM1[5] = "";           // Data Element not required.
-            $NM1[6] = "";                       // Data Element not required.
-            $NM1[7] = "";                       // Data Element not required.
-            $NM1[8] = "FI";
-            $NM1[9] = $row['facility_npi'];
-        } elseif ($nm1Cast == '1P') {
-            $NM1[1] = "1P";                     // Entity ID Code - Provider
-            $NM1[2] = "2";                      // Entity Type - Non-Person
-            $NM1[3] = $row['facility_name'];   // Organizational Name
-            $NM1[4] = "";   // Data Element not required.
-            $NM1[5] = "";                       // Data Element not required.
-            $NM1[6] = "";                       // Data Element not required.
-            $NM1[7] = "";                       // Data Element not required.
-            $NM1[8] = "XX";
-            $NM1[9] = $row['provider_npi'];
-        } elseif ($nm1Cast == 'IL') {
-            $NM1[1] = "IL";                         // Insured or Subscriber
-            $NM1[2] = "1";                      // Entity Type - Person
-            $NM1[3] = $row['lname'];                // last Name
-            $NM1[4] = $row['fname'];                // first Name
-            $NM1[5] = $row['mname'];                // middle Name
-            $NM1[6] = "";                       // data element
-            $NM1[7] = "";                       // data element
-            $NM1[8] = "MI";                     // Identification Code Qualifier
-            $NM1[9] = $row['policy_number'];    // Identification Code
+        $lookup = [
+            'PR' => [
+                "NM1",
+                "PR",                   // Entity ID Code - Payer [PR Payer]
+                "2",                    // Entity Type - Non-Person
+                $row["payer_name"],     // Organizational Name
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "PI",                   // 5010 no longer uses "46"
+                $GLOBALS['enable_eligibility_requests'] ? $row['eligibility_id'] : $row['cms_id'] // Application Sender's ID
+            ],
+            'FA' => [
+                "NM1",
+                "FA",                   // Entity ID Code - Facility [FA Facility]
+                "2",                    // Entity Type - Non-Person
+                $row['facility_name'],  // Organizational Name
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "FI",
+                $row['facility_npi']
+            ],
+            '1P' => [
+                "NM1",
+                "1P",                   // Entity ID Code - Provider
+                "2",                    // Entity Type - Non-Person
+                $row['facility_name'],  // Organizational Name
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "",                     // Data Element not required.
+                "XX",
+                $row['provider_npi']
+            ],
+            'IL' => [
+                "NM1",
+                "IL",                   // Insured or Subscriber
+                "1",                    // Entity Type - Person
+                $row['lname'],          // last Name
+                $row['fname'],          // first Name
+                $row['mname'],          // middle Name
+                "",                     // data element
+                "",                     // data element
+                "MI",                   // Identification Code Qualifier
+                $row['policy_number']   // Identification Code
+            ],
+        ];
+        if (in_array($nm1Cast, $lookup, true)) {
+            $NM1 = $lookup[$nm1Cast];
+            return trim(implode('*', $NM1) . $segTer);
         }
-        $NM1['Created'] = implode('*', $NM1);               // Data Element Separator
-        $NM1['Created'] .= $segTer;
-        return trim($NM1['Created']);
+        throw new \InvalidArgumentException("Unknown NM1 cast: $nm1Cast");
     }
 
 // REF Segment  - EDI-270 format

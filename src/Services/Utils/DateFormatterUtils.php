@@ -78,13 +78,13 @@ class DateFormatterUtils
 
     public static function getShortDateFormat($showYear = true)
     {
-        if ($GLOBALS['date_display_format'] == 0) { // $GLOBALS['date_display_format'] == 0
-            return 'Y-m-d';
-        } elseif ($GLOBALS['date_display_format'] == 1) {
-            return 'm/d/Y';
-        } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
-            return 'd/m/Y';
-        }
+        $formats = [
+            0 => 'Y-m-d',     // yyyy-mm-dd
+            1 => 'm/d/Y',     // mm/dd/yyyy
+            2 => 'd/m/Y'      // dd/mm/yyyy
+        ];
+
+        return $formats[$GLOBALS['date_display_format']] ?? 'Y-m-d';
     }
 
     public static function oeFormatShortDate($date = 'today', $showYear = true)
@@ -95,11 +95,11 @@ class DateFormatterUtils
 
         if (strlen($date ?? '') >= 10) {
             // assume input is yyyy-mm-dd
-            if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
-                $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
-            } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
-                $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
-            }
+            $newDate = match ($GLOBALS['date_display_format']) {
+                1 => substr($date, 5, 2) . '/' . substr($date, 8, 2), // mm/dd/yyyy, note year is added below
+                2 => substr($date, 8, 2) . '/' . substr($date, 5, 2), // dd/mm/yyyy, note year is added below
+                default => null
+            };
 
             // process the year (add for formats 1 and 2; remove for format 0)
             if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {

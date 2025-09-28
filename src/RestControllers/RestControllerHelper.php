@@ -396,7 +396,7 @@ class RestControllerHelper
         return null;
     }
 
-    public function addOperations($resource, $items, FHIRCapabilityStatementResource $capResource)
+    public function addOperations(string $resource, $items, FHIRCapabilityStatementResource $capResource): void
     {
 
         // TODO: @adunsulag we need to architect a more generic way of adding operations like we do with resources
@@ -415,33 +415,24 @@ class RestControllerHelper
             }
         }
 
-        if ($operation == '$export') {
-            // operation definition must use the operation 'name'
-            // rest.resource.operation.name must come from the OperationDefinition's code attribute which in this case is 'export'
-            $definitionName = 'export';
-            $operationName = 'export';
-            if ($resource != '$export') {
-                $definitionName = strtolower($resource) . '-export';
-            }
-            // define export operation
+        if !(is_string($operation) && str_starts_with($operation, '$')) {
+            return;
+        }
+        $operationName = $operation === '$export' ? 'export' : $operation;
+        $operationDefinition = match($operation) {
+            '$bulkdata-status' => $this->restURL . '/OperationDefinition/$bulkdata-status',
+            '$docref' => new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'),
+            '$export' => new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . ($resource === $operation ? $operationName : strtolower("{$resource}-export"))),
+            default => null,
+        }
+        if ($operationDefinition) {
             $fhirOperation = new FHIRCapabilityStatementOperation();
             $fhirOperation->setName($operationName);
-            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $definitionName));
+            $fhirOperation->setDefinition($operationDefinition);
             $capResource->addOperation($fhirOperation);
-        } elseif ($operation === '$bulkdata-status') {
-            $fhirOperation = new FHIRCapabilityStatementOperation();
-            $fhirOperation->setName($operation);
-            $fhirOperation->setDefinition($this->restURL . '/OperationDefinition/$bulkdata-status');
-            $capResource->addOperation($fhirOperation);
-            // TODO: @adunsulag we should document in our capability statement how to use the bulkdata-status operation
-        } elseif ($operation === '$docref') {
-            $fhirOperation = new FHIRCapabilityStatementOperation();
-            $fhirOperation->setName($operation);
-            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
-            $capResource->addOperation($fhirOperation);
-        } elseif (is_string($operation) && strpos($operation, '$') === 0) {
+        } else {
             (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
-        }
+        };
     }
 
     public function addRequestMethods($items, FHIRCapabilityStatementResource $capResource)
@@ -455,18 +446,12 @@ class RestControllerHelper
         }
 
         // now setup our interaction types
-        if (strcmp($reqMethod, "GET") == 0) {
-            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
-                $code = "read";
-            } else {
-                $code = "search-type";
-            }
-        } elseif (strcmp($reqMethod, "POST") == 0) {
-            $code = "create";
-        } elseif (strcmp($reqMethod, "PUT") == 0) {
-            $code = "update";
-        } elseif (strcmp($reqMethod, "DELETE") == 0) {
-            $code = "delete";
+        $code = match($reqMethod) {
+            'GET' => empty(preg_match('/:/', $items[$numberItems - 1])) ? 'search-type' : 'read',
+            'POST' => 'create',
+            'PUT' => 'update',
+            'DELETE' => 'delete',
+            default => null,
         }
 
         if (!empty($code)) {

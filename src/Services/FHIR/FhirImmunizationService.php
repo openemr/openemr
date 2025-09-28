@@ -106,24 +106,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             // to these status codes here: https://terminology.hl7.org/3.1.0/CodeSystem-v3-ActReason.html
             //
             if (!empty($dataRecord['refusal_reason_cdc_nip_code'])) {
-                $code = "PATOBJ";
-                $display = "patient objection";
-
-                // we are leaving these here just to document these values as PATOBJ corresponds to both patient or
-                // guardian objection.  Other doesn't have a correspondance, and patient decision is already handled.
-                switch ($dataRecord['refusal_reason_cdc_nip_code']) {
-                    case '00': // Parental exemption
-                        break;
-                    case '01': // Religious exemption
-                        $code = "RELIG";
-                        $display =  "religious objection";
-                        break;
-                    case '02': // other
-                        break;
-                    case '03': // patient decision
-                    default:
-                        break;
-                }
+                // Map CDC NIP codes to HL7 ActReason codes
+                // https://terminology.hl7.org/3.1.0/CodeSystem-v3-ActReason.html
+                [$code, $display] = $dataRecord['refusal_reason_cdc_nip_code'] === '01' ?
+                    ['RELIG', 'religious objection'] :  // Religious exemption
+                    ['PATOBJ', 'patient objection'];  // Parental exemption, other, patient decision map to default PATOBJ
             }
             $statusReason = new FHIRCodeableConcept();
             $statusReasonCoding = new FHIRCoding();

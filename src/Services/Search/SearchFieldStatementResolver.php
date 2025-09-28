@@ -35,19 +35,14 @@ class SearchFieldStatementResolver
         if ($count > self::MAX_NESTED_LEVEL) {
             throw new \RuntimeException("Exceeded maximum nested method calls for search fields.");
         }
-        if ($field instanceof StringSearchField) {
-            return self::resolveStringSearchField($field);
-        } else if ($field instanceof DateSearchField) {
-            return self::resolveDateField($field);
-        } else if ($field instanceof TokenSearchField) {
-            return self::resolveTokenField($field);
-        } else if ($field instanceof ReferenceSearchField) {
-            return self::resolveReferenceField($field);
-        } else if ($field instanceof CompositeSearchField) {
-            return self::resolveCompositeSearchField($field, $count);
-        } else {
-            throw new SearchFieldException($field->getName(), "Provided search field type was not implemented");
-        }
+        return match (true) {
+            $field instanceof StringSearchField => self::resolveStringSearchField($field),
+            $field instanceof DateSearchField => self::resolveDateField($field),
+            $field instanceof TokenSearchField => self::resolveTokenField($field),
+            $field instanceof ReferenceSearchField => self::resolveReferenceField($field),
+            $field instanceof CompositeSearchField => self::resolveCompositeSearchField($field, $count),
+            default => throw new SearchFieldException($field->getName(), "Provided search field type was not implemented")
+        };
     }
 
     /**
@@ -89,34 +84,22 @@ class SearchFieldStatementResolver
             $lowerBoundDateRange = self::adjustTimezoneToLocalTime($lowerBoundDateRange);
             $upperBoundDateRange = self::adjustTimezoneToLocalTime($upperBoundDateRange);
 
-            switch ($comparableValue->getComparator()) {
-                case SearchComparator::LESS_THAN:
-                case SearchComparator::ENDS_BEFORE:
-                        $operator = "<";
-                        $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                    break;
-                case SearchComparator::LESS_THAN_OR_EQUAL_TO:
+            [$operator, $dateSearchString] = match ($comparableValue->getComparator()) {
+                SearchComparator::LESS_THAN, SearchComparator::ENDS_BEFORE =>
+                    ["<", $lowerBoundDateRange->format($dateFormat)],
+                SearchComparator::LESS_THAN_OR_EQUAL_TO =>
                     // when dealing with an equal to we need to take the upper range of our fuzzy date interval
-                    $operator = "<=";
-                    $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                    break;
-                case SearchComparator::GREATER_THAN:
-                case SearchComparator::STARTS_AFTER:
-                        $operator = ">";
-                        $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                    break;
-                case SearchComparator::GREATER_THAN_OR_EQUAL_TO:
+                    ["<=", $upperBoundDateRange->format($dateFormat)],
+                SearchComparator::GREATER_THAN, SearchComparator::STARTS_AFTER =>
+                    [">", $upperBoundDateRange->format($dateFormat)],
+                SearchComparator::GREATER_THAN_OR_EQUAL_TO =>
                     // when dealing with an equal to we need to take the lower range of our fuzzy date interval
-                    $operator = ">=";
-                    $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                    break;
-                case SearchComparator::NOT_EQUALS:
-                    $operator = "!=";
-                    break;
-                default:
-                    $operator = "=";
-                    break;
-            }
+                    [">=", $lowerBoundDateRange->format($dateFormat)],
+                SearchComparator::NOT_EQUALS =>
+                    ["!=", null],
+                default =>
+                    ["=", null]
+            };
             // for equality and also inequality (!=) we have to make sure we deal with the fuzzy ranges since search can
             // specify date ranges of just Year, Year+Month, Year+month+day, Year+month+day+hour&minute, Year+month+day+hour&minute+second
             if ($operator === '=') {
@@ -263,21 +246,32 @@ class SearchFieldStatementResolver
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
         foreach ($values as $value) {
-            if ($modifier === 'prefix') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue($value . "%");
-            } else if ($modifier === 'contains') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue('%' . $value . '%');
-            } else if ($modifier === 'exact') {
-                // not we may want to grab the specific table collation here in order to improve performance
-                // and avoid db casting...
-                array_push($clauses, "BINARY " . $searchField->getField() . ' = ?');
-                $searchFragment->addBoundValue($value);
-            } else if ($modifier == SearchModifier::NOT_EQUALS_EXACT) {
-                array_push($clauses, "BINARY " . $searchField->getField() . ' != ?');
-                $searchFragment->addBoundValue($value);
-            }
+            [$clause, $boundValue] = match ($modifier) {
+                'prefix' => [
+                    $searchField->getField() . ' LIKE ?',
+                    $value . "%"
+                ],
+                'contains' => [
+                    $searchField->getField() . ' LIKE ?',
+                    '%' . $value . '%'
+                ],
+                'exact' => [
+                    // not we may want to grab the specific table collation here in order to improve performance
+                    // and avoid db casting...
+                    "BINARY " . $searchField->getField() . ' = ?',
+                    $value
+                ],
+                SearchModifier::NOT_EQUALS_EXACT => [
+                    "BINARY " . $searchField->getField() . ' != ?',
+                    $value
+                ],
+                default => [
+                    $searchField->getField() . ' = ?',
+                    $value
+                ]
+            };
+            array_push($clauses, $clause);
+            $searchFragment->addBoundValue($boundValue);
         }
         if (count($clauses) > 1) {
             $multipleClause = $searchField->isAnd() ? " AND " : " OR ";

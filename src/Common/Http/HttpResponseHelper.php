@@ -27,21 +27,15 @@ class HttpResponseHelper
     {
         $response = null;
 
-        switch ($serializationStrategy) {
-            case 'JSON':
-                $messageObject = null;
-                if (is_string($payload)) {
-                    $messageObject = new \stdClass();
-                    $messageObject->message = $payload;
-                }
+        if ($serializationStrategy === 'JSON') {
+            $messageObject = null;
+            if (is_string($payload)) {
+                $messageObject = new \stdClass();
+                $messageObject->message = $payload;
+            }
 
-                header("Content-Type: application/json; charset=utf-8");
-                if (!empty($messageObject)) {
-                    $response = json_encode($messageObject);
-                } else {
-                    $response = json_encode($payload);
-                }
-                break;
+            header("Content-Type: application/json; charset=utf-8");
+            $response = json_encode($messageObject ?: $payload);
         }
 
         header("Expires: on, 01 Jan 1970 00:00:00 GMT");
