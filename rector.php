@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\Config\RectorConfig;
+use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -28,18 +29,20 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])
-    // uncomment to reach your current PHP version
-    // ->withPhpSets()
-    ->withPhpVersion(PhpVersion::PHP_82)
-    ->withTypeCoverageLevel(5)
-    ->withDeadCodeLevel(5)
-    ->withCodeQualityLevel(5)
     ->withCache(
         // ensure file system caching is used instead of in-memory
         cacheClass: FileCacheStorage::class,
         // specify a path that works locally as well as on CI job runners
         cacheDirectory: '/tmp/rector'
     )
+    ->withCodeQualityLevel(5)
+    ->withDeadCodeLevel(5)
+    ->withRules([
+        // add rules one at a time until we can replace them with a named ruleset
+        ArrayKeyExistsOnPropertyRector::class, // one of the withPhpSets rules
+    ])
+    ->withPhpVersion(PhpVersion::PHP_82)
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
-    ]);
+    ])
+    ->withTypeCoverageLevel(5);
