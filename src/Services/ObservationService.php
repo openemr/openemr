@@ -45,6 +45,8 @@ class ObservationService extends BaseService
 
     private FormService $formService;
 
+    private CodeTypesService $codeTypesService;
+
     private array $typesById;
 
     private array $statiiById;

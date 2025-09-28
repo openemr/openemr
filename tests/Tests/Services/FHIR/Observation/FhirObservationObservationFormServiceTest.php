@@ -89,7 +89,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         ];
     }
 
-    public function testParseOpenEMRRecordScreeningAssessmentObservationDataAbsentReasonForValue()
+    public function testParseOpenEMRRecordScreeningAssessmentObservationDataAbsentReasonForValue(): void
     {
         $record = $this->getDefaultObservationRecord();
         $record['ob_value'] = null;
@@ -105,7 +105,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertNotEmpty($observation->getDataAbsentReason(), "Data Absent Reason should have been created");
     }
 
-    public function testParseOpenEMRRecordScreeningAssessmentObservation()
+    public function testParseOpenEMRRecordScreeningAssessmentObservation(): void
     {
         $mockCodeTypeServices = $this->createMock(CodeTypesService::class);
         $mockCodeTypeServices->expects($this->once())
@@ -228,7 +228,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test parsing minimal observation record with only required fields
      */
-    public function testParseOpenEMRRecordMinimal()
+    public function testParseOpenEMRRecordMinimal(): void
     {
         $record = $this->getMinimalObservationRecord();
         $observation = $this->fhirService->parseOpenEMRRecord($record);
@@ -247,7 +247,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test observation with dataAbsentReason instead of value (us-core-2 constraint)
      */
-    public function testParseOpenEMRRecordDataAbsentReasonForValue()
+    public function testParseOpenEMRRecordDataAbsentReasonForValue(): void
     {
         $record = $this->getDefaultObservationRecord();
         $record['ob_value'] = null;
@@ -270,7 +270,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test observation with string value type
      */
-    public function testParseOpenEMRRecordStringValue()
+    public function testParseOpenEMRRecordStringValue(): void
     {
         $record = $this->getDefaultObservationRecord();
         $record['ob_value'] = 'Never';
@@ -286,7 +286,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test observation with CodeableConcept value type
      */
-    public function testParseOpenEMRRecordCodeableConceptValue()
+    public function testParseOpenEMRRecordCodeableConceptValue(): void
     {
         $record = $this->getDefaultObservationRecord();
         $codeSystem = 'LOINC';
@@ -304,7 +304,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test observation with encounter reference
      */
-    public function testParseOpenEMRRecordWithEncounter()
+    public function testParseOpenEMRRecordWithEncounter(): void
     {
         $record = $this->getDefaultObservationRecord();
 
@@ -317,7 +317,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test observation with note/annotation
      */
-    public function testParseOpenEMRRecordWithNote()
+    public function testParseOpenEMRRecordWithNote(): void
     {
         $record = $this->getDefaultObservationRecord();
 
@@ -347,7 +347,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test observation for panel/group with hasMember but no value (us-core-2 constraint)
      */
-    public function testParseOpenEMRRecordPanelObservation()
+    public function testParseOpenEMRRecordPanelObservation(): void
     {
         $record = $this->getDefaultObservationRecord();
         unset($record['ob_value'], $record['ob_unit']);
@@ -365,7 +365,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test datetime constraint (us-core-1) - must be at least to day precision
      */
-    public function testParseOpenEMRRecordDateTimePrecision()
+    public function testParseOpenEMRRecordDateTimePrecision(): void
     {
         $record = $this->getDefaultObservationRecord();
         $record['date'] = '2024-01-15'; // Date only, should be valid
@@ -379,7 +379,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test US Core profile metadata
      */
-    public function testParseOpenEMRRecordUSCoreProfile()
+    public function testParseOpenEMRRecordUSCoreProfile(): void
     {
         $record = $this->getDefaultObservationRecord();
         $observation = $this->fhirService->parseOpenEMRRecord($record);
@@ -393,7 +393,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test different performer types
      */
-    public function testParseOpenEMRRecordDifferentPerformerTypes()
+    public function testParseOpenEMRRecordDifferentPerformerTypes(): void
     {
         $performerTypes = [
             'Patient' => 'patient-uuid-456',
@@ -416,7 +416,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
     /**
      * Test missing status defaults to 'unknown' (required field)
      */
-    public function testParseOpenEMRRecordMissingStatusSetToUnknown()
+    public function testParseOpenEMRRecordMissingStatusSetToUnknown(): void
     {
         // Test missing status
         $record = $this->getMinimalObservationRecord();
@@ -425,7 +425,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertEquals('unknown', $observation->getStatus()->getValue(), "Missing status should default to 'unknown'");
     }
 
-    public function testParseOpenEMRRecordInvalidStatus()
+    public function testParseOpenEMRRecordInvalidStatus(): void
     {
         $record = $this->getMinimalObservationRecord();
         $record['status'] = 'invalid-status';
@@ -435,7 +435,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertEquals('unknown', $observation->getStatus()->getValue());
     }
 
-    public function testGetPatientContextSearchField()
+    public function testGetPatientContextSearchField(): void
     {
         $fhirSearchDefinition = $this->fhirService->getPatientContextSearchField();
         $this->assertCount(1, $fhirSearchDefinition->getMappedFields());
@@ -444,7 +444,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertEquals(SearchFieldType::REFERENCE, $fhirSearchDefinition->getType());
     }
 
-    public function testSupportsCategory()
+    public function testSupportsCategory(): void
     {
         // TODO: @adunsulag do we want to hard-code these categories or pull them from a list service?
         $categories = FhirObservationObservationFormService::SUPPORTED_CATEGORIES;
@@ -453,12 +453,12 @@ class FhirObservationObservationFormServiceTest extends TestCase
         }
     }
 
-    public function testSupportsCode()
+    public function testSupportsCode(): void
     {
         $this->markTestIncomplete("Need to implement this test");
     }
 
-    public function testCreateProvenanceResource()
+    public function testCreateProvenanceResource(): void
     {
 
         $performer = new FHIRReference();

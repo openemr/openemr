@@ -315,7 +315,7 @@ trait FhirObservationTrait
             $observation->setEffectiveDateTime($effectiveDateTime);
 
             // Set period if end date is provided
-            if (DateFormatterUtils::isNotEmptyDateTimeString($dataRecord['date_end'])) {
+            if (DateFormatterUtils::isNotEmptyDateTimeString($dataRecord['date_end'] ?? null)) {
                 $period = new FHIRPeriod();
                 $period->setStart($effectiveDateTime);
 

@@ -29,7 +29,7 @@ trait VersionedProfileTrait
     }
     public function getProfileForVersions(string $profile, array $versions)
     {
-        return array_map(fn($version) => $profile . (!empty($version) ? "|" . $version : ""), $versions);
+        return array_map(fn($version): string => $profile . (!empty($version) ? "|" . $version : ""), $versions);
     }
     public function addProfilesToMeta(array $profiles, FHIRMeta $meta): FHIRMeta
     {

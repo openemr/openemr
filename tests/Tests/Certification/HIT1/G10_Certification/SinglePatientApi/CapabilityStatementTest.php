@@ -144,7 +144,7 @@ class CapabilityStatementTest extends TestCase
             return [];
         }
         $profilesToCheck = [];
-        foreach ($capabilityStatement['rest'] as $property => $value) {
+        foreach ($capabilityStatement['rest'] as $value) {
             foreach ($value['resource'] as $resource) {
                 if (empty($resource['supportedProfile'])) {
                     continue;
