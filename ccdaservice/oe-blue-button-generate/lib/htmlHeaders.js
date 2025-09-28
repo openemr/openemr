@@ -957,6 +957,65 @@ exports.healthConcernSectionHtmlHeader = {
     }]
 };
 
+exports.advanceDirectivesHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("advance_directives"),
+    content: [{
+        key: "table",
+        attributes: {
+            border: "1",
+            width: "100%"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: "Document Type"
+                }, {
+                    key: "th",
+                    text: "Status"
+                }, {
+                    key: "th",
+                    text: "Effective Date"
+                }, {
+                    key: "th",
+                    text: "Location"
+                }, {
+                    key: "th",
+                    text: "Author"
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("directive")
+                    },
+                    text: leafLevel.inputProperty("type")
+                }, {
+                    key: "td",
+                    text: leafLevel.inputProperty("status")
+                }, {
+                    key: "td",
+                    text: leafLevel.inputProperty("effective_date")
+                }, {
+                    key: "td",
+                    text: leafLevel.inputProperty("location")
+                }, {
+                    key: "td",
+                    text: leafLevel.inputProperty("author_name")
+                }]
+            }],
+            dataKey: "advance_directives.directives"
+        }]
+    }]
+};
+
 exports.assessmentSectionHtmlHeaderNA = "Not Available";
 exports.careTeamSectionHtmlHeaderNA = "Not Available";
 exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
@@ -974,3 +1033,4 @@ exports.socialHistorySectionHtmlHeaderNA = "Not Available";
 exports.vitalSignsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.healthConcernSectionHtmlHeaderNA = "Not Available";
+exports.advanceDirectivesHtmlHeaderNA = "Not Available";

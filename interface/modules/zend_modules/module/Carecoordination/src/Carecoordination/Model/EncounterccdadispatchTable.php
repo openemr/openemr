@@ -34,6 +34,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SDOH\HistorySdohService;
@@ -567,6 +568,84 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $occupation = $this->getPatientOccupation($pid);
         $sdoh = $this->getSdohData($pid, $encounter);
         return $patient_data . $sdoh . $occupation;
+    }
+
+    /**
+     * Get advance directive documents and observations for CCDA
+     *
+     * @param     $pid
+     * @param int $encounter
+     * @return string
+     */
+    public function getAdvanceDirectives($pid, $encounter = null): string
+    {
+        $advanceDirectiveService = new PatientAdvanceDirectiveService();
+        // Get all FHIR resources for a patient test for FHIR bundle generation
+        /*
+         $bundle = $advanceDirectiveService->getFhirBundle($pid);
+        $docRefs = $advanceDirectiveService->getFhirDocumentReferences($pid);
+        $results = $advanceDirectiveService->searchFhirResources([
+            'patient' => 'Patient/' . $pid,
+            'type' => '75320-2' // Living Will
+        ]);*/
+        //$validation = $advanceDirectiveService->validateFhirResource($resource, 'DocumentReference');
+
+        $data = $advanceDirectiveService->getPatientAdvanceDirectives($pid);
+
+        return $this->convertAdvanceDirectivesToXml($data, $pid);
+    }
+
+    /**
+     * Convert advance directive data to XML format for CCDA
+     * @param array $data
+     * @param int $pid
+     * @return string
+     */
+    private function convertAdvanceDirectivesToXml($data, $pid): string
+    {
+        $advance_directives = "<advance_directives>";
+
+        // Combine documents and observations into organizer format
+        foreach ($data['documents'] as $document) {
+            $provenanceXml = $this->getAuthorXmlForRecord($document['provenance'], $pid, null);
+
+            // Find corresponding observation
+            $observation = null;
+            foreach ($data['observations'] as $obs) {
+                if ($obs['document_id'] == $document['id']) {
+                    $observation = $obs;
+                    break;
+                }
+            }
+
+            $advance_directives .= "<directive>" . $provenanceXml . "
+            <id>" . xmlEscape($document['id']) . "</id>
+            <uuid>" . xmlEscape($document['uuid']) . "</uuid>
+            <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $document['id'])) . "</extension>
+            <sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $document['id'] . $document['type'])) . "</sha_extension>
+            <type>" . xmlEscape($document['type']) . "</type>
+            <status>" . xmlEscape($document['status']) . "</status>
+            <effective_date>" . xmlEscape($document['effective_date']) . "</effective_date>
+            <location>" . xmlEscape($document['location']) . "</location>
+            <document_reference>" . xmlEscape($document['uuid']) . "</document_reference>";
+
+            if ($observation) {
+                $advance_directives .= "
+            <observation>
+                <code>" . xmlEscape($observation['code']) . "</code>
+                <code_system>" . xmlEscape($observation['code_system']) . "</code_system>
+                <display>" . xmlEscape($observation['code_display']) . "</display>
+                <value_code>" . xmlEscape($observation['value_code']) . "</value_code>
+                <value_display>" . xmlEscape($observation['value_display']) . "</value_display>
+                <effective_date>" . xmlEscape($observation['effective_date']) . "</effective_date>
+            </observation>";
+            }
+
+            $advance_directives .= "</directive>";
+        }
+
+        $advance_directives .= "</advance_directives>";
+        return $advance_directives;
     }
 
     /**

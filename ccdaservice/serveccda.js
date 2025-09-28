@@ -2423,6 +2423,77 @@ function populateParticipant(participant) {
     }
 }
 
+function populateAdvanceDirective(pd) {
+    if (!pd) return {};
+
+    const author = pd.author || {};
+
+    return {
+        "identifiers": [{
+            "identifier": pd.sha_extension || "",
+            "extension": pd.extension || ""
+        }],
+        "date_time": {
+            "low": {
+                "date": fDate(pd.effective_date) || fDate(""),
+                "precision": "day"
+            }
+        },
+        "type": pd.type || "Advance Directive",
+        "status": pd.status || "active",
+        "location": pd.location || "Electronic Health Record",
+        "document_reference": pd.uuid || "",
+        // Embedded observation data for the organizer component
+        "observation": {
+            "code": pd.observation_code || "",
+            "code_system": pd.observation_code_system || "",
+            "display": pd.observation_display || "",
+            "value_code": pd.observation_value_code || "LA33-6",
+            "value_display": pd.observation_value_display || "Yes",
+            "effective_date": fDate(pd.effective_date) || fDate("")
+        },
+        "author": {
+            "code": {
+                "name": author.physician_type || '',
+                "code": author.physician_type_code || '',
+                "code_system": author.physician_type_system || "",
+                "code_system_name": author.physician_type_system_name || ""
+            },
+            "date_time": {
+                "point": {
+                    "date": fDate(author.time) || fDate(""),
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
+                    "extension": author.npi ? author.npi : 'NI'
+                }
+            ],
+            "name": [
+                {
+                    "last": author.lname || "",
+                    "first": author.fname || ""
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": author.facility_oid || "2.16.840.1.113883.4.6",
+                            "extension": author.facility_npi || "NI"
+                        }
+                    ],
+                    "name": [
+                        author.facility_name || ""
+                    ]
+                }
+            ]
+        }
+    };
+}
+
 function populateHeader(pd) {
     if (!pd) return {};
 
@@ -2615,14 +2686,10 @@ function populateHeader(pd) {
     } else if (count > 1) {
         // Multiple participants - handle both array and object structures
         if (Array.isArray(allParticipants)) {
-            participants = allParticipants
-            .filter(pcpt => pcpt && pcpt.type)
-            .map(pcpt => populateParticipant(pcpt));
+            participants = allParticipants.filter(pcpt => pcpt && pcpt.type).map(pcpt => populateParticipant(pcpt));
         } else {
             // Handle object with numeric keys (xml2js structure)
-            participants = Object.values(allParticipants)
-            .filter(pcpt => pcpt && pcpt.type)
-            .map(pcpt => populateParticipant(pcpt));
+            participants = Object.values(allParticipants).filter(pcpt => pcpt && pcpt.type).map(pcpt => populateParticipant(pcpt));
         }
     }
 
@@ -2882,6 +2949,69 @@ function generateCcda(pd) {
     if (count !== 0) {
         data.procedures = Object.assign(many.procedures);
     }
+
+// Advance Directives - Single organizer with multiple component observations
+    many = [];
+    theone = {};
+    count = 0;
+
+    try {
+        count = countEntities(pd.advance_directives?.directive);
+    } catch (e) {
+        count = 0;
+    }
+    if (count !== 0) {
+        // Create a single organizer object containing all directives as components
+        let organizerData = {
+            "identifiers": [{
+                "identifier": "advance-directives-organizer",
+                "extension": "advance-directives"
+            }],
+            "date_time": {
+                "low": {
+                    "date": fDate("") || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "author": populateAuthorFromAuthorContainer(pd.advance_directives?.directive?.[0] || pd.advance_directives?.directive || {}),
+            "directives": [] // This will hold the component observations
+        };
+
+        // Convert individual directives to component observations
+        if (count > 1) {
+            for (let i in pd.advance_directives.directive) {
+                let directive = pd.advance_directives.directive[i];
+                organizerData.directives.push({
+                    "identifiers": directive.identifiers || [],
+                    "document_reference": directive.document_reference || "",
+                    "location": directive.location || "",
+                    "observation_code": directive.observation?.code || "",
+                    "observation_code_system": directive.observation?.code_system || "",
+                    "observation_display": directive.observation?.display || "",
+                    "observation_value_code": directive.observation?.value_code || "LA33-6",
+                    "observation_value_display": directive.observation?.value_display || "Yes",
+                    "effective_date": directive.observation?.effective_date || directive?.effective_date || ""
+                });
+            }
+        } else {
+            let directive = pd.advance_directives.directive;
+            organizerData.directives.push({
+                "identifiers": directive.identifiers || [],
+                "document_reference": directive.document_reference || "",
+                "location": directive.location || "",
+                "observation_code": directive.observation?.code || "",
+                "observation_code_system": directive.observation?.code_system || "",
+                "observation_display": directive.observation?.display || "",
+                "observation_value_code": directive.observation?.value_code || "LA33-6",
+                "observation_value_display": directive.observation?.value_display || "Yes",
+                "effective_date": directive.observation?.effective_date || directive?.effective_date || ""
+            });
+        }
+
+        // Pass the single organizer object, not an array
+        data.advance_directives = organizerData;
+    }
+
 // Medical Devices
     many = [];
     theone = {};
@@ -3226,7 +3356,78 @@ function generateCcda(pd) {
         const payers = populatePayer(pd.payers);
         data.payers = Array.isArray(payers) && payers.length > 0 ? payers : [];
     }
-// ------------------------------------------ End Sections ---------------------------------------- //
+
+// Advance Directives - Single organizer with multiple component observations
+    many = [];
+    theone = {};
+    count = 0;
+
+    try {
+        count = countEntities(pd.advance_directives?.directive);
+    } catch (e) {
+        count = 0;
+    }
+
+    if (count !== 0) {
+        // Create a single organizer object containing all directives as components
+        let organizerData = {
+            "identifiers": [{
+                "identifier": "advance-directives-organizer",
+                "extension": "advance-directives"
+            }],
+            "date_time": {
+                "low": {
+                    "date": fDate("") || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "author": populateAuthorFromAuthorContainer(pd.advance_directives?.directive?.[0] || pd.advance_directives?.directive || {}),
+            "directives": [] // This will hold the component observations
+        };
+
+        // Convert individual directives to component observations
+        if (count > 1) {
+            for (let i in pd.advance_directives.directive) {
+                let directive = pd.advance_directives.directive[i];
+                organizerData.directives.push({
+                    "identifiers": [{
+                        "identifier": directive.sha_extension || "",
+                        "extension": directive.extension || ""
+                    }],
+                    "document_reference": directive.document_reference || directive.uuid || "",
+                    "location": directive.location || "",
+                    "observation_code": directive.observation?.code || "",
+                    "observation_code_system": directive.observation?.code_system || "",
+                    "observation_display": directive.observation?.display || "",
+                    "observation_value_code": directive.observation?.value_code || "LA33-6",
+                    "observation_value_display": directive.observation?.value_display || "Yes",
+                    "effective_date": fDate(directive.observation?.effective_date || directive?.effective_date) || fDate(""),
+                    "type": directive.type || "",
+                    "status": directive.status || "active",
+                    "author_name": (directive.author?.fname || "") + " " + (directive.author?.lname || "")
+                });
+            }
+        } else {
+            let directive = pd.advance_directives.directive;
+            organizerData.directives.push({
+                "identifiers": [{
+                    "identifier": directive.sha_extension || "",
+                    "extension": directive.extension || ""
+                }],
+                "document_reference": directive.document_reference || directive.uuid || "",
+                "location": directive.location || "",
+                "observation_code": directive.observation?.code || "",
+                "observation_code_system": directive.observation?.code_system || "",
+                "observation_display": directive.observation?.display || "",
+                "observation_value_code": directive.observation?.value_code || "LA33-6",
+                "observation_value_display": directive.observation?.value_display || "Yes",
+                "effective_date": fDate(directive.observation?.effective_date || directive?.effective_date) || fDate("")
+            });
+        }
+
+        // Pass the single organizer object, not an array
+        data.advance_directives = organizerData;
+    }
 
     // sections data objects
     doc.data = Object.assign(data);

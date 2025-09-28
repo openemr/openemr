@@ -1498,3 +1498,34 @@ exports.pathologyReportNoteSection = function (htmlHeader, noteData) {
         }]
     }
 };
+
+exports.advanceDirectivesSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            attributes: condition.isNullFlavorSection('advance_directives'),
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.21.1", "2015-08-01"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.21.1"),
+                fieldLevel.templateCode("AdvanceDirectivesSection"),
+                fieldLevel.templateTitle("AdvanceDirectivesSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("advance_directives")
+                },
+                htmlHeader,
+                {
+                    key: "entry",
+                    attributes: {
+                        "typeCode": "DRIV"
+                    },
+                    content: [
+                        [entryLevel.advanceDirectiveOrganizer, required]
+                    ],
+                    dataKey: "advance_directives"
+                }
+            ]
+        }]
+    };
+};
