@@ -52,11 +52,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
      */
     private $innerServices;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct()
     {
         parent::__construct();
@@ -65,7 +60,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationVitalsService());
         $this->addMappedService(new FhirObservationLaboratoryService());
         $this->addMappedService(new FhirObservationObservationFormService());
-        $this->logger = new SystemLogger();
     }
 
     /**
@@ -122,16 +116,10 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 );
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
             } else if (isset($fhirSearchParameters['code'])) {
-                $service = $this->getServiceForCode(
+                $services = $this->getServiceListForCode(
                     new TokenSearchField('code', $fhirSearchParameters['code']),
-                    FhirObservationVitalsService::VITALS_PANEL_LOINC_CODE
                 );
-                // if we have a service let's search on that
-                if (isset($service)) {
-                    $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-                } else {
-                    $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
-                }
+                $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
             } else {
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
@@ -150,7 +138,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
      * @param $fhirResourceId The uuid search field with the 1..* values to search on
      * @param $search Hashmap of search operators
      */
-    private function populateSurrogateSearchFieldsForUUID($fhirResourceId, &$search)
+    private function populateSurrogateSearchFieldsForUUID($fhirResourceId, &$search): ?ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
@@ -159,19 +147,21 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $registryRecord = UuidRegistry::getRegistryRecordForUuid($fhirResourceId);
 
         if (empty($registryRecord)) {
-            $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
+            // not found need to return 404 which is an empty response
+            $this->getSystemLogger()->debug("FhirObservationService->populateSurrogateSearchFieldsForUUID() - uuid not found in registry", ['_id' => $fhirResourceId]);
             return $processingResult;
         }
 
         // if its not mapped we will leave the _id alone and let the subsequent sub service pull the right resource
         if ($registryRecord['mapped'] != '1') {
-            return;
+            return null;
         }
 
         // we are going to get our
         $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
 
         if (empty($mapping)) {
+            $this->getSystemLogger()->debug("FhirObservationService->populateSurrogateSearchFieldsForUUID() - uuid mapping not found in registry", ['_id' => $fhirResourceId]);
             $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
             return $processingResult;
         }
@@ -180,7 +170,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         if ($mapping['resource'] !== 'Observation') {
             // we have a problem here
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
-            $this->logger->error("Requested observation resource for uuid that exists for a different resource", ['_id' => $fhirResourceId, 'mappingResource' => $mapping['resource']]);
+            $this->getSystemLogger()->error("Requested observation resource for uuid that exists for a different resource", ['_id' => $fhirResourceId, 'mappingResource' => $mapping['resource']]);
             return $processingResult;
         }
 
@@ -189,7 +179,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         parse_str($mapping['resource_path'], $query_vars);
         if (empty($query_vars['category'])) {
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
-            $this->logger->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);
+            $this->getSystemLogger()->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);
             return $processingResult;
         }
 
@@ -199,6 +189,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
         // we only want a single search value for now... not supporting combined uuids
         $search['_id'] = UuidRegistry::uuidToString($mapping['target_uuid']);
+        return null;
     }
 
     public function getProfileURIs(): array
@@ -218,7 +209,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             ,'us-core-observation-occupation'
             ,'us-core-observation-pregnancyintent'
             ,'us-core-observation-pregnancystatus'
-            ,'us-core-observation-screening-assessment'
             ,'us-core-observation-sexual-orientation'
             ,'us-core-treatment-intervention-preference'
         ];

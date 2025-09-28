@@ -20,6 +20,10 @@ use DateTime;
 
 class DateFormatterUtils
 {
+    public static function isNotEmptyDateTimeString(?string $dateString)
+    {
+        return !empty($dateString) && $dateString !== '0000-00-00 00:00:00' && $dateString !== '1970-01-01 00:00:00';
+    }
     public static function DateToYYYYMMDD($DateValue)
     {
         //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.

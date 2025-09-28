@@ -19,7 +19,7 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\Search\TokenSearchField;
 use RuntimeException;
 use OpenEMR\Common\Database\QueryUtils;
@@ -33,6 +33,8 @@ use Exception;
 
 class ObservationService extends BaseService
 {
+    use SystemLoggerAwareTrait;
+
     const TABLE_NAME = 'form_observation';
     const FORM_NAME = "Observation Form";
     const FORM_DIR = "observation";
@@ -83,6 +85,18 @@ class ObservationService extends BaseService
         $this->listService = $listService;
     }
 
+    public function getCodeTypesService(): CodeTypesService
+    {
+        if (!isset($this->codeTypesService)) {
+            $this->codeTypesService = new CodeTypesService();
+        }
+        return $this->codeTypesService;
+    }
+    public function setCodeTypesService(CodeTypesService $codeTypesService): void
+    {
+        $this->codeTypesService = $codeTypesService;
+    }
+
     public function getUuidRegistry(): UuidRegistry
     {
         if (!isset($this->uuidRegistry)) {
@@ -100,7 +114,7 @@ class ObservationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'questionnaire_response_uuid', 'parent_observation_uuid'];
+        return ['uuid', 'questionnaire_response_uuid', 'parent_observation_uuid', 'euuid', 'puuid', 'performer_uuid'];
     }
 
     public function getObservationTypeDisplayName($obType): string
@@ -295,6 +309,10 @@ class ObservationService extends BaseService
                 $topLevelIds[] = (string)$result['id'];
             }
         }
+        // this search has no top level observations so just return what we found
+        if (empty($topLevelIds)) {
+            return $foundResult;
+        }
         // need to populate sub_observations for each top level observation
         $parentSearch = new TokenSearchField('parent_observation_id', $topLevelIds);
         $childRecordResult = $this->search([$parentSearch]);
@@ -331,6 +349,9 @@ class ObservationService extends BaseService
                 ,fo.observation, fo.ob_value, fo.ob_unit, fo.description, fo.code_type, fo.table_code, fo.ob_code, fo.ob_type, fo.ob_status
                 ,fo.result_status, fo.ob_reason_status, fo.ob_reason_code, fo.ob_documentationof_table, fo.ob_documentationof_table_id
                 ,fo.date_end, fo.parent_observation_id, fo.category, fo.questionnaire_response_id
+                ,fo.ob_value_code_description
+                ,performer.performer_uuid
+                ,performer.performer_type
                 ,patient.puuid
                 ,encounter.euuid
                 ,observation_parent.parent_observation_uuid
@@ -338,9 +359,18 @@ class ObservationService extends BaseService
                 ,r.questionnaire_name
                 ,r.questionnaire_status
                 ,r.questionnaire_date
+                ,r.screening_category_code
+                ,r.screening_category_display
                 ,lo_type.ob_type_display
                 ,lo_status.ob_status_display
                 FROM form_observation fo
+                LEFT JOIN (
+                    SELECT
+                        users.uuid AS performer_uuid
+                        ,users.username AS performer_username
+                        ,'Practitioner' AS performer_type
+                    FROM users
+                ) performer ON performer.performer_username = fo.user
                 LEFT JOIN (
                     SELECT
                         title AS ob_type_display
@@ -375,17 +405,22 @@ class ObservationService extends BaseService
                 ) encounter ON encounter.eid = fo.encounter
                 LEFT JOIN (
                     SELECT
-                        id AS response_id
-                        ,questionnaire_name
-                        ,status AS questionnaire_status
-                        ,create_time AS questionnaire_date
-                        ,uuid AS questionnaire_response_uuid
-                    FROM questionnaire_response
+                        resp.id AS response_id
+                        ,resp.questionnaire_name
+                        ,resp.status AS questionnaire_status
+                        ,resp.create_time AS questionnaire_date
+                        ,resp.uuid AS questionnaire_response_uuid
+                        ,lo.option_id AS screening_category_code
+                        ,lo.title AS screening_category_display
+                    FROM questionnaire_response resp
+                    LEFT JOIN questionnaire_repository quest ON (quest.id = resp.questionnaire_foreign_id)
+                    LEFT JOIN list_options lo ON (lo.option_id = quest.category AND lo.list_id = 'Observation_Types')
                 ) r ON fo.questionnaire_response_id = r.response_id ";
         $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         $sql .= $whereFragment->getFragment();
         // TODO: @adunsulag need to implement pagination and sorting
         $sql .= " ORDER BY fo.date DESC, fo.parent_observation_id, fo.id";
+        $this->getSystemLogger()->debug("sql log", ['sql' => $sql, 'bind' => $whereFragment->getBoundValues()]);
         $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
         $result = new ProcessingResult();
         // make one final pass to create result records
@@ -453,6 +488,8 @@ class ObservationService extends BaseService
             `description` = ?,
             `table_code`  = ?,
             `ob_type`     = ?,
+            `ob_code`     = ?,
+            `ob_status`   = ?,
             `ob_value`    = ?,
             `ob_unit`     = ?,
             `date`        = ?,
@@ -483,6 +520,12 @@ class ObservationService extends BaseService
                 $userauthorized
             );
         }
+        // code needs to match code_type
+        $codeService = $this->getCodeTypesService();
+        $code = $codeService->parseCode($observationData['code']);
+        $observationData['ob_code'] = $code['code'] ?? '';
+        // observations default to LOINC if not specified
+        $observationData['code_type'] = $code['code_type'] ?? 'LOINC';
         $sqlBindArray = array(
             $observationData['form_id'],
             $observationData['uuid'],
@@ -497,6 +540,8 @@ class ObservationService extends BaseService
             $observationData['description'] ?? '',
             $observationData['table_code'] ?? '',
             $observationData['ob_type'] ?? '',
+            $observationData['ob_code'] ?? '',
+            $observationData['ob_status'] ?? '',
             $observationData['ob_value'] ?? '',
             $observationData['ob_unit'] ?? '',
             $observationData['date'] ?? date('Y-m-d H:i:s'),

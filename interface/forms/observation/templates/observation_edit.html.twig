@@ -19,7 +19,7 @@
                 <input type="hidden" name="form_id" value="{{ formId|attr }}" />
 
                 {# AI Generated: Hidden field for QuestionnaireResponse FHIR ID #}
-                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="" />
+                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="{{ observation.questionnaire_response_id }}" />
 
                 {# Return to List Button #}
                 {% if isEdit %}
@@ -88,7 +88,7 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">{{ "Status"|xlt }}: </label>
-                                        {{ selectList('status', 'observation-status', observation.ob_status, '') }}
+                                        {{ selectList('ob_status', 'observation-status', observation.ob_status, '') }}
                                     </div>
                                 </div>
                                 <div class="col-md-3">

@@ -35,6 +35,7 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 trait FhirObservationTrait
 {
@@ -79,7 +80,6 @@ trait FhirObservationTrait
         // Create new FHIR Observation
         $observation = new FHIRObservation();
 
-        $this->setObservationMeta($observation, $dataRecord);
         // Set ID (required)
         if (!empty($dataRecord['uuid'])) {
             $id = new FHIRId();
@@ -89,12 +89,9 @@ trait FhirObservationTrait
 
         // Set Status (required, mustSupport)
         $status = new FHIRObservationStatus();
-        $statusValue = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
+        $statusValue = $this->getValidStatus($dataRecord['ob_status'] ?? 'unknown');
         $status->setValue($statusValue);
         $observation->setStatus($status);
-
-        // Set Category (required, mustSupport, min 1)
-        $this->setObservationCategory($observation, $dataRecord);
 
         // Set Code (required, mustSupport)
         $this->setObservationCode($observation, $dataRecord);
@@ -123,6 +120,12 @@ trait FhirObservationTrait
         // Validate us-core-2 constraint
         $this->validateUSCore2Constraint($observation, $dataRecord);
 
+        // Set Category (required, mustSupport, min 1), including optional screening-assessment slice
+        $this->setObservationCategory($observation, $dataRecord);
+
+        // we do meta last as it needs to know about other fields
+        $this->setObservationMeta($observation, $dataRecord);
+
         if ($encode) {
             return json_encode($observation);
         }
@@ -136,7 +139,7 @@ trait FhirObservationTrait
         $meta = new FHIRMeta();
 
         // Set profile (required, mustSupport)
-        $this->setObservationProfile($meta, $dataRecord);
+        $this->setObservationProfile($meta, $observation, $dataRecord);
 
         // Set versionId
         $versionId = new FHIRId();
@@ -153,7 +156,27 @@ trait FhirObservationTrait
         $observation->setMeta($meta);
     }
 
-    protected function setObservationProfile(FHIRMeta $meta, array $dataRecord): void
+
+    /**
+     * Set observation performer (mustSupport)
+     */
+    protected function setObservationPerformer(FHIRObservation $observation, array $dataRecord): void
+    {
+        $performerUuid = $dataRecord['performer_uuid'] ?? $dataRecord['user_uuid'] ?? null;
+        $performerType = $dataRecord['performer_type'] ?? 'Practitioner';
+        $performerDisplay = $dataRecord['performer_display'] ?? null;
+
+        // we should ALWAYS have a performer, if not we add a data missing extension
+        if (!empty($performerUuid)) {
+            $performer = UtilsService::createRelativeReference($performerType, $performerUuid, $performerDisplay);
+        } else {
+            $performer = new FHIRReference();
+            $performer->addExtension(UtilsService::createDataMissingExtension());
+        }
+        $observation->addPerformer($performer);
+    }
+
+    protected function setObservationProfile(FHIRMeta $meta, FHIRObservation $observation, array $dataRecord): void
     {
         // Default to US Core Observation profile if not specified
         $profileUrl = $dataRecord['profile'] ?? self::USCGI_PROFILE_URI;
@@ -197,7 +220,8 @@ trait FhirObservationTrait
                 case 'Quantity':
                 default:
                     $valueQuantity = new FHIRQuantity();
-                    $valueQuantity->setValue($value);
+                    // must be an integer or decimal
+                    $valueQuantity->setValue(floatval($value));
 
                     if (!empty($valueUnit)) {
                         $valueQuantity->setUnit($valueUnit);
@@ -239,17 +263,6 @@ trait FhirObservationTrait
         $surveyCoding->setDisplay($dataRecord['category_display'] ?? 'Survey');
         $surveyCategory->addCoding($surveyCoding);
         $observation->addCategory($surveyCategory);
-
-        // Optional screening-assessment category slice
-        if (!empty($dataRecord['screening_category_code'])) {
-            $screeningCategory = new FHIRCodeableConcept();
-            $screeningCoding = new FHIRCoding();
-            $screeningCoding->setSystem(new FHIRUri($dataRecord['screening_category_system']));
-            $screeningCoding->setCode(new FHIRCode($dataRecord['screening_category_code']));
-            $screeningCoding->setDisplay($dataRecord['screening_category_display'] ?? '');
-            $screeningCategory->addCoding($screeningCoding);
-            $observation->addCategory($screeningCategory);
-        }
     }
 
     /**
@@ -302,7 +315,7 @@ trait FhirObservationTrait
             $observation->setEffectiveDateTime($effectiveDateTime);
 
             // Set period if end date is provided
-            if (!empty($dataRecord['date_end'])) {
+            if (DateFormatterUtils::isNotEmptyDateTimeString($dataRecord['date_end'])) {
                 $period = new FHIRPeriod();
                 $period->setStart($effectiveDateTime);
 
@@ -315,23 +328,6 @@ trait FhirObservationTrait
             }
         }
     }
-
-    /**
-     * Set observation performer (mustSupport)
-     */
-    protected function setObservationPerformer(FHIRObservation $observation, array $dataRecord): void
-    {
-        $performerUuid = $dataRecord['performer_uuid'] ?? $dataRecord['user_uuid'] ?? null;
-        $performerType = $dataRecord['performer_type'] ?? 'Practitioner';
-
-        if (!empty($performerUuid)) {
-            $performer = new FHIRReference();
-            $performer->setReference(new FHIRString($performerType . '/' . $performerUuid));
-            $observation->addPerformer($performer);
-        }
-    }
-
-
 
     /**
      * Set observation value or dataAbsentReason (mustSupport, constraint us-core-2)
@@ -367,15 +363,18 @@ trait FhirObservationTrait
     protected function setObservationDerivedFrom(FHIRObservation $observation, array $dataRecord): void
     {
         // Order: QuestionnaireResponse first, then Observation
+        // TODO: @adunsulag our questionnaires appear to be failing on validation as the validator throws a 500 exception
+        // local validation appears to show some minor errors but perhaps its failing to fetch the Questionnaire since
+        // the Questionnaire is access controlled... not sure if we need to open that up or not.
         if (!empty($dataRecord['questionnaire_response_uuid'])) {
             $qrRef = new FHIRReference();
             $qrRef->setReference(new FHIRString('QuestionnaireResponse/' . $dataRecord['questionnaire_response_uuid']));
             $observation->addDerivedFrom($qrRef);
         }
 
-        if (!empty($dataRecord['observation_parent_uuid'])) {
+        if (!empty($dataRecord['parent_observation_uuid'])) {
             $parentRef = new FHIRReference();
-            $parentRef->setReference(new FHIRString('Observation/' . $dataRecord['observation_parent_uuid']));
+            $parentRef->setReference(new FHIRString('Observation/' . $dataRecord['parent_observation_uuid']));
             $observation->addDerivedFrom($parentRef);
         }
     }

@@ -1030,3 +1030,12 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
 #EndIf
+
+#IfNotColumn questionnaire_repository category
+ALTER TABLE `questionnaire_repository` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
+#EndIf
+
+-- observation values can be codes as well so we need to populate a description field
+#IfNotColumn form_observation ob_value_code_description
+ALTER TABLE `form_observation` ADD COLUMN `ob_value_code_description` VARCHAR(255) DEFAULT NULL;
+#EndIf

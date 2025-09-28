@@ -11,8 +11,15 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
@@ -31,15 +38,21 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
     use FhirObservationTrait;
     use VersionedProfileTrait;
 
+    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI = 'http://terminology.hl7.org/CodeSystem/observation-category';
+    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
+    const US_CORE_CODESYSTEM_CATEGORY_URI = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
+    const US_CORE_CODESYSTEM_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
     private ObservationService $observationService;
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation';
+    const USCGI_SCREENING_ASSESSMENT_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
     const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'therapy'];
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
         $this->observationService = new ObservationService();
+        $this->observationService->setSystemLogger($this->getSystemLogger());
     }
 
     public function supportsCategory($category): bool
@@ -63,9 +76,9 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['result_code']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['ob_code']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
                 new ServiceField('uuid', ServiceField::TYPE_UUID)
                 ]),
@@ -76,6 +89,71 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
+    }
+
+    protected function setObservationProfile(FHIRMeta $meta, FHIRObservation $observation, array $dataRecord): void
+    {
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($profile);
+        }
+
+        if ($observation->getCategory() !== null) {
+            foreach ($observation->getCategory() as $category) {
+                if ($category->getCoding() !== null) {
+                    $coding = $category->getCoding()[0]; // there's only one coding per category in our implementation
+                    if ($coding->getCode() !== null && in_array($coding->getCode()->getValue(), self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
+                        // this observation has a category in the US Core observation category code system, so we add the screening/assessment profile
+                        foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
+                            $meta->addProfile($profile);
+                        }
+                        break;
+                    }
+                    if ($coding->getCode() !== null && in_array($coding->getCode()->getValue(), self::US_CORE_CODESYSTEM_CATEGORY)) {
+                        // this observation has a category in the US Core category code system, so we add the screening/assessment profile
+                        foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
+                            $meta->addProfile($profile);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Set observation category with required survey slice and optional screening-assessment slice
+     */
+    protected function setObservationCategory(FHIRObservation $observation, array $dataRecord): void
+    {
+        // Required survey category slice (mustSupport, min 1..1)
+        $surveyCategory = new FHIRCodeableConcept();
+        $surveyCoding = new FHIRCoding();
+        $surveyCoding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION));
+        $surveyCoding->setCode(new FhirCode($dataRecord['ob_type'] ?? 'survey'));
+        $surveyCoding->setDisplay($dataRecord['ob_type'] ?? 'Survey');
+        $surveyCategory->addCoding($surveyCoding);
+        $observation->addCategory($surveyCategory);
+
+        // Optional screening-assessment category slice if we have a questionnaire category (mustSupport, 0..1)
+        if (!empty($dataRecord['screening_category_code'])) {
+            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
+                $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
+            }
+            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_CATEGORY)) {
+                $systemUri = self::US_CORE_CODESYSTEM_CATEGORY_URI;
+            }
+            if (empty($systemUri)) {
+                $this->getSystemLogger()->warning("Observation screening category code {$dataRecord['screening_category_code']} not in supported code systems");
+                return;
+            }
+            $screeningCategory = new FHIRCodeableConcept();
+            $screeningCoding = new FHIRCoding();
+            $screeningCoding->setSystem(new FHIRUri($systemUri));
+            $screeningCoding->setCode(new FHIRCode($dataRecord['screening_category_code']));
+            $screeningCoding->setDisplay($dataRecord['screening_category_display'] ?? '');
+            $screeningCategory->addCoding($screeningCoding);
+            $observation->addCategory($screeningCategory);
+        }
     }
 
     /**
@@ -113,12 +191,17 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    public function getSupportedVersions() {
+    public function getSupportedVersions()
+    {
         return self::PROFILE_VERSIONS_V2;
     }
 
     public function getProfileURIs(): array
     {
-        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
+        $profileSets = [
+            $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions())
+            , $this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions())
+        ];
+        return array_merge(...$profileSets);
     }
 }

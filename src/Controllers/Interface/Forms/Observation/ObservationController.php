@@ -37,6 +37,7 @@ use InvalidArgumentException;
 class ObservationController
 {
     const DATE_FORMAT_SAVE = 'Y-m-d H:i:s';
+    const DEFAULT_STATUS = 'preliminary';
     private ObservationService $observationService;
     private FormService $formService;
     private Environment $twig;
@@ -150,7 +151,7 @@ class ObservationController
                     'QUESTIONNAIRE_ITEM_SUMMARY_DETAILS_HIDE' => xl('Hide Details'),
                     'CLOSE_TAB_ERROR' => xl('Error closing tab, please close manually.'),
                 ],
-                'defaultStatusType' => 'preliminary'
+                'defaultStatusType' => self::DEFAULT_STATUS
             ];
 
             // Render the Twig template
@@ -442,6 +443,7 @@ class ObservationController
                         'authorized' => $mainObservation['authorized'],
                         'parent_observation_id' => $mainObservation['id'],
                         'ob_value' => $value ?? '',
+                        'ob_status' => $postData['sub_ob_status'][$index] ?? $mainObservation['ob_status'] ?? self::DEFAULT_STATUS,
                         'ob_unit' => $postData['sub_ob_unit'][$index] ?? '',
                         'description' => $postData['sub_description'][$index] ?? '',
                         'code' => $postData['sub_ob_code'][$index] ?? '',
