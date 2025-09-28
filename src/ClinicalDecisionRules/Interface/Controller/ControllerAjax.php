@@ -132,7 +132,7 @@ class ControllerAjax extends BaseController
         $dataToggle = json_decode(file_get_contents('php://input'), true);
         $plan_id_toggle = $dataToggle['selected_plan'];
         $active_inactive = $dataToggle['plan_status'];
-        $nm_flag = ($active_inactive == 'deactivate') ? 0 : 1;
+        $nm_flag = ($active_inactive !== 'deactivate');
 
         try {
             RulesPlanMappingEventHandlers::togglePlanStatus($plan_id_toggle, $nm_flag);

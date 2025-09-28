@@ -169,19 +169,13 @@ class RulesPlanMappingEventHandlers
         $res = sqlStatement($sql_st, array($plan_id));
     }
 
-    public static function togglePlanStatus($plan_id, $nm_flag)
+    public static function togglePlanStatus($plan_id, bool $nm_flag): void
     {
         $sql_st = "UPDATE clinical_plans SET " .
             "normal_flag = ? " .
             "WHERE id = ? AND pid = 0 ";
-        sqlStatement($sql_st, array($nm_flag, $plan_id));
-        if ($nm_flag = 0) {
-            $nm_chk = 1;
-        }
-
-        if ($nm_flag = 1) {
-            $nm_chk = 0;
-        }
+        sqlStatement($sql_st, array((int) $nm_flag, $plan_id));
+        $nm_chk = (int) ! $nm_flag;
 
         $sql_check = "SELECT `id` " .
             "FROM `clinical_plans` " .
