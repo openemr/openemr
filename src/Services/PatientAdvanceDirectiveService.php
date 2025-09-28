@@ -254,8 +254,8 @@ class PatientAdvanceDirectiveService
      */
     private function determineAdvanceDirectiveType($name, $category): string
     {
-        $name_lower = strtolower($name ?? '');
-        $category_lower = strtolower($category ?? '');
+        $name_lower = strtolower($name);
+        $category_lower = strtolower($category);
 
         // Check document name first
         if (strpos($name_lower, 'living') !== false && strpos($name_lower, 'will') !== false) {
