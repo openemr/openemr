@@ -105,6 +105,7 @@ exports.ccd2 = function (html_renderer) {
                         [sectionLevel2.problemsSectionEntriesRequired(html_renderer.problemsSectionEntriesRequiredHtmlHeader, html_renderer.problemsSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.proceduresSectionEntriesRequired(html_renderer.proceduresSectionEntriesRequiredHtmlHeader, html_renderer.proceduresSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.resultsSectionEntriesRequired(html_renderer.resultsSectionEntriesRequiredHtmlHeader, html_renderer.resultsSectionEntriesRequiredHtmlHeaderNA), required],
+                        sectionLevel2.advanceDirectivesSection(html_renderer.advanceDirectivesHtmlHeader, html_renderer.advanceDirectivesHtmlHeaderNA),
                         sectionLevel2.functionalStatusSection(html_renderer.functionalStatusSectionHtmlHeader, html_renderer.functionalStatusSectionHtmlHeaderNA),
                         sectionLevel2.historyNoteSection('', ''),
                         sectionLevel2.progressNoteSection('', ''),
@@ -127,7 +128,7 @@ exports.ccd2 = function (html_renderer) {
                         sectionLevel2.mentalStatusSection('', ''),
                         sectionLevel2.socialHistorySection(html_renderer.socialHistorySectionHtmlHeader, html_renderer.socialHistorySectionHtmlHeaderNA),
                         sectionLevel2.vitalSignsSectionEntriesOptional(html_renderer.vitalSignsSectionEntriesOptionalHtmlHeader, html_renderer.vitalSignsSectionEntriesOptionalHtmlHeaderNA),
-                        sectionLevel2.medicalEquipmentSectionEntriesOptional(html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeader, html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA)
+                        sectionLevel2.medicalEquipmentSectionEntriesOptional(html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeader, html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA),
                     ]
                 },
                 dataKey: 'data'

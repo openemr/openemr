@@ -449,8 +449,8 @@ $self = basename($_SERVER['PHP_SELF']);
             // Warn on save if total score < 6
             $('form').on('submit', function () {
                 let total = parseInt($('#total_score').val(), 10) || 0;
-                if (total <= 3) {
-                    alert(<?php echo xlj("Total SDOH score is less than 6. Please review before saving."); ?>);
+                if (total < 1) {
+                    alert(<?php echo xlj("Total SDOH score should have at least one positive. Please review before saving."); ?>);
                     return false; // Prevent form submission
                 }
             });
