@@ -366,11 +366,11 @@ trait FhirObservationTrait
         // TODO: @adunsulag our questionnaires appear to be failing on validation as the validator throws a 500 exception
         // local validation appears to show some minor errors but perhaps its failing to fetch the Questionnaire since
         // the Questionnaire is access controlled... not sure if we need to open that up or not.
-        if (!empty($dataRecord['questionnaire_response_uuid'])) {
-            $qrRef = new FHIRReference();
-            $qrRef->setReference(new FHIRString('QuestionnaireResponse/' . $dataRecord['questionnaire_response_uuid']));
-            $observation->addDerivedFrom($qrRef);
-        }
+//        if (!empty($dataRecord['questionnaire_response_uuid'])) {
+//            $qrRef = new FHIRReference();
+//            $qrRef->setReference(new FHIRString('QuestionnaireResponse/' . $dataRecord['questionnaire_response_uuid']));
+//            $observation->addDerivedFrom($qrRef);
+//        }
 
         if (!empty($dataRecord['parent_observation_uuid'])) {
             $parentRef = new FHIRReference();
