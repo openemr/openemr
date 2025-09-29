@@ -1,50 +1,56 @@
-# OpenEMR Hybrid Development Environment
-# Services only - Uses local PHP for OpenEMR application
+# OpenEMR Complete Hybrid Development Environment
+# Enhanced Docker services with networking for seamless local PHP integration
 # Author: Dang Tran <tqvdang@msn.com>
 
 networks:
-  openemr-network:
+  openemr_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
 
 services:
-  # MariaDB 10.11 with Vietnamese UTF-8mb4 support
+  # MariaDB with Vietnamese support
   mariadb:
     image: mariadb:10.11
-    container_name: openemr-mariadb
+    container_name: openemr_mariadb_dev
     restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-openemr_dev_root}
+      MYSQL_DATABASE: ${DB_NAME:-openemr}
+      MYSQL_USER: ${DB_USER:-openemr}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-openemr}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_vietnamese_ci
+      TZ: Asia/Ho_Chi_Minh
     command: [
       'mariadbd',
       '--character-set-server=utf8mb4',
       '--collation-server=utf8mb4_vietnamese_ci',
-      '--innodb-buffer-pool-size=256M',
-      '--innodb-log-file-size=64M',
-      '--max-connections=200',
-      '--query-cache-size=32M',
+      '--innodb-buffer-pool-size=512M',
+      '--innodb-log-file-size=128M',
+      '--max-connections=300',
+      '--query-cache-size=64M',
       '--query-cache-type=1',
       '--slow-query-log=1',
       '--slow-query-log-file=/var/log/mysql/slow.log',
       '--long-query-time=2',
       '--log-error=/var/log/mysql/error.log',
       '--general-log=1',
-      '--general-log-file=/var/log/mysql/general.log'
+      '--general-log-file=/var/log/mysql/general.log',
+      '--bind-address=0.0.0.0'
     ]
-    ports:
-      - "${DB_PORT:-3306}:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openemr_dev}
-      MYSQL_DATABASE: ${DB_NAME:-openemr}
-      MYSQL_USER: ${MYSQL_USER:-openemr}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-openemr}
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_vietnamese_ci
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./configs/mariadb/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
       - ./configs/mariadb/vietnamese.cnf:/etc/mysql/conf.d/vietnamese.cnf:ro
       - ./configs/mariadb/init:/docker-entrypoint-initdb.d:ro
-      - mariadb_logs:/var/log/mysql
+      - ./logs/mariadb:/var/log/mysql
+    ports:
+      - "${DB_PORT:-3306}:3306"
     networks:
-      - openemr-network
+      openemr_network:
+        ipv4_address: 172.25.0.10
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 1m
@@ -54,118 +60,85 @@ services:
 
   # phpMyAdmin for database management
   phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: openemr-phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: openemr_phpmyadmin_dev
     restart: unless-stopped
-    ports:
-      - "${PMA_PORT:-8081}:80"
     environment:
       PMA_HOST: mariadb
       PMA_PORT: 3306
-      PMA_USER: ${MYSQL_USER:-openemr}
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-openemr123!}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass123!}
-      UPLOAD_LIMIT: 100M
-      MEMORY_LIMIT: 512M
+      PMA_USER: ${DB_USER:-openemr}
+      PMA_PASSWORD: ${DB_PASSWORD:-openemr}
+      UPLOAD_LIMIT: 1G
+      MEMORY_LIMIT: 1G
       MAX_EXECUTION_TIME: 600
+      PMA_ABSOLUTE_URI: http://127.0.0.1:${PHPMYADMIN_PORT:-8083}/
+    ports:
+      - "${PHPMYADMIN_PORT:-8083}:80"
     volumes:
       - ./configs/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:ro
-    networks:
-      - openemr-network
     depends_on:
-      mariadb:
-        condition: service_healthy
-
-  # Adminer as alternative database management
-  adminer:
-    image: adminer:latest
-    container_name: openemr-adminer
-    restart: unless-stopped
-    ports:
-      - "${ADMINER_PORT:-8082}:8080"
-    environment:
-      ADMINER_DEFAULT_SERVER: mariadb
-      ADMINER_DESIGN: pepa-linha
+      - mariadb
     networks:
-      - openemr-network
-    depends_on:
-      mariadb:
-        condition: service_healthy
+      openemr_network:
+        ipv4_address: 172.25.0.11
 
   # Redis for session storage and caching
   redis:
     image: redis:7-alpine
-    container_name: openemr-redis
+    container_name: openemr_redis_dev
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-openemr_redis}
     volumes:
       - redis_data:/data
       - ./configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
     networks:
-      - openemr-network
+      openemr_network:
+        ipv4_address: 172.25.0.12
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 30s
       timeout: 3s
       retries: 3
 
-  # MailHog for email testing during development
+  # MailHog for email testing
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: openemr-mailhog
+    container_name: openemr_mailhog_dev
     restart: unless-stopped
-    ports:
-      - "${MAILHOG_SMTP_PORT:-1025}:1025"  # SMTP port
-      - "${MAILHOG_HTTP_PORT:-8025}:8025"  # Web UI port
     environment:
       MH_STORAGE: maildir
       MH_MAILDIR_PATH: /maildir
     volumes:
       - mailhog_data:/maildir
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_WEB_PORT:-8025}:8025"
     networks:
-      - openemr-network
+      openemr_network:
+        ipv4_address: 172.25.0.13
 
-  # Optional: Backup service for automated database backups
-  backup:
-    image: alpine:latest
-    container_name: openemr-backup
-    restart: "no"
-    volumes:
-      - mariadb_data:/var/lib/mysql:ro
-      - ./backups:/backups
-      - ./scripts:/scripts:ro
-    networks:
-      - openemr-network
-    profiles:
-      - backup
+  # Adminer as alternative database management
+  adminer:
+    image: adminer:latest
+    container_name: openemr_adminer_dev
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - "${ADMINER_PORT:-8084}:8080"
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - mariadb
+    networks:
+      openemr_network:
+        ipv4_address: 172.25.0.14
 
 volumes:
   mariadb_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/data/mariadb
   redis_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/data/redis
   mailhog_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/data/mailhog
-  mariadb_logs:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/logs/mariadb

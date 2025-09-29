@@ -52,6 +52,10 @@ This file configures the kind that requires initialization.
     <testsuite name="controllers">
       <directory>tests/Tests/RestControllers</directory>
     </testsuite>
+    <testsuite name="vietnamese">
+      <directory>tests/Tests/Unit/Vietnamese</directory>
+      <directory>tests/Tests/Services/Vietnamese</directory>
+    </testsuite>
     <testsuite name="common">
       <directory>tests/Tests/Common</directory>
     </testsuite>

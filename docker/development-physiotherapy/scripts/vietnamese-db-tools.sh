@@ -19,11 +19,11 @@ DOCKER_DIR="$(dirname "$SCRIPT_DIR")"
 PROJECT_NAME="openemr-physiotherapy"
 
 # Database connection settings
-DB_HOST="localhost"
+DB_HOST="127.0.0.1"
 DB_PORT="3306"
 DB_NAME="openemr"
 DB_USER="openemr"
-DB_PASSWORD="openemr123!"
+DB_PASSWORD="openemr"
 DB_ROOT_PASSWORD="rootpass123!"
 
 # Helper functions

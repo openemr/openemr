@@ -10,9 +10,8 @@ CREATE DATABASE IF NOT EXISTS `openemr`
   CHARACTER SET utf8mb4 
   COLLATE utf8mb4_vietnamese_ci;
 
--- Grant privileges to openemr user
+-- Grant privileges to openemr user (skip localhost since it may not exist)
 GRANT ALL PRIVILEGES ON `openemr`.* TO 'openemr'@'%';
-GRANT ALL PRIVILEGES ON `openemr`.* TO 'openemr'@'localhost';
 
 -- Create a test table for Vietnamese character verification
 USE `openemr`;
