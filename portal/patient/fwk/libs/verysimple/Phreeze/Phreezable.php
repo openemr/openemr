@@ -115,7 +115,7 @@ abstract class Phreezable implements Serializable
     {
         $className = get_class($this);
 
-        if (! array_key_exists($className, self::$PublicPropCache)) {
+        if (! property_exists(self::$PublicPropCache, $className)) {
             $props = array ();
             $ro = new ReflectionObject($this);
 
