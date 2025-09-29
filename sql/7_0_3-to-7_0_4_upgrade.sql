@@ -1027,3 +1027,6 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfNotRow2D list_options list_id personal_relationship option_id FTH
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','FTH','Father','FTH','76');
 #EndIf
+
+UPDATE `layout_options` SET `list_id` = 'OccupationODH', `list_backup_id` = 'Occupation' WHERE `form_id` = 'DEM' AND `field_id` = 'occupation' AND `group_id` = '4';
+UPDATE `layout_options` SET `list_id` = 'IndustryODH', `list_backup_id` = 'Industry' WHERE `form_id` = 'DEM' AND `field_id` = 'industry' AND `group_id` = '4';
