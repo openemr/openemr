@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Portal Messaging Frontend Tests" tests="75" failures="0" errors="0" time="0.252">
+  <testsuite name="Portal Messaging System" errors="0" failures="0" skipped="0" timestamp="2025-09-22T17:13:27" time="0.072" tests="26">
+    <testcase classname="Portal Messaging System Messages Angular App should initialize Angular module correctly" name="Portal Messaging System Messages Angular App should initialize Angular module correctly" time="0.002">
+    </testcase>
+    <testcase classname="Portal Messaging System Messages Angular App should handle inbox controller initialization" name="Portal Messaging System Messages Angular App should handle inbox controller initialization" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Messages Angular App should handle message pagination correctly" name="Portal Messaging System Messages Angular App should handle message pagination correctly" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Messages Angular App should handle message search functionality" name="Portal Messaging System Messages Angular App should handle message search functionality" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Messages Angular App should handle CSRF token correctly" name="Portal Messaging System Messages Angular App should handle CSRF token correctly" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Messages Angular App should sanitize message content with DOMPurify" name="Portal Messaging System Messages Angular App should sanitize message content with DOMPurify" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Secure Chat Functionality should initialize chat Angular module" name="Portal Messaging System Secure Chat Functionality should initialize chat Angular module" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Secure Chat Functionality should handle chat message sending" name="Portal Messaging System Secure Chat Functionality should handle chat message sending" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Secure Chat Functionality should handle audio notifications" name="Portal Messaging System Secure Chat Functionality should handle audio notifications" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Secure Chat Functionality should handle online user tracking" name="Portal Messaging System Secure Chat Functionality should handle online user tracking" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Secure Chat Functionality should handle shortcode replacement" name="Portal Messaging System Secure Chat Functionality should handle shortcode replacement" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System jQuery Dependencies should handle modal interactions" name="Portal Messaging System jQuery Dependencies should handle modal interactions" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System jQuery Dependencies should handle form element manipulation" name="Portal Messaging System jQuery Dependencies should handle form element manipulation" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System jQuery Dependencies should handle tooltip initialization" name="Portal Messaging System jQuery Dependencies should handle tooltip initialization" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Bootstrap Dependencies should handle dropdown functionality" name="Portal Messaging System Bootstrap Dependencies should handle dropdown functionality" time="0.004">
+    </testcase>
+    <testcase classname="Portal Messaging System Bootstrap Dependencies should handle responsive classes" name="Portal Messaging System Bootstrap Dependencies should handle responsive classes" time="0.002">
+    </testcase>
+    <testcase classname="Portal Messaging System AJAX Request Handling should handle message retrieval requests" name="Portal Messaging System AJAX Request Handling should handle message retrieval requests" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System AJAX Request Handling should handle error responses gracefully" name="Portal Messaging System AJAX Request Handling should handle error responses gracefully" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Summernote Integration should initialize Summernote editor" name="Portal Messaging System Summernote Integration should initialize Summernote editor" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Summernote Integration should handle Summernote content retrieval" name="Portal Messaging System Summernote Integration should handle Summernote content retrieval" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System CKEditor Integration should initialize CKEditor for secure chat" name="Portal Messaging System CKEditor Integration should initialize CKEditor for secure chat" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System CKEditor Integration should handle CKEditor content management" name="Portal Messaging System CKEditor Integration should handle CKEditor content management" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Real-time Features should handle periodic message polling" name="Portal Messaging System Real-time Features should handle periodic message polling" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Real-time Features should handle browser notifications" name="Portal Messaging System Real-time Features should handle browser notifications" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging System Cross-browser Compatibility should handle different browser environments" name="Portal Messaging System Cross-browser Compatibility should handle different browser environments" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging System Cross-browser Compatibility should handle missing features gracefully" name="Portal Messaging System Cross-browser Compatibility should handle missing features gracefully" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Portal Messaging Dependency Tests" errors="0" failures="0" skipped="0" timestamp="2025-09-22T17:13:27" time="0.029" tests="23">
+    <testcase classname="Portal Messaging Dependency Tests Angular.js Version Compatibility should work with Angular 1.8.x module system" name="Portal Messaging Dependency Tests Angular.js Version Compatibility should work with Angular 1.8.x module system" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Angular.js Version Compatibility should handle Angular dependency injection patterns" name="Portal Messaging Dependency Tests Angular.js Version Compatibility should handle Angular dependency injection patterns" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Angular.js Version Compatibility should handle Angular scope operations" name="Portal Messaging Dependency Tests Angular.js Version Compatibility should handle Angular scope operations" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests jQuery Version Compatibility should work with jQuery 3.7.x" name="Portal Messaging Dependency Tests jQuery Version Compatibility should work with jQuery 3.7.x" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests jQuery Version Compatibility should handle jQuery event handling patterns" name="Portal Messaging Dependency Tests jQuery Version Compatibility should handle jQuery event handling patterns" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests jQuery Version Compatibility should handle jQuery AJAX patterns" name="Portal Messaging Dependency Tests jQuery Version Compatibility should handle jQuery AJAX patterns" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Bootstrap Version Compatibility should work with Bootstrap 4.6.x modal system" name="Portal Messaging Dependency Tests Bootstrap Version Compatibility should work with Bootstrap 4.6.x modal system" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Bootstrap Version Compatibility should handle Bootstrap CSS classes correctly" name="Portal Messaging Dependency Tests Bootstrap Version Compatibility should handle Bootstrap CSS classes correctly" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Bootstrap Version Compatibility should handle Bootstrap data attributes" name="Portal Messaging Dependency Tests Bootstrap Version Compatibility should handle Bootstrap data attributes" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Summernote Version Compatibility should work with Summernote 0.9.x" name="Portal Messaging Dependency Tests Summernote Version Compatibility should work with Summernote 0.9.x" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Summernote Version Compatibility should handle Summernote toolbar configuration" name="Portal Messaging Dependency Tests Summernote Version Compatibility should handle Summernote toolbar configuration" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests CKEditor Version Compatibility should work with CKEditor 5.x" name="Portal Messaging Dependency Tests CKEditor Version Compatibility should work with CKEditor 5.x" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests CKEditor Version Compatibility should handle CKEditor instance management" name="Portal Messaging Dependency Tests CKEditor Version Compatibility should handle CKEditor instance management" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests DOMPurify Version Compatibility should work with DOMPurify 3.x" name="Portal Messaging Dependency Tests DOMPurify Version Compatibility should work with DOMPurify 3.x" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests DOMPurify Version Compatibility should handle different DOMPurify configurations" name="Portal Messaging Dependency Tests DOMPurify Version Compatibility should handle different DOMPurify configurations" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Chart.js Version Compatibility should work with Chart.js 4.x" name="Portal Messaging Dependency Tests Chart.js Version Compatibility should work with Chart.js 4.x" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Moment.js Version Compatibility should work with Moment.js 2.x" name="Portal Messaging Dependency Tests Moment.js Version Compatibility should work with Moment.js 2.x" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Validate.js Version Compatibility should work with Validate.js 0.13.x" name="Portal Messaging Dependency Tests Validate.js Version Compatibility should work with Validate.js 0.13.x" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Cross-dependency Integration should handle jQuery + Angular integration" name="Portal Messaging Dependency Tests Cross-dependency Integration should handle jQuery + Angular integration" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Cross-dependency Integration should handle Bootstrap + jQuery integration" name="Portal Messaging Dependency Tests Cross-dependency Integration should handle Bootstrap + jQuery integration" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Cross-dependency Integration should handle async dependency loading" name="Portal Messaging Dependency Tests Cross-dependency Integration should handle async dependency loading" time="0.011">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Performance and Memory Management should handle large datasets efficiently" name="Portal Messaging Dependency Tests Performance and Memory Management should handle large datasets efficiently" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Dependency Tests Performance and Memory Management should handle event listener cleanup" name="Portal Messaging Dependency Tests Performance and Memory Management should handle event listener cleanup" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Portal Messaging Integration Tests" errors="0" failures="0" skipped="0" timestamp="2025-09-22T17:13:27" time="0.03" tests="26">
+    <testcase classname="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have proper Bootstrap modal structure" name="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have proper Bootstrap modal structure" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have responsive table structure" name="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have responsive table structure" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have proper navigation structure" name="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have proper navigation structure" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have chat interface elements" name="Portal Messaging Integration Tests DOM Structure and Bootstrap Integration should have chat interface elements" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Form Element Integration should have proper form structure for message composition" name="Portal Messaging Integration Tests Form Element Integration should have proper form structure for message composition" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Form Element Integration should have required hidden fields for security" name="Portal Messaging Integration Tests Form Element Integration should have required hidden fields for security" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Form Element Integration should have proper chat form structure" name="Portal Messaging Integration Tests Form Element Integration should have proper chat form structure" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Angular Integration Points should have Angular app and controller directives" name="Portal Messaging Integration Tests Angular Integration Points should have Angular app and controller directives" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Angular Integration Points should have Angular model bindings" name="Portal Messaging Integration Tests Angular Integration Points should have Angular model bindings" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Angular Integration Points should have Angular click handlers" name="Portal Messaging Integration Tests Angular Integration Points should have Angular click handlers" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Angular Integration Points should have Angular repeat directives" name="Portal Messaging Integration Tests Angular Integration Points should have Angular repeat directives" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests jQuery Selector Compatibility should find elements by common jQuery selectors" name="Portal Messaging Integration Tests jQuery Selector Compatibility should find elements by common jQuery selectors" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests jQuery Selector Compatibility should handle jQuery chaining scenarios" name="Portal Messaging Integration Tests jQuery Selector Compatibility should handle jQuery chaining scenarios" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests CSS Framework Dependencies should have Bootstrap utility classes" name="Portal Messaging Integration Tests CSS Framework Dependencies should have Bootstrap utility classes" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests CSS Framework Dependencies should have responsive design classes" name="Portal Messaging Integration Tests CSS Framework Dependencies should have responsive design classes" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Event Handling Integration should support standard event handlers" name="Portal Messaging Integration Tests Event Handling Integration should support standard event handlers" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Event Handling Integration should handle form submission events" name="Portal Messaging Integration Tests Event Handling Integration should handle form submission events" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Accessibility and Standards Compliance should have proper form labels" name="Portal Messaging Integration Tests Accessibility and Standards Compliance should have proper form labels" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Accessibility and Standards Compliance should have proper button types" name="Portal Messaging Integration Tests Accessibility and Standards Compliance should have proper button types" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Accessibility and Standards Compliance should have proper modal accessibility attributes" name="Portal Messaging Integration Tests Accessibility and Standards Compliance should have proper modal accessibility attributes" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Media and Asset Integration should have audio notification element" name="Portal Messaging Integration Tests Media and Asset Integration should have audio notification element" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Media and Asset Integration should handle missing media gracefully" name="Portal Messaging Integration Tests Media and Asset Integration should handle missing media gracefully" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Dynamic Content Areas should have containers for dynamic content" name="Portal Messaging Integration Tests Dynamic Content Areas should have containers for dynamic content" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Dynamic Content Areas should support content injection patterns" name="Portal Messaging Integration Tests Dynamic Content Areas should support content injection patterns" time="0">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Error Boundary Testing should handle malformed HTML gracefully" name="Portal Messaging Integration Tests Error Boundary Testing should handle malformed HTML gracefully" time="0.001">
+    </testcase>
+    <testcase classname="Portal Messaging Integration Tests Error Boundary Testing should handle missing elements gracefully" name="Portal Messaging Integration Tests Error Boundary Testing should handle missing elements gracefully" time="0">
+    </testcase>
+  </testsuite>
+</testsuites>
