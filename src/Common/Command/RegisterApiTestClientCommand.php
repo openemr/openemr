@@ -19,6 +19,7 @@ namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 //use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use Symfony\Component\Console\Command\Command;
@@ -67,7 +68,9 @@ class RegisterApiTestClientCommand extends Command
 //            });
 //            $scopes = array_merge($fhirScopes, $serverScope->getOpenIDConnectScopes());
             $scopeRepository = new ScopeRepository();
-            $scopes = array_merge($scopeRepository->oidcScopes(), $scopeRepository->fhirScopes());
+            $scopeList = new ServerScopeListEntity();
+            $scopes = array_unique(array_merge($scopeList->getAllSupportedScopesList()));
+//            $scopes = array_merge($scopeRepository->oidcScopes(), $scopeRepository->fhirScopes());
             $info = [
                 'client_role' => 'user',
                 'client_name' => 'OpenEMR API Test Client ' . date("Y-m-d H:i:s"),
