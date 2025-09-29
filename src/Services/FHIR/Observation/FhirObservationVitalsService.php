@@ -80,7 +80,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     /**
      * @var VitalsService
      */
-    private $service;
+    private VitalsService $service;
 
     const CATEGORY = "vital-signs";
 
@@ -593,6 +593,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             case '59408-5':
                 $this->populatePulseOximetryObservation($observation, $dataRecord);
                 break;
+        }
+        if (!empty($dataRecord['euuid'])) {
+            $observation->setEncounter(UtilsService::createRelativeReference("Encounter", $dataRecord['euuid']));
         }
         if (!empty($dataRecord['last_updated'])) {
             $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
