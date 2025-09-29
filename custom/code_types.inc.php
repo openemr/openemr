@@ -81,8 +81,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'drug' => $ctrow['ct_drug']
     );
     if (!array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
-        reset($code_types);
-        $GLOBALS['default_search_code_type'] = key($code_types);
+        $GLOBALS['default_search_code_type'] = array_key_first($code_types);
     }
 }
 
