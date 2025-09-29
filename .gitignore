@@ -31,3 +31,48 @@ coverage/js-unit
 
 # phpstan
 tmp-phpstan/*
+
+# Docker development environment data (should not be committed)
+docker/development-physiotherapy/data/
+docker/development-physiotherapy/logs/
+docker/development-physiotherapy/backups/*.sql*
+docker/development-physiotherapy/backups/*.gz
+
+# Database configuration files with credentials
+docker/development-physiotherapy/data/**/*.cnf
+**/data/**/*.cnf
+
+# Docker generated files
+docker/development-physiotherapy/.env
+docker-compose.override.yml
+
+# OpenEMR sites directory - contains sensitive data and runtime files
+# SECURITY: The sites/ directory contains patient data, crypto keys, and credentials
+# Ignore the entire sites directory by default
+sites/
+
+# Only allow specific template files that are safe to commit
+!sites/default/clickoptions.txt
+!sites/default/faxcover.txt
+!sites/default/faxtitle.eps
+!sites/default/referral_template.html
+!sites/default/statement.inc.php
+!sites/default/documents/.htaccess
+
+# Allow certain README files for documentation
+!sites/default/documents/certificates/README.md
+!sites/default/documents/couchdb/README
+!sites/default/documents/edi/README.txt
+!sites/default/documents/era/README.txt
+!sites/default/documents/procedure_results/README
+!sites/default/documents/mpdf/pdf_tmp/README
+
+# Smarty template cache
+sites/default/documents/smarty/
+sites/*/documents/smarty/
+
+# OpenEMR crypto keys (sevena/sevenb) - NEVER commit these!
+sites/default/documents/logs_and_misc/methods/sevena
+sites/default/documents/logs_and_misc/methods/sevenb
+sites/*/documents/logs_and_misc/methods/sevena
+sites/*/documents/logs_and_misc/methods/sevenb

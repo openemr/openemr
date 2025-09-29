@@ -1,0 +1,17 @@
+# Ignore runtime data and logs - these should not be committed
+data/
+logs/
+backups/*.sql
+backups/*.gz
+
+# Ignore environment file with secrets
+.env
+
+# Keep directory structure but ignore contents
+**/data/*
+**/logs/*
+
+# But track the directory structure (keep .gitkeep files)
+!.gitkeep
+!data/.gitkeep  
+!logs/.gitkeep
