@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\Config\RectorConfig;
+use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\ValueObject\PhpVersion;
 
@@ -37,11 +38,14 @@ return RectorConfig::configure()
     )
     ->withCodeQualityLevel(5)
     ->withDeadCodeLevel(5)
+    // FIXME rector should pick the php version from composer.json
+    // but that doesn't seem to be working, so hard-coding for now.
+    ->withPhpVersion(PhpVersion::PHP_82)
     ->withRules([
         // add rules one at a time until we can replace them with a named ruleset
         ArrayKeyExistsOnPropertyRector::class, // one of the withPhpSets rules
+        ArrayKeyFirstLastRector::class, // one of the withPhpSets rules
     ])
-    ->withPhpVersion(PhpVersion::PHP_82)
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
     ])
