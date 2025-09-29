@@ -1,0 +1,71 @@
+# syntax=docker/dockerfile:1
+#
+# Copyright (C) 2018-2025 Brady Miller <brady.g.miller@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# php-fpm Dockerfile build for openemr development docker environment
+# This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
+#
+FROM openemr/dev-php-fpm:pre-build-dev-86
+
+# Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
+# Add imagemagick that is needed for some image processing in OpenEMR
+# Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
+#  and instead rely on php scripts, if possible.
+RUN apt-get update \
+ && apt-get install -y curl \
+                       imagemagick \
+                       mariadb-client
+
+# Install correct version nodejs
+RUN curl -sL https://deb.nodesource.com/setup_22.x \
+  | bash - \
+ && apt-get update \
+ && apt-get install -y nodejs
+
+# Temporary fix to get intl install working by bypassing below install-php-extensions run (these issues are usually temporary
+#  in dev versions of PHP, so this is not a permanent solution)
+# TODO:
+# TODO: intermittently try to remove this block of code and uncomment intl in below ../install-php-extensions run
+# TODO:
+# Build and install ICU 74 from source (supports unumberrangeformatter.h)
+RUN cd /tmp \
+ && curl -LO https://github.com/unicode-org/icu/releases/download/release-74-2/icu4c-74_2-src.tgz \
+ && tar -xzf icu4c-74_2-src.tgz \
+ && cd icu/source \
+ && ./configure --prefix=/usr/local \
+ && make -j$(nproc) \
+ && make install \
+ && ldconfig \
+ && rm -rf /tmp/icu*
+# Now install intl with the newer ICU
+RUN PKG_CONFIG_PATH=/usr/local/lib/pkgconfig \
+    docker-php-ext-configure intl --with-icu-dir=/usr/local \
+ && docker-php-ext-install intl
+
+# Add the php extensions (note using a very cool script by mlocati to do this)
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod uga+x /usr/local/bin/install-php-extensions \
+ && sync \
+ && install-php-extensions calendar \
+                           gd \
+                           gettext \
+                           ldap \
+                           mysqli \
+                           pdo_mysql \
+                           soap \
+                           sockets \
+                           tokenizer \
+                           xmlreader \
+                           xsl \
+                           zip
+
+# Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
+RUN usermod -u 1000 www-data
+
+# Copy over the php.ini conf
+COPY php.ini /usr/local/etc/php/php.ini

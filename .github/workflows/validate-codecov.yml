@@ -1,0 +1,19 @@
+name: Validate codecov.yml
+
+on:
+  pull_request:
+    paths:
+    - codecov.yml
+  push:
+    paths:
+    - codecov.yml
+
+jobs:
+  validate-codecov:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Validate codecov.yml
+        run: curl -f -X POST --data-binary @codecov.yml https://codecov.io/validate

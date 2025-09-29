@@ -47,6 +47,7 @@ class UuidRegistry
         'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
         'form_encounter' => ['table_name' => 'form_encounter'],
         'form_vitals' => ['table_name' => 'form_vitals'],
+        'form_observation' => ['table_name' => 'form_observation'],
         'history_data' => ['table_name' => 'history_data'],
         'immunizations' => ['table_name' => 'immunizations'],
         'insurance_companies' => ['table_name' => 'insurance_companies'],
@@ -62,6 +63,8 @@ class UuidRegistry
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
+        'patient_related_persons' => ['table_name' => 'patient_related_persons', 'table_id' => 'pid'],
+        'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
@@ -196,7 +199,7 @@ class UuidRegistry
 
     /**
      * Given a table name it returns the UuidRegistry object for that table name
-     * @param $table_name The name of the table that has a uuid column
+     * @param string $table_name The name of the table that has a uuid column
      * @return UuidRegistry
      */
     public static function getRegistryForTable($table_name): UuidRegistry
@@ -211,7 +214,7 @@ class UuidRegistry
     /**
      * Given the name of a table that is supported in the uuid registry, return its uuid registry definition.  If there
      * is no definition an empty array is returned
-     * @param $table_name The name of the table
+     * @param $table_name string The name of the table
      * @return array The definition definition or empty array
      */
     public static function getUuidTableDefinitionForTable($table_name)
@@ -274,7 +277,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID byte value to a string representation
-     * @return the UUID string value
+     * @return string the UUID string value
      */
     public static function uuidToString($uuidBytes)
     {
@@ -283,7 +286,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID string to a bytes representation
-     * @return the UUID bytes value
+     * @return string the UUID bytes value
      */
     public static function uuidToBytes($uuidString)
     {

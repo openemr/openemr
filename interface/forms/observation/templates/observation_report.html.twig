@@ -1,0 +1,70 @@
+{% extends "core/base.html.twig" %}
+
+{% block pagetitle %}{{ title|text }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {{ setupHeader(['datetime-picker', 'reason-code-widget']) }}
+{% endblock %}
+{% block content %}
+    <table class='table'>
+        <thead>
+        <tr>
+            <th class='text-center border p-1'>{{ 'Code'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Description'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Date'|text}}</th>
+{#            <th class='text-center border p-1'>{{ 'Code Type'|text}}</th>#}
+            <th class='text-center border p-1'>{{ 'Value'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Unit'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Status'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Type'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Questionnaire'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Comments'|text}}</th>
+            <th class='text-center border p-1'>{{ 'Reason'|text}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if observations is not empty %}
+        {% for formattedObs in observations %}
+            <tr>
+                <td class='text-center border p-1'>{{ formattedObs.code|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.description|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.date|oeFormatDateTime|text }}</td>
+{#                <td class='text-center border p-1'>{{ formattedObs.code_type|text }}</td>#}
+                <td class='text-center border p-1'>{{ formattedObs.ob_value|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.ob_unit|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.status|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.type|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.questionnaire_name|default('')|text }}</td>
+                <td class='text-center border p-1'>{{ formattedObs.observation|text }}</td>
+                <td class='text-center border p-1'>
+                    {{ formattedObs.ob_reason_code|text }}
+                    {{ formattedObs.ob_reason_text|text }}
+                </td>
+            </tr>
+            {% if formattedObs.subObservations is not empty %}
+            {% for subObs in formattedObs.subObservations %}
+            <tr>
+                <td class='text-center border p-1 pl-3'>{{ subObs.code|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.description|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.date|oeFormatDateTime|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.ob_value|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.ob_unit|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.status|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.type|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.questionnaire_name|default('')|text }}</td>
+                <td class='text-center border p-1'>{{ subObs.observation|text }}</td>
+                {# No reason code on the sub observations #}
+                <td class='text-center border p-1'></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="6" class="text-center border p-1"><span class="text">{{ "No observtions record found for this form"|xlt }}</span></td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+{% endblock %}

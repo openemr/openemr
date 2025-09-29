@@ -1,0 +1,13 @@
+{% extends "core/base.html.twig" %}
+
+{% block pagetitle %}{{ title|text }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {{ setupHeader(['datetime-picker', 'reason-code-widget']) }}
+{% endblock %}
+{%  block scripts %}
+    <script type="text/javascript">
+    parent.closeTab(window.name, true);
+    </script>
+{%  endblock %}

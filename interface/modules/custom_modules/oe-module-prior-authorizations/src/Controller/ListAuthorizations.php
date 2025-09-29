@@ -22,7 +22,7 @@ class ListAuthorizations
         $this->pid = $pid;
     }
 
-    public function getAllAuthorizations(): false|array
+    public function getAllAuthorizations(): false|array|\ADORecordSet_mysqli
     {
         $sql = "SELECT *
                       FROM module_prior_authorizations

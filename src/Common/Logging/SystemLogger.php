@@ -23,7 +23,8 @@ class SystemLogger implements LoggerInterface
      */
     private $logger;
 
-    public function __construct()
+    const LOG_LEVEL_DEBUG = "DEBUG";
+    public function __construct($logLevel = null)
     {
         /**
          * We use mono

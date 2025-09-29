@@ -297,7 +297,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 61, 'patients|docs', '');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 67, 'patients|docs', '');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|demo', '');
@@ -310,7 +310,7 @@ INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patient
 INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs', '');
 INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs', 'LOINC:34133-9');
 INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs', '');
-INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs', '');
+INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 56, 'patients|docs', '');
 INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs', '');
 INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs','');
 INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs','');
@@ -323,11 +323,15 @@ INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'pat
 INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs','');
 INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs','');
 INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs','');
-INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs','');
-INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs','');
-INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs','LOINC:LP173394-0');
-INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super','LOINC:LP173421-1');
-INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 59, 60, 'encounters|coding', '');
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 57, 62, 'patients|docs','');
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 58, 59, 'patients|docs','');
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 60, 61, 'patients|docs','LOINC:LP173394-0');
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 63, 64, 'admin|super','LOINC:LP173421-1');
+INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 65, 66, 'encounters|coding', '');
+INSERT INTO `categories` VALUES (32, 'AntSeg Laser - Eye', '', 14, 50, 51, 'patients|docs', '');
+INSERT INTO `categories` VALUES (33, 'Retina Laser - Eye', '', 14, 52, 53, 'patients|docs', '');
+INSERT INTO `categories` VALUES (34, 'Injections - Eye', '', 14, 54, 55, 'patients|docs', '');
+
 -- --------------------------------------------------------
 
 --
@@ -344,7 +348,7 @@ CREATE TABLE `categories_seq` (
 -- Inserting data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (31);
+INSERT INTO `categories_seq` VALUES (34);
 
 -- --------------------------------------------------------
 
@@ -3470,6 +3474,7 @@ INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_m
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '5', 'Stats'       , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '6', 'Misc'        , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '8', 'Guardian'    , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '9', 'Related','');
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '' , 'Referral'        , 'Transactions');
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '1', 'Referral'        , ''            );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '2', 'Counter-Referral', ''            );
@@ -3596,8 +3601,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 230, 44, 1, 0, 0, '', 1, 1, '', '[\"EP\"]', '', 0);
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','patient_groups','3','Patient Categories',240,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
 --
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'industry', '4', 'Industry', 2, 26, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, 'OccupationODH', 1, 1, '', 'C', 'Occupation', 0, 'Occupation');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`) VALUES ('DEM', 'industry', '4', 'Industry', 2, 26, 1, 0, 0, 'IndustryODH', 1, 1, '', '', 'Industry', 0, 'Industry');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 3, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_street', '4', 'Employer Address', 4, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_street_line_2', '4', 'Employer Address Line 2', 5, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Address Line 2', 0);
@@ -3620,6 +3625,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',12, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 13, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 14, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations','5','Tribal Affiliations',15,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
 --
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
@@ -3650,7 +3656,45 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianphone'  , '8', 'Phone'  ,90, 2, 1,20,63, '', 1, 1, '', '', 'Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianworkphone'  , '8', 'Work Phone'  ,100, 2, 1,20,63, '', 1, 1, '', '', 'Work Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianemail'  , '8', 'Email'  ,110, 2, 1,20,63, '', 1, 1, '', '', 'Guardian Email Address', 0);
---
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_firstname_1','9','First Name',10,2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_lastname_1','9','Last Name',20,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_relationship_1','9','Relationship',30,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_sex_1','9','Sex',40,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_address_1','9','Address',50,2,1,25,63,'',1,1,'','','Address',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_city_1','9','City',60,2,1,15,63,'',1,1,'','','City',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_state_1','9','State',70,26,1,0,0,'state',1,1,'','','State',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_postalcode_1','9','Postal Code',80,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_country_1','9','Country',90,26,1,0,0,'country',1,1,'','','Country',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_phone_1','9','Phone',100,2,1,20,63,'',1,1,'','','Phone',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_workphone_1','9','Work Phone',110,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_email_1','9','Email',120,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_static_1','9','Related Person',125,31,1,0,0,'',1,3,'','[\"K\"]','Patient Second Related Person',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_firstname_2','9','First Name',130,2,1,25,63,'',1,1,'','[\"K\"]','Related First Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_lastname_2','9','Last Name',140,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_relationship_2','9','Relationship',150,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_sex_2','9','Sex',160,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_address_2','9','Address',170,2,1,25,63,'',1,1,'','','Address',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_city_2','9','City',180,2,1,15,63,'',1,1,'','','City',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_state_2','9','State',190,26,1,0,0,'state',1,1,'','','State',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_postalcode_2','9','Postal Code',200,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_country_2','9','Country',210,26,1,0,0,'country',1,1,'','','Country',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_phone_2','9','Phone',220,2,1,20,63,'',1,1,'','','Phone',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_workphone_2','9','Work Phone',230,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_email_2','9','Email',240,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_static_2','9','Related Person',245,31,1,0,0,'',1,3,'','[\"K\"]','Patient Third Related Person',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_firstname_3','9','First Name',250,2,1,25,63,'',1,1,'','[\"K\"]','Related First Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_lastname_3','9','Last Name',260,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_relationship_3','9','Relationship',270,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_sex_3','9','Sex',280,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_address_3','9','Address',290,2,1,25,63,'',1,1,'','','Address',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_city_3','9','City',300,2,1,15,63,'',1,1,'','','City',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_state_3','9','State',310,26,1,0,0,'state',1,1,'','','State',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_postalcode_3','9','Postal Code',320,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_country_3','9','Country',330,26,1,0,0,'country',1,1,'','','Country',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_phone_3','9','Phone',340,2,1,20,63,'',1,1,'','','Phone',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_workphone_3','9','Work Phone',350,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_email_3','9','Email',360,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
+-- ------------------------------------
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_date'      ,'1','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_from'      ,'1','Refer By'                       , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_external'  ,'1','External Referral'              , 3, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'External referral?', 0);
@@ -5185,6 +5229,7 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('person
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','COUSN','Cousin','COUSN','50');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','DOMPART','Domestic Partner','DOMPART','60');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','FAMMEMB','Family Member','FAMMEMB','70');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','FTH','Father','FTH','75');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','CHLDFOST','Foster Child','CHLDFOST','80');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','GRNDCHILD','Grandchild','GRNDCHILD','90');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','GPARNT','Grandparent','GPARNT','100');
@@ -5262,6 +5307,52 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES('lists','Occ
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'lawyer', 'Lawyer', 10);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'engineer', 'Engineer', 20);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'site_worker', 'Site Worker', 30);
+
+-- Industry ODH
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('lists','IndustryODH','ODH Industry',0,0,0,'','NAICS-based industry codes from ODH','',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','541110','Offices of Lawyers',10,0,0,'',NULL,'541110.008099',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','541330','Engineering Services',20,0,0,'',NULL,'541330.008117',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','236220','Commercial and Institutional Building Construction',30,0,0,'',NULL,'236220.004781',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','622110','General Medical and Surgical Hospitals',40,0,0,'',NULL,'622110.009243',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','611110','Elementary and Secondary Schools',50,0,0,'',NULL,'611110.008684',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','561720','Janitorial Services',60,0,0,'',NULL,'561720.002294',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','722511','Full-Service Restaurants',70,0,0,'',NULL,'722511.010339',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','445110','Supermarkets and Other Grocery Stores',80,0,0,'',NULL,'445110.006564',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','238210','Electrical Contractors',90,0,0,'',NULL,'238210.004871',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','621111','Offices of Physicians (except Mental Health)',100,0,0,'',NULL,'621111.009165',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','531110','Lessors of Residential Buildings',110,0,0,'',NULL,'531110.007615',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','484121','General Freight Trucking, Long-Distance',120,0,0,'',NULL,'484121.007193',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','812111','Barber Shops',130,0,0,'',NULL,'812111.011099',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','522110','Commercial Banking',140,0,0,'',NULL,'522110.007773',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','999999','Unemployed',150,0,0,'',NULL,'999999',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('IndustryODH','UNKNOWN','Unknown',160,0,0,'',NULL,'UNKNOWN',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+
+-- Occupation ODH
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('lists','OccupationODH','ODH Occupation',0,0,0,'','O*NET-SOC based occupation codes from ODH','',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','23-1011.00','Lawyers',10,0,0,'',NULL,'23-1011.00.031000',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','17-2051.00','Civil Engineers',20,0,0,'',NULL,'17-2051.00.019051',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','47-2061.00','Construction Laborers',30,0,0,'',NULL,'47-2061.00.051621',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','29-1141.00','Registered Nurses',40,0,0,'',NULL,'29-1141.00.038232',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','25-2021.00','Elementary School Teachers',50,0,0,'',NULL,'25-2021.00.032102',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','37-2011.00','Janitors and Cleaners',60,0,0,'',NULL,'37-2011.00.028742',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','35-3031.00','Waiters and Waitresses',70,0,0,'',NULL,'35-3031.00.045251',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','41-2011.00','Cashiers',80,0,0,'',NULL,'41-2011.00.047211',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','11-1021.00','General and Operations Managers',90,0,0,'',NULL,'11-1021.00.003891',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','43-9061.00','Office Clerks, General',100,0,0,'',NULL,'43-9061.00.049705',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','53-3032.00','Heavy and Tractor-Trailer Truck Drivers',110,0,0,'',NULL,'53-3032.00.057651',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','29-1211.00','Physician Assistants',120,0,0,'',NULL,'29-1211.00.038302',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','39-5012.00','Hairdressers, Hairstylists, and Cosmetologists',130,0,0,'',NULL,'39-5012.00.046262',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','13-2011.00','Accountants and Auditors',140,0,0,'',NULL,'13-2011.00.010350',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','15-1252.00','Software Developers',150,0,0,'',NULL,'15-1252.00.016221',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','33-9032.00','Security Guards',160,0,0,'',NULL,'33-9032.00.042562',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','49-9071.00','Maintenance and Repair Workers, General',170,0,0,'',NULL,'49-9071.00.053722',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','31-1120.00','Home Health Aides',180,0,0,'',NULL,'31-1120.00.039792',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','25-9045.00','Teaching Assistants',190,0,0,'',NULL,'25-9045.00.032175',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','21-1093.00','Social Workers',200,0,0,'',NULL,'21-1093.00.027030',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','999999','Unemployed',210,0,0,'',NULL,'999999',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`, `last_updated`) VALUES ('OccupationODH','UNKNOWN','Unknown',220,0,0,'',NULL,'UNKNOWN',0,0,1,'',1,'2025-09-17 02:02:03','2025-09-16 22:02:03');
 
 -- Reaction
 
@@ -6731,8 +6822,37 @@ INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity)
 -- Observation Types
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('lists','Observation_Types','Observation Types',0,1,0,'',NULL,'',0,0,1,'');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','assessment','Assessment',10,0,0,'','','',0,0,1,'');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,1,'');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,0,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,0,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','activity','Activity',5,1,'Observations that measure or record any bodily activity that enhances or maintains physical fitness and overall health and wellness. Not under direct supervision of practitioner such as a physical therapist. (e.g., laps swum, steps, sleep data)');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','care-experience-preference','Care Experience Preference',20,1,'Personal thoughts about something a person feels is relevant to their care experience and may be pertinent when planning their care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','cognitive-status','Cognitive Status',30,1,'Cognitive Status category');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','disability-status','Disability Status',40,1,'Disability Status category');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','exam','Exam',50,1,'Observations generated by physical exam findings including direct observations made by a clinician and use of simple instruments and the result of simple maneuvers performed directly on the patient\'s body.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','functional-status','Functional Status',60,1,'Functional Status category');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','imaging','Imaging',70,1,'Observations generated by imaging. The scope includes observations regarding plain x-ray, ultrasound, CT, MRI, angiography, echocardiography, and nuclear medicine.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','laboratory','Laboratory',80,1,'The results of observations generated by laboratories. Laboratory results are typically generated by laboratories providing analytic services in areas such as chemistry, hematology, serology, histology, cytology, anatomic pathology (including digital pathology), microbiology, and/or virology. These observations are based on analysis of specimens obtained from the patient and submitted to the laboratory.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','observation-adi-documentation','Observation ADI Documentation',90,1,'Statement of presence and properties of patient or provider authored documents that record a patient\'s goals, preferences and priorities should a patient be unable to communicate them to a provider.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','procedure','Procedure',100,1,'Observations generated by other procedures. This category includes observations resulting from interventional and non-interventional procedures excluding laboratory and imaging (e.g., cardiology catheterization, endoscopy, electrodiagnostics, etc.). Procedure results are typically generated by a clinician to provide more granular information about component observations made during a procedure. An example would be when a gastroenterologist reports the size of a polyp observed during a colonoscopy.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','sdoh','Social Determinants of Health (SDOH)',110,1,'Social, economic, and environmental factors affecting health');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','social-history','Social History',120,1,'Social History Observations define the patient''s occupational, personal (e.g., lifestyle), social, familial, and environmental history and health risk factors that may impact the patient''s health.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','survey','Survey',130,1,'Assessment tool/survey instrument observations (e.g., Apgar Scores, Montreal Cognitive Assessment (MoCA)).');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','therapy','Therapy',140,1,'Observations generated by non-interventional treatment protocols (e.g. occupational, physical, radiation, nutritional and medication therapy)');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','treatment-intervention-preference','Treatment Intervention Preference',150,1,'A personal preference for a type of medical intervention (treatment) request under certain conditions.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('Observation_Types','vital-signs','Vital Signs',160,1,'Clinical observations measure the body''s basic functions such as blood pressure, heart rate, respiratory rate, height, weight, body mass index, head circumference, pulse oximetry, temperature, and body surface area.');
+-- --------------------------------------------------------
+
+-- Observation Statii
+-- Add list options of observation-status codes
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('lists','observation-status','Observation Status Codes',0,1,0, 'Codes representing the status of an observation from http://hl7.org/fhir/ValueSet/observation-status');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','registered','Registered',10,1,'The existence of the observation is registered, but there is no result yet available');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','preliminary','Preliminary',20,1,'This is an initial or interim observation: data may be incomplete or unverified');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','final','Final',30,1,'The observation is complete and there are no further actions needed. Additional information such "released", "signed", etc would be represented using [Provenance](provenance.html) which provides not only the act but also the actors and dates and other related data. These act states would be associated with an observation status of `preliminary` until they are all completed and then a status of `final` would be applied.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','amended','Amended',40,1,'Subsequent to being Final, the observation has been modified subsequent. This includes updates/new information and corrections.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','corrected','Corrected',50,1,'Subsequent to being Final, the observation has been modified to correct an error in the test result.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','cancelled','Cancelled',60,1,'The observation is unavailable because the measurement was not started or not completed (also sometimes called "aborted").');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','entered-in-error','Entered in Error',70,1,'The observation has been withdrawn following previous final release. This electronic record should never have existed, though it is possible that real-world decisions were based on it. (If real-world activity has occurred, the status should be "cancelled" rather than "entered-in-error".).');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('observation-status','unknown','Unknown',80,1,'The authoring/source system does not know which of the status values currently applies for this observation. Note: This concept is not to be used for "other" - one of the listed statuses is presumed to apply, but the authoring/source system does not know which.');
 -- --------------------------------------------------------
 
 -- CCDA Sections for sort orders
@@ -7562,6 +7682,7 @@ CREATE TABLE `patient_data` (
   `preferred_name` TINYTEXT,
   `nationality_country` TINYTEXT,
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tribal_affiliations` TEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -8847,6 +8968,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2024-10-01', 'icd10OrderFiles2025_0.zip', '783c2e3c92778295a76b8d7e0ebcf8fd');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2024-10-01', 'Zip File 3 2025 ICD-10-PCS Codes File.zip', 'a47ceb9a09fcc475fec19cee6526a335');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'icd10orderfiles.zip', '781ce6e72697181f1ef0d4230921e902');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
+
 -- --------------------------------------------------------
 
 --
@@ -11836,7 +11962,9 @@ CREATE TABLE `form_care_plan` (
   `reason_description` text,
   `reason_date_low` datetime DEFAULT NULL COMMENT 'The date the reason was recorded',
   `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
-  `reason_status` varchar(31) DEFAULT NULL
+  `reason_status` varchar(31) DEFAULT NULL,
+  `plan_status` varchar(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)',
+  KEY `idx_status_date` (`plan_status`,`date`,`date_end`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -11869,7 +11997,9 @@ CREATE TABLE `form_functional_cognitive_status` (
 
 DROP TABLE IF EXISTS `form_observation`;
 CREATE TABLE `form_observation` (
-  `id` bigint(20) NOT NULL,
+   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+   `uuid` binary(16) DEFAULT NULL,
+   `form_id` bigint(20) NOT NULL COMMENT 'FK to forms.form_id',
   `date` DATETIME DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` varchar(255) DEFAULT NULL,
@@ -11893,7 +12023,17 @@ CREATE TABLE `form_observation` (
   `ob_reason_text` text,
   `ob_documentationof_table` varchar(255) DEFAULT NULL,
   `ob_documentationof_table_id` bigint(21) DEFAULT NULL,
-  `date_end` DATETIME DEFAULT NULL
+   `date_end` DATETIME DEFAULT NULL,
+   `parent_observation_id` bigint(20) DEFAULT NULL COMMENT 'FK to parent observation for sub-observations',
+   `category` varchar(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)',
+   `questionnaire_response_id` bigint(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table',
+   PRIMARY KEY (`id`),
+   KEY `idx_form_id` (`form_id`),
+   KEY `idx_parent_observation` (`parent_observation_id`),
+   KEY `idx_category` (`category`),
+   KEY `idx_questionnaire_response` (`questionnaire_response_id`),
+   KEY `idx_pid_encounter` (`pid`, `encounter`),
+   KEY `idx_date` (`date`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -12199,8 +12339,6 @@ CREATE TABLE `form_eye_mag_wearing` (
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `form_taskman`
@@ -13382,6 +13520,55 @@ CREATE TABLE `onetime_auth` (
 ) ENGINE=InnoDB;
 
 
+-- --------------------------------------------------------
+-- Table Patient Related Person LBF DEM group data table
+-- --------------------------------------------------------
+
+DROP TABLE IF EXISTS `patient_related_persons`;
+CREATE TABLE `patient_related_persons`
+(
+    `pid`                    BIGINT UNSIGNED NOT NULL,
+    `uuid`                   BINARY(16)   DEFAULT NULL,
+    `related_firstname_1`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_1`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_1` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_1`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_1`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_1`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_1`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_1`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_1`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_1`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_1`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_1`        VARCHAR(254) DEFAULT NULL,
+    `related_firstname_2`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_2`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_2` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_2`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_2`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_2`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_2`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_2`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_2`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_2`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_2`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_2`        VARCHAR(254) DEFAULT NULL,
+    `related_firstname_3`    VARCHAR(63)  DEFAULT NULL,
+    `related_lastname_3`     VARCHAR(63)  DEFAULT NULL,
+    `related_relationship_3` VARCHAR(63)  DEFAULT NULL,
+    `related_sex_3`          VARCHAR(31)  DEFAULT NULL,
+    `related_address_3`      VARCHAR(63)  DEFAULT NULL,
+    `related_city_3`         VARCHAR(63)  DEFAULT NULL,
+    `related_state_3`        VARCHAR(31)  DEFAULT NULL,
+    `related_postalcode_3`   VARCHAR(15)  DEFAULT NULL,
+    `related_country_3`      VARCHAR(31)  DEFAULT NULL,
+    `related_phone_3`        VARCHAR(25)  DEFAULT NULL,
+    `related_workphone_3`    VARCHAR(25)  DEFAULT NULL,
+    `related_email_3`        VARCHAR(254) DEFAULT NULL,
+    PRIMARY KEY (`pid`),
+    KEY `uuid_idx` (`uuid`)
+) ENGINE = InnoDB;
+
 DROP TABLE IF EXISTS `patient_settings`;
 CREATE TABLE `patient_settings` (
      `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
@@ -14066,6 +14253,15 @@ CREATE TABLE `form_history_sdoh`
     `postpartum_end`                  date                         DEFAULT NULL,
     `goals`                           text,
     `interventions`                   text,
+    `instrument_score`                INT                          DEFAULT NULL,
+    `positive_domain_count`           INT                          DEFAULT NULL,
+    `declined_flag`                   TINYINT(1)                   DEFAULT NULL,
+    `disability_status`               VARCHAR(50)                  DEFAULT NULL,
+    `disability_status_notes`         TEXT,
+    `disability_scale`                TEXT,
+    `hunger_q1`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88122-7 response',
+    `hunger_q2`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88123-5 response',
+    `hunger_score`                    INT                          DEFAULT NULL COMMENT 'Calculated HVS score',
     PRIMARY KEY (`id`),
     KEY `uuid_idx` (`uuid`),
     KEY `pid_idx` (`pid`),
@@ -14187,3 +14383,83 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'ahc_hrsn_supp', 'AHC HRSN – Supplemental', 30, 'LOINC:97023-6', 'Financial strain 76513-1; loneliness 93159-2'),
        ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Vital Signs Answers (single set; no duplicate parent)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('vital_signs_answers', 'LA28397-0', 'Often true', 10, 'LOINC:LA28397-0', 1),
+       ('vital_signs_answers', 'LA28398-8', 'Sometimes true', 20, 'LOINC:LA28398-8', 1),
+       ('vital_signs_answers', 'LA28399-6', 'Never true', 30, 'LOINC:LA28399-6', 1);
+
+-- Tribal Affiliations
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity)
+VALUES ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65', 1),
+       ('tribal_affiliations', 'cherokee_nation', 'Cherokee Nation (OK)', 20, '40', 1),
+       ('tribal_affiliations', 'chickasaw_nation', 'Chickasaw Nation (OK)', 30, '43', 1),
+       ('tribal_affiliations', 'choctaw_nation', 'Choctaw Nation of Oklahoma', 40, '47', 1),
+       ('tribal_affiliations', 'gila_river', 'Gila River Indian Community (AZ)', 50, '93', 1),
+       ('tribal_affiliations', 'hopi', 'Hopi Tribe (AZ)', 60, '104', 1),
+       ('tribal_affiliations', 'navajo_nation', 'Navajo Nation (AZ/NM/UT)', 70, '170', 1),
+       ('tribal_affiliations', 'standing_rock', 'Standing Rock Sioux Tribe (ND/SD)', 80, '289', 1),
+       ('tribal_affiliations', 'tohono_oodham', 'Tohono O''odham Nation (AZ)', 90, '302', 1),
+       ('tribal_affiliations', 'white_mountain_apache', 'White Mountain Apache Tribe (AZ)', 100, '325', 1),
+       ('tribal_affiliations', 'zuni', 'Zuni Tribe (NM)', 110, '337', 1),
+       ('tribal_affiliations', 'other_specify', 'Other (specify)', 120, '000', 1);
+
+-- Disability Status parent exists above; now the answers
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','disability_status','Disability Status',0,1,0,'',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7', 1),
+       ('disability_status', 'im_vulnerable', 'I''m Vulnerable.', 20, 'LOINC:LA29243-5', 1),
+       ('disability_status', 'im_at_risk', 'I''m at risk.', 30, 'LOINC:LA29244-3', 1),
+       ('disability_status', 'im_in_crisis', 'I''m in crisis.', 40, 'LOINC:LA29245-0', 1);
+
+-- SDOH Problems (single set)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
+       ('sdoh_problems', '224130005', 'Difficulty accessing healthcare', 20, 'SNOMED:224130005', 1),
+       ('sdoh_problems', '182964004', 'Medication not available', 30, 'SNOMED:182964004', 1),
+       ('sdoh_problems', '73438004', 'Educational problem', 40, 'SNOMED:73438004', 1),
+       ('sdoh_problems', '266948004', 'Unemployed', 50, 'SNOMED:266948004', 1),
+       ('sdoh_problems', 'Z59.1', 'Inadequate housing', 60, 'ICD10CM:Z59.1', 1),
+       ('sdoh_problems', 'Z59.4', 'Lack of adequate food', 70, 'ICD10CM:Z59.4', 1),
+       ('sdoh_problems', 'Z59.6', 'Low income', 80, 'ICD10CM:Z59.6', 1),
+       ('sdoh_problems', 'Z62.9', 'Problem related to upbringing', 90, 'ICD10CM:Z62.9', 1),
+       ('sdoh_problems', '266944006', 'Lives in poverty', 100, 'SNOMED:266944006', 1);
+
+-- SDOH Interventions (fixed duplicate option_id for 467681000124101)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance program', 10, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', 'assist_food_program', 'Assistance with application for food program', 90, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', '467711000124100', 'Referral to housing assistance program', 20, 'SNOMED:467711000124100', 1),
+       ('sdoh_interventions', '467721000124107', 'Referral to transportation assistance program', 30, 'SNOMED:467721000124107', 1),
+       ('sdoh_interventions', '467731000124109', 'Referral to utility assistance program', 40, 'SNOMED:467731000124109', 1),
+       ('sdoh_interventions', '428191000124101', 'Education about community resources', 50, 'SNOMED:428191000124101', 1),
+       ('sdoh_interventions', '464031000124108', 'Referral to social worker', 60, 'SNOMED:464031000124108', 1),
+       ('sdoh_interventions', '385763009', 'Lifestyle education', 70, 'SNOMED:385763009', 1),
+       ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1),
+       ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 100, 'SNOMED:467701000124103', 1),
+       ('sdoh_interventions', 'assist_transport', 'Assistance with transportation', 110, 'SNOMED:467721000124107', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_status', 'Care Plan Status', 0);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','draft','Draft',10);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','active','Active',20);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','on-hold','On hold',30);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','revoked','Revoked',40);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);

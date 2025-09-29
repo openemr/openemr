@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\BaseForm;
 
@@ -57,6 +58,48 @@ class FormService
         return $all;
     }
 
+    public function addForm(
+        $encounter,
+        $form_name,
+        $form_id,
+        $formdir,
+        $pid,
+        $authorized = "0",
+        $date = "NOW()",
+        $user = "",
+        $group = "",
+        $therapy_group = 'not_given'
+    ) {
+
+        global $attendant_type;
+        if (!$user) {
+            $user = $_SESSION['authUser'] ?? null;
+        }
+
+        if (!$group) {
+            $group = $_SESSION['authProvider'] ?? null;
+        }
+
+        if ($therapy_group == 'not_given') {
+            $therapy_group = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'];
+        }
+
+        //print_r($_SESSION['therapy_group']);die;
+        $arraySqlBind = array();
+        $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
+            "user, groupname, authorized, formdir, therapy_group_id) values (";
+        if ($date == "NOW()") {
+            $sql .= "$date";
+        } else {
+            $sql .= "?";
+            array_push($arraySqlBind, $date);
+        }
+
+        $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
+        return QueryUtils::sqlInsert($sql, $arraySqlBind);
+    }
+
     public function saveEncounterForm(BaseForm $form): BaseForm
     {
         // first we insert the form
@@ -78,5 +121,17 @@ class FormService
         $id = QueryUtils::sqlInsert($encounterFormSql, $encounterFormBind);
         $form->setId($id);
         return $form;
+    }
+
+    public function hasFormPermission($formDir)
+    {
+        // get the aco spec from registry table
+        $acoSpec = QueryUtils::fetchSingleValue(
+            "SELECT aco_spec FROM registry WHERE directory = ?",
+            'aco_spec',
+            array($formDir)
+        );
+        $permission = explode('|', ($acoSpec ?? ''));
+        return AclMain::aclCheckCore($permission[0], $permission[1] ?? null);
     }
 }

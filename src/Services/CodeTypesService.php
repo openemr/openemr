@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use InvalidArgumentException;
 
 /**
  * Service for code type
@@ -428,5 +429,47 @@ class CodeTypesService
             ];
         }
         return $codeableConcepts;
+    }
+
+    /**
+     * Return listing of pertinent and active code types.
+     *
+     * Function will return listing (ct_key) of pertinent
+     * active code types, such as diagnosis codes or procedure
+     * codes in a chosen format. Supported returned formats include
+     * as 1) an array and as 2) a comma-separated lists that has been
+     * process by urlencode() in order to place into URL  address safely.
+     *
+     * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
+     * @param  string       $return_format  format or returned code types ('array' or 'csv')
+     * @return string|array
+     */
+    public function collectCodeTypes($category, $return_format = "array"): string|array
+    {
+        global $code_types;
+
+        // could turn this into an enum later if desired
+        if (!in_array($return_format, ['array','csv'])) {
+            throw new InvalidArgumentException("Unsupported return format: $return_format");
+        }
+
+        $code_remap = [
+            'active' => 'active',
+            'clinical_term' => 'term',
+            'diagnosis' => 'diag',
+            'drug' => 'drug',
+            'medical_problem' => 'problem',
+            'procedure' => 'proc',
+        ];
+        $cat_code = $code_remap[$category] ?? null;
+        if ($cat_code === null) {
+            throw new InvalidArgumentException("Unsupported code category: $category");
+        }
+
+        $return = array_keys(array_filter($code_types, function ($ct_arr) use ($cat_code) {
+            return ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false);
+        }));
+
+        return $return_format === 'csv' ? csv_like_join($return) : $return;
     }
 }

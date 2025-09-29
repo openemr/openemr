@@ -58,6 +58,7 @@ use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
@@ -345,6 +346,10 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+// Add related persons to result array
+$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
+$relSvc->mergeIntoResult((int)$pid, $result);
+
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData(
     $pid,

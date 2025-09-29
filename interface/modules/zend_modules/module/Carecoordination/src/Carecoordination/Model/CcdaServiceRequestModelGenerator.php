@@ -174,7 +174,7 @@ class CcdaServiceRequestModelGenerator
         $this->data .= $this->getEncounterccdadispatchTable()->getLegalAuthenticator($pid, $encounter);
         $this->data .= $this->getEncounterccdadispatchTable()->getDocumentParticipants($pid, $encounter);
         $this->data .= $this->getEncounterccdadispatchTable()->getAuthenticator($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getPatientCarePlan($pid, $encounter);
+        $this->data .= $this->getEncounterccdadispatchTable()->getPatientCareTeam($pid, $encounter);
         /***************CCDA Header Information***************/
 
         /***************CCDA Body Information***************/

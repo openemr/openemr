@@ -2,9 +2,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use Laminas\Form\Element\Search;
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -32,6 +31,7 @@ use OpenEMR\Validators\ProcessingResult;
 abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
 {
     use ResourceServiceSearchTrait;
+    use SystemLoggerAwareTrait;
 
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
@@ -42,9 +42,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      * Url to the base fhir api location
      * @var string
      */
-    private $fhirApiURL;
+    private ?string $fhirApiURL;
 
-    public function __construct($fhirApiURL = null)
+    public function __construct(?string $fhirApiURL = null)
     {
         $params = $this->loadSearchParameters();
         $this->resourceSearchParameters = is_array($params) ? $params : [];
@@ -53,7 +53,11 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         $this->setFhirApiUrl($fhirApiURL);
     }
 
-    public function setFhirApiUrl($fhirApiURL)
+    /**
+     * @param string|null $fhirApiURL
+     * @return void
+     */
+    public function setFhirApiUrl(?string $fhirApiURL)
     {
         // anything using a 'reference' search field MUST have a URL resolver to handle the reference translation
         // so if we have the api url we are going to create our resolver.
@@ -90,6 +94,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         if (empty($searchParams)) {
             return [];
         }
+        if (empty($paramsToFilter)) {
+            return [];
+        }
         $filteredParams = [];
         foreach ($paramsToFilter as $param => $value) {
             if ($this->getSearchFieldFactory()->hasSearchField($param)) {
@@ -103,23 +110,23 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @param array $dataRecord The source OpenEMR data record
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return FHIRDomainResource the FHIR Resource. Returned format is defined using $encode parameter.
      */
     abstract public function parseOpenEMRRecord($dataRecord = array(), $encode = false);
 
     /**
      * Parses a FHIR Resource, returning the equivalent OpenEMR record.
      *
-     * @param $fhirResource The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record (array)
      */
     abstract public function parseFhirResource(FHIRDomainResource $fhirResource);
 
     /**
      * Inserts a FHIR resource into the system.
-     * @param $fhirResource The FHIR resource
+     * @param FHIRDomainResource $fhirResource The FHIR resource
      * @return ProcessingResult The OpenEMR Service Result
      */
     public function insert(FHIRDomainResource $fhirResource): ProcessingResult
@@ -136,9 +143,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Inserts a FHIR resource into the system.
-     * @param $fhirResourceId The FHIR Resource ID used to lookup the existing FHIR resource/OpenEMR record
-     * @param $fhirResource The FHIR resource.
-     * @return The OpenEMR Service Result
+     * @param string $fhirResourceId The FHIR Resource ID used to lookup the existing FHIR resource/OpenEMR record
+     * @param FHIRDomainResource $fhirResource The FHIR resource.
+     * @return ProcessingResult The OpenEMR Service Result
      */
     public function update($fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
     {
@@ -162,15 +169,16 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Updates an existing OpenEMR record.
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return The OpenEMR Service Result
+     * @param string $fhirResourceId  The OpenEMR record's FHIR Resource ID.
+     * @param array $updatedOpenEMRRecord The "updated" OpenEMR record.
+     * @return mixed The OpenEMR Service Result
      */
     abstract protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord);
 
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
+     * @param $fhirResourceId string The OpenEMR record's FHIR Resource ID.
+     * @param $puuidBind string|null Optional variable to only allow visibility of the patient with this puuid.
      */
     public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult
     {
@@ -185,9 +193,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Executes a FHIR Resource search given a set of parameters.
-     * @param $fhirSearchParameters The FHIR resource search parameters
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return processing result
+     * @param array $fhirSearchParameters The FHIR resource search parameters
+     * @param string|null $puuidBind Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
@@ -205,7 +213,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         try {
             $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
 
-            (new SystemLogger())->debug("FhirServiceBase->getAll() Created search parameters ", ['searchParameters' => array_keys($oeSearchParameters)]);
+            $this->getSystemLogger()->debug("FhirServiceBase->getAll() Created search parameters ", ['searchParameters' => array_keys($oeSearchParameters)]);
             // gives a ton of information but this can be helpful in debugging this stuff.
 //            array_walk($oeSearchParameters, function ($v) {
 //                echo $v;
@@ -232,13 +240,13 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
                         if ($provenanceResource) {
                             $fhirSearchResult->addData($provenanceResource);
                         } else {
-                            (new SystemLogger())->debug(get_class($this) . ":getAll() did not return a provenance record when requested");
+                            $this->getSystemLogger()->debug(get_class($this) . ":getAll() did not return a provenance record when requested");
                         }
                     }
                 }
             }
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = $this->getSystemLogger();
             $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
@@ -249,8 +257,8 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @return OpenEMR records
+     * @param array $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     abstract protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult;
 
@@ -258,11 +266,11 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      * Searches for OpenEMR records using OpenEMR search parameters and the search configuration.  We would make this
      * abstract but to preserve backwards compatability with existing installations we leave it as is.  Services that
      * wish to leverage the search query config can implement this method.
-     * @param openEMRSearchParameters OpenEMR search fields
+     * @param array $openEMRSearchParameters OpenEMR search fields
      * @param SearchQueryConfig $searchConfig The search configuration (sort order, pagination, etc)
-     * @return OpenEMR records
+     * @return ProcessingResult OpenEMR records
      */
-    protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $searchConfig): ProcessingResult
+    protected function searchForOpenEMRRecordsWithConfig(array $openEMRSearchParameters, SearchQueryConfig $searchConfig): ProcessingResult
     {
         return $this->searchForOpenEMRRecords($openEMRSearchParameters);
     }
@@ -270,9 +278,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @param mixed $dataRecord The source OpenEMR data record
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return FHIRProvenance the FHIR Resource. Returned format is defined using $encode parameter.
      */
     abstract public function createProvenanceResource($dataRecord, $encode = false);
 
