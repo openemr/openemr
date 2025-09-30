@@ -583,7 +583,7 @@ class InstallerController extends AbstractActionController
         }
 
         while (false !== ($sfname = readdir($dh))) {
-            if (substr($sfname, 0, 1) == '.') {
+            if (str_starts_with($sfname, '.')) {
                 continue;
             }
 

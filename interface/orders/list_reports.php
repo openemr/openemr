@@ -317,7 +317,7 @@ function doWait(e){
         if (is_array($infoval) && !empty($infoval['mssgs'])) {
             foreach ($infoval['mssgs'] as $message) {
                 $s .= " <tr class='detail'>\n";
-                if (substr($message, 0, 1) == '*') {
+                if (str_starts_with($message, '*')) {
                     $errors = true;
                     // Error message starts with '*'
                     if (!$count++) {

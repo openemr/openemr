@@ -113,7 +113,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
         $default = '1800-01-01T00:00:00';
     }
 
-    if (strlen($str) < 10 || substr($str, 0, 4) == '0000') {
+    if (strlen($str) < 10 || str_starts_with($str, '0000')) {
         $str = $default;
     } elseif (strlen($str) > 10) {
         $str = substr($str, 0, 10) . 'T' . substr($str, 11);

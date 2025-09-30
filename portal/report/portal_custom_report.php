@@ -887,7 +887,7 @@ foreach ($ar as $key => $val) {
 
                 echo "</div>";
             }
-        } elseif (strpos($key, "issue_") === 0) {
+        } elseif (str_starts_with($key, "issue_")) {
             // display patient Issues
 
             if ($first_issue) {

@@ -246,7 +246,7 @@ while ($frow = sqlFetchArray($fres)) {
     $list_id    = $frow['list_id'];
     $currvalue  = '';
 
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with($field_id, 'em_')) {
         $tmp = substr($field_id, 3);
         if (isset($erow[$tmp])) {
             $currvalue = $erow[$tmp];

@@ -870,7 +870,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
                 $aco_spec = false;
 
-                if (substr($formdir, 0, 3) == 'LBF') {
+                if (str_starts_with($formdir, 'LBF')) {
                     // Skip LBF forms that we are not authorized to see.
                     $lrow = sqlQuery(
                         "SELECT grp_aco_spec " .
@@ -962,7 +962,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
                 }
 
-                if (substr($formdir, 0, 3) == 'LBF') {
+                if (str_starts_with($formdir, 'LBF')) {
                     // A link for a nice printout of the LBF
                     echo "<a target='_blank' " .
                         "href='$rootdir/forms/LBF/printable.php?" .

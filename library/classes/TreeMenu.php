@@ -153,7 +153,7 @@ class HTML_TreeMenu
                     foreach ($aNode as $key => $val) {
                         if (!is_array($val)) {
                             // Dont get the recursive data in here! they are always arrays
-                            if (substr($key, 0, 2) == 'on') {  // get the events
+                            if (str_starts_with($key, 'on')) {  // get the events
                                 $events[$key] = $val;
                             }
 

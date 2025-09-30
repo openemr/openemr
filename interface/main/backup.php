@@ -263,7 +263,7 @@ if ($form_step == 102.2) {
                     $xtitle = '';
                 }
                 $xdesc = $row['description'];
-                if (substr($xdesc, 0, 1) != '<') {
+                if (!str_starts_with($xdesc, '<')) {
                     $xdesc = xl_layout_label($xdesc);
                 }
                 if ($xdesc === $row['description']) {
@@ -852,10 +852,10 @@ if ($form_step == 102) {
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 // History and demographics exports will get special treatment.
-                if (substr($layoutid, 0, 3) == 'HIS') {
+                if (str_starts_with($layoutid, 'HIS')) {
                     $do_history_repair = true;
                 }
-                if (substr($layoutid, 0, 3) == 'DEM') {
+                if (str_starts_with($layoutid, 'DEM')) {
                     $do_demographics_repair = true;
                 }
             }

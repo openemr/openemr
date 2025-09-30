@@ -46,7 +46,7 @@ class Parser_HL7v2
 
             foreach ($classMethods as $method) {
                 if (
-                    substr($method, 0, 3) == "get" &&
+                    str_starts_with($method, "get") &&
                     !in_array($method, $segmentMethods) &&
                     $segment->$method()
                 ) {

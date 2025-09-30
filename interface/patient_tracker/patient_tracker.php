@@ -83,13 +83,13 @@ if (!$GLOBALS['ptkr_date_range']) {
 
 //set default end date of flow board to value based on globals
 if ($GLOBALS['ptkr_date_range']) {
-    if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+    if (str_starts_with($GLOBALS['ptkr_end_date'], 'Y')) {
         $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+    } elseif (str_starts_with($GLOBALS['ptkr_end_date'], 'M')) {
         $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+    } elseif (str_starts_with($GLOBALS['ptkr_end_date'], 'D')) {
         $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
     }

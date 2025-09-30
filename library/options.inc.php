@@ -398,7 +398,7 @@ function parse_static_text($frow, $value_allowed = true)
 {
     $tmp = str_replace("\r\n", "\n", $frow['description']);
     // Translate if it does not look like HTML.
-    if (substr($tmp, 0, 1) != '<') {
+    if (!str_starts_with($tmp, '<')) {
         $tmp2 = $frow['description'];
         $tmp3 = xl_layout_label($tmp);
         if ($tmp3 == $tmp && $tmp2 != $tmp) {
@@ -643,10 +643,10 @@ function generate_form_field($frow, $currvalue): void
     $lbfchange = (
         !empty($form_id) &&
         (
-            strpos($form_id, 'LBF') === 0 ||
-            strpos($form_id, 'LBT') === 0 ||
-            strpos($form_id, 'DEM') === 0 ||
-            strpos($form_id, 'HIS') === 0
+            str_starts_with($form_id, 'LBF') ||
+            str_starts_with($form_id, 'LBT') ||
+            str_starts_with($form_id, 'DEM') ||
+            str_starts_with($form_id, 'HIS')
         )
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
@@ -919,7 +919,7 @@ function generate_form_field($frow, $currvalue): void
         echo "<option value=''>" . htmlspecialchars(xl('Unassigned'), ENT_NOQUOTES) . "</option>";
         while ($urow = sqlFetchArray($ures)) {
             $uname = $urow['organization'];
-            if (empty($uname) || substr($uname, 0, 1) == '(') {
+            if (empty($uname) || str_starts_with($uname, '(')) {
                 $uname = $urow['lname'];
                 if ($urow['fname']) {
                     $uname .= ", " . $urow['fname'];
@@ -3453,7 +3453,7 @@ function isSkipped(&$frow, $currvalue)
             $tmp = explode('|', $srcvalue);
             $srcvalue = '';
             foreach ($tmp as $tmp2) {
-                if (strpos($tmp2, "$itemid:") === 0) {
+                if (str_starts_with($tmp2, "$itemid:")) {
                     if ($datatype == 22) {
                         $srcvalue = substr($tmp2, strlen($itemid) + 1);
                     } else {
@@ -3488,7 +3488,7 @@ function isSkipped(&$frow, $currvalue)
         $prevcond = $condition;
     }
 
-    if (substr($action, 0, 6) == 'hsval=') {
+    if (str_starts_with($action, 'hsval=')) {
         return $prevcond ? 'skip' : ('value=' . substr($action, 6));
     }
     return $prevcond ? $action : '';
@@ -3567,7 +3567,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
 
             if ($formtype == 'DEM') {
-                if (strpos($field_id, 'em_') === 0) {
+                if (str_starts_with($field_id, 'em_')) {
                     // Skip employer related fields, if it's disabled.
                     if ($GLOBALS['omit_employers']) {
                         continue;
@@ -3800,7 +3800,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 $span_col_row = isOption($edit_options, 'SP');
 
                 if ($formtype == 'DEM') {
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with($field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
                         if ($GLOBALS['omit_employers']) {
                             continue;
@@ -4105,7 +4105,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 accumActionConditions($group_fields, $condition_str);
 
                 if ($formtype == 'DEM') {
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with($field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
                         if ($GLOBALS['omit_employers']) {
                             continue;
@@ -4777,7 +4777,7 @@ function lbf_current_value($frow, $formid, $encounter)
         if ($source == 'H') {
             $table = 'history_data';
             $orderby = 'ORDER BY date DESC LIMIT 1';
-        } elseif (strpos($field_id, 'em_') === 0) {
+        } elseif (str_starts_with($field_id, 'em_')) {
             $field_id = substr($field_id, 3);
             $table = 'employer_data';
             $orderby = 'ORDER BY date DESC LIMIT 1';

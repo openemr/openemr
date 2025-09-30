@@ -551,7 +551,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 "ORDER BY group_id, seq");
             while ($mfrow = sqlFetchArray($mfres)) {
                 $field_id = $mfrow['field_id'];
-                if (strpos($field_id, 'em_') === 0) {
+                if (str_starts_with($field_id, 'em_')) {
                     continue;
                 }
 

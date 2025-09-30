@@ -202,7 +202,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
                     displayError(xl("ERROR: Unable to Create Zip Archive."));
                     return;
         }
-    } elseif (substr($raw, 0, 4) == "send") {
+    } elseif (str_starts_with($raw, "send")) {
         $recipient = trim(stripslashes(substr($raw, 5)));
         $ccd_out = $ccr->saveXml();
         $result = transmitCCD($pid, $ccd_out, $recipient, $requested_by, "CCR");
@@ -303,7 +303,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = ""): void
         }
     }
 
-    if (substr($raw, 0, 4) == "send") {
+    if (str_starts_with($raw, "send")) {
         $recipient = trim(stripslashes(substr($raw, 5)));
         $ccd_out = $ccd->saveXml();
         $result = transmitCCD($pid, $ccd_out, $recipient, $requested_by);
@@ -388,7 +388,7 @@ function createHybridXML($ccr): void
 if ($_POST['ccrAction']) {
     $raw = $_POST['raw'];
   /* If transmit requested, fail fast if the recipient address fails basic validation */
-    if (substr($raw, 0, 4) == "send") {
+    if (str_starts_with($raw, "send")) {
         $send_to = trim(stripslashes(substr($raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
             echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
