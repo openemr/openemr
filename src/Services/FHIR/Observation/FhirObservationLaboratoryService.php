@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -246,7 +247,6 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         } else {
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
-
 
         if (!empty($dataRecord['provider']['uuid']) && !empty($dataRecord['provider']['npi'])) {
             $observation->addPerformer(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid']));
