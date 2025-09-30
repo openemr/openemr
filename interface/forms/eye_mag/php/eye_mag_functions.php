@@ -5655,6 +5655,21 @@ function display_VisualAcuities($pid = 0): void
             //return $b['visit_date'] <=> $a['visit_date'];
         });
         $flip_priors = new ArrayIterator(array_reverse($priors));
+        $array_va_dates = [];
+        $array_va_SCODVA = [];
+        $array_va_SCOSVA = [];
+        $array_va_CCODVA = [];
+        $array_va_CCOSVA = [];
+        $array_va_PHODVA = [];
+        $array_va_PHOSVA = [];
+        $array_va_ARODVA = [];
+        $array_va_AROSVA = [];
+        $array_va_MRODVA = [];
+        $array_va_MROSVA = [];
+        $array_va_CRODVA = [];
+        $array_va_CROSVA = [];
+        $array_va_CTLODVA = [];
+        $array_va_CTLOSVA = [];
         foreach ($flip_priors as $prior) {
             if ($prior['visit_date'] > $visit_date) {
                 continue;
@@ -5672,7 +5687,7 @@ function display_VisualAcuities($pid = 0): void
             $prior['CCOSVA'] = $wear['OSVA'];
 
             $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
-            $va_dates[]   = $visit['exam_date'];
+            $array_va_dates[]   = $visit['exam_date'];
             // Some people write Va as 20/20, or 6/6.
             // We need to remove the prefix + the "/"
             // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
@@ -5689,95 +5704,38 @@ function display_VisualAcuities($pid = 0): void
             $prior['MROSVA'] = preg_replace("/\d+\//", "", $prior['MROSVA']);
             $prior['CTLODVA'] = preg_replace("/\d+\//", "", $prior['CTLODVA']);
             $prior['CTLOSVA'] = preg_replace("/\d+\//", "", $prior['CTLOSVA']);
-            $va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
-            $va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
-            $va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CCODVA']);
-            $va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CCOSVA']);
-            $va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
-            $va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
-            $va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
-            $va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
-            $va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
-            $va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
-            $va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
-            $va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
-            $va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
-            $va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
+            $array_va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
+            $array_va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
+            $array_va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CCODVA']);
+            $array_va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CCOSVA']);
+            $array_va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
+            $array_va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
+            $array_va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
+            $array_va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
+            $array_va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
+            $array_va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
+            $array_va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
+            $array_va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
+            $array_va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
+            $array_va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
             $flip_priors_CC[] = $prior;
         }
 
-        $VA_dates = implode("','", $va_dates);
-
-        if (strlen(implode($va_SCODVA)) !== 0) {
-            $VA_SCODVA = implode(',', $va_SCODVA);
-        } else {
-            $VA_SCODVA = '';
-        }
-        if (strlen(implode($va_SCOSVA)) !== 0) {
-            $VA_SCOSVA = implode(',', $va_SCOSVA);
-        } else {
-            $VA_SCOSVA = '';
-        }
-        if (strlen(implode($va_CCODVA)) !== 0) {
-            $VA_CCODVA = implode(',', $va_CCODVA);
-        } else {
-            $VA_CCODVA = '';
-        }
-        if (strlen(implode($va_CCOSVA)) !== 0) {
-            $VA_CCOSVA = implode(',', $va_CCOSVA);
-        } else {
-            $VA_CCOSVA = '';
-        }
-        if (strlen(implode($va_PHODVA)) !== 0) {
-            $VA_PHODVA = implode(',', $va_PHODVA);
-        } else {
-            $VA_PHODVA = '';
-        }
-        if (strlen(implode($va_PHOSVA)) !== 0) {
-            $VA_PHOSVA = implode(',', $va_PHOSVA);
-        } else {
-            $VA_PHOSVA = '';
-        }
-        if (strlen(implode($va_ARODVA)) !== 0) {
-            $VA_ARODVA = implode(',', $va_ARODVA);
-        } else {
-            $VA_ARODVA = '';
-        }
-        if (strlen(implode($va_AROSVA)) !== 0) {
-            $VA_AROSVA = implode(',', $va_AROSVA);
-        } else {
-            $VA_AROSVA = '';
-        }
-        if (strlen(implode($va_MRODVA)) !== 0) {
-            $VA_MRODVA = implode(',', $va_MRODVA);
-        } else {
-            $VA_MRODVA = '';
-        }
-        if (strlen(implode($va_MROSVA)) !== 0) {
-            $VA_MROSVA = implode(',', $va_MROSVA);
-        } else {
-            $VA_MROSVA = '';
-        }
-        if (strlen(implode($va_CRODVA)) !== 0) {
-            $VA_CRODVA = implode(',', $va_CRODVA);
-        } else {
-            $VA_CRODVA = '';
-        }
-        if (strlen(implode($va_CROSVA)) !== 0) {
-            $VA_CROSVA = implode(',', $va_CROSVA);
-        } else {
-            $VA_CROSVA = '';
-        }
-        if (strlen(implode($va_CTLODVA)) !== 0) {
-            $VA_CTLODVA = implode(',', $va_CTLODVA);
-        } else {
-            $VA_CTLODVA = '';
-        }
-        if (strlen(implode($va_CTLOSVA)) !== 0) {
-            $VA_CTLOSVA = implode(',', $va_CTLOSVA);
-        } else {
-            $VA_CTLOSVA = '';
-        }
+        $VA_dates = implode("','", $array_va_dates);
+        $VA_SCODVA = implode(',', $array_va_SCODVA);
+        $VA_SCOSVA = implode(',', $array_va_SCOSVA);
+        $VA_CCODVA = implode(',', $array_va_CCODVA);
+        $VA_CCOSVA = implode(',', $array_va_CCOSVA);
+        $VA_PHODVA = implode(',', $array_va_PHODVA);
+        $VA_PHOSVA = implode(',', $array_va_PHOSVA);
+        $VA_ARODVA = implode(',', $array_va_ARODVA);
+        $VA_AROSVA = implode(',', $array_va_AROSVA);
+        $VA_MRODVA = implode(',', $array_va_MRODVA);
+        $VA_MROSVA = implode(',', $array_va_MROSVA);
+        $VA_CRODVA = implode(',', $array_va_CRODVA);
+        $VA_CROSVA = implode(',', $array_va_CROSVA);
+        $VA_CTLODVA = implode(',', $array_va_CTLODVA);
+        $VA_CTLOSVA = implode(',', $array_va_CTLOSVA);
         ?>
         <div>
             <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>

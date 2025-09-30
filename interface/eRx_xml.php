@@ -793,7 +793,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
 
     $res_med = sqlStatement("select * from lists where type='medication' and pid=? and title<>''
 	and erx_uploaded='0' $active order by enddate limit 0," . escape_limit($med_limit), array($pid));
-    $uploaded_med_arr = "";
+    $uploaded_med_arr = [];
     while ($row_med = sqlFetchArray($res_med)) {
         $uploaded_med_arr[] = $row_med['id'];
         $b = $doc->createElement("OutsidePrescription");
