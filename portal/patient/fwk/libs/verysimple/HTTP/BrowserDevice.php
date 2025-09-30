@@ -120,7 +120,7 @@ class BrowserDevice
     public static function GetInstance()
     {
         if (! isset(self::$instance)) {
-            $c = __CLASS__;
+            $c = self::class;
             self::$instance = new $c();
             self::$instance->Detect();
         }
