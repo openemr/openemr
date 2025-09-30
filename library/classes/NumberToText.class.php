@@ -87,7 +87,7 @@ class NumberToText
 
         //$negative = ($number < 0); // check for negative
         //$number = abs($number); // make sure we have a +ve number
-        if (substr($number, 0, 1) == "-") {
+        if (str_starts_with($number, "-")) {
             $negative = true;
             $number = substr($number, 1); // abs()
         } else {

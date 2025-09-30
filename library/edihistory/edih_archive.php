@@ -81,7 +81,7 @@ function edih_archive_report($period = '')
                         continue;
                     }
 
-                    if (substr($fn, 0, 1) == '.') {
+                    if (str_starts_with($fn, '.')) {
                         $dir_ct--;
                         continue;
                     }

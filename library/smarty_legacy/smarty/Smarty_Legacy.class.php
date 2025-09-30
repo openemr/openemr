@@ -1705,7 +1705,7 @@ class Smarty_Legacy
      */
     function _dequote($string)
     {
-        if ((substr($string, 0, 1) == "'" || substr($string, 0, 1) == '"') &&
+        if ((str_starts_with($string, "'") || str_starts_with($string, '"')) &&
             substr($string, -1) == substr($string, 0, 1))
             return substr($string, 1, -1);
         else

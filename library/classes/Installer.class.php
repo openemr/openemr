@@ -460,7 +460,7 @@ class Installer
         while (!$this->atEndOfFile($fd)) {
             $line = $this->getLine($fd, 1024);
             $line = rtrim($line);
-            if ($line === "" || substr($line, 0, 2) === "--" || substr($line, 0, 1) === "#") {
+            if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
                 continue;
             }
 
@@ -781,7 +781,7 @@ $config = 1; /////////////
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
-                if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
+                if (is_array($fldtype) || !str_starts_with($fldtype, 'm_')) {
                     $this->writeGlobal($fldid, $flddef, 0, true);
                 }
             }

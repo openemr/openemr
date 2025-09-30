@@ -348,13 +348,13 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
-if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
+if (str_starts_with($GLOBALS['ledger_begin_date'], 'Y')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'M') {
+} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'M')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'D') {
+} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'D')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }

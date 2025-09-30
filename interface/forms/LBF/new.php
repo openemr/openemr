@@ -278,7 +278,7 @@ if (
                 // Do not call updateHistoryData() here! That would create multiple rows
                 // in the history_data table for a single form save.
                 $newhistorydata[$field_id] = $value;
-            } elseif (strpos($field_id, 'em_') === 0) {
+            } elseif (str_starts_with($field_id, 'em_')) {
                 $field_id = substr($field_id, 3);
                 $new = [$field_id => $value];
                 updateEmployerData($pid, $new);

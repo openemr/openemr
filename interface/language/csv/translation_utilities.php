@@ -129,7 +129,7 @@ function verify_file($filename, $language, $replace = true, $source_name = '', $
                 $definition = str_replace("\r\n", "\n", $data[$definition_column]);
                 if (!$first || $constant != 'constant_name') {
                     $result = verify_translation($constant, $definition, $language, $replace, $source_name);
-                    if ((strpos($result, '[2]') !== 0) && (strpos($result, '[1]') !== 0)) {
+                    if ((!str_starts_with($result, '[2]')) && (!str_starts_with($result, '[1]'))) {
                         echo text(substr($result, 3)) . "<br>";
                     }
                 }

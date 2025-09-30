@@ -113,7 +113,7 @@ class ParseERA
             $buffer = str_replace(["\n", "\r"], '', $buffer);
 
             // If this is the ISA segment then figure out what the delimiters are.
-            if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
+            if ($segid === '' && str_starts_with($inline, 'ISA')) {
                 $delimiter2 = substr($inline, 3, 1);
                 $delimiter3 = substr($inline, -1);
             }
@@ -509,7 +509,7 @@ class ParseERA
             $buffer = str_replace(["\n", "\r"], '', $buffer);
 
             // If this is the ISA segment then figure out what the delimiters are.
-            if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
+            if ($segid === '' && str_starts_with($inline, 'ISA')) {
                 $delimiter2 = substr($inline, 3, 1);
                 $delimiter3 = substr($inline, -1);
             }

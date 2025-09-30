@@ -233,7 +233,7 @@ class PatientMenuRole extends MenuRole
     {
         if ($rel_url && !strpos($rel_url, "://")) {
             // Normalize URL if it starts with a forward or backward slash
-            if (strpos($rel_url, '/') === 0 || strpos($rel_url, '\\') === 0) {
+            if (str_starts_with($rel_url, '/') || str_starts_with($rel_url, '\\')) {
                 $rel_url = ltrim($rel_url, '/\\');
             }
             return $GLOBALS['webroot'] . "/" . $rel_url;

@@ -107,7 +107,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 
     $camos_content = [];
     foreach ($_POST as $key => $val) {
-        if (substr($key, 0, 3) == 'ch_') {
+        if (str_starts_with($key, 'ch_')) {
             $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr($key, 3)]);
             if ($result = sqlFetchArray($query)) {
                 if ($_POST['print_html']) { //do this change to formatting only for html output
@@ -121,7 +121,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             }
         }
 
-        if (substr($key, 0, 5) == 'chrx_') {
+        if (str_starts_with($key, 'chrx_')) {
             $rx = new Prescription(substr($key, 5));
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
             $content = ''

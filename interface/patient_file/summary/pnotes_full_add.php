@@ -89,7 +89,7 @@ if (isset($mode)) {
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (strncmp($var, 'act', 3) == 0) {
+            if (str_starts_with($var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);

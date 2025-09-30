@@ -861,7 +861,7 @@ if ($eid) {
     $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
-    if (substr($hometext, 0, 6) == ':text:') {
+    if (str_starts_with($hometext, ':text:')) {
         $hometext = substr($hometext, 6);
     }
 } else {

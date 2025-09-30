@@ -47,7 +47,7 @@ class SLEOB
                 "fname LIKE ? " .
                 "ORDER BY pid DESC", [$out['patient_lname'], $out['patient_fname']]);
             while ($prow = sqlFetchArray($pres)) {
-                if (strpos($invnumber, $prow['pid']) === 0) {
+                if (str_starts_with($invnumber, $prow['pid'])) {
                     $pid = $prow['pid'];
                     $encounter = substr($invnumber, strlen($pid));
                     break;

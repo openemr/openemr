@@ -2058,7 +2058,7 @@ class CarecoordinationTable extends AbstractTableGateway
                             }
                         }
                     }
-                } elseif (substr($key, 0, 12) == 'patient_data') {
+                } elseif (str_starts_with($key, 'patient_data')) {
                     if ($val == 'update') {
                         $var_name = substr($key, 0, -4);
                         $field_name = substr($var_name, 13);

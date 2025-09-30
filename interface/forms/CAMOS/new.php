@@ -70,7 +70,7 @@ if ($_POST['hidden_item']) {
 }
 
 //handle changes to database
-if (substr($_POST['hidden_mode'] ?? '', 0, 3) == 'add') {
+if (str_starts_with($_POST['hidden_mode'] ?? '', 'add')) {
     if ($_POST['hidden_selection'] == 'change_category') {
         $preselect_category_override = $_POST['change_category'];
         $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_category") . " (user, category) values (?, ?)";
@@ -246,7 +246,7 @@ var special_select_end = 0;
 
 <?php
 
-if (substr($_POST['hidden_mode'] ?? '', 0, 5) == 'clone') {
+if (str_starts_with($_POST['hidden_mode'] ?? '', 'clone')) {
     echo "clone_mode = true;\n";
 }
 ?>
@@ -479,7 +479,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
     $clone_data1 = '';
     $clone_data2 = '';
     $clone_data_array = [];
-    if (substr($_POST['hidden_mode'] ?? '', 0, 5) == 'clone') {
+    if (str_starts_with($_POST['hidden_mode'] ?? '', 'clone')) {
         $clone_category = $_POST['category'] ? $_POST['category'] : '';
         $clone_category_term = '';
         if ($clone_category != '') {
@@ -519,7 +519,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
         $clone_search_term = '';
         if (!empty($clone_search)) {
             $clone_search =  preg_replace('/\s+/', '%', $clone_search);
-            if (substr($clone_search, 0, 1) == "`") {
+            if (str_starts_with($clone_search, "`")) {
                 $clone_subcategory_term = '';
                 $clone_item_term = '';
                 $clone_search = substr($clone_search, 1);
@@ -528,7 +528,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
             $clone_search_term = " and content like '%" . add_escape_custom($clone_search) . "%'";
         }
 
-        if (substr($_POST['hidden_mode'] ?? '', 0, 12) == 'clone others') {
+        if (str_starts_with($_POST['hidden_mode'] ?? '', 'clone others')) {
             if (preg_match('/^(export)(.*)/', $clone_search, $matches)) {
                 $query1 = "select id, category from " . mitigateSqlTableUpperCase("form_CAMOS_category");
                 $statement1 = sqlStatement($query1);
@@ -746,7 +746,7 @@ if ($preselect_category_override != '') {
   }
 <?php
 
-if (substr($_POST['hidden_mode'] ?? '', 0, 5) == 'clone') {
+if (str_starts_with($_POST['hidden_mode'] ?? '', 'clone')) {
     echo "f2.textarea_content.value = '';\n";
 //  echo "f2.textarea_content.value += '/* count = ".count($clone_data_array)."*/\\n$break\\n';";
     echo "f2.textarea_content.value += '/* count = " . count($clone_data_array) . "*/\\n$break\\n';";
