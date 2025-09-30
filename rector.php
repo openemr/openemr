@@ -80,6 +80,7 @@ use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 use Rector\Php74\Rector\StaticCall\ExportToReflectionFunctionRector;
 use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
+use Rector\Php80\Rector\ClassConstFetch\ClassOnThisVariableObjectRector;
 use Rector\Php80\Rector\ClassMethod\AddParamBasedOnParentClassMethodRector;
 use Rector\Php80\Rector\ClassMethod\FinalPrivateToPrivateVisibilityRector;
 use Rector\Php80\Rector\ClassMethod\SetStateToStaticRector;
@@ -168,6 +169,7 @@ return RectorConfig::configure()
         ChangeSwitchToMatchRector::class, // one of the withPhpSets rules
         ClassConstantToSelfClassRector::class, // one of the withPhpSets rules
         ClassOnObjectRector::class, // one of the withPhpSets rules
+        ClassOnThisVariableObjectRector::class, // one of the withPhpSets rules
         ClosureToArrowFunctionRector::class, // one of the withPhpSets rules
         ConsistentImplodeRector::class, // one of the withPhpSets rules
         ContinueToBreakInSwitchRector::class,
