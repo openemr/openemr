@@ -24,7 +24,14 @@ class StandardRouteFinder implements IRouteFinder
 
     public function find(HttpRestRequest $request): array
     {
-        $routes = include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php';
+        /**
+         * @see apis/routes/_rest_routes_standard.inc.php
+         * @see apis/routes/_rest_routes_standard_user.inc.php
+         */
+        $routes = array_merge(
+            include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php',
+            include __DIR__ . '/../../../apis/routes/_rest_routes_standard_user.inc.php',
+        );
 
         // This method is intended to handle the request and extend routes.
         // Implementation details would depend on the specific requirements of the application.
