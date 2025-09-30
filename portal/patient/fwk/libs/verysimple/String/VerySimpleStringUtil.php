@@ -358,7 +358,7 @@ class VerySimpleStringUtil
                 $encoded = htmlentities(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
 
                 // @hack if htmlentities didn't encode it, then we need to do a charset conversion
-                if ($encoded != '' && substr($encoded, 0, 1) != '&') {
+                if ($encoded != '' && !str_starts_with($encoded, '&')) {
                     $encoded = mb_convert_encoding($encoded, 'HTML-ENTITIES', self::$DEFAULT_CHARACTER_SET);
                 }
 

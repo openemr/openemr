@@ -254,7 +254,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 $lres = getLayoutRes();
                 while ($lrow = sqlFetchArray($lres)) {
                     $field_id  = $lrow['field_id'];
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with($field_id, 'em_')) {
                         continue;
                     }
                     $data_type = $lrow['data_type'];

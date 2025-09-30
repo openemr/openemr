@@ -440,7 +440,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     function _compile_tag($template_tag)
     {
         /* Matched comment. */
-        if (substr($template_tag, 0, 1) == '*' && str_ends_with($template_tag, '*'))
+        if (str_starts_with($template_tag, '*') && str_ends_with($template_tag, '*'))
             return '';
 
         /* Split tag into two three parts: command, command modifiers and the arguments. */
@@ -544,7 +544,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             case 'strip':
             case '/strip':
-                if (substr($tag_command, 0, 1)=='/') {
+                if (str_starts_with($tag_command, '/')) {
                     $this->_pop_tag('strip');
                     if (--$this->_strip_depth==0) { /* outermost closing {/strip} */
                         $this->_additional_newline = "\n";
@@ -679,7 +679,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      */
     function _compile_block_tag($tag_command, $tag_args, $tag_modifier, &$output)
     {
-        if (substr($tag_command, 0, 1) == '/') {
+        if (str_starts_with($tag_command, '/')) {
             $start_tag = false;
             $tag_command = substr($tag_command, 1);
         } else
@@ -848,7 +848,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      */
     function _compile_registered_object_tag($tag_command, $attrs, $tag_modifier)
     {
-        if (substr($tag_command, 0, 1) == '/') {
+        if (str_starts_with($tag_command, '/')) {
             $start_tag = false;
             $tag_command = substr($tag_command, 1);
         } else {
@@ -1800,11 +1800,11 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             }
 
             foreach ($_indexes as $_index) {
-                if (substr($_index, 0, 1) == '[') {
+                if (str_starts_with($_index, '[')) {
                     $_index = substr($_index, 1, -1);
                     if (is_numeric($_index)) {
                         $_output .= "[$_index]";
-                    } elseif (substr($_index, 0, 1) == '$') {
+                    } elseif (str_starts_with($_index, '$')) {
                         if (strpos($_index, '.') !== false) {
                             $_output .= '[' . $this->_parse_var($_index) . ']';
                         } else {
@@ -1816,12 +1816,12 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                         $_var_section_prop = $_var_parts[1] ?? 'index';
                         $_output .= "[\$this->_sections['$_var_section']['$_var_section_prop']]";
                     }
-                } else if (substr($_index, 0, 1) == '.') {
+                } else if (str_starts_with($_index, '.')) {
                     if (substr($_index, 1, 1) == '$')
                         $_output .= "[\$this->_tpl_vars['" . substr($_index, 2) . "']]";
                     else
                         $_output .= "['" . substr($_index, 1) . "']";
-                } else if (substr($_index,0,2) == '->') {
+                } else if (str_starts_with($_index, '->')) {
                     if(substr($_index,2,2) == '__') {
                         $this->_syntax_error('call to internal object members is not allowed', E_USER_ERROR, __FILE__, __LINE__);
                     } elseif($this->security && substr($_index, 2, 1) == '_') {
@@ -1835,7 +1835,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     } else {
                         $_output .= $_index;
                     }
-                } elseif (substr($_index, 0, 1) == '(') {
+                } elseif (str_starts_with($_index, '(')) {
                     $_index = $this->_parse_parenth_args($_index);
                     $_output .= $_index;
                 } else {
@@ -1932,7 +1932,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             preg_match_all('~:(' . $this->_qstr_regexp . '|[^:]+)~', $modifier_arg_strings[$_i], $_match);
             $_modifier_args = $_match[1];
 
-            if (substr($_modifier_name, 0, 1) == '@') {
+            if (str_starts_with($_modifier_name, '@')) {
                 $_map_array = false;
                 $_modifier_name = substr($_modifier_name, 1);
             } else {
@@ -1954,10 +1954,10 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             if($_modifier_name == 'default') {
                 // supress notifications of default modifier vars and args
-                if(substr($output, 0, 1) == '$') {
+                if(str_starts_with($output, '$')) {
                     $output = '@' . $output;
                 }
-                if(isset($_modifier_args[0]) && substr($_modifier_args[0], 0, 1) == '$') {
+                if(isset($_modifier_args[0]) && str_starts_with($_modifier_args[0], '$')) {
                     $_modifier_args[0] = '@' . $_modifier_args[0];
                 }
             }
@@ -2009,7 +2009,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         /* Extract the reference name. */
         $_ref = substr($indexes[0], 1);
         foreach($indexes as $_index_no=>$_index) {
-            if (substr($_index, 0, 1) != '.' && $_index_no<2 || !preg_match('~^(\.|\[|->)~', $_index)) {
+            if (!str_starts_with($_index, '.') && $_index_no<2 || !preg_match('~^(\.|\[|->)~', $_index)) {
                 $this->_syntax_error('$smarty' . implode('', array_slice($indexes, 0, 2)) . ' is an invalid reference', E_USER_ERROR, __FILE__, __LINE__);
             }
         }

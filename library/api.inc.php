@@ -45,7 +45,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
         if ($key == "csrf_token_form") {
             continue;
         }
-        if (strpos($key, "openemr_net_cpt") === 0) {
+        if (str_starts_with($key, "openemr_net_cpt")) {
             //code to auto add cpt code
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);

@@ -533,7 +533,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
         $areport[$key]['.age2'] = [0,0];               // age array
         $areport[$key]['.age9'] = [0,0,0,0,0,0,0,0,0]; // age array
         foreach ($arr_show as $askey => $dummy) {
-            if (substr($askey, 0, 1) == '.') {
+            if (str_starts_with($askey, '.')) {
                 continue;
             }
 
@@ -603,7 +603,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
     $areport[$key]['.age2'][$i] += $quantity;
 
     foreach ($arr_show as $askey => $dummy) {
-        if (substr($askey, 0, 1) == '.') {
+        if (str_starts_with($askey, '.')) {
             continue;
         }
 
@@ -1278,7 +1278,7 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 if ($_POST['form_submit']) {
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {
-        if (substr($askey, 0, 1) == '.') {
+        if (str_starts_with($askey, '.')) {
             continue;
         }
 

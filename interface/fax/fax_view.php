@@ -36,7 +36,7 @@ if ($jobid) {
 
     while (!feof($jfhandle)) {
         $line = trim(fgets($jfhandle));
-        if (substr($line, 0, 12) == '!postscript:') {
+        if (str_starts_with($line, '!postscript:')) {
             $ffname = $GLOBALS['hylafax_basedir'] . '/' .
                 substr($line, strrpos($line, ':') + 1);
             break;

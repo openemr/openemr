@@ -446,7 +446,7 @@ function getFormData($start_date, $end_date, $lname, $fname)
             }
         }
 
-        if (substr(strtolower($results1['form_name']), 0, 5) == 'camos') { // deal with camos
+        if (str_starts_with(strtolower($results1['form_name']), 'camos')) { // deal with camos
             $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id = ?", [$results1['form_id']]);
             if ($results2 = sqlFetchArray($query2)) {
                 if ($results2['category'] == 'exam') {

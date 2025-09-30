@@ -572,7 +572,7 @@ if ($eid !== 0) {
     }
 
     $hometext = $row['pc_hometext'];
-    if (substr($hometext, 0, 6) == ':text:') {
+    if (str_starts_with($hometext, ':text:')) {
         $hometext = substr($hometext, 6);
     }
 } else {

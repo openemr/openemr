@@ -300,7 +300,7 @@ class edih_x12_file
         if (class_exists('finfo')) {
             $finfo = new finfo(FILEINFO_MIME);
             $mimeinfo = $finfo->buffer($ftxt);
-            if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
+            if (!str_starts_with($mimeinfo, 'text/plain; charset=us-ascii')) {
                 $this->message[] = 'edih_x12_scan: ' . text($this->filename) . ' : invalid mime info: <br />' . text($mimeinfo);
                 //
                 return $hasval;
@@ -318,7 +318,7 @@ class edih_x12_file
 
         $hasval = 'ov'; // valid
         // check for required segments ISA GS ST; assume segment terminator is last character
-        if (substr($ftxt, 0, 3) === 'ISA') {
+        if (str_starts_with($ftxt, 'ISA')) {
             $hasval = 'ovi';
             $de = substr($ftxt, 3, 1);
             $dt = substr($ftxt, -1);
@@ -495,7 +495,7 @@ class edih_x12_file
 
         $isalen = strlen($isa_str);
         if ($isalen >= 106) {
-            if (substr($isa_str, 0, 3) != 'ISA') {
+            if (!str_starts_with($isa_str, 'ISA')) {
                 // not the starting characters
                 $this->message[] = 'edih_x12_delimiters: text does not begin with ISA';
                 return $delim_ar;
@@ -602,7 +602,7 @@ class edih_x12_file
             if (isset($this->delimiters['e'])) {
                 $de = $this->delimiters['e'];
             } else {
-                $de = (substr(reset($segment_ar), 0, 3) == 'ISA') ? substr(reset($segment_ar), 3, 1) : '';
+                $de = (str_starts_with(reset($segment_ar), 'ISA')) ? substr(reset($segment_ar), 3, 1) : '';
             }
         } else {
             $this->message[] = 'edih_x12_envelopes: no text or segments';
@@ -1034,7 +1034,7 @@ class edih_x12_file
             if (count($this->delimiters)) {
                 $de = $this->delimiters['e'];
             } else {
-                $de = (substr(reset($segment_ar), 0, 3) == 'ISA') ? substr(reset($segment_ar), 3, 1) : '';
+                $de = (str_starts_with(reset($segment_ar), 'ISA')) ? substr(reset($segment_ar), 3, 1) : '';
             }
 
             $tp = ($this->type) ? $this->type : $this->edih_x12_type();
@@ -1063,7 +1063,7 @@ class edih_x12_file
 
         //array('HB'=>'271', 'HS'=>'270', 'HR'=>'276', 'HI'=>'278',
         //      'HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
-        if (substr($tp, 0, 5) == 'mixed') {
+        if (str_starts_with($tp, 'mixed')) {
             $tp = substr($tp, -2);
         }
 

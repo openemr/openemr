@@ -1220,7 +1220,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (substr($form_id, 0, 3) == 'LBF') {
+            if (str_starts_with($form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1231,7 +1231,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (substr($form_id, 0, 3) == 'LBT') {
+            } elseif (str_starts_with($form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]

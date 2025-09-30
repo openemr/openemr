@@ -300,7 +300,7 @@ abstract class Phreezable implements Serializable
         $src_cls = $src::class;
 
         foreach (get_object_vars($this) as $key => $val) {
-            if (substr($key, 0, 1) != "_") {
+            if (!str_starts_with($key, "_")) {
                 if (property_exists($src_cls, $key)) {
                     $this->$key = $src->$key;
                     $this->IsPartiallyLoaded(true);

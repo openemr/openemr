@@ -202,7 +202,7 @@ class RequestUtil
 
         $headers =  [];
         foreach ($_SERVER as $k => $v) {
-            if (substr($k, 0, 5) == "HTTP_") {
+            if (str_starts_with($k, "HTTP_")) {
                 $k = str_replace('_', ' ', substr($k, 5));
                 $k = str_replace(' ', '-', ucwords(strtolower($k)));
                 $headers [$k] = $v;
@@ -266,7 +266,7 @@ class RequestUtil
 
             $headers =  [];
             foreach ($_SERVER as $key => $value) {
-                if (substr($key, 0, 5) != 'HTTP_') {
+                if (!str_starts_with($key, 'HTTP_')) {
                     continue;
                 }
 
