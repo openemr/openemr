@@ -606,6 +606,8 @@ class AuthorizationController
 
             // If needed, serialize into a users session
             if ($this->providerForm) {
+                // used to keep track of the auth flow and avoid the session from being destroyed on login / patient selection
+                $session->set("oauth2_in_progress", true);
                 $this->serializeUserSession($authRequest, $session);
                 $logger->debug("AuthorizationController->oauthAuthorizationFlow() redirecting to provider form");
                 $psrFactory = new Psr17Factory();

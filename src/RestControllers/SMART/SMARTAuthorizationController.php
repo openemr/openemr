@@ -296,6 +296,7 @@ class SMARTAuthorizationController
         try {
             // we've got a user by their UUID... we need to grab the db user id
             $searchParams = $request->get('search', []);
+            $session = $request->getSession();
 
             // grab our list of patients to select from.
             $searchController = $this->getPatientContextSearchController();
@@ -315,6 +316,7 @@ class SMARTAuthorizationController
                     , 'lname' => $searchParams['lname'] ?? ''
                     , 'mname' => $searchParams['mname'] ?? ''
                     , 'redirect' => $redirect
+                    , 'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
                 ]
             );
         } catch (AccessDeniedException $error) {
