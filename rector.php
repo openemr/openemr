@@ -8,6 +8,7 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
+use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php56\Rector\FuncCall\PowToExpRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
@@ -74,6 +75,7 @@ return RectorConfig::configure()
         IfIssetToCoalescingRector::class, // one of the withPhpSets rules
         IfToSpaceshipRector::class, // one of the withPhpSets rules
         ListToArrayDestructRector::class, // one of the withPhpSets rules
+        LongArrayToShortArrayRector::class, // one of the withPhpSets rules
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
