@@ -704,7 +704,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
-            if ($_POST['form_individual'] ?? '' == 1) {
+            if (($_POST['form_individual'] ?? '') == 1) {
                 $where .= " OR f.encounter = ? ";
                 array_push($sqlArray, $newencounter);
             } else {
@@ -1129,7 +1129,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         list($insname, $unused , $ptname, $trash) = explode('|', $key);
         list($pid, $encounter) = explode(".", $row['invnumber']);
         if (!empty($_POST['form_cb'])) {
-            if ($_POST['form_cb'][$row['invnumber']] ?? '' == 'on') {
+            if (($_POST['form_cb'][$row['invnumber']] ?? '') == 'on') {
                 $encounters[] = $encounter;
             }
         }

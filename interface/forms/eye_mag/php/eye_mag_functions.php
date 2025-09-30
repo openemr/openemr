@@ -333,8 +333,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     </table>
                 </div>
 
-            <?php ($EXT_VIEW ?? '' == 1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view = "narrow_textarea");?>
-            <?php ($display_EXT_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
+            <?php
+                [$display_EXT_view, $marker] = (($EXT_VIEW ?? '') == 1)
+                    ? ['wide_textarea', 'fa-minus-square-o']
+                    : ['narrow_textarea', 'fa-plus-square-o'];
+            ?>
             <div id="PRIOR_EXT_text_list" name="PRIOR_EXT_text_list" class="borderShadow PRIORS <?php echo attr($display_EXT_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_EXT_text_view" id="PRIOR_EXT_text_view"></span>
                 <table cellspacing="0" cellpadding="0" >
@@ -495,8 +498,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 </tr>
             </table>
         </div>
-        <?php ($ANTSEG_VIEW ?? '' == '1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view = "narrow_textarea");?>
-        <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
+        <?php
+            [$display_ANTSEG_view, $marker] = (($ANTSEG_VIEW ?? '') == '1')
+                ? ['wide_textarea', 'fa-minus-square-o']
+                : ['narrow_textarea', 'fa-plus-square-o'];
+        ?>
         <div id="PRIOR_ANTSEG_text_list"  name="PRIOR_ANTSEG_text_list" class="borderShadow PRIORS <?php echo attr($display_ANTSEG_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_ANTSEG_text_view" id="PRIOR_ANTSEG_text_view"></span>
                 <table>
@@ -595,8 +601,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             </table>
         </div>
 
-        <?php ($RETINA_VIEW ?? '' == 1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view = "narrow_textarea");?>
-        <?php ($display_RETINA_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
+        <?php
+            [$display_RETINA_view, $marker] = (($RETINA_VIEW ?? '') == 1)
+                ? ['wide_textarea', 'fa-minus-square-o']
+                : ['narrow_textarea', 'fa-plus-square-o'];
+        ?>
         <div>
             <div id="PRIOR_RETINA_text_list" name="PRIOR_RETINA_text_list" class="borderShadow PRIORS <?php echo attr($display_RETINA_view); ?>">
                     <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_RETINA_text_view" id="PRIOR_RETINA_text_view"></span>

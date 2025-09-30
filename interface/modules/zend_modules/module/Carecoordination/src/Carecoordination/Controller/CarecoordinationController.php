@@ -943,7 +943,7 @@ class CarecoordinationController extends AbstractActionController
                     $patientCountHash[$patientNameIndex];
                 }
             } elseif ($componentCount == ($patientDocumentsIndex + 1)) {
-                if ($patientCountHash[$patientNameIndex] ?? '' > $maxDocuments) {
+                if (($patientCountHash[$patientNameIndex] ?? '') > $maxDocuments) {
                     $shouldDeleteIndex = true;
                 } else {
                     if (!empty($patientCountHash[$patientNameIndex])) {

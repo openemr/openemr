@@ -176,7 +176,7 @@ if ($_REQUEST['providerid']) {
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
     // phyaura whimmel facility filtering
-    if ($_REQUEST['facility'] ?? '' > 0) {
+    if (($_REQUEST['facility'] ?? '') > 0) {
             $facility = $_REQUEST['facility'];
             $query .= " AND pc_facility = ?";
             array_push($sqlBindArray, $facility);

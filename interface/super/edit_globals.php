@@ -189,7 +189,7 @@ function checkBackgroundServices(): void
                             $fldvalue = trim($_POST["form_$i"] ?? '');
                         }
                         setUserSetting($label, $fldvalue, $_SESSION['authUserID'], false);
-                        if ($_POST["toggle_$i"] ?? '' == "YES") {
+                        if (($_POST["toggle_$i"] ?? '') == "YES") {
                             removeUserSetting($label);
                         }
 
