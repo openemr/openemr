@@ -8,6 +8,7 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\Config\RectorConfig;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\ValueObject\PhpVersion;
 
@@ -47,6 +48,7 @@ return RectorConfig::configure()
         ArrayKeyExistsOnPropertyRector::class, // one of the withPhpSets rules
         ArrayKeyFirstLastRector::class, // one of the withPhpSets rules
         AssignArrayToStringRector::class, // one of the withPhpSets rules
+        ChangeSwitchToMatchRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
