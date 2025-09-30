@@ -577,14 +577,10 @@ function phimail_extension($mime)
         default:
     }
 
-    switch ($m[1]) {
-        case 'html':
-        case 'xml':
-        case 'pdf':
-            return ("." . $m[1]);
-        default:
-            return (".dat");
-    }
+    return match ($m[1]) {
+        'html', 'xml', 'pdf' => "." . $m[1],
+        default => ".dat",
+    };
 }
 
 function phimail_service_userID($name = 'phimail-service')

@@ -90,16 +90,11 @@ class MfaUtils
      */
     public function check($token, $type)
     {
-        switch ($type) {
-            case 'TOTP':
-                return $this->checkTOTP($token);
-                break;
-            case 'U2F':
-                return $this->checkU2F($token);
-                break;
-            default:
-                throw new \Exception('MFA type do not supported');
-        }
+        return match ($type) {
+            'TOTP' => $this->checkTOTP($token),
+            'U2F' => $this->checkU2F($token),
+            default => throw new \Exception('MFA type do not supported'),
+        };
     }
 
     /**
@@ -227,16 +222,11 @@ class MfaUtils
      */
     private function validateToken($token, $type)
     {
-        switch ($type) {
-            case 'TOTP':
-                return strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false;
-                break;
-            case 'U2F':
-                // todo - USF string validation
-                return true;
-                break;
-            default:
-                throw new \Exception('MFA type do not supported');
-        }
+        return match ($type) {
+            'TOTP' => strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            // todo - USF string validation
+            'U2F' => true,
+            default => throw new \Exception('MFA type do not supported'),
+        };
     }
 }

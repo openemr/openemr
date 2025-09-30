@@ -187,29 +187,16 @@ class Savant3
         // for plugins with very few parameters. thanks to
         // Andreas Korthaus for profiling the code to find
         // the slowdown.
-        switch (count($args)) {
-            case 0:
-                return $plugin->$func();
-
-            case 1:
-                return $plugin->$func($args [0]);
-                break;
-
-            case 2:
-                return $plugin->$func($args [0], $args [1]);
-                break;
-
-            case 3:
-                return $plugin->$func($args [0], $args [1], $args [2]);
-                break;
-
-            default:
-                return call_user_func_array(array (
-                        $plugin,
-                        $func
-                ), $args);
-                break;
-        }
+        return match (count($args)) {
+            0 => $plugin->$func(),
+            1 => $plugin->$func($args [0]),
+            2 => $plugin->$func($args [0], $args [1]),
+            3 => $plugin->$func($args [0], $args [1], $args [2]),
+            default => call_user_func_array(array (
+                    $plugin,
+                    $func
+            ), $args),
+        };
     }
 
     /**

@@ -75,32 +75,21 @@ class HttpSessionFactory implements SessionFactoryInterface
     }
     private function getSessionSettings(): array
     {
-        switch ($this->sessionType) {
-            case self::SESSION_TYPE_OAUTH:
-                return SessionConfigurationBuilder::forOAuth($this->web_root);
-
-            case self::SESSION_TYPE_API:
-                return SessionConfigurationBuilder::forApi($this->web_root);
-
-            case self::SESSION_TYPE_CORE:
-                return SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly);
-
-            default:
-                throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}");
-        }
+        return match ($this->sessionType) {
+            self::SESSION_TYPE_OAUTH => SessionConfigurationBuilder::forOAuth($this->web_root),
+            self::SESSION_TYPE_API => SessionConfigurationBuilder::forApi($this->web_root),
+            self::SESSION_TYPE_CORE => SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly),
+            default => throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}"),
+        };
     }
 
     private function getSessionKey(): string
     {
-        switch ($this->sessionType) {
-            case self::SESSION_TYPE_OAUTH:
-                return SessionUtil::OAUTH_SESSION_ID;
-            case self::SESSION_TYPE_API:
-                return SessionUtil::API_SESSION_ID;
-            case self::SESSION_TYPE_CORE:
-            default:
-                return SessionUtil::CORE_SESSION_ID;
-        }
+        return match ($this->sessionType) {
+            self::SESSION_TYPE_OAUTH => SessionUtil::OAUTH_SESSION_ID,
+            self::SESSION_TYPE_API => SessionUtil::API_SESSION_ID,
+            default => SessionUtil::CORE_SESSION_ID,
+        };
     }
     private function getSessionHandlerInterface(array $settings): ?\SessionHandlerInterface
     {

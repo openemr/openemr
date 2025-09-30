@@ -55,24 +55,13 @@ function mapCodeType($incode)
 {
     $outcode = null;
     $code = explode(":", $incode);
-    switch ($code[0]) {
-        case "ICD9":
-            $outcode = "I9CDX";
-            break;
-        case "ICD10":
-            $outcode = "I10";
-            break;
-        case "SNOMED-CT":
-            $outcode = "SCT";
-            break;
-        case "US Ext SNOMEDCT":
-            $outcode = "SCT";
-            break;
-        default:
-            $outcode = "I9CDX"; // default to ICD9
-            break;
-             // Only ICD9, ICD10 and SNOMED codes allowed in Syndromic Surveillance
-    }
+    $outcode = match ($code[0]) {
+        "ICD9" => "I9CDX",
+        "ICD10" => "I10",
+        "SNOMED-CT" => "SCT",
+        "US Ext SNOMEDCT" => "SCT",
+        default => "I9CDX",
+    };
 
     return $outcode;
 }

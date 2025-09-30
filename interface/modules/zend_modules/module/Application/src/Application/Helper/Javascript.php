@@ -18,16 +18,10 @@ class Javascript extends AbstractHelper
 {
     public function __invoke()
     {
-        switch (true) {
-            case (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] === true)):
-            case (isset($_SERVER['HTTP_SCHEME']) && ($_SERVER['HTTP_SCHEME'] == 'https')):
-            case (443 === $_SERVER['SERVER_PORT']):
-                $scheme = 'https://';
-                break;
-            default:
-                $scheme = 'http://';
-                break;
-        }
+        $scheme = match (true) {
+            isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] === true), isset($_SERVER['HTTP_SCHEME']) && ($_SERVER['HTTP_SCHEME'] == 'https'), 443 === $_SERVER['SERVER_PORT'] => 'https://',
+            default => 'http://',
+        };
 
         $basePath = str_replace("/index.php", "", $_SERVER['PHP_SELF']);
         echo '<script>';
