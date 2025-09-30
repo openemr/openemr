@@ -760,7 +760,7 @@ foreach (explode(',', $given) as $item) {
                         <td class="right text-nowrap"><strong id="by_whom"><?php echo xlt('Eye Med'); ?>:</strong></td>
                         <td colspan="3"><?php echo $irow['subtype'] ?? ''; ?>
                             <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1' <?php
-                            if ($irow['subtype'] ?? '' == 'eye') {
+                            if (($irow['subtype'] ?? '') == 'eye') {
                                 echo " checked";
                             }
                             ?> style="margin:3px 3px 3px 5px;" title='<?php echo xla('Indicates if this issue is an ophthalmic-specific medication'); ?>' />

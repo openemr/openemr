@@ -1314,9 +1314,9 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
-                                    <option value="required" <?php echo $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
-                                    <option value="signed" <?php echo $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
+                                    <option value="not_required" <?php echo ($row['order_abn'] ?? '') === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php echo ($row['order_abn'] ?? '') === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php echo ($row['order_abn'] ?? '') === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
                                 </select>
                             </div>
                             <div class="clearfix"></div>
