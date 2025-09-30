@@ -77,41 +77,37 @@ trait Cat3View
     public function supplemental_template_ids(\Mustache_Context $context): array
     {
         $type = $context->find('type');
-        switch ($type) {
-            case 'RACE':
-                return [
-                    ['tid' => '2.16.840.1.113883.10.20.27.3.8', 'extension' => '2016-09-01']
-                ];
-            case 'ETHNICITY':
-                return [
-                    ['tid' => '2.16.840.1.113883.10.20.27.3.7', 'extension' => '2016-09-01']
-                ];
-            case 'SEX':
-                return [
-                    ['tid' => '2.16.840.1.113883.10.20.27.3.6', 'extension' => '2016-09-01']
-                ];
-            case 'PAYER':
-                return [
-                    ['tid' => '2.16.840.1.113883.10.20.27.3.9', 'extension' => '2016-02-01'],
-                    ['tid' => '2.16.840.1.113883.10.20.27.3.18', 'extension' => '2018-05-01']
-                ];
-        }
-        /**
-        def supplemental_template_ids
-        case self['type']
-        when 'RACE'
-        [{ tid: '2.16.840.1.113883.10.20.27.3.8', extension: '2016-09-01' }]
-        when 'ETHNICITY'
-        [{ tid: '2.16.840.1.113883.10.20.27.3.7', extension: '2016-09-01' }]
-        when 'SEX'
-        [{ tid: '2.16.840.1.113883.10.20.27.3.6', extension: '2016-09-01' }]
-        when 'PAYER'
-        [{ tid: '2.16.840.1.113883.10.20.27.3.9', extension: '2016-02-01' },
-        { tid: '2.16.840.1.113883.10.20.27.3.18', extension: '2018-05-01' }]
-        end
-        end
-         */
-        return [];
+        return match ($type) {
+            'RACE' => [
+                ['tid' => '2.16.840.1.113883.10.20.27.3.8', 'extension' => '2016-09-01']
+            ],
+            'ETHNICITY' => [
+                ['tid' => '2.16.840.1.113883.10.20.27.3.7', 'extension' => '2016-09-01']
+            ],
+            'SEX' => [
+                ['tid' => '2.16.840.1.113883.10.20.27.3.6', 'extension' => '2016-09-01']
+            ],
+            'PAYER' => [
+                ['tid' => '2.16.840.1.113883.10.20.27.3.9', 'extension' => '2016-02-01'],
+                ['tid' => '2.16.840.1.113883.10.20.27.3.18', 'extension' => '2018-05-01']
+            ],
+            /**
+                    def supplemental_template_ids
+                    case self['type']
+                    when 'RACE'
+                    [{ tid: '2.16.840.1.113883.10.20.27.3.8', extension: '2016-09-01' }]
+                    when 'ETHNICITY'
+                    [{ tid: '2.16.840.1.113883.10.20.27.3.7', extension: '2016-09-01' }]
+                    when 'SEX'
+                    [{ tid: '2.16.840.1.113883.10.20.27.3.6', extension: '2016-09-01' }]
+                    when 'PAYER'
+                    [{ tid: '2.16.840.1.113883.10.20.27.3.9', extension: '2016-02-01' },
+                    { tid: '2.16.840.1.113883.10.20.27.3.18', extension: '2018-05-01' }]
+                    end
+                    end
+            */
+            default => [],
+        };
     }
 
     public function cms_payer_code(\Mustache_Context $context): string
@@ -143,69 +139,61 @@ trait Cat3View
     public function supplemental_data_code(\Mustache_Context $context): array
     {
         $type = $context->find('type');
-        switch ($type) {
-            case 'RACE':
-                return [
-                    [ "supplemental_data_code" => '72826-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
-                ];
-            case 'ETHNICITY':
-                return [
-                    [ "supplemental_data_code" => '69490-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
-                ];
-            case 'SEX':
-                return [
-                    [ "supplemental_data_code" => '76689-9', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
-                ];
-            case 'PAYER':
-                return [
-                    ["supplemental_data_code" => '48768-6', "supplemental_data_code_system" => '2.16.840.1.113883.6.1']
-                ];
-        }
-        /**
-        def supplemental_data_code
-        case self['type']
-        when 'RACE'
-        [{ supplemental_data_code: '72826-1', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
-        when 'ETHNICITY'
-        [{ supplemental_data_code: '69490-1', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
-        when 'SEX'
-        [{ supplemental_data_code: '76689-9', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
-        when 'PAYER'
-        [{ supplemental_data_code: '48768-6', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
-        end
-        end
-         */
-        return [];
+        return match ($type) {
+            'RACE' => [
+                [ "supplemental_data_code" => '72826-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
+            ],
+            'ETHNICITY' => [
+                [ "supplemental_data_code" => '69490-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
+            ],
+            'SEX' => [
+                [ "supplemental_data_code" => '76689-9', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
+            ],
+            'PAYER' => [
+                ["supplemental_data_code" => '48768-6', "supplemental_data_code_system" => '2.16.840.1.113883.6.1']
+            ],
+            /**
+                    def supplemental_data_code
+                    case self['type']
+                    when 'RACE'
+                    [{ supplemental_data_code: '72826-1', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
+                    when 'ETHNICITY'
+                    [{ supplemental_data_code: '69490-1', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
+                    when 'SEX'
+                    [{ supplemental_data_code: '76689-9', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
+                    when 'PAYER'
+                    [{ supplemental_data_code: '48768-6', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
+                    end
+                    end
+            */
+            default => [],
+        };
     }
 
     public function supplemental_data_value_code_system(\Mustache_Context $context): string
     {
         $type = $context->find('type');
-        switch ($type) {
-            case 'RACE':
-                return '2.16.840.1.113883.6.238';
-            case 'ETHNICITY':
-                return '2.16.840.1.113883.6.238';
-            case 'SEX':
-                return '2.16.840.1.113883.5.1';
-            case 'PAYER':
-                return '2.16.840.1.113883.3.221.5';
-        }
-        /**
-        def supplemental_data_value_code_system
-        case self['type']
-        when 'RACE'
-        '2.16.840.1.113883.6.238'
-        when 'ETHNICITY'
-        '2.16.840.1.113883.6.238'
-        when 'SEX'
-        '2.16.840.1.113883.5.1'
-        when 'PAYER'
-        '2.16.840.1.113883.3.221.5'
-        end
-        end
-         */
-        return '';
+        return match ($type) {
+            'RACE' => '2.16.840.1.113883.6.238',
+            'ETHNICITY' => '2.16.840.1.113883.6.238',
+            'SEX' => '2.16.840.1.113883.5.1',
+            'PAYER' => '2.16.840.1.113883.3.221.5',
+            /**
+                    def supplemental_data_value_code_system
+                    case self['type']
+                    when 'RACE'
+                    '2.16.840.1.113883.6.238'
+                    when 'ETHNICITY'
+                    '2.16.840.1.113883.6.238'
+                    when 'SEX'
+                    '2.16.840.1.113883.5.1'
+                    when 'PAYER'
+                    '2.16.840.1.113883.3.221.5'
+                    end
+                    end
+            */
+            default => '',
+        };
     }
 
     public function unknown_supplemental_value(\Mustache_Context $context): bool

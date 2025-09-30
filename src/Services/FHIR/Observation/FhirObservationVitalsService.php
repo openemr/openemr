@@ -462,41 +462,30 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $this->populateBasicQuantityObservation($basic_codes[$code], $observation, $dataRecord);
         }
         // more complicated codes
-        switch ($code) {
-            case self::VITALS_PANEL_LOINC_CODE: // vital-signs panel
-                $this->populateVitalSignsPanelObservation($observation, $dataRecord);
-                break;
-            case '8327-9':
-                $this->populateBodyTemperatureLocation($observation, $dataRecord);
-                break;
-            case '85354-9': // blood pressure panel that includes systolic & diastolic pressure
-                $this->populateBloodPressurePanel($observation, $dataRecord);
-                break;
-            case '8480-6':
-                $this->populateComponentColumn(
-                    $observation,
-                    $dataRecord,
-                    'bps',
-                    '8480-6',
-                    $this->getDescriptionForCode('8480-6')
-                );
-                break;
-            case '8462-4':
-                $this->populateComponentColumn(
-                    $observation,
-                    $dataRecord,
-                    'bpd',
-                    '8462-4',
-                    $this->getDescriptionForCode('8462-4')
-                );
-                break;
-            case '2708-6':
-                $this->populateCoding($observation, '59408-5');
-                break;
-            case '59408-5':
-                $this->populatePulseOximetryObservation($observation, $dataRecord);
-                break;
-        }
+        match ($code) {
+            // vital-signs panel
+            self::VITALS_PANEL_LOINC_CODE => $this->populateVitalSignsPanelObservation($observation, $dataRecord),
+            '8327-9' => $this->populateBodyTemperatureLocation($observation, $dataRecord),
+            // blood pressure panel that includes systolic & diastolic pressure
+            '85354-9' => $this->populateBloodPressurePanel($observation, $dataRecord),
+            '8480-6' => $this->populateComponentColumn(
+                $observation,
+                $dataRecord,
+                'bps',
+                '8480-6',
+                $this->getDescriptionForCode('8480-6')
+            ),
+            '8462-4' => $this->populateComponentColumn(
+                $observation,
+                $dataRecord,
+                'bpd',
+                '8462-4',
+                $this->getDescriptionForCode('8462-4')
+            ),
+            '2708-6' => $this->populateCoding($observation, '59408-5'),
+            '59408-5' => $this->populatePulseOximetryObservation($observation, $dataRecord),
+            default => $observation,
+        };
         return $observation;
     }
 

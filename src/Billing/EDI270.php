@@ -259,16 +259,11 @@ class EDI270
         if ($qual == '102') {
             $DTP[3] = $row['date'];                 // Ins effective Date
         } else {
-            switch ($X12info['x12_dtp03']) {
-                case 'A':
-                    $dtp_date = !empty($row['pc_eventDate']) && $row['pc_eventDate'] > '20010101' ? $row['pc_eventDate'] : date("Ymd");
-                    break;
-                case 'E':
-                    $dtp_date = !empty($row['date']) && $row['date'] > '20010101' ? $row['date'] : date("Ymd");
-                    break;
-                default:
-                    $dtp_date = date("Ymd");
-            }
+            $dtp_date = match ($X12info['x12_dtp03']) {
+                'A' => !empty($row['pc_eventDate']) && $row['pc_eventDate'] > '20010101' ? $row['pc_eventDate'] : date("Ymd"),
+                'E' => !empty($row['date']) && $row['date'] > '20010101' ? $row['date'] : date("Ymd"),
+                default => date("Ymd"),
+            };
             $DTP[3] = $dtp_date;  // Date of Service
         }
         $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
@@ -325,17 +320,11 @@ class EDI270
 
     public static function translateRelationship($relationship)
     {
-        switch ($relationship) {
-            case "spouse":
-                return "01";
-                break;
-            case "child":
-                return "19";
-                break;
-            case "self":
-            default:
-                return "S";
-        }
+        return match ($relationship) {
+            "spouse" => "01",
+            "child" => "19",
+            default => "S",
+        };
     }
 
 // EDI-270 Batch file Generation

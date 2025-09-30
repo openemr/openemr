@@ -163,18 +163,9 @@ class ActionRouter implements IRouter
      */
     public function GetAction($url_param = "action", $default_action = "Account.DefaultAction")
     {
-        switch ($this->_mode) {
-            // TODO: Determine mobile/joomla URL action (if different from default)
-            /*
-             * case UrlWriterMode::JOOMLA:
-             * break;
-             * case UrlWriterMode::MOBILE:
-             * break;
-             */
-            default:
-                // default is to return the standard browser-based action=%s.%s&%s:
-                return RequestUtil::Get($url_param, $default_action);
-                break;
-        }
+        return match ($this->_mode) {
+            // default is to return the standard browser-based action=%s.%s&%s:
+            default => RequestUtil::Get($url_param, $default_action),
+        };
     }
 }
