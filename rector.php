@@ -30,6 +30,7 @@ use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
 use Rector\Php80\Rector\Identical\StrStartsWithRector;
@@ -64,6 +65,11 @@ return RectorConfig::configure()
         cacheDirectory: '/tmp/rector'
     )
     ->withCodeQualityLevel(5)
+    ->withConfiguredRule(ClassPropertyAssignToConstructorPromotionRector::class, [
+        'allow_model_based_classes' => true,
+        'inline_public' => false,
+        'rename_property' => true,
+    ])
     ->withDeadCodeLevel(5)
     // FIXME rector should pick the php version from composer.json
     // but that doesn't seem to be working, so hard-coding for now.
