@@ -20,6 +20,7 @@
  */
 
 use OpenEMR\RestControllers\Config\RestConfig;
+use OpenApi\Annotations as OA;
 
 /**
  *  @OA\Info(title="OpenEMR API", version="7.0.4")
@@ -315,7 +316,11 @@ use OpenEMR\RestControllers\Config\RestConfig;
 
 // Note that the api route is only for users role
 //  (there is a mechanism in place to ensure only user role can access the api route)
-RestConfig::$ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php";
+
+RestConfig::$ROUTE_MAP = array_merge(
+    require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php",
+    require_once __DIR__ . '/apis/routes/_rest_routes_standard_user.inc.php',
+);
 
 RestConfig::$FHIR_ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
 
