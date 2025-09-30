@@ -2,11 +2,14 @@
 
 /**
  * FhirObservationLaboratoryService.php
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\FHIR\Observation;
@@ -255,6 +258,29 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         if (!empty($dataRecord['patient'])) {
             $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['patient']['uuid']));
+        }
+
+        // Add specimen information (USCDI v5 requirement)
+        if (!empty($dataRecord['specimen_code'])) {
+            $specimen = new FHIRReference();
+            $specimen->setDisplay($dataRecord['specimen_type']);
+            $observation->setSpecimen($specimen);
+
+            // Add specimen extensions for additional USCDI v5 fields
+            // - Specimen Source Site
+            // - Specimen Identifier
+            // - Specimen Condition Acceptability
+        }
+
+        // Add interpretation (Result Interpretation - USCDI v5)
+        if (!empty($dataRecord['result_abnormal'])) {
+            $interpretation = UtilsService::createCodeableConcept([
+                $dataRecord['result_abnormal'] => [
+                    'code' => $dataRecord['result_abnormal'],
+                    'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION
+                ]
+            ]);
+            $observation->addInterpretation($interpretation);
         }
 
         return $observation;
