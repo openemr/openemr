@@ -939,7 +939,7 @@ class PHPFHIRAutoloader
         if (self::$_registered) {
             return self::$_registered;
         }
-        return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
+        return self::$_registered = spl_autoload_register(array(self::class, 'loadClass'), true);
     }
 
     /**
@@ -948,7 +948,7 @@ class PHPFHIRAutoloader
     public static function unregister()
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister(array(__CLASS__, 'loadClass'))) {
+            if (spl_autoload_unregister(array(self::class, 'loadClass'))) {
                 self::$_registered = false;
                 return true;
             }
