@@ -57,7 +57,7 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // listen for view events for routes in zend_modules
-        $oemrDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, [$this, 'addRestAPIRouteToMap']);
+        $oemrDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, $this->addRestAPIRouteToMap(...));
     }
 
     /*

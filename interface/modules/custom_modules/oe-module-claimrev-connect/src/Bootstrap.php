@@ -115,7 +115,7 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalSettingsSection']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalSettingsSection(...));
     }
 
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
@@ -148,14 +148,14 @@ class Bootstrap
     public function registerDemographicsEvents()
     {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_ELIGIBILITY_CARD)) {
-            $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, [$this, 'renderEligibilitySection']);
+            $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, $this->renderEligibilitySection(...));
         }
     }
 
     public function registerEligibilityEvents()
     {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_REALTIME_ELIGIBILITY)) {
-            $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, [$this, 'renderAppointmentSetEvent']);
+            $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, $this->renderAppointmentSetEvent(...));
         }
     }
     public function renderAppointmentSetEvent(AppointmentSetEvent $event)
@@ -207,7 +207,7 @@ class Bootstrap
      */
     public function registerTemplateEvents()
     {
-        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, [$this, 'addTemplateOverrideLoader']);
+        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, $this->addTemplateOverrideLoader(...));
     }
 
     /**
@@ -249,7 +249,7 @@ class Bootstrap
              * @global $eventDispatcher @see ModulesApplication::loadCustomModule
              * @global $module @see ModulesApplication::loadCustomModule
              */
-            $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
+            $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomModuleMenuItem(...));
         }
     }
 
