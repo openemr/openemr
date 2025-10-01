@@ -33,7 +33,7 @@ class Includer
         // use include instead of require so we can catch runtime exceptions
         // reset error handling back to whatever it was
         // *
-        set_error_handler( [
+        set_error_handler([
                 "Includer",
                 "IncludeException"
         ], E_WARNING);

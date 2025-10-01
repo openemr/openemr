@@ -837,7 +837,7 @@ $GLOBALS_METADATA = [
                 '5,6' => xl('Friday') . ' - ' . xl('Saturday'),
             ],
             '6,0'
-        , xl('which days are your weekend days?')
+            , xl('which days are your weekend days?')
         ]
 
     ],

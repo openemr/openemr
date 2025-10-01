@@ -682,7 +682,7 @@ $lres = sqlStatement(
     "WHERE di.drug_id = ? AND di.inventory_id != ? AND " .
     "di.on_hand > 0 AND di.destroy_date IS NULL " .
     "ORDER BY di.lot_number, lo.title, di.inventory_id",
-     [$drug_id,$lot_id]
+    [$drug_id,$lot_id]
 );
 while ($lrow = sqlFetchArray($lres)) {
     // TBD: For transfer to an existing lot do we want to force the same lot number?

@@ -113,11 +113,11 @@ class ActionRouter implements IRouter
         // get the action requested
         $params = explode(".", str_replace("/", ".", $uri));
         $controller_param = isset($params [0]) && $params [0] ? $params [0] : "";
-        $controller_param = str_replace( [
+        $controller_param = str_replace([
                 ".",
                 "/",
                 "\\"
-        ],  [
+        ], [
                 "",
                 "",
                 ""

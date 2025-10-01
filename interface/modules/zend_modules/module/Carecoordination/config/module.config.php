@@ -73,11 +73,11 @@ return [
                     'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ],
-                    'defaults' => [
+                     ],
+                     'defaults' => [
                         'controller' => SetupController::class,
                         'action'     => 'index',
-                    ],
+                     ],
                 ],
             ],
             'encounterccdadispatch' => [
