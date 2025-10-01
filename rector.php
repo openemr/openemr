@@ -13,6 +13,7 @@ use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\ValueObject\PhpVersion;
@@ -56,6 +57,7 @@ return RectorConfig::configure()
         BinaryOpBetweenNumberAndStringRector::class, // one of the withPhpSets rules
         ChangeSwitchToMatchRector::class, // one of the withPhpSets rules
         ClassConstantToSelfClassRector::class, // one of the withPhpSets rules
+        ClosureToArrowFunctionRector::class, // one of the withPhpSets rules
         ConsistentImplodeRector::class, // one of the withPhpSets rules
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
         DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
