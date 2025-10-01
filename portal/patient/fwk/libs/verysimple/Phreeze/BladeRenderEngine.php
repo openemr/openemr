@@ -97,7 +97,7 @@ class BladeRenderEngine implements IRenderEngine
 
         Laravel\Blade::sharpen();
 
-        $responses = Laravel\Event::fire(Laravel\View::engine,  [
+        $responses = Laravel\Event::fire(Laravel\View::engine, [
                 $view
         ]);
 

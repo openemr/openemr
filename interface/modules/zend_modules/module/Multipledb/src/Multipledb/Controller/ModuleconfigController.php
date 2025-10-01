@@ -42,7 +42,7 @@ class ModuleconfigController
                 'name' => "multipledb",
                 'title' => "Multipledb",
                 'path' => "public/multipledb",
-            ]
+             ]
         ];
         return $hooks;
     }

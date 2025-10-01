@@ -26,7 +26,7 @@ class InsuranceNumbers extends ORDataObject
         var $rendering_provider_number;
         var $group_number;
         var $provider_number_type;
-        var $provider_number_type_array = 
+        var $provider_number_type_array =
         [
             ""   => "Unspecified",
             "0B" => "State License Number",
@@ -50,7 +50,7 @@ class InsuranceNumbers extends ORDataObject
             "ZZ" => "Mutually Defined/Taxonomy"
         ];
         var $rendering_provider_number_type;
-        var $rendering_provider_number_type_array = 
+        var $rendering_provider_number_type_array =
         [
             ""   => "Unspecified",
             "0B" => "State License Number",

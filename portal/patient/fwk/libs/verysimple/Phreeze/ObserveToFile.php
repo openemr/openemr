@@ -49,11 +49,11 @@ class ObserveToFile implements IObserver
             $msg = $obj;
         }
 
-        $msg = date("Y-m-d H:i:s:u") . "\t" . getmypid() . "\t" . str_replace( [
+        $msg = date("Y-m-d H:i:s:u") . "\t" . getmypid() . "\t" . str_replace([
                 "\t",
                 "\r",
                 "\n"
-        ],  [
+        ], [
                 " ",
                 " ",
                 " "

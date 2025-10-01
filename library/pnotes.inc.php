@@ -555,7 +555,7 @@ function updatePnotePatient($id, $patient_id): void
 
 function authorizePnote($id, $authorized = "1"): void
 {
-    sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?",  [$authorized, $_SESSION['authUserID'], $id]);
+    sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?", [$authorized, $_SESSION['authUserID'], $id]);
 }
 
 function disappearPnote($id)
