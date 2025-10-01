@@ -15,6 +15,7 @@ use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Php81\Rector\Array_\FirstClassCallableRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -59,6 +60,7 @@ return RectorConfig::configure()
         ConsistentImplodeRector::class, // one of the withPhpSets rules
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
         DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
+        FirstClassCallableRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
