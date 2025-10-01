@@ -136,9 +136,9 @@ class SurgeryService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         if (isset($search['patient.uuid'])) {
             $isValidPatient = BaseValidator::validateId(
@@ -190,7 +190,7 @@ class SurgeryService extends BaseService
                 // code to support patient binding
                 $sql .= '(';
             }
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);

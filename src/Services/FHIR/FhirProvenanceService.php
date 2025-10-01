@@ -218,7 +218,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         return $dataRecord; //
     }

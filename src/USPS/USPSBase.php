@@ -57,12 +57,12 @@ class USPSBase
    * The response represented as an array
    * @var array
    */
-    protected $arrayResponse = array();
+    protected $arrayResponse = [];
   /**
    * All the post fields we will add to the call
    * @var array
    */
-    protected $postFields = array();
+    protected $postFields = [];
   /**
    * The api type we are about to call
    * @var string
@@ -75,7 +75,7 @@ class USPSBase
   /**
    * @var array - different kind of supported api calls by this wrapper
    */
-    protected $apiCodes = array(
+    protected $apiCodes = [
     'RateV2' => 'RateV2Request',
     'RateV4' => 'RateV4Request',
     'IntlRateV2' => 'IntlRateV2Request',
@@ -92,11 +92,11 @@ class USPSBase
     'ExpressMailIntl' => 'ExpressMailIntlRequest',
     'PriorityMailIntl' => 'PriorityMailIntlRequest',
     'FirstClassMailIntl' => 'FirstClassMailIntlRequest',
-    );
+    ];
   /**
    * Default options for curl.
      */
-    public static $CURL_OPTS = array(
+    public static $CURL_OPTS = [
     CURLOPT_CONNECTTIMEOUT => 30,
     CURLOPT_TIMEOUT        => 60,
     CURLOPT_FRESH_CONNECT  => 1,
@@ -104,7 +104,7 @@ class USPSBase
     CURLOPT_USERAGENT      => 'usps-php',
     CURLOPT_FOLLOWLOCATION => true,
     CURLOPT_RETURNTRANSFER => true,
-    );
+    ];
   /**
    * Constructor
    * @param string $username - the usps api username
@@ -127,7 +127,7 @@ class USPSBase
    */
     public function getPostData()
     {
-        $fields = array('API' => $this->apiVersion, 'XML' => $this->getXMLString());
+        $fields = ['API' => $this->apiVersion, 'XML' => $this->getXMLString()];
         return $fields;
     }
   /**
@@ -224,9 +224,9 @@ class USPSBase
     protected function getXMLString()
     {
       // Add in the defaults
-        $postFields = array(
-        '@attributes' => array('USERID' => $this->username),
-        );
+        $postFields = [
+        '@attributes' => ['USERID' => $this->username],
+        ];
 
       // Add in the sub class data
         $postFields = array_merge($postFields, $this->getPostFields());

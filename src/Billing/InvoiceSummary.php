@@ -44,7 +44,7 @@ class InvoiceSummary
 {
     public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false)
     {
-        $codes = array();
+        $codes = [];
         $keysuff1 = 1000;
         $keysuff2 = 5000;
 
@@ -53,7 +53,7 @@ class InvoiceSummary
             "date, code_type, code, modifier, code_text, fee " .
             "FROM billing WHERE " .
             "pid = ? AND encounter = ? AND " .
-            "activity = 1 AND fee != 0.00 ORDER BY id", array($patient_id, $encounter_id));
+            "activity = 1 AND fee != 0.00 ORDER BY id", [$patient_id, $encounter_id]);
 
         while ($row = sqlFetchArray($res)) {
             $amount = sprintf('%01.2f', $row['fee']);
@@ -84,10 +84,10 @@ class InvoiceSummary
             // Add the details if they want 'em.
             if ($with_detail) {
                 if (empty($codes[$code]['dtl'])) {
-                    $codes[$code]['dtl'] = array();
+                    $codes[$code]['dtl'] = [];
                 }
 
-                $tmp = array();
+                $tmp = [];
                 $tmp['chg'] = $amount;
                 $tmpkey = "          " . $keysuff1++;
                 $codes[$code]['dtl'][$tmpkey] = $tmp;
@@ -100,7 +100,7 @@ class InvoiceSummary
             "WHERE " .
             "s.pid = ? AND s.encounter = ? AND s.fee != 0 " .
             "ORDER BY s.sale_id";
-        $res = sqlStatement($query, array($patient_id, $encounter_id));
+        $res = sqlStatement($query, [$patient_id, $encounter_id]);
         while ($row = sqlFetchArray($res)) {
             $amount = sprintf('%01.2f', $row['fee']);
             $code = 'PROD:' . $row['drug_id'];
@@ -109,21 +109,21 @@ class InvoiceSummary
             // Add the details if they want 'em.
             if ($with_detail) {
                 if (!$codes[$code]['dtl']) {
-                    $codes[$code]['dtl'] = array();
+                    $codes[$code]['dtl'] = [];
                 }
 
-                $tmp = array();
+                $tmp = [];
                 $tmp['chg'] = $amount;
                 $tmpkey = "          " . $keysuff1++;
                 $codes[$code]['dtl'][$tmpkey] = $tmp;
             }
         }
         // Get insurance data for stuff
-        $ins_data = array();
+        $ins_data = [];
         $res = sqlStatement("SELECT insurance_data.type as type, insurance_companies.name as name " .
             "FROM insurance_data " .
             "INNER JOIN insurance_companies ON insurance_data.provider = insurance_companies.id " .
-            "WHERE insurance_data.pid = ?", array($patient_id));
+            "WHERE insurance_data.pid = ?", [$patient_id]);
         while ($row = sqlFetchArray($res)) {
             $ins_data[$row['type']] = $row['name'];
         }
@@ -137,7 +137,7 @@ class InvoiceSummary
             "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
             "LEFT OUTER JOIN insurance_companies AS i ON i.id = s.payer_id " .
             "WHERE a.deleted IS NULL AND a.pid = ? AND a.encounter = ? " .
-            "ORDER BY s.check_date, a.sequence_no", array($patient_id, $encounter_id));
+            "ORDER BY s.check_date, a.sequence_no", [$patient_id, $encounter_id]);
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
             if (!$code) {
@@ -169,10 +169,10 @@ class InvoiceSummary
             // Add the details if they want 'em.
             if ($with_detail) {
                 if (!($codes[$code]['dtl'] ?? '')) {
-                    $codes[$code]['dtl'] = array();
+                    $codes[$code]['dtl'] = [];
                 }
 
-                $tmp = array();
+                $tmp = [];
                 $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
                 if ($row['pay_amount'] != 0) {
                     $tmp['pmt'] = $row['pay_amount'];
@@ -228,7 +228,7 @@ class InvoiceSummary
         $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
             "FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? " .
-            "ORDER BY id DESC LIMIT 1", array($patient_id, $encounter_id));
+            "ORDER BY id DESC LIMIT 1", [$patient_id, $encounter_id]);
         if (empty($row)) {
             return -1;
         }

@@ -21,7 +21,7 @@
 function find_or_create_constant($constant)
 {
     $sqlFind = " SELECT cons_id , constant_name FROM lang_constants where BINARY constant_name = ?";
-    $result = sqlStatement($sqlFind, array($constant));
+    $result = sqlStatement($sqlFind, [$constant]);
     if ($result) {
         $row_count = sqlNumRows($result);
         if ($row_count == 1) {
@@ -34,16 +34,16 @@ function find_or_create_constant($constant)
             $retval = $row['cons_id'];
             while ($row = sqlFetchArray($result)) {
                 $sqlDelete = " DELETE FROM lang_constants where cons_id = ? ";
-                sqlStatement($sqlDelete, array($row['cons_id']));
+                sqlStatement($sqlDelete, [$row['cons_id']]);
                 $sqlDelete = " DELETE FROM lang_definitions where cons_id = ? ";
-                sqlStatement($sqlDelete, array($row['cons_id']));
+                sqlStatement($sqlDelete, [$row['cons_id']]);
                 error_log("DELETED Definitions for duplicate constant:" . $constant . "|" . $row['cons_id']);
             }
             return $retval;
         }
         if ($row_count == 0) {
             $sqlInsert = " INSERT INTO lang_constants (constant_name) VALUES (?)";
-            $new_index = sqlInsert($sqlInsert, array($constant));
+            $new_index = sqlInsert($sqlInsert, [$constant]);
             return $new_index;
         }
     }
@@ -57,7 +57,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
     $cons_id = find_or_create_constant($constant);
     $whereClause = " lang_id = ? and cons_id = ? ";
     $sqlFind = " SELECT def_id, definition FROM lang_definitions WHERE " . $whereClause;
-    $result = sqlStatement($sqlFind, array($language, $cons_id));
+    $result = sqlStatement($sqlFind, [$language, $cons_id]);
     $infoText = $constant . "|" . $definition;
     if ($result) {
         $row_count = sqlNumRows($result);
@@ -70,7 +70,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
                 if ($replace) {
                     $sqlUpdate = " UPDATE lang_definitions SET definition=? WHERE def_id=?";
                     if (!$preview) {
-                        $result = sqlStatement($sqlUpdate, array($definition,$row['def_id']));
+                        $result = sqlStatement($sqlUpdate, [$definition,$row['def_id']]);
                     }
                     return '[3]' . xl('Update From') . ':' . $row['definition'] . ' => ' . $definition . ' (' . xl('for') . ': ' . $constant . ')';
                 } else {
@@ -82,7 +82,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
             // Too many definitions, delete then recreate.
             if (!$preview) {
                 $sqlDelete = " DELETE FROM lang_definitions WHERE " . $whereClause;
-                sqlStatement($sqlDelete, array($language, $cons_id));
+                sqlStatement($sqlDelete, [$language, $cons_id]);
             }
             $create = true;
         }
@@ -92,7 +92,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
         if ($create) {
             $sqlInsert = " INSERT INTO lang_definitions (cons_id,lang_id,definition) VALUES (?,?,?) ";
             if (!$preview) {
-                $id = sqlInsert($sqlInsert, array($cons_id, $language, $definition));
+                $id = sqlInsert($sqlInsert, [$cons_id, $language, $definition]);
             }
             return '[5]' . xl('Create') . ':' . $constant . ' => ' . $definition;
         }

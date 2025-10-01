@@ -81,7 +81,7 @@ class AddressService extends BaseService
 
         $addressesSqlResults = QueryUtils::sqlInsert(
             $addressesSql,
-            array(
+            [
                 $freshId,
                 $data["line1"],
                 $data["line2"],
@@ -91,7 +91,7 @@ class AddressService extends BaseService
                 $data["plus_four"] ?? null,
                 $data["country"],
                 $foreignId
-            )
+            ]
         );
 
         if (!$addressesSqlResults) {
@@ -115,7 +115,7 @@ class AddressService extends BaseService
 
         $addressesSqlResults = sqlStatement(
             $addressesSql,
-            array(
+            [
                 $data["line1"],
                 $data["line2"],
                 $data["city"],
@@ -124,7 +124,7 @@ class AddressService extends BaseService
                 $data["plus_four"] ?? null,
                 $data["country"],
                 $foreignId
-            )
+            ]
         );
 
         if (!$addressesSqlResults) {
@@ -139,6 +139,6 @@ class AddressService extends BaseService
     public function getOneByForeignId($foreignId)
     {
         $sql = "SELECT * FROM addresses WHERE foreign_id=?";
-        return sqlQuery($sql, array($foreignId));
+        return sqlQuery($sql, [$foreignId]);
     }
 }

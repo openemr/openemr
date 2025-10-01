@@ -79,14 +79,14 @@ function edih_997_errdata($obj997)
     //
     $dt = '~';
     //
-    $diag = array();
-    $diag['err'] = array();
+    $diag = [];
+    $diag['err'] = [];
     $iserr = false;
     $batchfile = '';
     $idx = -1;
     //
     foreach ($segments as $seg) {
-        $sar = array();
+        $sar = [];
         if (strncmp($seg, 'TA1' . $de, 4) == 0) {
             $sar = explode($de, $seg);
             //
@@ -279,7 +279,7 @@ function edih_997_err_report($err_array)
         //
         if ($icn && $stn && $rtp) {
             $trc = sprintf("%s%04d", $icn, $stn);
-            $srch = array('s_val' => $trc, 's_col' => 4,'r_cols' => 'All');
+            $srch = ['s_val' => $trc, 's_col' => 4,'r_cols' => 'All'];
             // array('s_val'=>'0024', 's_col'=>9, 'r_cols'=>array(1, 2, 7)),
             $trn_ar = csv_search_record($rtp, 'claim', $srch);
             if (is_array($trn_ar) && count($trn_ar)) {

@@ -79,7 +79,7 @@ class X12Partner extends ORDataObject
 
     function x12_partner_factory()
     {
-        $partners = array();
+        $partners = [];
         $x = new X12Partner();
         $sql = "SELECT id FROM "  . $x->_table . " order by name";
         $result = $x->_db->Execute($sql);
@@ -390,23 +390,23 @@ class X12Partner extends ORDataObject
 
     function get_x12_isa14_array()
     {
-        return array(
+        return [
         '0' => 'No',
         '1' => 'Yes',
-        );
+        ];
     }
 
     function get_x12_isa15_array()
     {
-        return array(
+        return [
         'T' => 'Testing',
         'P' => 'Production',
-        );
+        ];
     }
 
     function get_idqual_array()
     {
-        return array(
+        return [
         '01' => 'Duns (Dun & Bradstreet)',
         '14' => 'Duns Plus Suffix',
         '20' => 'Health Industry Number (HIN)',
@@ -416,24 +416,24 @@ class X12Partner extends ORDataObject
         '30' => 'U.S. Federal Tax ID Number',
         '33' => 'NAIC Company Code',
         'ZZ' => 'Mutually Defined',
-        );
+        ];
     }
 
     function get_x12_version_array()
     {
-        return array(
+        return [
         '005010X222A1' => '005010X222A1',
         '004010X098A1' => '004010X098A1',
-        );
+        ];
     }
 
     function get_x12_dtp03_type_array()
     {
-        return array(
+        return [
             'C' => 'Current Date',
             'A' => 'Appointment Date',
             'E' => 'Subscriber Effective Date',
-        );
+        ];
     }
 
     function set_x12_client_id($string)

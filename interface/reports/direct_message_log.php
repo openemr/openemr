@@ -147,7 +147,7 @@ if (!$logtop) {
 } else {
     $res = sqlStatement(
         "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
-        array($logtop - 99,$logtop)
+        [$logtop - 99,$logtop]
     );
 }
 

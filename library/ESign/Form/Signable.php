@@ -55,7 +55,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
                 $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
                 $statement .= "WHERE E.tid = ? AND E.table = ? ";
                 $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-                $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName ));
+                $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName ]);
                 $hash = null;
                 if ($row && isset($row['hash'])) {
                     $hash = $row['hash'];
@@ -87,7 +87,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
             $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
             $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-            $row = sqlQuery($statement, array( $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ));
+            $row = sqlQuery($statement, [ $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ]);
             if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
                 $locked = true;
             }
@@ -111,7 +111,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
       // Exceptions are specified in formdir_keys list
         $row = sqlQuery(
             "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
-            array('formdir_keys', $this->_formDir)
+            ['formdir_keys', $this->_formDir]
         );
         if (isset($row['title'])) {
             $excp = json_decode("{" . $row['title'] . "}");
@@ -133,17 +133,17 @@ class Form_Signable extends DbRow_Signable implements SignableIF
       		INNER JOIN forms f ON fd.%s = f.form_id
       		WHERE f.id = ?",
             escape_table_name($tbl),
-            escape_sql_column_name($id, array($tbl))
+            escape_sql_column_name($id, [$tbl])
         );
         if ($limit <> '*') {
             $sql .= ' LIMIT ' . escape_limit($limit);
         }
 
-        $rs = sqlStatement($sql, array( $this->_formId ));
+        $rs = sqlStatement($sql, [ $this->_formId ]);
         if (sqlNumRows($rs) == 1) { // maintain legacy hash
             $frs = sqlFetchArray($rs);
         } else {
-            $frs = array();
+            $frs = [];
             while ($fr = sqlFetchArray($rs)) {
                 array_push($frs, $fr);
             }

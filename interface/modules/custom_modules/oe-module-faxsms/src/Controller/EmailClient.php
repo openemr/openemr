@@ -156,13 +156,13 @@ class EmailClient extends AppDispatch
     {
         $id = $this->getRequest('uid');
         $query = "SELECT * FROM users WHERE id = ?";
-        $result = sqlStatement($query, array($id));
-        $u = array();
+        $result = sqlStatement($query, [$id]);
+        $u = [];
         foreach ($result as $row) {
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']);
+        $r = [$u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']];
 
         return json_encode($r);
     }

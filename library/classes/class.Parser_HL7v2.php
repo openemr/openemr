@@ -35,7 +35,7 @@ class Parser_HL7v2
         }
 
         // create return array
-        $cmp = array();
+        $cmp = [];
 
         // Loop through messages
         $segmentMethods = get_class_methods(new Segment('XYZ'));

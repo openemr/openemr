@@ -111,23 +111,23 @@ switch ($postAction) {
         foreach ($rows as $row) {
             [$id, $section_value, $value, $order_value, $name] = $row;
 
-                $objects[] = array(
+                $objects[] = [
                                                 'id' => $id,
                                                 'section_value' => $section_value,
                                                 'value' => $value,
                                                 'order' => $order_value,
                                                 'name' => $name
-                                            );
+                                            ];
         }
 
         for($i=0; $i < 5; $i++) {
-                $new_objects[] = array(
+                $new_objects[] = [
                                                 'id' => $i,
                                                 'section_value' => NULL,
                                                 'value' => NULL,
                                                 'order' => NULL,
                                                 'name' => NULL
-                                            );
+                                            ];
         }
 
         $smarty->assign('objects', ($objects ?? null));

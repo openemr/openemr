@@ -25,9 +25,9 @@
 function smarty_function_math($params, &$smarty)
 {
     static $_allowed_funcs =
-        array('int' => true, 'abs' => true, 'ceil' => true, 'cos' => true, 'exp' => true, 'floor' => true,
+        ['int' => true, 'abs' => true, 'ceil' => true, 'cos' => true, 'exp' => true, 'floor' => true,
               'log' => true, 'log10' => true, 'max' => true, 'min' => true, 'pi' => true, 'pow' => true, 'rand' => true,
-              'round' => true, 'sin' => true, 'sqrt' => true, 'srand' => true, 'tan' => true);
+              'round' => true, 'sin' => true, 'sqrt' => true, 'srand' => true, 'tan' => true];
     // be sure equation parameter is present
     if (empty($params[ 'equation' ])) {
         trigger_error("math: missing equation parameter", E_USER_WARNING);

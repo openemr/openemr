@@ -88,7 +88,7 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-        return sqlStatement($sql, array($pid));
+        return sqlStatement($sql, [$pid]);
     }
 
     /**
@@ -192,10 +192,10 @@ class PatientService extends BaseService
         $data = $this->databaseInsert($data);
 
         if (false !== $data['pid']) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -346,7 +346,7 @@ class PatientService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -355,8 +355,8 @@ class PatientService extends BaseService
             } elseif (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
-            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
-            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode');
+            $wildcardFields = ['fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
+            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode'];
             foreach ($wildcardFields as $field) {
                 if (isset($search[$field])) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
@@ -630,7 +630,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+        $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -882,7 +882,7 @@ class PatientService extends BaseService
     private function getPatientSuffixKeys()
     {
         if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
+            $this->patientSuffixKeys = [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
         }
         return $this->patientSuffixKeys;
     }

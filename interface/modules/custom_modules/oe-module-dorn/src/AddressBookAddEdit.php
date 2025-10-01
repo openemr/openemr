@@ -37,9 +37,9 @@ class AddressBookAddEdit
         $sql = "UPDATE users SET organization = ?, street = ?, streetb = ?, city = ?,
             state = ?, zip = ?, url = ?, phone = ?, fax = ?, notes = ?
             WHERE id = ?";
-        $sqlarr = array($organization, $street, $streetb, $city,
+        $sqlarr = [$organization, $street, $streetb, $city,
         $state, $zip, $url, $phone, $fax, $notes,
-        $uid);
+        $uid];
         sqlStatement($sql, $sqlarr);
     }
 
@@ -81,12 +81,12 @@ class AddressBookAddEdit
         $phonew2        = "";
         $phonecell      = "";
 
-        $sqlArr = array($$userName, $password, $authorized, $info, $source
+        $sqlArr = [$$userName, $password, $authorized, $info, $source
             ,$title, $fname, $lname, $mname, $suffix
             ,$federaltaxid, $federaldrugid,$upin,$facility,$see_auth,$active,$npi,$taxonomy,$cpoe
             ,$specialty,$organization,$valedictory,$assistant,$billname,$email,$email_direct,$url
             ,$street,$streetb,$city,$state,$zip,$street2,$streetb2,$city2,$state2,$zip2,$phone,$phonew1
-            ,$phonew2,$phonecell,$fax,$notes,$abook_type);
+            ,$phonew2,$phonecell,$fax,$notes,$abook_type];
 
 
         $userid = sqlInsert(

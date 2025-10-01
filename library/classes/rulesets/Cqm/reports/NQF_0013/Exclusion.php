@@ -47,7 +47,7 @@ class NQF_0013_Exclusion implements CqmFilterIF
                "AND prc.procedure_code IN ($procedure_code) " .
                "AND (pr.date_ordered BETWEEN ? AND ?)";
         //echo $sql;
-        $check = sqlQuery($sql, array($patient->id, $beginDate, $endDate));
+        $check = sqlQuery($sql, [$patient->id, $beginDate, $endDate]);
         if ($check['cnt'] > 0) {
             return true;
         }

@@ -48,9 +48,9 @@ class xmltoarray_parser_htmlfix
      */
     function __construct()
     {
-        $this->values = array();
-        $this->index  = array();
-        $this->thearray  = array();
+        $this->values = [];
+        $this->index  = [];
+        $this->thearray  = [];
         $this->parser = xml_parser_create();
     }
 
@@ -71,7 +71,7 @@ class xmltoarray_parser_htmlfix
     function xmlparser_fix_into_struct($xml)
     {
         $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
-        $keys = array();
+        $keys = [];
         foreach ($trans_table as $key => $value) {
             if ($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " ") {
                 $keys[$key] = $value;
@@ -109,7 +109,7 @@ class xmltoarray_parser_htmlfix
      */
     function _struct_to_array($values, &$i)
     {
-        $child = array();
+        $child = [];
         if (isset($values[$i]['value'])) {
             array_push($child, $values[$i]['value']);
         }

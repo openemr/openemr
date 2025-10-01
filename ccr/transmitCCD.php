@@ -128,7 +128,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
         "VALUES ('S', ?, ?, ?, 'S', NOW(), ?)";
-    $res = @sqlStatementNoLog($sql, array($msg_id[2],$phimail_username,$recipient,$reqID));
+    $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$reqID]);
 
     return("SUCCESS");
 }
@@ -151,7 +151,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
 {
     //get patient name in Last_First format (used for CCDA filename) and
     //First Last for the message text.
-    $patientData = getPatientPID(array("pid" => $pid));
+    $patientData = getPatientPID(["pid" => $pid]);
     if (empty($patientData)) { // shouldn't ever happen but we need to check anyways
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
@@ -310,7 +310,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
-    $res = @sqlStatementNoLog($sql, array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));
+    $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$pid,$reqID]);
 
     return("SUCCESS");
 }

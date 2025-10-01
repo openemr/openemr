@@ -80,7 +80,7 @@ class PatientDocumentCreateCCDAEvent extends Event
     public function __construct($pid)
     {
         $this->setPid($pid);
-        $this->setComponents(array());
+        $this->setComponents([]);
         $this->setFormat("xml");
         $this->setRecipient("self");
         $this->dateFrom = null;

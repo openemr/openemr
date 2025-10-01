@@ -87,7 +87,7 @@ if ($form_newloc || $form_newuser) {
     echo "<div class='alert alert-success'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</div>";
 }
 
-$row = array();
+$row = [];
 
 if ($form_newid) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -101,7 +101,7 @@ if ($form_newid) {
     "LEFT OUTER JOIN chart_tracker AS ct ON ct.ct_pid = pd.pid " .
     "WHERE pd.pubpid = ? " .
     "ORDER BY pd.pid ASC, ct.ct_when DESC LIMIT 1";
-    $row = sqlQuery($query, array($form_newid));
+    $row = sqlQuery($query, [$form_newid]);
     if (empty($row)) {
         echo "<div class='alert alert-danger'>" . xlt('Chart ID') . " " . "'" . text($form_newid) . "' " . xlt('not found') . "!</div>";
     }
@@ -118,7 +118,7 @@ if (!empty($row)) {
         $user = $userService->getUser($ct_userid);
         $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . oeFormatDateTime($row['ct_when'], "global", true));
     } elseif ($ct_location) {
-        $current_location = generate_display_field(array('data_type' => '1','list_id' => 'chartloc'), $ct_location);
+        $current_location = generate_display_field(['data_type' => '1','list_id' => 'chartloc'], $ct_location);
     }
     ?>
 
@@ -159,7 +159,7 @@ if (!empty($row)) {
             <div class="form-row">
                 <label for="form_curr_loc" class='col-form-label col-sm-3'><?php echo xlt('Check In To') . ":"; ?></label>
                 <div class='col-sm-9'>
-                    <?php generate_form_field(array('data_type' => 1,'field_id' => 'newloc','list_id' => 'chartloc','empty_title' => ''), ''); ?>
+                    <?php generate_form_field(['data_type' => 1,'field_id' => 'newloc','list_id' => 'chartloc','empty_title' => ''], ''); ?>
                 </div>
             </div>
             <div class="form-row">

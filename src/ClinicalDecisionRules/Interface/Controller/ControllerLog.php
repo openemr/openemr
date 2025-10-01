@@ -123,9 +123,9 @@ class ControllerLog extends BaseController
                 $target = $catAndTarget[1];
                 $formattedAlerts[] = [
                     'title' => $rule_title,
-                    'rule_action_category' => generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category),
-                    'rule_action' => generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $target),
-                    'due_status' => generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $alert['due_status']),
+                    'rule_action_category' => generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category),
+                    'rule_action' => generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $target),
+                    'due_status' => generate_display_field(['data_type' => '1','list_id' => 'rule_reminder_due_opt'], $alert['due_status']),
                     'feedback' => $alert['feedback'] ?? null,
                     'rawAlert' => $alert,
                     'text' => null

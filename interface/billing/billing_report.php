@@ -67,7 +67,7 @@ if (isset($_POST['mode'])) {
         $sql = BillingReport::returnOFXSql();
         $db = get_db();
         $results = $db->Execute($sql);
-        $billings = array();
+        $billings = [];
         if ($results->RecordCount() == 0) {
             echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
@@ -577,17 +577,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     <!-- =============Included for Insurance ajax criteria==== -->
     <title><?php echo xlt('Billing Manager'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Billing Manager'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array('billing_report_xpd'),//all file names need suffix _xpd
+        'expandable_files' => ['billing_report_xpd'],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -612,15 +612,15 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // $TPSCriteriaDisplayMaster ==>It is the display on screen for the set of criteria.
                         // $TPSCriteriaKeyMaster ==>Corresponding database fields in the same order.
                         // $TPSCriteriaDataTypeMaster ==>Corresponding data type in the same order.
-                        $TPSCriteriaDisplayRadioMaster = array();
-                        $TPSCriteriaRadioKeyMaster = array();
-                        $TPSCriteriaQueryDropDownMaster = array();
-                        $TPSCriteriaQueryDropDownMasterDefault = array();
-                        $TPSCriteriaQueryDropDownMasterDefaultKey = array();
-                        $TPSCriteriaIncludeMaster = array();
+                        $TPSCriteriaDisplayRadioMaster = [];
+                        $TPSCriteriaRadioKeyMaster = [];
+                        $TPSCriteriaQueryDropDownMaster = [];
+                        $TPSCriteriaQueryDropDownMasterDefault = [];
+                        $TPSCriteriaQueryDropDownMasterDefaultKey = [];
+                        $TPSCriteriaIncludeMaster = [];
 
                     if ($daysheet) {
-                        $TPSCriteriaDisplayMaster = array(
+                        $TPSCriteriaDisplayMaster = [
                             xl("Date of Service"),
                             xl("Date of Entry"),
                             xl("Date of Billing"),
@@ -636,11 +636,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             xl("Last Level Billed"),
                             xl("X12 Partner"),
                             xl("User")
-                        );
+                        ];
                         $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
                         $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down,text";
                     } else {
-                        $TPSCriteriaDisplayMaster = array(
+                        $TPSCriteriaDisplayMaster = [
                             xl("Date of Service"),
                             xl("Date of Entry"),
                             xl("Date of Billing"),
@@ -655,50 +655,50 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             xl("Authorization Status"),
                             xl("Last Level Billed"),
                             xl("X12 Partner")
-                        );
+                        ];
                         $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
                         $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down";
                     }
                         // The below section is needed if there is any 'radio' or 'radio_like' type in the $TPSCriteriaDataTypeMaster
                         // $TPSCriteriaDisplayRadioMaster,$TPSCriteriaRadioKeyMaster ==>For each radio data type this pair comes.
                         // The key value 'all' indicates that no action need to be taken based on this.For that the key must be 'all'.Display value can be any thing.
-                        $TPSCriteriaDisplayRadioMaster[1] = array(
+                        $TPSCriteriaDisplayRadioMaster[1] = [
                             xl("All"),
                             xl("eClaims"),
                             xl("Paper")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[1] = "all,standard,hcfa"; // Key
-                        $TPSCriteriaDisplayRadioMaster[2] = array(
+                        $TPSCriteriaDisplayRadioMaster[2] = [
                             xl("All"),
                             xl("Insured"),
                             xl("Non-Insured")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[2] = "all,1,0"; // Key
-                        $TPSCriteriaDisplayRadioMaster[3] = array(
+                        $TPSCriteriaDisplayRadioMaster[3] = [
                             xl("All"),
                             xl("Coded"),
                             xl("Not Coded")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[3] = "all,not null,null"; // Key
-                        $TPSCriteriaDisplayRadioMaster[4] = array(
+                        $TPSCriteriaDisplayRadioMaster[4] = [
                             xl("All"),
                             xl("Unbilled"),
                             xl("Billed"),
                             xl("Denied")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[4] = "all,0,1,7"; // Key
-                        $TPSCriteriaDisplayRadioMaster[5] = array(
+                        $TPSCriteriaDisplayRadioMaster[5] = [
                             xl("All"),
                             xl("Authorized"),
                             xl("Unauthorized")
-                        );
+                        ];
                         $TPSCriteriaRadioKeyMaster[5] = "%,1,0";
-                        $TPSCriteriaDisplayRadioMaster[6] = array(
+                        $TPSCriteriaDisplayRadioMaster[6] = [
                             xl("All"),
                             xl("None{{Insurance}}"),
                             xl("Ins 1"),
                             xl("Ins 2 or Ins 3")
-                        );
+                        ];
                         $TPSCriteriaRadioKeyMaster[6] = "all,0,1,2";
                         // The below section is needed if there is any 'query_drop_down' type in the $TPSCriteriaDataTypeMaster
                         $TPSCriteriaQueryDropDownMaster[1] = "SELECT name,id FROM x12_partners;";
@@ -962,10 +962,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     "encounter = ? AND " .
                                     "pid=? AND " .
                                     "activity = 1",
-                                    array(
+                                    [
                                     $iter['enc_encounter'],
                                     $iter['enc_pid']
-                                    )
+                                    ]
                                 );
                                 if ($res['count'] > 0) {
                                     continue;
@@ -1009,10 +1009,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         "encounter = ? AND " .
                                         "pid=? AND " .
                                         "activity = 1 AND authorized = 0",
-                                        array(
+                                        [
                                         $iter['enc_encounter'],
                                         $iter['enc_pid']
-                                        )
+                                        ]
                                     );
                                     if ($res['count'] > 0) {
                                         $skipping = true;
@@ -1021,7 +1021,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     }
                                 }
                                 // Is there a MBO
-                                $mboid = sqlQuery("SELECT forms.form_id FROM forms WHERE forms.encounter = ? AND forms.authorized = 1 AND forms.formdir = 'misc_billing_options' AND forms.deleted != 1 LIMIT 1", array($iter['enc_encounter']));
+                                $mboid = sqlQuery("SELECT forms.form_id FROM forms WHERE forms.encounter = ? AND forms.authorized = 1 AND forms.formdir = 'misc_billing_options' AND forms.deleted != 1 LIMIT 1", [$iter['enc_encounter']]);
                                 $iter['mboid'] = $mboid ? attr($mboid['form_id']) : 0;
 
                                 $name = getPatientData($iter['enc_pid'], "fname, mname, lname, pubpid, billing_note, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -1035,9 +1035,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     "type='primary' AND " .
                                     "subscriber_lname IS NOT NULL AND " .
                                     "subscriber_lname != '' LIMIT 1",
-                                    array(
+                                    [
                                     $iter['enc_pid']
-                                    )
+                                    ]
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
@@ -1057,9 +1057,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $result4 = sqlStatement(
                                     "SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                                     " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC",
-                                    array(
+                                    [
                                     $iter['enc_pid']
-                                    )
+                                    ]
                                 );
                                 if (sqlNumRows($result4) > 0) {
                                     ;
@@ -1117,10 +1117,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         "encounter_id = ? AND " .
                                         "patient_id=? " .
                                         "ORDER BY version DESC LIMIT 1",
-                                        array(
+                                        [
                                         $iter['enc_encounter'],
                                         $iter['enc_pid']
-                                        )
+                                        ]
                                     );
                                     $is_edited = ($c['status'] ?? null) ? 'btn-success' : 'btn-warning';
                                     $bname = ($c['status'] ?? null) ? xl('Reviewed') : xl('Review UB04');
@@ -1139,13 +1139,13 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
                                     $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' class='form-control'>";
 
-                                    $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
+                                    $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", [$iter['enc_encounter']])['last_level_closed'];
                                     $effective_insurances = getEffectiveInsurances($iter['pid'], $iter['enc_date']);
                                     $insuranceCount = count($effective_insurances ?? []);
 
                                     foreach ($effective_insurances as $key => $row) {
-                                        $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['name'];
-                                        $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['x12_default_partner_id'];
+                                        $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$row['provider']])['name'];
+                                        $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", [$row['provider']])['x12_default_partner_id'];
                                         $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1) . $row['provider']) . "\"";
                                         if (
                                             $key == $last_level_closed
@@ -1184,10 +1184,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $query = "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? ORDER BY version";
                                     $cres = sqlStatement(
                                         $query,
-                                        array(
+                                        [
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']
-                                        )
+                                        ]
                                     );
 
                                     $lastcrow = false;
@@ -1204,12 +1204,12 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                                         $irow = sqlQuery(
                                             $query,
-                                            array(
+                                            [
                                             $iter['enc_pid'],
                                             $crow['payer_id'],
                                             $raw_encounter_date,
                                             $raw_encounter_date
-                                            )
+                                            ]
                                         );
 
                                         if ($crow['bill_process']) {
@@ -1357,10 +1357,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $resMoneyGot = sqlStatement(
                                     "SELECT pay_amount AS PatientPay,date(post_time) AS date FROM ar_activity WHERE " .
                                     "pid = ? AND encounter = ? AND deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
-                                    array(
+                                    [
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']
-                                    )
+                                    ]
                                 );
 // new fees screen copay gives account_code='PCP'
                                 if (sqlNumRows($resMoneyGot) > 0) {

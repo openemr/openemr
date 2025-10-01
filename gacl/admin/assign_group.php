@@ -101,7 +101,7 @@ switch ($postAction) {
 	$query = 'SELECT value,name FROM '. $group_sections_table .' ORDER BY order_value,name';
 	$rs = $db->Execute($query);
 
-	$options_sections = array();
+	$options_sections = [];
 
 	if (is_object($rs)) {
 		while ($row = $rs->FetchRow()) {
@@ -163,18 +163,18 @@ switch ($postAction) {
 	//$rs = $db->Execute($query);
 	$rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
 
-	$object_rows = array();
+	$object_rows = [];
 
 	if (is_object($rs)) {
 		while ($row = $rs->FetchRow()) {
 			[$section_value, $value, $name, $section] = $row;
 
-			$object_rows[] = array(
+			$object_rows[] = [
 				'section_value' => $row[0],
 				'value' => $row[1],
 				'name' => $row[2],
 				'section' => $row[3]
-			);
+			];
 		}
 
 		$smarty->assign('total_objects', $rs->_maxRecordCount);

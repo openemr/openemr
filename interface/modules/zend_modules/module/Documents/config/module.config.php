@@ -18,60 +18,60 @@ use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Interop\Container\ContainerInterface;
 
-return array(
-    'controllers' => array(
+return [
+    'controllers' => [
         'factories' => [
             DocumentsController::class => fn(ContainerInterface $container, $requestedName): \Documents\Controller\DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
         ],
 
-    ),
+    ],
 
-    'router' => array(
-        'routes' => array(
-            'documents' => array(
+    'router' => [
+        'routes' => [
+            'documents' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                         // zend framework 3 get's rid of the old /:controller terminology however to be backwards compatible
                         // with the links here... we are going to reference the documents controller.
                         'route'    => '/documents/documents[/:action][/:id][/:download][/:doencryption][/:key]',
-                        'constraints' => array(
+                        'constraints' => [
                             'action'        => '[a-zA-Z][a-zA-Z0-9_-]*',
                             'id'            => '[0-9]+',
                             'download'      => '[0-1]+',
                             'doencryption'  => '[0-1]+',
                             'key'           => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        ),
-                        'defaults' => array(
+                        ],
+                        'defaults' => [
                             'controller' => DocumentsController::class,
                             'action'     => 'list',
-                        ),
-                ),
-            ),
-        ),
-    ),
+                        ],
+                ],
+            ],
+        ],
+    ],
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'documents' => __DIR__ . '/../view/',
-        ),
-        'template_map' => array(
+        ],
+        'template_map' => [
             'documents/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        ),
-        'strategies' => array(
+        ],
+        'strategies' => [
             'ViewJsonStrategy',
             'ViewFeedStrategy',
-        ),
-    ),
+        ],
+    ],
     // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller
     // that extends AbstractActionController.  An example below:
     // $this->Documents() as it uses (in ZF3) AbstractActionController->AbstractController->__call to call the plugin's code.  Similar to duck-typing or mixins
     // from other frameworks/languages.
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
-    'controller_plugins' => array(
-        'factories' => array(
+    'controller_plugins' => [
+        'factories' => [
             'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents($container)
-        )
-    ),
+        ]
+    ],
     'service_manager' => [
         'factories' => [
             DocumentsTable::class =>  function (ContainerInterface $container, $requestedName) {
@@ -85,4 +85,4 @@ return array(
 
 
     ]
-);
+];

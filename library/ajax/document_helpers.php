@@ -21,10 +21,10 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$req = array(
+$req = [
     'term' => (isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : ''),
     'sql_limit' => (isset($_GET["limit"]) ? filter_input(INPUT_GET, 'limit') : 20),
-);
+];
 
 function get_patients_list($req): void
 {
@@ -36,7 +36,7 @@ function get_patients_list($req): void
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
             LIMIT " . escape_limit($req['sql_limit']),
-        array($term)
+        [$term]
     );
     while ($row = sqlFetchArray($response)) {
         if ($GLOBALS['pid'] == $row['value']) {
@@ -46,10 +46,10 @@ function get_patients_list($req): void
 
         $resultpd[] = $row;
     }
-    $resultpd[] = array(
+    $resultpd[] = [
         'label' => $clear,
         'value' => '00'
-    );
+    ];
 
     echo json_encode($resultpd);
 }

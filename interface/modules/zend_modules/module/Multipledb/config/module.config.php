@@ -29,49 +29,49 @@ use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
 use Interop\Container\ContainerInterface;
 
-return array(
+return [
 
     /* declare all controllers */
-    'controllers' => array(
+    'controllers' => [
         'factories' => [
             MultipledbController::class => fn(ContainerInterface $container, $requestedName): \Multipledb\Controller\MultipledbController => new MultipledbController($container->get(MultipledbTable::class)),
             ModuleconfigController::class => InvokableFactory::class
         ],
-    ),
+    ],
 
     /**
      * routing configuration.
      * for more option and details - http://zf2.readthedocs.io/en/latest/in-depth-guide/understanding-routing.html?highlight=routing
      */
-    'router' => array(
-        'routes' => array(
-            'multipledb' => array(
+    'router' => [
+        'routes' => [
+            'multipledb' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/multipledb[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => MultipledbController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-        ),
-    ),
+                    ],
+                ],
+            ],
+        ],
+    ],
 
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'multipledb' => __DIR__ . '/../view',
-        ),'template_map' => array(
+        ],'template_map' => [
             'multipledb/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        )
-    ),
+        ]
+    ],
     'service_manager' => [
-        'factories' => array(
+        'factories' => [
             MultipledbTable::class =>  function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $resultSetPrototype = new ResultSet();
@@ -81,6 +81,6 @@ return array(
                 return $table;
             }
             ,ModuleconfigController::class => InvokableFactory::class
-        ),
+        ],
     ]
-);
+];

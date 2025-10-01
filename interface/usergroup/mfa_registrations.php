@@ -51,7 +51,7 @@ if (!empty($_POST['form_delete_method'])) {
     // Delete the indicated MFA instance.
     sqlStatement(
         "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
-        array($userid, $_POST['form_delete_method'], $_POST['form_delete_name'])
+        [$userid, $_POST['form_delete_method'], $_POST['form_delete_name']]
     );
     $message = xl('Delete successful.');
 }
@@ -99,17 +99,17 @@ function addclick(sel) {
 
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Manage Multi Factor Authentication'),
     'include_patient_name' => false,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "mfa_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -145,7 +145,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                                 <?php
                                 $res = sqlStatement("SELECT name, method FROM login_mfa_registrations WHERE " .
-                                "user_id = ? ORDER BY method, name", array($userid));
+                                "user_id = ? ORDER BY method, name", [$userid]);
                                 $disableNewTotp = false;
                                 if (sqlNumRows($res)) {
                                     while ($row = sqlFetchArray($res)) {

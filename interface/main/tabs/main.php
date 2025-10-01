@@ -341,7 +341,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     // Below code block is to prepare certain elements for deciding what links to show on the menu
     // prepare newcrop globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", array($_SESSION['authUser']));
+        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
         if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
             $GLOBALS['newcrop_user_role_erxadmin'] = 1;
@@ -375,7 +375,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
-    <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
+    <?php $userQuery = sqlQuery("select * from users where username = ?", [$_SESSION['authUser']]); ?>
 
     <script>
         <?php
@@ -428,7 +428,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     if (isset($_SESSION['app1'])) {
         $rs = sqlquery(
             "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-            array('apps', $_SESSION['app1'])
+            ['apps', $_SESSION['app1']]
         );
         if ($rs['app_url'] != "main/main_screen.php") {
             echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"

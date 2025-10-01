@@ -21,9 +21,9 @@ use OpenEMR\Common\Logging\SystemLogger;
  */
 function getPnoteById($id, $cols = "*")
 {
-    return sqlQuery("SELECT "  . escape_sql_column_name(process_cols_escape($cols), array('pnotes')) . " FROM pnotes WHERE id=? " .
+    return sqlQuery("SELECT "  . escape_sql_column_name(process_cols_escape($cols), ['pnotes']) . " FROM pnotes WHERE id=? " .
     ' AND deleted != 1 ' . // exclude ALL deleted notes
-    'order by date DESC limit 0,1', array($id));
+    'order by date DESC limit 0,1', [$id]);
 }
 
 /**
@@ -34,7 +34,7 @@ function getPnoteById($id, $cols = "*")
  */
 function checkPnotesNoteId(int $id, string $user): bool
 {
-    $check = sqlQuery("SELECT `id`, `user`, `assigned_to` FROM pnotes WHERE id = ? AND deleted != 1", array($id));
+    $check = sqlQuery("SELECT `id`, `user`, `assigned_to` FROM pnotes WHERE id = ? AND deleted != 1", [$id]);
     if (
         !empty($check['id'])
         && ($check['id'] == $id)
@@ -61,7 +61,7 @@ function checkPnotesNoteId(int $id, string $user): bool
  */
 function checkPortalAuthUser(string $user): bool
 {
-    $check = sqlQuery("SELECT `id` FROM users WHERE portal_user = 1 AND username = ? AND active = 1", array($user));
+    $check = sqlQuery("SELECT `id` FROM users WHERE portal_user = 1 AND username = ? AND active = 1", [$user]);
     if (!empty($check['id'])) {
         return true;
     } else {
@@ -119,12 +119,12 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
           LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
           pnotes.deleted != '1' AND (pnotes.assigned_to LIKE ? $user_plug)";
     if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
-        $sql .= " order by " . escape_sql_column_name($sortby, array('users','patient_data','pnotes'), true) .
+        $sql .= " order by " . escape_sql_column_name($sortby, ['users','patient_data','pnotes'], true) .
             " " . escape_sort_order($sortorder) .
             " limit " . escape_limit($begin) . ", " . escape_limit($listnumber);
     }
 
-    $result = sqlStatement($sql, array($usrvar));
+    $result = sqlStatement($sql, [$usrvar]);
 
   // return the results
     if ($count) {
@@ -153,19 +153,19 @@ function getPnotesByDate(
     $orderid = 0
 ) {
 
-    $sqlParameterArray = array();
+    $sqlParameterArray = [];
     if ($docid) {
-        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes', 'gprelations')) . " FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['pnotes', 'gprelations']) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
         array_push($sqlParameterArray, '%' . $date . '%', $docid);
     } elseif ($orderid) {
-        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes', 'gprelations')) . " FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['pnotes', 'gprelations']) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
         array_push($sqlParameterArray, '%' . $date . '%', $orderid);
     } else {
-        $sql = "SELECT "  . escape_sql_column_name(process_cols_escape($cols), array('pnotes')) . " FROM pnotes AS p " .
+        $sql = "SELECT "  . escape_sql_column_name(process_cols_escape($cols), ['pnotes']) . " FROM pnotes AS p " .
         "WHERE date LIKE ? AND pid LIKE ? AND p.pid != p.user";
         array_push($sqlParameterArray, '%' . $date . '%', $pid);
     }
@@ -197,7 +197,7 @@ function getPnotesByDate(
 
     $res = sqlStatement($sql, $sqlParameterArray);
 
-    $all = array();
+    $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -219,19 +219,19 @@ function getSentPnotesByDate(
     $orderid = 0
 ) {
 
-    $sqlParameterArray = array();
+    $sqlParameterArray = [];
     if ($docid) {
-        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes', 'gprelations')) . " FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['pnotes', 'gprelations']) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
         array_push($sqlParameterArray, '%' . $date . '%', $docid);
     } elseif ($orderid) {
-        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes','gprelations')) . " FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['pnotes','gprelations']) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
         array_push($sqlParameterArray, '%' . $date . '%', $orderid);
     } else {
-        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes')) . " FROM pnotes AS p " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['pnotes']) . " FROM pnotes AS p " .
         "WHERE date LIKE ? AND pid LIKE ? AND p.pid = p.user";
         array_push($sqlParameterArray, '%' . $date . '%', $pid);
     }
@@ -263,7 +263,7 @@ function getSentPnotesByDate(
 
     $res = sqlStatement($sql, $sqlParameterArray);
 
-    $all = array();
+    $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -302,7 +302,7 @@ function getPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
     ORDER BY `date` desc
     $limit
   ";
-    $res = sqlStatement($sql, array($pid));
+    $res = sqlStatement($sql, [$pid]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -340,7 +340,7 @@ function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = 
     ORDER BY `date` desc
     $limit
   ";
-    $res = sqlStatement($sql, array($pid));
+    $res = sqlStatement($sql, [$pid]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -380,7 +380,7 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
     ORDER BY `date` desc
     $limit
   ";
-    $res = sqlStatement($sql, array($pid,$pid));
+    $res = sqlStatement($sql, [$pid,$pid]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -435,7 +435,7 @@ function addPnote(
         'INSERT INTO pnotes (date, body, pid, user, groupname, ' .
         'authorized, activity, title, assigned_to, message_status, update_by, update_date) VALUES ' .
         '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-        array($datetime, $body, $pid, $user, ($_SESSION['authProvider'] ?? null), $authorized, $activity, $title, $assigned_to, $message_status, ($_SESSION['authUserID'] ?? null))
+        [$datetime, $body, $pid, $user, ($_SESSION['authProvider'] ?? null), $authorized, $activity, $title, $assigned_to, $message_status, ($_SESSION['authUserID'] ?? null)]
     );
 }
 
@@ -469,7 +469,7 @@ function addMailboxPnote(
     return sqlInsert(
         "INSERT INTO pnotes (date, body, pid, user, groupname, " .
         "authorized, activity, title, assigned_to, message_status, update_by, update_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
-        array($datetime, $body, $pid, $pid, 'Default', $authorized, $activity, $title, $assigned_to, $message_status, $_SESSION['authUserID'])
+        [$datetime, $body, $pid, $pid, 'Default', $authorized, $activity, $title, $assigned_to, $message_status, $_SESSION['authUserID']]
     );
 }
 
@@ -503,7 +503,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
     $sql = "UPDATE pnotes SET " .
         "body = ?, activity = ?, title= ?, " .
         "assigned_to = ?, update_by = ?, update_date = NOW()";
-    $bindingParams =  array($body, $activity, $title, $assigned_to, $_SESSION['authUserID']);
+    $bindingParams =  [$body, $activity, $title, $assigned_to, $_SESSION['authUserID']];
     if ($message_status) {
         $sql .= " ,message_status = ?";
         $bindingParams[] = $message_status;
@@ -520,9 +520,9 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
 function updatePnoteMessageStatus($id, $message_status): void
 {
     if ($message_status == "Done") {
-        sqlStatement("update pnotes set message_status = ?, activity = '0', update_by = ?, update_date = NOW() where id = ?", array($message_status, $_SESSION['authUserID'], $id));
+        sqlStatement("update pnotes set message_status = ?, activity = '0', update_by = ?, update_date = NOW() where id = ?", [$message_status, $_SESSION['authUserID'], $id]);
     } else {
-        sqlStatement("update pnotes set message_status = ?, activity = '1', update_by = ?, update_date = NOW() where id = ?", array($message_status, $_SESSION['authUserID'], $id));
+        sqlStatement("update pnotes set message_status = ?, activity = '1', update_by = ?, update_date = NOW() where id = ?", [$message_status, $_SESSION['authUserID'], $id]);
     }
 }
 
@@ -550,23 +550,23 @@ function updatePnotePatient($id, $patient_id): void
     $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $_SESSION['authUser'] . ")";
     $body = $row['body'] . $newtext;
 
-    sqlStatement("UPDATE pnotes SET pid = ?, body = ?, update_by = ?, update_date = NOW() WHERE id = ?", array($pid, $body, $_SESSION['authUserID'], $id));
+    sqlStatement("UPDATE pnotes SET pid = ?, body = ?, update_by = ?, update_date = NOW() WHERE id = ?", [$pid, $body, $_SESSION['authUserID'], $id]);
 }
 
 function authorizePnote($id, $authorized = "1"): void
 {
-    sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?", array ($authorized, $_SESSION['authUserID'], $id));
+    sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?",  [$authorized, $_SESSION['authUserID'], $id]);
 }
 
 function disappearPnote($id)
 {
-    sqlStatement("UPDATE pnotes SET activity = '0', message_status = 'Done', update_by = ?, update_date = NOW()  WHERE id=?", array($_SESSION['authUserID'], $id));
+    sqlStatement("UPDATE pnotes SET activity = '0', message_status = 'Done', update_by = ?, update_date = NOW()  WHERE id=?", [$_SESSION['authUserID'], $id]);
     return true;
 }
 
 function reappearPnote($id)
 {
-    sqlStatement("UPDATE pnotes SET activity = '1', message_status = IF(message_status='Done','New',message_status), update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
+    sqlStatement("UPDATE pnotes SET activity = '1', message_status = IF(message_status='Done','New',message_status), update_by = ?, update_date = NOW() WHERE id=?", [$_SESSION['authUserID'], $id]);
     return true;
 }
 
@@ -581,7 +581,7 @@ function deletePnote($id)
         || $assigned == 'portal-user'
         || getMessageStatusById($id) == 'Done'
     ) {
-        sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
+        sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", [$_SESSION['authUserID'], $id]);
         return true;
     } else {
         return false;
@@ -607,7 +607,7 @@ function pnoteConvertLinks($note)
  */
 function getAssignedToById($id)
 {
-    $result = sqlQuery("SELECT assigned_to FROM pnotes WHERE id=?", array($id));
+    $result = sqlQuery("SELECT assigned_to FROM pnotes WHERE id=?", [$id]);
     return $result['assigned_to'];
 }
 
@@ -618,6 +618,6 @@ function getAssignedToById($id)
  */
 function getMessageStatusById($id)
 {
-    $result = sqlQuery("SELECT message_status FROM pnotes WHERE id=?", array($id));
+    $result = sqlQuery("SELECT message_status FROM pnotes WHERE id=?", [$id]);
     return $result['message_status'];
 }

@@ -278,7 +278,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             $this->UnableToCache = false;
 
             // use a fixed count array if the count is known for performance
-            $arr = $this->CountIsKnown() ? $this->GetEmptyArray($this->Count()) : array ();
+            $arr = $this->CountIsKnown() ? $this->GetEmptyArray($this->Count()) :  [];
 
             $i = 0;
             while ($object = $this->Next()) {
@@ -314,7 +314,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     private function GetEmptyArray($count = 0)
     {
-        return ($count && class_exists('SplFixedArray')) ? new SplFixedArray($count) : array ();
+        return ($count && class_exists('SplFixedArray')) ? new SplFixedArray($count) :  [];
     }
 
     /**
@@ -342,7 +342,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         } else {
             $this->LockCache($cachekey);
 
-            $arr = array ();
+            $arr =  [];
             $this->UnableToCache = false;
 
             while ($object = $this->Next()) {
@@ -451,7 +451,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             $this->_rs = $this->_phreezer->DataAdapter->Select($sql);
 
             // if we know the number of rows we have, then use SplFixedArray for performance
-            $page->Rows = ($page->TotalPages > $page->CurrentPage) ? $this->GetEmptyArray($pagesize) : array ();
+            $page->Rows = ($page->TotalPages > $page->CurrentPage) ? $this->GetEmptyArray($pagesize) :  [];
 
             // transfer all of the results into the page object
             $i = 0;

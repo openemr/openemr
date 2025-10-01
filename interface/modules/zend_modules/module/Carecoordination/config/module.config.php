@@ -37,8 +37,8 @@ use Application\Plugin\CommonPlugin;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Listener\CCDAEventsSubscriber;
 
-return array(
-    'controllers' => array(
+return [
+    'controllers' => [
         'factories' => [
             CarecoordinationController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\CarecoordinationController => new CarecoordinationController($container->get(CarecoordinationTable::class), $container->get(DocumentsController::class)),
             EncountermanagerController::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\EncountermanagerController => new EncountermanagerController($container->get(\Carecoordination\Model\EncountermanagerTable::class)),
@@ -48,103 +48,103 @@ return array(
             SetupController::class => SetupControllerFactory::class,
             CcdController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\CcdController => new CcdController($container->get(CcdTable::class), $container->get(CarecoordinationTable::class), $container->get(\Documents\Model\DocumentsTable::class), $container->get(DocumentsController::class))
         ],
-    ),
+    ],
 
-    'router' => array(
-        'routes' => array(
-            'carecoordination' => array(
+    'router' => [
+        'routes' => [
+            'carecoordination' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/carecoordination[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => CarecoordinationController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-            'setup' => array(
+                    ],
+                ],
+            ],
+            'setup' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                      'route'    => '/carecoordination/setup[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => SetupController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-            'encounterccdadispatch' => array(
+                    ],
+                ],
+            ],
+            'encounterccdadispatch' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/encounterccdadispatch[/:action][/:id][/:val][/:id][/:val]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[a-zA-Z_]*',
                         'val'    => '[0-9]*',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => EncounterccdadispatchController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
 
-            'encountermanager' => array(
+            'encountermanager' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/encountermanager[/:action]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => EncountermanagerController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-            'ccd' => array(
+                    ],
+                ],
+            ],
+            'ccd' => [
                 'type'    => 'segment',
-                'options' => array(
+                'options' => [
                     'route'    => '/ccd[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => CcdController::class,
                         'action'     => 'upload',
-                    ),
-                ),
-            ),
-        ),
-    ),
+                    ],
+                ],
+            ],
+        ],
+    ],
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'carecoordination' => __DIR__ . '/../view/',
-        ),
-        'template_map' => array(
+        ],
+        'template_map' => [
             'carecoordination/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
             'carecoordination/layout/mapper' => __DIR__ . '/../view/layout/mapper.phtml',
             'carecoordination/layout/encountermanager' => __DIR__ . '/../view/layout/encountermanager.phtml',
             'carecoordination/layout/setup' => __DIR__ . '/../view/layout/setup.phtml',
-        ),
+        ],
         // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/View_Rendering_Strategies.html
-        'strategies' => array(
+        'strategies' => [
             'ViewJsonStrategy',
             'ViewFeedStrategy',
-        ),
-    ),
+        ],
+    ],
 
     'service_manager' => [
-        'factories' => array(
+        'factories' => [
             CarecoordinationTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CarecoordinationTable => new CarecoordinationTable(),
             EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
                 $applicationTable = $container->get(\Application\Model\ApplicationTable::class);
@@ -160,7 +160,7 @@ return array(
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,
             CCDAEventsSubscriber::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Listener\CCDAEventsSubscriber => new CCDAEventsSubscriber($container->get(CcdaGenerator::class)),
             CcdaGenerator::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdaGenerator => new CcdaGenerator($container->get(EncounterccdadispatchTable::class))
-        ),
+        ],
     ]
     // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller
     // that extends AbstractActionController.  An example below:
@@ -168,15 +168,15 @@ return array(
     // from other frameworks/languages.
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     // TODO: Note this is a weird dependency used in the CarecoordinationController class that should be revisited
-    ,'controller_plugins' => array(
-        'factories' => array(
+    ,'controller_plugins' => [
+        'factories' => [
             'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new \Documents\Plugin\Documents($container)
-        )
-    )
+        ]
+    ]
     ,'module_dependencies' => [
         'Ccr'
         ,'Immunization'
         ,'Syndromicsurveillance'
         , 'Documents'       // Handles the saving and retrieving of embedded documents in this module.
     ]
-);
+];

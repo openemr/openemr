@@ -292,17 +292,17 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["new_payment_xpd", "search_payments_xpd", "era_payments_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

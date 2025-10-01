@@ -97,28 +97,28 @@ switch ($postAction) {
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
-        $sections = array();
+        $sections = [];
 
         foreach ($rows as $row) {
             [$id, $value, $order_value, $name] = $row;
 
-                $sections[] = array(
+                $sections[] = [
                                                 'id' => $id,
                                                 'value' => $value,
                                                 'order' => $order_value,
                                                 'name' => $name
-                                            );
+                                            ];
         }
 
-        $new_sections = array();
+        $new_sections = [];
 
         for($i=0; $i < 5; $i++) {
-                $new_sections[] = array(
+                $new_sections[] = [
                                                 'id' => $i,
                                                 'value' => NULL,
                                                 'order' => NULL,
                                                 'name' => NULL
-                                            );
+                                            ];
         }
 
         $smarty->assign('sections', $sections);

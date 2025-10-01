@@ -33,7 +33,7 @@ $pid = $_SESSION['pid'];
 // Process each selected document
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
-    $file = sqlQuery($sql, array($documentId));
+    $file = sqlQuery($sql, [$documentId]);
     if ($file['foreign_id'] != $pid && $file['foreign_id'] != $_SESSION['pid']) {
         die(xlt("Invalid document selected."));
     }
@@ -41,11 +41,11 @@ foreach ($documentIds as $documentId) {
     $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
             WHERE `categories_to_documents`.`category_id` = `categories`.`id`
             AND `categories_to_documents`.`document_id` = ?";
-    $cat = sqlQuery($sql, array($file['id']));
+    $cat = sqlQuery($sql, [$file['id']]);
 
     // Find the tree of the document's category
     $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, array($cat['lft'], $cat['rght']));
+    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $path = "";

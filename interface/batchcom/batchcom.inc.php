@@ -56,7 +56,7 @@ function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_tex
 
     echo $sql;
 
-    $res = sqlStatement($sql, array($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text));
+    $res = sqlStatement($sql, [$patient_id, $sent_by, $msg_type, $msg_subject, $msg_text]);
 }
 
 function generate_csv($sql_result): void

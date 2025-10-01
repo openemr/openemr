@@ -34,7 +34,7 @@ class ModuleService
         if ($reset) {
             $sql_next = "UPDATE `background_services` SET `active` = ?, next_run = NOW() WHERE `name` = ? OR `name` = ?";
         }
-        return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));
+        return sqlQuery($sql_next, [$flag, 'WenoExchange', 'WenoExchangePharmacies']);
     }
 
     /**
@@ -54,12 +54,12 @@ class ModuleService
 
         $gl = sqlStatementNoLog(
             "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
-            array("weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password")
+            ["weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password"]
         );
         if (!empty($_SESSION['authUserID'] ?? '')) {
             $us = sqlStatementNoLog(
                 "SELECT `setting_label`, `setting_value`, `setting_user` FROM `user_settings` WHERE `setting_label` IN(?, ?) AND `setting_user` = ?",
-                array("global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'] ?? '')
+                ["global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'] ?? '']
             );
         }
 
@@ -122,7 +122,7 @@ class ModuleService
                 $GLOBALS[$key] = $vendor;
                 sqlQuery(
                     "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
-                    array($key, $vendor, $key, $vendor)
+                    [$key, $vendor, $key, $vendor]
                 );
             }
         }
@@ -131,7 +131,7 @@ class ModuleService
                 $GLOBALS[$key] = $vendor;
                 sqlQuery(
                     "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-                    array('global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'] ?? '')
+                    ['global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'] ?? '']
                 );
             }
         }
@@ -148,7 +148,7 @@ class ModuleService
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ? OR `mod_directory` = ?";
-        $results = sqlQuery($sql, array($modId, $modId));
+        $results = sqlQuery($sql, [$modId, $modId]);
         foreach ($results as $k => $v) {
             $registry[$k] = trim((preg_replace('/\R/', '', $v)));
         }
@@ -215,13 +215,13 @@ class ModuleService
         }
         // set module state.
         $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
-        return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
+        return sqlQuery($sql, [$flag, $flag_ui, $modId, $modId]);
     }
 
     public static function getModuleState($modId): bool
     {
         $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_id` = ? OR `mod_directory` = ?";
-        $flag = sqlQuery($sql, array($modId, $modId));
+        $flag = sqlQuery($sql, [$modId, $modId]);
 
         return !empty($flag['mod_active']);
     }

@@ -63,7 +63,7 @@ if ($pid) {
         die(xlt('You are not authorized to access this squad.'));
     }
 } else {
-    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write', 'addonly'))) {
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
         die(xlt('Adding demographics is not authorized.'));
     }
 }

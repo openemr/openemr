@@ -38,7 +38,7 @@ class CqmResult implements RsResultIF
 
         // If itemization is turned on, then record the itemized_test_id
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $this->itemized_test_id = array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']);
+            $this->itemized_test_id = ['itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']];
         }
     }
 
@@ -57,7 +57,7 @@ class CqmResult implements RsResultIF
             }
         }
 
-        $rowFormat = array(
+        $rowFormat = [
             'is_main' => true, // TO DO: figure out way to do this when multiple groups.
             'population_label' => $this->populationLabel,
             'numerator_label' => $this->numeratorLabel,
@@ -68,7 +68,7 @@ class CqmResult implements RsResultIF
             'pass_target' => $this->numerator,
             'percentage' => $this->percentage,
             'initial_population' => $this->ipp,
-            'exception' => $this->denom_exception);
+            'exception' => $this->denom_exception];
             $rowFormat = array_merge($rowFormat, $this->rule);
 
         // If itemization is turned on, then record the itemized_test_id

@@ -376,10 +376,10 @@ function postcalendar_userapi_getmonthname($args)
         return false;
     }
 
-    $month_name = array('01' => _CALJAN, '02' => _CALFEB, '03' => _CALMAR,
+    $month_name = ['01' => _CALJAN, '02' => _CALFEB, '03' => _CALMAR,
                         '04' => _CALAPR, '05' => _CALMAY, '06' => _CALJUN,
                         '07' => _CALJUL, '08' => _CALAUG, '09' => _CALSEP,
-                        '10' => _CALOCT, '11' => _CALNOV, '12' => _CALDEC);
+                        '10' => _CALOCT, '11' => _CALNOV, '12' => _CALDEC];
     return $month_name[date('m', $Date)];
 }
 
@@ -395,7 +395,7 @@ function postcalendar_userapi_buildMonthSelect($args)
     }
 
     // create the return object to be inserted into the form
-    $output = array();
+    $output = [];
     if (!isset($selected)) {
         $selected = '';
     }
@@ -411,7 +411,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 
             $output[$c]['id']       = sprintf('%02d', $i);
             $output[$c]['selected'] = $sel;
-            $output[$c]['name']     = postcalendar_userapi_getmonthname(array('Date' => mktime(0, 0, 0, $i, 15)));
+            $output[$c]['name']     = postcalendar_userapi_getmonthname(['Date' => mktime(0, 0, 0, $i, 15)]);
     }
 
     return $output;
@@ -429,7 +429,7 @@ function postcalendar_userapi_buildDaySelect($args)
     }
 
     // create the return object to be inserted into the form
-    $output = array();
+    $output = [];
     if (!isset($selected)) {
         $selected = '';
     }
@@ -463,7 +463,7 @@ function postcalendar_userapi_buildYearSelect($args)
     }
 
     // create the return object to be inserted into the form
-    $output = array();
+    $output = [];
     // we want the list to contain 10 years before today and 30 years after
     // maybe this will eventually become a user defined value
     $pc_start_year = date('Y') - 1;
@@ -502,14 +502,14 @@ function &postcalendar_userapi_getCategories()
     $result = $dbconn->Execute($sql);
 
     if ($dbconn->ErrorNo() != 0) {
-        return array();
+        return [];
     }
 
     if (!isset($result)) {
-        return array();
+        return [];
     }
 
-    $categories = array();
+    $categories = [];
     for ($i = 0; !$result->EOF; $result->MoveNext()) {
         [$catid, $catname, $constantid, $catcolor, $catdesc, $rtype, $rspec, $rfreq, $duration, $limit, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $cattype, $active, $seq, $aco] = $result->fields;
 
@@ -558,7 +558,7 @@ function &postcalendar_userapi_getTopics()
         return false;
     }
 
-    $data = array();
+    $data = [];
     $i = 0;
     for (; !$topiclist->EOF; $topiclist->MoveNext()) {
         [$data[$i]['id'], $data[$i]['text'], $data[$i++]['name']] = $topiclist->fields;
@@ -573,7 +573,7 @@ function findFirstAvailable($period)
     //print_r($period);
 
     $day_date = "";
-    $available_times = array();
+    $available_times = [];
     foreach ($period as $date => $day) {
         //echo "begin free times for $date:<br />";
         $ffid_res = findFirstInDay($day, $date);
@@ -591,7 +591,7 @@ function findFirstAvailable($period)
 
 function findFirstInDay($day, $date)
 {
-    $stack = array();
+    $stack = [];
     $lastcat = 3;
     $intime = false;
     $outtime = false;
@@ -608,7 +608,7 @@ function findFirstInDay($day, $date)
     }
 
     if ($intime == false or $outtime == false) {
-        return array();
+        return [];
     }
 
     //echo "increment is: "  . _SETTING_TIME_INCREMENT . "<br />";
@@ -618,7 +618,7 @@ function findFirstInDay($day, $date)
     $outtime_sec =  date("U", strtotime($date . " " . $outtime));
     $free_time = $intime_sec;
 
-    $times = array();
+    $times = [];
     for ($i = $intime_sec; $i < $outtime_sec; $i += $inc) {
         //echo "time is now: " . date("h:i:s A",$i) . "<br />";
         $closest_start = $outtime_sec;
@@ -682,7 +682,7 @@ function findFirstInDay($day, $date)
             //length blocks so that won't be seen
             $date_sec = strtotime($date);
             if ($duration > 0) {
-                $times[] = array ("startTime" => $free_time, "endTime" => ($date_sec + $duration));
+                $times[] =  ["startTime" => $free_time, "endTime" => ($date_sec + $duration)];
             }
         }
     }

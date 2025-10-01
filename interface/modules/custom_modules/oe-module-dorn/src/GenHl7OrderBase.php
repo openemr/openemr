@@ -27,7 +27,7 @@ class GenHl7OrderBase
     {
         if (is_array($data) && count($data) > 1) {
             // Run each element through $this->hl7Text()
-            $data = array_map(array($this, 'hl7Text'), $data);
+            $data = array_map([$this, 'hl7Text'], $data);
             return implode($this->componentSeparator, $data);
         } else {
             // Run the single element through $this->hl7Text()
@@ -229,8 +229,8 @@ class GenHl7OrderBase
             $date = date('Y-m-d');
         }
 
-        $payers = array();
-        $dres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC", array($pid, $date));
+        $payers = [];
+        $dres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC", [$pid, $date]);
         $prevtype = '';
         // type is primary, secondary or tertiary
         while ($drow = sqlFetchArray($dres)) {
@@ -246,9 +246,9 @@ class GenHl7OrderBase
             }
 
             $ins = count($payers);
-            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", array($drow['provider']));
+            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", [$drow['provider']]);
             $orow = new InsuranceCompany($drow['provider']);
-            $payers[$ins] = array();
+            $payers[$ins] = [];
             $payers[$ins]['data'] = $drow;
             $payers[$ins]['company'] = $crow;
             $payers[$ins]['object'] = $orow;
@@ -262,12 +262,12 @@ class GenHl7OrderBase
         if (empty($date)) {
             $date = date('Y-m-d');
         }
-        $guarantors = array();
-        $gres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1", array($pid, $date));
+        $guarantors = [];
+        $gres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1", [$pid, $date]);
         // type is primary, secondary or tertiary
         while ($drow = sqlFetchArray($gres)) {
             $gnt = count($guarantors);
-            $guarantors[$gnt] = array();
+            $guarantors[$gnt] = [];
             $guarantors[$gnt]['data'] = $drow;
         }
         return $guarantors;

@@ -28,47 +28,47 @@ use Patientvalidation\Model\PatientData;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
 
-return array(
+return [
 
     /* declare all controllers */
-    'controllers' => array(
+    'controllers' => [
         'factories' => [
             PatientvalidationController::class =>  fn(ContainerInterface $container, $requestedName): \Patientvalidation\Controller\PatientvalidationController => new PatientvalidationController($container->get(PatientDataTable::class))
         ],
-    ),
+    ],
 
     /**
      * routing configuration.
      * for more option and details - http://zf2.readthedocs.io/en/latest/in-depth-guide/understanding-routing.html?highlight=routing
      */
-    'router' => array(
-        'routes' => array(
-            'patientvalidation' => array(
+    'router' => [
+        'routes' => [
+            'patientvalidation' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/patientvalidation[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => PatientvalidationController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-        ),
-    ),
+                    ],
+                ],
+            ],
+        ],
+    ],
 
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'patientvalidation' => __DIR__ . '/../view',
-        ),
-    ),
+        ],
+    ],
 
     'service_manager' => [
-        'factories' => array(
+        'factories' => [
             PatientDataTable::class =>  function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $resultSetPrototype = new ResultSet();
@@ -77,6 +77,6 @@ return array(
                 $table = new PatientDataTable($tableGateway);
                 return $table;
             }
-        ),
+        ],
     ]
-);
+];

@@ -30,7 +30,7 @@ $action = $_GET['action'];
 
 if ($action === 'code_detail') {
     $code = strtoupper($_GET['code']);
-    $dos = array();
+    $dos = [];
 
     $query = "SELECT detail.name, ord.procedure_code AS code, detail.name AS title, detail.description, detail.notes FROM procedure_type det ";
     $query .= "LEFT JOIN procedure_type ord ON ord.procedure_type_id = detail.parent ";
@@ -66,7 +66,7 @@ if ($action === 'print_labels') {
     $client = $_GET['acctid'];
     $pid = $_GET['pid'];
     $order = $_GET['order'];
-    $specimen = array();
+    $specimen = [];
     $specimens = explode(";", $_GET['specimen']);
     $patient = strtoupper($_GET['patient']);
     $order_date = orderDate($order);
@@ -76,7 +76,7 @@ if ($action === 'print_labels') {
         $count = (int)$_GET['count'];
     }
 
-    $pdf = new mPDF(array(
+    $pdf = new mPDF([
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => 'utf-8',
         'format' => [45, 19],
@@ -88,7 +88,7 @@ if ($action === 'print_labels') {
         'margin_bottom' => '0',
         'margin_header' => '0',
         'margin_footer' => '0'
-    ));
+    ]);
     $pdf->text_input_as_HTML = true;
 
     while ($count > 0) {

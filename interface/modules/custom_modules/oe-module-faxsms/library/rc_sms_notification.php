@@ -298,7 +298,7 @@ function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = ''
 
     $query .= " where pc_pid=? and pc_eid=? ";
 
-    return sqlStatement($query, array($pid, $pc_eid));
+    return sqlStatement($query, [$pid, $pc_eid]);
 }
 
 /**
@@ -360,7 +360,7 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
     $sdate = date("Y-m-d H:i:s");
     $sql_loginsert = "INSERT INTO `notification_log` (`iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
+    $safe = [$prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate];
 
     sqlStatement($sql_loginsert, $safe);
 }
@@ -382,8 +382,8 @@ function cron_SetMessage($prow, $db_sms_msg): string
     $DATE = date('l F j, Y', $dtWrk);
     $STARTTIME = date('g:i A', $dtWrk);
     $ENDTIME = $prow['pc_endTime'];
-    $find_array = array("***NAME***", "***PROVIDER***", "***DATE***", "***STARTTIME***", "***ENDTIME***", "***ORG***");
-    $replace_array = array($NAME, $PROVIDER, $DATE, $STARTTIME, $ENDTIME, $ORG);
+    $find_array = ["***NAME***", "***PROVIDER***", "***DATE***", "***STARTTIME***", "***ENDTIME***", "***ORG***"];
+    $replace_array = [$NAME, $PROVIDER, $DATE, $STARTTIME, $ENDTIME, $ORG];
     $message = str_replace($find_array, $replace_array, $db_sms_msg['message']);
     $message = text($message);
 

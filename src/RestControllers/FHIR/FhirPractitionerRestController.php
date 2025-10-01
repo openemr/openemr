@@ -115,7 +115,7 @@ class FhirPractitionerRestController
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirPractitionerService->getAll($searchParams);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

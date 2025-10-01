@@ -55,7 +55,7 @@ if ($noteid) {
 <body class="body_top">
 
 <p><?php echo "<b>" .
-  generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) .
+  generate_display_field(['data_type' => '1','list_id' => 'note_type'], $title) .
   "</b>" . ' ' . xlt('for') . ' ' .
   "<b>" . attr($ptname) . "</b>"; ?></p>
 

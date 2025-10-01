@@ -41,7 +41,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_amcPopulation;
 
-    protected $_resultsArray = array();
+    protected $_resultsArray = [];
 
     protected $_rowRule;
     protected $_ruleId;
@@ -309,8 +309,8 @@ abstract class AbstractAmcReport implements RsReportIF
     private function collectObjects($patient, $object_label, $begin, $end)
     {
 
-        $results = array();
-        $sqlBindArray = array();
+        $results = [];
+        $sqlBindArray = [];
 
         switch ($object_label) {
             case "transitions-in":
@@ -466,7 +466,7 @@ abstract class AbstractAmcReport implements RsReportIF
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             $fres = sqlStatement(
                 "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
-                array($row['id'])
+                [$row['id']]
             );
             while ($frow = sqlFetchArray($fres)) {
                 $row[$frow['field_id']] = $frow['field_value'];

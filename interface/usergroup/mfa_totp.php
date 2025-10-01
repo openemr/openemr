@@ -68,17 +68,17 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
         }
     </style>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Register Time Based One Time Password Key') . " - " . xl('TOTP'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -148,7 +148,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             $existingSecret = privQuery(
                                 "SELECT var1 FROM login_mfa_registrations WHERE " .
                                 "`user_id` = ? AND `method` = 'TOTP'",
-                                array($userid)
+                                [$userid]
                             );
                             if (empty($existingSecret['var1'])) {
                                 $secret = false;
@@ -228,7 +228,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             $row = privQuery(
                                 "SELECT COUNT(*) AS count FROM login_mfa_registrations WHERE " .
                                 "`user_id` = ? AND `method` = 'TOTP'",
-                                array($userid)
+                                [$userid]
                             );
 
 
@@ -238,7 +238,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     "INSERT INTO login_mfa_registrations " .
                                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                                     "(?, 'TOTP', 'App Based 2FA', ?, '')",
-                                    array($userid, $cryptoGen->encryptStandard($_SESSION['totpSecret']))
+                                    [$userid, $cryptoGen->encryptStandard($_SESSION['totpSecret'])]
                                 );
                                 unset($_SESSION['totpSecret']);
                             } else {

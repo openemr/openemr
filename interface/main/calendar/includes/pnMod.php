@@ -131,7 +131,7 @@ function pnModGetIDFromName($module)
         return false;
     }
 
-    static $modid = array();
+    static $modid = [];
     if (isset($modid[$module])) {
         return $modid[$module];
     }
@@ -175,7 +175,7 @@ function pnModGetInfo($modid)
         return false;
     }
 
-    static $modinfo = array();
+    static $modinfo = [];
     if (isset($modinfo[$modid])) {
         return $modinfo[$modid];
     }
@@ -222,7 +222,7 @@ function pnModGetInfo($modid)
  */
 function pnModAPILoad($modname, $type = 'user')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     if (empty($modname)) {
         return false;
@@ -286,7 +286,7 @@ function pnModAPILoad($modname, $type = 'user')
  */
 function pnModDBInfoLoad($modname, $directory = '')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     // Check to ensure we aren't doing this twice
     if (isset($loaded[$modname])) {
@@ -340,7 +340,7 @@ function pnModDBInfoLoad($modname, $directory = '')
  */
 function pnModLoad($modname, $type = 'user')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     if (empty($modname)) {
         return false;
@@ -406,7 +406,7 @@ function pnModLoad($modname, $type = 'user')
  * @param args - arguments to pass to the function
  * @returns mixed
  */
-function pnModAPIFunc($modname, $type, $func, $args = array())
+function pnModAPIFunc($modname, $type, $func, $args = [])
 {
 
     if (empty($modname)) {
@@ -438,7 +438,7 @@ function pnModAPIFunc($modname, $type, $func, $args = array())
  * @param args - argument array
  * @returns mixed
  */
-function pnModFunc($modname, $type, $func, $args = array())
+function pnModFunc($modname, $type, $func, $args = [])
 {
 
     if (empty($modname)) {
@@ -471,7 +471,7 @@ function pnModFunc($modname, $type, $func, $args = array())
  * @returns string
  * @return absolute URL for call
  */
-function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '')
+function pnModURL($modname, $type = 'user', $func = 'main', $args = [], $path = '')
 {
     if (empty($modname)) {
         return false;
@@ -538,7 +538,7 @@ function pnModAvailable($modname)
         return false;
     }
 
-    static $modstate = array();
+    static $modstate = [];
     if (isset($modstate[$modname])) {
         if ($modstate[$modname] == _PNMODULE_STATE_ACTIVE) {
             return true;

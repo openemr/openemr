@@ -45,7 +45,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     protected OemrUI $oemrUI;
 
-    protected function getOemrUiInstance($oemrSettings = array())
+    protected function getOemrUiInstance($oemrSettings = [])
     {
         if (!isset($this->oemrUI)) {
             $this->oemrUI = new OemrUI($oemrSettings);
@@ -157,7 +157,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'fireEvent',
-                function ($eventName, $eventData = array()) {
+                function ($eventName, $eventData = []) {
                     if (empty($this->kernel)) {
                         return '';
                     }

@@ -80,7 +80,7 @@ class PatientController extends AppBasePortalController
         $this->Assign('encounter', $encounter);
         $this->Assign('register', $register);
 
-        $trow = array();
+        $trow = [];
         $ptdata = $this->startupQuery($pid);
         foreach ($ptdata[0] as $key => $v) {
             $trow[lcfirst($key)] = $v;
@@ -408,7 +408,7 @@ class PatientController extends AppBasePortalController
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {
-            $audit = array ();
+            $audit =  [];
             $audit['patient_id'] = $ja['pid'];
             $audit['activity'] = "profile";
             $audit['require_audit'] = "1";

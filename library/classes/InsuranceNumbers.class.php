@@ -26,8 +26,8 @@ class InsuranceNumbers extends ORDataObject
         var $rendering_provider_number;
         var $group_number;
         var $provider_number_type;
-        var $provider_number_type_array = array
-        (
+        var $provider_number_type_array = 
+        [
             ""   => "Unspecified",
             "0B" => "State License Number",
             "1A" => "Blue Cross Provider Number",
@@ -48,10 +48,10 @@ class InsuranceNumbers extends ORDataObject
             "U3" => "Unique Supplier Identification Number (USIN)",
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
-        );
+        ];
         var $rendering_provider_number_type;
-        var $rendering_provider_number_type_array = array
-        (
+        var $rendering_provider_number_type_array = 
+        [
             ""   => "Unspecified",
             "0B" => "State License Number",
             "1A" => "Blue Cross Provider Number",
@@ -67,7 +67,7 @@ class InsuranceNumbers extends ORDataObject
             "X4" => "Clinical Laboratory Improvement Amendment Number",
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
-        );
+        ];
 
         /**
          * Constructor sets all Insurance attributes to their default value
@@ -92,10 +92,10 @@ class InsuranceNumbers extends ORDataObject
 
         function insurance_numbers_factory($provider_id)
         {
-            $ins = array();
+            $ins = [];
             $sql = "SELECT id FROM "  . escape_table_name($this->_table) .
                 " WHERE provider_id = ? ORDER BY insurance_company_id";
-            $results = sqlStatementNoLog($sql, array($provider_id));
+            $results = sqlStatementNoLog($sql, [$provider_id]);
 
             while ($row = sqlFetchArray($results)) {
                     $ins[] = new InsuranceNumbers($row['id']);

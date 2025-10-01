@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
 $formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
-$check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array();
+$check_res = $formid ? formFetch("form_clinical_instructions", $formid) : [];
 ?>
 <html>
     <head>

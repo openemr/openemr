@@ -69,7 +69,7 @@ class CarecoordinationController extends AbstractActionController
      */
     public function indexAction()
     {
-        return $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
+        return $this->redirect()->toRoute('encountermanager', ['action' => 'index']);
     }
 
     /**
@@ -82,17 +82,17 @@ class CarecoordinationController extends AbstractActionController
         $request = $this->getRequest();
         $amid = $request->getPost('am_id') ?? null;
         if ($amid) {
-            $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $amid));
+            $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $amid]);
         }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
-        $view = new ViewModel(array(
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
+        $view = new ViewModel([
             'records' => $records,
             'category_id' => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
-        ));
+        ]);
 
         return $view;
     }
@@ -111,7 +111,7 @@ class CarecoordinationController extends AbstractActionController
             $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
         }
         if (($request->getPost('chart_all_imports') ?? null) === 'true' && empty($action)) {
-            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
             foreach ($records as $record) {
                 if (!empty($record['matched_patient']) && empty($record['is_unstructured_document'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
@@ -123,9 +123,9 @@ class CarecoordinationController extends AbstractActionController
             }
         }
         if (($request->getPost('delete_all_imports') ?? null) === 'true' && empty($action)) {
-            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
             foreach ($records as $record) {
-                $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $record['amid']));
+                $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $record['amid']]);
             }
         }
 
@@ -140,7 +140,7 @@ class CarecoordinationController extends AbstractActionController
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s'))
+                    ['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
                     $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
@@ -159,7 +159,7 @@ class CarecoordinationController extends AbstractActionController
             }
         }
 
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
         foreach ($records as $key => $r) {
             if (!empty($records[$key]['dupl_patient'] ?? null)) {
                 continue;
@@ -222,13 +222,13 @@ class CarecoordinationController extends AbstractActionController
             }
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'records' => $records,
             'category_id' => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
-        ));
+        ]);
         // I haven't a clue why this delay is needed to allow batch to work from fetch.
         if (!empty($upload)) {
             sleep(1);
@@ -268,59 +268,59 @@ class CarecoordinationController extends AbstractActionController
 
         if ($request->getPost('setval') == 'approve') {
             $this->getCarecoordinationTable()->insertApprovedData($request->getPost());
-            return $this->redirect()->toRoute('carecoordination', array(
+            return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
-                'action' => 'upload'));
+                'action' => 'upload']);
         } elseif ($request->getPost('setval') == 'discard') {
-            $this->getCarecoordinationTable()->discardCCDAData(array('audit_master_id' => $audit_master_id));
-            return $this->redirect()->toRoute('carecoordination', array(
+            $this->getCarecoordinationTable()->discardCCDAData(['audit_master_id' => $audit_master_id]);
+            return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
-                'action' => 'upload'));
+                'action' => 'upload']);
         }
 
         $documentationOf = $this->getCarecoordinationTable()->getdocumentationOf($audit_master_id);
-        $demographics = $this->getCarecoordinationTable()->getDemographics(array('audit_master_id' => $audit_master_id));
-        $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(array('pid' => $pid));
+        $demographics = $this->getCarecoordinationTable()->getDemographics(['audit_master_id' => $audit_master_id]);
+        $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(['pid' => $pid]);
 
-        $problems = $this->getCarecoordinationTable()->getProblems(array('pid' => $pid));
+        $problems = $this->getCarecoordinationTable()->getProblems(['pid' => $pid]);
         $problems_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists1');
 
-        $allergies = $this->getCarecoordinationTable()->getAllergies(array('pid' => $pid));
+        $allergies = $this->getCarecoordinationTable()->getAllergies(['pid' => $pid]);
         $allergies_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists2');
 
-        $medications = $this->getCarecoordinationTable()->getMedications(array('pid' => $pid));
+        $medications = $this->getCarecoordinationTable()->getMedications(['pid' => $pid]);
         $medications_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists3');
 
-        $immunizations = $this->getCarecoordinationTable()->getImmunizations(array('pid' => $pid));
+        $immunizations = $this->getCarecoordinationTable()->getImmunizations(['pid' => $pid]);
         $immunizations_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'immunization');
 
-        $lab_results = $this->getCarecoordinationTable()->getLabResults(array('pid' => $pid));
+        $lab_results = $this->getCarecoordinationTable()->getLabResults(['pid' => $pid]);
         $lab_results_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure_result');
 
-        $vitals = $this->getCarecoordinationTable()->getVitals(array('pid' => $pid));
+        $vitals = $this->getCarecoordinationTable()->getVitals(['pid' => $pid]);
         $vitals_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'vital_sign');
 
-        $social_history = $this->getCarecoordinationTable()->getSocialHistory(array('pid' => $pid));
+        $social_history = $this->getCarecoordinationTable()->getSocialHistory(['pid' => $pid]);
         $social_history_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'social_history');
 
-        $encounter = $this->getCarecoordinationTable()->getEncounterData(array('pid' => $pid));
+        $encounter = $this->getCarecoordinationTable()->getEncounterData(['pid' => $pid]);
         $encounter_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'encounter');
 
-        $procedure = $this->getCarecoordinationTable()->getProcedure(array('pid' => $pid));
+        $procedure = $this->getCarecoordinationTable()->getProcedure(['pid' => $pid]);
         $procedure_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure');
 
-        $care_plan = $this->getCarecoordinationTable()->getCarePlan(array('pid' => $pid));
+        $care_plan = $this->getCarecoordinationTable()->getCarePlan(['pid' => $pid]);
         $care_plan_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'care_plan');
 
-        $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(array('pid' => $pid));
+        $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(['pid' => $pid]);
         $functional_cognitive_status_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'functional_cognitive_status');
 
-        $referral = $this->getCarecoordinationTable()->getReferralReason(array('pid' => $pid));
+        $referral = $this->getCarecoordinationTable()->getReferralReason(['pid' => $pid]);
         $referral_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'referral');
 
         $discharge_medication_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_medication');
 
-        $discharge_summary = array(); // TODO: stephen what happened here?? no discharge summary review?
+        $discharge_summary = []; // TODO: stephen what happened here?? no discharge summary review?
         $discharge_summary_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_summary');
 
         $gender_list = $this->getCarecoordinationTable()->getList('sex');
@@ -340,7 +340,7 @@ class CarecoordinationController extends AbstractActionController
         $demographics_old[0]['ethnicity'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['ethnicity'], 'ethnicity', '');
         $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['state'], 'state', '');
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'carecoordinationTable' => $this->getCarecoordinationTable(),
             'commonplugin' => $this->CommonPlugin(), // this comes from the Application Module
             'demographics' => $demographics,
@@ -385,7 +385,7 @@ class CarecoordinationController extends AbstractActionController
             'state_list' => $state_list,
             'listenerObject' => $this->listenerObject,
             'documentationOf' => $documentationOf,
-        ));
+        ]);
         return $view;
     }
 
@@ -407,7 +407,7 @@ class CarecoordinationController extends AbstractActionController
             $components['discharge_summary'] = 'Dishcharge Summary';
         }
 
-        $components = array_diff($components, array('instructions' => 'Instructions'));
+        $components = array_diff($components, ['instructions' => 'Instructions']);
 
         $temp = '<table>';
         foreach ($components as $key => $value) {

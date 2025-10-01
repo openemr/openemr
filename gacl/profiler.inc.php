@@ -36,16 +36,16 @@ class Profiler {
     */
     function __construct( $output_enabled=false, $trace_enabled=false)
     {
-        $this->description = array();
-        $this->startTime = array();
-        $this->endTime = array();
+        $this->description = [];
+        $this->startTime = [];
+        $this->endTime = [];
         $this->initTime = 0;
         $this->cur_timer = "";
-        $this->stack = array();
+        $this->stack = [];
         $this->trail = "";
         $this->trace = "";
-        $this->count = array();
-        $this->running = array();
+        $this->count = [];
+        $this->running = [];
         $this->initTime = $this->getMicroTime();
         $this->output_enabled = $output_enabled;
         $this->trace_enabled = $trace_enabled;

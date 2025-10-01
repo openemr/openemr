@@ -46,7 +46,7 @@ function AjaxDropDownCode(): void
 	  </tr>";
         $insurance_text_ajax = trim((isset($_POST['insurance_text_ajax']) ? $_POST['insurance_text_ajax'] : ''));
         $res = sqlStatement("SELECT insurance_companies.id,name,city,state,country FROM insurance_companies
-			left join addresses on insurance_companies.id=addresses.foreign_id  where name like ? or  insurance_companies.id like ? ORDER BY name", array($insurance_text_ajax . '%', $insurance_text_ajax . '%'));
+			left join addresses on insurance_companies.id=addresses.foreign_id  where name like ? or  insurance_companies.id like ? ORDER BY name", [$insurance_text_ajax . '%', $insurance_text_ajax . '%']);
         while ($row = sqlFetchArray($res)) {
             if ($CountIndex % 2 == 1) {
                 $bgcolor = '#ddddff';
@@ -120,13 +120,13 @@ function AjaxDropDownCode(): void
             "SELECT pid as id,fname,lname,mname,DOB FROM patient_data
 			 where  fname like ? or lname like ? or mname like ? or
 			 CONCAT(lname,' ',fname,' ',mname) like ? or pid like ? ORDER BY lname",
-            array(
+            [
                 $patient_code . '%',
                 $patient_code . '%',
                 $patient_code . '%',
                 $patient_code . '%',
                 $patient_code . '%'
-            )
+            ]
         );
         while ($row = sqlFetchArray($res)) {
             if ($CountIndex % 2 == 1) {
@@ -181,7 +181,7 @@ function AjaxDropDownCode(): void
 
 	  ";
         $res = sqlStatement("SELECT date,encounter FROM form_encounter
-			 where pid =? ORDER BY encounter", array($patient_code));
+			 where pid =? ORDER BY encounter", [$patient_code]);
         while ($row = sqlFetchArray($res)) {
             if ($CountIndex % 2 == 1) {
                 $bgcolor = '#ddddff';

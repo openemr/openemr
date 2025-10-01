@@ -24,7 +24,7 @@ function edih_upload_reindex(array $_files, $top = true)
     // blatantly copied from BigShark666 at gmail dot com 22-Nov-2011 06:51
     // from php documentation for $_FILES predefined variable
 
-     $files = array();
+     $files = [];
     foreach ($_files as $name => $file) {
         if ($top) {
             $sub_name = $file['name'];
@@ -34,13 +34,13 @@ function edih_upload_reindex(array $_files, $top = true)
 
         if (is_array($sub_name)) {
             foreach (array_keys($sub_name) as $key) {
-                $files[$name][$key] = array(
+                $files[$name][$key] = [
                     'name'     => $file['name'][$key],
                     'type'     => $file['type'][$key],
                     'tmp_name' => $file['tmp_name'][$key],
                     'error'    => $file['error'][$key],
                     'size'     => $file['size'][$key],
-                );
+                ];
                 $files[$name] = edih_upload_reindex($files[$name], false);
             }
         } else {
@@ -95,7 +95,7 @@ function edih_upload_match_file($param_ar, $fidx)
     // =============
     $edih_upldir = csv_edih_tmpdir();
     // =============
-    $ar_fn = array();
+    $ar_fn = [];
     $ftype = '';
     //
     if (is_array($fidx) && isset($fidx['name'])) {
@@ -137,7 +137,7 @@ function edih_upload_match_file($param_ar, $fidx)
     //
     if (!$ftype) {
         csv_edihist_log('edih_upload_match_file: unable to classify file ' . $fn);
-        $ar_fn['reject'] = array('name' => $fn, 'comment' => 'unable to classify');
+        $ar_fn['reject'] = ['name' => $fn, 'comment' => 'unable to classify'];
         return $ar_fn;
     }
 
@@ -150,7 +150,7 @@ function edih_upload_match_file($param_ar, $fidx)
             $ar_fn['name'] = $newname;
         } else {
             csv_edihist_log('edih_upload_match_file: failed to set permissions for ' . $fn);
-            $ar_fn['reject'] = array('name' => $fn, 'comment' => 'failed to set permissions');
+            $ar_fn['reject'] = ['name' => $fn, 'comment' => 'failed to set permissions'];
             unlink($newname);
             return false;
         }
@@ -190,25 +190,25 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
     if ($zip_obj->open($zipfilename, ZipArchive::CHECKCONS) !== true) {
         //$html_str .= "Error: Could not open archive $zipfilename <br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: Error: Could not open archive ' . $zipfilename);
-        $f_zr['reject'][] = array('name' => $zipfilename, 'comment' => 'Error: Could not open archive ' . $zipfilename);
+        $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => 'Error: Could not open archive ' . $zipfilename];
         return $f_zr;
     }
 
     if ($zip_obj->status != 0) {
         $err .= "Error code: " . text($zip_obj->status) . " " . text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: ' . $zipfilename . ' ' . $err);
-        $f_zr['reject'][] = array('name' => $zipfilename, 'comment' => $err);
+        $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => $err];
         return $f_zr;
     }
 
     // initialize output array and counter
-    $f_zr = array();
+    $f_zr = [];
     $p_ct = 0;
     // get number of files
     $f_ct = $zip_obj->numFiles;
     if ($single && $f_ct > 1) {
         csv_edihist_log('edih_ziptoarray: Usage: only single zipped file accepted through this input');
-        $f_zr['reject'][] = array('name' => $zipfilename, 'comment' => 'Usage: only single zipped file accepted through this input');
+        $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => 'Usage: only single zipped file accepted through this input'];
         return $f_zr;
     }
 
@@ -258,7 +258,7 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
                     }
                 } else {
                     // verification failed
-                    $f_zr['reject'][] = array('name' => $fzp['name'], 'comment' => 'verification failed');
+                    $f_zr['reject'][] = ['name' => $fzp['name'], 'comment' => 'verification failed'];
                 }
             }
 
@@ -329,7 +329,7 @@ function edih_upload_files()
     //
     // these are the mime-types that we will accept -- however, mime-type is not reliable
     // for linux, system("file -bi -- ".escapeshellarg($uploadedfile)) gives mime-type and character encoding
-    $m_types = array('application/octet-stream', 'text/plain', 'application/zip', 'application/x-zip-compressed');
+    $m_types = ['application/octet-stream', 'text/plain', 'application/zip', 'application/x-zip-compressed'];
     //
     // some unwanted file extensions that might be accidentally included in upload files
     $ext_types = 'sh|asp|html|htm|cm|js|xml|jpg|png|tif|xpm|pdf|php|py|pl|tcl|doc|pub|ppt|xls|xla|vsd|rtf|odt|ods|odp';
@@ -337,7 +337,7 @@ function edih_upload_files()
     $param_ar = csv_parameters("ALL");
     //
     // initialize retained files array and counter
-    $f_ar = array();
+    $f_ar = [];
     $p_ct = 0;
     //
     // here send the $_FILES array to edih_upload_reindex for "fileUplMulti"
@@ -357,7 +357,7 @@ function edih_upload_files()
         if ($fa['error'] !== UPLOAD_ERR_OK) {
             //$html_str .= "Error: [{$fa['name']}] " . edih_upload_err_message($fa['error']) . "<br />" . PHP_EOL;
             $err = edih_upload_err_message($fa['error']);
-            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => $err);
+            $f_ar['reject'][] = ['name' => $fa['name'],'comment' => $err];
             csv_edihist_log('edih_upload_files: _FILES error ' . $fa['name'] . ' ' . $err);
             unset($files[$uplkey][$idx]);
             continue;
@@ -365,7 +365,7 @@ function edih_upload_files()
 
         if (!is_uploaded_file($fa['tmp_name'])) {
             //$html_str .= "Error: uploaded_file error for {$fa['name']}<br />". PHP_EOL;
-            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'php uploaded file error');
+            $f_ar['reject'][] = ['name' => $fa['name'],'comment' => 'php uploaded file error'];
             csv_edihist_log('edih_upload_files: _FILES error tmp_name ' . $fa['name']);
             unset($files[$uplkey][$idx]);
             continue;
@@ -373,7 +373,7 @@ function edih_upload_files()
 
         if (!in_array($fa['type'], $m_types)) {
             //$html_str .= "Error: mime-type {$fa['type']} not accepted for {$fa['name']} <br />" . PHP_EOL;
-            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'mime-type ' . $fa['type']);
+            $f_ar['reject'][] = ['name' => $fa['name'],'comment' => 'mime-type ' . $fa['type']];
             csv_edihist_log('edih_upload_files: _FILES error mime-type ' . $fa['name'] . ' mime-type ' . $fa['type']);
             unset($files[$uplkey][$idx]);
             continue;
@@ -383,7 +383,7 @@ function edih_upload_files()
         $fext = ( strpos($fa['name'], '.') ) ? pathinfo($fa['name'], PATHINFO_EXTENSION) : '';
         if ($fext && preg_match('/' . $ext_types . '\?/i', $fext)) {
             //$html_str .= 'Error: uploaded_file error for '.$fa['name'].' extension '.$fext.'<br />'. PHP_EOL;
-            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'extension ' . $fext);
+            $f_ar['reject'][] = ['name' => $fa['name'],'comment' => 'extension ' . $fext];
             csv_edihist_log('edih_upload_files: _FILES error name ' . $fa['name'] . ' extension ' . $fext);
             unset($files[$uplkey][$idx]);
             continue;
@@ -394,7 +394,7 @@ function edih_upload_files()
             if (strpos($fa['name'], '.') === 0 || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
                 $fname = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $fa['name']);
-                $f_ar['reject'][] = array('name' => $fname,'comment' => 'null byte, hidden, invalid');
+                $f_ar['reject'][] = ['name' => $fname,'comment' => 'null byte, hidden, invalid'];
                 csv_edihist_log('edih_upload_files: null byte, hidden, invalid ' . $fname);
                 unset($files[$uplkey][$idx]);
                 continue;
@@ -406,14 +406,14 @@ function edih_upload_files()
         } else {
             // name is not a string
             //$html_str .= "Error: uploaded_file error for " . $fa['tmp_name'] . "<br />". PHP_EOL;
-            $f_ar['reject'][] = array('name' => (string)$fa['name'],'comment' => 'invalid name');
+            $f_ar['reject'][] = ['name' => (string)$fa['name'],'comment' => 'invalid name'];
             unset($files[$uplkey][$idx]);
             continue;
         }
 
         if (!$fa['tmp_name'] || !$fa['size']) {
             //$html_str .= "Error: file name or size error <br />" . PHP_EOL;
-            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'php file upload error');
+            $f_ar['reject'][] = ['name' => $fa['name'],'comment' => 'php file upload error'];
             unset($files[$uplkey][$idx]);
             continue;
         }
@@ -444,7 +444,7 @@ function edih_upload_files()
                         if (isset($f_ar['reject']) && is_array($fz)) {
                             array_merge($f_ar['reject'], $fz);
                         } else {
-                            $f_ar['reject'] = (is_array($fz)) ? $fz : array();
+                            $f_ar['reject'] = (is_array($fz)) ? $fz : [];
                         }
                     } else {
                         // expect $fz to be an array of file names
@@ -457,7 +457,7 @@ function edih_upload_files()
             } else {
                 // nothing good from edih_ziptoarray()
                 // $html_str .= "error with zip file or no files accepted for " . $fa['name'] . "<br />" .PHP_EOL;
-                $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'error with zip archive');
+                $f_ar['reject'][] = ['name' => $fa['name'],'comment' => 'error with zip archive'];
                 unset($files[$uplkey][$idx]);
             }
 
@@ -480,7 +480,7 @@ function edih_upload_files()
         } else {
             // verification failed
             csv_edihist_log('edih_upload_file: verification failed for ' . $fa['name']);
-            $f_ar['reject'][] = array('name' => $fa['name'], 'comment' => 'verification failed');
+            $f_ar['reject'][] = ['name' => $fa['name'], 'comment' => 'verification failed'];
             unset($files[$uplkey][$idx]);
         }
     } // end foreach($files[$uplkey] as $idx=>$fa)
