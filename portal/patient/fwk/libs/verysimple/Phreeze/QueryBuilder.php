@@ -166,16 +166,15 @@ class QueryBuilder
     /**
      * Removes the "where" from the beginning of a statement
      *
-     * @param
-     *          string partial query to parse
+     * @param string $sql partial query to parse
      * @return string query without the preceeding "where"
      */
-    private function RemoveWherePrefix($sql)
+    private function RemoveWherePrefix(string $sql): string
     {
         $sql = trim($sql);
 
-        // remove if the query is surrounded by parenths
-        while (substr($sql, 0, 1) == "(" && substr($sql, 0, - 1) == ")") {
+        // remove if the query is surrounded by parentheses
+        while (str_starts_with($sql, '(') && str_ends_with($sql, ')')) {
             $sql = trim(substr($sql, 1, - 1));
         }
 
