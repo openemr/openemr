@@ -45,7 +45,7 @@ class SmartLaunchController
 
     public function registerContextEvents()
     {
-        $this->dispatcher->addListener(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, [$this, 'renderPatientSmartLaunchSection']);
+        $this->dispatcher->addListener(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, $this->renderPatientSmartLaunchSection(...));
     }
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)

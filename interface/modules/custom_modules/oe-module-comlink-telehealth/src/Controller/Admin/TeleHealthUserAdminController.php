@@ -33,11 +33,11 @@ class TeleHealthUserAdminController
     public function subscribeToEvents(EventDispatcher $dispatcher)
     {
 
-        $dispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, [$this, 'saveTelehealthUserAction']);
-        $dispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, [$this, 'saveTelehealthUserAction']);
+        $dispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, $this->saveTelehealthUserAction(...));
+        $dispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, $this->saveTelehealthUserAction(...));
 
         // add our user admin flags
-        $dispatcher->addListener(UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER, [$this, 'render']);
+        $dispatcher->addListener(UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER, $this->render(...));
     }
 
     public function render(UserEditRenderEvent $event)

@@ -165,7 +165,7 @@ class Bootstrap
      */
     public function registerDemographicsEvents(): void
     {
-        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, [$this, 'renderWenoSection']);
+        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, $this->renderWenoSection(...));
     }
 
     /**
@@ -220,7 +220,7 @@ class Bootstrap
      */
     public function addGlobalSettings(): void
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalWenoSettings']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalWenoSettings(...));
     }
 
     /**
@@ -228,7 +228,7 @@ class Bootstrap
      */
     public function registerMenuItems(): void
     {
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomMenuItem(...));
     }
 
     /**
@@ -324,7 +324,7 @@ class Bootstrap
      */
     public function demographicsSelectorEvents(): void
     {
-        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, $this->renderWenoPharmacySelector(...));
     }
 
     /**
@@ -344,7 +344,7 @@ class Bootstrap
      */
     public function demographicsDisplaySelectedEvents(): void
     {
-        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, $this->renderSelectedWenoPharmacies(...));
     }
 
     /**
@@ -361,7 +361,7 @@ class Bootstrap
      */
     public function patientSaveEvents(): void
     {
-        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
+        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, $this->persistPatientWenoPharmacies(...));
     }
 
     /**
@@ -379,7 +379,7 @@ class Bootstrap
      */
     public function patientUpdateEvents(): void
     {
-        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
+        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, $this->updatePatientWenoPharmacies(...));
     }
 
     /**

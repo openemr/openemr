@@ -111,15 +111,15 @@ class OemrUI
         $this->twig = $twigContainer->getTwig();
 
         if ($this->expandable) {
-            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'expandIconListener']);
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->expandIconListener(...));
         }
 
         if ($this->action) {
-            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'actionIconListener']);
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->actionIconListener(...));
         }
 
         if ($GLOBALS['enable_help'] !== 0 && $this->display_help_icon) {
-            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'helpIconListener']);
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->helpIconListener(...));
         }
     }
 

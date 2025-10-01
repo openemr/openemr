@@ -33,8 +33,8 @@ class TeleHealthPatientPortalController
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)
     {
-        $eventDispatcher->addListener(AppointmentFilterEvent::EVENT_NAME, [$this, 'filterPatientAppointment']);
-        $eventDispatcher->addListener(RenderEvent::EVENT_SECTION_RENDER_POST, [$this, 'renderTeleHealthPatientVideo']);
+        $eventDispatcher->addListener(AppointmentFilterEvent::EVENT_NAME, $this->filterPatientAppointment(...));
+        $eventDispatcher->addListener(RenderEvent::EVENT_SECTION_RENDER_POST, $this->renderTeleHealthPatientVideo(...));
     }
 
     public function renderTeleHealthPatientVideo(GenericEvent $event)
