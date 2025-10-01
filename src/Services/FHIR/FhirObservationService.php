@@ -7,6 +7,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
@@ -60,6 +61,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationVitalsService());
         $this->addMappedService(new FhirObservationLaboratoryService());
         $this->addMappedService(new FhirObservationObservationFormService());
+        $this->addMappedService(new FhirObservationHistorySdohService());
     }
 
     /**
@@ -110,11 +112,10 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                  */
                 $category = $fhirSearchParameters['category'];
 
-                $service = $this->getServiceForCategory(
-                    new TokenSearchField('category', $fhirSearchParameters['category']),
-                    'vital-signs'
+                $services = $this->getServiceListForCategory(
+                    new TokenSearchField('category', $category)
                 );
-                $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
+                $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
             } else if (isset($fhirSearchParameters['code'])) {
                 $services = $this->getServiceListForCode(
                     new TokenSearchField('code', $fhirSearchParameters['code']),

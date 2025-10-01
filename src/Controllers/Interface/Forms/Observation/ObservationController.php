@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -36,12 +37,13 @@ use InvalidArgumentException;
 
 class ObservationController
 {
+    use SystemLoggerAwareTrait;
+
     const DATE_FORMAT_SAVE = 'Y-m-d H:i:s';
     const DEFAULT_STATUS = 'preliminary';
     private ObservationService $observationService;
     private FormService $formService;
     private Environment $twig;
-    private SystemLogger $logger;
     private CodeTypesService $codeTypeService;
     private PatientService $patientService;
 
@@ -54,7 +56,6 @@ class ObservationController
         $this->observationService = $observationService ?? new ObservationService();
         $this->formService = $formService ?? new FormService();
         $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-        $this->logger = new SystemLogger();
         $this->codeTypeService = new CodeTypesService();
         $this->patientService = $patientService ?? new PatientService();
     }
@@ -159,7 +160,7 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error rendering observation form", [
+            $this->getSystemLogger()->errorLogCaller("Error rendering observation form", [
                 'error' => $e->getMessage(),
                 'formId' => $formId,
                 'pid' => $pid,
@@ -221,7 +222,7 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error rendering observation list", [
+            $this->getSystemLogger()->errorLogCaller("Error rendering observation list", [
                 'error' => $e->getMessage(),
                 'pid' => $pid,
                 'encounter' => $encounter
@@ -267,7 +268,7 @@ class ObservationController
                 . "&status=saved"
             );
         } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error saving observation", [
+            $this->getSystemLogger()->errorLogCaller("Error saving observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId,
                 'postData' => $postData
@@ -368,7 +369,7 @@ class ObservationController
 
             return $result ? (int)$result : null;
         } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error converting FHIR ID to local ID", [
+            $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
                 'fhir_id' => $fhirId,
                 'error' => $e->getMessage()
             ]);
@@ -410,7 +411,7 @@ class ObservationController
                 'questionnaire_data' => $questionnaireData
             ];
         } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error getting QuestionnaireResponse details", [
+            $this->getSystemLogger()->errorLogCaller("Error getting QuestionnaireResponse details", [
                 'questionnaire_response_id' => $questionnaireResponseId,
                 'error' => $e->getMessage()
             ]);
@@ -509,7 +510,7 @@ class ObservationController
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
         } catch (\Exception $e) {
-            $this->logger->errorLogCaller("Error deleting observation", [
+            $this->getSystemLogger()->errorLogCaller("Error deleting observation", [
                 'error' => $e->getMessage(),
                 'formId' => $formId
             ]);

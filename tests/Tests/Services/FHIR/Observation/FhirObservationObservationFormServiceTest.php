@@ -82,8 +82,8 @@ class FhirObservationObservationFormServiceTest extends TestCase
             // the order of derivedFrom responses will be first QuestionnaireResponse if any, followed by Observation if any
             // if questionnaire_response_uuid, will have a derivedFrom QuestionnaireResponse resource
             ,'questionnaire_response_uuid' => 'questionnaire-response-123'
-            // if observation_parent_uuid is not null, will have a derivedFrom Observation resource
-            ,'observation_parent_uuid' => 'observation-parent-123'
+            // if parent_observation_uuid is not null, will have a derivedFrom Observation resource
+            ,'parent_observation_uuid' => 'observation-parent-123'
             ,'encounter_uuid' => 'encounter-123'
             ,'note' => 'This is a test note'
         ];
@@ -175,7 +175,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
         // Test required performer field (mustSupport)
         $this->assertNotEmpty($observation->getPerformer());
-        $this->assertEquals('Practitioner/' . $record['user_uuid'], $observation->getPerformer()[0]->getReference()->getValue());
+        $this->assertEquals('Practitioner/' . $record['user_uuid'], $observation->getPerformer()[0]->getReference());
 
         // Test required value[x] field (mustSupport, constraint us-core-2)
         $this->assertNotEmpty($observation->getValueQuantity());
@@ -202,24 +202,25 @@ class FhirObservationObservationFormServiceTest extends TestCase
         // Test required derivedFrom field (mustSupport)
         $derivedFromRefs = $observation->getDerivedFrom();
         $expectedDerivedFromCount = 0;
-        if (!empty($record['questionnaire_response_uuid'])) {
-            $expectedDerivedFromCount++;
-        }
-        if (!empty($record['observation_parent_uuid'])) {
+        // TODO: @adunsulag re-enable when questionnaire responses are supported validating via inferno
+//        if (!empty($record['questionnaire_response_uuid'])) {
+//            $expectedDerivedFromCount++;
+//        }
+        if (!empty($record['parent_observation_uuid'])) {
             $expectedDerivedFromCount++;
         }
 
         $this->assertCount($expectedDerivedFromCount, $derivedFromRefs);
 
-        if (!empty($record['questionnaire_response_uuid'])) {
+//        if (!empty($record['questionnaire_response_uuid'])) {
+//            $this->assertEquals(
+//                'QuestionnaireResponse/' . $record['questionnaire_response_uuid'],
+//                $derivedFromRefs[0]->getReference()->getValue()
+//            );
+//        }
+        if (!empty($record['parent_observation_uuid'])) {
             $this->assertEquals(
-                'QuestionnaireResponse/' . $record['questionnaire_response_uuid'],
-                $derivedFromRefs[0]->getReference()->getValue()
-            );
-        }
-        if (!empty($record['observation_parent_uuid'])) {
-            $this->assertEquals(
-                'Observation/' . $record['observation_parent_uuid'],
+                'Observation/' . $record['parent_observation_uuid'],
                 $derivedFromRefs[$expectedDerivedFromCount - 1]->getReference()->getValue()
             );
         }
@@ -386,7 +387,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
         // Verify US Core Screening Assessment profile is set in meta
         $profiles = $observation->getMeta()->getProfile();
-        $profileValues = array_map(fn($uri) => $uri->getValue(), $profiles);
+        $profileValues = array_map(fn($uri) => $uri, $profiles);
         $this->assertContains(FhirObservationObservationFormService::USCGI_PROFILE_URI, $profileValues);
     }
 
@@ -409,7 +410,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
             $this->assertNotEmpty($observation->getPerformer());
             $expectedRef = $type . '/' . $uuid;
-            $this->assertEquals($expectedRef, $observation->getPerformer()[0]->getReference()->getValue());
+            $this->assertEquals($expectedRef, $observation->getPerformer()[0]->getReference());
         }
     }
 

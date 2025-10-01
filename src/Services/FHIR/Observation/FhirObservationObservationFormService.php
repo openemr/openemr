@@ -36,16 +36,8 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirObservationObservationFormService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirObservationTrait;
-    use VersionedProfileTrait;
 
-    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI = 'http://terminology.hl7.org/CodeSystem/observation-category';
-    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
-    const US_CORE_CODESYSTEM_CATEGORY_URI = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
-    const US_CORE_CODESYSTEM_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
     private ObservationService $observationService;
-
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation';
-    const USCGI_SCREENING_ASSESSMENT_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
     const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'therapy'];
 
     public function __construct($fhirApiURL = null)
@@ -117,42 +109,6 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Set observation category with required survey slice and optional screening-assessment slice
-     */
-    protected function setObservationCategory(FHIRObservation $observation, array $dataRecord): void
-    {
-        // Required survey category slice (mustSupport, min 1..1)
-        $surveyCategory = new FHIRCodeableConcept();
-        $surveyCoding = new FHIRCoding();
-        $surveyCoding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION));
-        $surveyCoding->setCode(new FhirCode($dataRecord['ob_type'] ?? 'survey'));
-        $surveyCoding->setDisplay($dataRecord['ob_type'] ?? 'Survey');
-        $surveyCategory->addCoding($surveyCoding);
-        $observation->addCategory($surveyCategory);
-
-        // Optional screening-assessment category slice if we have a questionnaire category (mustSupport, 0..1)
-        if (!empty($dataRecord['screening_category_code'])) {
-            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
-                $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
-            }
-            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_CATEGORY)) {
-                $systemUri = self::US_CORE_CODESYSTEM_CATEGORY_URI;
-            }
-            if (empty($systemUri)) {
-                $this->getSystemLogger()->warning("Observation screening category code {$dataRecord['screening_category_code']} not in supported code systems");
-                return;
-            }
-            $screeningCategory = new FHIRCodeableConcept();
-            $screeningCoding = new FHIRCoding();
-            $screeningCoding->setSystem(new FHIRUri($systemUri));
-            $screeningCoding->setCode(new FHIRCode($dataRecord['screening_category_code']));
-            $screeningCoding->setDisplay($dataRecord['screening_category_display'] ?? '');
-            $screeningCategory->addCoding($screeningCoding);
-            $observation->addCategory($screeningCategory);
         }
     }
 

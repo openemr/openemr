@@ -31,6 +31,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -40,6 +41,16 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 trait FhirObservationTrait
 {
     use FhirServiceBaseEmptyTrait;
+    use VersionedProfileTrait;
+
+    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI = 'http://terminology.hl7.org/CodeSystem/observation-category';
+    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
+    const US_CORE_CODESYSTEM_CATEGORY_URI = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
+    const US_CORE_CODESYSTEM_CATEGORY = ['social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'exam', 'therapy', 'activity'];
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation';
+    const USCGI_SCREENING_ASSESSMENT_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
+    const OBSERVATION_VALID_STATII = ['registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown'];
 
     protected FhirProvenanceService $fhirProvenanceService;
 
@@ -178,12 +189,12 @@ trait FhirObservationTrait
 
     protected function setObservationProfile(FHIRMeta $meta, FHIRObservation $observation, array $dataRecord): void
     {
-        // Default to US Core Observation profile if not specified
-        $profileUrl = $dataRecord['profile'] ?? self::USCGI_PROFILE_URI;
-
-        $profile = new FHIRCanonical();
-        $profile->setValue($profileUrl);
-        $meta->addProfile($profile);
+        $profiles = $dataRecord['profiles'] ?? [self::USCGI_PROFILE_URI];
+        foreach ($profiles as $profileUrl) {
+            $profile = new FHIRCanonical();
+            $profile->setValue($profileUrl);
+            $meta->addProfile($profile);
+        }
     }
 
     protected function setObservationValueWithDetails(FhirObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = array())
@@ -255,6 +266,36 @@ trait FhirObservationTrait
      */
     protected function setObservationCategory(FHIRObservation $observation, array $dataRecord): void
     {
+        // Required survey category slice (mustSupport, min 1..1)
+        $initialCategory = new FHIRCodeableConcept();
+        $catCoding = new FHIRCoding();
+        $catCoding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION));
+        $catCoding->setCode(new FhirCode($dataRecord['ob_type'] ?? 'survey'));
+        $catCoding->setDisplay($dataRecord['ob_type'] ?? 'Survey');
+        $initialCategory->addCoding($catCoding);
+        $observation->addCategory($initialCategory);
+
+        // Optional screening-assessment category slice if we have a questionnaire category (mustSupport, 0..1)
+        if (!empty($dataRecord['screening_category_code'])) {
+            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
+                $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
+            }
+            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_CATEGORY)) {
+                $systemUri = self::US_CORE_CODESYSTEM_CATEGORY_URI;
+            }
+            if (empty($systemUri)) {
+                $this->getSystemLogger()->warning("Observation screening category code {$dataRecord['screening_category_code']} not in supported code systems");
+                return;
+            }
+            $screeningCategory = new FHIRCodeableConcept();
+            $screeningCoding = new FHIRCoding();
+            $screeningCoding->setSystem(new FHIRUri($systemUri));
+            $screeningCoding->setCode(new FHIRCode($dataRecord['screening_category_code']));
+            $screeningCoding->setDisplay($dataRecord['screening_category_display'] ?? '');
+            $screeningCategory->addCoding($screeningCoding);
+            $observation->addCategory($screeningCategory);
+        }
+
         // Required survey category slice (mustSupport, min 1..1)
         $surveyCategory = new FHIRCodeableConcept();
         $surveyCoding = new FHIRCoding();
@@ -434,7 +475,7 @@ trait FhirObservationTrait
      */
     protected function getValidStatus($status)
     {
-        $statii = ['registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown'];
+        $statii = self::OBSERVATION_VALID_STATII;
         if (array_search($status, $statii) !== false) {
             return $status;
         }

@@ -18,6 +18,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
+use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -103,6 +104,11 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
         $uuid = $this->createQuestionnaireWithName(self::QUESTIONNAIRE_NAME_1);
         // create a second one that should be ignored in the search
         $uuid2 = $this->createQuestionnaireWithName(self::QUESTIONNAIRE_NAME_2);
+        $observationService = $this->createPartialMock(QuestionnaireService::class, ['search']);
+        $observationService->method('search')
+            ->willReturn([
+
+            ]);
         $formService = new FhirQuestionnaireFormService();
         $questionnaireService = new FhirQuestionnaireService();
         $questionnaireService->addMappedService($formService);

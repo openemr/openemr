@@ -422,7 +422,6 @@ class ObservationService extends BaseService
         $sql .= $whereFragment->getFragment();
         // TODO: @adunsulag need to implement pagination and sorting
         $sql .= " ORDER BY fo.date DESC, fo.parent_observation_id, fo.id";
-        $this->getSystemLogger()->debug("sql log", ['sql' => $sql, 'bind' => $whereFragment->getBoundValues()]);
         $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
         $result = new ProcessingResult();
         // make one final pass to create result records

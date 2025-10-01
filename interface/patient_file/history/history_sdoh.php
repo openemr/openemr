@@ -378,6 +378,12 @@ $self = basename($_SERVER['PHP_SELF']);
                                 value="<?php echo attr(v($info, 'postpartum_end')); ?>">
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label><?php echo xlt("Pregnancy intention in the next year"); ?></label>
+                            <?php render_list_select('pregnancy_intent', 'pregnancy_intent', v($info, 'pregnancy_intent')); ?>
+                        </div>
+                    </div>
                 </div>
             </div>
 

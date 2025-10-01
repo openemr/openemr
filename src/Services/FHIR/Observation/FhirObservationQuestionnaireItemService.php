@@ -22,12 +22,9 @@ class FhirObservationQuestionnaireItemService extends FhirServiceBase implements
 {
     use FhirObservationTrait;
 
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
-    const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'therapy'];
-
     public function supportsCategory($category)
     {
-        return in_array($category, self::SUPPORTED_CATEGORIES);
+        return in_array($category, self::US_CORE_CODESYSTEM_CATEGORY);
     }
 
     public function supportsCode(string $code): bool
