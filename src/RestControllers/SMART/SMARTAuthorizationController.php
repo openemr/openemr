@@ -315,6 +315,7 @@ class SMARTAuthorizationController
                     , 'lname' => $searchParams['lname'] ?? ''
                     , 'mname' => $searchParams['mname'] ?? ''
                     , 'redirect' => $redirect
+                    , 'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $this->session)
                 ]
             );
         } catch (AccessDeniedException $error) {
@@ -328,10 +329,12 @@ class SMARTAuthorizationController
         } catch (Exception $error) {
             // error occurred, no patients found just display the screen with an error message
             $error_message = "There was a server error in loading patients.  Contact your system administrator for assistance";
-            $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
+            $this->logger->error("AuthorizationController->patientSelect() Exception thrown", [
+                'exception' => $error->getMessage()
+                ,'trace' => $error->getTraceAsString()]);
             return $this->renderTwigPage(
                 'oauth2/authorize/patient-select',
-                "smart/patient-select.html.twig",
+                "oauth2/patient-select.html.twig",
                 [
                     'patients' => $patients
                     , 'hasMore' => $hasMore

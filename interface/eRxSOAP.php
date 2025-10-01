@@ -259,16 +259,11 @@ class eRxSOAP
      */
     public function getTTL($process)
     {
-        switch ($process) {
-            case self::ACTION_ALLERGIES:
-                $return = $this->getGlobals()->getTTLSoapAllergies();
-                break;
-            case self::ACTION_MEDICATIONS:
-                $return = $this->getGlobals()->getTTLSoapMedications();
-                break;
-            default:
-                $return = false;
-        }
+        $return = match ($process) {
+            self::ACTION_ALLERGIES => $this->getGlobals()->getTTLSoapAllergies(),
+            self::ACTION_MEDICATIONS => $this->getGlobals()->getTTLSoapMedications(),
+            default => false,
+        };
 
         return $return;
     }

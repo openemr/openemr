@@ -362,19 +362,12 @@ class ReceiveHl7Results
                 $in_state = $this->rhl7Text($tmp[3] ?? '');
                 $in_zip = $this->rhl7Text($tmp[4] ?? '');
                 $in_phone = $this->rhl7Text($a[13]) ?? '';
-                switch (strtoupper($a[8])) {
-                    case 'M':
-                        $in_sex = 'Male';
-                        break;
-                    case 'F':
-                        $in_sex = 'Female';
-                        break;
-                    case 'T':
-                        $in_sex = 'Transgender';
-                        break;
-                    default:
-                        $in_sex = 'Unassigned';
-                }
+                $in_sex = match (strtoupper($a[8])) {
+                    'M' => 'Male',
+                    'F' => 'Female',
+                    'T' => 'Transgender',
+                    default => 'Unassigned',
+                };
                 $tmp = explode($d2, $a[5]);
                 $in_lname = $this->rhl7Text($tmp[0]);
                 $in_fname = $this->rhl7Text($tmp[1]);

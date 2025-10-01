@@ -163,28 +163,15 @@ CREATE TABLE IF NOT EXISTS `ringcentral_voicemails` (
 ) ENGINE=InnoDB COMMENT='RingCentral Voicemails';
 */
         // Handle specific call states
-        switch ($status) {
-            case 'Setup':
-                handleIncomingCall($fromNumber, $toNumber, $sessionId, $direction);
-                break;
-            case 'Proceeding':
-                handleCallInProgress($sessionId, $partyId);
-                break;
-            case 'Answered':
-                handleCallAnswered($sessionId, $partyId);
-                break;
-            case 'Disconnected':
-                handleCallEnded($sessionId, $partyId);
-                break;
-            case 'Hold':
-                handleCallOnHold($sessionId, $partyId);
-                break;
-            case 'Unhold':
-                handleCallOffHold($sessionId, $partyId);
-                break;
-            default:
-                local_log("Unhandled call status: {$status}");
-        }
+        match ($status) {
+            'Setup' => handleIncomingCall($fromNumber, $toNumber, $sessionId, $direction),
+            'Proceeding' => handleCallInProgress($sessionId, $partyId),
+            'Answered' => handleCallAnswered($sessionId, $partyId),
+            'Disconnected' => handleCallEnded($sessionId, $partyId),
+            'Hold' => handleCallOnHold($sessionId, $partyId),
+            'Unhold' => handleCallOffHold($sessionId, $partyId),
+            default => local_log("Unhandled call status: {$status}"),
+        };
     }
 }
 

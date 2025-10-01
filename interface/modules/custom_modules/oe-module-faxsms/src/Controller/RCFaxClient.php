@@ -414,29 +414,18 @@ class RCFaxClient extends AppDispatch
      */
     public function getExtensionFromContentType(string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-                return 'pdf';
-            case 'text/plain':
-                return 'txt';
-            case 'image/tiff':
-                return 'tiff';
-            case 'image/jpeg':
-                return 'jpeg';
-            case 'image/jpg':
-                return 'jpg';
-            case 'image/gif':
-                return 'gif';
-            case 'image/png':
-                return 'png';
-            case 'application/xml':
-                return 'xml';
-            case 'audio/wav':
-            case 'audio/x-wav':
-                return 'wav';
-            default:
-                return 'application/pdf';
-        }
+        return match ($contentType) {
+            'application/pdf' => 'pdf',
+            'text/plain' => 'txt',
+            'image/tiff' => 'tiff',
+            'image/jpeg' => 'jpeg',
+            'image/jpg' => 'jpg',
+            'image/gif' => 'gif',
+            'image/png' => 'png',
+            'application/xml' => 'xml',
+            'audio/wav', 'audio/x-wav' => 'wav',
+            default => 'application/pdf',
+        };
     }
 
     /**
@@ -445,16 +434,11 @@ class RCFaxClient extends AppDispatch
      */
     private function getTypeFromContentType(string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-            case 'image/tiff':
-                return 'Fax';
-            case 'audio/wav':
-            case 'audio/x-wav':
-                return 'Audio';
-            default:
-                return 'Text';
-        }
+        return match ($contentType) {
+            'application/pdf', 'image/tiff' => 'Fax',
+            'audio/wav', 'audio/x-wav' => 'Audio',
+            default => 'Text',
+        };
     }
 
     /**
@@ -562,15 +546,11 @@ class RCFaxClient extends AppDispatch
      */
     private function formatFaxDataUrl(string $data, string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-                return 'data:application/pdf;base64,' . base64_encode($data);
-            case 'image/tiff':
-            case 'image/tif':
-                return 'data:image/tiff;base64,' . base64_encode($data);
-            default:
-                return 'data:text/plain;base64,' . base64_encode($data);
-        }
+        return match ($contentType) {
+            'application/pdf' => 'data:application/pdf;base64,' . base64_encode($data),
+            'image/tiff', 'image/tif' => 'data:image/tiff;base64,' . base64_encode($data),
+            default => 'data:text/plain;base64,' . base64_encode($data),
+        };
     }
 
     /**
@@ -596,15 +576,11 @@ class RCFaxClient extends AppDispatch
      */
     private function getFileExtension(string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-                return 'pdf';
-            case 'image/tiff':
-            case 'image/tif':
-                return 'tiff';
-            default:
-                return 'txt';
-        }
+        return match ($contentType) {
+            'application/pdf' => 'pdf',
+            'image/tiff', 'image/tif' => 'tiff',
+            default => 'txt',
+        };
     }
 
     /**

@@ -53,25 +53,14 @@ function phq9_report($pid, $encounter, $cols, $id): void
             }
         }
         // print the total
-        switch (intdiv($phq9_total, 5)) {
-            case 0:
-                $exp = $str_score_analysis[0];
-                break;
-            case 1:
-                $exp = $str_score_analysis[5];
-                break;
-            case 2:
-                $exp = $str_score_analysis[10];
-                break;
-            case 3:
-                $exp = $str_score_analysis[15];
-                break;
-            case 4:
-                $exp = $str_score_analysis[20];
-                break;
-            default:
-                $exp = $str_score_analysis[20];
-        }
+        $exp = match (intdiv($phq9_total, 5)) {
+            0 => $str_score_analysis[0],
+            1 => $str_score_analysis[5],
+            2 => $str_score_analysis[10],
+            3 => $str_score_analysis[15],
+            4 => $str_score_analysis[20],
+            default => $str_score_analysis[20],
+        };
 
           print "<td><span class=bold>" . text($str_issues["total"]) . ": </span><span class=text>" . text($phq9_total) . " - " . text($exp) . "</span></td>";
     }

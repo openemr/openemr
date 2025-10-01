@@ -291,24 +291,13 @@ class eRxXMLBuilder
 
         $eRxUserRole = preg_replace('/erx/', '', $eRxUserRole);
 
-        switch ($eRxUserRole) {
-            case 'admin':
-            case 'manager':
-            case 'nurse':
-                $newCropUser = 'Staff';
-                break;
-            case 'doctor':
-                $newCropUser = 'LicensedPrescriber';
-                break;
-            case 'supervisingDoctor':
-                $newCropUser = 'SupervisingDoctor';
-                break;
-            case 'midlevelPrescriber':
-                $newCropUser = 'MidlevelPrescriber';
-                break;
-            default:
-                $newCropUser = '';
-        }
+        $newCropUser = match ($eRxUserRole) {
+            'admin', 'manager', 'nurse' => 'Staff',
+            'doctor' => 'LicensedPrescriber',
+            'supervisingDoctor' => 'SupervisingDoctor',
+            'midlevelPrescriber' => 'MidlevelPrescriber',
+            default => '',
+        };
 
         $element = $this->getDocument()->createElement('UserRole');
         $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('NewCrop eRx User Role * invalid selection *')));

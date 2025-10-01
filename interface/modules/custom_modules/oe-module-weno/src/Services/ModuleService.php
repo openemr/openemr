@@ -187,7 +187,7 @@ class ModuleService
     {
         $logService = new WenoLogService();
         $log = $logService->getLastPharmacyDownloadStatus();
-        if ($log['status'] ?? '' == 'Failed') {
+        if (($log['status'] ?? '') == 'Failed') {
             if (($log['count'] ?? 0) > 0) {
                 return true;
             }

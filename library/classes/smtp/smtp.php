@@ -236,20 +236,14 @@ class smtp_class
 		if(($this->connection=($this->timeout ? @fsockopen(($this->ssl ? "ssl://" : "").$ip,$port,$errno,$error,$this->timeout) : @fsockopen(($this->ssl ? "ssl://" : "").$ip,$port))))
 			return("");
 		$error=($this->timeout ? strval($error) : "??");
-		switch($error)
-		{
-			case "-3":
-				return("-3 socket could not be created");
-			case "-4":
-				return("-4 dns lookup on hostname \"".$domain."\" failed");
-			case "-5":
-				return("-5 connection refused or timed out");
-			case "-6":
-				return("-6 fdopen() call failed");
-			case "-7":
-				return("-7 setvbuf() call failed");
-		}
-		return("could not connect to the host \"".$domain."\": ".$error);
+        return match ($error) {
+            "-3" => "-3 socket could not be created",
+            "-4" => "-4 dns lookup on hostname \"".$domain."\" failed",
+            "-5" => "-5 connection refused or timed out",
+            "-6" => "-6 fdopen() call failed",
+            "-7" => "-7 setvbuf() call failed",
+            default => "could not connect to the host \"".$domain."\": ".$error,
+        };
 	}
 
 	Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
