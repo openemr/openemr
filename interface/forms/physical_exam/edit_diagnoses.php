@@ -43,7 +43,7 @@ if ($_POST['form_save']) {
     }
 
     $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
-    sqlStatement($query, array($line_id));
+    sqlStatement($query, [$line_id]);
 
     $form_diagnoses = $_POST['form_diagnosis'];
     $form_orderings = $_POST['form_ordering'];
@@ -55,7 +55,7 @@ if ($_POST['form_save']) {
             ) VALUES (
             ?, ?, ?
             )";
-            sqlStatement($query, array($line_id, $ordering, $diagnosis));
+            sqlStatement($query, [$line_id, $ordering, $diagnosis]);
         }
     }
 
@@ -76,7 +76,7 @@ if ($_POST['form_save']) {
  $dres = sqlStatement(
      "SELECT * FROM form_physical_exam_diagnoses WHERE " .
      "line_id = ? ORDER BY ordering, diagnosis",
-     array($line_id)
+     [$line_id]
  );
     ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'

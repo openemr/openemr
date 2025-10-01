@@ -56,9 +56,9 @@ class ControllerAlerts extends BaseController
 
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
         // So, we have to manually create the entitre arrays with right values.
-        $actives_final = array();
-        $passives_final = array();
-        $reminders_final = array();
+        $actives_final = [];
+        $passives_final = [];
+        $reminders_final = [];
 
 
         $numrows = count($ids);

@@ -35,7 +35,7 @@ class FacilityRestControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->facilityData = array(
+        $this->facilityData = [
             'name' => 'test-fixture-Your Clinic Name Here',
             'phone' => '(619) 555-4859',
             'fax' => '(619) 555-7822',
@@ -69,7 +69,7 @@ class FacilityRestControllerTest extends TestCase
             'oid' => '',
             'iban' => '',
             'info' => ''
-        );
+        ];
 
         $this->fixtureManager = new FacilityFixtureManager();
         $this->facilityController = new FacilityRestController();
@@ -178,7 +178,7 @@ class FacilityRestControllerTest extends TestCase
         $restRequest->server->method('get')->with('REDIRECT_URL')->willReturn('http://localhost/');
         $restRequest->query = new InputBag();
 
-        $response = $this->facilityController->getAll($restRequest, array("facility_npi" => "0123456789"));
+        $response = $this->facilityController->getAll($restRequest, ["facility_npi" => "0123456789"]);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $searchResult = json_decode($response->getBody(), true);
 

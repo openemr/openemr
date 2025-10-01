@@ -131,7 +131,7 @@ $(function () {
       </td>
       <td>
             <?php
-            generate_form_field(array('data_type' => 10, 'field_id' => 'provider', 'empty_title' => '-- All --'), ($_POST['form_provider'] ?? ''));
+            generate_form_field(['data_type' => 10, 'field_id' => 'provider', 'empty_title' => '-- All --'], ($_POST['form_provider'] ?? ''));
             ?>
       </td>
             <td class='col-form-label'>
@@ -216,7 +216,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         <?php
     } // end not export
     $totalpts = 0;
-    $sqlArrayBind = array();
+    $sqlArrayBind = [];
     $query = "SELECT " .
     "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
     "p.postal_code, p.phone_home, p.phone_biz, p.pid, p.pubpid, " .

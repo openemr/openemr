@@ -115,7 +115,7 @@ class FieldMap
      */
     function GetEnumValues()
     {
-        return $this->IsEnum() ? $this->FieldSize : array ();
+        return $this->IsEnum() ? $this->FieldSize :  [];
     }
 
     /**

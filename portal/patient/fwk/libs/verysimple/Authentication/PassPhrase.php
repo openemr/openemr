@@ -25,14 +25,14 @@ class PassPhrase
     {
         srand((double) microtime() * 1000000);
 
-        $vowels = array (
+        $vowels =  [
                 "a",
                 "e",
                 "i",
                 "o",
                 "u"
-        );
-        $cons = array (
+        ];
+        $cons =  [
                 "b",
                 "c",
                 "d",
@@ -65,8 +65,8 @@ class PassPhrase
                 "pr",
                 "sl",
                 "cl"
-        );
-        $badwords = array (
+        ];
+        $badwords =  [
                 "fuc",
                 "shit",
                 "ass",
@@ -89,7 +89,7 @@ class PassPhrase
                 "vag",
                 "peni",
                 "whor"
-        );
+        ];
 
         $num_vowels = count($vowels);
         $num_cons = count($cons);

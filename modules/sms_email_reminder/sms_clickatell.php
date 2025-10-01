@@ -207,7 +207,7 @@ class sms
         }
 
         /* Reformat $to number */
-        $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
+        $cleanup_chr =  ["+", " ", "(", ")", "\r", "\n", "\r\n"];
         $to = str_replace($cleanup_chr, "", $to);
 
         /* Send SMS now */

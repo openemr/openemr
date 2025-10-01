@@ -35,7 +35,7 @@ class FhirSearchParameterDefinition
      */
     private $options;
 
-    public function __construct($name, $type, $mappedFields, $options = array())
+    public function __construct($name, $type, $mappedFields, $options = [])
     {
         $this->name = $name;
         $this->type = $type;

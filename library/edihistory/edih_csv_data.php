@@ -112,7 +112,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 if ($err_only) {
                     // output err_only is when claim status is a rejected type
                     if ($ft == 'f835') {
-                        if (in_array($claim['Status'], array('1', '2', '3', '19', '20', '21'))) {
+                        if (in_array($claim['Status'], ['1', '2', '3', '19', '20', '21'])) {
                             continue;
                         }
                     } elseif ($ft == 'f277') {
@@ -211,7 +211,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
 {
     //
     $str_html = '';
-    $row_ar = array();
+    $row_ar = [];
     //
     $ft = csv_file_type($filetype);
     if ($ft == 'f997') {
@@ -295,7 +295,7 @@ function edih_claim_history($encounter)
     // existing csv tables are queried
     $tbl2 = csv_table_select_list('array');
     //
-    $rtypes = array();
+    $rtypes = [];
     if (is_array($tbl2['claims']) && count($tbl2['claims'])) {
         $rtypes = array_keys($tbl2['claims']);
     } else {
@@ -456,7 +456,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     //
     $csv_html = "";
     $modstr = '';
-    $csv_d = array();
+    $csv_d = [];
     // debug
     csv_edihist_log("edih_csv_to_html: period $period datestart $datestart dateend $dateend");
     //

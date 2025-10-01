@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 if (!empty($_POST["pubpid"])) {
     $form_pubpid = trim($_POST["pubpid"]);
     $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
-    "pubpid = ?", array($form_pubpid));
+    "pubpid = ?", [$form_pubpid]);
     if ($result['count']) {
         // Error, not unique.
         require_once("new.php");
@@ -140,7 +140,7 @@ if ($_POST['form_create']) {
   // with later by newPatientData().
     if ($refsource = trim($_POST["refsource"])) {
         sqlQuery("UPDATE patient_data SET referral_source = ? " .
-        "WHERE pid = ?", array($refsource, $pid));
+        "WHERE pid = ?", [$refsource, $pid]);
     }
 }
 ?>

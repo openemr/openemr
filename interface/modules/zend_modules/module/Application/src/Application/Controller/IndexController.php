@@ -50,7 +50,7 @@ class IndexController extends AbstractActionController
     {
         $request  = $this->getRequest();
         $message  = $request->getPost()->msg;
-        $array    = array('msg' => $this->listenerObject->z_xl($message));
+        $array    = ['msg' => $this->listenerObject->z_xl($message)];
         $return   = new JsonModel($array);
         return $return;
     }
@@ -74,9 +74,9 @@ class IndexController extends AbstractActionController
     public function searchAction()
     {
         $request      = $this->getRequest();
-        $result       = $this->forward()->dispatch(IndexController::class, array(
+        $result       = $this->forward()->dispatch(IndexController::class, [
                                                       'action' => 'auto-suggest'
-                                                 ));
+                                                 ]);
         return $result;
     }
 
@@ -94,7 +94,7 @@ class IndexController extends AbstractActionController
       /** disable layout **/
         $index        = new ViewModel();
         $index->setTerminal(true);
-        $index->setVariables(array(
+        $index->setVariables([
                                         'result'        => $result,
                                         'keyword'       => $keyword,
                                         'page'          => $page,
@@ -104,7 +104,7 @@ class IndexController extends AbstractActionController
                                         'limit'         => $limit,
                                         'CommonPlugin'  => $this->CommonPlugin(),
                                         'listenerObject' => $this->listenerObject,
-                                    ));
+                                    ]);
         return $index;
     }
 }

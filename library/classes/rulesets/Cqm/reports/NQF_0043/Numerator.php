@@ -28,7 +28,7 @@ class NQF_0043_Numerator implements CqmFilterIF
                "WHERE fe.pid = ? AND fe.date between ? and ? " .
                "AND poc.procedure_code in ($vac_procedure) AND po.date_ordered between ? and ? ";
 
-        $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$endDate));
+        $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$beginDate,$endDate]);
         if ($sql['cnt'] > 0) {
             return true;
         }
@@ -38,7 +38,7 @@ class NQF_0043_Numerator implements CqmFilterIF
                  "WHERE fe.pid = ? and fe.date between ? and  ? " .
                  "AND imm.cvx_code in ($vac_medication) AND imm.administered_date between ? and ?";
 
-        $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$endDate));
+        $sql = sqlQuery($query, [$patient->id,$beginDate,$endDate,$beginDate,$endDate]);
         if ($sql['cnt'] > 0) {
             return true;
         }

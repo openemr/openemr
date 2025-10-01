@@ -40,7 +40,7 @@ class CdrAlertManager
 
     function populate()
     {
-        $cdra = array();
+        $cdra = [];
 
         $rules = resolve_rules_sql('', 0, true);
 

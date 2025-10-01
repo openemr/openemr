@@ -50,12 +50,12 @@ class ParseERA
                 $adjtotal = round($adjtotal, 2);
                 if ($paytotal != 0 || $adjtotal != 0) {
                     if ($out['svc'][0]['code'] != 'Claim') {
-                        array_unshift($out['svc'], array());
+                        array_unshift($out['svc'], []);
                         $out['svc'][0]['code'] = 'Claim';
                         $out['svc'][0]['mod'] = '';
                         $out['svc'][0]['chg'] = '0';
                         $out['svc'][0]['paid'] = '0';
-                        $out['svc'][0]['adj'] = array();
+                        $out['svc'][0]['adj'] = [];
                         $out['warnings'] .= "Procedure 'Claim' is inserted artificially to " .
                             "force claim balancing.\n";
                     }
@@ -63,7 +63,7 @@ class ParseERA
                     $out['svc'][0]['paid'] += $paytotal;
                     if ($adjtotal) {
                         $j = count($out['svc'][0]['adj']);
-                        $out['svc'][0]['adj'][$j] = array();
+                        $out['svc'][0]['adj'][$j] = [];
                         $out['svc'][0]['adj'][$j]['group_code'] = 'CR'; // presuming a correction or reversal
                         $out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
                         $out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
@@ -91,7 +91,7 @@ class ParseERA
             return "ERA input file open failed";
         }
 
-        $out = array();
+        $out = [];
         $out['loopid'] = '';
         $out['st_segment_count'] = 0;
         $buffer = '';
@@ -110,7 +110,7 @@ class ParseERA
             $inline = substr($buffer, 0, $tpos);
             $buffer = substr($buffer, $tpos + 1);
             // remove carriage returns and new lines that some payers send
-            $buffer = str_replace(array("\n", "\r"), '', $buffer);
+            $buffer = str_replace(["\n", "\r"], '', $buffer);
 
             // If this is the ISA segment then figure out what the delimiters are.
             if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
@@ -246,7 +246,7 @@ class ParseERA
                 $out['subscriber_member_id'] = '';
                 $out['crossover'] = 0;
                 $out['corrected'] = 0;
-                $out['svc'] = array();
+                $out['svc'] = [];
                 //
                 // This is the poorly-named "Patient Account Number".  For 837p
                 // it comes from CLM01 which we populated as pid-diagid-procid,
@@ -272,12 +272,12 @@ class ParseERA
                 // amount that offsets these adjustments.
                 $i = 0; // if present, the dummy service item will be first.
                 if (!($out['svc'][$i] ?? '')) {
-                    $out['svc'][$i] = array();
+                    $out['svc'][$i] = [];
                     $out['svc'][$i]['code'] = 'Claim';
                     $out['svc'][$i]['mod'] = '';
                     $out['svc'][$i]['chg'] = '0';
                     $out['svc'][$i]['paid'] = '0';
-                    $out['svc'][$i]['adj'] = array();
+                    $out['svc'][$i]['adj'] = [];
                 }
 
                 for ($k = 2; $k < 20; $k += 3) {
@@ -286,7 +286,7 @@ class ParseERA
                     }
 
                     $j = count($out['svc'][$i]['adj']);
-                    $out['svc'][$i]['adj'][$j] = array();
+                    $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
                     $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
@@ -364,7 +364,7 @@ class ParseERA
 
                 // TBD: Other qualifiers are possible; see IG pages 140-141.
                 $i = count($out['svc']);
-                $out['svc'][$i] = array();
+                $out['svc'][$i] = [];
                 // It seems some payers append the modifier with no separator!
                 if (strlen($svc[1]) == 7 && empty($svc[2])) {
                     $out['svc'][$i]['code'] = substr($svc[1], 0, 5);
@@ -380,7 +380,7 @@ class ParseERA
 
                 $out['svc'][$i]['chg'] = $seg[2];
                 $out['svc'][$i]['paid'] = $seg[3];
-                $out['svc'][$i]['adj'] = array();
+                $out['svc'][$i]['adj'] = [];
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
             // DTM01 identifies the type of service date:
@@ -404,7 +404,7 @@ class ParseERA
                     }
 
                     $j = count($out['svc'][$i]['adj']);
-                    $out['svc'][$i]['adj'][$j] = array();
+                    $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
                     $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
@@ -487,7 +487,7 @@ class ParseERA
             return "ERA input file open failed";
         }
 
-        $out = array();
+        $out = [];
         $out['loopid'] = '';
         $out['st_segment_count'] = 0;
         $buffer = '';
@@ -506,7 +506,7 @@ class ParseERA
             $inline = substr($buffer, 0, $tpos);
             $buffer = substr($buffer, $tpos + 1);
             // remove carriage returns and new lines that some payers send
-            $buffer = str_replace(array("\n", "\r"), '', $buffer);
+            $buffer = str_replace(["\n", "\r"], '', $buffer);
 
             // If this is the ISA segment then figure out what the delimiters are.
             if ($segid === '' && substr($inline, 0, 3) === 'ISA') {

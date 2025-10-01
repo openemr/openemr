@@ -75,7 +75,7 @@ echo "<title>" . xlt('Amendment List') . "</title>";
                 <form action="list_amendments.php" name="list_amendments" id="list_amendments" method="post" onsubmit='return top.restoreSession()'>
                 <?php
                 $query = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
-                $resultSet = sqlStatement($query, array($pid));
+                $resultSet = sqlStatement($query, [$pid]);
                 if (sqlNumRows($resultSet)) { ?>
                     <div class="table-responsive">
                         <table class="table">
@@ -113,8 +113,8 @@ echo "<title>" . xlt('Amendment List') . "</title>";
                                     <td><input id="check_list[]" name="check_list[]" type="checkbox" value="<?php echo attr($row['amendment_id']); ?>"></td>
                                     <td><?php echo $amendmentLink; ?> </td>
                                     <td><?php echo text($row['amendment_desc']); ?> </td>
-                                    <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'amendment_from'), $row['amendment_by']); ?> </td>
-                                    <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']); ?> </td>
+                                    <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'amendment_from'], $row['amendment_by']); ?> </td>
+                                    <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'amendment_status'], $row['amendment_status']); ?> </td>
                                 </tr>
                             <?php } ?>
                             </tbody>

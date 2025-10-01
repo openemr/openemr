@@ -17,7 +17,7 @@ class NQF_0028b_Denominator implements CqmFilterIF
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
-        $date_array = array();
+        $date_array = [];
         foreach ($this->getApplicableEncounters() as $encType) {
             $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
             $date_array = array_merge($date_array, $dates);
@@ -48,7 +48,7 @@ class NQF_0028b_Denominator implements CqmFilterIF
 
     private function getApplicableEncounters()
     {
-        return array(
+        return [
             Encounter::ENC_OFF_VIS,
             Encounter::ENC_HEA_AND_BEH,
             Encounter::ENC_OCC_THER,
@@ -56,6 +56,6 @@ class NQF_0028b_Denominator implements CqmFilterIF
             Encounter::ENC_PRE_MED_SER_18_OLDER,
             Encounter::ENC_PRE_IND_COUNSEL,
             Encounter::ENC_PRE_MED_GROUP_COUNSEL,
-            Encounter::ENC_PRE_MED_OTHER_SERV );
+            Encounter::ENC_PRE_MED_OTHER_SERV ];
     }
 }

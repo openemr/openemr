@@ -38,15 +38,15 @@ function make_task($ajax_req): void
     $enc        = $ajax_req['enc'];
 
     $query      = "SELECT * FROM users WHERE id=?";
-    $to_data    =  sqlQuery($query, array($to_id));
+    $to_data    =  sqlQuery($query, [$to_id]);
     $filename   = "Fax_" . $enc . "_" . $to_data['lname'] . ".pdf";
 
     $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ? and deleted = 0";
-    $doc = sqlQuery($query, array($enc,$patient_id,'%' . $filename . '%' ));
+    $doc = sqlQuery($query, [$enc,$patient_id,'%' . $filename . '%' ]);
 
 
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-    $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
+    $task = sqlQuery($sql, [$from_id,$to_id,$patient_id,$enc]);
 
     if (!empty($task['COMPLETED_DATE'])) {
         $dated = new DateTime($task['COMPLETED_DATE']);
@@ -58,7 +58,7 @@ function make_task($ajax_req): void
         // but the document was deleted (to redo it)...
         // Delete the task, recreate the task, and send the newly made PDF.
         $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-        $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
+        $task = sqlQuery($sql, [$from_id,$to_id,$patient_id,$enc]);
     }
     if (($task['ID'] ?? '') && $task['COMPLETED'] == '2') {
         $send['comments'] = xlt('This fax has already been sent to') . " " . text($task['to_name']) . " " . xlt('via') . " " . text($task['to_fax']) . " on " . text($sent_date) . ". " .
@@ -85,12 +85,12 @@ function make_task($ajax_req): void
         } elseif ($task['DOC_TYPE'] == "Fax-resend") {
             //we need to resend this fax????  Remake it with latest data and send ot out.
             $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-            $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
+            $task = sqlQuery($sql, [$from_id,$to_id,$patient_id,$enc]);
 
             $sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
 				(NOW(), ?, ?, ?, ?, ?, ?)";
-            sqlQuery($sql, array($from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc));
+            sqlQuery($sql, [$from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc]);
 
             $send['comments'] = xlt('Resending this report.');
             echo json_encode($send);
@@ -101,7 +101,7 @@ function make_task($ajax_req): void
         $sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
 				(NOW(), ?, ?, ?, ?, ?, ?)";
-        sqlQuery($sql, array($from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc));
+        sqlQuery($sql, [$from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc]);
     } else {
         $send['comments'] = xlt('Currently working on making this document') . "...\n";
     }
@@ -146,7 +146,7 @@ function update_taskman($task, $action, $value): void
     global $send;
     if ($action == 'created') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMMENT=concat('Created: ',NOW()) where ID=?";
-        sqlQuery($sql, array($task['DOC_ID'],$task['ID']));
+        sqlQuery($sql, [$task['DOC_ID'],$task['ID']]);
         if (!empty($send['comments'])) {
             $send['comments'] .= "Document created. ";
         } else {
@@ -156,13 +156,13 @@ function update_taskman($task, $action, $value): void
 
     if ($action == 'completed') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Completed: ', NOW(),'\n') where ID=?";
-        sqlQuery($sql, array($task['DOC_ID'],$value,$task['ID']));
+        sqlQuery($sql, [$task['DOC_ID'],$value,$task['ID']]);
         $send['comments'] .= "Task completed. ";
     }
 
     if ($action == 'refaxed') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Refaxed: ', NOW(),'\n') where ID=?";
-        sqlQuery($sql, array($task['DOC_ID'],$value,$task['ID']));
+        sqlQuery($sql, [$task['DOC_ID'],$value,$task['ID']]);
         $send['comments'] .= "Ok, we resent it to the Fax Server.\n";
     }
 }
@@ -184,7 +184,7 @@ function deliver_document($task)
     $facility_data  = $facilityService->getPrimaryBillingLocation();
 
     $query          = "SELECT * FROM users WHERE id=?";
-    $from_data      = sqlQuery($query, array($task['FROM_ID']));
+    $from_data      = sqlQuery($query, [$task['FROM_ID']]);
     $from_name      = $from_data['fname'] . " " . $from_data['lname'];
     if (!empty($from_data['suffix'])) {
         $from_name .= ", " . $from_data['suffix'];
@@ -192,7 +192,7 @@ function deliver_document($task)
     $from_fax       = preg_replace("/[^0-9]/", "", $facility_data['fax']);
     $email_sender   = $GLOBALS['patient_reminder_sender_email'];
 
-    $to_data        = sqlQuery($query, array($task['TO_ID']));
+    $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_fax         = preg_replace("/[^0-9]/", "", $to_data['fax']);
 
     $mail           = new MyMailer();
@@ -253,7 +253,7 @@ function make_document($task)
     $facility_data  = $facilityService->getPrimaryBillingLocation();
 
     $query          = "SELECT * FROM users WHERE id=?";
-    $from_data      = sqlQuery($query, array($task['FROM_ID']));
+    $from_data      = sqlQuery($query, [$task['FROM_ID']]);
     $from_name      = $from_data['fname'] . " " . $from_data['lname'];
     if (!empty($from_data['suffix'])) {
         $from_name .= ", " . $from_data['suffix'];
@@ -261,7 +261,7 @@ function make_document($task)
  //   $from_fax       = preg_replace("/[^0-9]/", "", $facility_data['fax']);
  //   $email_sender   = $GLOBALS['patient_reminder_sender_email'];
 
-    $to_data        = sqlQuery($query, array($task['TO_ID']));
+    $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_name        = $to_data['fname'] . " " . $to_data['lname'];
     if ($to_data['suffix']) {
         $to_name .= ", " . $to_data['suffix'];
@@ -271,7 +271,7 @@ function make_document($task)
     $task['to_fax'] = $to_fax;
 
     $query          = "SELECT * FROM patient_data where pid=?";
-    $patientData    = sqlQuery($query, array($task['PATIENT_ID']));
+    $patientData    = sqlQuery($query, [$task['PATIENT_ID']]);
     $pt_name        = $patientData['fname'] . ' ' . $patientData['lname'];
 
     $encounter      = $task['ENC_ID'];
@@ -305,7 +305,7 @@ function make_document($task)
                     forms.encounter =? and
                     forms.pid=?";
 
-    $encounter_data = sqlQuery($query, array($encounter,$task['PATIENT_ID']));
+    $encounter_data = sqlQuery($query, [$encounter,$task['PATIENT_ID']]);
     @extract($encounter_data);
     $providerID     = getProviderIdOfEncounter($encounter);
     $providerNAME   = getProviderName($providerID);
@@ -326,7 +326,7 @@ function make_document($task)
         // Do we need to translate this?
         // $category_name = xl('Communication');
         $query          = "select id from categories where name  like ?";
-        $ID             = sqlQuery($query, array($category_name));
+        $ID             = sqlQuery($query, [$category_name]);
         $category_id    = $ID['id'];
         $filename       = "Fax_" . $encounter . "_" . $to_data['lname'] . ".pdf";
         $count          = 0;
@@ -337,7 +337,7 @@ function make_document($task)
     } else {
         $category_name  = "Encounters%";
         $query          = "select id from categories where name like ?";
-        $ID             = sqlQuery($query, array($category_name));
+        $ID             = sqlQuery($query, [$category_name]);
         $category_id    = $ID['id'];
 
         $filename       = "Report_" . $encounter . ".pdf";
@@ -346,9 +346,9 @@ function make_document($task)
         }
 
         $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-        sqlQuery($sql, array("%" . $filename));
+        sqlQuery($sql, ["%" . $filename]);
         $sql = "DELETE from documents where documents.url like ?";
-        sqlQuery($sql, array("%" . $filename));
+        sqlQuery($sql, ["%" . $filename]);
     }
 
     $config_mpdf = Config_Mpdf::getConfigMpdf();
@@ -565,7 +565,7 @@ mpdf-->
     $task['DOC_ID'] = $return['doc_id'];
     $task['DOC_url'] = $filepath . '/' . $filename;
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-    sqlQuery($sql, array($encounter,$task['DOC_ID']));
+    sqlQuery($sql, [$encounter,$task['DOC_ID']]);
 
     return $task;
 }

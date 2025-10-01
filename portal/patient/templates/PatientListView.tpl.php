@@ -19,11 +19,11 @@
      *  row keys are js underscore camelcase and follow the underscores variables used in this template
      *  $row['city'] or $row['postalCode'] e.t.c.. The keys do not match table columns ie postalCode here is postal_code in table.
      *  */
-    $row = array();
+    $row = [];
 if ($this->trow) {
     $row = $this->trow;
 }
-$exclude = array();
+$exclude = [];
 if ($this->exclude) {
     $exclude = $this->exclude;
 }

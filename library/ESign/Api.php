@@ -89,13 +89,13 @@ class Api
      */
     public function configToJson(ConfigurationIF $configuration)
     {
-        $params = array(
+        $params = [
             'baseUrl' => $configuration->getBaseUrl(),
             'logViewAction' => $configuration->getLogViewAction(),
             'formViewAction' => $configuration->getFormViewAction(),
             'formSubmitAction' => $configuration->getFormSubmitAction(),
             'module' => $configuration->getModule()
-        );
+        ];
 
         $json = json_encode($params);
         return $json;

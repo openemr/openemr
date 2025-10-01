@@ -43,7 +43,7 @@ if ($searchAny) {
     $layoutCols = sqlStatement(
         "SELECT field_id FROM layout_options WHERE form_id = 'DEM'
             AND field_id not like ? AND field_id not like ? AND field_id not like ? AND uor !=0",
-        array('em\_%', 'add%', 'related\_%')
+        ['em\_%', 'add%', 'related\_%']
     );
     for ($iter = 0; $row = sqlFetchArray($layoutCols); $iter++) {
         $aColumns[] = $row['field_id'];
@@ -77,7 +77,7 @@ if (isset($_GET['iSortCol_0'])) {
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
             } else {
-                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
+                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . "` $sSortDir";
             }
         }
     }
@@ -109,8 +109,8 @@ function dateSearch($sSearch)
         // If the first part is more than 2 digits then assume y/m/d format.
         // Otherwise assume MDY or DMY format as appropriate.
         if (strlen($parts[0]) <= 2) {
-            $parts = $mdy ? array($parts[2], $parts[0], $parts[1]) :
-                array($parts[2], $parts[1], $parts[0]);
+            $parts = $mdy ? [$parts[2], $parts[0], $parts[1]] :
+                [$parts[2], $parts[1], $parts[0]];
         }
         // A single-digit day or month is zero-filled. Fill in other missing
         // digits with wildcards. A 2-digit year like 19 becomes 19__, not __19.
@@ -133,7 +133,7 @@ function dateSearch($sSearch)
 // Global filtering.
 //
 $where = "";
-$srch_bind = array();
+$srch_bind = [];
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
     $sSearch = trim($_GET['sSearch']);
     foreach ($aColumns as $colname) {
@@ -149,13 +149,13 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
             array_push($srch_bind, $sSearch);
         } elseif ($searchAny) {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ?"; // any search
+            $where .= " `" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ?"; // any search
             array_push($srch_bind, ('%' . $sSearch . '%'));
         } else {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -185,13 +185,13 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($colname == 'DOB') {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -222,7 +222,7 @@ foreach ($aColumns as $colname) {
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
     } else {
-        $sellist .= "`" . escape_sql_column_name($colname, array('patient_data')) . "`";
+        $sellist .= "`" . escape_sql_column_name($colname, ['patient_data']) . "`";
     }
 }
 
@@ -243,15 +243,15 @@ $iFilteredTotal = $row['count'];
 
 // Build the output data array.
 //
-$out = array(
+$out = [
     "sEcho"                => intval($_GET['sEcho']),
     "iTotalRecords"        => $iTotal,
     "iTotalDisplayRecords" => $iFilteredTotal,
-    "aaData"               => array()
-);
+    "aaData"               => []
+];
 
 // save into variable data about fields of 'patient_data' from 'layout_options'
-$fieldsInfo = array();
+$fieldsInfo = [];
 $quoteSellist = preg_replace('/(\w+)/i', '"${1}"', str_replace('`', '', $sellist));
 $res = sqlStatement('SELECT data_type, field_id, list_id FROM layout_options WHERE form_id = "DEM" AND field_id IN(' . $quoteSellist . ')');
 while ($row = sqlFetchArray($res)) {
@@ -262,7 +262,7 @@ $query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
 $res = sqlStatement($query, $srch_bind);
 while ($row = sqlFetchArray($res)) {
     // Each <tr> will have an ID identifying the patient.
-    $arow = array('DT_RowId' => 'pid_' . $row['pid']);
+    $arow = ['DT_RowId' => 'pid_' . $row['pid']];
     foreach ($aColumns as $colname) {
         if ($colname == 'name') {
             $name = $row['lname'];

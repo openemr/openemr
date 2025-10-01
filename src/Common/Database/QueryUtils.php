@@ -26,7 +26,7 @@ class QueryUtils
     public static function listTableFields($table)
     {
         $sql = "SHOW COLUMNS FROM " . \escape_table_name($table);
-        $field_list = array();
+        $field_list = [];
         $records = self::fetchRecords($sql, [], false);
         foreach ($records as $record) {
             $field_list[] = $record["Field"];
@@ -72,7 +72,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumn($sqlStatement, $column, $binds = array())
+    public static function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -82,7 +82,7 @@ class QueryUtils
         return $list;
     }
 
-    public static function fetchSingleValue($sqlStatement, $column, $binds = array())
+    public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
         // note if $records[0] is actually the value 0 then the value returned is null...
@@ -93,7 +93,7 @@ class QueryUtils
         return null;
     }
 
-    public static function fetchRecords($sqlStatement, $binds = array(), $noLog = false)
+    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
@@ -111,7 +111,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = array())
+    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -208,7 +208,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert($statement, $binds = array())
+    public static function sqlInsert($statement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -253,7 +253,7 @@ class QueryUtils
 
         $multipleResults = sqlStatementThrowException($sql, $data);
 
-        $results = array();
+        $results = [];
 
         while ($row = sqlFetchArray($multipleResults)) {
             array_push($results, $row);

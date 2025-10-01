@@ -30,7 +30,7 @@ $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
 if (empty($formid)) {
     $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'care_plan' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
-    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
+    $formid = sqlQuery($sql, [$_SESSION["pid"], $_SESSION["encounter"]])['form_id'] ?? 0;
     if (!empty($formid)) {
         echo "<script>var message=" .
             js_escape(xl("Already a Care Plan form for this encounter. Using existing Care Plan form.")) .
@@ -39,22 +39,22 @@ if (empty($formid)) {
 }
 if (!empty($formid)) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($formid, $_SESSION["pid"], $_SESSION["encounter"]));
+    $res = sqlStatement($sql, [$formid, $_SESSION["pid"], $_SESSION["encounter"]]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
     $check_res = $all;
 }
-$check_res = $formid ? $check_res : array();
+$check_res = $formid ? $check_res : [];
 
 $sql1 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
-$result = sqlStatement($sql1, array('Plan_of_Care_Type'));
+$result = sqlStatement($sql1, ['Plan_of_Care_Type']);
 foreach ($result as $value) {
     $care_plan_type[] = $value;
 }
 
 $sql2 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
-$result2 = sqlStatement($sql2, array('care_plan_status'));
+$result2 = sqlStatement($sql2, ['care_plan_status']);
 $care_plan_status = [];
 foreach ($result2 as $value) {
     $care_plan_status[] = $value;

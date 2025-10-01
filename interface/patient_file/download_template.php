@@ -91,7 +91,7 @@ function getIssues($type)
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
-    "ORDER BY begdate", array($GLOBALS['pid'], $type));
+    "ORDER BY begdate", [$GLOBALS['pid'], $type]);
     while ($lrow = sqlFetchArray($lres)) {
         if ($tmp) {
             $tmp .= '; ';
@@ -178,7 +178,7 @@ function doSubs($s)
             $patientid = $ptrow['pid'];
             $DOS = substr($enrow['date'], 0, 10);
             // Prefer appointment comment if one is present.
-            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
+            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [$patientid]);
             foreach ($evlist as $tmp) {
                 if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];
@@ -206,7 +206,7 @@ function doSubs($s)
 
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
         } elseif (keySearch($s, '{Allergies}')) {
-            $tmp = generate_plaintext_field(array('data_type' => '24','list_id' => ''), '');
+            $tmp = generate_plaintext_field(['data_type' => '24','list_id' => ''], '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
         } elseif (keySearch($s, '{Medications}')) {
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
@@ -277,7 +277,7 @@ function doSubs($s)
             $frow = sqlQuery(
                 "SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND field_id = ? LIMIT 1",
-                array($formname, $fieldid)
+                [$formname, $fieldid]
             );
             if (!empty($frow)) {
                 $ldrow = sqlQuery(
@@ -286,7 +286,7 @@ function doSubs($s)
                     "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
                     "ld.form_id = f.form_id AND ld.field_id = ? " .
                     "ORDER BY f.form_id DESC LIMIT 1",
-                    array($pid, $encounter, $formname, $fieldid)
+                    [$pid, $encounter, $formname, $fieldid]
                 );
                 if (!empty($ldrow)) {
                         $currvalue = $ldrow['field_value'];
@@ -310,7 +310,7 @@ function doSubs($s)
             $frow = sqlQuery(
                 "SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND field_id = ? LIMIT 1",
-                array($formname, $fieldid)
+                [$formname, $fieldid]
             );
             if (!empty($frow)) {
                 $tmprow = $formname == 'DEM' ? $ptrow : $hisrow;
@@ -336,17 +336,17 @@ $ptrow = sqlQuery("SELECT pd.*, " .
   "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
-  "WHERE pd.pid = ?", array($pid));
+  "WHERE pd.pid = ?", [$pid]);
 
 $hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " .
-  "ORDER BY date DESC LIMIT 1", array($pid));
+  "ORDER BY date DESC LIMIT 1", [$pid]);
 
-$enrow = array();
+$enrow = [];
 
 // Get some info for the currently selected encounter.
 if ($encounter) {
     $enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " .
-    "encounter = ?", array($pid, $encounter));
+    "encounter = ?", [$pid, $encounter]);
 }
 
 $form_filename = $_REQUEST['form_filename'];

@@ -26,7 +26,7 @@ class TwigRenderEngine implements IRenderEngine
 
     /** @var Twig_Loader_Filesystem */
     private $loader;
-    private $assignments = array ();
+    private $assignments =  [];
 
     /**
      *
@@ -36,9 +36,9 @@ class TwigRenderEngine implements IRenderEngine
     function __construct($templatePath = '', $compilePath = '')
     {
         $this->loader = new Twig_Loader_Filesystem($templatePath);
-        $this->twig = new Twig_Environment($this->loader, array (
+        $this->twig = new Twig_Environment($this->loader,  [
                 'cache' => $compilePath
-        ));
+        ]);
     }
 
     /**
@@ -91,7 +91,7 @@ class TwigRenderEngine implements IRenderEngine
      */
     function clearAll()
     {
-        $this->assignments = array ();
+        $this->assignments =  [];
     }
 
     /**

@@ -89,7 +89,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
             while ($modulerow = sqlFetchArray($module_query)) {
                 $module_hooks =  sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type, m.mod_relative_link FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id", array($modulerow['mod_id']));
+                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id", [$modulerow['mod_id']]);
 
                 $modulePath = "";
                 $added      = "";
@@ -123,7 +123,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     $newEntry->requirement = 0;
                     $newEntry->icon = "fa-caret-right";
                     $newEntry->label = xlt($mod_nick_name);
-                    $newEntry->children = array();
+                    $newEntry->children = [];
                     $jid = 0;
                     $modid = '';
                     while ($hookrow = sqlFetchArray($module_hooks)) {
@@ -162,7 +162,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
         $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
-        $reportsHooks = array();
+        $reportsHooks = [];
         if (sqlNumRows($module_query)) {
             $jid = 0;
             $modid = '';
@@ -182,7 +182,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     $newEntry->requirement = 0;
                     $newEntry->icon = "fa-caret-right";
                     $newEntry->label = xlt($hookrow['mod_ui_name']);
-                    $newEntry->children = array();
+                    $newEntry->children = [];
 
                     $reportsHooks[] = $newEntry;
                     array_unshift($menu_list->children, $newEntry);

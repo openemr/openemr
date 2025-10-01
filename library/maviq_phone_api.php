@@ -24,7 +24,7 @@ class MaviqClient
         $this->Endpoint = $endpoint;
     }
 
-    public function sendRequest($path, $method = "POST", $vars = array())
+    public function sendRequest($path, $method = "POST", $vars = [])
     {
 
         echo "Path: {$path}\n";

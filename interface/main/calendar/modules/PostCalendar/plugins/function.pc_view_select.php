@@ -55,10 +55,10 @@ function smarty_function_pc_view_select($args): void
         $pcTemplate = 'default';
     }
 
-    $viewlist = array();
+    $viewlist = [];
     $handle = opendir("modules/$mdir/pntemplates/$pcTemplate/views/$viewtype");
 
-    $hide_list = array('.','..','CVS','index.html');
+    $hide_list = ['.','..','CVS','index.html'];
     while ($f = readdir($handle)) {
         if (!in_array($f, $hide_list)) {
             $viewlist[] = $f;

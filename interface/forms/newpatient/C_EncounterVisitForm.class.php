@@ -100,7 +100,7 @@ class C_EncounterVisitForm
     function getCareTeamFacilityForPatient($pid)
     {
         // TODO: We should put helper methods into CareTeamService for this.
-        $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", array($pid));
+        $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", [$pid]);
         // TODO: @adunsulag right now care facility is an array... the original code in common.php treats this as a single value
         // we need to look at fixing this if there is multiple facilities
         if (!empty($care_team_facility['care_team_facility'])) {
@@ -282,7 +282,7 @@ class C_EncounterVisitForm
         $issues = [];
         $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             "pid = ? AND enddate IS NULL " .
-            "ORDER BY type, begdate", array($pid));
+            "ORDER BY type, begdate", [$pid]);
 
         while ($irow = sqlFetchArray($ires)) {
             $tcode = $irow['type'];
@@ -295,7 +295,7 @@ class C_EncounterVisitForm
                 $perow = sqlQuery(
                     "SELECT count(*) AS count FROM issue_encounter WHERE " .
                     "pid = ? AND encounter = ? AND list_id = ?",
-                    array($pid, $encounter_id, $irow['id'])
+                    [$pid, $encounter_id, $irow['id']]
                 );
                 $selected = ($perow['count'] > 0);
                 // NOTE: This issue is not used anywhere in the codebase.  Appears to have been added to support squads but cannot find examples of usage in the codebase
@@ -450,7 +450,7 @@ class C_EncounterVisitForm
                 " AND fe.date <= ? " .
                 " AND " .
                 "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
-                "ORDER BY fe.encounter DESC LIMIT 1", array($pid, date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')));
+                "ORDER BY fe.encounter DESC LIMIT 1", [$pid, date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')]);
 
             if (!empty($erow['encounter'])) {
                 $duplicate = ['isDuplicate' => true, 'encounter' => $erow['encounter'], 'date' => oeFormatShortDate(substr($erow['date'], 0, 10))];
@@ -499,7 +499,7 @@ class C_EncounterVisitForm
         $followup_date = null;
         if ($viewmode) {
             $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
-            $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", array($id));
+            $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.
             $encounter['uuid'] = UuidRegistry::uuidToString($result['uuid']);
@@ -508,7 +508,7 @@ class C_EncounterVisitForm
                 $q = "SELECT fe.date as date, fe.encounter as encounter FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
                     "WHERE fe.id = ? AND f.deleted = 0 ";
-                $followup_enc = sqlQuery($q, array($encounter_followup_id));
+                $followup_enc = sqlQuery($q, [$encounter_followup_id]);
                 $followup_date = date("m/d/Y", strtotime($followup_enc['date']));
                 $encounter_followup = $followup_enc['encounter'];
             }
@@ -544,17 +544,17 @@ class C_EncounterVisitForm
         $headingTitle = $viewmode ? xl('Patient Encounter Form') : xl('New Encounter Form');
 
 // UI settings
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
             'heading_title' => $headingTitle,
             'include_patient_name' => true,
             'expandable' => false,
-            'expandable_files' => array(),
+            'expandable_files' => [],
             'action' => "",
             'action_title' => "",
             'action_href' => "",
             'show_help_icon' => true,
             'help_file_name' => "common_help.php"
-        );
+        ];
 
 
 //Gets validation rules from Page Validation list.
@@ -586,12 +586,12 @@ class C_EncounterVisitForm
             $q = "SELECT pc_aid, pc_facility, pc_billing_location, pc_catid, pc_startTime" .
                 " FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=?" .
                 " ORDER BY pc_startTime ASC";
-            $q_events = sqlStatement($q, array($pid, $now));
+            $q_events = sqlStatement($q, [$pid, $now]);
             while ($override = sqlFetchArray($q_events)) {
                 $q = "SELECT fe.encounter as encounter FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
                     "WHERE fe.pid=? AND fe.date=? AND fe.provider_id=? AND f.deleted=0";
-                $q_enc = sqlQuery($q, array($pid, $encnow, $override['pc_aid']));
+                $q_enc = sqlQuery($q, [$pid, $encnow, $override['pc_aid']]);
                 if (!empty($override) && is_array($override) && empty($q_enc['encounter'])) {
                     $provider_id = $override['pc_aid'];
                     $default_bill_fac_override = $override['pc_billing_location'];

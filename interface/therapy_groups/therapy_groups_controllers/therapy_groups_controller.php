@@ -40,42 +40,42 @@ class TherapyGroupsController extends BaseController
     //list of group statuses
     public static function prepareStatusesList()
     {
-        $statuses = array(
+        $statuses = [
             '10' => xl('Active'),
             '20' => xl('Finished'),
             '30' => xl('Canceled')
-        );
+        ];
         return $statuses;
     }
 
     //list of participant statuses
     public static function prepareParticipantStatusesList()
     {
-        $participant_statuses = array(
+        $participant_statuses = [
                 '10' => xl('Active'),
                 '20' => xl('Not active')
-        );
+        ];
         return $participant_statuses;
     }
 
     //list of group types
     public static function prepareGroupTypesList()
     {
-        $group_types = array(
+        $group_types = [
             '1' => xl('Closed'),
             '2' => xl('Open'),
             '3' => xl('Training')
-        );
+        ];
         return $group_types;
     }
 
     //list of participation types
     public static function prepareGroupParticipationList()
     {
-        $group_participation = array(
+        $group_participation = [
             '1' => xl('Mandatory'),
             '2' => xl('Optional')
-        );
+        ];
         return $group_participation;
     }
 
@@ -91,7 +91,7 @@ class TherapyGroupsController extends BaseController
     public function index($groupId = null)
     {
 
-        $data = array();
+        $data = [];
         if ($groupId) {
             self::setSession($groupId);
         }
@@ -133,7 +133,7 @@ class TherapyGroupsController extends BaseController
                 }
             }
 
-            $filters = array(
+            $filters = [
                 'group_name' => FILTER_DEFAULT,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
                 'group_type' => FILTER_VALIDATE_INT,
@@ -141,9 +141,9 @@ class TherapyGroupsController extends BaseController
                 'group_status' => FILTER_VALIDATE_INT,
                 'group_notes' => FILTER_DEFAULT,
                 'group_guest_counselors' => FILTER_DEFAULT,
-                'counselors' => array('filter'    => FILTER_VALIDATE_INT,
-                                      'flags'     => FILTER_FORCE_ARRAY)
-            );
+                'counselors' => ['filter'    => FILTER_VALIDATE_INT,
+                                      'flags'     => FILTER_FORCE_ARRAY]
+            ];
             if ($isEdit) {
                 $filters['group_end_date'] = FILTER_SANITIZE_SPECIAL_CHARS;
                 $filters['group_id'] = FILTER_VALIDATE_INT;
@@ -181,14 +181,14 @@ class TherapyGroupsController extends BaseController
         } else {
             if (is_null($groupId)) {
                 //for new form
-                $data['groupData'] = array('group_name' => null,
+                $data['groupData'] = ['group_name' => null,
                     'group_start_date' => date('Y-m-d'),
                     'group_type' => null,
                     'group_participation' => null,
                     'group_notes' => null,
                     'group_guest_counselors' => null,
                     'group_status' => null
-                );
+                ];
                 $this->loadView('addGroup', $data);
             } else {
                 //for exist group screen
@@ -267,7 +267,7 @@ class TherapyGroupsController extends BaseController
     private function prepareGroups($therapy_groups, $counselors)
     {
 
-        $new_array = array();
+        $new_array = [];
         $users_model = $this->loadModel('Users');
 
         //Insert groups into a new array and shorten notes for preview in list
@@ -275,7 +275,7 @@ class TherapyGroupsController extends BaseController
             $gid = $therapy_group['group_id'];
             $new_array[$gid] = $therapy_group;
             $new_array[$gid]['group_notes'] = $this->shortenNotes($therapy_group['group_notes']);
-            $new_array[$gid]['counselors'] = array();
+            $new_array[$gid]['counselors'] = [];
         }
 
         //Insert the counselors into their groups in new array.
@@ -310,7 +310,7 @@ class TherapyGroupsController extends BaseController
     private function prepareCounselorsList($counselors)
     {
 
-        $new_array = array();
+        $new_array = [];
         $users_model = $this->loadModel('Users');
 
         foreach ($counselors as $counselor) {
@@ -330,7 +330,7 @@ class TherapyGroupsController extends BaseController
     private function deleteGroup($group_id)
     {
 
-        $response = array();
+        $response = [];
 
         //If group has encounters cannot delete the group.
         $group_has_encounters = $this->checkIfHasApptOrEncounter($group_id);
@@ -375,7 +375,7 @@ class TherapyGroupsController extends BaseController
     private function saveNewGroup($groupData)
     {
 
-        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
+        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : [];
         unset($groupData['groupId'], $groupData['save'], $groupData['counselors']);
 
         $groupId = $this->therapyGroupModel->saveNewGroup($groupData);
@@ -395,7 +395,7 @@ class TherapyGroupsController extends BaseController
     private function updateGroup($groupData)
     {
 
-        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
+        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : [];
         unset($groupData['save'], $groupData['counselors']);
 
         $this->therapyGroupModel->updateGroup($groupData);

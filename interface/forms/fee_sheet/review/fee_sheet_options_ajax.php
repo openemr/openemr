@@ -28,7 +28,7 @@ if (isset($_REQUEST['pricelevel'])) {
 }
 
 $fso = load_fee_sheet_options($pricelevel);
-$retval = array();
+$retval = [];
 $retval['fee_sheet_options'] = $fso;
 $retval['pricelevel'] = $pricelevel;
 echo text(json_encode($retval));

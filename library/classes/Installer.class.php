@@ -1083,21 +1083,21 @@ $config = 1; /////////////
 
         // Set permissions for administrators.
         $gacl->add_acl(
-            array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-                'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
-                'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-                'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
-                'lists' => array('default','state','country','language','ethrace'),
-                'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
-                'sensitivities' => array('normal', 'high'),
-                'nationnotes' => array('nn_configure'),
-                'patientportal' => array('portal'),
-                'menus' => array('modle'),
-                'groups' => array('gadd','gcalendar','glog','gdlog','gm')
-            ),
+            [
+                'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+                'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
+                'lists' => ['default','state','country','language','ethrace'],
+                'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
+                'sensitivities' => ['normal', 'high'],
+                'nationnotes' => ['nn_configure'],
+                'patientportal' => ['portal'],
+                'menus' => ['modle'],
+                'groups' => ['gadd','gcalendar','glog','gdlog','gm']
+            ],
             null,
-            array($admin),
+            [$admin],
             null,
             null,
             1,
@@ -1109,11 +1109,11 @@ $config = 1; /////////////
 
         // Set permissions for physicians.
         $gacl->add_acl(
-            array(
-                'patients' => array('pat_rep')
-            ),
+            [
+                'patients' => ['pat_rep']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1123,11 +1123,11 @@ $config = 1; /////////////
         );
         // xl('Things that physicians can only read')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1137,11 +1137,11 @@ $config = 1; /////////////
         );
         // xl('Things that physicians can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1151,17 +1151,17 @@ $config = 1; /////////////
         );
         // xl('Things that physicians can read and partly modify')
         $gacl->add_acl(
-            array(
-                'acct' => array('disc', 'rep'),
-                'admin' => array('drugs'),
-                'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-                'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
-                    'disclosure', 'rx', 'amendment', 'lab'),
-                'sensitivities' => array('normal', 'high'),
-                'groups' => array('gcalendar','glog')
-            ),
+            [
+                'acct' => ['disc', 'rep'],
+                'admin' => ['drugs'],
+                'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+                'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
+                    'disclosure', 'rx', 'amendment', 'lab'],
+                'sensitivities' => ['normal', 'high'],
+                'groups' => ['gcalendar','glog']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1173,11 +1173,11 @@ $config = 1; /////////////
 
         // Set permissions for clinicians.
         $gacl->add_acl(
-            array(
-                'patients' => array('pat_rep')
-            ),
+            [
+                'patients' => ['pat_rep']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1187,13 +1187,13 @@ $config = 1; /////////////
         );
         // xl('Things that clinicians can only read')
         $gacl->add_acl(
-            array(
-                'encounters' => array('notes', 'relaxed'),
-                'patients' => array('demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
-                'sensitivities' => array('normal')
-            ),
+            [
+                'encounters' => ['notes', 'relaxed'],
+                'patients' => ['demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'],
+                'sensitivities' => ['normal']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1203,11 +1203,11 @@ $config = 1; /////////////
         );
         // xl('Things that clinicians can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1217,14 +1217,14 @@ $config = 1; /////////////
         );
         // xl('Things that clinicians can read and partly modify')
         $gacl->add_acl(
-            array(
-                'admin' => array('drugs'),
-                'encounters' => array('auth', 'coding', 'notes'),
-                'patients' => array('appt'),
-                'groups' => array('gcalendar', 'glog')
-            ),
+            [
+                'admin' => ['drugs'],
+                'encounters' => ['auth', 'coding', 'notes'],
+                'patients' => ['appt'],
+                'groups' => ['gcalendar', 'glog']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1236,11 +1236,11 @@ $config = 1; /////////////
 
         // Set permissions for front office staff.
         $gacl->add_acl(
-            array(
-                'patients' => array('alert')
-            ),
+            [
+                'patients' => ['alert']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1250,11 +1250,11 @@ $config = 1; /////////////
         );
         // xl('Things that front office can only read')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1264,11 +1264,11 @@ $config = 1; /////////////
         );
         // xl('Things that front office can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1278,12 +1278,12 @@ $config = 1; /////////////
         );
         // xl('Things that front office can read and partly modify')
         $gacl->add_acl(
-            array(
-                'patients' => array('appt', 'demo'),
-                'groups' => array('gcalendar')
-            ),
+            [
+                'patients' => ['appt', 'demo'],
+                'groups' => ['gcalendar']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1295,11 +1295,11 @@ $config = 1; /////////////
 
         // Set permissions for back office staff.
         $gacl->add_acl(
-            array(
-                'patients' => array('alert')
-            ),
+            [
+                'patients' => ['alert']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1309,11 +1309,11 @@ $config = 1; /////////////
         );
         // xl('Things that back office can only read')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1323,11 +1323,11 @@ $config = 1; /////////////
         );
         // xl('Things that back office can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1337,14 +1337,14 @@ $config = 1; /////////////
         );
         // xl('Things that back office can read and partly modify')
         $gacl->add_acl(
-            array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-                'admin' => array('practice', 'superbill'),
-                'encounters' => array('auth_a', 'coding_a', 'date_a'),
-                'patients' => array('appt', 'demo')
-            ),
+            [
+                'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+                'admin' => ['practice', 'superbill'],
+                'encounters' => ['auth_a', 'coding_a', 'date_a'],
+                'patients' => ['appt', 'demo']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1356,21 +1356,21 @@ $config = 1; /////////////
 
         // Set permissions for Emergency Login.
         $gacl->add_acl(
-            array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-                'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
-                'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-                'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
-                'lists' => array('default','state','country','language','ethrace'),
-                'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
-                'sensitivities' => array('normal', 'high'),
-                'nationnotes' => array('nn_configure'),
-                'patientportal' => array('portal'),
-                'menus' => array('modle'),
-                'groups' => array('gadd','gcalendar','glog','gdlog','gm')
-            ),
+            [
+                'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+                'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
+                'lists' => ['default','state','country','language','ethrace'],
+                'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
+                'sensitivities' => ['normal', 'high'],
+                'nationnotes' => ['nn_configure'],
+                'patientportal' => ['portal'],
+                'menus' => ['modle'],
+                'groups' => ['gadd','gcalendar','glog','gdlog','gm']
+            ],
             null,
-            array($breakglass),
+            [$breakglass],
             null,
             null,
             1,
@@ -1689,9 +1689,9 @@ $config = 1; /////////////
     protected function initialize_dumpfile_list(): array
     {
         if ($this->clone_database) {
-            $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
+            $this->dumpfiles = [ $this->get_backup_filename() => 'clone database' ];
         } else {
-            $dumpfiles = array( $this->main_sql => 'Main' );
+            $dumpfiles = [ $this->main_sql => 'Main' ];
             if (! empty($this->development_translations)) {
                 // Use the online development translation set
                 $dumpfiles[ $this->devel_translation_sql ] = "Online Development Language Translations (utf8)";
@@ -1850,7 +1850,7 @@ $config = 1; /////////////
         $dot = strpos($theme_file_name, '.');
         $theme_value = substr($theme_file_name, $under_score, ($dot - $under_score));
         $theme_title = ucwords(str_replace("_", " ", $theme_value));
-        return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
+        return ['theme_value' => $theme_value, 'theme_title' => $theme_title];
     }
 
     /**

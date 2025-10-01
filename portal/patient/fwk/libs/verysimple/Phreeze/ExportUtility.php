@@ -54,9 +54,9 @@ class ExportUtility
         $worksheet->getStyle($current_column . $current_row)->getFont()->setName('Arial');
 
         // default to no columns
-        $fields = array ();
-        $columns = array ();
-        $is_numeric = array ();
+        $fields =  [];
+        $columns =  [];
+        $is_numeric =  [];
         $fieldmap_exists = false;
 
         $current_row = 3;

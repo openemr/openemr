@@ -20,8 +20,8 @@ function physical_exam_report($pid, $encounter, $cols, $id): void
 {
     global $pelines;
 
-    $rows = array();
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", array($id));
+    $rows = [];
+    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", [$id]);
     while ($row = sqlFetchArray($res)) {
         $rows[$row['line_id']] = $row;
     }

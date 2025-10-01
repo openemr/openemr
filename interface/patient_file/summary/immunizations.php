@@ -60,7 +60,7 @@ if (isset($_GET['mode'])) {
             reason_code = ?,
             reason_description = ?,
             ordering_provider = ?";
-        $sqlBindArray = array(
+        $sqlBindArray = [
             trim($_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
             trim($_GET['administered_date']), trim($_GET['administered_date']),
@@ -87,7 +87,7 @@ if (isset($_GET['mode'])) {
             trim($_GET['reason_code']),
             trim($_GET['reason_description'] ?? ''),
             trim($_GET['ordered_by_id'])
-        );
+        ];
         $newid = sqlInsert($sql, $sqlBindArray);
         $administered_date = date('Y-m-d H:i');
         $education_date = date('Y-m-d');
@@ -102,19 +102,19 @@ if (isset($_GET['mode'])) {
         EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
         // delete the immunization
         $sql = "DELETE FROM immunizations WHERE id =? LIMIT 1";
-        sqlStatement($sql, array($_GET['id']));
+        sqlStatement($sql, [$_GET['id']]);
     } elseif ($_GET['mode'] == "added_error") {
         $sql = "UPDATE immunizations " .
                "SET added_erroneously=? "  .
                "WHERE id=?";
-        $sql_arg_array = array(
+        $sql_arg_array = [
             ($_GET['isError'] === 'true'),
             $_GET['id']
-        );
+        ];
         sqlStatement($sql, $sql_arg_array);
     } elseif ($_GET['mode'] == "edit") {
         $sql = "select * from immunizations where id = ?";
-        $result = sqlQuery($sql, array($_GET['id']));
+        $result = sqlQuery($sql, [$_GET['id']]);
 
         $administered_date = new DateTime($result['administered_date']);
         $uuid = null;
@@ -137,7 +137,7 @@ if (isset($_GET['mode'])) {
                      "FROM codes " .
                      "LEFT JOIN code_types on codes.code_type = code_types.ct_id " .
                      "WHERE code_types.ct_key = 'CVX' AND codes.code = ?";
-            $result_code_text = sqlQuery($query, array($cvx_code));
+            $result_code_text = sqlQuery($query, [$cvx_code]);
             $code_text = $result_code_text['code_text'];
         }
 
@@ -152,7 +152,7 @@ if (isset($_GET['mode'])) {
             $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
                     "from users where " .
                     "id=?";
-            $user_result = sqlQuery($stmt, array($result['administered_by_id']));
+            $user_result = sqlQuery($stmt, [$result['administered_by_id']]);
             $administered_by = $user_result['full_name'];
         }
 
@@ -203,7 +203,7 @@ if (empty($administered_by) && empty($administered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
-    $row = sqlQuery($stmt, array($_SESSION['authUserID']));
+    $row = sqlQuery($stmt, [$_SESSION['authUserID']]);
     $administered_by = $row['full_name'];
 }
 
@@ -212,7 +212,7 @@ if (!empty($entered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
-    $row = sqlQuery($stmt, array($entered_by_id));
+    $row = sqlQuery($stmt, [$entered_by_id]);
     $entered_by = $row['full_name'];
 }
 
@@ -237,7 +237,7 @@ if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
 function getImmunizationObservationLists($k)
 {
     if ($k == 1) {
-        $observation_criteria_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array('immunization_observation'));
+        $observation_criteria_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", ['immunization_observation']);
         for ($iter = 0; $row = sqlFetchArray($observation_criteria_res); $iter++) {
             $observation_criteria[0]['option_id'] = '';
             $observation_criteria[0]['title']     = 'Unassigned';
@@ -246,7 +246,7 @@ function getImmunizationObservationLists($k)
 
         return $observation_criteria;
     } else {
-        $observation_criteria_value_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array('imm_vac_eligibility_results'));
+        $observation_criteria_value_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", ['imm_vac_eligibility_results']);
         for ($iter = 0; $row = sqlFetchArray($observation_criteria_value_res); $iter++) {
             $observation_criteria_value[0]['option_id'] = '';
             $observation_criteria_value[0]['title']     = 'Unassigned';
@@ -265,7 +265,7 @@ function getImmunizationObservationResults()
                   immunization_observation
                 WHERE imo_pid = ?
                   AND imo_im_id = ?";
-    $res = sqlStatement($obs_res_q, array($_SESSION["pid"],$_GET['id']));
+    $res = sqlStatement($obs_res_q, [$_SESSION["pid"],$_GET['id']]);
     $imm_obs_data = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $imm_obs_data[$iter] = $row;
@@ -285,7 +285,7 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
                                               immunization_observation
                                             WHERE imo_im_id = ?
                                               AND imo_pid = ?";
-                $result2                = sqlQuery($sql2, array($val['imo_im_id'],$val['imo_pid']));
+                $result2                = sqlQuery($sql2, [$val['imo_im_id'],$val['imo_pid']]);
             }
         }
     }
@@ -329,7 +329,7 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
                                         )
                                         VALUES
                                           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $res                      = sqlQuery($sql, array($id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authUserID'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval));
+            $res                      = sqlQuery($sql, [$id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authUserID'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval]);
         }
     }
 
@@ -386,7 +386,7 @@ tr.selected {
                         <label><?php echo xlt('Immunization'); ?></label>
                         <?php
                         // Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
-                        generate_form_field(array('data_type' => 1,'field_id' => 'immunization_id','list_id' => 'immunizations','empty_title' => 'SKIP'), $immunization_id);
+                        generate_form_field(['data_type' => 1,'field_id' => 'immunization_id','list_id' => 'immunizations','empty_title' => 'SKIP'], $immunization_id);
                         ?>
                     </div>
                     <?php } else { ?>
@@ -771,12 +771,12 @@ tr.selected {
 
                             // Figure out which name to use (ie. from cvx list or from the custom list)
                             if ($GLOBALS['use_custom_immun_list']) {
-                                $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                                $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                             } else {
                                 if (!empty($row['code_text_short'])) {
                                     $vaccine_display = xlt($row['code_text_short']);
                                 } else {
-                                    $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                                    $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                                 }
                             }
 
@@ -799,7 +799,7 @@ tr.selected {
 
                             echo "<td>" . $del_tag_open . text($administered_date_summary) . $del_tag_close . "</td>";
                             if ($row["amount_administered"] > 0) {
-                                echo "<td>" . $del_tag_open . text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']) . $del_tag_close . "</td>";
+                                echo "<td>" . $del_tag_open . text($row["amount_administered"]) . " " . generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['amount_administered_unit']) . $del_tag_close . "</td>";
                             } else {
                                 echo "<td>&nbsp</td>";
                             }
@@ -809,10 +809,10 @@ tr.selected {
                             echo "<td>" . $del_tag_open . text($row["lot_number"]) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . text($row["administered_by"]) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . text($row["education_date"]) . $del_tag_close . "</td>";
-                            echo "<td>" . $del_tag_open . generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']) . $del_tag_close . "</td>";
-                            echo "<td>" . $del_tag_open . generate_display_field(array('data_type' => '1','list_id' => 'immunization_administered_site'), $row['administration_site']) . $del_tag_close . "</td>";
+                            echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) . $del_tag_close . "</td>";
+                            echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'immunization_administered_site'], $row['administration_site']) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . text($row["note"]) . $del_tag_close . "</td>";
-                            echo "<td>" . $del_tag_open . generate_display_field(array('data_type' => '1','list_id' => 'Immunization_Completion_Status'), $row['completion_status']) . $del_tag_close . "</td>";
+                            echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'Immunization_Completion_Status'], $row['completion_status']) . $del_tag_close . "</td>";
 
                             if ($isError) {
                                 $checkbox = "checked";

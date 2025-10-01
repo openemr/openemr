@@ -38,7 +38,7 @@ class FeeSheetHtml extends FeeSheet
         $drow = sqlQuery("SELECT facility_id FROM users where username = ?", [$_SESSION['authUser']]);
         $def_facility = 0 + $drow['facility_id'];
         //
-        $sqlarr = array($def_facility);
+        $sqlarr = [$def_facility];
         $query = "SELECT id, lname, fname, facility_id FROM users WHERE " .
         "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' ";
         if (!$GLOBALS['include_inactive_providers']) {
@@ -173,7 +173,7 @@ class FeeSheetHtml extends FeeSheet
             "FROM list_options AS lo " .
             "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
             "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-            array($pr_id, $pr_selector)
+            [$pr_id, $pr_selector]
         );
         $standardPrice = 0;
         while ($lrow = sqlFetchArray($lres)) {
@@ -252,7 +252,7 @@ class FeeSheetHtml extends FeeSheet
             $csrow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM shared_attributes WHERE " .
                 "pid = ? AND field_id = 'cgen_newmauser'",
-                array($this->pid)
+                [$this->pid]
             );
             if ($csrow['count'] == 0) {
                 $s .= "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'>\n";

@@ -202,11 +202,11 @@ class eRxGlobals
      */
     public function getCredentials()
     {
-        return array(
+        return [
             $this->getPartnerName(),
             $this->getAccountName(),
             $this->getAccountPassword(),
-        );
+        ];
     }
 
     /**

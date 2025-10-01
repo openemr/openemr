@@ -64,7 +64,7 @@ class Config_File_Legacy {
 
     /** @access private */
     var $_config_path    = "";
-    var $_config_data    = array();
+    var $_config_data    = [];
     /**#@-*/
 
     /**
@@ -126,7 +126,7 @@ class Config_File_Legacy {
                 if(isset($this->_config_data[$file_name]["sections"][$section_name]["vars"][$var_name]))
                     return $this->_config_data[$file_name]["sections"][$section_name]["vars"][$var_name];
                 else
-                    return array();
+                    return [];
             }
         } else {
             if (empty($section_name)) {
@@ -135,7 +135,7 @@ class Config_File_Legacy {
                 if(isset($this->_config_data[$file_name]["sections"][$section_name]["vars"]))
                     return (array)$this->_config_data[$file_name]["sections"][$section_name]["vars"];
                 else
-                    return array();
+                    return [];
             }
         }
     }
@@ -216,9 +216,9 @@ class Config_File_Legacy {
     function clear($file_name = NULL)
     {
         if ($file_name === NULL)
-            $this->_config_data = array();
+            $this->_config_data = [];
         else if (isset($this->_config_data[$file_name]))
-            $this->_config_data[$file_name] = array();
+            $this->_config_data[$file_name] = [];
     }
 
 
@@ -274,9 +274,9 @@ class Config_File_Legacy {
             $contents = preg_replace('!\r\n?!', "\n", $contents);
         }
 
-        $config_data = array();
-        $config_data['sections'] = array();
-        $config_data['vars'] = array();
+        $config_data = [];
+        $config_data['sections'] = [];
+        $config_data['vars'] = [];
 
         /* reference to fill with data */
         $vars =& $config_data['vars'];
@@ -297,14 +297,14 @@ class Config_File_Legacy {
                     } else {
                         /* break reference to $vars to ignore hidden section */
                         unset($vars);
-                        $vars = array();
+                        $vars = [];
                         continue;
                     }
                 } else {
                     $section_name = $match[1];
                 }
                 if (!isset($config_data['sections'][$section_name]))
-                    $config_data['sections'][$section_name] = array('vars' => array());
+                    $config_data['sections'][$section_name] = ['vars' => []];
                 $vars =& $config_data['sections'][$section_name]['vars'];
                 continue;
             }

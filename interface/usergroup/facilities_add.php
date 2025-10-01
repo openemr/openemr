@@ -35,7 +35,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
 $rules = collectValidationPageRules("/interface/usergroup/facilities_add.php");
 
 $pc = new POSRef();
-$resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => ($my_fid ?? null)));
+$resPBE = $facilityService->getPrimaryBusinessEntity(["excludedId" => ($my_fid ?? null)]);
 $disabled = (!empty($resPBE) && count($resPBE) > 0) ? 'disabled' : '';
 
 $args = [

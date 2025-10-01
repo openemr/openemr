@@ -21,13 +21,13 @@ class eRxXMLBuilder
     private $document;
     private $ncScript;
 
-    private $sentAllergyIds = array();
-    private $sentMedicationIds = array();
-    private $sentPrescriptionIds = array();
+    private $sentAllergyIds = [];
+    private $sentMedicationIds = [];
+    private $sentPrescriptionIds = [];
 
-    private $fieldEmptyMessages = array();
-    private $demographicsCheckMessages = array();
-    private $warningMessages = array();
+    private $fieldEmptyMessages = [];
+    private $demographicsCheckMessages = [];
+    private $warningMessages = [];
 
     public function __construct($globals = null, $store = null)
     {
@@ -96,7 +96,7 @@ class eRxXMLBuilder
     {
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
-        $data = array('RxInput' => $xml);
+        $data = ['RxInput' => $xml];
 
         curl_setopt($curlHandler, CURLOPT_URL, $this->getGlobals()->getPath());
         curl_setopt($curlHandler, CURLOPT_POST, 1);
@@ -533,7 +533,7 @@ class eRxXMLBuilder
         $userRole = $this->getStore()->getUserById($authUserId);
         $userRole = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
 
-        $elements = array();
+        $elements = [];
 
         if ($userRole != 'manager') {
             $elements[] = $this->getLocation($authUserId);
@@ -656,7 +656,7 @@ class eRxXMLBuilder
         $healthplans = $this->getStore()
             ->getPatientHealthplansByPatientId($patientId);
 
-        $elements = array();
+        $elements = [];
 
         while ($healthplan = sqlFetchArray($healthplans)) {
             $element = $this->getDocument()->createElement('PatientFreeformHealthplans');
@@ -673,7 +673,7 @@ class eRxXMLBuilder
         $allergyData = $this->getStore()
             ->getPatientAllergiesByPatientId($patientId);
 
-        $elements = array();
+        $elements = [];
 
         while ($allergy = sqlFetchArray($allergyData)) {
             $element = $this->getDocument()->createElement('PatientFreeformAllergy');
@@ -704,7 +704,7 @@ class eRxXMLBuilder
         $diagnosisData = $this->getStore()
             ->getPatientDiagnosisByPatientId($patientId);
 
-        $elements = array();
+        $elements = [];
         while ($diagnosis = sqlFetchArray($diagnosisData)) {
             if ($diagnosis['diagnosis']) {
                 // For issues that have multiple diagnosis coded, they are semicolon-separated
@@ -782,14 +782,14 @@ class eRxXMLBuilder
 
     public function getPatientPrescriptions($prescriptionIds)
     {
-        $elements = array();
+        $elements = [];
 
         foreach ($prescriptionIds as $prescriptionId) {
             if ($prescriptionId) {
                 $prescription = $this->getStore()
                     ->getPrescriptionById($prescriptionId);
 
-                $element = $this->getOutsidePrescription(array(
+                $element = $this->getOutsidePrescription([
                     'externalId'        => $prescription['prescid'],
                     'date'              => $prescription['date_added'],
                     'doctorName'        => $prescription['docname'],
@@ -798,7 +798,7 @@ class eRxXMLBuilder
                     'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1] . $prescription['size'] . ' ' . $prescription['title4'] . ' ' . $prescription['dosage'] . ' In ' . $prescription['title1'] . ' ' . $prescription['title2'] . ' ' . $prescription['title3']), 140),
                     'refillCount'       => intval($prescription['per_refill']),
                     'prescriptionType'  => 'reconcile'
-                ));
+                ]);
 
                 $this->addSentPrescriptionId($prescriptionId);
 
@@ -814,10 +814,10 @@ class eRxXMLBuilder
         $medications = $this->getStore()
             ->selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $count);
 
-        $elements = array();
+        $elements = [];
 
         while ($medication = sqlFetchArray($medications)) {
-            $elements[] = $this->getOutsidePrescription(array(
+            $elements[] = $this->getOutsidePrescription([
                 'externalId'        => $medication['id'],
                 'date'              => $medication['begdate'],
                 'doctorName'        => '',
@@ -826,7 +826,7 @@ class eRxXMLBuilder
                 'sig'               => '',
                 'refillCount'       => '',
                 'prescriptionType'  => 'reconcile'
-            ));
+            ]);
 
             $this->addSentMedicationIds($medication['id']);
         }
@@ -836,7 +836,7 @@ class eRxXMLBuilder
 
     public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds)
     {
-        $elements = array();
+        $elements = [];
 
         if ($patientId) {
             $uploadActive = $this->getGlobals()->getUploadActive();
@@ -852,7 +852,7 @@ class eRxXMLBuilder
 
             $selectPrescriptionIdsCount = sqlNumRows($selectPrescriptionIds);
 
-            $prescriptionIds = array();
+            $prescriptionIds = [];
 
             while ($selectPrescriptionId = sqlFetchArray($selectPrescriptionIds)) {
                 $prescriptionIds[] = $selectPrescriptionId['id'];
@@ -869,7 +869,7 @@ class eRxXMLBuilder
             ) {
                 $elements = array_merge($elements, $this->getPatientPrescriptions($prescriptionIds));
             } else {
-                $this->getPatientPrescriptions(array(0));
+                $this->getPatientPrescriptions([0]);
             }
 
             if ($selectPrescriptionIdsCount < $totalCount) {

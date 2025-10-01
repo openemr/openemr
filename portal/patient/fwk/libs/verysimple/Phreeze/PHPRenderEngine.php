@@ -30,7 +30,7 @@ class PHPRenderEngine implements IRenderEngine
     /**
      * stores the assigned vars
      */
-    public $model = array ();
+    public $model =  [];
 
     /**
      *
@@ -124,7 +124,7 @@ class PHPRenderEngine implements IRenderEngine
      */
     function clearAll()
     {
-        $this->model == array ();
+        $this->model ==  [];
     }
 
     /**

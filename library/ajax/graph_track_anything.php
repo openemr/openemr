@@ -43,7 +43,7 @@ if ($the_checked_cols == null) {
 // end check if NULL data
 
 // build labels
-$data_final = array();
+$data_final = [];
 $data_final = xl('Date');
 foreach ($the_checked_cols as $col) {
     if (is_numeric($the_value_array[$col][0])) {
@@ -71,7 +71,7 @@ for ($i = 0; $i < count($the_date_array); $i++) {
 }
 
 // Build and send back the json
-$graph_build = array();
+$graph_build = [];
 $graph_build['data_final'] = $data_final;
 $graph_build['title'] = $titleGraph;
 

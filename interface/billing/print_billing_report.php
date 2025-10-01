@@ -165,7 +165,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "bill") {
 $res_count = 0;
 $N = 1;
 
-$itero = array();
+$itero = [];
 if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
     $old_pid = -1;
     $first_time = 1;

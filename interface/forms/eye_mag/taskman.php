@@ -99,7 +99,7 @@ if ($_REQUEST['action'] == 'show_task') {
 
 
 $query  = "SELECT * FROM form_taskman where PATIENT_ID=? AND (COMPLETED is NULL or COMPLETED != '1')  order by REQ_DATE";
-$result = sqlStatement($query, array($ajax_req['pid']));
+$result = sqlStatement($query, [$ajax_req['pid']]);
 while ($task = sqlFetchArray($result)) {
     $send = process_tasks($task);
     if ($_REQUEST['action'] == 'make_task') {

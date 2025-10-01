@@ -33,10 +33,10 @@ class Includer
         // use include instead of require so we can catch runtime exceptions
         // reset error handling back to whatever it was
         // *
-        set_error_handler(array (
+        set_error_handler( [
                 "Includer",
                 "IncludeException"
-        ), E_WARNING);
+        ], E_WARNING);
         include_once($path);
         restore_error_handler();
         // */
@@ -64,9 +64,9 @@ class Includer
         }
 
             // normalize this as an array
-        $classpaths = is_array($classpath) ? $classpath : array (
+        $classpaths = is_array($classpath) ? $classpath :  [
                 $classpath
-        );
+        ];
         $attempts = "";
 
         foreach ($classpaths as $path) {

@@ -39,7 +39,7 @@ class NQF_0028a_Numerator implements CqmFilterIF
 
     private function getApplicableEncounters()
     {
-        return array(
+        return [
             Encounter::ENC_OFF_VIS,
             Encounter::ENC_HEA_AND_BEH,
             Encounter::ENC_OCC_THER,
@@ -47,6 +47,6 @@ class NQF_0028a_Numerator implements CqmFilterIF
             Encounter::ENC_PRE_MED_SER_18_OLDER,
             Encounter::ENC_PRE_IND_COUNSEL,
             Encounter::ENC_PRE_MED_GROUP_COUNSEL,
-            Encounter::ENC_PRE_MED_OTHER_SERV );
+            Encounter::ENC_PRE_MED_OTHER_SERV ];
     }
 }

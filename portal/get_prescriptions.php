@@ -26,7 +26,7 @@
 require_once("verify_session.php");
 
 $sql = "SELECT * FROM prescriptions WHERE `patient_id` = ? AND `end_date` IS NULL ORDER BY `start_date`";
-$res = sqlStatement($sql, array($pid));
+$res = sqlStatement($sql, [$pid]);
 
 if (sqlNumRows($res) > 0) {
     ?>

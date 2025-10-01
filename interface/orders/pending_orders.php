@@ -180,7 +180,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT po.patient_id, po.date_ordered, " .
     "pd.pubpid, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .

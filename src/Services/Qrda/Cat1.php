@@ -41,13 +41,13 @@ class Cat1 extends \Mustache_Engine
      */
     protected $_measures;
 
-    public function __construct(Patient $patient, $measures = array(), $options = array())
+    public function __construct(Patient $patient, $measures = [], $options = [])
     {
         parent::__construct(
-            array(
+            [
                 'entity_flags' => ENT_QUOTES,
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            )
+            ]
         );
 
         $this->_qrda_guid = UuidV4::uuid4();

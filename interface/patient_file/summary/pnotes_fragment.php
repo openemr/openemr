@@ -93,7 +93,7 @@ if (isset($_GET['docUpdateId'])) {
                 echo "<td class='text'>" . text($iter['assigned_to']) . "</td>\n";
                 echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
                 echo "  <td class='text'><b>";
-                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                 echo "</b></td>\n";
 
                 echo "  <td class='text'>" . pnoteConvertLinks(nl2br(text($body))) . "</td>\n";
@@ -110,7 +110,7 @@ if (isset($_GET['docUpdateId'])) {
             <span class='text'>
             <?php
                 echo xlt("There are no messages on file for this patient.");
-            if (AclMain::aclCheckCore('patients', 'notes', '', array('write', 'addonly'))) {
+            if (AclMain::aclCheckCore('patients', 'notes', '', ['write', 'addonly'])) {
                 echo " ";
                 echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
                 echo xlt("To add messages, please click here");

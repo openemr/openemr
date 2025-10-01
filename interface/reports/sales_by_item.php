@@ -85,7 +85,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
     "p.ss, p.sex, p.status, p.phone_home, " .
     "p.phone_biz, p.phone_cell, p.hipaa_notice " .
     "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($patient_id));
+    "WHERE p.pid = ? LIMIT 1", [$patient_id]);
 
     $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
 
@@ -556,7 +556,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $grandtotal = 0;
     $grandqty = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
     "b.code_text, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno, lo.title " .
     "FROM billing AS b " .
@@ -595,7 +595,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     }
 
     //
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT s.sale_date, s.fee, s.quantity, s.pid, s.encounter, " .
     "d.name, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno " .
     "FROM drug_sales AS s " .

@@ -17,8 +17,8 @@ use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Interop\Container\ContainerInterface;
 
-return array(
-    'controllers' => array(
+return [
+    'controllers' => [
         'factories' => [
             Controller\AclController::class => function (ContainerInterface $container, $requestedName) {
                 /**
@@ -30,39 +30,39 @@ return array(
                 return new Controller\AclController($escapeHtml, $aclTable);
             },
         ],
-    ),
+    ],
 
-    'router' => array(
-        'routes' => array(
-            'acl' => array(
+    'router' => [
+        'routes' => [
+            'acl' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/acl[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => Controller\AclController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-        ),
-    ),
+                    ],
+                ],
+            ],
+        ],
+    ],
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'acl' => __DIR__ . '/../view/',
-        ),
-        'template_map' => array(
+        ],
+        'template_map' => [
             'acl/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        ),
-        'strategies' => array(
+        ],
+        'strategies' => [
             'ViewJsonStrategy',
             'ViewFeedStrategy',
-        ),
-    ),
+        ],
+    ],
     'service_manager' => [
         'factories' => [
             Model\AclTable::class =>  function (ContainerInterface $container, $requestedName) {
@@ -72,4 +72,4 @@ return array(
             },
         ]
     ]
-);
+];

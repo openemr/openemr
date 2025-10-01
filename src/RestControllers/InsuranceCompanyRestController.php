@@ -60,7 +60,7 @@ class InsuranceCompanyRestController
         }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('iid' => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, ['iid' => $serviceResult], 201);
     }
 
     public function put($iid, $data)
@@ -78,6 +78,6 @@ class InsuranceCompanyRestController
         }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);
-        return RestControllerHelper::responseHandler($serviceResult, array('iid' => $iid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['iid' => $iid], 200);
     }
 }

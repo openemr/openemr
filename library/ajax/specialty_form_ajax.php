@@ -48,7 +48,7 @@ function nameHistorySave($post_items): void
     $is_new = $patientNameService->createPatientNameHistory($post_items['pid'], $post_items);
     $name = $patientNameService->formatPreviousName($post_items);
 
-    $ret = array();
+    $ret = [];
     if (!empty($is_new)) {
         $ret['id'] = $is_new;
         $ret['name'] = $name;

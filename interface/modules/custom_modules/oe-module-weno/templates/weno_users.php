@@ -37,7 +37,7 @@ while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$_SESSION['authUserID'] ?? 0]);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -49,7 +49,7 @@ if (($_POST['save'] ?? false) == 'true') {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
         sqlQuery(
             "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-            array('global:weno_provider_uid', $weno_prov_id, $id, $weno_prov_id, $id)
+            ['global:weno_provider_uid', $weno_prov_id, $id, $weno_prov_id, $id]
         );
     }
 

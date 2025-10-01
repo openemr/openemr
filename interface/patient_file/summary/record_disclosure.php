@@ -122,7 +122,7 @@ $(function () {
                         <label><?php echo xlt('Date'); ?>:</label>
                         <?php
                         if (!empty($editlid)) {
-                            $dres = sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
+                            $dres = sqlQuery("select date,recipient,description,event from extended_log where id=?", [$editlid]);
                             $description = $dres["description"];
                             $app_event = $dres["event"];
                             $disc_date = $dres["date"];
@@ -141,10 +141,10 @@ $(function () {
                         <?php
                         if (!empty($editlid)) {
                             //To incorporate the disclosure types  into the list_options listings
-                            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $app_event);
+                            generate_form_field(['data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'], $app_event);
                         } else {
                             //To incorporate the disclosure types  into the list_options listings
-                            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), ($title ?? ''));
+                            generate_form_field(['data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'], ($title ?? ''));
                         } ?>
                     </div>
 

@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 formHeader("Form:Transfer Summary");
 $returnurl = 'encounter_top.php';
 $formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
-$obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
+$obj = $formid ? formFetch("form_transfer_summary", $formid) : [];
 
 ?>
 <html>

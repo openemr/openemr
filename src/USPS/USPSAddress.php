@@ -27,7 +27,7 @@ class USPSAddress
   /**
    * @var array list of all key=>value pairs we added so far for the current address
    */
-    protected $addressInfo = array();
+    protected $addressInfo = [];
   /**
    * Set the address2 property
    * @param string|int $value

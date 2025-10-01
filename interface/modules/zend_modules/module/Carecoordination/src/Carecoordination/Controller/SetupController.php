@@ -43,8 +43,8 @@ class SetupController extends AbstractActionController
         $folders    = $this->getSetupTable()->getDocuments();
         $ccda_saved = $this->getSetupTable()->getMappedFields(1);
 
-        $index      = new ViewModel(array(
-            'menu'                      => array('system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'),
+        $index      = new ViewModel([
+            'menu'                      => ['system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'],
             'sections'                  => $index,
             'system_based_forms'        => $forms,
             'layout_based_forms'        => $lbfforms,
@@ -52,7 +52,7 @@ class SetupController extends AbstractActionController
         'saved'         => $ccda_saved,
             'folders'                   => $folders,
             'listenerObject'          => $this->listenerObject,
-        ));
+        ]);
         return $index;
     }
 
@@ -110,18 +110,18 @@ class SetupController extends AbstractActionController
                         $form_type  = 3;
                     }
 
-                    $insert_id = $this->getSetupTable()->insertMaster(array(trim($component_name), trim($section_name), trim($form_dir), trim($form_type), trim($form_table), '1'));
+                    $insert_id = $this->getSetupTable()->insertMaster([trim($component_name), trim($section_name), trim($form_dir), trim($form_type), trim($form_table), '1']);
                     if ($sub_id) {
-                        $this->getSetupTable()->insertChild(array($insert_id,trim($sub_id)));
+                        $this->getSetupTable()->insertChild([$insert_id,trim($sub_id)]);
                     }
                 }
             }
         }
 
-        $this->getSetupTable()->updateExistingMappedFields(array($existing_id,1));
+        $this->getSetupTable()->updateExistingMappedFields([$existing_id,1]);
         // Only reference I found for the framework for this is here
         // @see https://framework.zend.com/apidoc/2.3/classes/Laminas.Mvc.Controller.Plugin.Redirect.html
-        return $this->redirect()->toRoute('setup', array('action' => 'index'));
+        return $this->redirect()->toRoute('setup', ['action' => 'index']);
     }
 
     /**

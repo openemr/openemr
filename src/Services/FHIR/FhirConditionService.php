@@ -74,7 +74,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCondition
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $conditionResource = new FHIRCondition();
 
@@ -148,17 +148,17 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     private function populateVerificationStatus($dataRecord, FHIRCondition $conditionResource)
     {
         $verificationStatus = new FHIRCodeableConcept();
-        $verificationCoding = array(
+        $verificationCoding = [
             'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
-        );
+        ];
         if (!empty($dataRecord['verification'])) {
-            $verificationCoding = array(
+            $verificationCoding = [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
-            );
+            ];
         }
         $verificationStatus->addCoding($verificationCoding);
         $conditionResource->setVerificationStatus($verificationStatus);
@@ -169,11 +169,11 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         $conditionCategory = new FHIRCodeableConcept();
         $conditionCategory->addCoding(
-            array(
+            [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
                 'code' => 'problem-list-item',
                 'display' => 'Problem List Item'
-            )
+            ]
         );
         $conditionResource->addCategory($conditionCategory);
     }
@@ -202,11 +202,11 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
         $clinical_Status = new FHIRCodeableConcept();
         $clinical_Status->addCoding(
-            array(
+            [
                 'system' => $clinicalSysytem,
                 'code' => $clinicalStatus,
                 'display' => ucwords($clinicalStatus),
-            )
+            ]
         );
         $conditionResource->setClinicalStatus($clinical_Status);
     }
@@ -224,7 +224,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         return $result;
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRCondition)) {
             throw new \BadMethodCallException("Data record should be correct instance class");

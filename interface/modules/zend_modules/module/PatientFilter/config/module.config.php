@@ -14,7 +14,7 @@ namespace UserPatientBlacklist;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-return array(
+return [
 
     'controllers' => [],
 
@@ -23,4 +23,4 @@ return array(
     'view_manager' => [],
 
     'service_manager' => []
-);
+];

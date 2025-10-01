@@ -23,7 +23,7 @@ use OpenEMR\Services\UserService;
 class Claim
 {
     public const X12_VERSION = '005010X222A1';
-    public const NOC_CODES = array('J3301'); // not otherwise classified HCPCS/CPT
+    public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
 
     public $pid;               // patient id
     public $encounter_id;      // encounter id
@@ -87,8 +87,8 @@ class Claim
 
     public function getProcsAndDiags($pid, $encounter_id)
     {
-        $this->procs = array();
-        $this->diags = array();
+        $this->procs = [];
+        $this->diags = [];
         // Sort by procedure timestamp in order to get some consistency.
         $sql = "SELECT b.id, b.date, b.code_type, b.code, b.pid, b.provider_id, " .
         "b.user, b.groupname, b.authorized, b.encounter, b.code_text, b.billed, " .
@@ -99,7 +99,7 @@ class Claim
         "INNER JOIN code_types as ct ON b.code_type = ct.ct_key " .
         "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND b.pid = ? AND b.encounter = ? AND " .
         "b.activity = '1' ORDER BY b.date, b.id";
-        $res = sqlStatement($sql, array($pid, $encounter_id));
+        $res = sqlStatement($sql, [$pid, $encounter_id]);
         while ($row = sqlFetchArray($res)) {
             // Save all diagnosis codes.
             if ($row['ct_diag'] == '1') {
@@ -125,12 +125,12 @@ class Claim
             if (!empty($row['provider_id'])) {
                 // Get service provider data for this row.
                 $sql = "SELECT * FROM users WHERE id = ?";
-                $row['provider'] = sqlQuery($sql, array($row['provider_id']));
+                $row['provider'] = sqlQuery($sql, [$row['provider_id']]);
                 // Get insurance numbers for this row's provider.
                 $sql = "SELECT * FROM insurance_numbers " .
                 "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
                 "ORDER BY insurance_company_id DESC LIMIT 1";
-                $row['insurance_numbers'] = sqlQuery($sql, array($row['payer_id'], $row['provider_id']));
+                $row['insurance_numbers'] = sqlQuery($sql, [$row['payer_id'], $row['provider_id']]);
             }
 
             $this->procs[] = $row;
@@ -144,7 +144,7 @@ class Claim
             "SELECT pay_amount as PatientPay, session_id as id, " .
             "date(post_time) as date FROM ar_activity WHERE pid = ? AND encounter = ? AND " .
             "deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
-            array($pid, $encounter_id)
+            [$pid, $encounter_id]
         );
             //new fees screen copay gives account_code='PCP'
         while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
@@ -157,7 +157,7 @@ class Claim
     public function getX12Partner($x12_partner_id)
     {
         $sql = "SELECT * FROM x12_partners WHERE id = ?";
-        return sqlQuery($sql, array($x12_partner_id));
+        return sqlQuery($sql, [$x12_partner_id]);
     }
 
     public function getInsuranceNumbers($payer_id, $provider_id)
@@ -165,7 +165,7 @@ class Claim
         $sql = "SELECT * FROM insurance_numbers " .
             "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
             "ORDER BY insurance_company_id DESC LIMIT 1";
-        return sqlQuery($sql, array($payer_id, $provider_id));
+        return sqlQuery($sql, [$payer_id, $provider_id]);
     }
 
     public function getMiscBillingOptions($pid, $encounter_id)
@@ -175,7 +175,7 @@ class Claim
             "WHERE forms.pid = ? AND forms.encounter = ? AND " .
             "forms.deleted = 0 AND forms.formdir = 'misc_billing_options' " .
             "ORDER BY forms.date";
-        return sqlQuery($sql, array($pid, $encounter_id));
+        return sqlQuery($sql, [$pid, $encounter_id]);
     }
 
     public function getReferrerId()
@@ -237,11 +237,11 @@ class Claim
         // with the current one always at index 0, and the others in payment
         // order starting at index 1.
         //
-        $this->payers = array();
-        $this->payers[0] = array();
+        $this->payers = [];
+        $this->payers[0] = [];
         $query = "SELECT * FROM insurance_data WHERE pid = ? AND
             (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
-        $dres = sqlStatement($query, array($this->pid, $encounter_date, $encounter_date));
+        $dres = sqlStatement($query, [$this->pid, $encounter_date, $encounter_date]);
         $prevtype = '';
         while ($drow = sqlFetchArray($dres)) {
             if (strcmp($prevtype, $drow['type']) == 0) {
@@ -266,9 +266,9 @@ class Claim
                 $ins = 0;
             }
 
-            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", array($drow['provider']));
+            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", [$drow['provider']]);
             $orow = new InsuranceCompany($drow['provider']);
-            $this->payers[$ins] = array();
+            $this->payers[$ins] = [];
             $this->payers[$ins]['data']    = $drow;
             $this->payers[$ins]['company'] = $crow;
             $this->payers[$ins]['object']  = $orow;
@@ -301,7 +301,7 @@ class Claim
 
         // Get payment and adjustment details if there are any previous payers.
         //
-        $this->invoice = array();
+        $this->invoice = [];
         if ($this->payerSequence() != 'P') {
             $this->invoice = InvoiceSummary::arGetInvoiceSummary($this->pid, $this->encounter_id, true);
             // Secondary claims might not have modifiers in SQL-Ledger data.
@@ -326,7 +326,7 @@ class Claim
   //
     public function payerAdjustments($ins, $code = 'Claim')
     {
-        $aadj = array();
+        $aadj = [];
 
         // If we have no modifiers stored in SQL-Ledger for this claim,
         // then we cannot use a modifier passed in with the key.
@@ -446,7 +446,7 @@ class Claim
                         $rcode = '45'; // reason 42 is obsolete
                     }
 
-                    $aadj[] = array($date, $gcode, $rcode, sprintf('%.2f', $chg));
+                    $aadj[] = [$date, $gcode, $rcode, sprintf('%.2f', $chg)];
                 } // end if
             } // end foreach
 
@@ -483,11 +483,11 @@ class Claim
             $coinsurance = sprintf('%.2f', $coinsurance);
 
             if ($date && $deductible != 0) {
-                $aadj[] = array($date, 'PR', '1', $deductible, $msp);
+                $aadj[] = [$date, 'PR', '1', $deductible, $msp];
             }
 
             if ($date && $coinsurance != 0) {
-                $aadj[] = array($date, 'PR', '2', $coinsurance, $msp);
+                $aadj[] = [$date, 'PR', '2', $coinsurance, $msp];
             }
         } // end if
 
@@ -541,7 +541,7 @@ class Claim
             }
         }
 
-        return array($date, sprintf('%.2f', $paytotal), sprintf('%.2f', $adjtotal));
+        return [$date, sprintf('%.2f', $paytotal), sprintf('%.2f', $adjtotal)];
     }
 
   // Return the amount already paid by the patient.
@@ -772,7 +772,7 @@ class Claim
             return $this->x12Clean(trim($this->billing_facility['attn']));
         } else {
             $query = "SELECT fname, lname FROM users WHERE id = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
+            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             $contact_name = $this->x12Clean(trim($ores['fname'] ?? '')) . " " . $this->x12Clean(trim($ores['lname'] ?? ''));
             return $contact_name;
         }
@@ -784,7 +784,7 @@ class Claim
             $tmp_phone = $this->x12Clean(trim($this->billing_facility['phone']));
         } else {
             $query = "SELECT phonew1 FROM users WHERE id = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
+            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             $tmp_phone = $this->x12Clean(trim($ores['phonew1'] ?? ''));
         }
 
@@ -807,7 +807,7 @@ class Claim
             return $this->x12Clean(trim($this->billing_facility['email'] ?? ''));
         } else {
             $query = "SELECT email FROM users WHERE id = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
+            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             return $this->x12Clean(trim($ores['email'] ?? ''));
         }
     }
@@ -818,7 +818,7 @@ class Claim
             return $this->x12Clean(trim($this->x12_sender_id() ?? ''));
         } else {
             $query = "SELECT federaltaxid FROM users WHERE id = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
+            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             return $this->x12Clean(trim($ores['federaltaxid'] ?? ''));
         }
     }
@@ -1226,8 +1226,8 @@ class Claim
     public function cptModifier($prockey)
     {
         // Split on the colon or space and clean each modifier
-        $mods = array();
-        $cln_mods = array();
+        $mods = [];
+        $cln_mods = [];
         $mods = preg_split("/[: ]/", trim($this->procs[$prockey]['modifier']));
         foreach ($mods as $mod) {
             array_push($cln_mods, $this->x12Clean($mod));
@@ -1491,7 +1491,7 @@ class Claim
   // Option to keep periods is to support HCFA 1500 02/12 version
     public function diagArray($strip_periods = true)
     {
-        $da = array();
+        $da = [];
         foreach ($this->procs as $row) {
             $atmp = explode(':', $row['justify']);
             foreach ($atmp as $tmp) {
@@ -1555,7 +1555,7 @@ class Claim
   // Compute array of 1-relative diagArray indices for the given procedure.
     public function diagIndexArray($prockey)
     {
-        $dia = array();
+        $dia = [];
         $da = $this->diagArray();
         $atmp = explode(':', $this->procs[$prockey]['justify']);
         foreach ($atmp as $tmp) {

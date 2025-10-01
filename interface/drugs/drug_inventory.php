@@ -36,7 +36,7 @@ $is_user_restricted = isUserRestricted();
 
 // For each sorting option, specify the ORDER BY argument.
 //
-$ORDERHASH = array(
+$ORDERHASH = [
   'prod' => 'd.name, d.drug_id, di.expiration, di.lot_number',
   'act'  => 'd.active, d.name, d.drug_id, di.expiration, di.lot_number',
   'ndc'  => 'd.ndc_number, d.name, d.drug_id, di.expiration, di.lot_number',
@@ -47,7 +47,7 @@ $ORDERHASH = array(
   'fac'  => 'f.name, d.name, d.drug_id, di.expiration, di.lot_number',
   'qoh'  => 'di.on_hand, d.name, d.drug_id, di.expiration, di.lot_number',
   'exp'  => 'di.expiration, d.name, d.drug_id, di.lot_number',
-);
+];
 
 $form_facility = 0 + empty($_REQUEST['form_facility']) ? 0 : $_REQUEST['form_facility'];
 $form_show_empty = empty($_REQUEST['form_show_empty']) ? 0 : 1;
@@ -64,7 +64,7 @@ $form_warehouse = $tmp[0];
 $form_orderby = isset($ORDERHASH[$_REQUEST['form_orderby'] ?? '']) ? $_REQUEST['form_orderby'] : 'prod';
 $orderby = $ORDERHASH[$form_orderby];
 
-$binds = array();
+$binds = [];
 $where = "WHERE 1 = 1";
 if ($form_facility) {
     $where .= " AND lo.option_value IS NOT NULL AND lo.option_value = ?";
@@ -151,11 +151,11 @@ function mapToTable($row): void
         echo "  <td>" . ($row['consumable'] ? xlt('Yes') : xlt('No')) . "</td>\n";
         echo "  <td>" . text($row['ndc_number']) . "</td>\n";
         echo "  <td>" .
-        generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
+        generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']) .
         "</td>\n";
         echo "  <td>" . text($row['size']) . "</td>\n";
         echo "  <td title='" . xla('Measurement Units') . "'>" .
-        generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']) .
+        generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']) .
         "</td>\n";
 
         if ($auth_lots && $row['dispensable']) {
@@ -348,11 +348,11 @@ echo "   </select>\n";
    <select name='form_consumable'>
 <?php
 foreach (
-    array(
+    [
     '0' => xl('All Product Types'),
     '1' => xl('Consumable Only'),
     '2' => xl('Non-Consumable Only'),
-    ) as $key => $value
+    ] as $key => $value
 ) {
     echo "    <option value='" . attr($key) . "'";
     if ($key == $form_consumable) {

@@ -201,7 +201,7 @@ class InsuranceCompanyService extends BaseService
         return $processingResult;
     }
 
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
@@ -218,7 +218,7 @@ class InsuranceCompanyService extends BaseService
             $search['id'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "id");
         }
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
@@ -240,7 +240,7 @@ class InsuranceCompanyService extends BaseService
 
         if (!empty($search)) {
             $sql .= ' AND ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);
@@ -264,7 +264,7 @@ class InsuranceCompanyService extends BaseService
         // TODO: this should be refactored to use getAll but its selecting all the columns and for backwards
         // compatibility we will leave this here.
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
-        return sqlQuery($sql, array($id));
+        return sqlQuery($sql, [$id]);
     }
 
     public function getOne($uuid): ProcessingResult
@@ -362,7 +362,7 @@ class InsuranceCompanyService extends BaseService
         // throws an exception if the record doesn't insert
         QueryUtils::sqlInsert(
             $sql,
-            array(
+            [
                 $freshId,
                 $data["name"],
                 $data["attn"],
@@ -372,7 +372,7 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_default_partner_id"] ?? '',
                 $data["alt_cms_id"],
                 $data["cqm_sop"] ?? null,
-            )
+            ]
         );
 
         if (!empty($data["city"] ?? null) && !empty($data["state"] ?? null)) {
@@ -401,7 +401,7 @@ class InsuranceCompanyService extends BaseService
 
         $insuranceResults = sqlStatement(
             $sql,
-            array(
+            [
                 $data["name"],
                 $data["attn"],
                 $data["cms_id"],
@@ -411,7 +411,7 @@ class InsuranceCompanyService extends BaseService
                 $data["alt_cms_id"],
                 $data["cqm_sop"] ?? null,
                 $iid
-            )
+            ]
         );
 
         if (!$insuranceResults) {

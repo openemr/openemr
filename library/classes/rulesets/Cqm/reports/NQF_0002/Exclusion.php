@@ -33,7 +33,7 @@ class NQF_0002_Exclusion implements CqmFilterIF
     {
        //Children who are taking antibiotics in the 30 days prior to the diagnosis of pharyngitis
         $antibiotics  = implode(',', Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS, 'RXNORM'));
-        $pharyngitis_snomed_codes   = $pharyngitis_icd9_codes = $pharyngitis_icd10_codes = array();
+        $pharyngitis_snomed_codes   = $pharyngitis_icd9_codes = $pharyngitis_icd10_codes = [];
         foreach (Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS, 'SNOMED-CT') as $code) {
             $pharyngitis_snomed_codes[] = "SNOMED-CT:" . $code;
         }
@@ -50,7 +50,7 @@ class NQF_0002_Exclusion implements CqmFilterIF
         $pharyngitis_icd9_codes   = "'" . implode("','", $pharyngitis_icd9_codes) . "'";
         $pharyngitis_icd10_codes  = "'" . implode("','", $pharyngitis_icd10_codes) . "'";
 
-        $tonsillitis_snomed_codes = $tonsillitis_icd9_codes = $tonsillitis_icd10_codes = array();
+        $tonsillitis_snomed_codes = $tonsillitis_icd9_codes = $tonsillitis_icd10_codes = [];
         foreach (Codes::lookup(Diagnosis::ACUTE_TONSILLITIS, 'SNOMED-CT') as $code) {
             $tonsillitis_snomed_codes[] = "SNOMED-CT:" . $code;
         }
@@ -78,7 +78,7 @@ class NQF_0002_Exclusion implements CqmFilterIF
                  " or l.diagnosis in($tonsillitis_snomed_codes) or l.diagnosis in ($tonsillitis_icd9_codes) or l.diagnosis in ($tonsillitis_icd10_codes)) " .
                  " AND DATEDIFF(l.date,p.date_added) between 0 and 30 AND p.active = 1";
 
-        $check = sqlQuery($query, array($patient->id, $beginDate, $endDate));
+        $check = sqlQuery($query, [$patient->id, $beginDate, $endDate]);
         if ($check['cnt'] >= 1) {//more than one medication it will exclude
             return true;
         } else {

@@ -64,22 +64,22 @@ if (!empty($_POST['form_import'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $apatient    = array();
-    $apcp        = array();
-    $aemployer   = array();
-    $ainsurance  = array();
-    $asubscriber = array();
+    $apatient    = [];
+    $apcp        = [];
+    $aemployer   = [];
+    $ainsurance  = [];
+    $asubscriber = [];
 
   // $probearr is an array of tag names corresponding to the current
   // container in the tree structure.  $probeix is the current level.
-    $probearr = array('');
+    $probearr = [''];
     $probeix = 0;
 
     $inspriority = '0'; // 1 = primary, 2 = secondary, 3 = tertiary
 
     $parser = xml_parser_create();
     xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
-    $xml = array();
+    $xml = [];
 
     if (xml_parse_into_struct($parser, $_POST['form_import_data'], $xml)) {
         foreach ($xml as $taginfo) {

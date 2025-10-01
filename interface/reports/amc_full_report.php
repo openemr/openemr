@@ -17,7 +17,7 @@ use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 
-function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = array())
+function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
     $dataSheet = json_decode($data, true) ?? [];
     $formatted = [];
@@ -38,7 +38,7 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
         if (isset($row['is_main'])) {
             // note that the is_main record must always come before is_sub in the report or the data will not work.
             $main_pass_filter = $row['pass_filter'] ?? 0;
-            $row['display_field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'clinical_rules'), $row['id']);
+            $row['display_field'] = generate_display_field(['data_type' => '1', 'list_id' => 'clinical_rules'], $row['id']);
             if ($type_report == "standard") {
                 // Excluded is not part of denominator in standard rules so do not use in calculation
                 $failed_items = $row['pass_filter'] - $row['pass_target'];
@@ -47,12 +47,12 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
             }
             $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
         } elseif (isset($row['is_sub'])) {
-            $row['display_field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'rule_action_category'), $row['action_category'])
-                . ': ' . generate_display_field(array('data_type' => '1', 'list_id' => 'rule_action'), $row['action_item']);
+            $row['display_field'] = generate_display_field(['data_type' => '1', 'list_id' => 'rule_action_category'], $row['action_category'])
+                . ': ' . generate_display_field(['data_type' => '1', 'list_id' => 'rule_action'], $row['action_item']);
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $main_pass_filter - $row['pass_target'];
         } elseif (isset($row['is_plan'])) {
-            $row['display_field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'clinical_plans'), $row['id']);
+            $row['display_field'] = generate_display_field(['data_type' => '1', 'list_id' => 'clinical_plans'], $row['id']);
         }
 
         // this is very inefficient, but we are doing it just to get the report written for now.
@@ -79,7 +79,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
     $infiniteLoopMax = 100000; // 100*10^5 = 10 million records is the max we'll support without failing
     while ($has_results && $index < $infiniteLoopMax) {
         $sql = "SELECT * FROM `report_itemized` WHERE report_id = ? AND itemized_test_id = ? LIMIT " . $index . "," . $batchSize;
-        $sqlParameters = array($report_id, $itemized_test_id);
+        $sqlParameters = [$report_id, $itemized_test_id];
         $rez = sqlStatementCdrEngine($sql, $sqlParameters);
         if ($rez == false || $rez->EOF) {
             $has_results = false;
@@ -190,7 +190,7 @@ $report_view = collectReportDatabase($report_id);
 if (!empty($report_view)) {
     $amc_report_types = CertificationReportTypes::getReportTypeRecords();
     $type_report = $report_view['type'];
-    $amc_report_data = $amc_report_types[$type_report] ?? array();
+    $amc_report_data = $amc_report_types[$type_report] ?? [];
 
 
 // See if showing an old report or creating a new report

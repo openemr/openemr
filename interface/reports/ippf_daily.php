@@ -45,10 +45,10 @@ $report_title = xl('Clinic Daily Record');
 $report_col_count = 12;
 
 // This will become the array of reportable values.
-$areport = array();
+$areport = [];
 
 // This accumulates the bottom line totals.
-$atotals = array();
+$atotals = [];
 
 $cellcount = 0;
 
@@ -78,7 +78,7 @@ function genAnyCell($data, $right = false, $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
-        $data = array(0 => $data);
+        $data = [0 => $data];
     }
 
     foreach ($data as $datum) {
@@ -203,7 +203,7 @@ if ($form_output == 3) {
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
     <?php
-    foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
+    foreach ([1 => 'Screen', 2 => 'Printer', 3 => 'Export File'] as $key => $value) {
         echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
         if ($key == $form_output) {
             echo ' checked';
@@ -230,13 +230,13 @@ if ($_POST['form_submit']) {
     $lores = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'contrameth' AND activity = 1 ORDER BY title");
     while ($lorow = sqlFetchArray($lores)) {
-        $areport[$lorow['option_id']] = array($lorow['title'],
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        $areport[$lorow['option_id']] = [$lorow['title'],
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
-    $areport['zzz'] = array('Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    $areport['zzz'] = ['Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     // This gets us all MA codes, with encounter and patient
     // info attached and grouped by patient and encounter.
@@ -277,7 +277,7 @@ if ($_POST['form_submit']) {
                 "l.pid = ? AND l.begdate <= ? AND " .
                 "( l.enddate IS NULL OR l.enddate > ? ) AND " .
                 "l.activity = 1 AND l.type = 'contraceptive' AND lc.id = l.id " .
-                "ORDER BY l.begdate DESC LIMIT 1", array($last_pid, $from_date, $from_date));
+                "ORDER BY l.begdate DESC LIMIT 1", [$last_pid, $from_date, $from_date]);
                 $amethods = explode('|', empty($crow) ? 'zzz' : $crow['new_method']);
 
                 // TBD: We probably want to select the method with highest CYP here,
@@ -286,8 +286,8 @@ if ($_POST['form_submit']) {
 
                 if (empty($areport[$method])) {
                         // This should not happen.
-                        $areport[$method] = array("Unlisted method '$method'",
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        $areport[$method] = ["Unlisted method '$method'",
+                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 }
 
                 // Count total clients.

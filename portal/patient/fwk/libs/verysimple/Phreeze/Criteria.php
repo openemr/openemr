@@ -33,8 +33,8 @@ class Criteria
     private $_constructor_where;
     private $_constructor_order;
     private $_set_order;
-    private $_and = array ();
-    private $_or = array ();
+    private $_and =  [];
+    private $_or =  [];
     public $PrimaryKeyField;
     public $PrimaryKeyValue;
 
@@ -74,7 +74,7 @@ class Criteria
     public function AddFilter(CriteriaFilter $filter)
     {
         if (! $this->Filters) {
-            $this->Filters = array ();
+            $this->Filters =  [];
         }
 
         $this->Filters [] = $filter;
@@ -215,9 +215,9 @@ class Criteria
                         // a filter object will take care of generating it's own where statement
 
                         // normalize the input to accept either an individual filter or multiple filters
-                        $filters = (is_array($val)) ? $val : array (
+                        $filters = (is_array($val)) ? $val :  [
                                 $val
-                        );
+                        ];
 
                         foreach ($filters as $filter) {
                             $this->_where .= $this->_where_delim . ' ' . $filter->GetWhere($this);
@@ -421,14 +421,14 @@ class Criteria
             $mapname = $this->_map_object_class;
             $this->IncludeMap($mapname);
 
-            $this->_fieldmaps = call_user_func(array (
+            $this->_fieldmaps = call_user_func( [
                     $mapname,
                     "GetFieldMaps"
-            ));
-            $this->_keymaps = call_user_func(array (
+            ]);
+            $this->_keymaps = call_user_func( [
                     $mapname,
                     "GetKeyMaps"
-            ));
+            ]);
         }
     }
 

@@ -51,7 +51,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 <?php // collect data
 $recordRequest = sqlQuery("SELECT * FROM `amc_misc_data` WHERE `pid`=? AND `amc_id`='provide_rec_pat_amc' AND " .
     dateEmptySql('date_completed', true) .
-    "ORDER BY `date_created` DESC", array($pid));
+    "ORDER BY `date_created` DESC", [$pid]);
 ?>
 
 <body>

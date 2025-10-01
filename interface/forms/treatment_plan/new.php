@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 formHeader("Form:Treatment Planning");
 $returnurl = 'encounter_top.php';
 $formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
-$obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
+$obj = $formid ? formFetch("form_treatment_plan", $formid) : [];
 
 // Get the providers list.
  $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .

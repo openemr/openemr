@@ -132,7 +132,7 @@ class PatientIssuesService extends BaseService
                     . 'medication = 0 where patient_id = ? '
                     . " and upper(trim(drug)) = ? "
                     . ' and medication = 1',
-                    array($issueRecord['pid'], strtoupper($title))
+                    [$issueRecord['pid'], strtoupper($title)]
                 );
             }
             $whiteListDict['medication'] = $medication;
@@ -209,11 +209,11 @@ class PatientIssuesService extends BaseService
     public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues)
     {
         sqlStatement("DELETE FROM issue_encounter WHERE " .
-            "pid = ? AND encounter = ?", array($pid, $encounter));
+            "pid = ? AND encounter = ?", [$pid, $encounter]);
         if (!empty($issues)) {
             foreach ($issues as $issue) {
                 $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
-                sqlStatement($query, array($pid, $issue, $encounter));
+                sqlStatement($query, [$pid, $issue, $encounter]);
             }
         }
     }

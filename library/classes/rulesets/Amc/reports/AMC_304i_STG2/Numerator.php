@@ -53,7 +53,7 @@ class AMC_304i_STG2_Numerator implements AmcFilterIF
         //count the action toward the measure. This may include confirmation of receipt or that a query
         //of the summary of care record has occurred in order to count the action in the numerator.
         $amcElement_elec = amcCollect('send_sum_elec_amc', $patient->id, 'transactions', $patient->object['id']);
-        $amc_elec_check  = sqlQuery('select count(*) as cnt from ccda where pid = ? and emr_transfer = 1', array($patient->id));
+        $amc_elec_check  = sqlQuery('select count(*) as cnt from ccda where pid = ? and emr_transfer = 1', [$patient->id]);
         if (!(empty($amcElement_elec))) {
             /**
              * even if we've transferred a summary care we must verify the following per the 2015 ruleset
@@ -73,15 +73,15 @@ class AMC_304i_STG2_Numerator implements AmcFilterIF
             //known allergies.
             // Allergy – An exaggerated immune response or reaction to substances that are generally not
             //harmful.
-            $no_problems = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medical_problem'", array($patient->id));
-            $problems    = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'medical_problem'", array($patient->id));
+            $no_problems = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medical_problem'", [$patient->id]);
+            $problems    = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'medical_problem'", [$patient->id]);
 
-            $no_allergy = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'allergy'", array($patient->id));
-            $allergies  = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'allergy'", array($patient->id));
+            $no_allergy = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'allergy'", [$patient->id]);
+            $allergies  = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'allergy'", [$patient->id]);
 
-            $no_medication = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medication'", array($patient->id));
-            $medications   = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'medication'", array($patient->id));
-            $prescriptions = sqlQuery("select count(*) as cnt from prescriptions where patient_id = ? ", array($patient->id));
+            $no_medication = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medication'", [$patient->id]);
+            $medications   = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'medication'", [$patient->id]);
+            $prescriptions = sqlQuery("select count(*) as cnt from prescriptions where patient_id = ? ", [$patient->id]);
 
             if (($no_problems['cnt'] > 0 || $problems['cnt'] > 0) && ($no_allergy['cnt'] > 0 || $allergies['cnt'] > 0) && ($no_medication['cnt'] > 0 || $medications['cnt'] > 0 || $prescriptions['cnt'] > 0)) {
                 return true;

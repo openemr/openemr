@@ -27,11 +27,11 @@ function collectIpAddresses()
         $stringIp .= " (" . $forwardIp . ")";
     }
 
-    return array(
+    return [
         'ip_string' => $stringIp,
         'ip' => $mainIp,
         'forward_ip' => $forwardIp ?? ''
-    );
+    ];
 }
 
 // Sanitize a json encoded entry.
@@ -103,7 +103,7 @@ function isWhiteFile($file)
 {
     global $white_list;
     if (is_null($white_list)) {
-        $white_list = array();
+        $white_list = [];
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
         while ($lrow = sqlFetchArray($lres)) {
             $white_list[] = $lrow['option_id'];

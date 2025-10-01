@@ -76,17 +76,17 @@ function show_date_fun(){
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Patient Reports'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "report_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -298,7 +298,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php
                                         // get issues
                                         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-                                        "ORDER BY type, begdate", array($pid));
+                                        "ORDER BY type, begdate", [$pid]);
                                         $lasttype = "";
                                         while ($prow = sqlFetchArray($pres)) {
                                             if ($lasttype != $prow['type']) {
@@ -325,7 +325,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
 
                                             $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
-                                            "pid = ? AND list_id = ?", array($pid, $rowid));
+                                            "pid = ? AND list_id = ?", [$pid, $rowid]);
 
                                             echo "    <tr class='text'>\n";
                                             echo "     <td>&nbsp;</td>\n";
@@ -375,10 +375,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         "forms.pid = ? AND form_encounter.pid = ? AND " .
                                         "form_encounter.encounter = forms.encounter " .
                                         " AND forms.deleted=0 " . // --JRM--
-                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", array($pid, $pid));
+                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", [$pid, $pid]);
                                         $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
-                                        $html_strings = array();
-                                        $registry_form_name = array();
+                                        $html_strings = [];
+                                        $registry_form_name = [];
                                         while ($result2 = sqlFetchArray($res2)) {
                                             array_push($registry_form_name, trim($result2['name']));
                                         }
@@ -393,7 +393,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             }
                                                         }
                                                     }
-                                                    $html_strings = array();
+                                                    $html_strings = [];
                                                     echo "</div>\n"; // end DIV encounter_forms
                                                     echo "</div>\n\n";  //end DIV encounter_data
                                                     echo "<br />";
@@ -439,7 +439,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     }
                                                 }
                                                 if (empty($html_strings[$form_name]) || !is_array($html_strings[$form_name])) {
-                                                    $html_strings[$form_name] = array();
+                                                    $html_strings[$form_name] = [];
                                                 }
                                                 array_push($html_strings[$form_name], "<input type='checkbox' " .
                                                     " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'" .
@@ -488,7 +488,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
                                     "WHERE po.patient_id = ? " .
                                     "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-                                    array($pid)
+                                    [$pid]
                                 );
                                 while ($row = sqlFetchArray($res)) {
                                     $poid = $row['procedure_order_id'];
@@ -501,7 +501,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $opres = sqlStatement(
                                         "SELECT procedure_code, procedure_name FROM procedure_order_code " .
                                         "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
-                                        array($poid)
+                                        [$poid]
                                     );
                                     while ($oprow = sqlFetchArray($opres)) {
                                         $tmp = $oprow['procedure_name'];
@@ -531,7 +531,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                                 "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
                                 "d.foreign_id = ? AND d.deleted = 0";
-                        $result = $db->Execute($sql, array($pid));
+                        $result = $db->Execute($sql, [$pid]);
                         if ($db->ErrorMsg()) {
                             echo $db->ErrorMsg();
                         }

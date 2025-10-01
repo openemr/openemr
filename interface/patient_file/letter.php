@@ -38,7 +38,7 @@ if (!empty($_GET)) {
 
 // array of field name tags to allow internationalization
 //  of templates
-$FIELD_TAG = array(
+$FIELD_TAG = [
     'DATE'             => xl('DATE'),
     'FROM_TITLE'       => xl('FROM_TITLE'),
     'FROM_FNAME'       => xl('FROM_FNAME'),
@@ -78,13 +78,13 @@ $FIELD_TAG = array(
     'PT_EMAIL'         => xl('PT_EMAIL'),
     'PT_DOB'           => xl('PT_DOB')
 
-);
+];
 
 $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.phone_home, p.phone_cell, p.ss, p.email, p.postal_code " .
   "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+  "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 $alertmsg = ''; // anything here pops up in an alert box
 
@@ -98,8 +98,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $form_format   = $_POST['form_format'];
     $form_body     = $_POST['form_body'];
 
-    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
-    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
+    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", [$form_from]);
+    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", [$form_to]);
 
     $datestr = $form_date;
     $from_title = $frow['title'] ? $frow['title'] . ' ' : '';

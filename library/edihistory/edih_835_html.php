@@ -46,7 +46,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     $str_html = "";
     if (is_array($trans_array) && count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
-            $clp_ar = array();
+            $clp_ar = [];
             $clp_ar[] = $trans_array;
         } else {
             $clp_ar = $trans_array;
@@ -100,7 +100,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     $clp_html = "";
     $svc_html = "";
     $sbr_html = "";
-    $chksegs = array('CLP', 'NM1', 'AMT', 'QTY');
+    $chksegs = ['CLP', 'NM1', 'AMT', 'QTY'];
     foreach ($trans_array as $trans) {
         $capstr = "Summary ";
         $loopid = 'NA';
@@ -121,7 +121,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                 $loopid = '2100';
                 $cls = 'clp';
                 //
-                $clp09ar = array('1' => 'Original', '7' => 'Replacement',  '8' => 'Void');
+                $clp09ar = ['1' => 'Original', '7' => 'Replacement',  '8' => 'Void'];
                 //
                 $clp01 = $clp02 = $clp03 = $clp04 = $clp05 = $clp06 = $clp07 = '';
                 $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = $tblid = '';
@@ -306,7 +306,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $str_html = "";
     if (is_array($trans_array) && count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
-            $clp_ar = array();
+            $clp_ar = [];
             $clp_ar[] = $trans_array;
         } else {
             $clp_ar = $trans_array;
@@ -365,9 +365,9 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $moa_html = "";
     //
     foreach ($clp_ar as $trans) {
-        $lq_ar = array();
-        $cas_ar = array();
-        $moa_ar = array();
+        $lq_ar = [];
+        $cas_ar = [];
+        $moa_ar = [];
         $rarc_str = "";
         $clp_html = "";
         $svc_html = "";
@@ -431,7 +431,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
             if (strncmp('PER' . $de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $per01_ar = array('CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website');
+                $per01_ar = ['CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website'];
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k => $v) {
                     switch ($k) {
@@ -490,7 +490,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $clp07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';                                        // Payer reference ID
                 $clp08 = (isset($sar[8]) && $sar[8]) ? "<em>Location</em> " . text($cd27x->get_271_code('POS', $sar[8])) : ''; // Faciliy code place of service
                 // frequency type code 1 original  7 replacement  8 void
-                $clp09ar = array('1' => 'original', '7' => 'replacement',  '8' => 'void');
+                $clp09ar = ['1' => 'original', '7' => 'replacement',  '8' => 'void'];
                 if (isset($sar[9]) && array_key_exists($sar[9], $clp09ar)) {                                                           // claim frequency code
                     $clp09 = "<em>Freq</em> " . text($clp09ar[$sar[9]]);
                 } else {
@@ -937,11 +937,11 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     $clp_html = "";
     $trl_html = "";
     //
-    $acctng = array('pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0);
+    $acctng = ['pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0];
     //
     foreach ($trans_ar as $trans) {
-        $clpsegs = array();
-        $lx_ar = array();
+        $clpsegs = [];
+        $lx_ar = [];
         $clp_ct = 0;
         $lx_ct = 0;
         $loop = '';
@@ -961,8 +961,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = 'header';
                 $cls = 'pmt';
                 //
-                $acctng = array('pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0,
-                                'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0);
+                $acctng = ['pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0,
+                                'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0];
                 //
                 $sar = explode($de, $seg);
                 $bpr01 = (isset($sar[1]) && $sar[1]) ? $cd835->get_835_code('BPR01', $sar[1]) : ''; // handling code
@@ -1158,7 +1158,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 }
 
                 $sar = explode($de, $seg);
-                $per01_ar = array('CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website');
+                $per01_ar = ['CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website'];
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k => $v) {
                     switch ($k) {
@@ -1240,7 +1240,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         // LX can follow loop 2110
                         if (count($clpsegs)) {
                             $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
-                            $clpsegs = array();
+                            $clpsegs = [];
                         }
 
                         $nlx_html = ($lx_html) ? "<table name='lx_" . attr($lxkey) . "' class='h835c' columns=4>" . PHP_EOL . "<tbody>" . PHP_EOL . $lx_html . PHP_EOL : "";
@@ -1248,13 +1248,13 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         $lx_ar[$lxkey]['clp'] = $clp_html;
                         $lx_html = "";
                         $clp_html = "";
-                        $clpsegs = array();
+                        $clpsegs = [];
                     }
                 }
 
                 $sar = explode($de, $seg);
                 $lxkey = (isset($sar[1]) && $sar[1]) ? $sar[1] : ''; // identify a grouping for claim info
-                $lx_ar[$lxkey] = array();
+                $lx_ar[$lxkey] = [];
                 //
                 $loopid = '2000';
                 $cls = 'lx';
@@ -1414,7 +1414,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     if ($lxkey && array_key_exists($lxkey, $lx_ar)) {
                         if (count($clpsegs)) {
                             $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
-                            $clpsegs = array();
+                            $clpsegs = [];
                         }
 
                         // note: table ending in CLP if stanza
@@ -1423,7 +1423,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         $lx_ar[$lxkey]['clp'] = $clp_html;
                         $lx_html = "";
                         $clp_html = "";
-                        $clpsegs = array();
+                        $clpsegs = [];
                     }
 
                     // append segments to html
@@ -1440,7 +1440,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 if (count($clpsegs)) {
                     // would be captured in LX and lx array
                     $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
-                    $clpsegs = array();
+                    $clpsegs = [];
                 }
 
                 if ($clp_html) {
@@ -1478,7 +1478,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
                 }
 
-                $clpsegs = array();
+                $clpsegs = [];
                 $clpsegs[] = $seg;
                 $clp_ct++;
                 continue;
@@ -1631,13 +1631,13 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     } elseif ($chk) {
         // check detail
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
-            $trans_ar = array();
+            $trans_ar = [];
             foreach ($env_ar['ST'] as $st) {
                 if ($st['trace'] != $chk) {
                     continue;
                 }
 
-                $trans_ar[] = $obj835->edih_x12_slice(array('trace' => $chk));
+                $trans_ar[] = $obj835->edih_x12_slice(['trace' => $chk]);
             }
         } else {
             csv_edihist_log("edih_835_transaction_html: Did not get envelopes information for $fn");
@@ -1656,9 +1656,9 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     } else {
         // entire file
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
-            $trans_ar = array();
+            $trans_ar = [];
             foreach ($env_ar['ST'] as $st) {
-                $trans_ar[] = $obj835->edih_x12_slice(array('trace' => $st['trace']));
+                $trans_ar[] = $obj835->edih_x12_slice(['trace' => $st['trace']]);
             }
         } else {
             csv_edihist_log("edih_835_transaction_html: Did not envelopes information for $fn");

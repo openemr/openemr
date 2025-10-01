@@ -32,7 +32,7 @@ class PatientNameHistoryService extends BaseService
     public function deletePatientNameHistoryById($id)
     {
         $sql = "DELETE FROM patient_history WHERE id = ?";
-        return sqlQuery($sql, array($id));
+        return sqlQuery($sql, [$id]);
     }
 
     /**
@@ -117,7 +117,7 @@ class PatientNameHistoryService extends BaseService
             previous_name_enddate
             FROM patient_history
             WHERE pid = ? AND history_type_key = ?";
-        $results =  QueryUtils::sqlStatementThrowException($sql, array($pid, 'name_history'));
+        $results =  QueryUtils::sqlStatementThrowException($sql, [$pid, 'name_history']);
         $rows = [];
         while ($row = sqlFetchArray($results)) {
             $row['formatted_name'] = $this->formatPreviousName($row);
@@ -140,7 +140,7 @@ class PatientNameHistoryService extends BaseService
             previous_name_enddate
             FROM patient_history
             WHERE pid = ? AND id = ? AND history_type_key = ?";
-        $result =  sqlQuery($sql, array($pid, $id, 'name_history'));
+        $result =  sqlQuery($sql, [$pid, $id, 'name_history']);
         $result['formatted_name'] = $this->formatPreviousName($result);
 
         return $result;

@@ -290,7 +290,7 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
-        $days = array(0,31,59,90,120,151,181,212,243,273,304,334);
+        $days = [0,31,59,90,120,151,181,212,243,273,304,334];
 
         $julian = ($days[$month - 1] + $day);
 
@@ -1147,7 +1147,7 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
-        $week_array = array();
+        $week_array = [];
 
         // date for the column of week
 
@@ -1184,7 +1184,7 @@ class Date_Calc
             $month = Date_Calc::dateNow("%m");
         }
 
-        $month_array = array();
+        $month_array = [];
         // starts on monday
         if (DATE_CALC_BEGIN_WEEKDAY == 1) {
             if (Date_Calc::firstOfMonthWeekday($month, $year) == 0) {
@@ -1238,7 +1238,7 @@ class Date_Calc
             $year = Date_Calc::dateNow("%Y");
         }
 
-        $year_array = array();
+        $year_array = [];
 
         for ($curr_month = 0; $curr_month <= 11; $curr_month++) {
             $year_array[$curr_month] = Date_Calc::getCalendarMonth(sprintf("%02d", $curr_month + 1), $year, $format);

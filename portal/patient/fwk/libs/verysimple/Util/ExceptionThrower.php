@@ -46,10 +46,10 @@ class ExceptionThrower
             }
         }
 
-        set_error_handler(array (
+        set_error_handler( [
                 "ExceptionThrower",
                 "HandleError"
-        ), $level);
+        ], $level);
     }
 
     /**

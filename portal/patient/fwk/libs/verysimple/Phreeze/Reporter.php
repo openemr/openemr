@@ -23,15 +23,15 @@ abstract class Reporter implements Serializable
     private $_noCache = false;
 
     /** @var these properties will never be cached */
-    private static $NoCacheProperties = array (
+    private static $NoCacheProperties =  [
             "_cache",
             "_phreezer",
             "_val_errors",
             "_base_validation_complete"
-    );
+    ];
 
     /** @var cache of public properties for each type for improved performance when enumerating */
-    private static $PublicPropCache = array ();
+    private static $PublicPropCache =  [];
 
     /**
      * Returns true if the current object has been loaded
@@ -123,7 +123,7 @@ abstract class Reporter implements Serializable
      */
     function serialize()
     {
-        $propvals = array ();
+        $propvals =  [];
         $ro = new ReflectionObject($this);
 
         foreach ($ro->getProperties() as $rp) {
@@ -182,7 +182,7 @@ abstract class Reporter implements Serializable
         $className = get_class($this);
 
         if (! property_exists(self::$PublicPropCache, $className)) {
-            $props = array ();
+            $props =  [];
             $ro = new ReflectionObject($this);
 
             foreach ($ro->getProperties() as $rp) {
@@ -218,11 +218,11 @@ abstract class Reporter implements Serializable
     function ToObject($options = null)
     {
         if ($options === null) {
-            $options = array ();
+            $options =  [];
         }
 
         $props = array_key_exists('props', $options) ? $options ['props'] : $this->GetPublicProperties();
-        $omit = array_key_exists('omit', $options) ? $options ['omit'] : array ();
+        $omit = array_key_exists('omit', $options) ? $options ['omit'] :  [];
         $camelCase = array_key_exists('camelCase', $options) ? $options ['camelCase'] : false;
 
         $obj = new stdClass();
@@ -307,7 +307,7 @@ abstract class Reporter implements Serializable
     function GetArray()
     {
         $fms = $this->_phreezer->GetFieldMaps(get_class($this));
-        $cols = array ();
+        $cols =  [];
 
         foreach ($fms as $fm) {
             $prop = $fm->PropertyName;

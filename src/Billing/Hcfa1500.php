@@ -87,7 +87,7 @@ class Hcfa1500
      */
     private function processDiagnoses0212($claim, &$log)
     {
-        $hcfa_entries = array();
+        $hcfa_entries = [];
         $diags = $claim->diagArray(false);
         if ($claim->diagtype == 'ICD10') {
             $icd_indicator = '0';
@@ -115,7 +115,7 @@ class Hcfa1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, array('OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo'));
+        usort($hcfa_entries, ['OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo']);
 
         foreach ($hcfa_entries as $hcfa_entry) {
             $this->putHcfa(

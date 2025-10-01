@@ -57,7 +57,7 @@ class MessageService
 
         $results = sqlInsert(
             $sql,
-            array(
+            [
                 $this->getFormattedMessageBody($data["from"], $data["to"], $data["body"]),
                 $pid,
                 $data['groupname'],
@@ -65,7 +65,7 @@ class MessageService
                 $data['to'],
                 $data['message_status'],
                 $data['title']
-            )
+            ]
         );
 
         if (!$results) {
@@ -90,7 +90,7 @@ class MessageService
 
         $results = sqlStatement(
             $sql,
-            array(
+            [
                 $existingBody["body"] . $this->getFormattedMessageBody($data["from"], $data["to"], $data["body"]),
                 $data['groupname'],
                 $data['from'],
@@ -98,7 +98,7 @@ class MessageService
                 $data['message_status'],
                 $data['title'],
                 $mid
-            )
+            ]
         );
 
         if (!$results) {
@@ -112,6 +112,6 @@ class MessageService
     {
         $sql = "UPDATE pnotes SET deleted=1 WHERE pid=? AND id=?";
 
-        return sqlStatement($sql, array($pid, $mid));
+        return sqlStatement($sql, [$pid, $mid]);
     }
 }

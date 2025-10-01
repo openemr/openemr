@@ -38,15 +38,15 @@ $patient_id = $pid;
 $userService = new UserService();
 
 if ($docid) {
-    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docid]);
     $patient_id = intval($row['foreign_id']);
 } elseif ($orderid) {
-    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", [$orderid]);
     $patient_id = intval($row['patient_id']);
 }
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
     die(xlt('Not authorized'));
 }
 
@@ -509,7 +509,7 @@ function restoreSession() {
                                 echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
                                 "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                                echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                                 echo "  </a></td>\n";
 
                                 echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -673,7 +673,7 @@ function restoreSession() {
                         echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
                         "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                        echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                         echo "  </a></td>\n";
 
                         echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";

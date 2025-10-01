@@ -49,15 +49,15 @@ class ObserveToFile implements IObserver
             $msg = $obj;
         }
 
-        $msg = date("Y-m-d H:i:s:u") . "\t" . getmypid() . "\t" . str_replace(array (
+        $msg = date("Y-m-d H:i:s:u") . "\t" . getmypid() . "\t" . str_replace( [
                 "\t",
                 "\r",
                 "\n"
-        ), array (
+        ],  [
                 " ",
                 " ",
                 " "
-        ), $msg);
+        ], $msg);
 
         if ($this->eventtype == null || $this->eventtype & $ltype) {
             // this can occur if the file has been closed due to the php script terminating

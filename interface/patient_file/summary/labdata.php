@@ -126,7 +126,7 @@ function checkAll(bx) {
                 $spell .= "FROM patient_data ";
                 $spell .= "WHERE pid = ?";
                 //---
-                $myrow = sqlQuery($spell, array($pid));
+                $myrow = sqlQuery($spell, [$pid]);
                 $lastname = $myrow["lname"];
                 $firstname  = $myrow["fname"];
                 $DOB  = $myrow["DOB"];
@@ -166,7 +166,7 @@ function checkAll(bx) {
                                         <?php
                                         // What items are there for patient $pid?
                                         // -----------------------------------------------
-                                        $value_list = array();
+                                        $value_list = [];
                                         $value_select = $_POST['value_code'] ?? null; // what items are checkedboxed?
                                         $tab = 0;
                                         echo "<td>";
@@ -181,7 +181,7 @@ function checkAll(bx) {
                                         $spell .= "AND procedure_result.result IS NOT NULL ";
                                         $spell .= "AND procedure_result.result != ''";
                                         $spell .= "ORDER BY procedure_result.result_code ASC ";
-                                        $query  = sqlStatement($spell, array($pid));
+                                        $query  = sqlStatement($spell, [$pid]);
 
                                         // Select which items to view...
                                         $i = 0;
@@ -268,12 +268,12 @@ function checkAll(bx) {
                             // set a plot-spacer
                             echo "<tr><td colspan='7'><div id='graph_item_" . attr($item_graph) . "' class='chart-dygraphs'></div></td></tr>";
                             $value_count = 0;
-                            $value_array = array(); // reset local array
-                            $date_array  = array();//  reset local array
+                            $value_array = []; // reset local array
+                            $date_array  = [];//  reset local array
 
                             // get data from db
                             $spell  = $main_spell;
-                            $query  = sqlStatement($spell, array($this_value,$pid));
+                            $query  = sqlStatement($spell, [$this_value,$pid]);
                             while ($myrow = sqlFetchArray($query)) {
                                 $value_array[0][$value_count]   = $myrow['result'];
                                 $date_array[$value_count]   = $myrow['date_collected'];
@@ -330,9 +330,9 @@ function checkAll(bx) {
                             function get_my_graph<?php echo attr($item_graph) ?>(){
                                 var thedates = JSON.stringify(<?php echo js_escape($date_array); ?>);
                                 var thevalues =  JSON.stringify(<?php echo js_escape($value_array); ?>);
-                                var theitem = JSON.stringify(<?php echo js_escape(array($the_item)); ?>);
+                                var theitem = JSON.stringify(<?php echo js_escape([$the_item]); ?>);
                                 var thetitle = JSON.stringify(<?php echo js_escape($the_item); ?>);
-                                var checkboxfake = JSON.stringify(<?php echo js_escape(array(0)); ?>);
+                                var checkboxfake = JSON.stringify(<?php echo js_escape([0]); ?>);
 
                                 $.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
                                         type: 'POST',
@@ -374,13 +374,13 @@ function checkAll(bx) {
 
                     //##########################################################################################################################
                     if ($mode == 'matrix') {
-                        $value_matrix = array();
-                        $datelist = array();
+                        $value_matrix = [];
+                        $datelist = [];
                         $i = 0;
                         // get all data of patient's items
                         foreach ($value_select as $this_value) {
                             $spell  = $main_spell;
-                            $query  = sqlStatement($spell, array($this_value,$pid));
+                            $query  = sqlStatement($spell, [$this_value,$pid]);
 
                             while ($myrow = sqlFetchArray($query)) {
                                 $value_matrix[$i]['procedure_result_id']  = $myrow['procedure_result_id'];

@@ -351,7 +351,7 @@ class CoverageValidatorStub extends CoverageValidator
             self::DATABASE_INSERT_CONTEXT,
             function ($context): void {
                 $context->required('pid')->numeric();
-                $context->required('type')->inArray(array('primary', 'secondary', 'tertiary'))
+                $context->required('type')->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value) {
                         if ($GLOBALS['insurance_only_one']) {
                             if ($value !== 'primary') {
@@ -416,7 +416,7 @@ class CoverageValidatorStub extends CoverageValidator
                     return $this->validateId("uuid", "insurance_data", $value, true);
                 })->uuid();
                 $context->required("pid", "Patient ID")->numeric();
-                $context->required("type", "Coverage Type")->inArray(array('primary', 'secondary', 'tertiary'));
+                $context->required("type", "Coverage Type")->inArray(['primary', 'secondary', 'tertiary']);
             }
         );
     }

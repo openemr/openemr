@@ -24,7 +24,7 @@ class PractitionerRestController
     /**
      * White list of practitioner search fields
      */
-    private const WHITELISTED_FIELDS = array(
+    private const WHITELISTED_FIELDS = [
         "title",
         "fname",
         "lname",
@@ -54,7 +54,7 @@ class PractitionerRestController
         "notes",
         "state_license_number",
         "username"
-    );
+    ];
 
     public function __construct()
     {
@@ -82,7 +82,7 @@ class PractitionerRestController
      * @param HttpRestRequest $request - The HTTP request object.
      * @param array $search - An array of search fields to filter the results.
      */
-    public function getAll(HttpRestRequest $request, $search = array())
+    public function getAll(HttpRestRequest $request, $search = [])
     {
         $validSearchFields = $this->practitionerService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->getAll($validSearchFields);

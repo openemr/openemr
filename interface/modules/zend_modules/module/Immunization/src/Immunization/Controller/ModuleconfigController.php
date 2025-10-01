@@ -50,25 +50,25 @@ class ModuleconfigController extends AbstractActionController
 
     public function getHookConfig()
     {
-        $hooks  =  array();
+        $hooks  =  [];
         return $hooks;
     }
 
     public function getAclConfig()
     {
-        $acl = array();
+        $acl = [];
         return $acl;
     }
 
     public function configSettings()
     {
-        $settings = array();
+        $settings = [];
         return $settings;
     }
 
     public function getDependedModulesConfig()
     {
-        $dependedModules = array();
+        $dependedModules = [];
         return $dependedModules;
     }
 }

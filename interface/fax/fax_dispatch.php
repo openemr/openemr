@@ -63,7 +63,7 @@ $info_msg = "";
 function getKittens($catid, $catstring, &$categories): void
 {
     $cres = sqlStatement("SELECT id, name FROM categories " .
-    "WHERE parent = ? ORDER BY name", array($catid));
+    "WHERE parent = ? ORDER BY name", [$catid]);
     $childcount = 0;
     while ($crow = sqlFetchArray($cres)) {
         ++$childcount;
@@ -84,7 +84,7 @@ function mergeTiffs()
     global $faxcache;
     $msg = '';
     $inames = '';
-    $tmp1 = array();
+    $tmp1 = [];
     $tmp2 = 0;
   // form_images are the checkboxes to the right of the images.
     foreach ($_POST['form_images'] as $inbase) {
@@ -112,7 +112,7 @@ if ($_POST['form_save']) {
     }
 
     $action_taken = false;
-    $tmp1 = array();
+    $tmp1 = [];
     $tmp2 = 0;
 
     if ($_POST['form_cb_copy']) {
@@ -172,13 +172,13 @@ if ($_POST['form_save']) {
                 "?, 'file_url', ?, NOW(), ?, " .
                 "'application/pdf', ?, ? " .
                 ")";
-                sqlStatement($query, array($newid, $fsize, 'file://' . $target, $patient_id, $docdate));
+                sqlStatement($query, [$newid, $fsize, 'file://' . $target, $patient_id, $docdate]);
                 $query = "INSERT INTO categories_to_documents ( " .
                 "category_id, document_id" .
                 " ) VALUES ( " .
                 "?, ? " .
                 ")";
-                sqlStatement($query, array($catid, $newid));
+                sqlStatement($query, [$catid, $newid]);
             } // end not error
 
             // If we are posting a note...
@@ -187,7 +187,7 @@ if ($_POST['form_save']) {
                 // See pnotes_full.php which uses this to auto-display the document.
                 $note = "$ffname$ffmod$ffsuff";
                 for ($tmp = $catid; $tmp;) {
-                    $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+                    $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", [$tmp]);
                     $note = $catrow['name'] . "/$note";
                     $tmp = $catrow['parent'];
                 }
@@ -229,7 +229,7 @@ if ($_POST['form_save']) {
                 // The following is cloned from contrib/forms/scanned_notes/new.php:
                 //
                 $query = "INSERT INTO form_scanned_notes ( notes ) VALUES ( ? )";
-                $formid = sqlInsert($query, array($_POST['form_copy_sn_comments']));
+                $formid = sqlInsert($query, [$_POST['form_copy_sn_comments']]);
                 addForm(
                     $encounter_id,
                     "Scanned Notes",
@@ -295,7 +295,7 @@ if ($_POST['form_save']) {
         // Generate a cover page using enscript.  This can be a cool thing
         // to do, as enscript is very powerful.
         //
-        $tmp1 = array();
+        $tmp1 = [];
         $tmp2 = 0;
         $tmpfn1 = tempnam("/tmp", "fax1");
         $tmpfn2 = tempnam("/tmp", "fax2");
@@ -453,7 +453,7 @@ if (! is_dir($faxcache)) {
 }
 
 // Get the categories list.
-$categories = array();
+$categories = [];
 getKittens(0, '', $categories);
 
 // Get the users list.
@@ -703,7 +703,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     <div class="col-10">
                         <?php
                         // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-                        generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), '');
+                        generate_form_field(['data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'], '');
                         ?>
                     </div>
                 </div>
@@ -827,7 +827,7 @@ if (! $dh) {
     die("Cannot read " . text($faxcache));
 }
 
-$jpgarray = array();
+$jpgarray = [];
 while (false !== ($jfname = readdir($dh))) {
     if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
         $jpgarray[$matches[1]] = $jfname;

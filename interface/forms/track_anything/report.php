@@ -20,12 +20,12 @@ function track_anything_report($pid, $encounter, $cols, $id): void
     #$patient_report_flag = 'no';
     echo "<div id='track_anything'>";
     global $web_root;
-    $ofc_name = array();
-    $ofc_date = array();
-    $ofc_value = array();
+    $ofc_name = [];
+    $ofc_date = [];
+    $ofc_value = [];
     $row = 0; // how many rows
     $col = 0; // how many Items per row
-    $dummy = array(); // counter to decide if graph-button is shown
+    $dummy = []; // counter to decide if graph-button is shown
     $formid = $id;
     $shownameflag = 0;
     echo "<div id='graph" . attr($formid) . "' class='chart-dygraphs'> </div><br />";
@@ -36,7 +36,7 @@ function track_anything_report($pid, $encounter, $cols, $id): void
     $spell .= "FROM form_track_anything ";
     $spell .= "INNER JOIN form_track_anything_type ON form_track_anything.procedure_type_id = form_track_anything_type.track_anything_type_id ";
     $spell .= "WHERE id = ? AND form_track_anything_type.active = 1";
-    $myrow = sqlQuery($spell, array($formid));
+    $myrow = sqlQuery($spell, [$formid]);
     $the_track_name = $myrow["track_name"];
     //------------
 
@@ -45,7 +45,7 @@ function track_anything_report($pid, $encounter, $cols, $id): void
     $spell0 .= "FROM form_track_anything_results ";
     $spell0 .= "WHERE track_anything_id = ? ";
     $spell0 .= "ORDER BY track_timestamp DESC ";
-    $query = sqlStatement($spell0, array($formid));
+    $query = sqlStatement($spell0, [$formid]);
 
     // get all data of this specific track
     while ($myrow = sqlFetchArray($query)) {
@@ -56,7 +56,7 @@ function track_anything_report($pid, $encounter, $cols, $id): void
         $spell .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
         $spell .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
         $spell .= "ORDER BY form_track_anything_type.position ASC, the_name ASC ";
-        $query2  = sqlStatement($spell, array($formid, $thistime));
+        $query2  = sqlStatement($spell, [$formid, $thistime]);
 
         // is this the <tbale>-head?
         if ($shownameflag == 1) {
@@ -74,7 +74,7 @@ function track_anything_report($pid, $encounter, $cols, $id): void
         echo "<tr><td class='time'>" . text($thistime) . "</td>";
         $ofc_date[$row] = $thistime; // save for chart-form
         $col_i = 0; // how many columns
-        $query2  = sqlStatement($spell, array($formid, $thistime));
+        $query2  = sqlStatement($spell, [$formid, $thistime]);
         while ($myrow2 = sqlFetchArray($query2)) {
             echo "<td class='item'>&nbsp;" . text($myrow2['result']) . "&nbsp;</td>";
             if (is_numeric($myrow2['result'])) {

@@ -31,7 +31,7 @@ function getListItem($listid, $value)
     $lrow = sqlQuery(
         "SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($listid, $value)
+        [$listid, $value]
     );
     $tmp = xl_list_label($lrow['title'] ?? '');
     if (empty($tmp)) {
@@ -187,7 +187,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
                 "SELECT standard_code FROM procedure_type WHERE " .
                 "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
                 "ORDER BY procedure_type_id LIMIT 1",
-                array($lab_id, $procedure_code)
+                [$lab_id, $procedure_code]
             );
             if (!empty($trow['standard_code'])) {
                   $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($trow['standard_code']) .
@@ -265,7 +265,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
             }
 
             echo "</td>\n";
-            $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?", array($result_document_id));
+            $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?", [$result_document_id]);
             if (!empty($narrative_notes)) {
                 $nnotes = explode("\n", $narrative_notes['notes'] ?? '');
                 $narrative_note_list = '';
@@ -337,13 +337,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         "LEFT JOIN users AS u ON u.id = po.provider_id " .
         "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
         "WHERE po.procedure_order_id = ?",
-        array($orderid)
+        [$orderid]
     );
     $dres = sqlStatementNoLog(
         "Select diagnoses as codes FROM procedure_order_code WHERE procedure_order_id = ? ",
-        array($orow['procedure_order_id'])
+        [$orow['procedure_order_id']]
     );
-    $codes = array();
+    $codes = [];
     $bld = '';
     while ($diag = sqlFetchArray($dres)) {
         $bld .= $diag['codes'] . ';';
@@ -566,20 +566,20 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 "WHERE po.procedure_order_id = ? " .
                 "ORDER BY pc.procedure_order_seq, pr.date_report, pr.procedure_report_id";
 
-            $res = sqlStatement($query, array($orderid));
-            $aNotes = array();
-            $finals = array();
-            $empty_results = array('result_code' => '');
+            $res = sqlStatement($query, [$orderid]);
+            $aNotes = [];
+            $finals = [];
+            $empty_results = ['result_code' => ''];
 
             // Context for this call that may be used in other functions.
-            $ctx = array(
+            $ctx = [
                 'lastpcid' => -1,
                 'lastprid' => -1,
                 'encount' => 0,
                 'lino' => 0,
                 'sign_list' => '',
-                'seen_report_ids' => array(),
-            );
+                'seen_report_ids' => [],
+            ];
 
             while ($row = sqlFetchArray($res)) {
                 $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
@@ -591,12 +591,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     "WHERE ps.procedure_report_id = ? " .
                     "ORDER BY ps.procedure_result_id";
 
-                $rres = sqlStatement($query, array($report_id));
+                $rres = sqlStatement($query, [$report_id]);
 
                 if ($finals_only) {
                     // We are consolidating reports.
                     if (sqlNumRows($rres)) {
-                        $rrowsets = array();
+                        $rrowsets = [];
                         // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
                         // the value being an array of the corresponding result rows. This caters to multiple
                         // occurrences of the same result code in the same report.
@@ -604,7 +604,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                             $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
                             $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
                             if (!isset($rrowsets[$key])) {
-                                $rrowsets[$key] = array();
+                                $rrowsets[$key] = [];
                             }
 
                             $rrowsets[$key][] = $rrow;
@@ -625,12 +625,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                             }
 
                             // $finals[$key][2] indicates if there are multiple results for this result code.
-                            $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+                            $finals[$key] = [$row, $rrowset, isset($finals[$key])];
                         }
                     } else {
                         // We have no results for this report.
                         $key = sprintf('%05d/', $row['procedure_order_seq']);
-                        $finals[$key] = array($row, array($empty_results), false);
+                        $finals[$key] = [$row, [$empty_results], false];
                     }
                 } else {
                     // We are showing all results for all reports.

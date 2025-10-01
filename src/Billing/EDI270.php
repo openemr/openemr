@@ -48,7 +48,7 @@ class EDI270
 
     public static function createISA($row, $X12info, $segTer, $compEleSep)
     {
-        $ISA = array();
+        $ISA = [];
         $ISA[0] = "ISA"; // Interchange Control Header Segment ID
         $ISA[1] = "00";  // Author Info Qualifier
         $ISA[2] = str_pad("", 10, " ");        // Author Information
@@ -79,7 +79,7 @@ class EDI270
 // GS Segment  - EDI-270 format
     public static function createGS($row, $X12info, $segTer, $compEleSep)
     {
-        $GS = array();
+        $GS = [];
         $GS[0] = "GS";                      // Functional Group Header Segment ID
         $GS[1] = "HS";                      // Functional ID Code [ HS = Eligibility, Coverage or Benefit Inquiry (270) ]
         $GS[2] = $X12info['x12_sender_id'];              // Application Sender's ID
@@ -97,7 +97,7 @@ class EDI270
 // ST Segment  - EDI-270 format
     public static function createST($row, $X12info, $segTer, $compEleSep)
     {
-        $ST = array();
+        $ST = [];
         $ST[0] = "ST";                              // Transaction Set Header Segment ID
         $ST[1] = "270";                                 // Transaction Set Identifier Code (Inquiry Request)
         $ST[2] = "000000003";                       // Transaction Set Control Number - Must match SE's
@@ -110,7 +110,7 @@ class EDI270
 // BHT Segment  - EDI-270 format
     public static function createBHT($row, $X12info, $segTer, $compEleSep)
     {
-        $BHT = array();
+        $BHT = [];
         $BHT[0] = "BHT";                        // Beginning of Hierarchical Transaction Segment ID
         $BHT[1] = "0022";                       // Subscriber Structure Code
         $BHT[2] = "13";                         // Purpose Code - This is a Request
@@ -127,7 +127,7 @@ class EDI270
 // HL Segment  - EDI-270 format
     public static function createHL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
     {
-        $HL = array();
+        $HL = [];
         $HL[0] = "HL";             // Hierarchical Level Segment ID
         $HL_LEN[0] = 2;
         $HL[1] = $nHlCounter;       // Hierarchical ID No.
@@ -152,7 +152,7 @@ class EDI270
 // NM1 Segment  - EDI-270 format
     public static function createNM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
     {
-        $NM1 = array();
+        $NM1 = [];
         $NM1[0] = "NM1";                    // Subscriber Name Segment ID
         if ($nm1Cast == 'PR') {
             $NM1[1] = "PR";                         // Entity ID Code - Payer [PR Payer]
@@ -208,7 +208,7 @@ class EDI270
 // REF Segment  - EDI-270 format
     public static function createREF($row, $ref, $X12info, $segTer, $compEleSep)
     {
-        $REF = array();
+        $REF = [];
         $REF[0] = "REF";                            // Subscriber Additional Identification    does not want this for anything
         if ($ref == '1P') {
             $REF[1] = "4A";                         // Reference Identification Qualifier
@@ -225,7 +225,7 @@ class EDI270
 // TRN Segment - EDI-270 format
     public function createTRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep)
     {
-        $TRN = array();
+        $TRN = [];
         $TRN[0] = "TRN";                        // Subscriber Trace Number Segment ID
         $TRN[1] = "1";                          // Trace Type Code � Current Transaction Trace Numbers
         $TRN[2] = $tracno;                      // Trace Number
@@ -239,7 +239,7 @@ class EDI270
 // DMG Segment - EDI-270 format
     public static function createDMG($row, $X12info, $segTer, $compEleSep)
     {
-        $DMG = array();
+        $DMG = [];
         $DMG[0] = "DMG";                            // Date or Time or Period Segment ID
         $DMG[1] = "D8";                             // Date Format Qualifier - (D8 means CCYYMMDD)
         $DMG[2] = $row['dob'];                      // Subscriber's Birth date
@@ -252,7 +252,7 @@ class EDI270
 // DTP Segment - EDI-270 format
     public static function createDTP($row, $qual, $X12info, $segTer, $compEleSep)
     {
-        $DTP = array();
+        $DTP = [];
         $DTP[0] = "DTP";                            // Date or Time or Period Segment ID
         $DTP[1] = $qual;                            // Qualifier - Date of Service
         $DTP[2] = "D8";                             // Date Format Qualifier - (D8 means CCYYMMDD)
@@ -274,7 +274,7 @@ class EDI270
 // EQ Segment - EDI-270 format
     public static function createEQ($row, $X12info, $segTer, $compEleSep)
     {
-        $EQ = array();
+        $EQ = [];
         $EQ[0] = "EQ";                                     // Subscriber Eligibility or Benefit Inquiry Information
         $EQ[1] = "30";                                     // Service Type Code
         $EQ['Created'] = implode('*', $EQ);                 // Data Element Separator
@@ -285,7 +285,7 @@ class EDI270
 // SE Segment - EDI-270 format
     public static function createSE($row, $segmentcount, $X12info, $segTer, $compEleSep)
     {
-        $SE = array();
+        $SE = [];
         $SE[0] = "SE";                              // Transaction Set Trailer Segment ID
         $SE[1] = $segmentcount;                     // Segment Count
         $SE[2] = "000000003";                       // Transaction Set Control Number - Must match ST's
@@ -297,7 +297,7 @@ class EDI270
 // GE Segment - EDI-270 format
     public static function createGE($row, $X12info, $segTer, $compEleSep)
     {
-        $GE = array();
+        $GE = [];
         $GE[0] = "GE";                          // Functional Group Trailer Segment ID
         $GE[1] = "1";                           // Number of included Transaction Sets
         $GE[2] = "2";                           // Group Control Number
@@ -309,7 +309,7 @@ class EDI270
 // IEA Segment - EDI-270 format
     public static function createIEA($row, $X12info, $segTer, $compEleSep)
     {
-        $IEA = array();
+        $IEA = [];
         $IEA[0] = "IEA";                        // Interchange Control Trailer Segment ID
         $IEA[1] = "1";                          // Number of included Functional Groups
         $IEA[2] = "000000001";                  // Interchange Control Number
@@ -420,8 +420,8 @@ class EDI270
         LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
         LEFT JOIN insurance_companies as c ON (c.id = i.provider)
         WHERE p.pid = ?";
-        $res = sqlStatement($query, array($pid));
-        $resArray = array();
+        $res = sqlStatement($query, [$pid]);
+        $resArray = [];
         while ($row = sqlFetchArray($res)) {
             $resArray[] = $row;
         }
@@ -543,7 +543,7 @@ class EDI270
         foreach ($res as $row) {
             $i += 1;
             // what the heck is below for... looks abandoned.
-            $elig = array();
+            $elig = [];
             $elig[0] = $row['facility_name'];              // Inquiring Provider Name  calendadr
             $elig[1] = $row['facility_npi'];               // Inquiring Provider NPI
             $elig[2] = $row['payer_name'];                     // Payer Name  our insurance co name
@@ -606,7 +606,7 @@ class EDI270
             "WHERE insd.pid = ? AND eligv.eligibility_check_date = " .
             "(SELECT Max(eligibility_verification.eligibility_check_date) FROM eligibility_verification " .
             "WHERE eligibility_verification.insurance_id = eligv.insurance_id)";
-        $result = sqlStatement($query, array($pid));
+        $result = sqlStatement($query, [$pid]);
 
         $showString = "<div class='row'>";
         $col = 1;
@@ -677,20 +677,20 @@ class EDI270
         $patient_id = $subscriber['pid'];
 
         $query = "SELECT id, copay FROM insurance_data WHERE type = 'primary' and pid = ?";
-        $insId = sqlQuery($query, array($patient_id));
+        $insId = sqlQuery($query, [$patient_id]);
         if ($insId !== false) {
             $insurance_id = $insId['id'];
             $copay = $insId['copay'];
         }
 
         $query = "SELECT verification_id FROM eligibility_verification WHERE insurance_id = ?";
-        $resId = sqlQuery($query, array($insurance_id));
+        $resId = sqlQuery($query, [$insurance_id]);
         if ($resId !== false) {
             $verification_id = $resId['verification_id'];
         }
 
         if (!empty($insurance_id)) {
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             $query = "REPLACE INTO eligibility_verification SET verification_id = ?, insurance_id = ?, response_id = ?, eligibility_check_date = now(), create_date = now()";
             array_push($sqlBindArray, $verification_id, $insurance_id, $partner_id);
 
@@ -701,10 +701,10 @@ class EDI270
         }
 
         $query = "DELETE FROM `benefit_eligibility` WHERE `benefit_eligibility`.`verification_id` = ?";
-        $res = sqlStatement($query, array($verification_id));
+        $res = sqlStatement($query, [$verification_id]);
 
         foreach ($subscriber['benefits'] as $benefit) {
-            $bind = array(
+            $bind = [
                 $verification_id,
                 "A",
                 date('Y/m/d H:i'),
@@ -722,7 +722,7 @@ class EDI270
                 $benefit['percent'],
                 $benefit['network_ind'],
                 $benefit['message']
-            );
+            ];
 
             $query = "INSERT INTO `benefit_eligibility` " .
                 "(`verification_id`, `response_status`, `response_create_date`, `response_modify_date`, `type`, `benefit_type`, `start_date`, " .
@@ -742,7 +742,7 @@ class EDI270
         $returnval = [];
 
         if ($id > 0) {
-            $returnval = sqlQuery("select * from x12_partners WHERE id = ?", array($id));
+            $returnval = sqlQuery("select * from x12_partners WHERE id = ?", [$id]);
             $X12info = $returnval;
         } else {
             $rez = sqlStatement("select * from x12_partners");
@@ -913,7 +913,7 @@ class EDI270
         $sex = "%" . $sex . "%";
         $dob = date("Y-m-d", strtotime($dob));
         $sql = "SELECT pid FROM patient_data WHERE fname LIKE ? && lname LIKE ? && sex LIKE ? && DOB LIKE ?";
-        $rtn = sqlQuery($sql, array($fn, $ln, $sex, $dob));
+        $rtn = sqlQuery($sql, [$fn, $ln, $sex, $dob]);
 
         return $rtn['pid'] ? $rtn['pid'] : 0;
     }
@@ -937,12 +937,12 @@ class EDI270
             if (empty($new)) {
                 continue;
             }
-            $AAA = array();
-            $subscribers = array();
-            $benefits = array();
-            $in = array();
+            $AAA = [];
+            $subscribers = [];
+            $benefits = [];
+            $in = [];
             $in['pid'] = 0;
-            $loop = array();
+            $loop = [];
             $loop['id'] = 0;
             $loop['parent'] = 0;
             $loop['error'] = 1;
@@ -1059,7 +1059,7 @@ class EDI270
                         break;
 
                     case 'EB':
-                        $eb = array(
+                        $eb = [
                             'type' => $elements[1],
                             'benefit_type' => $codes->get_271_code("EB01", $elements[1]) ? $codes->get_271_code("EB01", $elements[1]) : $elements[1],
                             'start_date' => '',
@@ -1073,17 +1073,17 @@ class EDI270
                             'percent' => $elements[8],
                             'network_ind' => $elements[12] ? $codes->get_271_code("EB12", $elements[12]) : $elements[12],
                             'message' => '' // any MSG segments that may be assoc with this EB.
-                        );
+                        ];
                         $loop['context'] = "EB";
                         array_push($benefits, $eb);
                         break;
 
                     case 'AAA':
-                        $error = array(
+                        $error = [
                             'request_ind' => $elements[1],
                             'reason_code' => $elements[3] . " : " . $codes->get_271_code("AAA03", $elements[3]),
                             'follow_up' => $elements[4] . " : " . $codes->get_271_code("AAA04", $elements[4])
-                        );
+                        ];
                         array_push($AAA, $error);
                         break;
 

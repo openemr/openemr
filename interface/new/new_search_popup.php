@@ -120,8 +120,8 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         //   1. For the main sql statement - $sqlBindArray
         //   2. For the _set_patient_inc_count function - $sqlBindArraySpecial
         //      (this only holds $where and not $relevance binded values)
-        $sqlBindArray = array();
-        $sqlBindArraySpecial = array();
+        $sqlBindArray = [];
+        $sqlBindArraySpecial = [];
         $where = "1 = 0";
         foreach ($_REQUEST as $key => $value) {
             if (substr($key, 0, 3) != 'mf_') {
@@ -150,7 +150,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 
         $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
         $rez = sqlStatement($sql, $sqlBindArray);
-        $result = array();
+        $result = [];
         while ($row = sqlFetchArray($rez)) {
             $result[] = $row;
         }
@@ -201,7 +201,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                 <th class="srName" scope="col"><?php echo xlt('Name'); ?></th>
                 <?php
                 // This gets address plus other fields that are mandatory, up to a limit of 5.
-                $extracols = array();
+                $extracols = [];
                 $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
                     "WHERE form_id = 'DEM' AND field_id != '' AND " .
                     "( uor > 1 OR uor > 0 AND edit_options LIKE '%D%' ) AND " .

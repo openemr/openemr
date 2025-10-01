@@ -89,7 +89,7 @@ if (($_POST['mode'] ?? null) === 'send') {
                 }
                 $profile = $id[0];
                 // get all template ids for this profile
-                $rtn_ids = sqlStatement('SELECT `template_id` as id FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > "0"', array($profile));
+                $rtn_ids = sqlStatement('SELECT `template_id` as id FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > "0"', [$profile]);
                 while ($rtn_id = sqlFetchArray($rtn_ids)) {
                     $master_ids[$rtn_id['id']] = $profile;
                 }

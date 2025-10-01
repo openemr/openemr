@@ -63,7 +63,7 @@ class LocalProviderListType
             }
         } else {
             $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-                "WHERE id = ?", array($id));
+                "WHERE id = ?", [$id]);
         }
         return $urow;
     }

@@ -22,7 +22,7 @@ class NQF_0024_Numerator3 implements CqmFilterIF
 
         $exercise = sqlQuery("SELECT * FROM `rule_patient_data` " .
                              "WHERE `category`='act_cat_edu' AND `item`='act_exercise' AND `complete`='YES' " .
-                             "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginDate,$endDate));
+                             "AND `pid`=? AND `date`>=? AND `date`<=?", [$patient->id,$beginDate,$endDate]);
         if (!empty($exercise)) {
             return true;
         }

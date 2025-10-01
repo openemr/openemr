@@ -95,7 +95,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $docReference = new FHIRDocumentReference();
         $fhirMeta = new FHIRMeta();

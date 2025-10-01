@@ -82,7 +82,7 @@ class RequestUtil
      */
     public static function NormalizeUrlRewrite()
     {
-        $uri = array ();
+        $uri =  [];
         if (isset($_SERVER ["REQUEST_URI"])) {
             $uri = parse_url($_SERVER ["REQUEST_URI"]);
         } elseif (isset($_SERVER ["QUERY_STRING"])) {
@@ -200,7 +200,7 @@ class RequestUtil
             return getallheaders();
         }
 
-        $headers = array ();
+        $headers =  [];
         foreach ($_SERVER as $k => $v) {
             if (substr($k, 0, 5) == "HTTP_") {
                 $k = str_replace('_', ' ', substr($k, 5));
@@ -264,7 +264,7 @@ class RequestUtil
         if ($headers === false) {
             // apache_request_headers is not supported in this environment
 
-            $headers = array ();
+            $headers =  [];
             foreach ($_SERVER as $key => $value) {
                 if (substr($key, 0, 5) != 'HTTP_') {
                     continue;
@@ -456,8 +456,8 @@ class RequestUtil
      */
     public static function ClearAll()
     {
-        $_REQUEST = array ();
-        $_FILES = array ();
+        $_REQUEST =  [];
+        $_FILES =  [];
 
         self::$bodyCache = "";
         self::$bodyCacheIsReady = false;
@@ -617,9 +617,9 @@ class RequestUtil
      */
     public static function GetCurrency($fieldname)
     {
-        return str_replace(array (
+        return str_replace( [
                 ',',
                 '$'
-        ), '', self::Get($fieldname));
+        ], '', self::Get($fieldname));
     }
 }

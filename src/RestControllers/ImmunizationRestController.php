@@ -22,7 +22,7 @@ class ImmunizationRestController
     /**
      * White list of immunization search fields
      */
-    private const WHITELISTED_FIELDS = array();
+    private const WHITELISTED_FIELDS = [];
 
     public function __construct()
     {
@@ -47,7 +47,7 @@ class ImmunizationRestController
     /**
      * Returns immunization resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = [])
     {
         $validSearchFields = $this->immunizationService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->immunizationService->getAll($validSearchFields);

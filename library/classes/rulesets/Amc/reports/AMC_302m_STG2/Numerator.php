@@ -38,7 +38,7 @@ class AMC_302m_STG2_Numerator implements AmcFilterIF
                          "AND enc.encounter = amc.map_id " .
                          "AND `amc_id` = 'patient_edu_amc' " .
                          "AND enc.date >= ? " .
-                         "AND enc.date <= ?", array($patient->id,$beginDate,$endDate));
+                         "AND enc.date <= ?", [$patient->id,$beginDate,$endDate]);
 
         if (!(empty($item))) {
             return true;

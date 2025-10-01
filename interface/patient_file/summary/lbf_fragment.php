@@ -34,7 +34,7 @@ $lbf_form_id = $_GET['formname'];
         "fe.pid = f.pid AND fe.encounter = f.encounter " .
         "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
         "LIMIT 1",
-        array($pid, $lbf_form_id)
+        [$pid, $lbf_form_id]
     );
 
     if (!$result) { //If there are none

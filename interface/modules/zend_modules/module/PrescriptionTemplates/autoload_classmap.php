@@ -6,4 +6,4 @@
  * If the class isn't there, then it will fall back to the StandardAutoloader
  */
 
-return array();
+return [];

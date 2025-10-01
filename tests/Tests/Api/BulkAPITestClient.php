@@ -31,7 +31,7 @@ class BulkAPITestClient extends ApiTestClient
 
     const SYSTEM_SCOPES = 'system/Group.$export system/Binary.read system/*.$bulkdata-status system/Patient.read system/Medication.read system/AllergyIntolerance.read system/CarePlan.read system/CareTeam.read system/Condition.read system/Device.read system/DiagnosticReport.read system/DocumentReference.read system/Encounter.read system/Goal.read system/Immunization.read system/Location.read system/MedicationRequest.read system/Observation.read system/Organization.read system/Practitioner.read system/Procedure.read system/Provenance.read';
 
-    public function setAuthToken($authURL, $credentials = array(), $client = 'private')
+    public function setAuthToken($authURL, $credentials = [], $client = 'private')
     {
         if (!empty($credentials['client_id'])) {
             $this->client_id = $credentials['client_id'];

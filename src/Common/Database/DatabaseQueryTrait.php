@@ -36,22 +36,22 @@ trait DatabaseQueryTrait
         return QueryUtils::fetchRecordsNoLog($sqlStatement, $binds);
     }
 
-    protected function fetchTableColumn($sqlStatement, $column, $binds = array())
+    protected function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
         return QueryUtils::fetchTableColumn($sqlStatement, $column, $binds);
     }
 
-    protected function fetchSingleValue($sqlStatement, $column, $binds = array())
+    protected function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         return QueryUtils::fetchSingleValue($sqlStatement, $column, $binds);
     }
 
-    protected function fetchRecords($sqlStatement, $binds = array(), $noLog = false)
+    protected function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
         return QueryUtils::fetchRecords($sqlStatement, $binds, $noLog);
     }
 
-    protected function fetchTableColumnAssoc($sqlStatement, $column, $binds = array())
+    protected function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
         return QueryUtils::fetchTableColumnAssoc($sqlStatement, $column, $binds);
     }
@@ -71,7 +71,7 @@ trait DatabaseQueryTrait
         return QueryUtils::existsTable($tableName);
     }
 
-    protected function sqlInsert($statement, $binds = array())
+    protected function sqlInsert($statement, $binds = [])
     {
         return QueryUtils::sqlInsert($statement, $binds);
     }

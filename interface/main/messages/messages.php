@@ -154,17 +154,17 @@ if (!empty($_REQUEST['go'])) { ?>
         $heading_caption .= ', ' . xlt('Recalls');
     }
 
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => $heading_caption,
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array(""),//all file names need suffix _xpd
+        'expandable_files' => [""],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => true,
         'help_file_name' => "message_center_help.php"
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
     echo "<title>" .  xlt('Message Center') . "</title>";
@@ -316,7 +316,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             die("getPnoteById() did not find id '" . text($noteid) . "'");
                                         }
                                         $pres = sqlQuery("SELECT lname, fname " .
-                                            "FROM patient_data WHERE pid = ?", array($reply_to[0]));
+                                            "FROM patient_data WHERE pid = ?", [$reply_to[0]]);
                                         $patientname = $pres['lname'] . ", " . $pres['fname'];
                                         $note .= "\n\n$patientname on " . $row['date'] . " wrote:\n\n";
                                         $note .= $row['body'];
@@ -383,7 +383,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             break;
                     }
                     // This is for sorting the records.
-                    $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
+                    $sort = ["users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status"];
                     $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
                     $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
                     $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
@@ -424,7 +424,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     $title = "Unassigned";
                                                 }
                                                 // Added 6/2009 by BM to incorporate the patient notes into the list_options listings.
-                                                generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
+                                                generate_form_field(['data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'], $title);
                                                 ?>
                                             </div>
                                             <div class="col-6 col-md-3">
@@ -433,7 +433,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 if ($form_message_status == "") {
                                                     $form_message_status = 'New';
                                                 }
-                                                generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
+                                                generate_form_field(['data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'], $form_message_status); ?>
                                             </div>
                                             <div class="col-6 col-md-4">
                                                 <?php
@@ -447,7 +447,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                                 if ($reply_to) {
                                                     $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
-                                                        "FROM patient_data WHERE pid = ?", array($reply_to));
+                                                        "FROM patient_data WHERE pid = ?", [$reply_to]);
                                                     $patientname = $prow['lname'] . ", " . $prow['fname'];
                                                 }
                                                 if ($task == "addnew" || $result['pid'] == 0) {
@@ -477,7 +477,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <?php if ($GLOBALS['messages_due_date']) { ?>
                                             <div class="col-6 col-sm-2">
                                                 <label for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
-                                                <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
+                                                <?php generate_form_field(['data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'], empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
                                             </div>
                                             <?php } ?>
                                             <div class="col-6 col-sm-4 d-flex align-items-end flex-wrap">
@@ -521,7 +521,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         $tmp = sqlStatement(
                                             "SELECT id1 FROM gprelations WHERE " .
                                             "type1 = ? AND type2 = ? AND id2 = ?",
-                                            array('2', '6', $noteid)
+                                            ['2', '6', $noteid]
                                         );
                                         if (sqlNumRows($tmp)) {
                                             echo " <tr>\n";

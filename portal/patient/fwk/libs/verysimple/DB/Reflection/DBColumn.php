@@ -27,8 +27,8 @@ class DBColumn
     public $Comment;
     public $NameWithoutPrefix; // populated by DBTable if there is a prefix
     public $MaxSize;
-    public $Keys = array ();
-    public $Constraints = array ();
+    public $Keys =  [];
+    public $Constraints =  [];
 
     /**
      * Instantiate new DBColumn
@@ -88,7 +88,7 @@ class DBColumn
      */
     function GetEnumValues()
     {
-        return $this->IsEnum() ? $this->Size : array ();
+        return $this->IsEnum() ? $this->Size :  [];
     }
 
     /**

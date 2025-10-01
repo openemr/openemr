@@ -53,6 +53,6 @@ function getImmunizationList($pid, $sortby, $showError)
         $sql .= " administered_date desc";
     }
 
-        $results = sqlStatement($sql, array($pid));
+        $results = sqlStatement($sql, [$pid]);
         return $results;
 }

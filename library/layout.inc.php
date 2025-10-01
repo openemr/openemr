@@ -26,7 +26,7 @@
 
 // array of the data_types of the fields
 // TODO: Move these all to a statically typed class with constants that can be referenced throughout the codebase!
-$datatypes = array(
+$datatypes = [
     "1"  => xl("List box"),
     "2"  => xl("Textbox"),
     "3"  => xl("Textarea"),
@@ -65,21 +65,21 @@ $datatypes = array(
     "52" => xl("Previous Names"),
     "53" => xl("Patient Encounters List"),
     "54" => xl("Address List")
-);
+];
 
 // These are the data types that can reference a list.
-$typesUsingList = array(1, 21, 22, 23, 25, 26, 27, 32, 33, 34, 36, 37, 43, 46);
+$typesUsingList = [1, 21, 22, 23, 25, 26, 27, 32, 33, 34, 36, 37, 43, 46];
 
-$sources = array(
+$sources = [
     'F' => xl('Form'),
     'D' => xl('Patient'),
     'H' => xl('History'),
     'E' => xl('Visit'),
     'V' => xl('VisForm'),
-);
+];
 
-$UOR = array(
+$UOR = [
     0 => xl('Unused'),
     1 => xl('Optional'),
     2 => xl('Required'),
-);
+];

@@ -61,13 +61,13 @@ class ConnectionSetting
      */
     function GetDSN()
     {
-        return array (
+        return  [
                 'phptype' => $this->Type,
                 'username' => $this->Username,
                 'password' => $this->Password,
                 'hostspec' => $this->ConnectionString,
                 'database' => $this->DBName
-        );
+        ];
     }
 
     /**
@@ -75,9 +75,9 @@ class ConnectionSetting
      */
     function GetOptions()
     {
-        return array (
+        return  [
                 'debug' => 2
-        )
+        ]
         // 'portability' => DB_PORTABILITY_NONE,
         ;
     }

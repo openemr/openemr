@@ -38,9 +38,9 @@ if (!isset($_REQUEST['preview'])) {
 
 $unchanged = 0;
 $empty = 0;
-$changed = array();
-$created = array();
-$updated = array();
+$changed = [];
+$created = [];
+$updated = [];
 
 if (!$errmsg) {
     $lang_id = $_REQUEST['lang_id'];
@@ -77,7 +77,7 @@ if ($errmsg) {
     $created[] = xl('ERROR') . ': ' . $errmsg;
 }
 
-$retval = array();
+$retval = [];
 $retval['changed'] = $changed;
 $retval['unchanged'] = $unchanged;
 $retval['empty'] = $empty;

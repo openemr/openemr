@@ -206,23 +206,23 @@ if (!empty($_FILES['form_erafile']['size'])) {
     //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
     //argument, containing one or more elements, the name of the current file is the first element, if there are linked
     // files they should be listed thereafter, please add _xpd suffix to the file name
-    $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
+    $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

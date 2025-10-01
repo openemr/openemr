@@ -70,7 +70,7 @@ class UuidMapping
         return $mappedCounter;
     }
 
-    public static function createMappingRecordForResourcePaths($targetUuid, $resource, $table, $resourcePath = array())
+    public static function createMappingRecordForResourcePaths($targetUuid, $resource, $table, $resourcePath = [])
     {
         $uuidRegistry = new UuidRegistry(['table_name' => 'uuid_mapping', 'mapped' => true]);
 

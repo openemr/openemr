@@ -12,7 +12,7 @@ class C_InsuranceCompany extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->icompanies = array();
+        $this->icompanies = [];
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));

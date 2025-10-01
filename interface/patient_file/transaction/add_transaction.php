@@ -38,7 +38,7 @@ $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 $body_onload_code = "";
 
 // Load array of properties for this layout and its groups.
-$grparr = array();
+$grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
@@ -47,7 +47,7 @@ if ($mode) {
     }
 
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
-    $sqlBindArray = array($form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
+    $sqlBindArray = [$form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized];
 
     if ($transid) {
         array_push($sqlBindArray, $transid);
@@ -60,7 +60,7 @@ if ($mode) {
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_id, seq", array($form_id));
+    "ORDER BY group_id, seq", [$form_id]);
 
     while ($frow = sqlFetchArray($fres)) {
         $data_type = $frow['data_type'];
@@ -71,18 +71,18 @@ if ($mode) {
             if ($value === '') {
                 $query = "DELETE FROM lbt_data WHERE " .
                 "form_id = ? AND field_id = ?";
-                sqlStatement($query, array($transid, $field_id));
+                sqlStatement($query, [$transid, $field_id]);
             } else {
                 $query = "REPLACE INTO lbt_data SET field_value = ?, " .
                 "form_id = ?, field_id = ?";
-                sqlStatement($query, array($value, $transid, $field_id));
+                sqlStatement($query, [$value, $transid, $field_id]);
             }
         } else { // new form
             if ($value !== '') {
                 sqlStatement(
                     "INSERT INTO lbt_data " .
                     "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
-                    array($newid, $field_id, $value)
+                    [$newid, $field_id, $value]
                 );
             }
         }
@@ -153,7 +153,7 @@ function end_group(): void
 }
 
 // If we are editing a transaction, get its ID and data.
-$trow = $transid ? getTransById($transid) : array();
+$trow = $transid ? getTransById($transid) : [];
 ?>
 <html>
 <head>
@@ -372,17 +372,17 @@ div.tab {
 }
 </style>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Add/Edit Patient Transaction'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "back",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "transactions.php",//only for actions - reset, link and back
     'show_help_icon' => true,
     'help_file_name' => "add_edit_transactions_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
@@ -481,7 +481,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         $fres = sqlStatement("SELECT * FROM layout_options " .
                           "WHERE form_id = ? AND uor > 0 " .
-                          "ORDER BY group_id, seq", array($form_id));
+                          "ORDER BY group_id, seq", [$form_id]);
                         $last_group = '';
 
                         while ($frow = sqlFetchArray($fres)) {
@@ -506,7 +506,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         $fres = sqlStatement("SELECT * FROM layout_options " .
                           "WHERE form_id = ? AND uor > 0 " .
-                          "ORDER BY group_id, seq", array($form_id));
+                          "ORDER BY group_id, seq", [$form_id]);
 
                         $last_group = '';
                         $cell_count = 0;
@@ -536,7 +536,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $currvalue = date('Y-m-d');
                                 } elseif ($field_id == 'body' && $transid > 0) {
                                      $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-                                      "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
+                                      "pid = ? ORDER BY date DESC LIMIT 1", [$pid]);
                                     if (!empty($tmp)) {
                                         $currvalue = $tmp['reason'];
                                     }

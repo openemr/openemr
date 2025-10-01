@@ -25,7 +25,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 
 // Note that the portal (api) route is only for patient role
 //  (there is a mechanism in place to ensure only patient role can access the portal (api) route)
-return array(
+return [
     /**
      *  @OA\Get(
      *      path="/portal/patient",
@@ -169,4 +169,4 @@ return array(
         $return = (new AppointmentRestController())->getOneForPatient($auuid, $request->getPatientUUIDString());
         return $return;
     }
-);
+];

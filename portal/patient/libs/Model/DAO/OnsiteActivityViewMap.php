@@ -57,7 +57,7 @@ class OnsiteActivityViewMap implements IDaoMap, IDaoMap2
     public static function GetFieldMaps()
     {
         if (self::$FM == null) {
-            self::$FM = array ();
+            self::$FM =  [];
             self::$FM["Id"] = new FieldMap("Id", "onsite_activity_view", "id", true, FM_TYPE_BIGINT, 20, null, false);
             self::$FM["Date"] = new FieldMap("Date", "onsite_activity_view", "date", false, FM_TYPE_DATETIME, null, null, false);
             self::$FM["PatientId"] = new FieldMap("PatientId", "onsite_activity_view", "patient_id", false, FM_TYPE_BIGINT, 20, null, false);
@@ -109,7 +109,7 @@ class OnsiteActivityViewMap implements IDaoMap, IDaoMap2
     public static function GetKeyMaps()
     {
         if (self::$KM == null) {
-            self::$KM = array ();
+            self::$KM =  [];
         }
 
         return self::$KM;

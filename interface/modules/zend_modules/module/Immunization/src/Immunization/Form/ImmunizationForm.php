@@ -24,39 +24,39 @@ class ImmunizationForm extends Form
         $this->setAttribute('method', 'post');
 
         // Codes
-        $this->add(array(
+        $this->add([
             'name' => 'codes',
             'type' => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+            'attributes' => [
                 'multiple' => 'multiple',
                 'size' => '3',
                 'class' => 'select',
                 'style' => 'width:150px',
                 'editable' => 'false',
                 'id' => 'codes'
-            ),
-            'options' => array(
-                'value_options' => array(
+            ],
+            'options' => [
+                'value_options' => [
                     '' => Listener::z_xlt('Unassigned'),
-                ),),
-        ));
+                ],],
+        ]);
 
-        $this->add(array(
+        $this->add([
             'name' => 'from_date',
             'type' => 'Laminas\Form\Element\Text',
-            'attributes' => array(
+            'attributes' => [
                 'id' => 'from_date',
                 'placeholder' => 'From Date',
                 'value' => date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7)),
                 'class' => 'date_field',
                 'style' => 'width: 42%;cursor:pointer;',
-            ),
-        ));
+            ],
+        ]);
 
-        $this->add(array(
+        $this->add([
             'name' => 'to_date',
             'type' => 'Date',
-            'attributes' => array(
+            'attributes' => [
                 'id' => 'to_date',
                 'placeholder' => 'To Date',
                 'class' => 'date_field',
@@ -64,29 +64,29 @@ class ImmunizationForm extends Form
                 'style' => 'width: 42%;cursor:pointer;',
                 'type' => 'text',
                 'onchange' => 'validate_search();'
-            ),
-        ));
+            ],
+        ]);
 
-        $this->add(array(
+        $this->add([
             'name' => 'search',
             'type' => 'submit',
-            'attributes' => array(
+            'attributes' => [
                 'value' => Listener::z_xlt('SEARCH'),
                 'id' => 'search_form_button',
-            ),
-        ));
-        $this->add(array(
+            ],
+        ]);
+        $this->add([
             'name' => 'print',
-            'attributes' => array(
+            'attributes' => [
                 'type' => 'button',
                 'value' => Listener::z_xlt('Print'),
                 'id' => 'printbutton',
-            ),
-        ));
-        $this->add(array(
+            ],
+        ]);
+        $this->add([
             'name' => 'hl7button',
             'type' => 'submit',
-            'attributes' => array(
+            'attributes' => [
                 'value' => Listener::z_xlt('GET HL7'),
                 'id' => 'hl7button',
                 'onclick' => 'getHl7(this.value);',
@@ -94,7 +94,7 @@ class ImmunizationForm extends Form
                 // shared sendTo will trigger this button to click...
                 // @see sendTo.js and immunization.js and search for #hl7button
                 'style' => 'display:none;'
-            ),
-        ));
+            ],
+        ]);
     }
 }

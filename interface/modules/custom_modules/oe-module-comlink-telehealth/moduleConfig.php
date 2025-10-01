@@ -48,7 +48,7 @@ if (!empty($_GET['setup']) ?? null) {
     foreach ($items as $key => $credential) {
         sqlQuery(
             "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
-            array($key, $credential, $key, $credential)
+            [$key, $credential, $key, $credential]
         );
     }
 

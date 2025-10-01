@@ -27,7 +27,7 @@ $alertmsg = '';
 if (!empty($_POST["form_pubpid"])) {
     $form_pubpid = trim($_POST["form_pubpid"]);
     $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
-    "pubpid = ?", array($form_pubpid));
+    "pubpid = ?", [$form_pubpid]);
     if ($result['count']) {
         // Error, not unique.
         $alertmsg = xl('Warning: Patient ID is not unique!');
@@ -41,13 +41,13 @@ require_once("$srcdir/options.inc.php");
 // Update patient_data and employer_data:
 // First, we prepare the data for insert into DB by querying the layout
 // fields to see what valid fields we have to insert from the post we are receiving
-$newdata = array();
-$newdata['patient_data'] = array();
-$newdata['employer_data'] = array();
+$newdata = [];
+$newdata['patient_data'] = [];
+$newdata['employer_data'] = [];
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND (uor > 0 OR field_id = 'pubpid') AND field_id != '' " .
   "ORDER BY group_id, seq");
-$addressFieldsToSave = array();
+$addressFieldsToSave = [];
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];

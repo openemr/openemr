@@ -53,7 +53,7 @@ if ($_POST['mode'] == 'Sphere') {
 
     $form_pid = $dataTrans['get']['patient_id_cc'];
 
-    $cc = array();
+    $cc = [];
     $cc["cardHolderName"] = $dataTrans['post']['name'];
     $cc['status'] = $dataTrans['post']['status_name'];
     $cc['authCode'] = $dataTrans['post']['authcode'];
@@ -85,7 +85,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
             exit();
         }
         $r = $response->getParsedData();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->getMessage();
         $cc['authCode'] = $r->transactionResponse->authCode;
@@ -122,7 +122,7 @@ if ($_POST['mode'] == 'Stripe') {
             exit();
         }
         $r = $response->getSource();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "Payment Successful" : "Failed";
         $cc['authCode'] = $r['fingerprint'];
@@ -180,7 +180,7 @@ function SaveAudit($pid, $amts, $cc)
 {
     $appsql = new ApplicationTable();
     try {
-        $audit = array();
+        $audit = [];
         $audit['patient_id'] = $pid;
         $audit['activity'] = "payment";
         $audit['require_audit'] = "1";
@@ -213,7 +213,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
 {
     $appsql = new ApplicationTable();
     try {
-        $audit = array();
+        $audit = [];
         $audit['patient_id'] = $pid;
         $audit['activity'] = "payment";
         $audit['require_audit'] = "1";

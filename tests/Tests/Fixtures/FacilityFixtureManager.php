@@ -78,7 +78,7 @@ class FacilityFixtureManager extends BaseFixtureManager
      */
     public function installSingleFacilityFixture($facilityFixture)
     {
-        return $this->installFixtures("facility", array($facilityFixture));
+        return $this->installFixtures("facility", [$facilityFixture]);
     }
 
     /**

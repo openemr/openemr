@@ -76,7 +76,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
 {
     //
     $str_html = '';
-    $err_ar = array();
+    $err_ar = [];
     //
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
@@ -89,10 +89,10 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
         $erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
-        $erseg = (isset($er['err'])) ? $er['err'] : array();
+        $erseg = (isset($er['err'])) ? $er['err'] : [];
     } else {
         $erstn = '';
-        $erseg = array();
+        $erseg = [];
     }
 
     //
@@ -364,10 +364,10 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
         $erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
-        $erseg = (isset($er['err'])) ? $er['err'] : array();
+        $erseg = (isset($er['err'])) ? $er['err'] : [];
     } else {
         $erstn = '';
-        $erseg = array();
+        $erseg = [];
     }
 
     //
@@ -380,7 +380,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
 
     //
     foreach ($segments as $key => $seg) {
-        $sar = array();
+        $sar = [];
         $idx++;
         $stsegct++;
         $bterr = 'btseg';
@@ -845,7 +845,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     $loopid = "0";
     $lx_ct = 0;
     $hasst = false;
-    $err_ar = array();
+    $err_ar = [];
     $idx = 0;
     $stsegct = 0;
     //
@@ -853,10 +853,10 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
         $erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
-        $erseg = (isset($er['err'])) ? $er['err'] : array();
+        $erseg = (isset($er['err'])) ? $er['err'] : [];
     } else {
         $erstn = '';
-        $erseg = array();
+        $erseg = [];
     }
 
     //
@@ -1126,18 +1126,18 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     if ($claimid) {
         // claimid can be for transaction, payment, or error response
         if ($trace && array_key_exists($claimid, $env_ar['ISA'])) {
-            $arg_ar = array('ISA13' => $claimid, 'keys' => true);
+            $arg_ar = ['ISA13' => $claimid, 'keys' => true];
             $segments = $x12obj->edih_x12_slice($arg_ar);
         } else {
             // claimid alone can be clm01 or bht03, if trace=true, expect trn02 for claimid
             foreach ($env_ar['ST'] as $st) {
                 if ($trace && $claimid == $st['trace']) {
-                    $arg_ar = array('ISA13' => $st['icn'], 'GS06' => $st['gsn'], 'trace' => $claimid, 'keys' => true);
+                    $arg_ar = ['ISA13' => $st['icn'], 'GS06' => $st['gsn'], 'trace' => $claimid, 'keys' => true];
                     $segments = $x12obj->edih_x12_slice($arg_ar);
                     break;
                 } elseif (in_array($claimid, $st['acct'])) {
                     if ($errs) {
-                        $arg_ar = array('ST02' => $st['stn'], 'ISA13' => $st['icn'], 'GS06' => $st['gsn'], 'keys' => true);
+                        $arg_ar = ['ST02' => $st['stn'], 'ISA13' => $st['icn'], 'GS06' => $st['gsn'], 'keys' => true];
                         $segments = $x12obj->edih_x12_slice($arg_ar);
                     } else {
                         // request for individual transaction segments
@@ -1149,7 +1149,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
                     // also possible that bht03 number is given for claimid
                     // this will likely be a 27x
                     if ($errs) {
-                        $arg_ar = array('ST02' => $st['stn'], 'ISA13' => $st['icn'], 'GS06' => $st['gsn'], 'keys' => true);
+                        $arg_ar = ['ST02' => $st['stn'], 'ISA13' => $st['icn'], 'GS06' => $st['gsn'], 'keys' => true];
                         $segments = $x12obj->edih_x12_slice($arg_ar);
                     } else {
                         $segments = $x12obj->edih_x12_transaction($claimid);
@@ -1188,7 +1188,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
         // append segments to single array
         // keys should not duplicate since all segments
         // are from the same x12 file
-        $trnsegs = array();
+        $trnsegs = [];
         for ($i = 0; $i < count($segments); $i++) {
             $trnsegs = array_merge($trnsegs, $segments[$i]);
         }

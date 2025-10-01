@@ -132,8 +132,8 @@ function create_client_cert(): void
 function delete_certificates(): void
 {
     $tempDir = $GLOBALS['temporary_files_dir'];
-    $files = array("CertificateAuthority.key", "CertificateAuthority.crt",
-                   "Server.key", "Server.crt", "admin.p12", "ssl.zip");
+    $files = ["CertificateAuthority.key", "CertificateAuthority.crt",
+                   "Server.key", "Server.crt", "admin.p12", "ssl.zip"];
 
     foreach ($files as $file) {
         if (file_exists($file)) {
@@ -306,8 +306,8 @@ function create_and_download_certificates(): void
         }
 
         if ($zip->open($zipName, ZipArchive::CREATE)) {
-            $files = array("CertificateAuthority.key", "CertificateAuthority.crt",
-                       "Server.key", "Server.crt", "admin.p12");
+            $files = ["CertificateAuthority.key", "CertificateAuthority.crt",
+                       "Server.key", "Server.crt", "admin.p12"];
             foreach ($files as $file) {
                  $zip->addFile($tempDir . "/" . $file, $file);
             }

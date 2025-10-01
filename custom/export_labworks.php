@@ -36,7 +36,7 @@
  // Add a string to output with some basic sanitizing.
 function custom_labworks_Add($field)
 {
-    return "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
+    return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
  // Remove all non-digits from a string.
@@ -93,11 +93,11 @@ function mydie($msg): void
 
  // This mess gets all the info for the patient.
  //
- $insrow = array();
+ $insrow = [];
  global $pid; // defined in globals.php
-foreach (array('primary','secondary') as $value) {
+foreach (['primary','secondary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);
 }
 
  $query = "SELECT " .
@@ -128,13 +128,13 @@ foreach (array('primary','secondary') as $value) {
   "LEFT OUTER JOIN addresses AS a2 ON a2.foreign_id = c2.id " .
   "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query, array($insrow[0]['id'], $insrow[1]['id'], $pid)));
+ $row = sqlFetchArray(sqlStatement($query, [$insrow[0]['id'], $insrow[1]['id'], $pid]));
 
  // Get primary care doc info.  If none was selected in the patient
  // demographics then pick the #1 doctor in the clinic.
  //
  $query = "select id, fname, mname, lname from users where authorized = 1";
- $sqlBindArray = array();
+ $sqlBindArray = [];
 if ($row['providerID']) {
     $query .= " AND id = ?";
     array_push($sqlBindArray, $row['providerID']);

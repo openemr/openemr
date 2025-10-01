@@ -42,10 +42,10 @@ class ControllerAjax extends BaseController
     public function _action_getRulesOfPlan()
     {
         $rules = RulesPlanMappingEventHandlers::getRulesInPlan($_GET["plan_id"]);
-        $rules_list = array();
+        $rules_list = [];
 
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id' => $key, 'rule_title' => $value);
+            $rule_info = ['rule_id' => $key, 'rule_title' => $value];
             array_push($rules_list, $rule_info);
         }
 
@@ -55,10 +55,10 @@ class ControllerAjax extends BaseController
     public function _action_getRulesNotInPlan()
     {
         $rules = RulesPlanMappingEventHandlers::getRulesNotInPlan($_GET["plan_id"]);
-        $rules_list = array();
+        $rules_list = [];
 
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id' => $key, 'rule_title' => $value);
+            $rule_info = ['rule_id' => $key, 'rule_title' => $value];
             array_push($rules_list, $rule_info);
         }
 
@@ -68,16 +68,16 @@ class ControllerAjax extends BaseController
     public function _action_getRulesInAndNotInPlan()
     {
         $rules = RulesPlanMappingEventHandlers::getRulesInPlan($_GET["plan_id"]);
-        $rules_list = array();
+        $rules_list = [];
 
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id' => $key, 'rule_title' => $value, 'selected' => 'true');
+            $rule_info = ['rule_id' => $key, 'rule_title' => $value, 'selected' => 'true'];
             array_push($rules_list, $rule_info);
         }
 
         $rules = RulesPlanMappingEventHandlers::getRulesNotInPlan($_GET["plan_id"]);
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id' => $key, 'rule_title' => $value, 'selected' => 'false');
+            $rule_info = ['rule_id' => $key, 'rule_title' => $value, 'selected' => 'false'];
             array_push($rules_list, $rule_info);
         }
 
@@ -108,7 +108,7 @@ class ControllerAjax extends BaseController
                     $status_mssg = xl('Plan Already in list_options');
                 }
 
-                $status = array('status_code' => $status_code, 'status_message' => $status_mssg, 'plan_id' => $plan_id, 'plan_title' => $plan_name);
+                $status = ['status_code' => $status_code, 'status_message' => $status_mssg, 'plan_id' => $plan_id, 'plan_title' => $plan_name];
                 $this->emit_json($status);
 
                 return;
@@ -117,7 +117,7 @@ class ControllerAjax extends BaseController
             RulesPlanMappingEventHandlers::submitChanges($plan_id, $added_rules, $removed_rules);
         }
 
-        $status = array('status_code' => '000', 'status_message' => 'Success', 'plan_id' => $plan_id, 'plan_title' => $plan_name);
+        $status = ['status_code' => '000', 'status_message' => 'Success', 'plan_id' => $plan_id, 'plan_title' => $plan_name];
         $this->emit_json($status);
     }
 
@@ -150,7 +150,7 @@ class ControllerAjax extends BaseController
         $isPlanActive = RulesPlanMappingEventHandlers::isPlanActive($plan_id);
         $isPlanActive = ($isPlanActive) ? 1 : 0;
 
-        $plan_status = array('plan_id' => attr($plan_id), 'is_plan_active' => $isPlanActive);
+        $plan_status = ['plan_id' => attr($plan_id), 'is_plan_active' => $isPlanActive];
         $this->emit_json($plan_status);
     }
 }

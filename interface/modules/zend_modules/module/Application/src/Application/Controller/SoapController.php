@@ -41,7 +41,7 @@ class SoapController extends AbstractActionController
         // @see https://framework.zend.com/blog/2017-01-24-zend-soap-server.html for more details
         $server = new Server(
             null,
-            array('uri' => 'http://localhost/index/soap')
+            ['uri' => 'http://localhost/index/soap']
         );
         // set SOAP service class
         // Bind already initialized object to Soap Server
