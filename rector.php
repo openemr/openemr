@@ -47,6 +47,7 @@ use Rector\Php80\Rector\Identical\StrEndsWithRector;
 use Rector\Php80\Rector\Identical\StrStartsWithRector;
 use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Php81\Rector\Array_\FirstClassCallableRector;
 use Rector\Php81\Rector\MethodCall\RemoveReflectionSetAccessibleCallsRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
@@ -103,6 +104,7 @@ return RectorConfig::configure()
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
         DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
         EregToPregMatchRector::class, // one of the withPhpSets rules
+        FirstClassCallableRector::class, // one of the withPhpSets rules
         IfIssetToCoalescingRector::class, // one of the withPhpSets rules
         IfToSpaceshipRector::class, // one of the withPhpSets rules
         ListToArrayDestructRector::class, // one of the withPhpSets rules
