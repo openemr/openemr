@@ -7,6 +7,7 @@ declare(strict_types=1);
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
+use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
@@ -57,6 +58,7 @@ return RectorConfig::configure()
         ClassConstantToSelfClassRector::class, // one of the withPhpSets rules
         ConsistentImplodeRector::class, // one of the withPhpSets rules
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
+        DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
