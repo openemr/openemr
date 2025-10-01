@@ -21,7 +21,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
-require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
+require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 require_once("$srcdir/appointments.inc.php");

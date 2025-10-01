@@ -11,9 +11,9 @@
 
 $is_module = $_POST['isModule'] ?? 0;
 if ($is_module) {
-    require_once(dirname(__file__) . '/../../interface/globals.php');
+    require_once(__DIR__ . '/../../interface/globals.php');
 } else {
-    require_once(dirname(__file__) . "/../verify_session.php");
+    require_once(__DIR__ . "/../verify_session.php");
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['pid'])) {
         if ($_POST['pid'] != $_SESSION['pid']) {
