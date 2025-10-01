@@ -271,7 +271,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         $this->_folded_blocks = $match;
 
         /* replace special blocks by "{php}" */
-        $source_content = preg_replace_callback($search, [$this,'_preg_callback']
+        $source_content = preg_replace_callback($search, $this->_preg_callback(...)
                                        , $source_content);
 
         /* Gather all template tags. */

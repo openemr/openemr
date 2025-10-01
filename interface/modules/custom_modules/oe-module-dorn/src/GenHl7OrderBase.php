@@ -27,7 +27,7 @@ class GenHl7OrderBase
     {
         if (is_array($data) && count($data) > 1) {
             // Run each element through $this->hl7Text()
-            $data = array_map([$this, 'hl7Text'], $data);
+            $data = array_map($this->hl7Text(...), $data);
             return implode($this->componentSeparator, $data);
         } else {
             // Run the single element through $this->hl7Text()

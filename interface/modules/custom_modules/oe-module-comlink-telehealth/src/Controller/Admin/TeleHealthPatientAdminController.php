@@ -37,9 +37,9 @@ class TeleHealthPatientAdminController
 
     public function subscribeToEvents(EventDispatcher $dispatcher)
     {
-        $dispatcher->addListener(PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE, [$this, 'setupRegistrationCodeField']);
+        $dispatcher->addListener(PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE, $this->setupRegistrationCodeField(...));
 
-        $dispatcher->addListener(PortalCredentialsUpdatedEvent::EVENT_UPDATE_POST, [$this, 'saveRegistrationCode']);
+        $dispatcher->addListener(PortalCredentialsUpdatedEvent::EVENT_UPDATE_POST, $this->saveRegistrationCode(...));
     }
 
     public function saveRegistrationCode(PortalCredentialsUpdatedEvent $event)

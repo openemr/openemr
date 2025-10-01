@@ -455,10 +455,7 @@ class Mime_Types
             $type_info ['type'] = substr($type, 0, $slash_pos);
         }
 
-        $this->scan([
-                &$this,
-                '_remove_type_callback'
-        ], $type_info);
+        $this->scan($this->_remove_type_callback(...), $type_info);
     }
 
     /**

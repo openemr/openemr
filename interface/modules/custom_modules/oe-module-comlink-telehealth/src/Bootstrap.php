@@ -197,7 +197,7 @@ class Bootstrap
 
     public function subscribeToProviderEvents()
     {
-        $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, [$this, 'createSessionRecord'], 10);
+        $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, $this->createSessionRecord(...), 10);
     }
 
     public function createSessionRecord(AppointmentSetEvent $event)
@@ -215,8 +215,8 @@ class Bootstrap
 
     public function subscribeToTemplateEvents()
     {
-        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, [$this, 'addTemplateOverrideLoader']);
-        $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderMainBodyTelehealthScripts']);
+        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, $this->addTemplateOverrideLoader(...));
+        $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, $this->renderMainBodyTelehealthScripts(...));
     }
 
 
@@ -259,7 +259,7 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalTeleHealthSettings']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalTeleHealthSettings(...));
     }
 
     public function addGlobalTeleHealthSettings(GlobalsInitializedEvent $event)
