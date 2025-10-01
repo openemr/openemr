@@ -16572,10 +16572,6 @@ parameters:
     identifier: requireOnce.fileNotFound
     count: 1
     path: portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php
-  - message: '#^Access to an undefined property CriteriaFilter\:\:\$PropertyNames\.$#'
-    identifier: property.notFound
-    count: 2
-    path: portal/patient/fwk/libs/verysimple/Phreeze/CriteriaFilter.php
   - message: '#^Path in include_once\(\) "verysimple/DB/DataDriver/MySQL\.php" is not a file or it does not exist\.$#'
     identifier: includeOnce.fileNotFound
     count: 1
