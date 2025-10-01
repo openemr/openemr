@@ -104,7 +104,7 @@ function bookmarkReportDatabase()
     }
 
   // Set the bookmark token
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,"bookmark",1]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"bookmark",1]);
 
     return $new_report_id;
 }
@@ -133,11 +133,11 @@ function beginReportDatabase($type, $fields, $report_id = null)
     }
 
   // Set the required tokens
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,"progress","pending"]);
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,"type",$type]);
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,"progress_items","0"]);
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,"data",""]);
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,"date_report",date("Y-m-d H:i:s")]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"progress","pending"]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"type",$type]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"progress_items","0"]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"data",""]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"date_report",date("Y-m-d H:i:s")]);
 
   // Set the fields tokens
     if (!empty($fields)) {
@@ -157,7 +157,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
             }
 
             // place the token
-            sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$new_report_id,$key,$value]);
+            sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,$key,$value]);
         }
     }
 
@@ -175,7 +175,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
 function setTotalItemsReportDatabase($report_id, $total_items): void
 {
   // Insert the total items that are to be processed
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$report_id,"total_items",$total_items]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$report_id,"total_items",$total_items]);
 }
 
 /**
@@ -206,7 +206,7 @@ function finishReportDatabase($report_id, $data): void
     sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", [$data,$report_id]);
 
   // Record the finish date/time
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)",  [$report_id,"date_report_complete",date("Y-m-d H:i:s")]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$report_id,"date_report_complete",date("Y-m-d H:i:s")]);
 
   // Set progress to complete
     sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", [$report_id]);

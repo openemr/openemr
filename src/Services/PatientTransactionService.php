@@ -206,7 +206,7 @@ class PatientTransactionService extends BaseService
             (?,  'refer_validThrough', ?)
         ";
 
-        $params = 
+        $params =
         [
             $transactionId, $data["body"],
             $transactionId, $data["referralDate"],

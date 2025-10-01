@@ -36,7 +36,7 @@ class TwigRenderEngine implements IRenderEngine
     function __construct($templatePath = '', $compilePath = '')
     {
         $this->loader = new Twig_Loader_Filesystem($templatePath);
-        $this->twig = new Twig_Environment($this->loader,  [
+        $this->twig = new Twig_Environment($this->loader, [
                 'cache' => $compilePath
         ]);
     }

@@ -46,7 +46,7 @@ class ExceptionThrower
             }
         }
 
-        set_error_handler( [
+        set_error_handler([
                 "ExceptionThrower",
                 "HandleError"
         ], $level);

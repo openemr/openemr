@@ -116,7 +116,7 @@ class Dispatcher
             $controller_filepath = null;
 
             // search for the controller file in the default locations, then the include path
-            $paths = array_merge( [
+            $paths = array_merge([
                     './libs/',
                     './'
             ], explode(PATH_SEPARATOR, get_include_path()));
@@ -156,7 +156,7 @@ class Dispatcher
 
         // we have a valid instance, just verify there is a matching method
         if (
-            ! is_callable( [
+            ! is_callable([
                 $controller,
                 $method_param
             ])
@@ -167,7 +167,7 @@ class Dispatcher
         // do not call the requested method/route if the controller request has been cancelled
         if (! $controller->IsTerminated()) {
             // file, class and method all are ok, go ahead and call it
-            call_user_func( [
+            call_user_func([
                     &$controller,
                     $method_param
             ]);

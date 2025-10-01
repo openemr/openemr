@@ -209,7 +209,7 @@ class Mime_Types
                 $pattern = '[a-z0-9.+_-]';
                 if (preg_match('!((' . $pattern . '+)/' . $pattern . '+)!', $result, $match)) {
                     if (
-                        in_array($match [2],  [
+                        in_array($match [2], [
                             'application',
                             'audio',
                             'image',
@@ -459,7 +459,7 @@ class Mime_Types
             $type_info ['type'] = substr($type, 0, $slash_pos);
         }
 
-        $this->scan( [
+        $this->scan([
                 &$this,
                 '_remove_type_callback'
         ], $type_info);

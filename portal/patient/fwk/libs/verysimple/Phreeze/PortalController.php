@@ -793,7 +793,7 @@ abstract class PortalController
             $message = ! $cu || $cu->IsAnonymous() ? $not_authenticated_feedback : $permission_denied_feedback;
 
             if ($on_fail_action && $this->IsApiRequest() == false) {
-                $this->Redirect($on_fail_action,  [
+                $this->Redirect($on_fail_action, [
                         'feedback' => $message,
                         'warning' => $message
                 ]);

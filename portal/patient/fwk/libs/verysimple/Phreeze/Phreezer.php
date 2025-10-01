@@ -380,7 +380,7 @@ class Phreezer extends Observable
 */
     static function Sort(&$objects)
     {
-        usort($objects,  [
+        usort($objects, [
         "Phreezer",
         "Compare"
         ]);
@@ -715,7 +715,7 @@ class Phreezer extends Observable
             throw new Exception($objectclass . " must either implement GetCustomQuery or '" . $objectclass . "Map' class must exist in the include path.");
         }
 
-        $fms = call_user_func( [
+        $fms = call_user_func([
         $objectclass . "Map",
         "GetFieldMaps"
         ]);
@@ -734,7 +734,7 @@ class Phreezer extends Observable
     public function GetCustomQuery($objectclass, $criteria)
     {
         $this->IncludeModel($objectclass);
-        $sql = call_user_func( [
+        $sql = call_user_func([
         $objectclass,
         "GetCustomQuery"
         ], $criteria);
@@ -752,7 +752,7 @@ class Phreezer extends Observable
     public function GetCustomCountQuery($objectclass, $criteria)
     {
         $this->IncludeModel($objectclass);
-        $sql = call_user_func( [
+        $sql = call_user_func([
         $objectclass,
         "GetCustomCountQuery"
         ], $criteria);
@@ -791,7 +791,7 @@ class Phreezer extends Observable
             throw new Exception("Class '" . $objectclass . "Map' is not defined.");
         }
 
-        $kms = call_user_func( [
+        $kms = call_user_func([
         $objectclass . "Map",
         "GetKeyMaps"
         ]);
@@ -1004,7 +1004,7 @@ class Phreezer extends Observable
 */
     public function IncludeModel($objectclass)
     {
-        Includer::RequireClass($objectclass,  [
+        Includer::RequireClass($objectclass, [
         "Model/",
         "Reporter/"
         ]);

@@ -617,7 +617,7 @@ class RequestUtil
      */
     public static function GetCurrency($fieldname)
     {
-        return str_replace( [
+        return str_replace([
                 ',',
                 '$'
         ], '', self::Get($fieldname));

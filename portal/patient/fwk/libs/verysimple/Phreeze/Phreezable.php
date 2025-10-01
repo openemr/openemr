@@ -167,7 +167,7 @@ abstract class Phreezable implements Serializable
      */
     function GetObject($props = null, $camelCase = false)
     {
-        return $this->ToObject( [
+        return $this->ToObject([
                 'props' => $props,
                 'camelCase' => $camelCase
         ]);
