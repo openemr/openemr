@@ -22,7 +22,7 @@ function group_attendance_report($pid, $encounter, $cols, $id): void
     global $therapy_group;
     $encounter = $_SESSION["encounter"];
     $sql = "SELECT * FROM `form_group_attendance` WHERE id=? AND group_id = ? AND encounter_id = ?";
-    $res = sqlStatement($sql, array($id,$therapy_group, $encounter));
+    $res = sqlStatement($sql, [$id,$therapy_group, $encounter]);
     $form_data = sqlFetchArray($res);
     $group_data = getGroup($therapy_group);
     $group_name = $group_data['group_name'];

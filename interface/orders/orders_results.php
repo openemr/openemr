@@ -388,7 +388,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 </tr>
 
                 <?php
-                $sqlBindArray = array();
+                $sqlBindArray = [];
 
                 $selects =
                     "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
@@ -441,7 +441,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 $lino = 0;
                 $extra_html = '';
                 $lastrcn = '';
-                $facilities = array();
+                $facilities = [];
 
                 while ($row = sqlFetchArray($res)) {
                     $order_type_id = empty($row['order_type_id']) ? 0 : ($row['order_type_id'] + 0);
@@ -465,7 +465,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         }
                     }
 
-                    $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
+                    $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", [$order_id]));
                     // skip the procedure that has been deleted from the encounter form
                     if ($query_test['deleted'] == 1) {
                         continue;

@@ -158,7 +158,7 @@ class FacilityApiTest extends TestCase
     {
         $this->fixtureManager->installFacilityFixtures();
 
-        $actualResponse = $this->testClient->get(self::FACILITY_API_ENDPOINT, array("facility_npi" => "0123456789"));
+        $actualResponse = $this->testClient->get(self::FACILITY_API_ENDPOINT, ["facility_npi" => "0123456789"]);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);

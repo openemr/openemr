@@ -182,7 +182,7 @@ class ClinicalNoteParser
     {
         $contentLines = [];
         foreach ($item->childNodes as $child) {
-            $child->textContent = str_replace(array("\n\n\n\n", "\n\n", "\r\r", "\r\r\r\r"), "\n", $child->textContent);
+            $child->textContent = str_replace(["\n\n\n\n", "\n\n", "\r\r", "\r\r\r\r"], "\n", $child->textContent);
             $text = trim($child->textContent);
             if ($text) {
                 $contentLines[] = $text;

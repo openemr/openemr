@@ -63,7 +63,7 @@ class QrdaReportService
         $year = trim($GLOBALS['cqm_performance_period'] ?: '2022');
         $list = 'ecqm_' . $year . '_reporting';
         $active = $scope == 'active' ? 1 : 0;
-        $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", array($list, $active));
+        $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", [$list, $active]);
         while ($row = sqlFetchArray($results)) {
             $measures[] = $row;
         }

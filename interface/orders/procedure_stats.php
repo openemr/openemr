@@ -43,30 +43,30 @@ if (empty($form_by)) {
 }
 
 if (empty($form_show)) {
-    $form_show = array('1');
+    $form_show = ['1'];
 }
 
 // One of these is chosen as the left column, or Y-axis, of the report.
 //
 $report_title = xl('Procedure Statistics Report');
-$arr_by = array(
+$arr_by = [
   4  => xl('Specific Result'),
   5  => xl('Followups Indicated'),
-);
+];
 
 // This will become the array of reportable values.
-$areport = array();
+$areport = [];
 
 // This accumulates the bottom line totals.
-$atotals = array();
+$atotals = [];
 
-$arr_show   = array(
+$arr_show   = [
   // '.total' => array('title' => 'Total Positives'),
-  '.tneg'  => array('title' => 'Total Negatives'),
-  '.age'   => array('title' => 'Age Category'),
-); // info about selectable columns
+  '.tneg'  => ['title' => 'Total Negatives'],
+  '.age'   => ['title' => 'Age Category'],
+]; // info about selectable columns
 
-$arr_titles = array(); // will contain column headers
+$arr_titles = []; // will contain column headers
 
 // Query layout_options table to generate the $arr_show table.
 // Table key is the field ID.
@@ -86,7 +86,7 @@ while ($lrow = sqlFetchArray($lres)) {
     }
 
     $arr_show[$fid] = $lrow;
-    $arr_titles[$fid] = array();
+    $arr_titles[$fid] = [];
 }
 
 // Compute age in years given a DOB and "as of" date.
@@ -133,7 +133,7 @@ function genEndRow(): void
 function getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
-    "list_id = ? AND option_id = ? AND activity = 1", array($list, $option));
+    "list_id = ? AND option_id = ? AND activity = 1", [$list, $option]);
     if (empty($row['title'])) {
         return $option;
     }
@@ -147,7 +147,7 @@ function genAnyCell($data, $right = false, $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
-        $data = array(0 => $data);
+        $data = [0 => $data];
     }
 
     foreach ($data as $datum) {
@@ -210,18 +210,18 @@ function loadColumnData(string $key, array $row): void
 
   // If first instance of this key, initialize its arrays.
     if (empty($areport[$key])) {
-        $areport[$key] = array();
+        $areport[$key] = [];
         $areport[$key]['.prp'] = 0;       // previous pid
         $areport[$key]['.wom'] = 0;       // number of positive results for women
         $areport[$key]['.men'] = 0;       // number of positive results for men
         $areport[$key]['.neg'] = 0;       // number of negative results
-        $areport[$key]['.age'] = array(0,0,0,0,0,0,0,0,0); // age array
+        $areport[$key]['.age'] = [0,0,0,0,0,0,0,0,0]; // age array
         foreach ($arr_show as $askey => $dummy) {
             if (substr($askey, 0, 1) == '.') {
                 continue;
             }
 
-            $areport[$key][$askey] = array();
+            $areport[$key][$askey] = [];
         }
     }
 
@@ -383,7 +383,7 @@ $(function () {
         <div class="col">
             <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
                 <?php
-                foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
+                foreach ([3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')] as $key => $value) {
                     echo "       <option value='" . attr($key) . "'";
                     if ($key == $form_sexes) {
                         echo " selected";
@@ -428,7 +428,7 @@ $(function () {
             <?php echo xlt('To{{Destination}}'); ?>:
 
             <?php
-            foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
+            foreach ([1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')] as $key => $value) {
                 echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
                 if ($key == $form_output) {
                     echo ' checked';
@@ -470,7 +470,7 @@ if (!empty($_POST['form_submit'])) {
             continue;
         }
 
-        $pd_fields .= ', pd.' . escape_sql_column_name($askey, array('patient_data'));
+        $pd_fields .= ', pd.' . escape_sql_column_name($askey, ['patient_data']);
     }
 
     $sexcond = '';
@@ -483,7 +483,7 @@ if (!empty($_POST['form_submit'])) {
     // This gets us all results, with encounter and patient
     // info attached and grouped by patient and encounter.
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT " .
     "po.patient_id, po.encounter_id, po.date_ordered, " .
@@ -538,7 +538,7 @@ if (!empty($_POST['form_submit'])) {
     // genHeadCell($arr_by[$form_by]);
     // If the key is an MA or IPPF code, then add a column for its description.
     if ($form_by === '5') {
-        genHeadCell(array($arr_by[$form_by], xl('Description')));
+        genHeadCell([$arr_by[$form_by], xl('Description')]);
     } else {
         genHeadCell($arr_by[$form_by]);
     }
@@ -588,9 +588,9 @@ if (!empty($_POST['form_submit'])) {
         if ($form_by === '5') {
             [$codetype, $code] = explode(':', $key);
             $type = $code_types[$codetype]['id'];
-            $dispkey = array($key, '');
+            $dispkey = [$key, ''];
             $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-            "code_type = ? AND code = ? ORDER BY id LIMIT 1", array($type, $code));
+            "code_type = ? AND code = ? ORDER BY id LIMIT 1", [$type, $code]);
             if (!empty($crow['code_text'])) {
                 $dispkey[1] = $crow['code_text'];
             }
@@ -638,7 +638,7 @@ if (!empty($_POST['form_submit'])) {
       // genHeadCell(xl('Totals'));
       // If the key is an MA or IPPF code, then add a column for its description.
         if ($form_by === '5') {
-            genHeadCell(array(xl('Totals'), ''));
+            genHeadCell([xl('Totals'), '']);
         } else {
             genHeadCell(xl('Totals'));
         }

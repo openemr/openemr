@@ -22,15 +22,15 @@ use OpenEMR\Billing\BillingReport;
 
 // TPS = This Page Search
 
-$TPSCriteriaKey = array();
-$TPSCriteriaDataType = array();
-$TPSCriteriaDisplay = array();
-$TPSCriteriaRadioKey = array();
-$TPSCriteriaDisplayRadio = array();
-$TPSCriteriaQueryDropDown = array();
-$TPSCriteriaQueryDropDownDefault = array();
-$TPSCriteriaQueryDropDownDefaultKey = array();
-$TPSCriteriaInclude = array();
+$TPSCriteriaKey = [];
+$TPSCriteriaDataType = [];
+$TPSCriteriaDisplay = [];
+$TPSCriteriaRadioKey = [];
+$TPSCriteriaDisplayRadio = [];
+$TPSCriteriaQueryDropDown = [];
+$TPSCriteriaQueryDropDownDefault = [];
+$TPSCriteriaQueryDropDownDefaultKey = [];
+$TPSCriteriaInclude = [];
 // Filling the input array.
 $TPSCriteriaDisplay = $TPSCriteriaDisplayMaster;
 $TPSCriteriaKey = explode(',', $TPSCriteriaKeyMaster);

@@ -38,7 +38,7 @@ if ($pid) {
         die(xlt('You are not authorized to access this squad.'));
     }
 } else {
-    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
         die(xlt('Adding demographics is not authorized.'));
     }
 }
@@ -54,13 +54,13 @@ $relatedValues = $relSvc->collectFromPostAndStrip($_POST); // removes form_relat
 
 // Update patient_data and employer_data:
 //
-$newdata = array();
+$newdata = [];
 $newdata['patient_data']['id'] = $_POST['db_id'];
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_id, seq");
 
-$addressFieldsToSave = array();
+$addressFieldsToSave = [];
 while ($frow = sqlFetchArray($fres)) {
     // Skip related-person fields from patient_data $newdata
     if ($relSvc->isRelatedFieldId($frow['field_id'])) {

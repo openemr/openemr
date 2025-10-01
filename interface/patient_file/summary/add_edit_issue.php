@@ -64,7 +64,7 @@ $info_msg = "";
 // A nonempty thistype is an issue type to be forced for a new issue.
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
-if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', array('write', 'addonly'))) {
+if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', ['write', 'addonly'])) {
     die(xlt("Add is not authorized!"));
 }
 
@@ -111,8 +111,8 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
     // Active Issue Code Recycle Function authored by epsdky (2014-2015) //
     ///////////////////////////////////////////////////////////////////////
 
-    $modeIssueTypes = array();
-    $issueTypeIdx2 = array();
+    $modeIssueTypes = [];
+    $issueTypeIdx2 = [];
     $idx2 = 0;
 
     foreach ($ISSUE_TYPES2 as $issueTypeX => $isJunk) {
@@ -121,11 +121,11 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
         ++$idx2;
     }
 
-    $pe2 = array($thispid2);
+    $pe2 = [$thispid2];
     $qs2 = str_repeat('?, ', count($modeIssueTypes) - 1) . '?';
     $sqlParameters2 = array_merge($pe2, $modeIssueTypes);
 
-    $codeList2 = array();
+    $codeList2 = [];
 
     $issueCodes2 = sqlStatement(
         "SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)",
@@ -144,12 +144,12 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
         sort($codeList2);
     }
 
-    $memberCodes = array();
-    $memberCodes[0] = array();
-    $memberCodes[1] = array();
-    $memberCodes[2] = array();
+    $memberCodes = [];
+    $memberCodes[0] = [];
+    $memberCodes[1] = [];
+    $memberCodes[2] = [];
 
-    $allowedCodes2 = array();
+    $allowedCodes2 = [];
     $allowedCodes2[0] = collect_codetypes("medical_problem");
     $allowedCodes2[1] = collect_codetypes("diagnosis");
     $allowedCodes2[2] = collect_codetypes("drug");
@@ -192,7 +192,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
     }
 
     // map issues to a set of display options
-    $modeIndexMapping = array();
+    $modeIndexMapping = [];
 
     foreach ($modeIssueTypes as $akey2 => $isJunk) {
         $modeIndexMapping[$akey2] = 3;
@@ -332,7 +332,7 @@ if (!empty($_POST['form_save'])) {
     exit();
 }
 
-$irow = array();
+$irow = [];
 if ($issue) {
     $patientIssuesService = new PatientIssuesService();
     $irow = $patientIssuesService->getOneById($issue);
@@ -355,7 +355,7 @@ if (!empty($irow['type'])) {
     }
 }
 
-$code_texts = array();
+$code_texts = [];
 
 function getCodeText($code)
 {
@@ -404,7 +404,7 @@ function getCodeText($code)
         echo " aopts[" . attr($i) . "] = new Array();\n";
         $qry = sqlStatement(
             "SELECT * FROM list_options WHERE list_id = ? AND activity = 1",
-            array($key . "_issue_list")
+            [$key . "_issue_list"]
         );
         while ($res = sqlFetchArray($qry)) {
             echo " opt = new Option(" .
@@ -769,7 +769,7 @@ function getCodeText($code)
                         "f.pid = ? AND f.issue_id = ? AND f.deleted = 0 AND " .
                         "fe.pid = f.pid and fe.encounter = f.encounter " .
                         "ORDER BY fe.date DESC, f.id DESC",
-                    array($thispid, $issue)
+                    [$thispid, $issue]
                 );
                 while ($vrow = sqlFetchArray($vres)) {
                     $formdir = $vrow['formdir'];
@@ -796,7 +796,7 @@ function getCodeText($code)
                                 <?php
                                 // action setting not required in html5.  By default form will submit to itself.
                                 // Provide key values previously passed as part of action string.
-                                foreach (array('issue' => $issue, 'thispid' => $thispid, 'thisenc' => $thisenc) as $fldName => $fldVal) {
+                                foreach (['issue' => $issue, 'thispid' => $thispid, 'thisenc' => $thisenc] as $fldName => $fldVal) {
                                     printf('<input name="%s" type="hidden" value="%s"/>%s', attr($fldName), attr($fldVal), PHP_EOL);
                                 }
                                 ?>
@@ -866,7 +866,7 @@ function getCodeText($code)
                                 <label for="form_severity_id"><?php echo xlt('Severity'); ?>:</label>
                                 <?php
                                 $severity = $irow['severity_al'] ?? null;
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'severity_id', 'list_id' => 'severity_ccda', 'empty_title' => 'SKIP'), $severity);
+                                generate_form_field(['data_type' => 1, 'field_id' => 'severity_id', 'list_id' => 'severity_ccda', 'empty_title' => 'SKIP'], $severity);
                                 ?>
                             </div>
                             <!-- End of reaction -->
@@ -934,7 +934,7 @@ function getCodeText($code)
                                     <label for="form_occur"><?php echo xlt('Occurrence'); ?>:</label>
                                     <?php
                                     // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
-                                    generate_form_field(array('data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'), ($irow['occurrence'] ?? null));
+                                    generate_form_field(['data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'], ($irow['occurrence'] ?? null));
                                     ?>
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : '';?>">

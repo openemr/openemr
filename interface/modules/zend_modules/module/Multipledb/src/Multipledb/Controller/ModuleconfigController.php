@@ -36,33 +36,33 @@ class ModuleconfigController
         //AND IT’S ACTION IN THE PATH, (INCLUDING INDEX ACTION)
 
         //EXAMPLES!!
-        $hooks = array (
+        $hooks =  [
             // hook for patient screen low security
-            array (
+             [
                 'name' => "multipledb",
                 'title' => "Multipledb",
                 'path' => "public/multipledb",
-            )
-        );
+            ]
+        ];
         return $hooks;
     }
 
     public function getDependedModulesConfig()
     {
-        return array();
+        return [];
     }
 
     public function getAclConfig()
     {
         //new acl rule for disallow using in the General setting screen
         //EXAMPLES!!
-        $acl = array(
-            array(
+        $acl = [
+            [
                 'section_id' => "multipledb",
                 'section_name' => "Multipledb",
                 'parent_section' => ""
-            )
-        );
+            ]
+        ];
         return $acl;
     }
 }

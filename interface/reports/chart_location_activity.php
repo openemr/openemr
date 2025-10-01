@@ -73,11 +73,11 @@ $form_patient_id = trim($_POST['form_patient_id'] ?? '');
 
 <?php
 $curr_pid = $pid;
-$ptrow = array();
+$ptrow = [];
 if (!empty($form_patient_id)) {
     $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pubpid = ? ORDER BY pid LIMIT 1";
-    $ptrow = sqlQuery($query, array($form_patient_id));
+    $ptrow = sqlQuery($query, [$form_patient_id]);
     if (empty($ptrow)) {
         $curr_pid = 0;
         echo "<font color='red'>" . xlt('Chart ID') . " '" . text($form_patient_id) . "' " . xlt('not found!') . "</font><br />&nbsp;<br />";
@@ -87,7 +87,7 @@ if (!empty($form_patient_id)) {
 } elseif (!empty($curr_pid)) {
     $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pid = ?";
-    $ptrow = sqlQuery($query, array($curr_pid));
+    $ptrow = sqlQuery($query, [$curr_pid]);
     $form_patient_id = $ptrow['pubpid'];
 }
 
@@ -164,7 +164,7 @@ if (!empty($_POST['form_refresh']) || !empty($ptrow)) {
 </thead>
 <tbody>
     <?php
-    $row = array();
+    $row = [];
     if (!empty($ptrow)) {
         $res = PatientService::getChartTrackerInformationActivity($curr_pid);
         while ($row = sqlFetchArray($res)) {
@@ -176,7 +176,7 @@ if (!empty($_POST['form_refresh']) || !empty($ptrow)) {
   <td>
             <?php
             if (!empty($row['ct_location'])) {
-                echo generate_display_field(array('data_type' => '1','list_id' => 'chartloc'), $row['ct_location']);
+                echo generate_display_field(['data_type' => '1','list_id' => 'chartloc'], $row['ct_location']);
             } elseif (!empty($row['ct_userid'])) {
                 echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
             }

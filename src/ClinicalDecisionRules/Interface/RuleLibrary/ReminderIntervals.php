@@ -24,7 +24,7 @@ class ReminderIntervals
 
     function __construct()
     {
-        $this->detailMap = array();
+        $this->detailMap = [];
     }
 
     /**
@@ -35,7 +35,7 @@ class ReminderIntervals
     {
         $details = $this->detailMap[$detail->intervalType->code] ?? null;
         if (is_null($details)) {
-            $details = array();
+            $details = [];
         }
 
         array_push($details, $detail);
@@ -44,7 +44,7 @@ class ReminderIntervals
 
     function getTypes()
     {
-        $types = array();
+        $types = [];
         foreach (array_keys($this->detailMap) as $code) {
             array_push($types, ReminderIntervalType::from($code));
         }

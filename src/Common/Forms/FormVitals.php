@@ -159,7 +159,7 @@ class FormVitals extends ORDataObject
     public function set_date($dt)
     {
         if (!empty($dt)) {
-            $dt = str_replace(array('-', ':', ' '), '', $dt);
+            $dt = str_replace(['-', ':', ' '], '', $dt);
             while (strlen($dt) < 14) {
                 $dt .= '0';
             }
@@ -499,11 +499,11 @@ class FormVitals extends ORDataObject
         if (is_array($results)) {
             foreach ($results as $field_name => $field) {
                 $func = "set_" . $field_name;
-                if (is_callable(array($this,$func))) {
+                if (is_callable([$this,$func])) {
                     // if we have a number 0 we want to let it through.  Originally this failed due to the empty check.
                     if (is_numeric($field) || !empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func(array(&$this,$func), $field);
+                        call_user_func([&$this,$func], $field);
                     }
                 }
             }

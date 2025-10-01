@@ -29,7 +29,7 @@ function smarty_core_write_compiled_include($params, &$smarty)
 
     // convert the matched php-code to functions
     $_include_compiled =  "<?php /* Smarty version ".$smarty->_version.", created on ".strftime("%Y-%m-%d %H:%M:%S")."\n";
-    $_include_compiled .= "         compiled from " . strtr(urlencode($params['resource_name']), array('%2F'=>'/', '%3A'=>':')) . " */\n\n";
+    $_include_compiled .= "         compiled from " . strtr(urlencode($params['resource_name']), ['%2F'=>'/', '%3A'=>':']) . " */\n\n";
 
     $_compile_path = $params['include_file_path'];
 
@@ -82,8 +82,8 @@ $source
     }
     $_include_compiled .= "\n\n?>\n";
 
-    $_params = array('filename' => $_compile_path,
-                     'contents' => $_include_compiled, 'create_dirs' => true);
+    $_params = ['filename' => $_compile_path,
+                     'contents' => $_include_compiled, 'create_dirs' => true];
 
     require_once(SMARTY_CORE_DIR . 'core.write_file.php');
     smarty_core_write_file($_params, $smarty);

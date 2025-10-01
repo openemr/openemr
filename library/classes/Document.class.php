@@ -105,7 +105,7 @@ class Document extends ORDataObject
     *   mapping is array text name to index
     *   @public array
     */
-    public $type_array = array();
+    public $type_array = [];
 
     /*
     *   Size of the document in bytes if that is available
@@ -375,9 +375,9 @@ class Document extends ORDataObject
      */
     function documents_factory($foreign_id = "")
     {
-        $documents = array();
+        $documents = [];
 
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";
@@ -407,9 +407,9 @@ class Document extends ORDataObject
      */
     public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = "")
     {
-        $documents = array();
+        $documents = [];
 
-        $sqlArray = array($foreign_reference_table);
+        $sqlArray = [$foreign_reference_table];
 
         if (empty($foreign_reference_id)) {
             $foreign_reference_id_sql = " like '%'";
@@ -650,7 +650,7 @@ class Document extends ORDataObject
         $filepath = $this->get_url_filepath();
         $from_all = explode("/", $filepath);
         $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
+        $from_pathname_array = [];
         for ($i = 0; $i < $this->get_path_depth(); $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
@@ -772,7 +772,7 @@ class Document extends ORDataObject
             "SELECT c.name FROM categories AS c
              LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id
              WHERE ctd.document_id = ?",
-            array($doc_id)
+            [$doc_id]
         );
         return $type['name'];
     }
@@ -786,7 +786,7 @@ class Document extends ORDataObject
     }
     function update_imported($doc_id)
     {
-        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($doc_id));
+        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", [$doc_id]);
     }
     function set_encrypted($encrypted)
     {
@@ -1104,7 +1104,7 @@ class Document extends ORDataObject
         $this->populate();
         if (is_numeric($this->get_id()) && is_numeric($category_id)) {
             $sql = "REPLACE INTO categories_to_documents SET category_id = ?, document_id = ?";
-            $this->_db->Execute($sql, array($category_id, $this->get_id()));
+            $this->_db->Execute($sql, [$category_id, $this->get_id()]);
         }
 
         return '';
@@ -1224,7 +1224,7 @@ class Document extends ORDataObject
         // See pnotes_full.php which uses this to auto-display the document.
         $note = $this->get_url_file();
         for ($tmp = $category_id; $tmp;) {
-            $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+            $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", [$tmp]);
             $note = $catrow['name'] . "/$note";
             $tmp = $catrow['parent'];
         }

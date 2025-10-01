@@ -85,7 +85,7 @@ foreach ($rows as $row) {
 		$display_aco_name = "";
 	}
 
-	$acls[] = array(
+	$acls[] = [
 						'aco_section_value' => $aco_section_value,
 						'aco_section_name' => $aco_section_name,
 						'aco_value' => $aco_value,
@@ -106,7 +106,7 @@ foreach ($rows as $row) {
 						'acl_check_time' => number_format($acl_check_time, 2),
 
 						'display_aco_name' => $display_aco_name,
-					);
+					];
 
 	$tmp_aco_section_name = $aco_section_name;
 	$tmp_aco_name = $aco_name;

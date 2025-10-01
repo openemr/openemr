@@ -48,7 +48,7 @@ if (!$_GET["id"]) {
     exit();
 }
 
-$res = sqlStatement("select * from users where id=?", array($_GET["id"]));
+$res = sqlStatement("select * from users where id=?", [$_GET["id"]]);
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result[$iter] = $row;
 }
@@ -391,7 +391,7 @@ if ($fres) {
   <select name="schedule_facility[]" multiple style="width:150px;" class="form-control">
     <?php
     $userFacilities = getUserFacilities($_GET['id']);
-    $ufid = array();
+    $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
     }
@@ -421,7 +421,7 @@ if ($fres) {
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
 <td><select name="see_auth" style="width:150px;" class="form-control" >
 <?php
-foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
+foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')] as $key => $value) {
     echo " <option value='" . attr($key) . "'";
     if ($key == $iter['see_auth']) {
         echo " selected";
@@ -470,7 +470,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <td><input type="text" name="state_license_number" style="width:150px;" class="form-control" value="<?php echo attr($iter["state_license_number"]); ?>"></td>
 <td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style' => 'width:150px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', ['style' => 'width:150px']); ?>
 </td>
 </tr>
 <tr>
@@ -545,7 +545,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
    <select name="schedule_facility[]" multiple style="width:490px;">
     <?php
     $userFacilities = getUserFacilities($_GET['id'], 'id', $GLOBALS['gbl_fac_warehouse_restrictions']);
-    $ufid = array();
+    $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
     }
@@ -566,7 +566,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
                 $lres = sqlStatement(
                     "SELECT option_id, title FROM list_options WHERE " .
                     "list_id = ? AND option_value = ? ORDER BY seq, title",
-                    array('warehouse', $frow['id'])
+                    ['warehouse', $frow['id']]
                 );
                 while ($lrow = sqlFetchArray($lres)) {
                     echo "    <option";

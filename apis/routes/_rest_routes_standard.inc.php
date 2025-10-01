@@ -46,7 +46,7 @@ use OpenEMR\Services\Search\SearchQueryConfig;
 // TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
 use OpenEMR\RestControllers\Config\RestConfig;
 
-return array(
+return [
     /**
      *  @OA\Get(
      *      path="/api/facility",
@@ -7286,4 +7286,4 @@ return array(
 
         return $return;
     }
-);
+];

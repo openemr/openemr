@@ -125,7 +125,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPatient
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $medRequestResource = new FHIRMedicationRequest();
 
@@ -297,7 +297,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return $this->prescriptionService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");

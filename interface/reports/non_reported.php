@@ -42,7 +42,7 @@ if (!empty($_POST)) {
 function getLoggedInUserFacility()
 {
     $sql = "SELECT f.name, f.facility_npi FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
-    $res = sqlStatement($sql, array($_SESSION['authUserID']));
+    $res = sqlStatement($sql, [$_SESSION['authUserID']]);
     while ($arow = sqlFetchArray($res)) {
         return $arow;
     }
@@ -76,7 +76,7 @@ function tr($a)
     return (str_replace(' ', '^', $a));
 }
 
-  $sqlBindArray = array();
+  $sqlBindArray = [];
   $query =
   "select " .
   "l.pid as patientid, " .
@@ -126,7 +126,7 @@ if (!empty($from_date) || !empty($to_date)) {
     $query .= " and " ;
 }
 
-$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
+$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : [];
 if (empty($form_code)) {
     $query_codes = '';
 } else {
@@ -257,7 +257,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         // mark if issues generated/sent
         $query_insert = "insert into syndromic_surveillance(lists_id, submission_date, filename) " .
          "values (?, ?, ?)";
-        sqlStatement($query_insert, array($r['issueid'], $now1, $filename));
+        sqlStatement($query_insert, [$r['issueid'], $now1, $filename]);
     }
 
   // Ensoftek: Jul-2015: No need to tr the content

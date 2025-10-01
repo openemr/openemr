@@ -27,7 +27,7 @@ if ($is_lbf) {
         "SELECT field_id, title FROM layout_options WHERE " .
         "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
         "ORDER BY group_id DESC, seq DESC, title DESC LIMIT 1",
-        array($formname)
+        [$formname]
     );
 }
 

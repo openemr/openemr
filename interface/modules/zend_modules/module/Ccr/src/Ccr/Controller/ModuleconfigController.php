@@ -27,9 +27,9 @@ class ModuleconfigController extends AbstractActionController
     public function getDependedModulesConfig()
     {
         // these modules need to be activated before this module can be installed
-        $dependedModules = array(
+        $dependedModules = [
             'Documents'       // Handles the saving and retrieving of embedded documents in this module.
-        );
+        ];
         return $dependedModules;
     }
 }

@@ -80,12 +80,12 @@ class CdrResults
             ", patient_reminder_flag = ?" .
             " WHERE id = ? AND pid = 0";
 
-        sqlStatement($query, array($this->active_flag, $this->passive_flag, $this->reminder_flag, $this->id));
+        sqlStatement($query, [$this->active_flag, $this->passive_flag, $this->reminder_flag, $this->id]);
 
         // Set the settings that apply to all rules including the patient custom rules (pid is > 0)
         $query = "UPDATE clinical_rules SET access_control = ?" .
             " WHERE id = ?";
 
-        sqlStatement($query, array($this->access_control, $this->id));
+        sqlStatement($query, [$this->access_control, $this->id]);
     }
 }

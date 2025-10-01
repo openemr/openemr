@@ -56,7 +56,7 @@ function getListItem($listid, $value)
     $lrow = sqlQuery(
         "SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($listid, $value)
+        [$listid, $value]
     );
     $tmp = xl_list_label($lrow['title']);
     if (empty($tmp)) {
@@ -87,7 +87,7 @@ $errmsg = '';
 // very well as it will only send the first of those.
 if (!empty($_POST['form_xmit'])) {
     foreach ($_POST['form_cb'] as $formid) {
-        $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", array($formid));
+        $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", [$formid]);
         $ppid = (int)$row['lab_id'];
         $hl7 = '';
         $errmsg = gen_hl7_order($formid, $hl7);
@@ -99,7 +99,7 @@ if (!empty($_POST['form_xmit'])) {
             break;
         }
 
-        sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE procedure_order_id = ?", array($formid));
+        sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE procedure_order_id = ?", [$formid]);
     }
 }
 ?>
@@ -253,7 +253,7 @@ function doWait(e){
     <?php } ?>
 
     <?php
-    $info = array('select' => array());
+    $info = ['select' => []];
     // We skip match/delete processing if this is just a refresh, because that
     // might be a nasty surprise.
     if (empty($_POST['form_external_refresh'])) {
@@ -266,7 +266,7 @@ function doWait(e){
         // Get file delete requests from this form if there are any.
         if (!empty($_POST['delete']) && is_array($_POST['delete'])) {
             foreach ($_POST['delete'] as $delkey => $dummy) {
-                $info[$delkey] = array('delete' => true);
+                $info[$delkey] = ['delete' => true];
             }
         }
     }
@@ -409,13 +409,13 @@ function doWait(e){
             <select class="col-md form-control" name='form_reviewed'>
                 <?php
                 foreach (
-                    array(
+                    [
                         '1' => xl('All'),
                         '2' => xl('Reviewed'),
                         '3' => xl('Received, unreviewed'),
                         '4' => xl('Sent, not received'),
                         '5' => xl('Not sent'),
-                    ) as $key => $value
+                    ] as $key => $value
                 ) {
                     echo "<option value='" . attr($key) . "'";
                     if ($key == $form_reviewed) {
@@ -428,8 +428,8 @@ function doWait(e){
         </div>
         <div class="col-md">
             <?php
-            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                'empty_title' => '-- All Providers --'), $form_provider);
+            generate_form_field(['data_type' => 10, 'field_id' => 'provider',
+                'empty_title' => '-- All Providers --'], $form_provider);
             ?>
         </div>
         <div class="col-md">
@@ -489,7 +489,7 @@ function doWait(e){
                 "pc.do_not_send, pc.procedure_order_seq, pr.procedure_report_id";
 
             $where = "1 = 1";
-            $sqlBindArray = array();
+            $sqlBindArray = [];
 
             if (!empty($form_from_date)) {
                 $where .= " AND po.date_ordered >= ?";

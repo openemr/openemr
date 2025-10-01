@@ -69,21 +69,21 @@ echo("\n Successfully connected to database....... Waiting...... \n ");
 
 //random names
 // count of males 33
-$male = array("John", "Joe", "Tony", "Harley", "Kenneth", "Sam", "Lewi", "Jimmy", "Moby", "Donald", "George", "Barack", "Jose", "Fonzy", "Cat", "David", "Scruggs",
+$male = ["John", "Joe", "Tony", "Harley", "Kenneth", "Sam", "Lewi", "Jimmy", "Moby", "Donald", "George", "Barack", "Jose", "Fonzy", "Cat", "David", "Scruggs",
               "Prately","Stabile","Faler","Wolfrum","Hughe","Gustave","Lemar","Zhu","Quihuiz","Krinsky","Cresswell","Vanbergen","Durelli","Carron","Targett","Emmert","Ferrusi"
-             );
+             ];
 
 // count female names 75
-$female = array(
+$female = [
                 "Hillary", "Alison", "Kathy", "Jesse", "Buzz", "Jenny", "Rachael", "Jennifer", "Lauren", "Lisa", "Amy", "Dana", "Blake",
                 "Beatrice", "Beatrix", "Bea", "Bee", "Beattie", "Trixie", "Trissie", "Belinda", "Bel", "Bell", "Belle", "Linda", "Lindy", "Lin", "Lynn",
                 "Belle", "Bell", "Bel", "Bella", "Annabel", "Arabella", "Isabel", "Rosabel", "Belinda", "Berenice", "Bernice", "Bernie",
                 "Bertha", "Berta", "Bertie", "Betty", "Beverly", "Beverley", "Bev", "Blanche", "Blanch", "Bonnie", "Bonny", "Brenda", "Brendie", "Brandy",
                 "Brett", "Bret", "Bretta", "Bridget", "Bridgette", "Brigid", "Brigit", "Biddie", "Biddy", "Bridie", "Bridey", "Brie", "Bree", "Brita",
                 "Brittany", "Brittney", "Britney", "Brit", "Britt", "Brita", "Brie"
-                );
+                ];
 // count of names is: 806
-$lnames = array (
+$lnames =  [
                         "Sandles","Hollifield","Flack","Lussier","Deloe","Thao","Dardenne","Spiro","Futter","Subasic","Shawler","Baehr","Murrillo","Christenbury",
                         "Plourde","Cotty","Suro","Gabe","Davids","Eschrich","Trautmann","Matarrita","Crompton","Pekas","Komo","Monroy","Kortkamp","Klukan","Henrity",
                         "Kindig","Syal","Hurtig","Vangilder","Ronsini","Hutchenson","Alvero","Valeriani","Bendtsen","Hornbarger","Marsili","Burfeind","Torello","Wink",
@@ -132,7 +132,7 @@ $lnames = array (
                         "Brackman","Borruso","Ficklin","Baza","Mercier","Sponholz","Trego","Channell","Vanburen","Zaring","Luken","Komorowski","Fasciano","Drafts","Dar","Callicoat","Callam",
                         "Villaquiran","Vanbrunt","Coiner","Luckenbill","Mcray","Pin","Hayer","Lapenta","Isita","Slaydon","Frondorf","Cavagna","Passalacqua","Lehnertz","Kavadias","Macione",
                         "Sturch","Boes","Albor","Bookamer","Burbine","Bardach","Ghaor","Quartieri","Mcgill","Michelena","Aronson","Brosig","Morganti","Rodewald","Barich","Langelier"
-                  );
+                  ];
 
 /* function to clear the present value if a record's column and replace it with a value if spoecified
    Input: $con, $table, $column, $value = value to replace with

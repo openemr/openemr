@@ -111,7 +111,7 @@ if ($dispose == $_POST['audit_delete'] ?? null) {
 
 try {
     if (!$category) {
-        $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
+        $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["Reviewed"]);
         $category = $result['id'] ?: 3;
     }
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';

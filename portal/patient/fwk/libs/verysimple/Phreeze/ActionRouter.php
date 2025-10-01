@@ -113,15 +113,15 @@ class ActionRouter implements IRouter
         // get the action requested
         $params = explode(".", str_replace("/", ".", $uri));
         $controller_param = isset($params [0]) && $params [0] ? $params [0] : "";
-        $controller_param = str_replace(array (
+        $controller_param = str_replace( [
                 ".",
                 "/",
                 "\\"
-        ), array (
+        ],  [
                 "",
                 "",
                 ""
-        ), $controller_param);
+        ], $controller_param);
 
         if (! $controller_param) {
             throw new Exception("Invalid or missing Controller parameter");
@@ -132,10 +132,10 @@ class ActionRouter implements IRouter
             $method_param = "DefaultAction";
         }
 
-        return array (
+        return  [
                 $controller_param,
                 $method_param
-        );
+        ];
     }
 
     /**

@@ -75,7 +75,7 @@ $query = "create table temp_re_identification_code_table (re_identification_code
 $res = sqlStatement($query);
 
 $query = "insert into temp_re_identification_code_table values (?)";
-$res = sqlStatement($query, array($reIdCode));
+$res = sqlStatement($query, [$reIdCode]);
 
 $query = "update re_identification_status set status = 1;";
 $res = sqlStatement($query);

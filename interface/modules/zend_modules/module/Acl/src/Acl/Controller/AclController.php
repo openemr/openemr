@@ -40,10 +40,10 @@ class AclController extends AbstractActionController
         $module_id = $this->params()->fromQuery('module_id');
                 $result = $this->getAclTable()->aclSections($module_id);
 
-        $arrayCategories = array();
+        $arrayCategories = [];
         foreach ($result as $row) {
-            $arrayCategories[$row['section_id']] = array("parent_id" => $row['parent_section'], "name" =>
-            $row['section_name'],"id" => $row['section_id']);
+            $arrayCategories[$row['section_id']] = ["parent_id" => $row['parent_section'], "name" =>
+            $row['section_name'],"id" => $row['section_id']];
         }
 
         ob_start();
@@ -59,7 +59,7 @@ class AclController extends AbstractActionController
             $array_active_modules[$row['mod_id']] = $row['mod_name'];
         }
 
-        $index = new ViewModel(array(
+        $index = new ViewModel([
                         'user_group_main'       => $user_group_main,
             'user_group_allowed'    => $user_group_allowed,
             'user_group_denied'     => $user_group_denied,
@@ -68,7 +68,7 @@ class AclController extends AbstractActionController
             'module_id'             => $module_id,
             'listenerObject'            => $this->listenerObject,
             'active_modules'        => $array_active_modules,
-                ));
+                ]);
                 return $index;
     }
 
@@ -76,9 +76,9 @@ class AclController extends AbstractActionController
     {
         $module_id = $this->params()->fromQuery('module_id');
         $this->layout('layout/layout_tabs');
-        $index = new ViewModel(array(
+        $index = new ViewModel([
             'mod_id' => $module_id,
-                ));
+                ]);
                 return $index;
     }
 
@@ -87,43 +87,43 @@ class AclController extends AbstractActionController
         $module_id = $this->params()->fromQuery('module_id');
         $data = $this->getAclTable()->getGroups();
 
-        $user_groups = array();
+        $user_groups = [];
         foreach ($data as $row) {
             $user_groups[$row['id']] = $row['name'];
         }
 
         $data = $this->getAclTable()->aclSections($module_id);
-        $module_data = array();
-        $module_data['module_components'] = array();
+        $module_data = [];
+        $module_data['module_components'] = [];
         foreach ($data as $row) {
             if ($row['parent_section'] == 0) {
-                $module_data['module_name'] = array(
+                $module_data['module_name'] = [
                                                                             'id'    => $row['section_id'],
                                                                             'name'  => $row['section_name']
-                                                                    );
+                                                                    ];
             } else {
                 $module_data['module_components'][$row['section_id']] = $row['section_name'];
             }
         }
 
                 $data           = $this->getAclTable()->getGroupAcl($module_id);
-                $saved_ACL  = array();
+                $saved_ACL  = [];
         foreach ($data as $row) {
             if (empty($saved_ACL[$row['section_id']])) {
-                $saved_ACL[$row['section_id']] = array();
+                $saved_ACL[$row['section_id']] = [];
             }
 
             array_push($saved_ACL[$row['section_id']], $row['group_id']);
         }
 
         $acl_view = new ViewModel(
-            array(
+            [
                                         'user_groups'  => $user_groups,
                                         'listenerObject' => $this->listenerObject,
                                         'module_data'  => $module_data,
                                         'module_id'    => $module_id,
                                         'acl_data'     => $saved_ACL
-                                    )
+                                    ]
         );
         return $acl_view;
     }
@@ -178,22 +178,22 @@ class AclController extends AbstractActionController
                 $selected_componet_arr[0] = $selected_componet_arr[1];
             }
 
-            $array_users_allowed = array();
-            $array_users_denied = array();
-            $array_groups_allowed = array();
-            $array_groups_denied = array();
+            $array_users_allowed = [];
+            $array_users_denied = [];
+            $array_groups_allowed = [];
+            $array_groups_denied = [];
 
                       $res_users   = $this->getAclTable()->getAclDataUsers($selected_componet_arr[1]);
             foreach ($res_users as $row) {
                 if ($row['allowed'] == 1) {
                     if (!$array_users_allowed[$row['group_id']]) {
-                        $array_users_allowed[$row['group_id']] = array();
+                        $array_users_allowed[$row['group_id']] = [];
                     }
 
                     array_push($array_users_allowed[$row['group_id']], $row['user_id']);
                 } else {
                     if (!$array_users_denied[$row['group_id']]) {
-                        $array_users_denied[$row['group_id']] = array();
+                        $array_users_denied[$row['group_id']] = [];
                     }
 
                     array_push($array_users_denied[$row['group_id']], $row['user_id']);
@@ -209,7 +209,7 @@ class AclController extends AbstractActionController
                 }
             }
 
-                        $arr_return = array();
+                        $arr_return = [];
                         $arr_return['group_allowed'] = $array_groups_allowed;
                         $arr_return['group_denied'] = $array_groups_denied;
                         $arr_return['user_allowed'] = $array_users_allowed;
@@ -237,7 +237,7 @@ class AclController extends AbstractActionController
             $module_id = $this->getRequest()->getPost('module_id', null);
                         $result = $this->getAclTable()->getModuleSections($module_id);
 
-            $array_sections = array();
+            $array_sections = [];
             foreach ($result as $row) {
                 $array_sections[$row['section_id']] = $row['section_name'];
             }
@@ -322,7 +322,7 @@ class AclController extends AbstractActionController
         $output_string = "";
         $res_users = $this->getAclTable()->aclUserGroupMapping();
 
-        $tempList  = array();
+        $tempList  = [];
         foreach ($res_users as $row) {
             $tempList[$row['group_id']]['group_name'] = $row['group_name'];
             $tempList[$row['group_id']]['group_id'] = $row['group_id'];

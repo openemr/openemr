@@ -20,7 +20,7 @@ function addAppt($days, $time)
     $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
     "pc_comments, pc_aid,pc_startTime) values (?, date_add(current_date(), interval " . add_escape_custom($days) .
     " day),'from CAMOS', ?, ?)";
-    return sqlInsert($sql, array($_SESSION['pid'], $_SESSION['authUserID'], $time));
+    return sqlInsert($sql, [$_SESSION['pid'], $_SESSION['authUserID'], $time]);
 }
 function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
 {
@@ -60,7 +60,7 @@ function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifie
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?, ?)";
 
-    return sqlInsert($sql, array($_SESSION['encounter'], $code_type, $code, $code_text, $_SESSION['pid'], $authorized, $_SESSION['authUserID'], $_SESSION['authProvider'], $_SESSION['authUserID'], $modifier, $units, $fee, $justify_string));
+    return sqlInsert($sql, [$_SESSION['encounter'], $code_type, $code, $code_text, $_SESSION['pid'], $authorized, $_SESSION['authUserID'], $_SESSION['authProvider'], $_SESSION['authUserID'], $modifier, $units, $fee, $justify_string]);
 }
 
 function content_parser($input)
@@ -104,7 +104,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
                 $replacement_item = trim($comm_array[1]); //this is the item name to search for in the database.  easy.
                 $replacement_text = '';
                 $query = "SELECT content FROM form_CAMOS_item WHERE item like ?";
-                $statement = sqlStatement($query, array($replacement_item));
+                $statement = sqlStatement($query, [$replacement_item]);
                 if ($result = sqlFetchArray($statement)) {
                     $replacement_text = $result['content'];
                 }
@@ -124,7 +124,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_add(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
-        $statement = sqlStatement($query, array($_SESSION['pid'], $_SESSION['encounter']));
+        $statement = sqlStatement($query, [$_SESSION['pid'], $_SESSION['encounter']]);
         if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
@@ -134,7 +134,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_sub(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
-        $statement = sqlStatement($query, array($_SESSION['pid'], $_SESSION['encounter']));
+        $statement = sqlStatement($query, [$_SESSION['pid'], $_SESSION['encounter']]);
         if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
@@ -143,9 +143,9 @@ function process_commands(&$string_to_process, &$camos_return_data)
 
   //end of special case of replace function
     $return_value = 0;
-    $camos_return_data = array(); // to be filled with additional camos form submissions if any embedded
-    $command_array = array();  //to be filled with potential commands
-    $matches = array();  //to be filled with potential commands
+    $camos_return_data = []; // to be filled with additional camos form submissions if any embedded
+    $command_array = [];  //to be filled with potential commands
+    $matches = [];  //to be filled with potential commands
     if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {
         return $return_value;
     }
@@ -206,10 +206,10 @@ function process_commands(&$string_to_process, &$camos_return_data)
             //into the database after the main form data is submitted so it will be in a sensible order
             array_push(
                 $camos_return_data,
-                array("category" => trim($comm_array[1]),
+                ["category" => trim($comm_array[1]),
                 "subcategory" => trim($comm_array[2]),
                 "item" => trim($comm_array[3]),
-                "content" => trim($comm_array[4]))
+                "content" => trim($comm_array[4])]
             );
         }
     }
@@ -240,7 +240,7 @@ function replace($pid, $enc, $content)
         "from patient_data as t1 join form_encounter as t2 on " .
         "(t1.pid = t2.pid) " .
         "where t2.pid = ? and t2.encounter = ?",
-        array($pid, $enc)
+        [$pid, $enc]
     );
     if ($results = sqlFetchArray($query1)) {
         $fname = $results['fname'];
@@ -259,14 +259,14 @@ function replace($pid, $enc, $content)
     }
 
     $query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
-    "t2 on (t1.username like t2.user) where t2.encounter = ?", array($enc));
+    "t2 on (t1.username like t2.user) where t2.encounter = ?", [$enc]);
     if ($results = sqlFetchArray($query1)) {
         $doctorname = "Dr. " . $results['lname'];
     }
 
     $ret = preg_replace(
-        array("/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"),
-        array($name,$age,strtolower($gender),$doctorname),
+        ["/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"],
+        [$name,$age,strtolower($gender),$doctorname],
         $content
     );
     //Below will fix blocks that were inadvertently double escaped in openemr versions 5.0.1.0 - 5.0.1.5

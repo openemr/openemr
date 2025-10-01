@@ -118,8 +118,8 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                                         <td>
                                             <?php
-                                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                                            'empty_title' => '-- All Providers --'), $selectedProvider);
+                                            generate_form_field(['data_type' => 10, 'field_id' => 'provider',
+                                            'empty_title' => '-- All Providers --'], $selectedProvider);
                                             ?>
                                         </td>
                                 </table>
@@ -161,7 +161,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         }
 
         // define all the variables as initial blank array
-        $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = array();
+        $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = [];
 
         // define all the where condition variable as initial value set 1=1
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
@@ -181,7 +181,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         // define provider and facility as null
         $providerID = $facilityID = null;
         // define all the bindarray variables as initial blank array
-        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = array();
+        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = [];
 
         // make all condition on by default today's date
         if ($dateSet != 1 && $facilitySet != 1) {

@@ -23,16 +23,16 @@ function collectValidationPageRules($title, $active = true)
 
     if ($active) {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", array('page_validation',1,$title));
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", ['page_validation',1,$title]);
     } else {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND title=?", array('page_validation', $title));
+            "FROM `list_options` WHERE list_id=? AND title=?", ['page_validation', $title]);
     }
 
-    $dataArray = array();
+    $dataArray = [];
     while ($row = sqlFetchArray($sql)) {
         $formPageNameArray = explode('#', $row['option_id']);
-        $dataArray[$formPageNameArray[1]] = array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
+        $dataArray[$formPageNameArray[1]] = ['page_name' => $formPageNameArray[0] ,'rules' => $row['notes']];
     }
 
     return $dataArray;

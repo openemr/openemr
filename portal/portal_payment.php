@@ -78,8 +78,8 @@ if ($recid) {
 } else {
     $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
 }
-$ccdata = array();
-$invdata = array();
+$ccdata = [];
+$invdata = [];
 if ($edata) {
     $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
     $invdata = json_decode($edata['table_args'], true);
@@ -159,8 +159,8 @@ function calcTaxes($row, $amount)
             continue;
         }
 
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", array($value
-        ));
+        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", [$value
+        ]);
         if (empty($trow['option_value'])) {
             echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
             continue;
@@ -178,8 +178,8 @@ $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
 
-$patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pubpid,p.pid, i.copay " . "FROM patient_data AS p " . "LEFT OUTER JOIN insurance_data AS i ON " . "i.pid = p.pid AND i.type = 'primary' " . "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid
-));
+$patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pubpid,p.pid, i.copay " . "FROM patient_data AS p " . "LEFT OUTER JOIN insurance_data AS i ON " . "i.pid = p.pid AND i.type = 'primary' " . "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid
+]);
 
 $alertmsg = ''; // anything here pops up in an alert box
 
@@ -206,7 +206,7 @@ if ($_POST['form_save'] ?? '') {
             ", adjustment_code = 'pre_payment'" .
             ", post_to_date = now() " .
             ", payment_method = ?",
-            array(0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method)
+            [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
         );
 
         frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
@@ -222,7 +222,7 @@ if ($_POST['form_save'] ?? '') {
                 $ResultSearchNew = sqlStatement(
                     "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
                     "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
-                    array($form_pid, $enc)
+                    [$form_pid, $enc]
                 );
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
@@ -240,15 +240,15 @@ if ($_POST['form_save'] ?? '') {
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                         " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        array($_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method)
+                        [$_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method]
                     );
 
                     sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
+                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
                     $insrt_id = sqlInsert(
                         "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount)
+                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount]
                     );
                     sqlCommitTrans();
 
@@ -259,11 +259,11 @@ if ($_POST['form_save'] ?? '') {
                     if ($_REQUEST['radio_type_of_payment'] == 'cash') {
                         sqlStatement(
                             "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
-                            array(4, $enc, $form_pid)
+                            [4, $enc, $form_pid]
                         );
                         sqlStatement(
                             "update billing set billed=? where encounter=? and pid=?",
-                            array(1, $enc, $form_pid)
+                            [1, $enc, $form_pid]
                         );
                     }
 
@@ -282,7 +282,7 @@ if ($_POST['form_save'] ?? '') {
                         ", adjustment_code = ?" .
                         ", post_to_date = now() " .
                         ", payment_method = ?",
-                        array(0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method)
+                        [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
                     );
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -294,7 +294,7 @@ if ($_POST['form_save'] ?? '') {
                     $resMoneyGot = sqlStatement(
                         "SELECT sum(pay_amount) as PatientPay FROM ar_activity where deleted IS NULL AND pid =? and " .
                         "encounter =? and payer_type=0 and account_code='PCP'",
-                        array($form_pid, $enc)
+                        [$form_pid, $enc]
                     );//new fees screen copay gives account_code='PCP'
                     $rowMoneyGot = sqlFetchArray($resMoneyGot);
                     $Copay = $rowMoneyGot['PatientPay'];
@@ -305,7 +305,7 @@ if ($_POST['form_save'] ?? '') {
                     $ResultSearchNew = sqlStatement(
                         "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " .
                         "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
-                        array($form_pid, $enc)
+                        [$form_pid, $enc]
                     );
                     while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
@@ -316,7 +316,7 @@ if ($_POST['form_save'] ?? '') {
                         $resMoneyGot = sqlStatement(
                             "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where deleted IS NULL AND pid = ? " .
                             "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
-                            array($form_pid, $Codetype, $Code, $Modifier, $enc)
+                            [$form_pid, $Codetype, $Code, $Modifier, $enc]
                         );
                         //new fees screen copay gives account_code='PCP'
                         $rowMoneyGot = sqlFetchArray($resMoneyGot);
@@ -325,7 +325,7 @@ if ($_POST['form_save'] ?? '') {
                         $resMoneyAdjusted = sqlStatement(
                             "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where deleted IS NULL AND " .
                             "pid =? and code_type=? and code=? and modifier=? and encounter =?",
-                            array($form_pid, $Codetype, $Code, $Modifier, $enc)
+                            [$form_pid, $Codetype, $Code, $Modifier, $enc]
                         );
                         $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
@@ -342,7 +342,7 @@ if ($_POST['form_save'] ?? '') {
                             }
 
                             sqlBeginTrans();
-                            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
+                            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
                             sqlStatement(
                                 "insert into ar_activity set " .
                                 "pid = ?" .
@@ -358,14 +358,14 @@ if ($_POST['form_save'] ?? '') {
                                 ", pay_amount = ?" .
                                 ", adj_amount = ?" .
                                 ", account_code = 'PP'",
-                                array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $insert_value, 0)
+                                [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $insert_value, 0]
                             );
                             sqlCommitTrans();
                         }//if
                     }//while
                     if ($amount != 0) {//if any excess is there.
                         sqlBeginTrans();
-                        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
+                        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
                         sqlStatement(
                             "insert into ar_activity set " .
                             "pid = ?" .
@@ -381,7 +381,7 @@ if ($_POST['form_save'] ?? '') {
                             ", pay_amount = ?" .
                             ", adj_amount = ?" .
                             ", account_code = 'PP'",
-                            array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $amount, 0)
+                            [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $amount, 0]
                         );
                         sqlCommitTrans();
                     }
@@ -408,17 +408,17 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 // Re-fetch payment info.
     $payrow = sqlQuery("SELECT " . "SUM(amount1) AS amount1, " . "SUM(amount2) AS amount2, " . "MAX(method) AS method, " . "MAX(source) AS source, " . "MAX(dtime) AS dtime, " .
 // "MAX(user) AS user " .
-        "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", array($form_pid, $timestamp
-    ));
+        "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", [$form_pid, $timestamp
+    ]);
 
 // Create key for deleting, just in case.
     $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
     $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp) . '.' . $ref_id;
 
 // get facility from encounter
-    $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", array($payrow['encounter']));
-    $frow = sqlQuery("SELECT * FROM facility " . " WHERE id = ?", array($tmprow['facility_id']
-    ));
+    $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);
+    $frow = sqlQuery("SELECT * FROM facility " . " WHERE id = ?", [$tmprow['facility_id']
+    ]);
 
 // Now proceed with printing the receipt.
     ?>
@@ -486,7 +486,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 </tr>
                 <tr>
                     <td><?php echo xlt('Paid Via'); ?>:</td>
-                    <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
+                    <td><?php echo generate_display_field(['data_type' => '1', 'list_id' => 'payment_method'], $payrow['method']); ?></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Authorized Id'); ?>:</td>
@@ -958,7 +958,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 <td colspan='2'><select name="form_method" id="form_method" class="form-control" onChange='CheckVisible("yes")'>
                         <?php
                         $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
-                        $bres1112 = sqlStatement($query1112, array('payment_method'));
+                        $bres1112 = sqlStatement($query1112, ['payment_method']);
                         while ($brow1112 = sqlFetchArray($bres1112)) {
                             if ($brow1112['option_id'] != 'credit_card' || $brow1112['option_id'] == 'debit' || $brow1112['option_id'] == 'bank_draft') {
                                 continue;
@@ -1086,26 +1086,26 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 </td>
             </tr>
             <?php
-            $encs = array();
+            $encs = [];
             // Get the unbilled service charges and payments by encounter for this patient.
             //
             $query = "SELECT fe.encounter, fe.reason, b.code_type, b.code, b.modifier, b.fee, " .
                 "LEFT(fe.date, 10) AS encdate ,fe.last_level_closed " . "FROM  form_encounter AS fe left join billing AS b  on " .
                 "b.pid = ? AND b.activity = 1  AND " . "b.code_type != 'TAX' AND b.fee != 0 " . "AND fe.pid = b.pid AND fe.encounter = b.encounter " .
                 "where fe.pid = ? " . "ORDER BY b.encounter";
-            $bres = sqlStatement($query, array($pid, $pid));
+            $bres = sqlStatement($query, [$pid, $pid]);
             //
             while ($brow = sqlFetchArray($bres)) {
                 $key = (int)$brow['encounter'];
                 if (empty($encs[$key])) {
-                    $encs[$key] = array('encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
-                    );
+                    $encs[$key] = ['encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
+                    ];
                 }
 
                 if ($brow['code_type'] !== 'COPAY') {
                     $encs[$key]['charges'] += $brow['fee'];
                     // Add taxes.
-                    $sql_array = array();
+                    $sql_array = [];
                     $query = "SELECT taxrates FROM codes WHERE " . "code_type = ? AND " . "code = ? AND ";
                     array_push($sql_array, $code_types[$brow['code_type']]['id'] ?? '', $brow['code'] ?? '');
                     if ($brow['modifier'] ?? '') {
@@ -1130,16 +1130,16 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 "AND fe.pid = s.pid AND fe.encounter = s.encounter " .
                 "where fe.pid = ? " . "ORDER BY s.encounter";
 
-            $dres = sqlStatement($query, array($pid, $pid));
+            $dres = sqlStatement($query, [$pid, $pid]);
             //
             while ($drow = sqlFetchArray($dres)) {
                 $key = (int)$drow['encounter'];
                 if (empty($encs[$key])) {
-                    $encs[$key] = array(
+                    $encs[$key] = [
                         'encounter' => $drow['encounter'], 'date' => $drow['encdate'],
                         'last_level_closed' => $drow['last_level_closed'],
                         'charges' => 0, 'payments' => 0
-                    );
+                    ];
                 }
 
                 $encs[$key]['charges'] += $drow['fee'];
@@ -1147,7 +1147,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 $trow = sqlQuery(
                     "SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
                     "ORDER BY selector LIMIT 1",
-                    array($drow['drug_id'])
+                    [$drow['drug_id']]
                 );
                 $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
             }
@@ -1168,7 +1168,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
                     "deleted IS NULL AND pid = ? and encounter = ? AND " .
                     "payer_type != 0 AND account_code != 'PCP'",
-                    array($pid, $enc)
+                    [$pid, $enc]
                 );
                 $dpayment = $drow['payments'];
                 $dadjustment = $drow['adjustments'];
@@ -1178,7 +1178,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     "SELECT  SUM(pay_amount) AS payments, SUM(adj_amount) AS adjustments " .
                     "FROM ar_activity WHERE deleted IS NULL AND pid = ? and encounter = ? and " .
                     "payer_type = 0 and account_code != 'PCP'",
-                    array($pid, $enc)
+                    [$pid, $enc]
                 );
                 $dpayment_pat = $drow['payments'];
 
@@ -1186,20 +1186,20 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 //
                 $ResultNumberOfInsurance = sqlStatement(
                     "SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data where pid = ? and provider>0 ",
-                    array($pid)
+                    [$pid]
                 );
                 $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
                 $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
                 $duept = 0;
                 if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) { // Patient balance
-                    $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " . "pid = ? and encounter = ? AND activity = 1", array($pid, $enc
-                    ));
-                    $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " . "pid = ? and encounter = ? ", array($pid, $enc
-                    ));
+                    $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " . "pid = ? and encounter = ? AND activity = 1", [$pid, $enc
+                    ]);
+                    $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " . "pid = ? and encounter = ? ", [$pid, $enc
+                    ]);
                     $drow = sqlQuery(
                         "SELECT SUM(pay_amount) AS payments, SUM(adj_amount) AS adjustments " .
                         "FROM ar_activity WHERE deleted IS NULL AND pid = ? and encounter = ? ",
-                        array($pid, $enc)
+                        [$pid, $enc]
                     );
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }

@@ -15,7 +15,7 @@
  // Exams: database name and descriptive name, in order of on-screen
  // presentation, and with the exam results index for last_exam_results:
  //
-  $exams = array(
+  $exams = [
    "last_breast_exam"               => '00 ' . xl('Breast Exam'),
    "last_cardiac_echo"              => '08 ' . xl('Cardiac Echo'),
    "last_ecg"                       => '07 ' . xl('ECG'),
@@ -32,12 +32,12 @@
    "last_ldl"                       => '12 ' . xl('LDL'),
    "last_hemoglobin"                => '13 ' . xl('Hemoglobin'),
    "last_psa"                       => '14 ' . xl('PSA')
-  );
+  ];
 
  // Deprecated surgery date items that should be shown only if there
  // is data, and which should be moved to the lists table:
  //
-  $obsoletes = array(
+  $obsoletes = [
   'cataract_surgery' => xl('Cataract Surgery'),
   'tonsillectomy'    => xl('Tonsillectomy'),
   'appendectomy'     => xl('Appendectomy'),
@@ -47,4 +47,4 @@
   'hernia_repair'    => xl('Hernia Repair'),
   'hip_replacement'  => xl('Hip Replacement'),
   'knee_replacement' => xl('Knee Replacement')
-  );
+  ];

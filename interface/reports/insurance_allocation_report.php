@@ -195,8 +195,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     "AND b.code_type != 'COPAY' AND b.activity > 0 AND b.fee != 0 " .
     "GROUP BY b.pid, b.encounter ORDER BY b.pid, b.encounter";
 
-    $res = sqlStatement($query, array((!empty($form_from_date)) ? $form_from_date : '0000-00-00', $form_to_date));
-    $insarr = array();
+    $res = sqlStatement($query, [(!empty($form_from_date)) ? $form_from_date : '0000-00-00', $form_to_date]);
+    $insarr = [];
     $prev_pid = 0;
     $patcount = 0;
 
@@ -209,7 +209,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         "insurance_data.type = 'primary' AND " .
         "(insurance_data.date <= ? OR insurance_data.date IS NULL) AND " .
         "insurance_companies.id = insurance_data.provider " .
-        "ORDER BY insurance_data.date DESC LIMIT 1", array($patient_id, $encounter_date));
+        "ORDER BY insurance_data.date DESC LIMIT 1", [$patient_id, $encounter_date]);
         $plan = (!empty($irow['name'])) ? $irow['name'] : '-- No Insurance --';
         $insarr[$plan]['visits'] ??= 0;
         $insarr[$plan]['visits'] += 1;

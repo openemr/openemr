@@ -20,8 +20,8 @@ class C_InsuranceNumbers extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->providers = array();
-        $this->insurance_numbers = array();
+        $this->providers = [];
+        $this->insurance_numbers = [];
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&");
@@ -68,19 +68,19 @@ class C_InsuranceNumbers extends Controller
 
         //It is possible to set a group and provider number to be used in the event that there is not direct hit on the insurance-provider lookup
         //Those numbers are entered uder default
-        $ic_array = array("Default");
+        $ic_array = ["Default"];
 
         foreach ($icompanies as $ic_tmp) {
             $ic_array[$ic_tmp->get_id()] = $ic_tmp->get_name();
         }
 
-        $ic_type_options_array = array();
+        $ic_type_options_array = [];
 
         foreach ($this->insurance_numbers[0]->provider_number_type_array as $type => $type_title) {
             $ic_type_options_array[$type] = "$type  $type_title";
         }
 
-        $ic_rendering_type_options_array = array();
+        $ic_rendering_type_options_array = [];
 
         foreach ($this->insurance_numbers[0]->rendering_provider_number_type_array as $type => $type_title) {
             $ic_rendering_type_options_array[$type] = "$type  $type_title";

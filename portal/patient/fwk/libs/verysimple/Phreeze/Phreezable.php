@@ -15,9 +15,9 @@
  */
 abstract class Phreezable implements Serializable
 {
-    private $_cache = array ();
+    private $_cache =  [];
     protected $_phreezer;
-    protected $_val_errors = array ();
+    protected $_val_errors =  [];
     protected $_base_validation_complete = false;
     private $_isLoaded;
     private $_isPartiallyLoaded;
@@ -25,15 +25,15 @@ abstract class Phreezable implements Serializable
     private $_noCache = false;
 
     /** @var these properties will never be cached */
-    private static $NoCacheProperties = array (
+    private static $NoCacheProperties =  [
             "_cache",
             "_phreezer",
             "_val_errors",
             "_base_validation_complete"
-    );
+    ];
 
     /** @var cache of public properties for each type for improved performance when enumerating */
-    private static $PublicPropCache = array ();
+    private static $PublicPropCache =  [];
 
     /**
      * Returns true if the current object has been loaded
@@ -116,7 +116,7 @@ abstract class Phreezable implements Serializable
         $className = get_class($this);
 
         if (! property_exists(self::$PublicPropCache, $className)) {
-            $props = array ();
+            $props =  [];
             $ro = new ReflectionObject($this);
 
             foreach ($ro->getProperties() as $rp) {
@@ -141,7 +141,7 @@ abstract class Phreezable implements Serializable
      */
     function serialize()
     {
-        $propvals = array ();
+        $propvals =  [];
         $ro = new ReflectionObject($this);
 
         foreach ($ro->getProperties() as $rp) {
@@ -167,10 +167,10 @@ abstract class Phreezable implements Serializable
      */
     function GetObject($props = null, $camelCase = false)
     {
-        return $this->ToObject(array (
+        return $this->ToObject( [
                 'props' => $props,
                 'camelCase' => $camelCase
-        ));
+        ]);
     }
 
     /**
@@ -190,11 +190,11 @@ abstract class Phreezable implements Serializable
     function ToObject($options = null)
     {
         if ($options === null) {
-            $options = array ();
+            $options =  [];
         }
 
         $props = array_key_exists('props', $options) ? $options ['props'] : $this->GetPublicProperties();
-        $omit = array_key_exists('omit', $options) ? $options ['omit'] : array ();
+        $omit = array_key_exists('omit', $options) ? $options ['omit'] :  [];
         $camelCase = array_key_exists('camelCase', $options) ? $options ['camelCase'] : false;
 
         $obj = new stdClass();
@@ -244,7 +244,7 @@ abstract class Phreezable implements Serializable
     final function __construct(Phreezer $phreezer, $row = null)
     {
         $this->_phreezer = $phreezer;
-        $this->_cache = array ();
+        $this->_cache =  [];
 
         if ($row) {
             $this->Init();
@@ -377,7 +377,7 @@ abstract class Phreezable implements Serializable
      */
     protected function ResetValidationErrors()
     {
-        $this->_val_errors = array ();
+        $this->_val_errors =  [];
         $this->_base_validation_complete = false;
     }
 
@@ -553,7 +553,7 @@ abstract class Phreezable implements Serializable
     function GetArray()
     {
         $fms = $this->_phreezer->GetFieldMaps(get_class($this));
-        $cols = array ();
+        $cols =  [];
 
         foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
@@ -603,7 +603,7 @@ abstract class Phreezable implements Serializable
 
         // in order to prevent collisions on fields, QueryBuilder appends __tablename__rand to the
                                          // sql statement. We need to strip that out so we can match it up to the property names
-        $rowlocal = array ();
+        $rowlocal =  [];
         foreach ($row as $key => $val) {
             $info = explode("___", $key);
 
@@ -687,7 +687,7 @@ abstract class Phreezable implements Serializable
      */
     public function ClearCache()
     {
-        $this->_cache = array ();
+        $this->_cache =  [];
     }
 
     /**

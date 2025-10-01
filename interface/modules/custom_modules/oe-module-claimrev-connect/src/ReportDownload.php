@@ -19,7 +19,7 @@ class ReportDownload extends BaseService
 {
     public static function getWaitingFiles()
     {
-        $reportTypes = array("999", "277");
+        $reportTypes = ["999", "277"];
         $siteDir = $GLOBALS['OE_SITE_DIR'];
         //should be something like '/var/www/localhost/htdocs/openemr/sites/default'
 

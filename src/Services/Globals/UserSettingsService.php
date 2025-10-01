@@ -41,7 +41,7 @@ class UserSettingsService
         // Collect entry for specified user or 0 (global default user)
         $res = sqlQuery("SELECT setting_value FROM user_settings
       WHERE (setting_user=? OR setting_user=?) AND setting_label=?
-      ORDER BY setting_user DESC", array($user, $defaultUser, $label));
+      ORDER BY setting_user DESC", [$user, $defaultUser, $label]);
 
         // If no entries exist, then return NULL.
         return (isset($res['setting_value']) ? $res['setting_value'] : null);
@@ -87,10 +87,10 @@ class UserSettingsService
         // Check for a custom settings
         if (is_null($cur_value)) {
             sqlStatement("INSERT INTO user_settings(setting_user, setting_label, setting_value) " .
-                "VALUES (?,?,?)", array($user, $label, $value));
+                "VALUES (?,?,?)", [$user, $label, $value]);
         } elseif (($cur_value !== $value) && $overwrite) {
             sqlStatement("UPDATE user_settings SET setting_value=? " .
-                "WHERE setting_user=? AND setting_label=?", array($value, $user, $label));
+                "WHERE setting_user=? AND setting_label=?", [$value, $user, $label]);
         }
 
         // Call self to create default token
@@ -110,12 +110,12 @@ class UserSettingsService
 
         // mdsupport - DELETE has implicit select, no need to check and delete
         sqlQuery("DELETE FROM user_settings " .
-            "WHERE setting_user=? AND setting_label=?", array($user, $label));
+            "WHERE setting_user=? AND setting_label=?", [$user, $label]);
     }
 
     public static function getUserIDInfo($id)
     {
-        return sqlQuery("SELECT fname, lname, username FROM users where id=?", array($id));
+        return sqlQuery("SELECT fname, lname, username FROM users where id=?", [$id]);
     }
 
     /**
@@ -153,7 +153,7 @@ class UserSettingsService
      * Function to set the state of expandable forms as per user choice, user default or global default
      * @return string the current state of the file after updating table user_settings
      */
-    public static function collectAndOrganizeExpandSetting($filenames = array())
+    public static function collectAndOrganizeExpandSetting($filenames = [])
     {
         $current_filename = $filenames[0];
         $global_value = $GLOBALS['expand_form'];

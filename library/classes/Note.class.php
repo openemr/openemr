@@ -75,9 +75,9 @@ class Note extends ORDataObject
      */
     public static function notes_factory($foreign_id = "")
     {
-        $notes = array();
+        $notes = [];
 
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";

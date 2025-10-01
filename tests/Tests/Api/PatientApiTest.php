@@ -137,7 +137,7 @@ class PatientApiTest extends TestCase
     {
         $this->fixtureManager->installPatientFixtures();
 
-        $actualResponse = $this->testClient->get(self::PATIENT_API_ENDPOINT, array("postal_code" => "90210"));
+        $actualResponse = $this->testClient->get(self::PATIENT_API_ENDPOINT, ["postal_code" => "90210"]);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);

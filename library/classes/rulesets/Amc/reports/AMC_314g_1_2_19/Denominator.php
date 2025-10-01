@@ -35,7 +35,7 @@ class AMC_314g_1_2_19_Denominator implements AmcFilterIF
     {
         // Seen by the EP
         //  (basically needs an encounter within the report dates)
-        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $options = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) {
             return true;
         } else {

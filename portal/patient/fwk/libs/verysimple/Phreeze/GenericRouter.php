@@ -110,16 +110,16 @@ class GenericRouter implements IRouter
                 }
             }
 
-            $this->matchedRoute = array (
+            $this->matchedRoute =  [
                     "key" => $this->routeMap [$uri],
                     "route" => $this->routeMap [$uri] ["route"],
-                    "params" => isset($this->routeMap [$uri] ["params"]) ? $this->routeMap [$uri] ["params"] : array ()
-            );
+                    "params" => isset($this->routeMap [$uri] ["params"]) ? $this->routeMap [$uri] ["params"] :  []
+            ];
 
-            return array (
+            return  [
                     $controller,
                     $method
-            );
+            ];
         }
 
         // loop through the route map for wild cards:
@@ -155,27 +155,27 @@ class GenericRouter implements IRouter
                     }
                 }
 
-                $this->matchedRoute = array (
+                $this->matchedRoute =  [
                         "key" => $unalteredKey,
                         "route" => $value ["route"],
-                        "params" => isset($value ["params"]) ? $value ["params"] : array ()
-                );
+                        "params" => isset($value ["params"]) ? $value ["params"] :  []
+                ];
 
                 // expects mapped values to be in the form: Controller.Model
                 [$controller, $method] = explode(".", $value ["route"]);
-                return array (
+                return  [
                         $controller,
                         $method
-                );
+                ];
             }
         }
 
         // this is a page-not-found route
-        $this->matchedRoute = array (
+        $this->matchedRoute =  [
                 "key" => '',
                 "route" => '',
-                "params" => array ()
-        );
+                "params" =>  []
+        ];
 
         // if we haven't returned by now, we've found no match:
         return explode('.', self::$ROUTE_NOT_FOUND, 2);

@@ -167,7 +167,7 @@ $display_div = "style='display:block;'";
         <?php
         $current_user = $_SESSION['authUserID'];
         $date_filter = '';
-            $query_array = array();
+            $query_array = [];
         if ($form_from_doc_date) {
             $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
             $date_filter = " DATE(d.date) >= ? ";
@@ -182,7 +182,7 @@ $display_div = "style='display:block;'";
 
         // Get the category ID for lab reports.
         $query = "SELECT rght FROM categories WHERE name = ?";
-        $catIDRs = sqlQuery($query, array($GLOBALS['lab_results_category_name']));
+        $catIDRs = sqlQuery($query, [$GLOBALS['lab_results_category_name']]);
         $catID = $catIDRs['rght'];
 
         $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
@@ -211,7 +211,7 @@ $display_div = "style='display:block;'";
                     while ($row = sqlFetchArray($resultSet)) {
                         $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
                         // Get the notes for this document.
-                        $notes = array();
+                        $notes = [];
                         $note = '';
                         if ($row['docNotes']) {
                             $notes = explode("|", $row['docNotes']);

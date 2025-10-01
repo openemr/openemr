@@ -37,9 +37,9 @@ switch ($_POST['action']) {
 		//showarray($_POST['selected_aro']);
 
 		//Parse the form values
-		foreach (array('aco','aro','axo') as $type) {
+		foreach (['aco','aro','axo'] as $type) {
 			$type_array = 'selected_'. $type .'_array';
-			$$type_array = array();
+			$$type_array = [];
 			if (!empty($_POST['selected_'. $type]) && is_array($_POST['selected_'. $type])) {
 				foreach ($_POST['selected_'. $type] as $value) {
 					$split_value = explode('^', $value);
@@ -102,9 +102,9 @@ switch ($_POST['action']) {
 			[$acl_id, $acl_section_value, $allow, $enabled, $return_value, $note] = $acl_row;
 
 			//Grab selected objects
-			foreach (array('aco','aro','axo') as $type) {
+			foreach (['aco','aro','axo'] as $type) {
 				$type_array = 'options_selected_'. $type;
-				$$type_array = array();
+				$$type_array = [];
 
 				$query = '
 					SELECT a.section_value,a.value,c.name,b.name
@@ -125,7 +125,7 @@ switch ($_POST['action']) {
 			}
 
 			//Grab selected groups.
-			foreach (array('aro','axo') as $type) {
+			foreach (['aro','axo'] as $type) {
 				$type_array = 'selected_'. $type .'_groups';
 
 				$query = '
@@ -147,9 +147,9 @@ switch ($_POST['action']) {
 		}
 
 		//Grab sections for select boxes
-		foreach (array('acl','aco','aro','axo') as $type) {
+		foreach (['acl','aco','aro','axo'] as $type) {
 			$type_array = 'options_'. $type .'_sections';
-			$$type_array = array();
+			$$type_array = [];
 
 			$query = '
 				SELECT value,name
@@ -171,7 +171,7 @@ switch ($_POST['action']) {
 		$js_array = 'var options = new Array();' . "\n";
 
 		//Grab objects for select boxes
-		foreach (array('aco','aro','axo') as $type) {
+		foreach (['aco','aro','axo'] as $type) {
 			//Init the main object js array.
 			$js_array .= 'options[\''. $type .'\'] = new Array();' . "\n";
 

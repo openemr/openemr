@@ -58,7 +58,7 @@ class Address extends ORDataObject implements \JsonSerializable
     }
     static function factory_address($foreign_id = "")
     {
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";

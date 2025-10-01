@@ -64,7 +64,7 @@ class AppBasePortalController extends PortalController
      */
     protected function SimpleObjectParams()
     {
-        return array('camelCase' => true);
+        return ['camelCase' => true];
     }
 
     /**
@@ -99,7 +99,7 @@ class AppBasePortalController extends PortalController
         $err = new stdClass();
         $err->success = false;
         $err->message = $message;
-        $err->errors = array();
+        $err->errors = [];
 
         if ($errors != null) {
             foreach ($errors as $key => $val) {
