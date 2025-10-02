@@ -234,7 +234,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
-            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -263,7 +263,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 $this->addAllProvenanceRecordsForService($processingResult, $service, $searchParams, $puuidBind);
             } catch (SearchFieldException $ex) {
                 $systemLogger = new SystemLogger();
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
                     'field' => $ex->getField(), 'trace' => $ex->getTraceAsString()]);
                 // put our exception information here
                 $processingResult->setValidationMessages([$ex->getField() => $ex->getMessage()]);
@@ -271,7 +271,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             } catch (Exception $ex) {
                 $systemLogger = new SystemLogger();
                 $processingResult->addInternalError("Failed to process provenance search");
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
                     'trace' => $ex->getTraceAsString()]);
                 return $processingResult;
             }

@@ -520,7 +520,7 @@ class Prescription extends ORDataObject
 
     function set_provider($pobj)
     {
-        if (get_class($pobj) == "provider") {
+        if ($pobj::class == "provider") {
             $this->provider = $pobj;
         }
     }

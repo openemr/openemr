@@ -1093,7 +1093,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     // verify x12 file
     $x12obj = csv_check_x12_obj($filepath, $ft);
     //
-    if ($x12obj && 'edih_x12_file' == get_class($x12obj)) {
+    if ($x12obj && 'edih_x12_file' == $x12obj::class) {
         $ftype = $x12obj->edih_type();
         $ft = csv_file_type($ftype);
         $delims = $x12obj->edih_delimiters();

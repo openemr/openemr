@@ -229,7 +229,7 @@ class edih_835_codes
     // edih_835_codes
     public function classname()
     {
-        return get_class($this);
+        return $this::class;
     }
     //
     public function get_835_code($elem, $code)

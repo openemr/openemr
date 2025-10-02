@@ -343,7 +343,7 @@ function edih_997_error($filepath)
     $html_str = '';
     //
     $obj997 = csv_check_x12_obj($filepath, 'f997');
-    if ($obj997 && ('edih_x12_file' == get_class($obj997))) {
+    if ($obj997 && ('edih_x12_file' == $obj997::class)) {
         $data = edih_997_errdata($obj997);
         $html_str .= edih_997_err_report($data);
     } else {
