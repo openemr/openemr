@@ -15,17 +15,12 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class ServiceField
 {
-    private $field;
-    private $type;
-
     const TYPE_STRING = "string";
     const TYPE_NUMBER = "number";
     const TYPE_UUID = "uuid";
 
-    public function __construct($field, $type = self::TYPE_STRING)
+    public function __construct(private $field, private $type = self::TYPE_STRING)
     {
-        $this->field = $field;
-        $this->type = $type;
     }
 
     /**

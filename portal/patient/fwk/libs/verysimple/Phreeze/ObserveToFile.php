@@ -19,15 +19,10 @@ require_once("verysimple/HTTP/RequestUtil.php");
  */
 class ObserveToFile implements IObserver
 {
-    private $filepath;
-    private $eventtype;
     private $fh;
     private $fileIsOpen = false;
-    public function __construct($filepath, $eventtype = null)
+    public function __construct(private $filepath, private $eventtype = null)
     {
-        $this->filepath = $filepath;
-        $this->eventtype = $eventtype;
-
         $this->Init();
     }
     public function __destruct()

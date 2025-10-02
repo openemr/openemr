@@ -17,13 +17,10 @@ use Throwable;
 class TelehealthValidationException extends \InvalidArgumentException
 {
     /**
-     * @var array
+     * @param mixed[] $validationErrors
      */
-    private $errors;
-
-    public function __construct($validationErrors, $message = "", $code = 0, ?Throwable $previous = null)
+    public function __construct(private $errors, $message = "", $code = 0, ?Throwable $previous = null)
     {
-        $this->errors = $validationErrors;
         parent::__construct($message, $code, $previous);
     }
 

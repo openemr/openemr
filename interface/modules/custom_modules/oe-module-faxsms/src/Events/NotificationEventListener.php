@@ -31,14 +31,13 @@ class NotificationEventListener implements EventSubscriberInterface
     private bool $isEmailEnabled;
     private bool $isFaxEnabled;
     private bool $isVoiceEnabled;
-    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var \Twig\Environment The twig rendering environment
      */
     private $twig;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
+    public function __construct(private EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
         $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
@@ -48,7 +47,6 @@ class NotificationEventListener implements EventSubscriberInterface
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
-        $this->eventDispatcher = $eventDispatcher;
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;

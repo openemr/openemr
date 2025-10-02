@@ -21,11 +21,9 @@ class CareTeamViewCard extends CardModel
     private const TEMPLATE_FILE = 'patient/card/manage_care_team.html.twig';
     private const CARD_ID_EXPAND = 'careteam_ps_expand';
     private const CARD_ID = 'care_team';
-    private $pid;
 
-    public function __construct($pid, array $opts = [])
+    public function __construct(private $pid, array $opts = [])
     {
-        $this->pid = $pid;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
 

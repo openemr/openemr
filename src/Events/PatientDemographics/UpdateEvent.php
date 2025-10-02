@@ -28,13 +28,6 @@ class UpdateEvent extends Event
     const EVENT_HANDLE = 'patientDemographics.update';
 
     /**
-     * @var null|integer
-     *
-     * Represents the patient we are considering access to
-     */
-    private $pid = null;
-
-    /**
      * @var bool
      *
      * true if the  user is authorized, false ow
@@ -46,9 +39,8 @@ class UpdateEvent extends Event
      *
      * @param integer $pid Patient Identifier
      */
-    public function __construct($pid)
+    public function __construct(private $pid)
     {
-        $this->pid = $pid;
     }
 
     /**

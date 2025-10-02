@@ -26,16 +26,14 @@ class GlobalConfig
 
 
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
-    private $globalsArray;
 
     /**
      * @var CryptoGen
      */
     private $cryptoGen;
 
-    public function __construct(array $globalsArray)
+    public function __construct(private array $globalsArray)
     {
-        $this->globalsArray = $globalsArray;
         $this->cryptoGen = new CryptoGen();
     }
 

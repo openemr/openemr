@@ -15,8 +15,6 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestOne implements QdmRequestInterface
 {
-    protected $pid = '';
-
     protected $filter = null;
 
     /**
@@ -24,9 +22,8 @@ class QdmRequestOne implements QdmRequestInterface
      *
      * @param $pid
      */
-    public function __construct($pid)
+    public function __construct(protected $pid)
     {
-        $this->pid = $pid;
         $this->filter = new BoundFilter();
         $this->filter->setFilterClause("pid = ?");
         $this->filter->setBoundValues([$this->pid]);

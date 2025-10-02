@@ -112,7 +112,6 @@ class AuthorizationController
     private string $publicKey;
     private string $oaEncryptionKey;
     private string $grantType;
-    private bool $providerForm;
     private string $authRequestSerial;
     private CryptoGen $cryptoGen;
     private int|string $userId;
@@ -148,13 +147,9 @@ class AuthorizationController
      */
     private $uuidUserFactory;
 
-    private SessionInterface $session;
-
     private OEGlobalsBag $globalsBag;
 
     private string $webroot;
-
-    private OEHttpKernel $kernel;
 
     private ServerConfig $serverConfig;
 
@@ -165,31 +160,26 @@ class AuthorizationController
      * @throws OAuthServerException
      */
     public function __construct(
-        SessionInterface $session,
-        OEHttpKernel $kernel,
-        bool $providerForm = true
+        private SessionInterface $session,
+        private OEHttpKernel $kernel,
+        private bool $providerForm = true
     ) {
-        $this->session = $session;
-        $this->kernel = $kernel;
-        $globalsBag = $kernel->getGlobalsBag();
+        $globalsBag = $this->kernel->getGlobalsBag();
         $this->webroot = $globalsBag->get('webroot', '');
         $this->globalsBag = $globalsBag;
-        if (empty($session->get('site_id'))) {
+        if (empty($this->session->get('site_id'))) {
             // should never reach this but just in case
             throw OAuthServerException::serverError("OpenEMR error - unable to collect site id, so forced exit");
         }
-        $this->siteId = $session->get('site_id');
+        $this->siteId = $this->session->get('site_id');
         $this->authBaseUrl = $this->webroot . '/oauth2/' . $this->siteId;
         $this->authBaseFullUrl = self::getAuthBaseFullURL($globalsBag, $this->session);
         // used for session stash
-        $this->authRequestSerial = $session->get('authRequestSerial', '');
+        $this->authRequestSerial = $this->session->get('authRequestSerial', '');
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
         // verify and/or setup our key pairs.
-        $this->configKeyPairs($session);
-
-        // true will display client/user server sign in. false, not.
-        $this->providerForm = $providerForm;
+        $this->configKeyPairs($this->session);
         $this->trustedUserService = new TrustedUserService();
     }
 

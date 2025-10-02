@@ -22,15 +22,12 @@ class FacilityCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'facility.created';
 
-    private $facilityData;
-
     /**
      * FacilityUpdatedEvent constructor.
      * @param $facilityData
      */
-    public function __construct($facilityData)
+    public function __construct(private $facilityData)
     {
-        $this->facilityData = $facilityData;
     }
 
     /**

@@ -22,15 +22,12 @@ class UserCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'user.created';
 
-    private $userData;
-
     /**
      * UserCreatedEvent constructor.
      * @param $userData
      */
-    public function __construct($userData)
+    public function __construct(private $userData)
     {
-        $this->userData = $userData;
     }
 
     /**

@@ -14,14 +14,11 @@ namespace OpenEMR\Services\FHIR;
 
 class FhirUrlResolver
 {
-    private $fhirBaseURL;
-
     private $baseUrlLength;
 
-    public function __construct($baseURL)
+    public function __construct(private $fhirBaseURL)
     {
-        $this->fhirBaseURL = $baseURL;
-        $this->baseUrlLength = strlen($baseURL);
+        $this->baseUrlLength = strlen($this->fhirBaseURL);
     }
 
     public function getRelativeUrl($url): ?string

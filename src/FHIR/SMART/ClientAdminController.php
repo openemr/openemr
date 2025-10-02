@@ -52,13 +52,6 @@ class ClientAdminController
     const TOKEN_TOOLS_ACTION = 'token-tools';
     const PARSE_TOKEN_ACTION = "parse-token";
 
-    private string $actionURL;
-
-    /**
-     * @var ClientRepository
-     */
-    private ClientRepository $clientRepo;
-
     const CSRF_TOKEN_NAME = 'ClientAdminController';
     const SCOPE_PREVIEW_DISPLAY = 6;
 
@@ -68,10 +61,6 @@ class ClientAdminController
 
     private Environment $twig;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
     private Kernel $kernel;
 
     private AccessTokenRepository $accessTokenRepository;
@@ -80,19 +69,15 @@ class ClientAdminController
 
     /**
      * ClientAdminController constructor.
-     * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
+     * @param ClientRepository $clientRepo The repository object that let's us retrieve OAUTH2 EntityClient objects
      * @param string $actionURL The URL that we will send requests back to
      */
-    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session, ClientRepository $repo, string $actionURL)
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session, private ClientRepository $clientRepo, private string $actionURL)
     {
-        $this->globalsBag = $globalsBag;
-        $this->session = $session;
-        $this->kernel = $globalsBag->get('kernel');
-        $this->clientRepo = $repo;
-        $this->actionURL = $actionURL;
-        $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $actionURL, self::CSRF_TOKEN_NAME);
+        $this->kernel = $this->globalsBag->get('kernel');
+        $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
-        $this->webroot = $globalsBag->get('web_root');
+        $this->webroot = $this->globalsBag->get('web_root');
     }
 
     public function setTwig(Environment $twig)

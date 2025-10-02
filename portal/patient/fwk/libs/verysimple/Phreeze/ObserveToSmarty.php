@@ -19,11 +19,9 @@ require_once("IObserver.php");
  */
 class ObserveToSmarty implements IObserver
 {
-    private $_smarty = null;
     private $_counter = 0;
-    public function __construct($smarty)
+    public function __construct(private $_smarty)
     {
-        $this->_smarty = $smarty;
         $this->_smarty->debugging = true;
     }
     public function Observe($obj, $ltype = OBSERVE_INFO)

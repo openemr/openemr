@@ -21,11 +21,6 @@ use XSLTProcessor;
 class CcdaGenerator
 {
     /**
-     * @var EncounterccdadispatchTable
-     */
-    private $dispatchTable;
-
-    /**
      * @var int
      */
     private $createdtime;
@@ -35,9 +30,8 @@ class CcdaGenerator
      */
     private $data;
 
-    public function __construct(EncounterccdadispatchTable $table)
+    public function __construct(private EncounterccdadispatchTable $dispatchTable)
     {
-        $this->dispatchTable = $table;
     }
 
     public function getEncounterccdadispatchTable(): EncounterccdadispatchTable

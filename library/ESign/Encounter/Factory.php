@@ -33,11 +33,8 @@ require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Log.php';
 
 class Encounter_Factory implements FactoryIF
 {
-    protected $_encounterId = null;
-
-    public function __construct($encounterId)
+    public function __construct(protected $_encounterId)
     {
-        $this->_encounterId = $encounterId;
     }
 
     public function createConfiguration()

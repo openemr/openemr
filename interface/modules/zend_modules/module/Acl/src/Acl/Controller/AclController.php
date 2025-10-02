@@ -25,11 +25,9 @@ class AclController extends AbstractActionController
     protected $aclTable;
 
     protected $listenerObject;
-    private $htmlEscaper;
 
-    public function __construct(\Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
+    public function __construct(private \Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
     {
-        $this->htmlEscaper = $htmlEscaper;
         // TODO: we should probably inject the Listener object as well so we can mock it in unit tests or at least make the dependency explicit.
         $this->listenerObject = new Listener();
         $this->aclTable = $aclTable;

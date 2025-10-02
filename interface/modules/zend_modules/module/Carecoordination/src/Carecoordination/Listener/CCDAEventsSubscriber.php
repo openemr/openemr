@@ -29,18 +29,12 @@ use XSLTProcessor;
 class CCDAEventsSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var CcdaGenerator
-     */
-    private $generator;
-
-    /**
      * @var string The url that users will be sent to inside OpenEMR to view a CCDA
      */
     private $viewCcdaUrl;
 
-    public function __construct(CcdaGenerator $generator)
+    public function __construct(private CcdaGenerator $generator)
     {
-        $this->generator = $generator;
         $this->viewCcdaUrl = $GLOBALS['webroot'] . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }
 

@@ -26,11 +26,6 @@ use Ramsey\Uuid\Rfc4122\UuidV4;
 class TeleHealthRemoteRegistrationService
 {
     /**
-     * @var TelehealthRegistrationCodeService
-     */
-    private $codeService;
-
-    /**
      * API url endpoint to send registration requests to.
      * @var string
      */
@@ -79,7 +74,7 @@ class TeleHealthRemoteRegistrationService
 
     private TeleHealthUserRepository $userRepository;
 
-    public function __construct(TelehealthGlobalConfig $config, TelehealthRegistrationCodeService $codeService)
+    public function __construct(TelehealthGlobalConfig $config, private TelehealthRegistrationCodeService $codeService)
     {
         $this->apiURL = $config->getRegistrationAPIURI();
         $this->apiId = $config->getRegistrationAPIUserId();
@@ -90,7 +85,6 @@ class TeleHealthRemoteRegistrationService
         $this->userRepository = new TeleHealthUserRepository();
         $this->httpClient = new Client();
         $this->logger = new SystemLogger();
-        $this->codeService = $codeService;
     }
 
     public function createPatientRegistration($patient)

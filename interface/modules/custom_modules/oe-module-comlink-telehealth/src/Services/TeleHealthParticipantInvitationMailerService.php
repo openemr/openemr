@@ -27,29 +27,9 @@ class TeleHealthParticipantInvitationMailerService
     const MESSAGE_ID_TELEHEALTH_EXISTING_PATIENT = 'comlink-telehealth-invitation-existing-patient';
 
     const MESSAGE_ID_TELEHEALTH_NEW_PATIENT = 'comlink-telehealth-invitation-new-patient';
-    private $publicPathFQDN;
 
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-
-    /**
-     * @var EventDispatcher
-     */
-    private $dispatcher;
-
-    public function __construct(EventDispatcher $dispatcher, Environment $twig, $publicPathFQDN, TelehealthGlobalConfig $config)
+    public function __construct(private EventDispatcher $dispatcher, private Environment $twig, private $publicPathFQDN, private TelehealthGlobalConfig $config)
     {
-        $this->dispatcher = $dispatcher;
-        $this->twig = $twig;
-        $this->publicPathFQDN = $publicPathFQDN;
-        $this->config = $config;
     }
 
     public function sendInvitationToExistingPatient($patient, $session, $thirdPartyLaunchAction)

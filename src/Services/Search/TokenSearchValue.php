@@ -21,20 +21,14 @@ class TokenSearchValue
     private $code;
 
     /**
-     * @var string
+     * @param string $system
      */
-    private $system;
-
-    /**
+    public function __construct($code, private $system = null, /**
      * @var
      */
-    private $isUuid;
-
-    public function __construct($code, $system = null, $isUuid = false)
+    private $isUuid = false)
     {
-        $this->isUuid = $isUuid;
         $this->setCode($code);
-        $this->system = $system;
     }
 
     /**

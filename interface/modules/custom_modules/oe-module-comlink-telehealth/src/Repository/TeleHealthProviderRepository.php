@@ -21,12 +21,10 @@ use OpenEMR\Validators\ProcessingResult;
 class TeleHealthProviderRepository
 {
     private TeleHealthPersonSettingsRepository $personSettings;
-    private TelehealthGlobalConfig $config;
 
-    public function __construct(SystemLogger $logger, TelehealthGlobalConfig $config)
+    public function __construct(SystemLogger $logger, private TelehealthGlobalConfig $config)
     {
         $this->personSettings = new TeleHealthPersonSettingsRepository($logger);
-        $this->config = $config;
     }
 
     public function isEnabledProvider($providerId)

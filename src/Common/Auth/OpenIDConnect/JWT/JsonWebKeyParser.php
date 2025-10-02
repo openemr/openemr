@@ -23,12 +23,9 @@ class JsonWebKeyParser
 {
     use CryptTrait;
 
-    private $publicKeyLocation;
-
-    public function __construct($oaEncryptionKey, $publicKeyLocation)
+    public function __construct($oaEncryptionKey, private $publicKeyLocation)
     {
         $this->setEncryptionKey($oaEncryptionKey);
-        $this->publicKeyLocation = $publicKeyLocation;
     }
 
     public function parseRefreshToken($rawToken)

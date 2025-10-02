@@ -34,15 +34,8 @@ require_once $GLOBALS['srcdir'] . '/ESign/Form/Log.php';
 
 class Form_Factory implements FactoryIF
 {
-    protected $_formId = null;
-    protected $_formDir = null;
-    protected $_encounterId = null;
-
-    public function __construct($formId, $formDir, $encounterId)
+    public function __construct(protected $_formId, protected $_formDir, protected $_encounterId)
     {
-        $this->_formId = $formId;
-        $this->_formDir = $formDir;
-        $this->_encounterId = $encounterId;
     }
 
     public function createConfiguration()

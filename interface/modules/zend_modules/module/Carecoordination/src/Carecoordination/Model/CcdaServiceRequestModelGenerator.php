@@ -28,14 +28,8 @@ class CcdaServiceRequestModelGenerator
     private $createdtime;
     private $exportwithDocuments;
 
-    /**
-     * @var EncounterccdadispatchTable
-     */
-    private $encounterCCDADispatchTable;
-
-    public function __construct(EncounterccdadispatchTable $table)
+    public function __construct(private EncounterccdadispatchTable $encounterCCDADispatchTable)
     {
-        $this->encounterCCDADispatchTable = $table;
         $this->data = "";
         $this->exportwithDocuments = $_REQUEST['with_documents'] ?? false;
     }

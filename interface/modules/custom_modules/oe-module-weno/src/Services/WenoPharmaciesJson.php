@@ -15,12 +15,10 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
-    private CryptoGen $cryptoGen;
     private string $encrypted;
 
-    public function __construct(CryptoGen $cryptoGen)
+    public function __construct(private CryptoGen $cryptoGen)
     {
-        $this->cryptoGen = $cryptoGen;
         // Build the JSON data
         $jobJson = $this->buildJson();
         // Define encryption method and key
