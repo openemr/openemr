@@ -1030,3 +1030,67 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('person
 
 UPDATE `layout_options` SET `list_id` = 'OccupationODH', `list_backup_id` = 'Occupation' WHERE `form_id` = 'DEM' AND `field_id` = 'occupation' AND `group_id` = '4';
 UPDATE `layout_options` SET `list_id` = 'IndustryODH', `list_backup_id` = 'Industry' WHERE `form_id` = 'DEM' AND `field_id` = 'industry' AND `group_id` = '4';
+-- ------------------------------------------- 8-1-25 ------------ Have a pleasant snooze ------------------------------------------------------------------
+
+#IfMissingColumn procedure_order date_collected_end
+ALTER TABLE `procedure_order` ADD COLUMN `date_collected_end` datetime DEFAULT NULL COMMENT 'End time of specimen collection period (USCDI v5)';
+ALTER TABLE `procedure_order` ADD COLUMN `specimen_condition` varchar(50) DEFAULT NULL COMMENT 'Condition/acceptability of specimen (USCDI v5)';
+-- Update any existing records to have default acceptable condition if they have a collection date
+UPDATE `procedure_order` SET `specimen_condition` = 'acceptable' WHERE `date_collected` IS NOT NULL AND `specimen_condition` IS NULL;
+-- Add indexes for performance on commonly queried specimen fields
+ALTER TABLE `procedure_order` ADD INDEX `idx_specimen_type` (`specimen_type`);
+ALTER TABLE `procedure_order` ADD INDEX `idx_date_collected_end` (`date_collected_end`);
+ALTER TABLE `procedure_order` ADD INDEX `idx_specimen_condition` (`specimen_condition`);
+#EndIf
+
+#IfNotRow2D list_id lists list_options specimen_type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+   ('lists', 'specimen_type', 'Specimen Type', 1, 0, 0, 'USCDI v5 Specimen Types'),
+   ('specimen_type', 'BLD', 'Blood', 10, 1, 0, 'Whole blood'),
+   ('specimen_type', 'SER', 'Serum', 20, 0, 0, 'Blood serum'),
+   ('specimen_type', 'PLAS', 'Plasma', 30, 0, 0, 'Blood plasma'),
+   ('specimen_type', 'UR', 'Urine', 40, 0, 0, 'Urine specimen'),
+   ('specimen_type', 'XXX', 'Tissue', 50, 0, 0, 'Tissue specimen'),
+   ('specimen_type', 'SAL', 'Saliva', 60, 0, 0, 'Saliva'),
+   ('specimen_type', 'SWAB', 'Swab', 70, 0, 0, 'Swab specimen'),
+   ('specimen_type', 'SPT', 'Sputum', 80, 0, 0, 'Sputum'),
+   ('specimen_type', 'CSF', 'Cerebrospinal Fluid', 90, 0, 0, 'CSF'),
+   ('specimen_type', 'STL', 'Stool', 100, 0, 0, 'Stool specimen'),
+   ('specimen_type', 'ASP', 'Aspirate', 110, 0, 0, 'Aspirate'),
+   ('specimen_type', 'BIFL', 'Bile Fluid', 120, 0, 0, 'Bile fluid'),
+   ('specimen_type', 'BON', 'Bone', 130, 0, 0, 'Bone'),
+   ('specimen_type', 'BLDCO', 'Blood - Cord', 140, 0, 0, 'Cord blood'),
+   ('specimen_type', 'BLD.ART', 'Blood - Arterial', 150, 0, 0, 'Arterial blood');
+-- Insert list_options for specimen_location (body sites - common collection sites)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+   ('lists', 'specimen_location', 'Specimen Collection Site', 1, 0, 0, 'USCDI v5 Specimen Collection Sites'),
+   ('specimen_location', 'LA', 'Left Arm', 10, 1, 0, 'Left arm venipuncture'),
+   ('specimen_location', 'RA', 'Right Arm', 20, 0, 0, 'Right arm venipuncture'),
+   ('specimen_location', 'LAC', 'Left Antecubital Fossa', 30, 0, 0, 'Left antecubital fossa'),
+   ('specimen_location', 'RAC', 'Right Antecubital Fossa', 40, 0, 0, 'Right antecubital fossa'),
+   ('specimen_location', 'LH', 'Left Hand', 50, 0, 0, 'Left hand'),
+   ('specimen_location', 'RH', 'Right Hand', 60, 0, 0, 'Right hand'),
+   ('specimen_location', 'FIN', 'Finger', 70, 0, 0, 'Finger stick'),
+   ('specimen_location', 'HEEL', 'Heel', 80, 0, 0, 'Heel stick'),
+   ('specimen_location', 'EAR', 'Ear', 90, 0, 0, 'Ear'),
+   ('specimen_location', 'NOSE', 'Nose', 100, 0, 0, 'Nasal cavity'),
+   ('specimen_location', 'THROAT', 'Throat', 110, 0, 0, 'Throat/pharynx'),
+   ('specimen_location', 'WOUND', 'Wound', 120, 0, 0, 'Wound site'),
+   ('specimen_location', 'URETHRA', 'Urethra', 130, 0, 0, 'Urethral'),
+   ('specimen_location', 'CERVIX', 'Cervix', 140, 0, 0, 'Cervical'),
+   ('specimen_location', 'RECTUM', 'Rectum', 150, 0, 0, 'Rectal');
+-- Insert list_options for specimen_condition (HL7 v2 Table 0493)
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+   ('lists', 'specimen_condition', 'Specimen Condition', 1, 0, 0, 'USCDI v5 Specimen Condition Acceptability'),
+   ('specimen_condition', 'acceptable', 'Acceptable', 10, 1, 0, 'Specimen is acceptable for testing'),
+   ('specimen_condition', 'hemolyzed', 'Hemolyzed', 20, 0, 0, 'Specimen shows hemolysis'),
+   ('specimen_condition', 'lipemic', 'Lipemic', 30, 0, 0, 'Specimen is lipemic'),
+   ('specimen_condition', 'contaminated', 'Contaminated', 40, 0, 0, 'Specimen is contaminated'),
+   ('specimen_condition', 'clotted', 'Clotted', 50, 0, 0, 'Specimen is clotted'),
+   ('specimen_condition', 'insufficient', 'Insufficient Quantity', 60, 0, 0, 'Quantity not sufficient'),
+   ('specimen_condition', 'QNS', 'QNS', 70, 0, 0, 'Quantity not sufficient'),
+   ('specimen_condition', 'old', 'Old Specimen', 80, 0, 0, 'Specimen is too old'),
+   ('specimen_condition', 'improper_storage', 'Improper Storage', 90, 0, 0, 'Improperly stored'),
+   ('specimen_condition', 'unlabeled', 'Unlabeled', 100, 0, 0, 'Specimen container unlabeled'),
+   ('specimen_condition', 'damaged', 'Container Damaged', 110, 0, 0, 'Specimen container damaged');
+#EndIf
