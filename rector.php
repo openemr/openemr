@@ -16,6 +16,7 @@ use Rector\Php70\Rector\If_\IfToSpaceshipRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
+use Rector\Php71\Rector\List_\ListToArrayDestructRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
@@ -70,6 +71,7 @@ return RectorConfig::configure()
         EregToPregMatchRector::class, // one of the withPhpSets rules
         IfIssetToCoalescingRector::class, // one of the withPhpSets rules
         IfToSpaceshipRector::class, // one of the withPhpSets rules
+        ListToArrayDestructRector::class, // one of the withPhpSets rules
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
