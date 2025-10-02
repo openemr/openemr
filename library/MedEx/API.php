@@ -84,9 +84,9 @@ class CurlRequest
             return;
         }
 
-        if (!file_exists(dirname($this->sessionFile))) {
+        if (!file_exists(dirname((string) $this->sessionFile))) {
             /** @noinspection PhpMethodParametersCountMismatchInspection */
-            mkdir(dirname($this->sessionFile, 0755, true));
+            mkdir(dirname((string) $this->sessionFile, 0755, true));
         }
 
         file_put_contents($this->sessionFile, json_encode($this->cookies));
@@ -101,7 +101,7 @@ class CurlRequest
         $this->postData = $postData; }
     public function getResponse()
     {
-        return json_decode($this->response, true);  }
+        return json_decode((string) $this->response, true);  }
     public function getRawResponse()
     {
         return $this->response; }
@@ -131,7 +131,7 @@ class Practice extends Base
         $fields2['callback_url'] = $callback;
         $sqlQuery = "SELECT * FROM medex_prefs";
         $my_status = sqlQuery($sqlQuery);
-        $providers = explode('|', $my_status['ME_providers']);
+        $providers = explode('|', (string) $my_status['ME_providers']);
         foreach ($providers as $provider) {
             $runQuery = "SELECT * FROM users WHERE id=?";
             $ures = sqlStatement($runQuery, array($provider));
@@ -139,7 +139,7 @@ class Practice extends Base
                 $fields2['providers'][] = $urow;
             }
         }
-        $facilities = explode('|', $my_status['ME_facilities']);
+        $facilities = explode('|', (string) $my_status['ME_facilities']);
         $runQuery = "SELECT * FROM facility WHERE service_location='1'";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
@@ -209,7 +209,7 @@ class Practice extends Base
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid LIKE 'recall_%' GROUP BY msg_pc_eid";
         $result = sqlStatement($sql);
         while ($row = sqlFetchArray($result)) {
-            $pid = trim($row['msg_pc_eid'], "recall_");
+            $pid = trim((string) $row['msg_pc_eid'], "recall_");
             $query  = "SELECT pc_eid FROM openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
             $test3 = sqlStatement($query, array($pid));
             $result3 = sqlFetchArray($test3);
@@ -276,7 +276,7 @@ class Campaign extends Base
         ) {
             return false;
         }
-        $results = json_decode($info['status'], true);
+        $results = json_decode((string) $info['status'], true);
         return $results['status']['campaigns'];
     }
 }
@@ -301,7 +301,7 @@ class Events extends Base
         $sqlQuery = "SELECT * FROM medex_icons";
         $result = sqlStatement($sqlQuery);
         while ($icons = sqlFetchArray($result)) {
-            $title = preg_match('/title=\"(.*)\"/', $icons['i_html']);
+            $title = preg_match('/title=\"(.*)\"/', (string) $icons['i_html']);
             $xl_title = xla($title);
             $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
@@ -316,7 +316,7 @@ class Events extends Base
             $target_lang = '';
             $no_dupes = '';
             if (($event['E_language'] > '') && ($event['E_language'] != "all")) {
-                $langs = explode("|", $event['E_language']);
+                $langs = explode("|", (string) $event['E_language']);
                 foreach ($langs as $lang) {
                     if ($lang == 'No preference') {
                         $build_langs .= "pat.language = '' OR ";
@@ -470,7 +470,7 @@ class Events extends Base
                         continue;
                     }
 
-                    if (strtotime($recall['r_eventDate']) < mktime(0, 0, 0)) {
+                    if (strtotime((string) $recall['r_eventDate']) < mktime(0, 0, 0)) {
                         if ($this->recursive_array_search("recall_" . $recall['r_pid'], $appt3)) {
                             continue;
                         }
@@ -510,7 +510,7 @@ class Events extends Base
                     continue;
                 }
                 $today = strtotime(date('Y-m-d'));
-                $start = strtotime($event['appts_start']);
+                $start = strtotime((string) $event['appts_start']);
 
                 if ($today < $start) {
                     continue;
@@ -547,7 +547,7 @@ class Events extends Base
                 }
                 if (!empty($event['appt_stats'])) {
                     $prepare_me = '';
-                    $appt_stats = explode('|', $event['appt_stats']);
+                    $appt_stats = explode('|', (string) $event['appt_stats']);
                     foreach ($appt_stats as $appt_stat) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $appt_stat;
@@ -560,7 +560,7 @@ class Events extends Base
 
                 if (!empty($event['providers'])) {
                     $prepare_me = '';
-                    $providers = explode('|', $event['providers']);
+                    $providers = explode('|', (string) $event['providers']);
                     foreach ($providers as $provider) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $provider;
@@ -573,7 +573,7 @@ class Events extends Base
 
                 if (!empty($event['facilities'])) {
                     $prepare_me = '';
-                    $facilities = explode('|', $event['facilities']);
+                    $facilities = explode('|', (string) $event['facilities']);
                     foreach ($facilities as $facility) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $facility;
@@ -586,7 +586,7 @@ class Events extends Base
 
                 if (!empty($event['visit_types'])) {
                     $prepare_me = '';
-                    $visit_types = explode('|', $event['visit_types']);
+                    $visit_types = explode('|', (string) $event['visit_types']);
                     foreach ($visit_types as $visit_type) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $visit_type;
@@ -674,7 +674,7 @@ class Events extends Base
                     rtrim($escClause['Fac'], ",");
                     $facility_clause = " AND cal.pc_facility in (" . $escClause['Fac'] . ") ";
                 }
-                $all_providers = explode('|', $prefs['ME_providers']);
+                $all_providers = explode('|', (string) $prefs['ME_providers']);
                 foreach ($event['survey'] as $k => $v) {
                     if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
                         continue;
@@ -769,7 +769,7 @@ class Events extends Base
                         $prepare_me .= "?,";
                         $escapedArr[] = $event['appt_stats'];
                     } else {
-                        $appt_stats = explode('|', $event['appt_stats']);
+                        $appt_stats = explode('|', (string) $event['appt_stats']);
                         foreach ($appt_stats as $appt_stat) {
                             $prepare_me .= "?,";
                             $escapedArr[] = $appt_stat;
@@ -783,7 +783,7 @@ class Events extends Base
 
                 if (!empty($event['providers'])) {
                     $prepare_me = '';
-                    $providers = explode('|', $event['providers']);
+                    $providers = explode('|', (string) $event['providers']);
                     foreach ($providers as $provider) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $provider;
@@ -796,7 +796,7 @@ class Events extends Base
 
                 if (!empty($event['facilities'])) {
                     $prepare_me = '';
-                    $facilities = explode('|', $event['facilities']);
+                    $facilities = explode('|', (string) $event['facilities']);
                     foreach ($facilities as $facility) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $facility;
@@ -809,7 +809,7 @@ class Events extends Base
 
                 if (!empty($event['visit_types'])) {
                     $prepare_me = '';
-                    $visit_types = explode('|', $event['visit_types']);
+                    $visit_types = explode('|', (string) $event['visit_types']);
                     foreach ($visit_types as $visit_type) {
                         $prepare_me .= "?,";
                         $escapedArr[] = $visit_type;
@@ -998,8 +998,8 @@ class Events extends Base
     {
         //get dates in this request
         if ($M_group == "REMINDER") {
-            $start = explode(':', $timing);
-            $end = explode(':', $timing2);
+            $start = explode(':', (string) $timing);
+            $end = explode(':', (string) $timing2);
             $start_date = date('Y-m-d', strtotime($interval . $start[0] . ' day'));
             $stop_date = date('Y-m-d', strtotime($interval . $end[0] . ' day'));
         } else {
@@ -1169,25 +1169,25 @@ class Events extends Base
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                list($ny,$nm,$nd) = explode('-', (string) $event['pc_eventDate']);
                 $occurence = $event['pc_eventDate'];
 
                 // prep work to start cooking...
                 // ignore dates less than start_date
-                while (strtotime($occurence) < strtotime($start_date)) {
+                while (strtotime((string) $occurence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
                     $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurence);
+                    list($ny,$nm,$nd) = explode('-', (string) $occurence);
                 }
                 //now we are cooking...
                 while ($occurence <= $stop_date) {
                     $excluded = false;
                     if (isset($exdate)) {
-                        foreach (explode(",", $exdate) as $exception) {
+                        foreach (explode(",", (string) $exdate) as $exception) {
                             // occurrence format == yyyy-mm-dd
                             // exception format == yyyymmdd
-                            if (preg_replace("/-/", "", $occurence) == $exception) {
+                            if (preg_replace("/-/", "", (string) $occurence) == $exception) {
                                 $excluded = true;
                             }
                         }
@@ -1197,7 +1197,7 @@ class Events extends Base
                         $data[] = $occurence;
                     }
                     $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurence);
+                    list($ny,$nm,$nd) = explode('-', (string) $occurence);
                 }
                 break;
 
@@ -1212,15 +1212,15 @@ class Events extends Base
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                list($ny,$nm,$nd) = explode('-', (string) $event['pc_eventDate']);
 
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1;
                 }
 
                 $occurenceYm = "$ny-$nm"; // YYYY-mm
-                $from_dateYm = substr($start_date, 0, 7); // YYYY-mm
-                $stop_dateYm = substr($stop_date, 0, 7); // YYYY-mm
+                $from_dateYm = substr((string) $start_date, 0, 7); // YYYY-mm
+                $stop_dateYm = substr((string) $stop_date, 0, 7); // YYYY-mm
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
                 // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
@@ -1242,10 +1242,10 @@ class Events extends Base
                     if ($occurence >= $start_date && $occurence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
-                            foreach (explode(",", $exdate) as $exception) {
+                            foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurence) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurence) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1357,8 +1357,8 @@ class Events extends Base
         if (empty($asof)) {
             $asof = date('Y-m-d');
         }
-        $a1 = explode('-', substr($dob, 0, 10));
-        $a2 = explode('-', substr($asof, 0, 10));
+        $a1 = explode('-', substr((string) $dob, 0, 10));
+        $a2 = explode('-', substr((string) $asof, 0, 10));
         $age = $a2[0] - $a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
@@ -1696,7 +1696,7 @@ class Display extends base
                                                         while ($fac = sqlFetchArray($result)) {
                                                             $checked = "";
                                                             if ($prefs) {
-                                                                $facs = explode('|', $prefs['ME_facilities']);
+                                                                $facs = explode('|', (string) $prefs['ME_facilities']);
                                                                 foreach ($facs as $place) {
                                                                     if ($place == $fac['id']) {
                                                                         $checked = 'checked ="checked"';
@@ -1720,7 +1720,7 @@ class Display extends base
                                                         $checked = "";
                                                         $suffix = "";
                                                         if ($prefs) {
-                                                            $provs = explode('|', $prefs['ME_providers']);
+                                                            $provs = explode('|', (string) $prefs['ME_providers']);
                                                             foreach ($provs as $doc) {
                                                                 if ($doc == $prov['id']) {
                                                                     $checked = 'checked ="checked"';
@@ -1862,14 +1862,14 @@ class Display extends base
         $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
-        if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
-            $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        if (substr((string) $GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+            $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
-            $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (substr((string) $GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+            $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
-             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (substr((string) $GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+             $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
         }
         $to_date = date('Y-m-d', $ptkr_future_time);
@@ -2155,8 +2155,8 @@ class Display extends base
             if (strlen($provider[$recall['r_provider']]) > 14) {
                 $provider[$recall['r_provider']] = substr($provider[$recall['r_provider']], 0, 14) . "...";
             }
-            if (strlen($facility[$recall['r_facility']]) > 20) {
-                $facility[$recall['r_facility']] = substr($facility[$recall['r_facility']], 0, 17) . "...";
+            if (strlen((string) $facility[$recall['r_facility']]) > 20) {
+                $facility[$recall['r_facility']] = substr((string) $facility[$recall['r_facility']], 0, 17) . "...";
             }
 
             if ($count_providers > '1') {
@@ -2178,8 +2178,8 @@ class Display extends base
             }
             if ($recall['email'] > '') {
                 $mailto = $recall['email'];
-                if (strlen($recall['email']) > 15) {
-                    $recall['email'] = substr($recall['email'], 0, 12) . "...";
+                if (strlen((string) $recall['email']) > 15) {
+                    $recall['email'] = substr((string) $recall['email'], 0, 12) . "...";
                 }
                 echo 'E: <a data-toggle="tooltip" data-placement="auto" title="' . xla('Send an email to ') . attr($mailto) . '" href="mailto:' . attr($mailto) . '">' . text($recall['email']) . '</a><br />';
             }
@@ -2275,7 +2275,7 @@ class Display extends base
         while ($progress = sqlFetchArray($result)) {
             $i = $progress['campaign_uid'];//if this is a manual entry, this ==0.
 
-            $phpdate = strtotime($progress['msg_date']);
+            $phpdate = strtotime((string) $progress['msg_date']);
             $when = oeFormatShortDate(date('Y-m-d', $phpdate)) . " @ " . date('g:iA', $phpdate);
 
             if (is_numeric($progress['msg_reply'])) { // it was manually added by id
@@ -2364,9 +2364,9 @@ class Display extends base
                 $show['campaign'][$event['C_UID']] = $event;
                 $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($recall['r_eventDate'])));
+                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime((string) $recall['r_eventDate'])));
                 $date1 = date('Y-m-d');
-                $date_diff = strtotime($date1) - strtotime($recall['r_eventDate']);
+                $date_diff = strtotime($date1) - strtotime((string) $recall['r_eventDate']);
                 if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
                     $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
                     $show['status'] = "whitish";
@@ -2435,7 +2435,7 @@ class Display extends base
             $pat['SMS'] = $icon['SMS']['NotAllowed'];
             $pat['ALLOWED']['SMS'] = 'NO';
         } else {
-            $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+            $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
             $pat['SMS'] = $icon['SMS']['ALLOWED'];     // It is allowed and they have a cell phone
         }
         if ((empty($appt["phone_home"]) && (empty($appt["phone_cell"])) || ($appt["hipaa_voice"] == "NO"))) {
@@ -2443,9 +2443,9 @@ class Display extends base
             $pat['ALLOWED']['AVM'] = 'NO';
         } else {
             if (!empty($appt["phone_cell"])) {
-                $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+                $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
             } else {
-                $phone = preg_replace("/[^0-9]/", "", $appt["phone_home"]);
+                $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_home"]);
             }
             $pat['AVM'] = $icon['AVM']['ALLOWED']; //We have a phone to call and permission!
         }
@@ -2458,13 +2458,13 @@ class Display extends base
         if ($GLOBALS['medex_enable'] == '1') {
             $sql = "SELECT * FROM medex_prefs";
             $prefs = sqlFetchArray(sqlStatement($sql));
-            $facs = explode('|', $prefs['ME_facilities']);
+            $facs = explode('|', (string) $prefs['ME_facilities']);
             foreach ($facs as $place) {
                 if (isset($appt['r_facility']) && ($appt['r_facility'] == $place)) {
                     $pat['facility']['status'] = 'ok';
                 }
             }
-            $providers = explode('|', $prefs['ME_providers']);
+            $providers = explode('|', (string) $prefs['ME_providers']);
             foreach ($providers as $provider) {
                 if (isset($appt['r_provider']) && ($appt['r_provider'] == $provider)) {
                     $pat['provider']['status'] = 'ok';
@@ -2592,7 +2592,7 @@ class Display extends base
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
                             <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                 echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>" />
+                                 echo attr(rtrim("|", trim((string) $result_pat['PLAN']))); } ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2917,7 +2917,7 @@ class Display extends base
     {
         if ($pid == 'pat_list') {
             global $data;
-            $values = rtrim($_POST['outpatient']);
+            $values = rtrim((string) $_POST['outpatient']);
             $match = preg_split("/(?<=\w)\b\s*[!?.]*/", $values, -1, PREG_SPLIT_NO_EMPTY);
             if ((preg_match('/ /', $values)) && (!empty($match[1]))) {
                 $sqlSync = "SELECT * FROM patient_data WHERE (fname LIKE ? OR fname LIKE ?) AND (lname LIKE ? OR lname LIKE ?) LIMIT 20";
@@ -3295,7 +3295,7 @@ class MedEx
         if ($sessionFile == 'cookiejar_MedExAPI') {
             $sessionFile = $GLOBALS['temporary_files_dir'] . '/cookiejar_MedExAPI';
         }
-        $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', $url), '/') . '/cart/upload/index.php?route=api/';
+        $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', (string) $url), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);
         $this->practice = new Practice($this);
         $this->campaign = new Campaign($this);
@@ -3372,7 +3372,7 @@ class MedEx
         $info['callback_key'] = $_POST['callback_key'];
 
         if (empty($force)) {
-            $timer = strtotime($info['MedEx_lastupdated']);
+            $timer = strtotime((string) $info['MedEx_lastupdated']);
             $utc_now = date('Y-m-d H:m:s');
             $hour_ago = strtotime($utc_now . "-60 minutes");
             if ($hour_ago > $timer) {
@@ -3383,7 +3383,7 @@ class MedEx
             $info['force'] = $force;
             $info = $this->just_login($info);
         } else {
-            $info['status'] = json_decode($info['status'], true);
+            $info['status'] = json_decode((string) $info['status'], true);
         }
 
         if (isset($info['error'])) {
@@ -3416,7 +3416,7 @@ class MedEx
             if (empty($appt['phone_cell']) || ($appt["hipaa_allowsms"] == "NO")) {
                 return array($icon['SMS']['NotAllowed'],false);
             } else {
-                $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+                $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
                 return array($icon['SMS']['ALLOWED'],$phone);     // It is allowed and they have a cell phone
             }
         } elseif ($event['M_type'] == "AVM") {
@@ -3424,9 +3424,9 @@ class MedEx
                 return array($icon['AVM']['NotAllowed'],false);
             } else {
                 if (!empty($appt["phone_cell"])) {
-                    $phone = preg_replace("/[^0-9]/", "", $appt["phone_cell"]);
+                    $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
                 } else {
-                    $phone = preg_replace("/[^0-9]/", "", $appt["phone_home"]);
+                    $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_home"]);
                 }
                 return array($icon['AVM']['ALLOWED'],$phone); //We have a phone to call and permission!
             }

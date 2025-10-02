@@ -36,7 +36,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$immunizations = json_decode($_GET['data'], true);
+$immunizations = json_decode((string) $_GET['data'], true);
 
 try {
     $spreadsheet = new SpreadSheetService($immunizations, null, 'immunizations');

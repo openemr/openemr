@@ -106,7 +106,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
 
                 if (sqlNumRows($module_hooks) == 0) {
                     // module without hooks in module section
-                    $acl_section = strtolower($modulerow['mod_directory']);
+                    $acl_section = strtolower((string) $modulerow['mod_directory']);
                     if (AclMain::zhAclCheck($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
                         continue;
                     }

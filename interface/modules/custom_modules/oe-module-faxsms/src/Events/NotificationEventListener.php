@@ -151,7 +151,7 @@ class NotificationEventListener implements EventSubscriberInterface
             'pid' => $pid,
             'redirect_link' => $GLOBALS['web_root'] . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
                 "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
-                "&audit_render_id=" . urlencode($audit_id) . "&site=" . urlencode($site_id),
+                "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
             'email' => '',
             'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
         ];
@@ -224,7 +224,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $status = 'Starting request.' . ' ';
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($site_id) . "&landOn=MakePayment";
+        $defaultUrl = $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -360,9 +360,9 @@ class NotificationEventListener implements EventSubscriberInterface
             if (!$smtpEnabled) {
                 return 'Error: ' . xlt("Mail was not sent. A SMTP client is not set up in Config Notifications!.");
             }
-            $isHtml = (stripos($content, '<html') !== false) || (stripos($content, '<body') !== false);
+            $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
             if (!$isHtml) {
-                $html = "<html><body><div class='wrapper'>" . nl2br($content) . "</div></body></html>";
+                $html = "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>";
             } else {
                 $html = $content;
             }

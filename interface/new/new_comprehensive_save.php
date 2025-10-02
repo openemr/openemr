@@ -25,7 +25,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 // Validation for non-unique external patient identifier.
 $alertmsg = '';
 if (!empty($_POST["form_pubpid"])) {
-    $form_pubpid = trim($_POST["form_pubpid"]);
+    $form_pubpid = trim((string) $_POST["form_pubpid"]);
     $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
     "pubpid = ?", array($form_pubpid));
     if ($result['count']) {
@@ -54,8 +54,8 @@ while ($frow = sqlFetchArray($fres)) {
   // $value     = '';
     $colname   = $field_id;
     $tblname   = 'patient_data';
-    if (strpos($field_id, 'em_') === 0) {
-        $colname = substr($field_id, 3);
+    if (strpos((string) $field_id, 'em_') === 0) {
+        $colname = substr((string) $field_id, 3);
         $tblname = 'employer_data';
     }
 

@@ -299,7 +299,7 @@ class sasl_client_class
 */
 	Function Start($mechanisms, &$message, &$interactions)
 	{
-		if(strlen($this->error))
+		if(strlen((string) $this->error))
 			return(SASL_FAIL);
 		if(IsSet($this->driver))
 			return($this->driver->Start($this,$message,$interactions));
@@ -320,7 +320,7 @@ class sasl_client_class
 					{
 						case SASL_NOMECH:
 							Unset($this->driver);
-							if(strlen($no_mechanism_error)==0)
+							if(strlen((string) $no_mechanism_error)==0)
 								$no_mechanism_error=$this->error;
 							$this->error="";
 							break;
@@ -336,13 +336,13 @@ class sasl_client_class
 				else
 				{
 					Unset($this->driver);
-					if(strlen($no_mechanism_error)==0)
+					if(strlen((string) $no_mechanism_error)==0)
 						$no_mechanism_error=$this->error;
 					$this->error="";
 				}
 			}
 		}
-		$this->error=(strlen($no_mechanism_error) ? $no_mechanism_error : "it was not requested any of the authentication mechanisms that are supported");
+		$this->error=(strlen((string) $no_mechanism_error) ? $no_mechanism_error : "it was not requested any of the authentication mechanisms that are supported");
 		return(SASL_NOMECH);
 	}
 /*
@@ -398,7 +398,7 @@ class sasl_client_class
 */
 	Function Step($response, &$message, &$interactions)
 	{
-		if(strlen($this->error))
+		if(strlen((string) $this->error))
 			return(SASL_FAIL);
 		return($this->driver->Step($this,$response,$message,$interactions));
 	}

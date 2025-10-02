@@ -3475,7 +3475,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             }
                                             function startsWith($str, $needle)
                                             {
-                                                return substr($str, 0, strlen($needle)) === $needle;
+                                                return substr((string) $str, 0, strlen((string) $needle)) === $needle;
                                             }
                                             ?>
                                             submit_form("eye_mag");

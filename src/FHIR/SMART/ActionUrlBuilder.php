@@ -16,10 +16,10 @@ class ActionUrlBuilder
         if (\is_array($action)) {
             $action = implode("/", $action);
         }
-        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($this->getCSRFToken());
+        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode((string) $this->getCSRFToken());
         if (!empty($options['queryParams'])) {
             foreach ($options['queryParams'] as $key => $param) {
-                $url .= "&" . urlencode($key) . "=" . urlencode($param);
+                $url .= "&" . urlencode((string) $key) . "=" . urlencode((string) $param);
             }
         }
 

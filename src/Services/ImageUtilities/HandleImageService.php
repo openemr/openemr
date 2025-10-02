@@ -28,7 +28,7 @@ class HandleImageService
     public function convertImageToPdfUseGD($imageData, $pdfPath): false|string
     {
         try {
-            $imageRaw = base64_decode($imageData); // Decode base64 image data (if needed)
+            $imageRaw = base64_decode((string) $imageData); // Decode base64 image data (if needed)
             $image = imagecreatefromstring($imageRaw); // Load image using GD
             if ($image === false) {
                 throw new Exception('Failed to create image from data');
@@ -63,7 +63,7 @@ class HandleImageService
     {
         try {
             $imagick = new Imagick();
-            $imageRaw = base64_decode($imageContent); // Decode base64 image data (if needed)
+            $imageRaw = base64_decode((string) $imageContent); // Decode base64 image data (if needed)
             $imagick->readImageBlob($imageRaw); // Load image using Imagick from binary data
             $imagick->setFirstIterator(); // Set iterator to first page
             $imagick->setImageFormat('pdf');
@@ -214,7 +214,7 @@ class HandleImageService
      */
     private function saveImageToFile($sourceImage, $targetImage, $imageType): string
     {
-        $base = pathinfo($sourceImage, PATHINFO_FILENAME);
+        $base = pathinfo((string) $sourceImage, PATHINFO_FILENAME);
         $outputImage = $base . '_resized' . ($imageType == IMAGETYPE_PNG ? '.png' : '.jpg');
 
         match ($imageType) {

@@ -74,11 +74,11 @@ class HttpRestParsedRoute
         $this->requestRoute = $requestRoute;
         $this->requestMethod = $requestMethod;
 
-        $routePieces = explode(" ", $routeDefinition);
+        $routePieces = explode(" ", (string) $routeDefinition);
         $routeDefinitionMethod = $routePieces[0];
         $pattern = $this->getRouteMatchExpression($routePieces[1]);
         $matches = array();
-        if ($requestMethod === $routeDefinitionMethod && preg_match($pattern, $requestRoute, $matches)) {
+        if ($requestMethod === $routeDefinitionMethod && preg_match($pattern, (string) $requestRoute, $matches)) {
             $this->isValid = true;
             array_shift($matches); // drop request method
             $this->routeParams = $matches;
@@ -160,7 +160,7 @@ class HttpRestParsedRoute
     private function getRouteMatchExpression($path)
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
-        return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$\:]+)', preg_quote($path)) . "$@D";
+        return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$\:]+)', preg_quote((string) $path)) . "$@D";
     }
 
     /**
@@ -180,7 +180,7 @@ class HttpRestParsedRoute
      */
     private function parseRouteParams($routeParams, $routeDefinition)
     {
-        $parts = explode("/", $routeDefinition);
+        $parts = explode("/", (string) $routeDefinition);
         if (empty($parts)) {
             return; // nothing we can do here
         }

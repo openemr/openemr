@@ -255,12 +255,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
         while ($row = sqlFetchArray($res)) {
             // Make the timestamp URL-friendly.
-            $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
+            $timestamp = preg_replace('/[^0-9]/', '', (string) $row['dtime']);
             ?>
    <tr>
     <td nowrap>
      <a href="javascript:show_receipt(<?php echo attr_js($row['pid']); ?>, <?php echo attr_js($timestamp); ?>)">
-            <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . text(substr($row['dtime'], 10, 6)); ?>
+            <?php echo text(oeFormatShortDate(substr((string) $row['dtime'], 0, 10))) . text(substr((string) $row['dtime'], 10, 6)); ?>
    </a>
   </td>
   <td>

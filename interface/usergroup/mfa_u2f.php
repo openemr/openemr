@@ -146,7 +146,7 @@ function docancel() {
                 CsrfUtils::csrfNotVerified();
             }
             try {
-                $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));
+                $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
             } catch (u2flib_server\Error $e) {
                 die(xlt('Registration error') . ': ' . text($e->getMessage()));
             }

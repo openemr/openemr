@@ -171,8 +171,8 @@ class CdaComponentParseHelpers
         // Pretty strict duplicate check
         $firstName = $patientData['names'][0]['given'][0];
         $lastName = $patientData['names'][0]['family'];
-        $dob = date("Y-m-d", strtotime($patientData['dob']));
-        $phone = preg_replace('/\D/', '', $patientData['phones'][0]);
+        $dob = date("Y-m-d", strtotime((string) $patientData['dob']));
+        $phone = preg_replace('/\D/', '', (string) $patientData['phones'][0]);
         $address = trim($patientData['address']['street'][0] ?? '');
 
         $sql = "SELECT pid, fname, lname, DOB, phone_home, phone_cell, phone_biz, street, city, state, postal_code
@@ -218,8 +218,8 @@ class CdaComponentParseHelpers
             mkdir($duplicateDir, 0777, true);
         }
 
-        $fileName = basename($sourceFile);
-        $destinationFilePath = rtrim($duplicateDir, '/') . '/' . $fileName;
+        $fileName = basename((string) $sourceFile);
+        $destinationFilePath = rtrim((string) $duplicateDir, '/') . '/' . $fileName;
         // Move
         if (!rename($sourceFile, $destinationFilePath)) {
             throw new Exception("Failed to move file to: $destinationFilePath");

@@ -57,24 +57,24 @@ switch ($getAction) {
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
 
 			if ( isset($_GET['filter_aco_section']) AND $_GET['filter_aco_section'] != '-1') {
-				$filter_query[] = 'ac.section_value='. $db->qstr(strtolower($_GET['filter_aco_section']));
+				$filter_query[] = 'ac.section_value='. $db->qstr(strtolower((string) $_GET['filter_aco_section']));
 			}
 			if ( isset($_GET['filter_aco']) AND $_GET['filter_aco'] != '') {
 				$query .= '
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'aco c ON (c.section_value=ac.section_value AND c.value=ac.value)';
 
-				$name = $db->qstr(strtolower($_GET['filter_aco']));
+				$name = $db->qstr(strtolower((string) $_GET['filter_aco']));
 				$filter_query[] = '(lower(c.value) LIKE '. $name .' OR lower(c.name) LIKE '. $name .')';
 			}
 
 			if ( isset($_GET['filter_aro_section']) AND $_GET['filter_aro_section'] != '-1') {
-				$filter_query[] = 'ar.section_value='. $db->qstr(strtolower($_GET['filter_aro_section']));
+				$filter_query[] = 'ar.section_value='. $db->qstr(strtolower((string) $_GET['filter_aro_section']));
 			}
 			if ( isset($_GET['filter_aro']) AND $_GET['filter_aro'] != '') {
 				$query .= '
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'aro r ON (r.section_value=ar.section_value AND r.value=ar.value)';
 
-				$name = $db->qstr(strtolower($_GET['filter_aro']));
+				$name = $db->qstr(strtolower((string) $_GET['filter_aro']));
 				$filter_query[] = '(lower(r.value) LIKE '. $name .' OR lower(r.name) LIKE '. $name .')';
 			}
 			if ( isset($_GET['filter_aro_group']) AND $_GET['filter_aro_group'] != '') {
@@ -82,17 +82,17 @@ switch ($getAction) {
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'aro_groups_map arg ON arg.acl_id=a.id
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'aro_groups rg ON rg.id=arg.group_id';
 
-				$filter_query[] = '(lower(rg.name) LIKE '. $db->qstr(strtolower($_GET['filter_aro_group'])) .')';
+				$filter_query[] = '(lower(rg.name) LIKE '. $db->qstr(strtolower((string) $_GET['filter_aro_group'])) .')';
 			}
 
 			if ( isset($_GET['filter_axo_section']) AND $_GET['filter_axo_section'] != '-1') {
-				$filter_query[] = 'ax.section_value='. $db->qstr(strtolower($_GET['filter_axo_section']));
+				$filter_query[] = 'ax.section_value='. $db->qstr(strtolower((string) $_GET['filter_axo_section']));
 			}
 			if ( isset($_GET['filter_axo']) AND $_GET['filter_axo'] != '') {
 				$query .= '
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'axo x ON (x.section_value=ax.section_value AND x.value=ax.value)';
 
-				$name = $db->qstr(strtolower($_GET['filter_axo']));
+				$name = $db->qstr(strtolower((string) $_GET['filter_axo']));
 				$filter_query[] = '(lower(x.value) LIKE '. $name .' OR lower(x.name) LIKE '. $name .')';
 			}
 			if ( isset($_GET['filter_axo_group']) AND $_GET['filter_axo_group'] != '') {
@@ -100,14 +100,14 @@ switch ($getAction) {
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'axo_groups_map axg ON axg.acl_id=a.id
 				LEFT JOIN	'. $gacl_api->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id';
 
-				$filter_query[] = '(lower(xg.name) LIKE '. $db->qstr(strtolower($_GET['filter_axo_group'])) .')';
+				$filter_query[] = '(lower(xg.name) LIKE '. $db->qstr(strtolower((string) $_GET['filter_axo_group'])) .')';
 			}
 
 			if ( isset($_GET['filter_acl_section']) AND $_GET['filter_acl_section'] != '-1') {
-				$filter_query[] = 'a.section_value='. $db->qstr(strtolower($_GET['filter_acl_section']));
+				$filter_query[] = 'a.section_value='. $db->qstr(strtolower((string) $_GET['filter_acl_section']));
 			}
 			if ( isset($_GET['filter_return_value']) AND $_GET['filter_return_value'] != '') {
-				$filter_query[] = '(lower(a.return_value) LIKE '. $db->qstr(strtolower($_GET['filter_return_value'])) .')';
+				$filter_query[] = '(lower(a.return_value) LIKE '. $db->qstr(strtolower((string) $_GET['filter_return_value'])) .')';
 			}
 			if ( isset($_GET['filter_allow']) AND $_GET['filter_allow'] != '-1') {
 				$filter_query[] = '(a.allow LIKE '. $db->qstr($_GET['filter_allow']) .')';

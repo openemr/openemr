@@ -689,7 +689,7 @@ class EncounterService extends BaseService
         ];
         foreach ($encounters as $index => $encounter) {
             $encounterList['ids'][$index] = $encounter['eid'];
-            $encounterList['dates'][$index] = date("Y-m-d", strtotime($encounter['date']));
+            $encounterList['dates'][$index] = date("Y-m-d", strtotime((string) $encounter['date']));
             $encounterList['categories'][$index] = $encounter['pc_catname'];
         }
         return $encounterList;

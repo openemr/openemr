@@ -77,7 +77,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
-$urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
+$urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . urlencode($urlParam);
 
 ?>
 <!doctype html>
@@ -209,11 +209,11 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                             </tr>
                             <tr>
                                 <td><?php echo xlt("Height"); ?>:<?php echo text(number_format($vitals['height'], 2)); ?> </td>
-                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime((string) $vitals['date'])))); ?></td>
                             </tr>
                             <tr>
                                 <td><?php echo xlt("Weight: "); ?><?php echo text(number_format($vitals['weight'], 2)); ?> </td>
-                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime((string) $vitals['date'])))); ?></td>
                             </tr>
                         </table>
                     </div>
@@ -244,7 +244,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                     </div>
                     <div class="modal-body">
                         <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>
-                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5($provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
+                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5((string) $provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>

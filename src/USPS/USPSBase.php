@@ -175,7 +175,7 @@ class USPSBase
         $opts[CURLOPT_URL] = $this->getEndpoint();
 
       // Replace 443 with 80 if it's not secured
-        if (strpos($opts[CURLOPT_URL], 'https://') === false) {
+        if (strpos((string) $opts[CURLOPT_URL], 'https://') === false) {
             $opts[CURLOPT_PORT] = 80;
         }
 
@@ -253,7 +253,7 @@ class USPSBase
         }
 
       // Check to see if we have the Error word in the response
-        if (strpos($this->getResponse(), '<Error>') !== false) {
+        if (strpos((string) $this->getResponse(), '<Error>') !== false) {
             return true;
         }
 

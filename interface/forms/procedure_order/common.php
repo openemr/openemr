@@ -114,7 +114,7 @@ function get_lab_name($id): string
 if (!function_exists('ucname')) {
     function ucname($string): string
     {
-        $string = ucwords(strtolower($string));
+        $string = ucwords(strtolower((string) $string));
         foreach (array('-', '\'') as $delimiter) {
             if (strpos($string, $delimiter) !== false) {
                 $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
@@ -171,8 +171,8 @@ function normalizeDirectoryName(string $input): string
     $normalized = str_replace(' ', '_', $normalized);
     $normalized = str_replace(['&', '+'], 'and', $normalized);
     $normalized = preg_replace('/[^A-Za-z0-9_-]/', '', $normalized);
-    $normalized = preg_replace('/_+/', '_', $normalized);
-    $normalized = trim($normalized, '_-');
+    $normalized = preg_replace('/_+/', '_', (string) $normalized);
+    $normalized = trim((string) $normalized, '_-');
     $normalized = strtolower($normalized);
 
     return $normalized;
@@ -182,7 +182,7 @@ function normalizeDirectoryName(string $input): string
 $formid = (int)($_REQUEST['id'] ?? 0);
 
 $reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . urlencode($pid) . '&document_id=';
+$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
@@ -233,17 +233,17 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         $_POST['form_order_psc'],
         $_POST['form_specimen_fasting'] ?? '',
         $_POST['form_specimen_volume'] ?? '',
-        trim($_POST['form_clinical_hx']),
-        trim($_POST['form_patient_instructions']),
+        trim((string) $_POST['form_clinical_hx']),
+        trim((string) $_POST['form_patient_instructions']),
         $pid,
         $encounter,
-        trim($_POST['form_history_order']),
-        trim($_POST['form_order_abn']),
-        trim($_POST['form_order_diagnosis']),
-        trim($_POST['form_account']),
+        trim((string) $_POST['form_history_order']),
+        trim((string) $_POST['form_order_abn']),
+        trim((string) $_POST['form_order_diagnosis']),
+        trim((string) $_POST['form_account']),
         (int)$_POST['form_account_facility'],
         (int)$_POST['form_collector_id'],
-        trim($_POST['procedure_type_names']),
+        trim((string) $_POST['procedure_type_names']),
     );
 // If updating an existing form...
 //
@@ -351,12 +351,12 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             "procedure_order_seq = ? ",
             array(
                 $formid,
-                trim($_POST['form_proc_type_diag'][$i]),
-                trim($_POST['form_proc_order_title'][$i]),
-                trim($_POST['form_transport'][$i]),
+                trim((string) $_POST['form_proc_type_diag'][$i]),
+                trim((string) $_POST['form_proc_order_title'][$i]),
+                trim((string) $_POST['form_transport'][$i]),
                 $ptid,
                 $ptid,
-                trim($_POST['form_procedure_type'][$i] ?: $_POST['procedure_type_names'] ?? ''),
+                trim((string) $_POST['form_procedure_type'][$i] ?: $_POST['procedure_type_names'] ?? ''),
                 $reason_code,
                 $reason_description,
                 $reason_date_low,
@@ -378,9 +378,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             "ORDER BY q.seq, q.question_text", array($ptid));
 
         while ($qrow = sqlFetchArray($qres)) {
-            $options = trim($qrow['options']);
-            $qcode = trim($qrow['question_code']);
-            $pcode = trim($qrow['procedure_code']);
+            $options = trim((string) $qrow['options']);
+            $qcode = trim((string) $qrow['question_code']);
+            $pcode = trim((string) $qrow['procedure_code']);
             $fldtype = $qrow['fldtype'];
             $data = '';
             if ($fldtype == 'G') {
@@ -411,7 +411,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     "answer_seq = ?, " .
                     "answer = ?, " .
                     "procedure_code = ?",
-                    array($formid, $poseq, $qcode, $answer_seq['increment'], trim($datum), $pcode)
+                    array($formid, $poseq, $qcode, $answer_seq['increment'], trim((string) $datum), $pcode)
                 );
                 sqlCommitTrans();
             }
@@ -512,7 +512,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                             // todo: check if more than one requisition document can be returned
                             $eReqForm = $orderResponse->orders[0]->requisitionDocumentBase64 ?? '';
                             if (!empty($eReqForm)) {
-                                $eReqForm = base64_decode($eReqForm);
+                                $eReqForm = base64_decode((string) $eReqForm);
                                 if (empty($eReqForm)) {
                                     $alertmsg .= "\n" . xlt("Error decoding eReq PDF document.");
                                 } else {
@@ -1156,7 +1156,7 @@ if (!empty($row['lab_id'])) {
 <?php
 $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
-$date = xl('on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
+$date = xl('on') . ' ' . oeFormatShortDate(substr((string) $enrow['date'], 0, 10));
 $title = array(xl('Order for'), $name, $formid ? xl('Order Id') . ' ' . text($formid) : xl('New Order'));
 $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
 $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
@@ -1194,7 +1194,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
             );
             $req = array();
             while ($oprow = sqlFetchArray($reqres)) {
-                $doc_type = stripos($oprow['url'], 'ABN') ? 'ABN' : 'REQ';
+                $doc_type = stripos((string) $oprow['url'], 'ABN') ? 'ABN' : 'REQ';
                 if ($gbl_lab === "labcorp") {
                     $doc_type = "eREQ";
                 }
@@ -1386,7 +1386,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     );
                                     $problem_diags = '';
                                     while ($probrow = sqlFetchArray($diagres)) {
-                                        if (strpos($probrow['diagnosis'], 'ICD') === false) {
+                                        if (strpos((string) $probrow['diagnosis'], 'ICD') === false) {
                                             continue;
                                         }
                                         $problem_diags .= $probrow['diagnosis'] . ';';

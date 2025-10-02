@@ -91,7 +91,7 @@ if ($_POST) {
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
+        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
         isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db

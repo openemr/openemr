@@ -147,10 +147,10 @@ if ($result != null) {
         }
 
         $body = $iter['body'];
-        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
             $body = nl2br(text($body));
         } else {
-            $body = text(date('Y-m-d H:i', strtotime($iter['date']))) .
+            $body = text(date('Y-m-d H:i', strtotime((string) $iter['date']))) .
             ' (' . text($iter['user']) . ') ' . nl2br(text($body));
         }
 

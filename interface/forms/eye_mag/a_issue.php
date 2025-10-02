@@ -199,9 +199,9 @@ foreach (explode(',', $given) as $item) {
 
             if ($local == "1") { // leave FH/SocHx/ROS for later - done below separately
                 while ($res = sqlFetchArray($qry ?? '')) { //Should we take the top 10 and display alphabetically?
-                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim((string) $res['title']))) . ", " . js_escape(trim((string) $res['option_id'])) . ", false, false);\n";
                     if ($res['codes']) {
-                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim($res['codes'])) . "');\n";
+                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim((string) $res['codes'])) . "');\n";
                     }
                 }
             }
@@ -491,12 +491,12 @@ foreach (explode(',', $given) as $item) {
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert("<?php echo addslashes(xl('Please Enter End Date greater than Begin Date!')); ?>");
+                alert("<?php echo addslashes((string) xl('Please Enter End Date greater than Begin Date!')); ?>");
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert("<?php echo addslashes(xl('Please enter a title!')); ?>");
+                    alert("<?php echo addslashes((string) xl('Please enter a title!')); ?>");
                     return false;
                 }
             }
@@ -866,9 +866,9 @@ foreach (explode(',', $given) as $item) {
                             }
 
                             $fldlength = empty($frow['fld_length']) ? 20 : $frow['fld_length'];
-                            $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
-                            $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
-                            $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
+                            $fldlength = htmlspecialchars((string) $fldlength, ENT_QUOTES);
+                            $result2[$field_id]['resnote'] = htmlspecialchars((string) $result2[$field_id]['resnote'], ENT_QUOTES);
+                            $result2[$field_id]['resdate'] = htmlspecialchars((string) $result2[$field_id]['resdate'], ENT_QUOTES);
                         } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }

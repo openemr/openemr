@@ -76,7 +76,7 @@ class Includer
 
             try {
                 // append a directory separater if necessary
-                if ($path && substr($path, - 1) != "/") {
+                if ($path && substr((string) $path, - 1) != "/") {
                     $path .= "/";
                 }
 
@@ -102,7 +102,7 @@ class Includer
             return;
         }
 
-        $tmp1 = explode(")", $string);
+        $tmp1 = explode(")", (string) $string);
         $tmp2 = explode("(", $tmp1 [0]);
         $mfile = isset($tmp2 [1]) ? $tmp2 [1] : "";
 

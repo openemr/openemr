@@ -49,7 +49,7 @@ class BirthdayReminder
         }
         // only need month and day for birthdate
         $today = date('m-d');
-        $dobStr = strtotime($res['DOB']);
+        $dobStr = strtotime((string) $res['DOB']);
 
         // fix for December birthdays check in January
         if (date('m') == '01' && date('m', $dobStr) == '12') {
@@ -63,7 +63,7 @@ class BirthdayReminder
             (
                 $GLOBALS['patient_birthday_alert'] == 3 &&
                 $today >= $dobStr &&
-                $today <= date('m-d', strtotime('+28 days', strtotime($res['DOB'])))
+                $today <= date('m-d', strtotime('+28 days', strtotime((string) $res['DOB'])))
             ) ||
             // on and after
             (
@@ -90,7 +90,7 @@ class BirthdayReminder
         //if there is result
         if (!empty($res['turned_off_on'])) {
             //if the alert has been turned off this year
-            if (date('Y') == date('Y', strtotime($res['turned_off_on']))) {
+            if (date('Y') == date('Y', strtotime((string) $res['turned_off_on']))) {
                 return true;
             }
         }

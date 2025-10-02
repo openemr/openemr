@@ -178,7 +178,7 @@ function check_search_str()
         while ($row = sqlFetchArray($res)) {
             $row_count += 1;
             $itercode = $row['option_id'];
-            $itertext = ucfirst(strtolower(trim($row['title'])));
+            $itertext = ucfirst(strtolower(trim((string) $row['title'])));
             ?>
        <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }

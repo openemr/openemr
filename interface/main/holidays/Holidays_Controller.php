@@ -51,7 +51,7 @@ class Holidays_Controller
             }
         }
 
-        $file_type = pathinfo($this->target_file, PATHINFO_EXTENSION);
+        $file_type = pathinfo((string) $this->target_file, PATHINFO_EXTENSION);
         if ($file_type != "csv") {
             return false;
         }

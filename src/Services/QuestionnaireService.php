@@ -117,7 +117,7 @@ class QuestionnaireService extends BaseService
         if (empty($name)) {
             $name = $q_ob['name'] ?? null;
         }
-        $name = trim($name);
+        $name = trim((string) $name);
         if (empty($q_record_id)) {
             $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
         } else {
@@ -420,9 +420,9 @@ class QuestionnaireService extends BaseService
             $oOption = $this->fhirObjectToArray($option);
             if (count($oOption['extension'] ?? [])) {
                 foreach ($oOption['extension'] as $e) {
-                    if (stripos($e['url'], 'ordinalValue') !== false) {
+                    if (stripos((string) $e['url'], 'ordinalValue') !== false) {
                         foreach ($e as $k => $v) {
-                            if (stripos($k, 'value') !== false) {
+                            if (stripos((string) $k, 'value') !== false) {
                                 $score = $v;
                             }
                         }

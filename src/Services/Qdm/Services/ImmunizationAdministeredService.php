@@ -60,7 +60,7 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
         }
 
         if (!empty($record['cvx_code'])) {
-            if (str_starts_with($record['cvx_code'], 'OID:')) {
+            if (str_starts_with((string) $record['cvx_code'], 'OID:')) {
                 // Sometimes codes are nulled out and sdc:valueSet is in the code, like this:
                 // <code nullFlavor="NA" sdtc:valueSet="2.16.840.1.113883.3.526.3.1254"/>
                 $model->addCode(

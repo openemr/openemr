@@ -137,7 +137,7 @@ class POSRef
     function state_overides($state)
     {
         $pos = array();
-        switch (strtoupper($state)) {
+        switch (strtoupper((string) $state)) {
             case "CA":
                 break;
             default:

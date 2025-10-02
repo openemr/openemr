@@ -151,13 +151,13 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    if (stripos($GLOBALS['portal_css_header'], 'dark') !== false) {
+    if (stripos((string) $GLOBALS['portal_css_header'], 'dark') !== false) {
         $theme = 'dark';
     } else {
         $theme = 'light';
     }
 } else {
-    if (stripos($GLOBALS['css_header'], 'dark') !== false) {
+    if (stripos((string) $GLOBALS['css_header'], 'dark') !== false) {
         $theme = 'dark';
     } else {
         $theme = 'light';

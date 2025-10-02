@@ -43,14 +43,14 @@ class IntrospectionTest extends TestCase
             $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [], "public");
         }
         $this->assertEquals(200, $actualValue->getStatusCode(), "Client authorization returned the wrong status code");
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()), "ID token was not sent via client authorization");
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()), "Acccess token was not sent via client authorization");
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()), "ID token was not sent via client authorization");
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()), "Acccess token was not sent via client authorization");
         if ($type == 'private') {
-            $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()), "Refresh token was not sent via client authorization for private client");
+            $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()), "Refresh token was not sent via client authorization for private client");
         }
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
@@ -62,9 +62,9 @@ class IntrospectionTest extends TestCase
             ]
         );
         // ensure client_id and client_secret are set
-        $this->assertGreaterThan(10, strlen($this->client->getClientId()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getClientId()));
         if ($type == 'private') {
-            $this->assertGreaterThan(10, strlen($this->client->getClientSecret()));
+            $this->assertGreaterThan(10, strlen((string) $this->client->getClientSecret()));
         }
     }
 

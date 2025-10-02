@@ -13,7 +13,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
-$object_type = match (strtolower($_GET['object_type'])) {
+$object_type = match (strtolower((string) $_GET['object_type'])) {
     'axo' => 'axo',
     default => 'aro',
 };
@@ -24,11 +24,11 @@ switch ($_GET['action']) {
 
 		//Function to pass array_walk to trim all entries in an array.
 		function array_walk_trim(&$array_field): void {
-			$array_field = $db->qstr(strtolower(trim($array_field)));
+			$array_field = $db->qstr(strtolower(trim((string) $array_field)));
 		}
 
-		$value_search_str = trim($_GET['value_search_str']);
-		$name_search_str = trim($_GET['name_search_str']);
+		$value_search_str = trim((string) $_GET['value_search_str']);
+		$name_search_str = trim((string) $_GET['name_search_str']);
 
 		$exploded_value_search_str = explode("\n", $value_search_str);
 		$exploded_name_search_str = explode("\n", $name_search_str);
@@ -94,7 +94,7 @@ switch ($_GET['action']) {
 	default:
 		$smarty->assign('src_form', $_GET['src_form']);
 		$smarty->assign('section_value', $_GET['section_value']);
-		$smarty->assign('section_value_name', ucfirst($_GET['section_value']));
+		$smarty->assign('section_value_name', ucfirst((string) $_GET['section_value']));
 		$smarty->assign('object_type', $object_type);
 		$smarty->assign('object_type_name', strtoupper($object_type));
 

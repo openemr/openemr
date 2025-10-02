@@ -56,8 +56,8 @@ class LBF_Validation
             }
 
             if ($frow['validation_json']) {
-                if (json_decode($frow['validation_json'])) {
-                    $validation_arr = json_decode($frow['validation_json'], true);
+                if (json_decode((string) $frow['validation_json'])) {
+                    $validation_arr = json_decode((string) $frow['validation_json'], true);
                 } else {
                     trigger_error($frow['validation_json'] . " is not a valid json ", E_USER_WARNING);
                 }

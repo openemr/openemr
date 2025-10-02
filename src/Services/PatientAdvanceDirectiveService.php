@@ -120,7 +120,7 @@ class PatientAdvanceDirectiveService
                 'name' => $row['name'],
                 'type' => $docType,
                 'status' => $this->determineDocumentStatus($row),
-                'effective_date' => $row['docdate'] ?: substr($row['date'], 0, 10),
+                'effective_date' => $row['docdate'] ?: substr((string) $row['date'], 0, 10),
                 'location' => $row['url'] ?: 'Electronic Health Record',
                 'mimetype' => $row['mimetype'],
                 'hash' => $row['hash'],

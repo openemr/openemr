@@ -724,7 +724,7 @@ class Savant3
         // loop through the path directories
         foreach ($path as $dir) {
             // no surrounding spaces allowed!
-            $dir = trim($dir);
+            $dir = trim((string) $dir);
 
             // add trailing separators as needed
             if (strpos($dir, '://') && substr($dir, - 1) != '/') {
@@ -765,7 +765,7 @@ class Savant3
             $fullname = $path . $file;
 
             // is the path based on a stream?
-            if (strpos($path, '://') === false) {
+            if (strpos((string) $path, '://') === false) {
                 // not a stream, so do a realpath() to avoid
                 // directory traversal attempts on the local file
                 // system. Suggested by Ian Eure, initially
@@ -779,7 +779,7 @@ class Savant3
             // that the realpath() results in a directory registered
             // with Savant so that non-registered directores are not
             // accessible via directory traversal attempts.
-            if (file_exists($fullname) && is_readable($fullname) && substr($fullname, 0, strlen($path)) == $path) {
+            if (file_exists($fullname) && is_readable($fullname) && substr($fullname, 0, strlen((string) $path)) == $path) {
                 return $fullname;
             }
         }

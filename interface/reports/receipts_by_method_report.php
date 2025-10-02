@@ -194,7 +194,7 @@ function showLineItem(
         </td>
         <?php
         if ($showing_ppd) {
-            $dos = substr($pferow['date'], 0, 10);
+            $dos = substr((string) $pferow['date'], 0, 10);
 
             echo "  <td class='font-weight-bold'>\n";
             echo "   " . text($pferow['lname']) . ", " . text($pferow['fname']) . " " . text($pferow['mname']);
@@ -573,7 +573,7 @@ if (!empty($_POST['form_refresh'])) {
                     $row['pid'],
                     $row['encounter'],
                     $row['code_text'],
-                    substr($row['date'], 0, 10),
+                    substr((string) $row['date'], 0, 10),
                     $rowmethod,
                     0 - $row['fee'],
                     0,
@@ -643,11 +643,11 @@ if (!empty($_POST['form_refresh'])) {
         $res = sqlStatement($query, $sqlBindArray);
         while ($row = sqlFetchArray($res)) {
             if ($form_use_edate) {
-                $thedate = substr($row['date'], 0, 10);
+                $thedate = substr((string) $row['date'], 0, 10);
             } elseif (!empty($row['deposit_date'])) {
                 $thedate = $row['deposit_date'];
             } else {
-                $thedate = substr($row['post_time'], 0, 10);
+                $thedate = substr((string) $row['post_time'], 0, 10);
             }
 
           // Compute reporting key: insurance company name or payment method.
@@ -662,7 +662,7 @@ if (!empty($_POST['form_refresh'])) {
                         $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "tertiary");
                     } elseif ($row['payer_type'] == '0') {
                         $rowmethod = xl('Personal pay');
-                        $rowreference = trim($row['reference']);
+                        $rowreference = trim((string) $row['reference']);
                     } else {
                         $rowmethod = xl('Unnamed insurance company');
                     }
@@ -677,10 +677,10 @@ if (!empty($_POST['form_refresh'])) {
                 }
             } else {
                 if (empty($row['session_id'])) {
-                    $rowmethod = trim($row['memo']);
+                    $rowmethod = trim((string) $row['memo']);
                 } else {
-                    $rowmethod = trim(getListItemTitle('payment_method', $row['payment_method']));
-                    $rowreference = trim($row['reference']);
+                    $rowmethod = trim((string) getListItemTitle('payment_method', $row['payment_method']));
+                    $rowreference = trim((string) $row['reference']);
                 }
             }
 

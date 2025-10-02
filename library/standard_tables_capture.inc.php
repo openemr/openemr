@@ -34,7 +34,7 @@ function temp_copy($filename, $type)
         }
     }
 
-    if (copy($filename, $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename($filename))) {
+    if (copy($filename, $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename))) {
         return true;
     } else {
         return false;
@@ -45,7 +45,7 @@ function temp_copy($filename, $type)
 // $type (RXNORM, SNOMED etc.)
 function temp_unarchive($filename, $type)
 {
-    $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename($filename);
+    $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename);
     if (!file_exists($filename)) {
         return false;
     } elseif ($type == "ICD10") {
@@ -558,7 +558,7 @@ function icd_import($type)
                             $run_sql .= $incoming[$this_key][$fld] . ", ";
                             $sql_place .= "?, ";
                             // concat this fields template in the sql string
-                            array_push($sql_values, substr($value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
+                            array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
                             if (!array_key_exists($nxtfld, $incoming[$this_key])) {
                                 $run_sql .= "active, revision) VALUES ";
                                 $sql_place .= "?, ?)";
@@ -580,7 +580,7 @@ function icd_import($type)
         sqlStatementNoLog("SET autocommit=1");
         closedir($handle);
     } else {
-        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars((string) xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
         return;
     }
 
@@ -742,13 +742,13 @@ function handle_zip_file($mode, $file): void
 {
         // 1. copy the file to temp directory
     if (!temp_copy($file, $mode)) {
-        echo htmlspecialchars(xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars((string) xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($mode);
         exit;
     }
         // 2. unarchive the file
     if (!temp_unarchive($file, $mode)) {
-        echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars((string) xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($mode);
         exit;
     }

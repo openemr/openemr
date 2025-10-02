@@ -232,7 +232,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <?php echo xlt("DOB"); ?>:
                                     </div>
                                     <div class="col">
-                                <?php echo text(substr($data->birthDate, 0, 10)); ?>
+                                <?php echo text(substr((string) $data->birthDate, 0, 10)); ?>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -290,7 +290,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <?php echo xlt("Service Date"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text(substr($data->serviceDate, 0, 10)); ?> / <?php echo text(substr($data->serviceDateEnd, 0, 10)); ?>
+                                    <?php echo text(substr((string) $data->serviceDate, 0, 10)); ?> / <?php echo text(substr((string) $data->serviceDateEnd, 0, 10)); ?>
                                     </div>
                                 </div>
                             </td>

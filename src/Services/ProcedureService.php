@@ -603,7 +603,7 @@ class ProcedureService extends BaseService
     public function addDiagnosis($data)
     {
         $diagnosisArray = array();
-        $dataArray = explode(";", $data);
+        $dataArray = explode(";", (string) $data);
         foreach ($dataArray as $diagnosis) {
             $diagnosisSplit = explode(":", $diagnosis);
             array_push($diagnosisArray, $diagnosisSplit);

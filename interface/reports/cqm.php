@@ -41,10 +41,10 @@ if (!empty($_POST)) {
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();
 
 // See if showing an old report or creating a new report
-$report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
+$report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 
 // Collect the back variable, if pertinent
-$back_link = (isset($_GET['back'])) ? trim($_GET['back']) : "";
+$back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
 
 // If showing an old report, then collect information
 $heading_title = "";
@@ -77,7 +77,7 @@ if (!empty($report_id)) {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
   // to simplify for when submitting for a new report.
-    $type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
+    $type_report = (isset($_GET['type'])) ? trim((string) $_GET['type']) : "standard";
 
     $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
     $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
@@ -88,16 +88,16 @@ if (!empty($report_id)) {
 
   // Collect form parameters (set defaults if empty)
     if ($is_amc_report) {
-        $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
+        $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_begin_date'])) : "";
         $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
     }
 
-    $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_target_date'])) : date('Y-m-d H:i:s');
+    $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_target_date'])) : date('Y-m-d H:i:s');
     $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
     $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
     $provider  = trim($_POST['form_provider'] ?? '');
-    $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
+    $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim((string) $_POST['form_pat_prov_rel']);
     $dataSheet = [];
 }
 

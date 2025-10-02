@@ -30,7 +30,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
-    header("Content-Length: " . strlen($fileViewModel->fileText));
+    header("Content-Length: " . strlen((string) $fileViewModel->fileText));
     header("Content-Disposition: attachment; filename=" . $fileViewModel->fileName  . ";");
     header("Content-Description: File Transfer");
     echo text($fileViewModel->fileText);

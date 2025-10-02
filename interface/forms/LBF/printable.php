@@ -75,7 +75,7 @@ if ($lobj['grp_diags'   ]) {
 
 // Check access control.
 if (!empty($lobj['aco_spec'])) {
-    $LBF_ACO = explode('|', $lobj['aco_spec']);
+    $LBF_ACO = explode('|', (string) $lobj['aco_spec']);
 }
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
@@ -352,14 +352,14 @@ while ($frow = sqlFetchArray($fres)) {
 
     $this_levels = $this_group;
     $i = 0;
-    $mincount = min(strlen($this_levels), strlen($group_levels));
+    $mincount = min(strlen((string) $this_levels), strlen($group_levels));
     while ($i < $mincount && $this_levels[$i] == $group_levels[$i]) {
         ++$i;
     }
     // $i is now the number of initial matching levels.
 
     // If ending a group or starting a subgroup, terminate the current row and its table.
-    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen($this_levels))) {
+    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
         end_row();
         echo " </table>\n";
         $group_table_active = false;
@@ -374,7 +374,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // If there are any new groups, open them.
-    while ($i < strlen($this_levels)) {
+    while ($i < strlen((string) $this_levels)) {
         end_row();
         if ($group_table_active) {
             echo " </table>\n";
@@ -581,7 +581,7 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 ?>
 
 <p style='text-align:center' class='small'>
-  <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+  <?php echo text(xl('Rev.') . ' ' . substr((string) $grp_last_update, 0, 10)); ?>
 </p>
 
 </form>

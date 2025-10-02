@@ -635,7 +635,7 @@ if ($fend > ($count ?? null)) {
                 "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
             while ($prow = sqlFetchArray($pres)) {
                 $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-                if (strpos(":$taxrates", $prow['option_id']) !== false) {
+                if (strpos(":$taxrates", (string) $prow['option_id']) !== false) {
                     $taxline .= " checked";
                 }
 
@@ -803,7 +803,7 @@ if ($fend > ($count ?? null)) {
             if (related_codes_are_used() && $iter['related_code']) {
                 // Show related codes.
                 echo "  <td class='text'>";
-                $arel = explode(';', $iter['related_code']);
+                $arel = explode(';', (string) $iter['related_code']);
                 foreach ($arel as $tmp) {
                     list($reltype, $relcode) = explode(':', $tmp);
                     $code_description = lookup_code_descriptions($reltype . ":" . $relcode);

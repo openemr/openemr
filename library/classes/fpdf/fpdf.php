@@ -109,7 +109,7 @@ function __construct($orientation='P', $unit='mm', $size='A4')
 	if(defined('FPDF_FONTPATH'))
 	{
 		$this->fontpath = FPDF_FONTPATH;
-		if(substr($this->fontpath,-1)!='/' && substr($this->fontpath,-1)!='\\')
+		if(substr((string) $this->fontpath,-1)!='/' && substr((string) $this->fontpath,-1)!='\\')
 			$this->fontpath .= '/';
 	}
 	elseif(is_dir(__DIR__.'/font'))
@@ -136,7 +136,7 @@ function __construct($orientation='P', $unit='mm', $size='A4')
 	$this->DefPageSize = $size;
 	$this->CurPageSize = $size;
 	// Page orientation
-	$orientation = strtolower($orientation);
+	$orientation = strtolower((string) $orientation);
 	if($orientation=='p' || $orientation=='portrait')
 	{
 		$this->DefOrientation = 'P';
@@ -236,31 +236,31 @@ function SetCompression($compress)
 function SetTitle($title, $isUTF8=false)
 {
 	// Title of document
-	$this->metadata['Title'] = $isUTF8 ? $title : utf8_encode($title);
+	$this->metadata['Title'] = $isUTF8 ? $title : utf8_encode((string) $title);
 }
 
 function SetAuthor($author, $isUTF8=false)
 {
 	// Author of document
-	$this->metadata['Author'] = $isUTF8 ? $author : utf8_encode($author);
+	$this->metadata['Author'] = $isUTF8 ? $author : utf8_encode((string) $author);
 }
 
 function SetSubject($subject, $isUTF8=false)
 {
 	// Subject of document
-	$this->metadata['Subject'] = $isUTF8 ? $subject : utf8_encode($subject);
+	$this->metadata['Subject'] = $isUTF8 ? $subject : utf8_encode((string) $subject);
 }
 
 function SetKeywords($keywords, $isUTF8=false)
 {
 	// Keywords of document
-	$this->metadata['Keywords'] = $isUTF8 ? $keywords : utf8_encode($keywords);
+	$this->metadata['Keywords'] = $isUTF8 ? $keywords : utf8_encode((string) $keywords);
 }
 
 function SetCreator($creator, $isUTF8=false)
 {
 	// Creator of document
-	$this->metadata['Creator'] = $isUTF8 ? $creator : utf8_encode($creator);
+	$this->metadata['Creator'] = $isUTF8 ? $creator : utf8_encode((string) $creator);
 }
 
 function AliasNbPages($alias='{nb}')
@@ -451,10 +451,10 @@ function Rect($x, $y, $w, $h, $style='')
 function AddFont($family, $style='', $file='')
 {
 	// Add a TrueType, OpenType or Type1 font
-	$family = strtolower($family);
+	$family = strtolower((string) $family);
 	if($file=='')
-		$file = str_replace(' ','',$family).strtolower($style).'.php';
-	$style = strtoupper($style);
+		$file = str_replace(' ','',$family).strtolower((string) $style).'.php';
+	$style = strtoupper((string) $style);
 	if($style=='IB')
 		$style = 'BI';
 	$fontkey = $family.$style;
@@ -479,8 +479,8 @@ function SetFont($family, $style='', $size=0)
 	if($family=='')
 		$family = $this->FontFamily;
 	else
-		$family = strtolower($family);
-	$style = strtoupper($style);
+		$family = strtolower((string) $family);
+	$style = strtoupper((string) $style);
 	if(strpos($style,'U')!==false)
 	{
 		$this->underline = true;
@@ -682,11 +682,11 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 		else
 		{
 			$b2 = '';
-			if(strpos($border,'L')!==false)
+			if(strpos((string) $border,'L')!==false)
 				$b2 .= 'L';
-			if(strpos($border,'R')!==false)
+			if(strpos((string) $border,'R')!==false)
 				$b2 .= 'R';
-			$b = (strpos($border,'T')!==false) ? $b2.'T' : $b2;
+			$b = (strpos((string) $border,'T')!==false) ? $b2.'T' : $b2;
 		}
 	}
 	$sep = -1;
@@ -766,7 +766,7 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 		$this->ws = 0;
 		$this->_out('0 Tw');
 	}
-	if($border && strpos($border,'B')!==false)
+	if($border && strpos((string) $border,'B')!==false)
 		$b .= 'B';
 	$this->Cell($w,$h,substr($s,$j,$i-$j),$b,2,$align,$fill);
 	$this->x = $this->lMargin;
@@ -875,12 +875,12 @@ function Image($file, $x=null, $y=null, $w=0, $h=0, $type='', $link='')
 		// First use of this image, get info
 		if($type=='')
 		{
-			$pos = strrpos($file,'.');
+			$pos = strrpos((string) $file,'.');
 			if(!$pos)
 				$this->Error('Image file has no extension and no type was specified: '.$file);
-			$type = substr($file,$pos+1);
+			$type = substr((string) $file,$pos+1);
 		}
-		$type = strtolower($type);
+		$type = strtolower((string) $type);
 		if($type=='jpeg')
 			$type = 'jpg';
 		$mtd = '_parse'.$type;
@@ -985,7 +985,7 @@ function Output($dest='', $name='', $isUTF8=false)
 {
 	// Output PDF to some destination
 	$this->Close();
-	if(strlen($name)==1 && strlen($dest)!=1)
+	if(strlen((string) $name)==1 && strlen((string) $dest)!=1)
 	{
 		// Fix parameter order
 		$tmp = $dest;
@@ -996,7 +996,7 @@ function Output($dest='', $name='', $isUTF8=false)
 		$dest = 'I';
 	if($name=='')
 		$name = 'doc.pdf';
-	switch(strtoupper($dest))
+	switch(strtoupper((string) $dest))
 	{
 		case 'I':
 			// Send to standard output
@@ -1096,7 +1096,7 @@ protected function _beginpage($orientation, $size, $rotation)
 	if($orientation=='')
 		$orientation = $this->DefOrientation;
 	else
-		$orientation = strtoupper($orientation[0]);
+		$orientation = strtoupper((string) $orientation[0]);
 	if($size=='')
 		$size = $this->DefPageSize;
 	else
@@ -1139,7 +1139,7 @@ protected function _endpage()
 protected function _loadfont($font)
 {
 	// Load a font definition file from the font directory
-	if(strpos($font,'/')!==false || strpos($font,"\\")!==false)
+	if(strpos((string) $font,'/')!==false || strpos((string) $font,"\\")!==false)
 		$this->Error('Incorrect font definition file name: '.$font);
 	include($this->fontpath.$font);
 	if(!isset($name))
@@ -1154,7 +1154,7 @@ protected function _loadfont($font)
 protected function _isascii($s)
 {
 	// Test if string is ASCII
-	$nb = strlen($s);
+	$nb = strlen((string) $s);
 	for($i=0;$i<$nb;$i++)
 	{
 		if(ord($s[$i])>127)
@@ -1169,18 +1169,18 @@ protected function _httpencode($param, $value, $isUTF8)
 	if($this->_isascii($value))
 		return $param.'="'.$value.'"';
 	if(!$isUTF8)
-		$value = utf8_encode($value);
-	if(strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false)
-		return $param.'="'.rawurlencode($value).'"';
+		$value = utf8_encode((string) $value);
+	if(strpos((string) $_SERVER['HTTP_USER_AGENT'],'MSIE')!==false)
+		return $param.'="'.rawurlencode((string) $value).'"';
 	else
-		return $param."*=UTF-8''".rawurlencode($value);
+		return $param."*=UTF-8''".rawurlencode((string) $value);
 }
 
 protected function _UTF8toUTF16($s)
 {
 	// Convert UTF-8 to UTF-16BE with BOM
 	$res = "\xFE\xFF";
-	$nb = strlen($s);
+	$nb = strlen((string) $s);
 	$i = 0;
 	while($i<$nb)
 	{
@@ -1212,7 +1212,7 @@ protected function _UTF8toUTF16($s)
 protected function _escape($s)
 {
 	// Escape special characters
-	if(strpos($s,'(')!==false || strpos($s,')')!==false || strpos($s,'\\')!==false || strpos($s,"\r")!==false)
+	if(strpos((string) $s,'(')!==false || strpos((string) $s,')')!==false || strpos((string) $s,'\\')!==false || strpos((string) $s,"\r")!==false)
 		return str_replace(array('\\','(',')',"\r"), array('\\\\','\\(','\\)','\\r'), $s);
 	else
 		return $s;
@@ -1231,7 +1231,7 @@ protected function _dounderline($x, $y, $txt)
 	// Underline text
 	$up = $this->CurrentFont['up'];
 	$ut = $this->CurrentFont['ut'];
-	$w = $this->GetStringWidth($txt)+$this->ws*substr_count($txt,' ');
+	$w = $this->GetStringWidth($txt)+$this->ws*substr_count((string) $txt,' ');
 	return sprintf('%.2F %.2F %.2F %.2F re f',$x*$this->k,($this->h-($y-$up/1000*$this->FontSize))*$this->k,$w*$this->k,-$ut/1000*$this->FontSizePt);
 }
 
@@ -1317,12 +1317,12 @@ protected function _parsepngstream($f, $file)
 			// Read transparency info
 			$t = $this->_readstream($f,$n);
 			if($ct==0)
-				$trns = array(ord(substr($t,1,1)));
+				$trns = array(ord(substr((string) $t,1,1)));
 			elseif($ct==2)
-				$trns = array(ord(substr($t,1,1)), ord(substr($t,3,1)), ord(substr($t,5,1)));
+				$trns = array(ord(substr((string) $t,1,1)), ord(substr((string) $t,3,1)), ord(substr((string) $t,5,1)));
 			else
 			{
-				$pos = strpos($t,chr(0));
+				$pos = strpos((string) $t,chr(0));
 				if($pos!==false)
 					$trns = array($pos);
 			}
@@ -1411,7 +1411,7 @@ protected function _readstream($f, $n)
 protected function _readint($f)
 {
 	// Read a 4-byte integer from stream
-	$a = unpack('Ni',$this->_readstream($f,4));
+	$a = unpack('Ni',(string) $this->_readstream($f,4));
 	return $a['i'];
 }
 
@@ -1460,7 +1460,7 @@ protected function _put($s)
 
 protected function _getoffset()
 {
-	return strlen($this->buffer);
+	return strlen((string) $this->buffer);
 }
 
 protected function _newobj($n=null)
@@ -1484,11 +1484,11 @@ protected function _putstreamobject($data)
 	if($this->compress)
 	{
 		$entries = '/Filter /FlateDecode ';
-		$data = gzcompress($data);
+		$data = gzcompress((string) $data);
 	}
 	else
 		$entries = '';
-	$entries .= '/Length '.strlen($data);
+	$entries .= '/Length '.strlen((string) $data);
 	$this->_newobj();
 	$this->_put('<<'.$entries.'>>');
 	$this->_putstream($data);
@@ -1577,7 +1577,7 @@ protected function _putfonts()
 		$font = file_get_contents($this->fontpath.$file,true);
 		if(!$font)
 			$this->Error('Font file not found: '.$file);
-		$compressed = (substr($file,-2)=='.z');
+		$compressed = (substr((string) $file,-2)=='.z');
 		if(!$compressed && isset($info['length2']))
 			$font = substr($font,6,$info['length1']).substr($font,6+$info['length1']+6,$info['length2']);
 		$this->_put('<</Length '.strlen($font));
@@ -1676,7 +1676,7 @@ protected function _putfonts()
 		else
 		{
 			// Allow for additional types
-			$mtd = '_put'.strtolower($type);
+			$mtd = '_put'.strtolower((string) $type);
 			if(!method_exists($this,$mtd))
 				$this->Error('Unsupported font type: '.$type);
 			$this->$mtd($font);
@@ -1754,7 +1754,7 @@ protected function _putimage(&$info)
 	$this->_put('/Width '.$info['w']);
 	$this->_put('/Height '.$info['h']);
 	if($info['cs']=='Indexed')
-		$this->_put('/ColorSpace [/Indexed /DeviceRGB '.(strlen($info['pal'])/3-1).' '.($this->n+1).' 0 R]');
+		$this->_put('/ColorSpace [/Indexed /DeviceRGB '.(strlen((string) $info['pal'])/3-1).' '.($this->n+1).' 0 R]');
 	else
 	{
 		$this->_put('/ColorSpace /'.$info['cs']);
@@ -1775,7 +1775,7 @@ protected function _putimage(&$info)
 	}
 	if(isset($info['smask']))
 		$this->_put('/SMask '.($this->n+1).' 0 R');
-	$this->_put('/Length '.strlen($info['data']).'>>');
+	$this->_put('/Length '.strlen((string) $info['data']).'>>');
 	$this->_putstream($info['data']);
 	$this->_put('endobj');
 	// Soft mask

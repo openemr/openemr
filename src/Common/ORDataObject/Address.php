@@ -88,7 +88,7 @@ class Address extends ORDataObject implements \JsonSerializable
         . "FID: " . $this->foreign_id . "\n"
         . $this->line1 . "\n"
         . $this->line2 . "\n"
-        . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
+        . $this->city . ", " . strtoupper((string) $this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
         . $this->country . "\n";
         return $html ? nl2br($string) : $string;
     }
@@ -141,7 +141,7 @@ class Address extends ORDataObject implements \JsonSerializable
     }
     function set_state($state)
     {
-        $this->state = strtoupper($state);
+        $this->state = strtoupper((string) $state);
     }
     function get_state()
     {
@@ -179,8 +179,8 @@ class Address extends ORDataObject implements \JsonSerializable
         // change things up for the USA
         if ($this->country == "USA") {
             // we will parse our inner elements based on our postal codes
-            if (strpos($postalcode, "-") !== false) { // yes I know this is lazy...
-                $parts = explode("-", $postalcode);
+            if (strpos((string) $postalcode, "-") !== false) { // yes I know this is lazy...
+                $parts = explode("-", (string) $postalcode);
                 $this->zip = $parts[0] ?? "";
                 $this->plus_four = $parts[1] ?? "";
             }

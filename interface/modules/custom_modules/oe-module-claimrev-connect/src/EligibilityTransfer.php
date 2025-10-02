@@ -53,7 +53,7 @@ class EligibilityTransfer extends BaseService
             $eid = $eligibility['id'];
             $request_json = $eligibility['request_json'];
 
-            $elig = json_decode($request_json);
+            $elig = json_decode((string) $request_json);
             $result = ClaimRevApi::uploadEligibility($elig, $token);
             EligibilityTransfer::saveEligibility($result, $eid);
         }

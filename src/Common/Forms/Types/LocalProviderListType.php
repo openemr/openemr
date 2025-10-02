@@ -123,23 +123,23 @@ class LocalProviderListType
         }
 
         // escaped variables to use in html
-        $field_id_esc = htmlspecialchars($field_id, ENT_QUOTES);
+        $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
 
         $disabled = LayoutsUtils::isOption($edit_options, '0') === false ? '' : 'disabled';
 
         $lbfchange = (
             !empty($form_id) &&
             (
-                strpos($form_id, 'LBF') === 0 ||
-                strpos($form_id, 'LBT') === 0 ||
-                strpos($form_id, 'DEM') === 0 ||
-                strpos($form_id, 'HIS') === 0
+                strpos((string) $form_id, 'LBF') === 0 ||
+                strpos((string) $form_id, 'LBT') === 0 ||
+                strpos((string) $form_id, 'DEM') === 0 ||
+                strpos((string) $form_id, 'HIS') === 0
             )
         ) ? "checkSkipConditions();" : "";
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
         if (!empty($this->providerList)) {
             $urest = $this->providerList;
         } else {

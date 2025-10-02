@@ -316,7 +316,7 @@ function pnDBInit()
     $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
     // force oracle to a consistent date format for comparison methods later on
-    if (strcmp($dbtype, 'oci8') == 0) {
+    if (strcmp((string) $dbtype, 'oci8') == 0) {
         $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
     }
 
@@ -492,7 +492,7 @@ function pnVarPrepHTMLDisplay()
     $resarray = array();
     foreach (func_get_args() as $ourvar) {
         // Preparse var to mark the HTML that we want
-        $ourvar = preg_replace($allowedhtml, "\022\\1\024", $ourvar);
+        $ourvar = preg_replace($allowedhtml, "\022\\1\024", (string) $ourvar);
 
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
@@ -513,12 +513,12 @@ function pnVarPrepHTMLDisplay()
             function ($matches) {
                 return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
             },
-            $ourvar
+            (string) $ourvar
         );
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
-            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", $ourvar);
+            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", (string) $ourvar);
         }
 
         // Add to array
@@ -590,7 +590,7 @@ function pnVarPrepForOS()
     $resarray = array();
     foreach (func_get_args() as $ourvar) {
         // Parse out bad things
-        $ourvar = preg_replace($search, $replace, $ourvar);
+        $ourvar = preg_replace($search, (string) $replace, (string) $ourvar);
 
         // Prepare var
         $ourvar = addslashes($ourvar);
@@ -628,7 +628,7 @@ function pnGetBaseURI()
 
     if (
         (empty($path)) ||
-        (substr($path, -1, 1) == '/')
+        (substr((string) $path, -1, 1) == '/')
     ) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
@@ -644,7 +644,7 @@ function pnGetBaseURI()
         }
     }
 
-    $path = preg_replace('/[#\?].*/', '', $path);
+    $path = preg_replace('/[#\?].*/', '', (string) $path);
     $path = dirname($path);
 
     if (preg_match('!^[/\\\]*$!', $path)) {

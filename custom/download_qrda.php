@@ -24,11 +24,11 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
-$provider_id = (isset($_GET['provider_id'])) ? trim($_GET['provider_id']) : "";
+$report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
+$provider_id = (isset($_GET['provider_id'])) ? trim((string) $_GET['provider_id']) : "";
 
 $report_view = collectReportDatabase($report_id);
-$dataSheet = json_decode($report_view['data'], true);
+$dataSheet = json_decode((string) $report_view['data'], true);
 $type_report = $report_view['type'];
 $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014") ||
                   ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) ? $type_report : "standard";

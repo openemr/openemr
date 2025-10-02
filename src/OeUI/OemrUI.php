@@ -259,7 +259,7 @@ class OemrUI
                 $action_href = "#";
                 break;
             case "link":
-                $target = (strpos($action_href, 'http') !== false) ? "_blank" : "_self";
+                $target = (strpos((string) $action_href, 'http') !== false) ? "_blank" : "_self";
                 $action_title = ($action_title) ? $action_title : xl("Click to go to page");
                 $icon = "fa-external-link-alt";
                 break;

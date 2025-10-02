@@ -166,7 +166,7 @@ class CareTeamService extends BaseService
 
     private function getFacilities($facilities)
     {
-        $facilityIds = explode(",", $facilities);
+        $facilityIds = explode(",", (string) $facilities);
         $service = new FacilityService();
         $result = $service->getAllWithIds($facilityIds);
         $providers = $result->getData() ?? [];
@@ -175,7 +175,7 @@ class CareTeamService extends BaseService
 
     private function getProvidersWithType($providers)
     {
-        $providers = explode("|", $providers);
+        $providers = explode("|", (string) $providers);
 
         $practitionerRoleService = new PractitionerRoleService();
         $result = $practitionerRoleService->getAllByPractitioners($providers);

@@ -169,7 +169,7 @@ function &postcalendar_makeValidURL($s)
         return $s;
     }
 
-    if (!preg_match('|^http[s]?:\/\/|i', $s)) {
+    if (!preg_match('|^http[s]?:\/\/|i', (string) $s)) {
         $s = 'http://' . $s;
     }
 
@@ -188,12 +188,12 @@ function postcalendar_getDate($format = 'Ymd')
         // if we still don't have a date then calculate it
         // check the jump menu, might be a 'jumpdate' input field or m/d/y select lists
         if ($jumpdate) {
-            $jumpyear  = substr($jumpdate, 0, 4);
-            $jumpmonth = substr($jumpdate, 5, 2);
-            $jumpday   = substr($jumpdate, 8, 2);
+            $jumpyear  = substr((string) $jumpdate, 0, 4);
+            $jumpmonth = substr((string) $jumpdate, 5, 2);
+            $jumpday   = substr((string) $jumpdate, 8, 2);
         } else {
             if (!empty($_SESSION['lastcaldate'])) {
-                $time = strtotime($_SESSION['lastcaldate']);
+                $time = strtotime((string) $_SESSION['lastcaldate']);
             } else {
                 $time = time();
             }
@@ -682,7 +682,7 @@ function findFirstInDay($day, $date)
             //this happens because people want to be able to set 8:00 - 8:15 and 8:15 - 8:30 without a conflict
             //even though that is technially impossible, so we pretend, however here we weed out the 0
             //length blocks so that won't be seen
-            $date_sec = strtotime($date);
+            $date_sec = strtotime((string) $date);
             if ($duration > 0) {
                 $times[] = array ("startTime" => $free_time, "endTime" => ($date_sec + $duration));
             }
@@ -767,15 +767,15 @@ function sort_byTimeD($a, $b)
  */
 function pc_clean($s)
 {
-    $display_type = substr($s, 0, 6);
+    $display_type = substr((string) $s, 0, 6);
     if ($display_type == ':text:') {
-        $s = substr($s, 6);
+        $s = substr((string) $s, 6);
     } elseif ($display_type == ':html:') {
-        $s = substr($s, 6);
+        $s = substr((string) $s, 6);
     }
 
     unset($display_type);
-    $s = preg_replace('/[\r|\n]/i', '', $s);
+    $s = preg_replace('/[\r|\n]/i', '', (string) $s);
     $s = str_replace("'", "\'", $s);
     $s = str_replace('"', '&quot;', $s);
     // ok, now we need to break really long lines

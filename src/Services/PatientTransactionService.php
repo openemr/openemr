@@ -213,7 +213,7 @@ class PatientTransactionService extends BaseService
             $transactionId, $data["referDiagnosis"],
             $transactionId, $referById,
             $transactionId, $referToId,
-            $transactionId, strtolower($data["riskLevel"]),
+            $transactionId, strtolower((string) $data["riskLevel"]),
             $transactionId, $data["includeVitals"],
             $transactionId, $data["authorization"],
             $transactionId, $data["visits"],
@@ -241,7 +241,7 @@ class PatientTransactionService extends BaseService
         $body = $data["body"];
         $referralDate = $data["referralDate"];
         $referralDiagnosis = $data["referDiagnosis"];
-        $riskLevel = strtolower($data["riskLevel"]);
+        $riskLevel = strtolower((string) $data["riskLevel"]);
         $includeVitals = $data["includeVitals"];
         $authorization = $data["authorization"];
         $visits = $data["visits"];

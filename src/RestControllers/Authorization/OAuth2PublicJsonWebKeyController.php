@@ -48,6 +48,6 @@ class OAuth2PublicJsonWebKeyController
 
     public function base64url_encode($input): string
     {
-        return rtrim(strtr(base64_encode($input), '+/', '-_'), '=');
+        return rtrim(strtr(base64_encode((string) $input), '+/', '-_'), '=');
     }
 }

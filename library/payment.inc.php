@@ -33,7 +33,7 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
     );
         //the manipulation is done to insert the amount paid into payments table in correct order to show in front receipts report,
         //if the payment is for today's encounter it will be shown in the report under today field and otherwise shown as previous
-    $tmprowArray = explode(' ', $tmprow['date']);
+    $tmprowArray = explode(' ', (string) $tmprow['date']);
     if (date('Y-m-d') == $tmprowArray[0]) {
         if ($amount1 == 0) {
               $amount1 = $amount2;
@@ -89,10 +89,10 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
         "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
         "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim($created_time) .
-        "', post_user = '" . trim($user_id)  .
+        "', post_time = '"  . trim((string) $created_time) .
+        "', post_user = '" . trim((string) $user_id)  .
         "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim($created_time) .
+        "', modified_time = '"  . trim((string) $created_time) .
         "', pay_amount = '" . trim(formData("Payment$CountRow"))  .
         "', adj_amount = '"    . 0 .
         "', account_code = '" . "$AccountCode"  .
@@ -120,10 +120,10 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
         "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
         "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim($created_time) .
-        "', post_user = '" . trim($user_id)  .
+        "', post_time = '"  . trim((string) $created_time) .
+        "', post_user = '" . trim((string) $user_id)  .
         "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim($created_time) .
+        "', modified_time = '"  . trim((string) $created_time) .
         "', pay_amount = '" . 0  .
         "', adj_amount = '"    . trim(formData("AdjAmount$CountRow")) .
         "', memo = '" . "$AdjustString"  .
@@ -144,10 +144,10 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
         "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
         "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim($created_time) .
-        "', post_user = '" . trim($user_id)  .
+        "', post_time = '"  . trim((string) $created_time) .
+        "', post_user = '" . trim((string) $user_id)  .
         "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim($created_time) .
+        "', modified_time = '"  . trim((string) $created_time) .
         "', pay_amount = '" . 0  .
         "', adj_amount = '"    . 0 .
         "', memo = '"    . "Deductible $" . trim(formData("Deductible$CountRow")) .
@@ -168,10 +168,10 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
         "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
         "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim($created_time) .
-        "', post_user = '" . trim($user_id)  .
+        "', post_time = '"  . trim((string) $created_time) .
+        "', post_user = '" . trim((string) $user_id)  .
         "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim($created_time) .
+        "', modified_time = '"  . trim((string) $created_time) .
         "', pay_amount = '" . trim(formData("Takeback$CountRow")) * -1  .
         "', adj_amount = '"    . 0 .
         "', account_code = '" . "Takeback"  .
@@ -191,10 +191,10 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
         "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
         "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim($created_time) .
-        "', post_user = '" . trim($user_id)  .
+        "', post_time = '"  . trim((string) $created_time) .
+        "', post_user = '" . trim((string) $user_id)  .
         "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim($created_time) .
+        "', modified_time = '"  . trim((string) $created_time) .
         "', pay_amount = '" . 0  .
         "', adj_amount = '"    . 0 .
         "', follow_up = '"    . "y" .
@@ -225,7 +225,7 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
                   $ferow = sqlQuery("SELECT date, last_level_closed " .
                     "FROM form_encounter WHERE " .
                     "pid = '" . trim(formData('hidden_patient_code')) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                  $date_of_service = substr($ferow['date'], 0, 10);
+                  $date_of_service = substr((string) $ferow['date'], 0, 10);
                   $new_payer_type = 0 + $ferow['last_level_closed'];
                 if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0) {
                     ++$new_payer_type;
@@ -260,7 +260,7 @@ function row_delete($table, $where): void
                 $logstring .= " ";
             }
 
-            $logstring .= $key . "='" . addslashes($value) . "'";
+            $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
         EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");

@@ -558,7 +558,7 @@ class VerySimpleStringUtil
     function html_entity_replace($matches)
     {
         if ($matches [2]) {
-            return self::chr_utf8(hexdec($matches [3]));
+            return self::chr_utf8(hexdec((string) $matches [3]));
         } elseif ($matches [1]) {
             return self::chr_utf8($matches [3]);
         } elseif ($matches [3]) {

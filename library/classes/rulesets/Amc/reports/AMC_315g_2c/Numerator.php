@@ -51,9 +51,9 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
     public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate)
     {
         if (!empty($date_created)) {
-            $creationDate = strtotime($date_created);
-            $beginDate = strtotime($beginDate);
-            $endDate = strtotime($endDate);
+            $creationDate = strtotime((string) $date_created);
+            $beginDate = strtotime((string) $beginDate);
+            $endDate = strtotime((string) $endDate);
             // creation date for the credentials was within the valid date boundary that we wanted
             if ($creationDate >= $beginDate && $creationDate <= $endDate) {
                 $this->lastTestActionData->addNumeratorActionData(

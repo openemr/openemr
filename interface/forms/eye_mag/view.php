@@ -939,7 +939,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         $IOPTIME =  date('H:i:s');
                                     }
 
-                                    $show_IOPTIME = date('g:i A', strtotime($IOPTIME));
+                                    $show_IOPTIME = date('g:i A', strtotime((string) $IOPTIME));
                                     ?>
                                   <input type="text" name="IOPTIME" id="IOPTIME" tabindex="-1" value="<?php echo attr($show_IOPTIME); ?>">
 
@@ -1614,7 +1614,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLMANUFACTURER_list_OD .= "selected";
                                             }
 
-                                            $CTLMANUFACTURER_list_OD .= '>' . text(substr($row['title'], 0, 12)) . '</option>
+                                            $CTLMANUFACTURER_list_OD .= '>' . text(substr((string) $row['title'], 0, 12)) . '</option>
                                         ' ;
                                         } else {
                                             $CTLMANUFACTURER_list_OD = '<option value="' . attr($row['option_id']) . '"';
@@ -1622,7 +1622,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLMANUFACTURER_list_OD = "selected";
                                             }
 
-                                            $CTLMANUFACTURER_list_OD = '>' . text(substr($row['title'], 0, 12)) . '</option>
+                                            $CTLMANUFACTURER_list_OD = '>' . text(substr((string) $row['title'], 0, 12)) . '</option>
                                         ' ;
                                         }
 
@@ -1632,7 +1632,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLMANUFACTURER_list_OS .= "selected";
                                             }
 
-                                            $CTLMANUFACTURER_list_OS .= '>' . text(substr($row['title'], 0, 12)) . '</option>
+                                            $CTLMANUFACTURER_list_OS .= '>' . text(substr((string) $row['title'], 0, 12)) . '</option>
                                         ' ;
                                         } else {
                                             $CTLMANUFACTURER_list_OS = '<option value="' . attr($row['option_id']) . '"';
@@ -1640,7 +1640,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLMANUFACTURER_list_OS = "selected";
                                             }
 
-                                            $CTLMANUFACTURER_list_OS = '>' . text(substr($row['title'], 0, 12)) . '</option>
+                                            $CTLMANUFACTURER_list_OS = '>' . text(substr((string) $row['title'], 0, 12)) . '</option>
                                         ' ;
                                         }
                                     }
@@ -1655,7 +1655,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLSUPPLIER_list_OD .= "selected";
                                             }
 
-                                            $CTLSUPPLIER_list_OD .= '>' . text(substr($row['title'], 0, 10)) . '</option>
+                                            $CTLSUPPLIER_list_OD .= '>' . text(substr((string) $row['title'], 0, 10)) . '</option>
                                         ' ;
                                         } else {
                                             $CTLSUPPLIER_list_OD = '<option value="' . attr($row['option_id']) . '"';
@@ -1663,7 +1663,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLSUPPLIER_list_OD = "selected";
                                             }
 
-                                            $CTLSUPPLIER_list_OD = '>' . text(substr($row['title'], 0, 10)) . '</option>
+                                            $CTLSUPPLIER_list_OD = '>' . text(substr((string) $row['title'], 0, 10)) . '</option>
                                         ' ;
                                         }
 
@@ -1673,7 +1673,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLSUPPLIER_list_OS .= "selected";
                                             }
 
-                                            $CTLSUPPLIER_list_OS .= '>' . text(substr($row['title'], 0, 10)) . '</option>
+                                            $CTLSUPPLIER_list_OS .= '>' . text(substr((string) $row['title'], 0, 10)) . '</option>
                                         ' ;
                                         } else {
                                             $CTLSUPPLIER_list_OS = '<option value="' . attr($row['option_id']) . '"';
@@ -1681,7 +1681,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLSUPPLIER_list_OS = "selected";
                                             }
 
-                                            $CTLSUPPLIER_list_OS = '>' . text(substr($row['title'], 0, 10)) . '</option>
+                                            $CTLSUPPLIER_list_OS = '>' . text(substr((string) $row['title'], 0, 10)) . '</option>
                                         ' ;
                                         }
                                     }
@@ -1696,7 +1696,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLBRAND_list_OD .= "selected";
                                             }
 
-                                            $CTLBRAND_list_OD .= '>' . text(substr($row['title'], 0, 15)) . '</option>
+                                            $CTLBRAND_list_OD .= '>' . text(substr((string) $row['title'], 0, 15)) . '</option>
                                         ' ;
                                         } else {
                                             $CTLBRAND_list_OD = '<option value="' . attr($row['option_id']) . '"';
@@ -1704,7 +1704,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLBRAND_list_OD = "selected";
                                             }
 
-                                            $CTLBRAND_list_OD = '>' . text(substr($row['title'], 0, 15)) . '</option>
+                                            $CTLBRAND_list_OD = '>' . text(substr((string) $row['title'], 0, 15)) . '</option>
                                         ' ;
                                         }
 
@@ -1714,7 +1714,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLBRAND_list_OS .= "selected";
                                             }
 
-                                            $CTLBRAND_list_OS .= '>' . text(substr($row['title'], 0, 15)) . '</option>
+                                            $CTLBRAND_list_OS .= '>' . text(substr((string) $row['title'], 0, 15)) . '</option>
                                         ' ;
                                         } else {
                                             $CTLBRAND_list_OS = '<option value="' . attr($row['option_id']) . '"';
@@ -1722,7 +1722,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $CTLBRAND_list_OS = "selected";
                                             }
 
-                                            $CTLBRAND_list_OS = '>' . text(substr($row['title'], 0, 15)) . '</option>
+                                            $CTLBRAND_list_OS = '>' . text(substr((string) $row['title'], 0, 15)) . '</option>
                                         ' ;
                                         }
                                     }
@@ -3766,14 +3766,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                   $fs_option   = $row['fs_option'];
                                                                   $fs_codes    = $row['fs_codes'];
                                                                   if (!empty($fs_codes)) {
-                                                                      list($code_type_here, $code) = explode("|", $fs_codes);
+                                                                      list($code_type_here, $code) = explode("|", (string) $fs_codes);
                                                                   }
                                                                   if ($fs_category !== $last_category) {
                                                                       $last_category = $fs_category;
-                                                                      echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
+                                                                      echo "    <option value=''> " . text(substr((string) $fs_category, 1)) . "</option>\n";
                                                                   }
-                                                                    $code_text = (strlen(substr($fs_option, 1)) > 26) ? substr(substr($fs_option, 1), 0, 24) . '...' : substr($fs_option, 1);
-                                                                    echo "    <option value='" . attr($fs_codes) . "'>" . text($code ?? '') . " " . text(substr($fs_category, 1)) . ": " . text($code_text) . "</option>\n";
+                                                                    $code_text = (strlen(substr((string) $fs_option, 1)) > 26) ? substr(substr((string) $fs_option, 1), 0, 24) . '...' : substr((string) $fs_option, 1);
+                                                                    echo "    <option value='" . attr($fs_codes) . "'>" . text($code ?? '') . " " . text(substr((string) $fs_category, 1)) . ": " . text($code_text) . "</option>\n";
                                                               }
 
                                                               // Create drop-lists based on categories defined within the codes.
@@ -3791,7 +3791,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                             continue;
                                                                         }
 
-                                                                        $code_text = (strlen($row['code_text']) > 15) ? substr($row['code_text'], 0, 13) . '...' : $row['code_text'];
+                                                                        $code_text = (strlen((string) $row['code_text']) > 15) ? substr((string) $row['code_text'], 0, 13) . '...' : $row['code_text'];
                                                                         echo "    <option value='" . attr($ctkey) . "|" .
                                                                           attr($row['code']) . ':' . attr($row['modifier']) . "|'>" . text($code_text) . "</option>\n";
                                                                     }
@@ -3840,7 +3840,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                 if ($row['codes'] === '') {
                                                                     continue;
                                                                 }
-                                                                list($code_type_here,$code) = explode(":", $row['codes']);
+                                                                list($code_type_here,$code) = explode(":", (string) $row['codes']);
                                                                 $codedesc = lookup_code_descriptions($row['codes']);
                                                                 $order   = array("\r\n", "\n","\r");
                                                                 $codedesc = str_replace($order, '', $codedesc);
@@ -3871,7 +3871,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                    */
                                                                 echo '<td class="' . $class1 . ' ">';
                                                                 echo "<input type='checkbox' class='TESTS indent20' id='TEST_$counter' data-codetext='" . attr($codetext) . "' data-title='" . attr($codetext) . "' name='TEST[]' $checked value='" . attr($row['codes']) . "'> ";
-                                                                $label = text(substr($row['title'], 0, 30));
+                                                                $label = text(substr((string) $row['title'], 0, 30));
                                                                 echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                                                 echo $label . "</label>";
                                                                 echo '<div id="TEST_' . $counter . '_justmods" class="' . $class2 . ' indent20" style="margin-bottom: 5px;">' . xlt('Modifier(s)') . ': <input type="text" style="width:100px;" id="TEST_' . $counter . '_modifier" value="' . ($row['modifier'] ?? '') . '">';
@@ -4004,7 +4004,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                     }
                                                     // <!-- <i title="Build your plan." class="fa fa-mail-forward fa-flip-horizontal" id="make_blank_PLAN" name="make_blank_PLAN"></i>-->
                                                     echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='" . attr($row['title']) . "'> ";
-                                                    $label = text(substr($row['title'], 0, 30));
+                                                    $label = text(substr((string) $row['title'], 0, 30));
                                                     echo "<label for='PLAN$counter' class='input-helper input-helper--checkbox' title='" . attr($row['notes']) . "'>";
                                                     echo $label . "</label><br />";
                                                     $count++;

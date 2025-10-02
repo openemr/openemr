@@ -30,7 +30,7 @@ $_SESSION['verifyPortalEmail'] = true;
 $ignoreAuth_onsite_portal = true;
 require_once("../../interface/globals.php");
 
-$landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
 
 if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
     SessionUtil::portalSessionCookieDestroy();

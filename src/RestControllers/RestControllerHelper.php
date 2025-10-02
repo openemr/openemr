@@ -365,7 +365,7 @@ class RestControllerHelper
             }
 
             foreach ($capResource->getSearchParam() as $searchParam) {
-                if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {
+                if (strcmp($searchParam->getName(), (string) $fhirSearchField) == 0) {
                     $paramExists = true;
                 }
             }
@@ -421,7 +421,7 @@ class RestControllerHelper
             $definitionName = 'export';
             $operationName = 'export';
             if ($resource != '$export') {
-                $definitionName = strtolower($resource) . '-export';
+                $definitionName = strtolower((string) $resource) . '-export';
             }
             // define export operation
             $fhirOperation = new FHIRCapabilityStatementOperation();
@@ -446,7 +446,7 @@ class RestControllerHelper
 
     public function addRequestMethods($items, FHIRCapabilityStatementResource $capResource)
     {
-        $reqMethod = trim($items[0], " ");
+        $reqMethod = trim((string) $items[0], " ");
         $numberItems = count($items);
         $code = "";
         // we want to skip over $export operations.
@@ -456,7 +456,7 @@ class RestControllerHelper
 
         // now setup our interaction types
         if (strcmp($reqMethod, "GET") == 0) {
-            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
+            if (!empty(preg_match('/:/', (string) $items[$numberItems - 1]))) {
                 $code = "read";
             } else {
                 $code = "search-type";
@@ -488,7 +488,7 @@ class RestControllerHelper
 
         $resourcesHash = array();
         foreach ($routes as $key => $function) {
-            $items = explode("/", $key);
+            $items = explode("/", (string) $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
                 // FHIR routes always have the resource at $items[2]
                 $resource = $items[2];

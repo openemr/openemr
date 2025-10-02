@@ -135,7 +135,7 @@ function vbf_temperature_f_changed() {
     $ptrow = sqlQuery("SELECT DOB, sex FROM patient_data WHERE " .
     "pid = ? LIMIT 1", [$pid]);
     $pt_age = 0 + getpatientAge($ptrow['DOB']);
-    $pt_sex = strtoupper(substr($ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
+    $pt_sex = strtoupper(substr((string) $ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
 
     echo "// Compute Body Fat Percentage.
 function vbfComputeBF() {

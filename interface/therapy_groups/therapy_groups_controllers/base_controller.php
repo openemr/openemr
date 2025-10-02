@@ -52,7 +52,7 @@ class BaseController
     protected function loadModel($name)
     {
         if (!isset($this->$name)) {
-            require(__DIR__ . '/../' . self::MODEL_FOLDER . '/' . strtolower($name) . '_model.php');
+            require(__DIR__ . '/../' . self::MODEL_FOLDER . '/' . strtolower((string) $name) . '_model.php');
             $this->$name = new $name();
         }
 

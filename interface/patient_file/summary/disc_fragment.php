@@ -61,7 +61,7 @@ if ($result != null) {
     foreach ($result as $iter) {
         $has_disclosure = 1;
         $app_event = $iter["event"];
-        $event = explode("-", $app_event);
+        $event = explode("-", (string) $app_event);
         $description = $iter["description"];
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";

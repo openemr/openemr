@@ -109,9 +109,9 @@ class zipfile
         $fr .= $hexdtime; // last mod time and date
 
         // "local file header" segment
-        $unc_len = strlen($data);
-        $crc = crc32($data);
-        $zdata = gzcompress($data);
+        $unc_len = strlen((string) $data);
+        $crc = crc32((string) $data);
+        $zdata = gzcompress((string) $data);
         $zdata = substr(substr($zdata, 0, strlen($zdata) - 4), 2); // fix crc bug
         $c_len = strlen($zdata);
         $fr .= pack('V', $crc); // crc32

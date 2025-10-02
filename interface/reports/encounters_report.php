@@ -476,7 +476,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <?php echo ($docname == $lastdocname) ? "" : text($docname) ?>&nbsp;
   </td>
   <td>
-                <?php echo text(oeFormatShortDate(substr($row['date'], 0, 10))) ?>&nbsp;
+                <?php echo text(oeFormatShortDate(substr((string) $row['date'], 0, 10))) ?>&nbsp;
   </td>
   <td>
                 <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>&nbsp;

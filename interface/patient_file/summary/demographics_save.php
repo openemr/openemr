@@ -75,8 +75,8 @@ while ($frow = sqlFetchArray($fres)) {
     $field_id = $frow['field_id'];
     $colname = $field_id;
     $table = 'patient_data';
-    if (str_starts_with($field_id, 'em_')) {
-        $colname = substr($field_id, 3);
+    if (str_starts_with((string) $field_id, 'em_')) {
+        $colname = substr((string) $field_id, 3);
         $table = 'employer_data';
     }
 

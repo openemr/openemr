@@ -58,7 +58,7 @@ function mapToTable($row): void
         echo "<td>" . text($row["ndc_number"]) . " </td>\n";
         echo "<td>";
         foreach ($row['inventory_id'] as $key => $value) {
-            echo "<div onclick='doclick(" . attr(addslashes($row['drug_id'])) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+            echo "<div onclick='doclick(" . attr(addslashes((string) $row['drug_id'])) . "," . attr(addslashes((string) $row['inventory_id'][$key])) . ")'>" .
             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
         }
         echo "</td>\n<td>";

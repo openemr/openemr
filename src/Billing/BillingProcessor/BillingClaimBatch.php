@@ -156,7 +156,7 @@ class BillingClaimBatch
         if ($this->bat_filedir !== false) {
             $fh = fopen($this->bat_filedir . DIRECTORY_SEPARATOR . $this->bat_filename, 'a');
             if ($fh) {
-                fwrite($fh, $this->bat_content);
+                fwrite($fh, (string) $this->bat_content);
                 fclose($fh);
             } else {
                 $success = false;
@@ -208,10 +208,10 @@ class BillingClaimBatch
             if (!$seg) {
                 continue;
             }
-            $elems = explode('*', $seg);
+            $elems = explode('*', (string) $seg);
             if ($elems[0] == 'ISA') {
                 if (!$this->bat_content) {
-                    $this->bat_content = substr($seg, 0, 70) . "$this->bat_yymmdd*$this->bat_hhmm*" . $elems[11] .
+                    $this->bat_content = substr((string) $seg, 0, 70) . "$this->bat_yymmdd*$this->bat_hhmm*" . $elems[11] .
                         "*" . $elems[12] . "*" . $this->bat_icn . "*" . $elems[14] . "*" . $elems[15] . "*:~";
                     // remove the tilde from the isa count check
                     $isa_length = strlen($this->bat_content) - 1;
@@ -249,7 +249,7 @@ class BillingClaimBatch
 
             if ($elems[0] == 'BHT') {
                 // needle is set in OpenEMR\Billing\X125010837P
-                $this->bat_content .= substr_replace($seg, '*' . "1" . '*', strpos($seg, '*0123*'), 6);
+                $this->bat_content .= substr_replace($seg, '*' . "1" . '*', strpos((string) $seg, '*0123*'), 6);
                 $this->bat_content .= "~";
                 continue;
             }

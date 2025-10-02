@@ -27,7 +27,7 @@ $info_msg = "";
 
 function QuotedOrNull($fld)
 {
-    $fld = add_escape_custom(trim($fld));
+    $fld = add_escape_custom(trim((string) $fld));
     if ($fld) {
         return "'$fld'";
     }

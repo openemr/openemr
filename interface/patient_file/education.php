@@ -23,7 +23,7 @@ $educationdir = "$OE_SITE_DIR/documents/education";
 
 $codetype  = empty($_REQUEST['type'    ]) ? '' : $_REQUEST['type'    ];
 $codevalue = empty($_REQUEST['code'    ]) ? '' : $_REQUEST['code'    ];
-$language  = empty($_REQUEST['language']) ? '' : strtolower($_REQUEST['language']);
+$language  = empty($_REQUEST['language']) ? '' : strtolower((string) $_REQUEST['language']);
 $source    = empty($_REQUEST['source'  ]) ? '' : $_REQUEST['source'  ];
 
 $errmsg = '';
@@ -56,7 +56,7 @@ if (!empty($_POST['bn_submit'])) {
         }
 
         // Set code value in URL.
-        $url .= '&mainSearchCriteria.v.c=' . urlencode($codevalue);
+        $url .= '&mainSearchCriteria.v.c=' . urlencode((string) $codevalue);
         // Set language in URL if relevant. MedlinePlus supports only English or Spanish.
         if ($language == 'es' || $language == 'spanish') {
             $url .= '&informationRecipient.languageCode.c=es';

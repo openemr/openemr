@@ -21,8 +21,8 @@ function smarty_core_create_dir_structure($params, &$smarty)
         if (DIRECTORY_SEPARATOR=='/') {
             /* unix-style paths */
             $_dir = $params['dir'];
-            $_dir_parts = preg_split('!/+!', $_dir, -1, PREG_SPLIT_NO_EMPTY);
-            $_new_dir = (substr($_dir, 0, 1)=='/') ? '/' : getcwd().'/';
+            $_dir_parts = preg_split('!/+!', (string) $_dir, -1, PREG_SPLIT_NO_EMPTY);
+            $_new_dir = (substr((string) $_dir, 0, 1)=='/') ? '/' : getcwd().'/';
             if($_use_open_basedir = !empty($_open_basedir_ini)) {
                 $_open_basedirs = explode(':', $_open_basedir_ini);
             }

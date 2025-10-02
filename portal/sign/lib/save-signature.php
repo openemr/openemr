@@ -19,7 +19,7 @@ $user = $data['user'];
 $signer = !empty($data['signer']) ? $data['signer'] : '';
 $type = $data['type'];
 $isPortal = $data['is_portal'];
-$output = urldecode($data['output']);
+$output = urldecode((string) $data['output']);
 $ignoreAuth = false;
 
 use OpenEMR\Common\Session\SessionUtil;

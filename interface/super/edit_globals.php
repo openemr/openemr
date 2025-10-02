@@ -169,13 +169,13 @@ function checkBackgroundServices(): void
                         list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            if (empty(trim($_POST["form_$i"]))) {
+                            if (empty(trim((string) $_POST["form_$i"]))) {
                                 $fldvalue = '';
                             } else {
-                                $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
+                                $fldvalue = $cryptoGen->encryptStandard(trim((string) $_POST["form_$i"]));
                             }
                         } elseif ($fldtype == "encrypted_hash") {
-                            $tmpValue = trim($_POST["form_$i"]);
+                            $tmpValue = trim((string) $_POST["form_$i"]);
                             if (empty($tmpValue)) {
                                 $fldvalue = '';
                             } else {
@@ -243,14 +243,14 @@ function checkBackgroundServices(): void
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
+                if (!is_array($fldtype) && substr((string) $fldtype, 0, 2) == 'm_') {
                     if (isset($_POST["form_$i"])) {
                         $fldindex = 0;
 
                         sqlStatement("DELETE FROM globals WHERE gl_name = ?", array($fldid));
 
                         foreach ($_POST["form_$i"] as $fldvalue) {
-                            $fldvalue = trim($fldvalue);
+                            $fldvalue = trim((string) $fldvalue);
                             sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array($fldid, $fldindex, $fldvalue));
                             ++$fldindex;
                         }
@@ -471,7 +471,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string) $_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;

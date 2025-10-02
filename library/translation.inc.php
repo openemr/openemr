@@ -43,12 +43,12 @@ if (!(function_exists('xl'))) {
         if (!empty($GLOBALS['translate_no_safe_apostrophe'])) {
             $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
             $replace = array (' ','','');
-            $string = preg_replace($patterns, $replace, $string);
+            $string = preg_replace($patterns, $replace, (string) $string);
         } else {
             // convert apostrophes and quotes to safe apostrophe
             $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
             $replace = array (' ','','`','`','');
-            $string = preg_replace($patterns, $replace, $string);
+            $string = preg_replace($patterns, $replace, (string) $string);
         }
 
         $string = "$prepend" . "$string" . "$append";

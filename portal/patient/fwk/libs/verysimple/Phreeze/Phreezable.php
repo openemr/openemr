@@ -201,7 +201,7 @@ abstract class Phreezable implements Serializable
 
         foreach ($props as $prop) {
             if (! in_array($prop, $omit)) {
-                $newProp = ($camelCase) ? lcfirst($prop) : $prop;
+                $newProp = ($camelCase) ? lcfirst((string) $prop) : $prop;
                 $obj->$newProp = $this->$prop;
             }
         }
@@ -605,7 +605,7 @@ abstract class Phreezable implements Serializable
                                          // sql statement. We need to strip that out so we can match it up to the property names
         $rowlocal = array ();
         foreach ($row as $key => $val) {
-            $info = explode("___", $key);
+            $info = explode("___", (string) $key);
 
             // we prefer to use tablename.colname if we have it, but if not
             // just use the colname

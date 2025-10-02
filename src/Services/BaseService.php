@@ -220,7 +220,7 @@ class BaseService implements BaseServiceInterface
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
                 // for dates which should be saved as null
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (strpos((string) $key, 'date') !== false)) {
                     $bind[] = null;
                 } else {
                     $bind[] = ($value === null || $value === false) ? $null_value : $value;
@@ -281,14 +281,14 @@ class BaseService implements BaseServiceInterface
                     $value === null
                     || $value === false
                 )
-                && (strpos($key, 'date') === false)
+                && (strpos((string) $key, 'date') === false)
             ) {
                 // in case unwanted values passed in.
                 continue;
             }
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (strpos((string) $key, 'date') !== false)) {
                     $bind[] = null;
                 } else {
                     $bind[] = $value;
@@ -357,7 +357,7 @@ class BaseService implements BaseServiceInterface
      */
     public static function isValidDate($dateString)
     {
-        return (bool) strtotime($dateString);
+        return (bool) strtotime((string) $dateString);
     }
 
     /**
