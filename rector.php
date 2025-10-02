@@ -7,6 +7,7 @@ declare(strict_types=1);
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
+use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
@@ -102,10 +103,11 @@ return RectorConfig::configure()
         SetCookieRector::class, // one of the withPhpSets rules
         StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
-        StrStartsWithRector::class, // one of the withPhpSets rules
         StringifyStrNeedlesRector::class, // one of the withPhpSets rules
+        StrStartsWithRector::class, // one of the withPhpSets rules
         TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
         ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
+        VarToPublicPropertyRector::class, // one of the withPhpSets rules
         WhileEachToForeachRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
