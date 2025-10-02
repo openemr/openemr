@@ -16,6 +16,7 @@ use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
 use Rector\Php70\Rector\FuncCall\RandomFunctionRector;
 use Rector\Php70\Rector\If_\IfToSpaceshipRector;
+use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
@@ -92,6 +93,7 @@ return RectorConfig::configure()
         StrEndsWithRector::class, // one of the withPhpSets rules
         StrStartsWithRector::class, // one of the withPhpSets rules
         TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
+        ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
         WhileEachToForeachRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
