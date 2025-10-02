@@ -39,8 +39,7 @@ final class CDAPostParseEvent extends Event
         private string $oid,
         private array $component,
         private array $templateData
-    )
-    {
+    ) {
     }
 
     /**

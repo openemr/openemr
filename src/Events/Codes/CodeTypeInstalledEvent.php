@@ -42,8 +42,7 @@ class CodeTypeInstalledEvent extends Event
          * @var array Additional details for the specific code type that was installed.
          */
         private $details
-    )
-    {
+    ) {
     }
 
     /**

@@ -19,10 +19,13 @@ class SearchFieldException extends \InvalidArgumentException
      * @param string $field
      */
     public function __construct(/**
-     * @var string The name of the field that the exception was triggered on
-     */
-    private $field, $message = "", $code = 0, ?Throwable $previous = null)
-    {
+         * @var string The name of the field that the exception was triggered on
+         */
+        private $field,
+        $message = "",
+        $code = 0,
+        ?Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
     }
 

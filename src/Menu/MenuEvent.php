@@ -39,8 +39,7 @@ class MenuEvent extends Event
     public function __construct(
         /** @var array The menu list */
         private $menu = []
-    )
-    {
+    ) {
     }
 
     /**

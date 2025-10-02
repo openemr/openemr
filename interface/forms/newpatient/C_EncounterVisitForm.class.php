@@ -52,18 +52,20 @@ class C_EncounterVisitForm
     private bool $viewmode = false;
 
     /**
-     * @param $templatePath
-     * @param Kernel $kernel
-     * @param $issueTypes
-     * @param $rootdir
+     * @param string $templatePath The path to the template directory
+     * @param Kernel $kernel The application kernel instance
+     * @param array $issueTypes Array of issue types configuration
+     * @param string $rootdir The root directory path
+     * @param string $pageName The name to use when firing off any events for this page
      * @throws \Exception
-     * @param string $pageName
      */
-    public function __construct($templatePath, Kernel $kernel, private array $issueTypes, private string $rootdir, /**
-     * @var string $pageName The name to use when firing off any events for this page
-     */
-    private string $pageName = 'newpatient/common.php')
-    {
+    public function __construct(
+        $templatePath,
+        Kernel $kernel,
+        private array $issueTypes,
+        private string $rootdir,
+        private string $pageName = 'newpatient/common.php'
+    ) {
         // Initialize Twig
         $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
         $this->twig = $twig->getTwig();

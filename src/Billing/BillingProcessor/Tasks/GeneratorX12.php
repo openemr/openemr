@@ -40,13 +40,14 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     protected $batch;
 
-    public function __construct($action, /**
-     * If "Allow Encounter Claims" is enabled, this allows the claims to use
-     * the alternate payor ID on the claim and sets the claims to report,
-     * not chargeable. ie: RP = reporting, CH = chargeable
+    /**
+     * @param mixed $action
+     * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
      */
-    protected $encounter_claim = false)
-    {
+    public function __construct(
+        $action,
+        protected $encounter_claim = false
+    ) {
         parent::__construct($action);
     }
 

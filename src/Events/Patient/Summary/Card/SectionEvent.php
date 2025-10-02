@@ -33,10 +33,10 @@ class SectionEvent extends Event
     private $cards;
 
     public function __construct(/**
-     * @var string $section The section being rendered
-     */
-    private string $section)
-    {
+         * @var string $section The section being rendered
+         */
+        private string $section
+    ) {
         $this->cards = [];
     }
 

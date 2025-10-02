@@ -20,10 +20,13 @@ class SqlQueryException extends \RuntimeException
      * @param string $sqlStatement
      */
     public function __construct(/**
-     * @var string The sql statement that threw an error.
-     */
-    private $sqlStatement = "", $message = "", $code = 0, ?Throwable $previous = null)
-    {
+         * @var string The sql statement that threw an error.
+         */
+        private $sqlStatement = "",
+        $message = "",
+        $code = 0,
+        ?Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
     }
 

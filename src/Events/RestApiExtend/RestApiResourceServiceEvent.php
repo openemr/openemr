@@ -24,8 +24,7 @@ class RestApiResourceServiceEvent extends Event
          * @var string The original system resource for service
          */
         private $serviceClass
-    )
-    {
+    ) {
     }
 
     /**

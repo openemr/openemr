@@ -31,8 +31,7 @@ class ServiceDeleteEvent extends Event
          * @var string|int|array $recordId The id of the record being deleted.  If the record id is a composite key it will contain a hashmap of the keys
          */
         private int|string|array $recordId
-    )
-    {
+    ) {
     }
 
     public function getService(): BaseService

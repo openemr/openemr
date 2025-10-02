@@ -49,9 +49,15 @@ class TeleHealthVideoRegistrationController
      */
     private $logger;
 
-    public function __construct(private TeleHealthRemoteRegistrationService $remoteService, private TeleHealthProviderRepository $providerRepository)
-    {
-$this->logger = new SystemLogger();
+    /**
+     * @param TeleHealthRemoteRegistrationService $remoteService
+     * @param TeleHealthProviderRepository $providerRepository
+     */
+    public function __construct(
+        private TeleHealthRemoteRegistrationService $remoteService,
+        private TeleHealthProviderRepository $providerRepository
+    ) {
+        $this->logger = new SystemLogger();
     }
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)

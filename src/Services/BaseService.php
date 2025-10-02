@@ -60,11 +60,11 @@ class BaseService implements BaseServiceInterface
      * Default constructor.
      */
     public function __construct(/**
-     * Passed in data should be vetted and fully qualified from calling service class
-     * Expect to see some search helpers here as well.
-     */
-    private $table)
-    {
+         * Passed in data should be vetted and fully qualified from calling service class
+         * Expect to see some search helpers here as well.
+         */
+        private $table
+    ) {
         $this->fields = sqlListFields($this->table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());

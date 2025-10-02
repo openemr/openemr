@@ -39,8 +39,7 @@ class LogoFilterEvent extends Event
          * @var string The web path to the logo, such as /sites/default/logos/core/menu/primary/logo.png
          */
         private string $webPath
-    )
-    {
+    ) {
     }
 
     /**

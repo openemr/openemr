@@ -111,11 +111,14 @@ class Bootstrap
      */
     private $serviceRegistry = [];
 
-    public function __construct(/**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
+    /**
+     * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param Kernel|null $kernel
      */
-    private EventDispatcher $eventDispatcher, ?Kernel $kernel = null)
-    {
+    public function __construct(
+        private EventDispatcher $eventDispatcher,
+        ?Kernel $kernel = null
+    ) {
         global $GLOBALS;
 
         if (empty($kernel)) {

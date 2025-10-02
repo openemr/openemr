@@ -48,8 +48,7 @@ class GlobalsService
          *  User specific tabs
          */
         private $userSpecificTabs
-    )
-    {
+    ) {
     }
 
     /**

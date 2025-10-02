@@ -36,8 +36,7 @@ class AppointmentSetEvent extends Event
          * @var
          */
         private $post
-    )
-    {
+    ) {
     }
 
     /**

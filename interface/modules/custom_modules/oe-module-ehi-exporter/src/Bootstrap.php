@@ -66,11 +66,14 @@ class Bootstrap
 
     private static self $instance;
 
-    public function __construct(/**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
+    /**
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param Kernel|null $kernel
      */
-    private EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
-    {
+    public function __construct(
+        private EventDispatcherInterface $eventDispatcher,
+        ?Kernel $kernel = null
+    ) {
         if (empty($kernel)) {
             $kernel = new Kernel();
         }

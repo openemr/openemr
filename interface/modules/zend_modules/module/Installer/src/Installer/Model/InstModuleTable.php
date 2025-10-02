@@ -48,11 +48,14 @@ class InstModuleTable
     public const MODULE_TYPE_ZEND = 1;
     public const MODULE_TYPE_CUSTOM = 0;
 
-    public function __construct(TableGateway $tableGateway, /**
-     * We have to create and populate some classes so we use the service container to load them
+    /**
+     * @param TableGateway $tableGateway
+     * @param ContainerInterface $container We have to create and populate some classes so we use the service container to load them
      */
-    private ContainerInterface $container)
-    {
+    public function __construct(
+        TableGateway $tableGateway,
+        private ContainerInterface $container
+    ) {
         $this->tableGateway = $tableGateway;
         $adapter = GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;

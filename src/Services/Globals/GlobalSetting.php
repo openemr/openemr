@@ -106,8 +106,7 @@ class GlobalSetting
         protected $default,
         protected $description,
         protected $isUserSetting = false
-    )
-    {
+    ) {
     }
 
     public function format()

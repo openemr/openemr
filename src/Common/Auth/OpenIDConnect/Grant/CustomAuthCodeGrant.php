@@ -32,13 +32,17 @@ class CustomAuthCodeGrant extends AuthCodeGrant
     private array $openEMRCodeChallengeVerifiers;
 
     /**
-     * @param string[] $expectedAudience
+     * @param AuthCodeRepositoryInterface $authCodeRepository
+     * @param RefreshTokenRepositoryInterface $refreshTokenRepository
+     * @param DateInterval $authCodeTTL
+     * @param string[] $expectedAudience The expected 'aud' query parameter to validate a JWT grant against
      */
-    public function __construct(AuthCodeRepositoryInterface $authCodeRepository, RefreshTokenRepositoryInterface $refreshTokenRepository, DateInterval $authCodeTTL, /**
-     * @var string[] The expected 'aud' query parameter to validate a JWT grant against
-     */
-    private array $expectedAudience)
-    {
+    public function __construct(
+        AuthCodeRepositoryInterface $authCodeRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        DateInterval $authCodeTTL,
+        private array $expectedAudience
+    ) {
         parent::__construct($authCodeRepository, $refreshTokenRepository, $authCodeTTL);
         // the only code challenge methods we allow
         $this->openEMRCodeChallengeVerifiers = ['S256' => true];

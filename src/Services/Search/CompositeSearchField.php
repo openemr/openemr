@@ -37,12 +37,13 @@ class CompositeSearchField implements ISearchField
     /**
      * @param string $name
      * @param mixed[] $values
+     * @param bool $isAnd
      */
-    public function __construct(private $name, /**
-     * @var mixed[]
-     */
-    private $values, $isAnd = true)
-    {
+    public function __construct(
+        private $name,
+        private $values,
+        $isAnd = true
+    ) {
         $this->field = $this->name;
         $this->children = [];
         $this->isAnd = $isAnd === true;

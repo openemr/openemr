@@ -40,10 +40,10 @@ class PageHeadingRenderEvent extends Event
      * @param array $context
      */
     public function __construct(/**
-     * The PageID being rendered
-     */
-    private string $page_id)
-    {
+         * The PageID being rendered
+         */
+        private string $page_id
+    ) {
         $this->actions = [];
         $this->primary_menu = new MenuItems();
     }

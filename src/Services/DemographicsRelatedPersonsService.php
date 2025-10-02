@@ -40,8 +40,7 @@ class DemographicsRelatedPersonsService
     public function __construct(
         /** @var int Max number of related person blocks to fall back to if schema introspection isn't available */
         private int $maxPeople = 3
-    )
-    {
+    ) {
     }
 
     /**

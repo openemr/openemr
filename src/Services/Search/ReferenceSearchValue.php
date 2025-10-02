@@ -22,15 +22,15 @@ class ReferenceSearchValue
 
 
     /**
+     * @param mixed $id
      * @param string|null $resource
-     * @param bool $isUuid
+     * @param bool $isUuid Tracks if the reference search value is a unique user id (stored in binary) and needs to be converted. All reference values should be uuids but this gives us the option in the future to have non-uuids if this changes
      */
-    public function __construct($id, private $resource = null, /**
-     * Tracks if the reference search value is a unique user id (stored in binary) and needs to be converted.
-     * All reference values should be uuids but this gives us the option in the future to have non-uuids if this changes
-     */
-    private $isUuid = false)
-    {
+    public function __construct(
+        $id,
+        private $resource = null,
+        private $isUuid = false
+    ) {
         if ($this->isUuid) {
             if (UuidRegistry::isValidStringUUID($id)) {
                 $this->id = UuidRegistry::uuidToBytes($id);

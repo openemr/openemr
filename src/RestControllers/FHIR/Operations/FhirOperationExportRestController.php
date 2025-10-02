@@ -82,10 +82,11 @@ class FhirOperationExportRestController
 
 
     public function __construct(/**
-     * @var HttpRestRequest The current http request object
-     */
-    private HttpRestRequest $request, OEGlobalsBag $globalsBag)
-    {
+         * @var HttpRestRequest The current http request object
+         */
+        private HttpRestRequest $request,
+        OEGlobalsBag $globalsBag
+    ) {
         $this->logger = new SystemLogger();
         $this->fhirExportJobService = new FhirExportJobService();
         $this->isExportDisabled = $globalsBag->getInt('rest_system_scopes_api', 0) === 0;

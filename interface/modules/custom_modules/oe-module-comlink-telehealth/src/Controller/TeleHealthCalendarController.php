@@ -47,11 +47,20 @@ class TeleHealthCalendarController
 
     private TeleHealthProviderRepository $healthProviderRepository;
 
-    public function __construct(TelehealthGlobalConfig $config, /**
-     * @var Environment Twig container
+    /**
+     * @param TelehealthGlobalConfig $config
+     * @param Environment $twig Twig container
+     * @param SystemLogger $logger
+     * @param string $assetPath
+     * @param int $loggedInUserId
      */
-    private Environment $twig, private SystemLogger $logger, private $assetPath, $loggedInUserId)
-    {
+    public function __construct(
+        TelehealthGlobalConfig $config,
+        private Environment $twig,
+        private SystemLogger $logger,
+        private $assetPath,
+        $loggedInUserId
+    ) {
         $this->loggedInUserId = $loggedInUserId;
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();
         $this->teleHealthProviderRepository = new TeleHealthProviderRepository($this->logger, $config);

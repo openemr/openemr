@@ -61,12 +61,12 @@ class BillingProcessor
     const VALIDATE_AND_CLEAR = 'validate-and-clear';
     const NORMAL = 'normal';
 
-    public function __construct(/**
-     * Post from the billing manager form
-     * @var
+    /**
+     * @param mixed $post Post from the billing manager form
      */
-    protected $post)
-    {
+    public function __construct(
+        protected $post
+    ) {
         $this->logger = new BillingLogger();
     }
 

@@ -31,8 +31,7 @@ class GeneratedCcdaResult
          * @var string The xml content for the generated ccda
          */
         private string $content
-    )
-    {
+    ) {
     }
 
     /**

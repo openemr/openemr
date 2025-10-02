@@ -67,11 +67,12 @@ class Bootstrap
     public mixed $isWenoUser;
     public bool $isAuthorized;
 
-    public function __construct(/**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
+    /**
+     * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
      */
-    private EventDispatcher $eventDispatcher)
-    {
+    public function __construct(
+        private EventDispatcher $eventDispatcher
+    ) {
         $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));

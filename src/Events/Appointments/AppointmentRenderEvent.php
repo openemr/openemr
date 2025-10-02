@@ -43,8 +43,7 @@ class AppointmentRenderEvent extends Event
          * @var
          */
         private $appt
-    )
-    {
+    ) {
     }
 
     /**

@@ -33,8 +33,7 @@ class FhirSearchParameterDefinition
          * @var string[]
          */
         private $options = array()
-    )
-    {
+    ) {
     }
 
     /**

@@ -18,15 +18,16 @@ use Twig\Environment;
 
 class TeleHealthFrontendSettingsController
 {
+    /**
+     * @param string $assetPath
+     * @param Environment $twig The twig environment
+     * @param TelehealthGlobalConfig $config
+     */
     public function __construct(
         private string $assetPath,
-        /**
-         * @var Environment The twig environment
-         */
         private Environment $twig,
         private TelehealthGlobalConfig $config
-    )
-    {
+    ) {
     }
 
     public function renderFrontendSettings($isPatient = true)

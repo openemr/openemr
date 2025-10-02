@@ -47,8 +47,7 @@ class SQLUpgradeEvent extends Event
          * @var ISQLUpgradeService The sql upgrade service object
          */
         private ISQLUpgradeService $sqlUpgradeService
-    )
-    {
+    ) {
     }
 
     /**
