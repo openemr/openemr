@@ -17,7 +17,7 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 $templateService = new DocumentTemplateService();
 $group_list =  $templateService->fetchDefaultGroups();
 $profile_list = $templateService->fetchDefaultProfiles();
-$_POST['mode'] = $_POST['mode'] ?? null;
+$_POST['mode'] ??= null;
 
 if ($_POST['mode'] === 'save_profile_groups') {
     $groups = json_decode(($_POST['patient_groups'] ?? ''), true, 512, JSON_THROW_ON_ERROR);

@@ -94,7 +94,7 @@ class QuestionnaireService extends BaseService
      */
     public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null)
     {
-        $type = $type ?? 'Questionnaire';
+        $type ??= 'Questionnaire';
         $id = 0;
         $fhir_ob = null;
         if (is_string($q)) {

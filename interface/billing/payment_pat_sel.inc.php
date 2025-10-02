@@ -121,7 +121,7 @@ if (isset($_POST["mode"])) {
                                 </thead>
                         <?php
                         do {
-                            $CountIndex = $CountIndex ?? null;
+                            $CountIndex ??= null;
                             $CountIndex++;
                             $CountIndexBelow++;
                             $Ins = 0;

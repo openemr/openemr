@@ -3,8 +3,8 @@
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Common\Logging\SystemLogger;
 
-$fldid = $fldid ?? '';
-$fldarr = $fldarr ?? [];
+$fldid ??= '';
+$fldarr ??= [];
 echo "<div class='row form-group'><div class='col-12'>";
 if (
     isset($fldoptions[GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK])

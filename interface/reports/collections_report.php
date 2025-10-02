@@ -1183,7 +1183,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $days = floor((time() - $agetime) / (60 * 60 * 24));
             $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
 
-            $ptrow['agedbal'][$agecolno] = $ptrow['agedbal'][$agecolno] ?? null;
+            $ptrow['agedbal'][$agecolno] ??= null;
             $ptrow['agedbal'][$agecolno] += $balance;
         }
 

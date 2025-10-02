@@ -17,7 +17,7 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Common\Database\QueryUtils;
 
 $textLabel = "";
-$i = $i ?? 0;
+$i ??= 0;
 if (!empty($fldvalue)) {
     $users = QueryUtils::fetchRecords("SELECT fname, lname FROM users WHERE id = ?", [$fldvalue]);
     $user = $users[0] ?? ['fname' => '', 'lname' => ''];

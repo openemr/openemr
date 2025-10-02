@@ -3647,7 +3647,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $content = base64_decode($content);
         $document = new \Document();
-        $document_type = $document_type ?? '';
+        $document_type ??= '';
 
         // we need to populate the category id based upon the document_type
         // TOC -> CCDA folder

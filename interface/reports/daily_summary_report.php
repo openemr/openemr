@@ -304,7 +304,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                                                     GROUP BY `b`.`encounter`,Date,provider_name ORDER BY Date ASC", $sqlBindArrayTotalPayment);
 
         while ($totalPaymentRecord = sqlFetchArray($totalPaymetsSql)) {
-            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] = $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ?? null;
+            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ??= null;
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] += $totalPaymentRecord['totalpayment'];
         }
 
@@ -372,22 +372,22 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                     </tr>
                                     <?php
                                     if (count($dailySummaryReport) > 0) { // calculate the total count of the appointments, new patient,visits, payments, paid amount and due amount
-                                        $totalAppointments = $totalAppointments ?? null;
+                                        $totalAppointments ??= null;
                                         $totalAppointments += ($information['appointments'] ?? null);
 
-                                        $totalNewRegisterPatient = $totalNewRegisterPatient ?? null;
+                                        $totalNewRegisterPatient ??= null;
                                         $totalNewRegisterPatient += ($information['newPatient'] ?? null);
 
-                                        $totalVisits = $totalVisits ?? null;
+                                        $totalVisits ??= null;
                                         $totalVisits += ($information['visits'] ?? null);
 
-                                        $totalPayments = $totalPayments ?? null;
+                                        $totalPayments ??= null;
                                         $totalPayments += floatval(str_replace(",", "", ($information['payments'] ?? '')));
 
-                                        $totalPaidAmount = $totalPaidAmount ?? null;
+                                        $totalPaidAmount ??= null;
                                         $totalPaidAmount += floatval(str_replace(",", "", ($information['paidAmount'] ?? '')));
 
-                                        $totalDueAmount = $totalDueAmount ?? null;
+                                        $totalDueAmount ??= null;
                                         $totalDueAmount += $dueAmount;
                                     }
                                 }

@@ -989,7 +989,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n\n";
-                                        $encount = $encount ?? null;
+                                        $encount ??= null;
                                         ++$encount;
                                     }
                                 }

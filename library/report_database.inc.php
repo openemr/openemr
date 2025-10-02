@@ -492,7 +492,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
-        $row['total_patients'] = $row['total_patients'] ?? 0;
+        $row['total_patients'] ??= 0;
         $failed_items = null;
         $displayFieldSubHeader = "";
 
