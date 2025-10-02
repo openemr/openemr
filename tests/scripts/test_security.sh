@@ -4,6 +4,8 @@
 #
 # Tests .inc.php blocking, path traversal, security headers
 #
+# AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
+#
 # Usage: ./test_security.sh [base_url]
 # Example: ./test_security.sh http://localhost/openemr
 

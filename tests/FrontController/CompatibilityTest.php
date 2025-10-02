@@ -6,6 +6,8 @@
  * Tests backward compatibility: existing functionality,
  * multisite selection, authentication, and direct access.
  *
+ * AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    OpenEMR Contributors

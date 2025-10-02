@@ -5,6 +5,8 @@
 # Measures performance impact: direct vs. routed access
 # Metrics: Response time, throughput, resource usage
 #
+# AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
+#
 # Usage: ./test_performance.sh [base_url] [iterations]
 # Example: ./test_performance.sh http://localhost/openemr 100
 

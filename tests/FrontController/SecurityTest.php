@@ -6,6 +6,8 @@
  * Tests .inc.php blocking, path traversal prevention,
  * file validation, and CLI detection.
  *
+ * AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    OpenEMR Contributors

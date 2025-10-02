@@ -6,6 +6,8 @@
  * Routes requests to appropriate PHP files, blocks .inc.php access,
  * preserves multisite selection. Target files handle auth/sessions/errors.
  *
+ * AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    OpenEMR Contributors

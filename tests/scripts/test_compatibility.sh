@@ -5,6 +5,8 @@
 # Verifies backward compatibility with existing functionality
 # Tests: Entry points, multisite, authentication, static assets
 #
+# AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
+#
 # Usage: ./test_compatibility.sh [base_url]
 # Example: ./test_compatibility.sh http://localhost/openemr
 
