@@ -33,16 +33,16 @@ class C_InsuranceNumbers extends Controller
         return $this->list_action();
     }
 
-    function edit_action($id = "", $provider_id = "", $p_obj = null)
+    function edit_action($id = "", $provider_id = "")
     {
 
         //case where a direct id is provided, doesn't matter if a provider id is available get it from the insurance_numbers record
-        if ((empty($this->insurance_numbers[0]) || !is_object($this->insurance_numbers[0]) || get_class($this->insurance_numbers[0]) != "insurancenumbers") && is_numeric($id)) {
+        if (!(($this->insurance_numbers[0] ?? null) instanceof InsuranceNumbers) && is_numeric($id)) {
             $this->insurance_numbers[0] = new InsuranceNumbers($id);
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
         } elseif (is_numeric($provider_id)) {
             $this->providers[0] = new Provider($provider_id);
-            if (empty($this->insurance_numbers[0]) || !is_object($this->insurance_numbers[0]) || get_class($this->insurance_numbers[0]) != "insurancenumbers") {
+            if (!(($this->insurance_numbers[0] ?? null) instanceof InsuranceNumbers)) {
                 if ($id == "default") {
                     $this->insurance_numbers[0] = $this->providers[0]->get_insurance_numbers_default();
                     if (!is_object($this->insurance_numbers[0])) {
@@ -54,7 +54,7 @@ class C_InsuranceNumbers extends Controller
                     $this->insurance_numbers[0]->set_provider_id($provider_id);
                 }
             }
-        } elseif (get_class($this->insurance_numbers[0]) == "insurancenumbers") {
+        } elseif (($this->insurance_numbers[0] ?? null) instanceof InsuranceNumbers) {
             //this is the case that occurs after an update
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
         } else {
