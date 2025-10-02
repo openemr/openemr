@@ -704,10 +704,10 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $doctotal1   += $amount1;
                             $doctotal2   += $amount2;
 
-                            $grandtotal1 = $grandtotal1 ?? null;
+                            $grandtotal1 ??= null;
                             $grandtotal1 += $amount1;
 
-                            $grandtotal2 = $grandtotal2 ?? null;
+                            $grandtotal2 ??= null;
                             $grandtotal2 += $amount2;
                         }
                         ?>

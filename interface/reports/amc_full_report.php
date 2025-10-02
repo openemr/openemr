@@ -24,7 +24,7 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
-        $row['total_patients'] = $row['total_patients'] ?? 0;
+        $row['total_patients'] ??= 0;
         $failed_items = null;
         $displayFieldSubHeader = "";
 

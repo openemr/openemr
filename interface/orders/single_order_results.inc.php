@@ -114,7 +114,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
     }
 
     // allow for 0 to be displayed as a result value
-    $rrow['result'] = $rrow['result'] ?? '';
+    $rrow['result'] ??= '';
     if ($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
         $result_result = '';
     } else {

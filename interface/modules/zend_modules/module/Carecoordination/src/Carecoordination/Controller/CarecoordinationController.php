@@ -923,7 +923,7 @@ class CarecoordinationController extends AbstractActionController
             } elseif ($componentCount == ($patientNameIndex + 1)) {
                 // if they have more than maxDocuments in ccd files we need to break out of someone trying to directory
                 // bomb the file system
-                $patientCountHash[$patientNameIndex] = $patientCountHash[$patientNameIndex] ?? 0;
+                $patientCountHash[$patientNameIndex] ??= 0;
 
                 // let's check for ccda
                 if ($patientCount > $maxPatients) {

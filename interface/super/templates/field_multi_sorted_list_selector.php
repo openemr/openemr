@@ -15,9 +15,9 @@
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Globals\GlobalSetting;
 
-$fldvalue = $fldvalue ?? '';
-$globalValue = $globalValue ?? '';
-$fldoptions = $fldoptions ?? [];
+$fldvalue ??= '';
+$globalValue ??= '';
+$fldoptions ??= [];
 
 // can't do anything if we have no list
 if (empty($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID])) {
@@ -25,7 +25,7 @@ if (empty($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID])) {
     return;
 }
 
-$i = $i ?? 0;
+$i ??= 0;
 
 if ($userMode) {
     $globalTitle = $globalValue;

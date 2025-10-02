@@ -32,7 +32,7 @@ class X125010837I
         // Qualify data array
         if (!empty($ub04id)) {
             for ($i = 0; $i < 428; ++$i) {
-                $ub04id[$i] = $ub04id[$i] ?? '';
+                $ub04id[$i] ??= '';
             }
         }
         // This is the start of the 837I claim

@@ -56,7 +56,7 @@ class InsuranceRestController
     public function put($puuid, $insuranceUuid, $data)
     {
         $data['uuid'] = $insuranceUuid;
-        $data['type'] = $data['type'] ?? 'primary';
+        $data['type'] ??= 'primary';
 
         $processingResult = new ProcessingResult();
         $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];
@@ -78,7 +78,7 @@ class InsuranceRestController
 
     public function post($puuid, $data)
     {
-        $data['type'] = $data['type'] ?? 'primary';
+        $data['type'] ??= 'primary';
 
         $processingResult = new ProcessingResult();
         $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];

@@ -51,7 +51,7 @@ function hs_lo_title(string $listId, ?string $value): string
 /** Clip a string to N chars (UI-friendly), preserving plain text. */
 function hs_clip(?string $s, int $len = 80): string
 {
-    $s = $s ?? '';
+    $s ??= '';
     if (mb_strlen($s) <= $len) {
         return $s;
     }
