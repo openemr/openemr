@@ -15,6 +15,7 @@ use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
 use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
+use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php56\Rector\FuncCall\PowToExpRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
@@ -131,6 +132,7 @@ return RectorConfig::configure()
         StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
         StrStartsWithRector::class, // one of the withPhpSets rules
+        StringClassNameToClassConstantRector::class, // one of the withPhpSets rules
         StringableForToStringRector::class, // one of the withPhpSets rules
         StringifyStrNeedlesRector::class, // one of the withPhpSets rules
         TernaryToElvisRector::class, // one of the withPhpSets rules
