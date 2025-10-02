@@ -12,6 +12,7 @@ use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php56\Rector\FuncCall\PowToExpRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
+use Rector\Php70\Rector\FuncCall\RandomFunctionRector;
 use Rector\Php70\Rector\If_\IfToSpaceshipRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
@@ -76,6 +77,7 @@ return RectorConfig::configure()
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
+        RandomFunctionRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
