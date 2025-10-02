@@ -522,7 +522,7 @@ class Mime_Types
     {
         // temporarily we'll put match to false
         $matched = false;
-        list ( $ext, $type ) = $ext_type;
+        [$ext, $type] = $ext_type;
         if ($type_info ['wildcard']) {
             if (substr($type, 0, strpos($type, '/')) == $type_info ['type']) {
                 $matched = true;

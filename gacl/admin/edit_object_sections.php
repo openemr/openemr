@@ -69,7 +69,7 @@ switch ($postAction) {
 
         //Update sections
         foreach ($_POST['sections'] as $row) {
-            list($id, $value, $order, $name) = $row;
+            [$id, $value, $order, $name] = $row;
             $gacl_api->edit_object_section($id, $name, $value, $order,0,$object_type );
         }
         unset($id);
@@ -79,7 +79,7 @@ switch ($postAction) {
 
         //Insert new sections
         foreach ($_POST['new_sections'] as $row) {
-            list($value, $order, $name) = $row;
+            [$value, $order, $name] = $row;
 
             if (!empty($value) AND !empty($order) AND !empty($name)) {
 
@@ -100,7 +100,7 @@ switch ($postAction) {
         $sections = array();
 
         foreach ($rows as $row) {
-            list($id, $value, $order_value, $name) = $row;
+            [$id, $value, $order_value, $name] = $row;
 
                 $sections[] = array(
                                                 'id' => $id,

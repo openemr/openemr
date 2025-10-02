@@ -1036,7 +1036,7 @@ function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0
         if ($codestring === '') {
             continue;
         }
-        list($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         if ($codetype === $typewanted) {
             // echo "<!-- returning '$code' -->\n"; // debugging
             return $code;

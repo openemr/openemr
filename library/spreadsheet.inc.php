@@ -85,7 +85,7 @@ if ($tempid) {
 } elseif ($formid) {
     $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
     " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($formid));
-    list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
+    [$form_completed, $start_date, $template_name] = explode('|', $trow['value'], 3);
 }
 
 if (!$start_date) {

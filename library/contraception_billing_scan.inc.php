@@ -50,7 +50,7 @@ function _contraception_billing_check($code_type, $code, $provider): void
             if ($relstring === '') {
                 continue;
             }
-            list($reltype, $relcode) = explode(':', $relstring);
+            [$reltype, $relcode] = explode(':', $relstring);
             if ($reltype !== 'IPPFCM') {
                 continue;
             }

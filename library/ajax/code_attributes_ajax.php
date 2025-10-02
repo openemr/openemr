@@ -117,7 +117,7 @@ if (!empty($_GET['list'])) {
         }
         $arrcode = explode('|', $codestring);
         $codetype = $arrcode[0];
-        list($code, $modifier) = explode(":", $arrcode[1]);
+        [$code, $modifier] = explode(":", $arrcode[1]);
         $selector = isset($arrcode[2]) ? $arrcode[2] : '';
         write_code_info($codetype, $code, $selector, $pricelevel);
     }

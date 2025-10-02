@@ -1687,8 +1687,8 @@ class Smarty_Legacy
     function _run_mod_handler()
     {
         $_args = func_get_args();
-        list($_modifier_name, $_map_array) = array_splice($_args, 0, 2);
-        list($_func_name, $_tpl_file, $_tpl_line) =
+        [$_modifier_name, $_map_array] = array_splice($_args, 0, 2);
+        [$_func_name, $_tpl_file, $_tpl_line] =
             $this->_plugins['modifier'][$_modifier_name];
 
         $_var = $_args[0];

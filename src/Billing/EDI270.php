@@ -874,7 +874,7 @@ class EDI270
         // Normalize
         $mimeBody = preg_replace('~\r\n?~', "\r\n", $formBody);
         // Extract boundary from content type
-        list($contentType, $boundaryDirective) = explode(";", trim($contentType));
+        [$contentType, $boundaryDirective] = explode(";", trim($contentType));
         $boundary = trim(explode("=", trim($boundaryDirective))[1], '"');
         $boundary = preg_quote($boundary, '/');
         // Split the body using boundary

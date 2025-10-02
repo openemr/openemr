@@ -182,7 +182,7 @@ function postcalendar_removeScriptTags($in)
 
 function postcalendar_getDate($format = 'Ymd')
 {
-    list($Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate) =
+    [$Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate] =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
     if (!isset($Date)) {
         // if we still don't have a date then calculate it
@@ -491,7 +491,7 @@ function postcalendar_userapi_buildYearSelect($args)
 
 function &postcalendar_userapi_getCategories()
 {
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
     $cat_table = $pntable['postcalendar_categories'];
     $sql = "SELECT pc_catid,pc_catname,pc_constant_id,pc_catcolor,pc_catdesc,
@@ -511,9 +511,7 @@ function &postcalendar_userapi_getCategories()
 
     $categories = array();
     for ($i = 0; !$result->EOF; $result->MoveNext()) {
-        list($catid,$catname,$constantid,$catcolor,$catdesc,
-            $rtype,$rspec,$rfreq,$duration,$limit,$end_date_flag,
-            $end_date_type,$end_date_freq,$end_all_day,$cattype,$active,$seq,$aco) = $result->fields;
+        [$catid, $catname, $constantid, $catcolor, $catdesc, $rtype, $rspec, $rfreq, $duration, $limit, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $cattype, $active, $seq, $aco] = $result->fields;
 
         $categories[$i]['id']     = $catid;
         $categories[$i]['name']   = $catname;
@@ -548,7 +546,7 @@ function &postcalendar_userapi_getCategories()
 
 function &postcalendar_userapi_getTopics()
 {
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
     $topics_table = $pntable['topics'];
     $topics_column = &$pntable['topics_column'];
@@ -563,7 +561,7 @@ function &postcalendar_userapi_getTopics()
     $data = array();
     $i = 0;
     for (; !$topiclist->EOF; $topiclist->MoveNext()) {
-        list($data[$i]['id'], $data[$i]['text'], $data[$i++]['name']) = $topiclist->fields;
+        [$data[$i]['id'], $data[$i]['text'], $data[$i++]['name']] = $topiclist->fields;
     }
 
     $topiclist->Close();

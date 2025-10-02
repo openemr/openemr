@@ -98,7 +98,7 @@ $encounter_data = sqlQuery($query10, array($id));
 @extract($encounter_data);
 $id = $form_id;
 
-list($ODIOPTARGET,$OSIOPTARGET) = getIOPTARGETS($pid, $id, $provider_id);
+[$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, $id, $provider_id);
 
 $query          = "SELECT * FROM patient_data where pid=?";
 $pat_data       =  sqlQuery($query, array($pid));
@@ -2013,7 +2013,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="EXT_left_1">
                             <table>
                                 <?php
-                                  list($imaging,$episode) = display($pid, $encounter, "EXT");
+                                  [$imaging, $episode] = display($pid, $encounter, "EXT");
                                   echo $episode;
                                 ?>
                             </table>
@@ -2251,7 +2251,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="ANTSEG_left_1" class="text_clinical">
                         <table>
                             <?php
-                            list($imaging,$episode) = display($pid, $encounter, "ANTSEG");
+                            [$imaging, $episode] = display($pid, $encounter, "ANTSEG");
                             echo $episode;
                             ?>
                         </table>
@@ -2528,7 +2528,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div id="RETINA_left_1" class="text_clinical">
                             <table>
                                 <?php
-                                    list($imaging,$episode) = display($pid, $encounter, "POSTSEG");
+                                    [$imaging, $episode] = display($pid, $encounter, "POSTSEG");
                                     echo $episode;
                                 ?>
                             </table>
@@ -2565,7 +2565,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             <br />
                             <table>
                                 <?php
-                                    list($imaging,$episode) = display($pid, $encounter, "NEURO");
+                                    [$imaging, $episode] = display($pid, $encounter, "NEURO");
                                     echo $episode;
                                 ?>
                             </table>
@@ -3766,7 +3766,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                   $fs_option   = $row['fs_option'];
                                                                   $fs_codes    = $row['fs_codes'];
                                                                   if (!empty($fs_codes)) {
-                                                                      list($code_type_here, $code) = explode("|", $fs_codes);
+                                                                      [$code_type_here, $code] = explode("|", $fs_codes);
                                                                   }
                                                                   if ($fs_category !== $last_category) {
                                                                       $last_category = $fs_category;
@@ -3840,7 +3840,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                 if ($row['codes'] === '') {
                                                                     continue;
                                                                 }
-                                                                list($code_type_here,$code) = explode(":", $row['codes']);
+                                                                [$code_type_here, $code] = explode(":", $row['codes']);
                                                                 $codedesc = lookup_code_descriptions($row['codes']);
                                                                 $order   = array("\r\n", "\n","\r");
                                                                 $codedesc = str_replace($order, '', $codedesc);

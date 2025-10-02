@@ -157,7 +157,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
     // Test membership of codes to each code type set
     foreach ($allowedCodes2 as $akey1 => $allowCodes2) {
         foreach ($codeList2 as $listCode2) {
-            list($codeTyX,) = explode(":", $listCode2);
+            [$codeTyX, ] = explode(":", $listCode2);
 
             if (in_array($codeTyX, $allowCodes2)) {
                 array_push($memberCodes[$akey1], $listCode2);

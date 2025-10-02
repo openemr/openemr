@@ -83,7 +83,7 @@ $current_report_id = 0;
 
 if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
-        list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
+        [$order_id, $order_seq, $report_id, $result_id] = explode(':', $line_value);
 
 // Not using xl() here because this is for debugging only.
         if (empty($order_id)) {

@@ -780,7 +780,7 @@ $config = 1; /////////////
         /** @phpstan-ignore variable.undefined */
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
                     $this->writeGlobal($fldid, $flddef, 0, true);
                 }

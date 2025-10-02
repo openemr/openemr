@@ -352,10 +352,10 @@ if (!empty($_POST['form_save'])) {
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     // $form_source_lot = $_POST['form_source_lot'] + 0;
 
-    list($form_source_lot, $form_source_facility) = explode('|', $_POST['form_source_lot']);
+    [$form_source_lot, $form_source_facility] = explode('|', $_POST['form_source_lot']);
     $form_source_lot = intval($form_source_lot);
 
-    list($form_warehouse_id) = explode('|', $_POST['form_warehouse_id']);
+    [$form_warehouse_id] = explode('|', $_POST['form_warehouse_id']);
 
     $form_expiration   = $_POST['form_expiration'] ?? '';
     $form_lot_number   = $_POST['form_lot_number'] ?? '';

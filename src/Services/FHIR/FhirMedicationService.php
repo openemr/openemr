@@ -102,7 +102,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         }
 
         //alternative for switch case
-        list($formDisplay, $formCode) = [
+        [$formDisplay, $formCode] = [
             '1' => ['suspension', 'C60928'],
             '2' => ['tablet', 'C42998'],
             '3' => ['capsule', 'C25158'],

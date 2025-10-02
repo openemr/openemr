@@ -352,7 +352,7 @@ class FeeSheet
                     continue;
                 }
 
-                list($reltype, $relcode) = explode(':', $relstring);
+                [$reltype, $relcode] = explode(':', $relstring);
                 if ($reltype !== 'IPPFCM') {
                     continue;
                 }
@@ -1534,7 +1534,7 @@ class FeeSheet
     public function genCodeSelectorValue($codes)
     {
         global $code_types;
-        list($codetype, $code, $selector) = explode(':', $codes);
+        [$codetype, $code, $selector] = explode(':', $codes);
         if ($codetype == 'PROD') {
             $crow = sqlQuery(
                 "SELECT sale_id " .

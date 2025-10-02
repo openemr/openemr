@@ -288,7 +288,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $diags = explode(";", $row['diagnosis']);
                                 foreach ($diags as $diag) {
                                     $codedesc = lookup_code_descriptions($diag);
-                                    list($codetype, $code) = explode(':', $diag);
+                                    [$codetype, $code] = explode(':', $diag);
                                     if ($codetext) {
                                         $codetext .= "<br>";
                                     }

@@ -141,7 +141,7 @@ class TwilioSMSClient extends AppDispatch
         if (!$this->sid || !$this->authToken) {
             return 0;
         }
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 

@@ -53,7 +53,7 @@ function era_callback(&$out): void
     ++$eracount;
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
     '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+    [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
     if ($pid && $encounter) {
         if ($where) {
             $where .= ' OR ';

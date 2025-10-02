@@ -150,7 +150,7 @@ class Config_File_Legacy {
      */
     function &get_key($config_key)
     {
-        list($file_name, $section_name, $var_name) = explode('/', $config_key, 3);
+        [$file_name, $section_name, $var_name] = explode('/', $config_key, 3);
         $result = &$this->get($file_name, $section_name, $var_name);
         return $result;
     }

@@ -272,7 +272,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 <div id="PRIORS_EXT_left_1">
                     <table>
                         <?php
-                            list($imaging,$episode) = display($pid, $encounter ?? '', "EXT");
+                            [$imaging, $episode] = display($pid, $encounter ?? '', "EXT");
                             echo $episode;
                         ?>
                     </table>
@@ -397,7 +397,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div class="text_clinical" id="PRIORS_ANTSEG_left_1">
             <table>
                 <?php
-                    list($imaging,$episode) = display($pid, $encounter ?? '', "ANTSEG");
+                    [$imaging, $episode] = display($pid, $encounter ?? '', "ANTSEG");
                     echo $episode;
                 ?>
             </table>
@@ -561,7 +561,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div id="PRIORS_RETINA_left_1" class="text_clinical">
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter ?? '', "POSTSEG");
+                [$imaging, $episode] = display($pid, $encounter ?? '', "POSTSEG");
                 echo $episode;
                 ?>
             </table>
@@ -595,7 +595,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             <br />
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter ?? '', "NEURO");
+                [$imaging, $episode] = display($pid, $encounter ?? '', "NEURO");
                 echo $episode;
                 ?>
             </table>
@@ -1711,7 +1711,7 @@ function build_PMSFH($pid)
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
                     if (strpos($diag, ':') !== false) {
-                        list($codetype, $code) = explode(':', $diag);
+                        [$codetype, $code] = explode(':', $diag);
                     }
                     $order   = array("\r\n", "\n","\r");
                     $codedesc = str_replace($order, '', $codedesc);
@@ -3883,7 +3883,7 @@ function display($pid, $encounter, $category_value)
         *   to the associative array.
         */
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
 
     for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
@@ -4093,7 +4093,7 @@ function menu_overhaul_left($pid, $encounter): void
      * find out if the patient has a photo
      */
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
     ?>
     <div class="borderShadow row" id="title_bar">
@@ -4393,7 +4393,7 @@ function start_your_engines($FIELDS)
         $term = "";
         $code_found = array();
         if (stripos($amihere['term'], ":") !== false) { //options are stored here code:option_values
-            list ($term,$option_values) = explode(":", $amihere['term']);
+            [$term, $option_values] = explode(":", $amihere['term']);
         } else {
             $term = $amihere['term'];
         }
@@ -4433,7 +4433,7 @@ function start_your_engines($FIELDS)
                 //If so process - we are primed and don't need the carburetor for the Builder
                 //eg ICD10:H02.891
                 if (stripos($amihere['codes'], ":") !== false) {
-                    list($code_type,$code) = explode(":", $amihere['codes']);
+                    [$code_type, $code] = explode(":", $amihere['codes']);
                 } else {
                     //default to ICD10.  Maybe there is a GLOBALS value for this? Maybe there should be?
                     $code_type = "ICD10";
@@ -4441,7 +4441,7 @@ function start_your_engines($FIELDS)
 
                 $code_found['code'] = $code_type . ":" . $code;
                 $code_found['code_type'] = $code_type;
-                list($sub_term,$newdata) = coding_engine($term, $code_found, $amihere['location']);
+                [$sub_term, $newdata] = coding_engine($term, $code_found, $amihere['location']);
                 $codes_found[$sub_term][] = $newdata;
                 $positives[$amihere['location']][] = $term;
             } else { //no code was defined, further processing needed.
@@ -4571,7 +4571,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($DM_text, $MAC_text);
                             if (isset($code_found)) { //there are matches, present them to the engine
                                 foreach ($code_found as $found) {
-                                    list($sub_term,$newdata) = coding_engine($label, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($label, $found, $amihere['location'], $side1);
                                     // The carburetor is a simple machine - it has no boolean options -
                                     // so "with" and "without" match a search for "with"...
                                     // We need to be specific to whittle down the options.
@@ -4614,7 +4614,7 @@ function start_your_engines($FIELDS)
                                 $code_found = coding_carburetor("central retinal vein", $side);
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
-                                        list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                        [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
                                         $positives[$location][] = "CRVO";
                                         $hit_RVO[$location] = "1";
@@ -4626,7 +4626,7 @@ function start_your_engines($FIELDS)
                                 $terms = "BRVO " . $term;
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
-                                        list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                        [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
                                         $positives[$location][] = "BRVO";
                                         $hit_RVO[$location] = '1';
@@ -4641,7 +4641,7 @@ function start_your_engines($FIELDS)
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
                                         if ($found['code'] == "ICD10:H35.81") {
-                                            list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                            [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                             $codes_found[$sub_term][] = $newdata;
                                             $positives[$location][] = "CSME";
                                             $hit_RVO_CSME = '1';
@@ -4668,7 +4668,7 @@ function start_your_engines($FIELDS)
                                     if (isset($code_found)) { //there are matches, present them to the Builder
                                         foreach ($code_found as $found) {
                                             $term = "Post-cataract CME";
-                                            list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
+                                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
                                             $codes_found[$sub_term][] = $newdata;
                                             $positives[$amihere['location']][] = $term;
                                             $hit_IOL = '1';
@@ -4695,7 +4695,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
-                                    list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
                                     $codes_found[$sub_term][] = $newdata;
                                     $positives[$amihere['location']][] = $term_now;
                                 }
@@ -4708,7 +4708,7 @@ function start_your_engines($FIELDS)
                     $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
-                            list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location']);
+                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location']);
                             $codes_found[$sub_term][] = $newdata;
                             $positives[$amihere['location']][] = $term;
                         }
@@ -4770,7 +4770,7 @@ function coding_carburetor($term, $field)
 function coding_engine($term, $code_found, $location, $side = '')
 {
     if (strpos($code_found['code'], ":")) {
-        list($code_type, $code) = explode(':', $code_found['code']);
+        [$code_type, $code] = explode(':', $code_found['code']);
     } else {
         $code = $code_found['code'];
         $code_type = "ICD10";//default to ICD10
@@ -4832,7 +4832,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     global $visit_date;
 
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
 
     $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
@@ -4849,14 +4849,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
         }
     }
     if (empty($encounter_data['ODIOPTARGET']) || empty($encounter_data['OSIOPTARGET'])) {
-        list($ODIOPTARGET, $OSIOPTARGET) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+        [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
     } else {
         $ODIOPTARGET = $encounter_data['ODIOPTARGET'];
         $OSIOPTARGET = $encounter_data['OSIOPTARGET'];
     }
 
     $i = 0;
-    list($ODIOPTARGET, $OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+    [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
     //if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
         if (empty($encounter_data['ODIOPTARGET'])) {

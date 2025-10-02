@@ -671,7 +671,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 <?php
                                 if ($form_proc_code && $form_proc_codetype) {
                                         echo "  <td class='detail' align='right'>";
-                                        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+                                        [$patient_id, $encounter_id] = explode(".", $row['invnumber']);
                                         $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
                                             "pid = ? AND encounter = ? AND " .
                                             "code_type = ? AND code = ? AND activity = 1", array($patient_id,$encounter_id,$form_proc_codetype,$form_proc_code));

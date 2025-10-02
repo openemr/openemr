@@ -1395,7 +1395,7 @@ if (
                             if ($fs->code_is_in_fee_sheet) {
                                 echo " checked";
                             }
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             $title = lookup_code_descriptions($codestring);
                             $title = empty($title) ? $code : xl_list_label($title);
                             echo " />" . text($title);
@@ -1525,7 +1525,7 @@ if (
                             if ($fs->code_is_in_fee_sheet) {
                                 echo " checked";
                             }
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             $crow = sqlQuery(
                                 "SELECT name FROM drugs WHERE " .
                                 "drug_id = ? ORDER BY drug_id LIMIT 1",
@@ -1619,7 +1619,7 @@ if (
                             if ($fs->code_is_in_fee_sheet) {
                                 echo " checked";
                             }
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             $title = lookup_code_descriptions($codestring);
                             $title = empty($title) ? $code : xl_list_label($title);
                             echo " />" . text($title);
@@ -1726,7 +1726,7 @@ if (
                                     continue;
                                 }
                                 ++$svccount;
-                                list($codetype, $code) = explode(':', $codestring);
+                                [$codetype, $code] = explode(':', $codestring);
                                 $rrow = sqlQuery(
                                     "SELECT code_text FROM codes WHERE " .
                                     "code_type = ? AND code = ? " .

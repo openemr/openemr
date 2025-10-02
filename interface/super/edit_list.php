@@ -522,7 +522,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     }
 
     if ($list_id == 'apptstat' || $list_id == 'groupstat') {
-        list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
+        [$apptstat_color, $apptstat_timealert] = explode("|", $notes);
         echo "  <td>";
         echo "<input type='text' class='jscolor' name='opt[" . attr($opt_line_no) . "][apptstat_color]' value='" .
             attr($apptstat_color) . "' size='6' maxlength='6' class='optin' />";

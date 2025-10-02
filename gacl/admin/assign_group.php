@@ -167,7 +167,7 @@ switch ($postAction) {
 
 	if (is_object($rs)) {
 		while ($row = $rs->FetchRow()) {
-			list($section_value, $value, $name, $section) = $row;
+			[$section_value, $value, $name, $section] = $row;
 
 			$object_rows[] = array(
 				'section_value' => $row[0],
