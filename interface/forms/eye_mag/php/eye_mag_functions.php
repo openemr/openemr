@@ -3111,9 +3111,7 @@ function canvas_select($zone, $encounter, $pid)
             $canvi[] = $doc;
         }
     }
-    usort($canvi, function ($a, $b) {
-        return $b['encounter_date'] <=> $a['encounter_date'];
-    });
+    usort($canvi, fn($a, $b): int => $b['encounter_date'] <=> $a['encounter_date']);
     if (!empty($canvi)) {
         if ($canvi[0]['encounter_id'] != $encounter) {
             //put today on the front as current, item "0"

@@ -40,9 +40,7 @@ class ExportOnsiteMessagesTableDefinition extends ExportTableDefinition
         // recip_id is a json array of pids if the message originates from a user in the users table
         // recip_id is a josn array of usernames if the message originates from a patient in the patient_data table
         $query = "SELECT $selectQuery FROM onsite_messages WHERE $likeClause";
-        $bindParams = array_map(function ($pid) {
-            return "%\"$pid\"%";
-        }, $patientPids);
+        $bindParams = array_map(fn($pid): string => "%\"$pid\"%", $patientPids);
         $records = QueryUtils::fetchRecords($query, $bindParams);
         $resultRecords = [];
         if (!empty($records)) {

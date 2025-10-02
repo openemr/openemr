@@ -333,9 +333,7 @@ class ResultsCalculator
     {
         return array_reduce(
             $this->filter_null_values($arr),
-            function ($sum, $item) {
-                return $sum + $item;
-            },
+            fn($sum, $item): float|int|array => $sum + $item,
             0
         );
 

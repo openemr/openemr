@@ -14,9 +14,7 @@ use Syndromicsurveillance\Model\SyndromicsurveillanceTable;
 return array(
     'controllers' => array(
         'factories' => [
-            SyndromicsurveillanceController::class => function (ContainerInterface $container, $requestedName) {
-                return new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class));
-            }
+            SyndromicsurveillanceController::class => fn(ContainerInterface $container, $requestedName): \Syndromicsurveillance\Controller\SyndromicsurveillanceController => new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class))
         ]
     ),
 

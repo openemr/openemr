@@ -71,14 +71,12 @@ class Module
     public function addRestAPIRouteToMap($m)
     {
         $extend_route_map = [
-                        "GET /api/some_route" => function () {
+                        "GET /api/some_route" => fn(): array =>
                             //RestConfig::authorization_check("some_section", "users");
-                            return ["1","2","3"];
-                        },
-                        "GET /api/some_route/:rid" => function ($rid) {
+                            ["1","2","3"],
+                        "GET /api/some_route/:rid" => fn($rid): array =>
                             //RestConfig::authorization_check("some_section", "users");
-                            return [$rid];
-                        }
+                            [$rid]
                       ];
 
         $extend_fhir_route_map = [];

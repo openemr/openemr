@@ -40,9 +40,7 @@ class TeleHealthPersonSettingsRepository
         $columnKeys = array_keys($columns);
         $bind = array_values($columns);
         if (!empty($settings->getId())) {
-            $updateColumns = implode(",", array_map(function ($val) {
-                return "`$val` = ?";
-            }, $columnKeys));
+            $updateColumns = implode(",", array_map(fn($val): string => "`$val` = ?", $columnKeys));
 
             // do an update
             $sql = "UPDATE comlink_telehealth_person_settings SET ";
@@ -51,9 +49,7 @@ class TeleHealthPersonSettingsRepository
             QueryUtils::sqlStatementThrowException($sql, $bind);
         } else {
             $sql = 'INSERT INTO comlink_telehealth_person_settings( ' . implode(",", $columnKeys)
-                    . ') VALUES (' . implode(",", array_map(function ($val) {
-                        return "?";
-                    }, $columnKeys)) . ')';
+                    . ') VALUES (' . implode(",", array_map(fn($val): string => "?", $columnKeys)) . ')';
             $id = QueryUtils::sqlInsert($sql, $bind);
         }
         // get the most up to date db record

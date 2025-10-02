@@ -79,8 +79,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         return [
             // can be used like {% if is numeric %}...{% endif %}
-            new TwigTest('numeric', function ($value) {
-                return is_numeric($value); })
+            new TwigTest('numeric', fn($value): bool => is_numeric($value))
         ];
     }
 
@@ -257,126 +256,86 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return [
             new TwigFilter(
                 'text',
-                function ($string) {
-                    return text($string);
-                }
+                fn($string) => text($string)
             ),
             new TwigFilter(
                 'attr',
-                function ($string) {
-                    return attr($string);
-                }
+                fn($string) => attr($string)
             ),
             new TwigFilter(
                 'js_escape',
-                function ($string) {
-                    return js_escape($string);
-                }
+                fn($string) => js_escape($string)
             ),
             new TwigFilter(
                 'attr_js',
-                function ($string) {
-                    return attr_js($string);
-                }
+                fn($string) => attr_js($string)
             ),
             new TwigFilter(
                 'attr_url',
-                function ($string) {
-                    return attr_url($string);
-                }
+                fn($string) => attr_url($string)
             ),
             new TwigFilter(
                 'js_url',
-                function ($string) {
-                    return js_url($string);
-                }
+                fn($string) => js_url($string)
             ),
             new TwigFilter(
                 'javascriptStringRemove',
-                function ($string) {
-                    return javascriptStringRemove($string);
-                }
+                fn($string): string => javascriptStringRemove($string)
             ),
             new TwigFilter(
                 'xl',
-                function ($string) {
-                    return xl($string);
-                }
+                fn($string) => xl($string)
             ),
             new TwigFilter(
                 'xlt',
-                function ($string) {
-                    return xlt($string);
-                }
+                fn($string) => xlt($string)
             ),
             new TwigFilter(
                 'xla',
-                function ($string) {
-                    return xla($string);
-                }
+                fn($string) => xla($string)
             ),
             new TwigFilter(
                 'xlj',
-                function ($string) {
-                    return xlj($string);
-                }
+                fn($string) => xlj($string)
             ),
             new TwigFilter(
                 'xls',
-                function ($string) {
-                    return xls($string);
-                }
+                fn($string) => xls($string)
             ),
             new TwigFilter(
                 'money',
-                function ($amount) {
-                    return oeFormatMoney($amount);
-                }
+                fn($amount) => oeFormatMoney($amount)
             ),
             new TwigFilter(
                 'shortDate',
-                function ($string) {
-                    return oeFormatShortDate($string);
-                }
+                fn($string) => oeFormatShortDate($string)
             ),
             new TwigFilter(
                 'oeFormatDateTime',
-                function ($string, $formatTime = "global", $seconds = false) {
-                    return oeFormatDateTime($string, $formatTime, $seconds);
-                }
+                fn($string, $formatTime = "global", $seconds = false) => oeFormatDateTime($string, $formatTime, $seconds)
             ),
             new TwigFilter(
                 'xlLayoutLabel',
-                function ($string) {
-                    return xl_layout_label($string);
-                }
+                fn($string) => xl_layout_label($string)
             ),
             new TwigFilter(
                 'xlListLabel',
-                function ($string) {
-                    return xl_list_label($string);
-                }
+                fn($string) => xl_list_label($string)
             ),
             new TwigFilter(
                 'xlDocCategory',
-                function ($string) {
-                    return xl_document_category($string);
-                }
+                fn($string) => xl_document_category($string)
             ),
 
             new TwigFilter(
                 'xlFormTitle',
-                function ($string) {
-                    return xl_form_title($string);
-                }
+                fn($string) => xl_form_title($string)
             ),
             // we have some weirdness if we have a date string in the format of YmdHi, it blows things up so we have
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(
                 'dateToTime',
-                function ($str) {
-                    return strtotime($str);
-                }
+                fn($str): int|false => strtotime($str)
             ),
             new TwigFilter(
                 'addCacheParam',

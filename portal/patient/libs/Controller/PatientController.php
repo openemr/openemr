@@ -94,10 +94,7 @@ class PatientController extends AppBasePortalController
         while ($key = sqlFetchArray($q)) {
             if ((int)$key['uor'] === 0 || strpos($key['edit_options'], "EP") !== false) {
                 $key['field_id'] = strtolower($key['field_id']);
-                $key['field_id'] = preg_replace_callback('/_([^_])/', function (array $m) {
-
-                        return ucfirst($m[1]);
-                }, $key['field_id']);
+                $key['field_id'] = preg_replace_callback('/_([^_])/', fn(array $m): string => ucfirst($m[1]), $key['field_id']);
                 $exclude[] = lcfirst($key['field_id']) . "InputContainer";
             }
         }

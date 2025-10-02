@@ -240,9 +240,7 @@ class ModulesApplication
                     return $scriptSrc;
                 }
                 return null;
-            }, $files), function ($script) {
-                return !empty($script);
-            });
+            }, $files), fn($script): bool => !empty($script));
         } else {
             $filteredFiles = [];
         }

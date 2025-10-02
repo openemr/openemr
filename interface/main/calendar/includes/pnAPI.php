@@ -498,21 +498,17 @@ function pnVarPrepHTMLDisplay()
         $ourvar = htmlspecialchars($ourvar);
         $ourvar = preg_replace_callback(
             $search,
-            function ($matches) {
-                return "&#" .
-                sprintf("%03d", ord($matches[1])) .
-                ";&#064;&#" .
-                sprintf("%03d", ord($matches[2])) . ";";
-            },
+            fn($matches): string => "&#" .
+            sprintf("%03d", ord($matches[1])) .
+            ";&#064;&#" .
+            sprintf("%03d", ord($matches[2])) . ";",
             $ourvar
         );
 
         // Fix the HTML that we want
         $ourvar = preg_replace_callback(
             '/\022([^\024]*)\024/',
-            function ($matches) {
-                return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
-            },
+            fn($matches): string => '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>',
             $ourvar
         );
 

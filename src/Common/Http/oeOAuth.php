@@ -129,11 +129,9 @@ class oeOAuth
 
     public function usingAuthHeaders($headers)
     {
-        return $this->tap($this, function ($request) use ($headers) {
-            return $this->auth_options = array_merge_recursive($this->auth_options, [
-                'headers' => $headers
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->auth_options = array_merge_recursive($this->auth_options, [
+            'headers' => $headers
+        ]));
     }
 
     protected function tap($value, $callback)
@@ -144,9 +142,7 @@ class oeOAuth
 
     public function setAuthOptions($options)
     {
-        return $this->tap($this, function ($request) use ($options) {
-            return $this->auth_options = array_merge_recursive($this->auth_options, $options);
-        });
+        return $this->tap($this, fn($request): array => $this->auth_options = array_merge_recursive($this->auth_options, $options));
     }
 
     private function isCachedTokenValid($file): bool
@@ -165,28 +161,22 @@ class oeOAuth
 
     public function usingAuthEndpoint($baseUri)
     {
-        return $this->tap($this, function ($request) use ($baseUri) {
-            return $this->auth_options = array_merge($this->auth_options, [
-                'base_uri' => $baseUri,
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->auth_options = array_merge($this->auth_options, [
+            'base_uri' => $baseUri,
+        ]));
     }
 
     public function setAuthBase($uri)
     {
-        return $this->tap($this, function ($request) use ($uri) {
-            return $this->auth_options = array_merge($this->auth_options, [
-                'base_uri' => $uri,
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->auth_options = array_merge($this->auth_options, [
+            'base_uri' => $uri,
+        ]));
     }
 
     public function setRedirect($uri)
     {
-        return $this->tap($this, function ($request) use ($uri) {
-            return $this->token_config = array_merge($this->token_config, [
-                'redirect_uri' => $uri,
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->token_config = array_merge($this->token_config, [
+            'redirect_uri' => $uri,
+        ]));
     }
 }

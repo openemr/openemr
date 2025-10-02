@@ -146,9 +146,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                 throw OAuthServerException::invalidRequest(
                     'code_challenge_method',
                     'Code challenge method must be one of ' . implode(', ', array_map(
-                        function ($method) {
-                            return '`' . $method . '`';
-                        },
+                        fn($method): string => '`' . $method . '`',
                         array_keys($this->openEMRCodeChallengeVerifiers)
                     ))
                 );

@@ -459,9 +459,7 @@ class BaseService implements BaseServiceInterface
 
         return array_filter(
             $data,
-            function ($key) use ($whitelistedFields) {
-                return in_array($key, $whitelistedFields);
-            },
+            fn($key): bool => in_array($key, $whitelistedFields),
             ARRAY_FILTER_USE_KEY
         );
     }

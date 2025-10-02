@@ -272,9 +272,7 @@ class ClinicalNotesService extends BaseService
         }
 
         $keys = array_keys($record);
-        $setValues = array_map(function ($val) {
-            return $val . " = ? ";
-        }, $keys);
+        $setValues = array_map(fn($val): string => $val . " = ? ", $keys);
         if (!empty($id)) {
             $sql = "UPDATE " . self::TABLE_NAME . " SET " . implode(", ", $setValues) . " WHERE id = ? ";
             $bindValues = array_values($record);

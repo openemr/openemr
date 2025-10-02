@@ -316,9 +316,7 @@ class QuestionnaireResponseService extends BaseService
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(function ($uuid) {
-                    return "?";
-            }, $uuidResults)) . ") ORDER BY qr.create_time DESC ";
+            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(fn($uuid): string => "?", $uuidResults)) . ") ORDER BY qr.create_time DESC ";
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = new ProcessingResult();
             foreach ($statementResults as $record) {
