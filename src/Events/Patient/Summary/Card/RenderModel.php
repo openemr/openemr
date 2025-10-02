@@ -14,14 +14,8 @@ namespace OpenEMR\Events\Patient\Summary\Card;
 
 class RenderModel implements RenderInterface
 {
-    private $templateFileName;
-
-    private $variables;
-
-    public function __construct(string $templateFileName, array $variables)
+    public function __construct(private string $templateFileName, private array $variables)
     {
-        $this->templateFileName = $templateFileName;
-        $this->variables = $variables;
     }
 
     /**

@@ -16,13 +16,15 @@ use OpenEMR\Services\Search\SearchFieldType;
 class TokenSearchField extends BasicSearchField
 {
     /**
-     * @var boolean True if the token represents a UUID that is a binary field in the database
+     * @param mixed $field
+     * @param mixed $values
+     * @param bool $isUUID True if the token represents a UUID that is a binary field in the database
      */
-    private $isUUID;
-
-    public function __construct($field, $values, $isUUID = false)
-    {
-        $this->isUUID = $isUUID;
+    public function __construct(
+        $field,
+        $values,
+        private $isUUID = false
+    ) {
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 

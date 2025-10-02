@@ -23,17 +23,15 @@ class CdaTemplateParse
     private $codeService;
     private $currentOid;
     protected $is_qrda_import;
-    public $conditionedXmlContent;
 
     /**
      * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
      */
     private $ed;
 
-    public function __construct($conditionedXmlContent = "")
+    public function __construct(public $conditionedXmlContent = "")
     {
         $this->templateData = [];
-        $this->conditionedXmlContent = $conditionedXmlContent;
         $this->is_qrda_import = false;
         $this->codeService = new CodeTypesService();
         $this->ed = $GLOBALS['kernel']->getEventDispatcher();

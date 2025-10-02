@@ -17,7 +17,6 @@
  */
 class Bcrypt
 {
-    private $rounds;
     private $randomState;
 
     /**
@@ -27,13 +26,11 @@ class Bcrypt
      *          int number of crypt rounds
      * @throws Exception if bcrypt is not supported
      */
-    public function __construct($rounds = 12)
+    public function __construct(private $rounds = 12)
     {
         if (CRYPT_BLOWFISH != 1) {
             throw new Exception("bcrypt not supported in this installation. See http://php.net/crypt");
         }
-
-        $this->rounds = $rounds;
     }
 
     /**

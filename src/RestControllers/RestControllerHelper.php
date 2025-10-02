@@ -56,11 +56,8 @@ class RestControllerHelper
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
-    private string $restURL = "";
-
-    public function __construct($restAPIUrl = "")
+    public function __construct(private string $restURL = "")
     {
-        $this->restURL = $restAPIUrl;
     }
 
     const FHIR_PREFER_HEADER_RETURN_VALUES = ['minimal', 'representation', 'OperationOutcome'];

@@ -61,12 +61,6 @@ class Document extends ORDataObject
      */
     public const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
 
-    /*
-    *   Database unique identifier
-    *   @public id
-    */
-    public $id;
-
     /**
      * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
      */
@@ -225,13 +219,10 @@ class Document extends ORDataObject
      * Constructor sets all Document attributes to their default value
      * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
      */
-    public function __construct($id = "")
+    public function __construct(public $id = "")
     {
         //call the parent constructor so we have a _db to work with
         parent::__construct();
-
-        //shore up the most basic ORDataObject bits
-        $this->id = $id;
         $this->_table = self::TABLE_NAME;
 
         //load the enum type from the db using the parent helper function,
@@ -252,7 +243,7 @@ class Document extends ORDataObject
         $this->encrypted = 0;
         $this->deleted = 0;
 
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
 

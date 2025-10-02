@@ -13,14 +13,8 @@ namespace OpenEMR\Services\Search;
 
 class SearchFieldOrder
 {
-    private string $field;
-
-    private bool $ascending;
-
-    public function __construct(string $field, bool $ascending)
+    public function __construct(private string $field, private bool $ascending)
     {
-        $this->field = $field;
-        $this->ascending = $ascending;
     }
 
     /**

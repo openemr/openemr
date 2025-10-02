@@ -23,7 +23,6 @@ use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 
 class ExportTableDefinition
 {
-    public ?string $table;
     public string $selectClause;
 
     /**
@@ -38,15 +37,11 @@ class ExportTableDefinition
      */
     private array $tableColumnNames;
 
-    private array $primaryKeys;
-
-    public function __construct(?string $table = null, array $pks = [])
+    public function __construct(public ?string $table = null, private array $primaryKeys = [])
     {
-        $this->table = $table;
         $this->keyColumnsHashmap = [];
         $this->hasNewData = false;
         $this->selectClause = '*';
-        $this->primaryKeys = $pks;
     }
 
     public function addPrimaryKey(string $key)

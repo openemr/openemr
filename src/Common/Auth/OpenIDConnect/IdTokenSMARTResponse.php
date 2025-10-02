@@ -44,32 +44,20 @@ class IdTokenSMARTResponse extends IdTokenResponse
     private $isAuthorizationGrant;
 
     /**
-     * @var SMARTSessionTokenContextBuilder
-     */
-    private SMARTSessionTokenContextBuilder $contextBuilder;
-
-    /**
      * The context values to use for issuing new tokens.  This is populated when a refresh grant is generating a new
      * access token.  We have to use our existing values.
      * @var array
      */
     private $contextForNewTokens;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
     public function __construct(
-        OEGlobalsBag $globalsBag,
-        SessionInterface $session,
+        private OEGlobalsBag $globalsBag,
+        private SessionInterface $session,
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor,
-        SMARTSessionTokenContextBuilder $sessionTokenContextBuilder,
+        private SMARTSessionTokenContextBuilder $contextBuilder,
     ) {
-        $this->globalsBag = $globalsBag;
         $this->isAuthorizationGrant = false;
-        $this->session = $session;
-        $this->contextBuilder = $sessionTokenContextBuilder;
         parent::__construct($identityProvider, $claimExtractor);
     }
 

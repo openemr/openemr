@@ -47,12 +47,6 @@ use OpenEMR\Common\Session\SessionUtil;
 class BillingProcessor
 {
     /**
-     * Post from the billing manager form
-     * @var
-     */
-    protected $post;
-
-    /**
      * Our logger instance that we use and also pass down
      * to the processing tasks
      * @var
@@ -67,9 +61,12 @@ class BillingProcessor
     const VALIDATE_AND_CLEAR = 'validate-and-clear';
     const NORMAL = 'normal';
 
-    public function __construct($post)
-    {
-        $this->post = $post;
+    /**
+     * @param mixed $post Post from the billing manager form
+     */
+    public function __construct(
+        protected $post
+    ) {
         $this->logger = new BillingLogger();
     }
 

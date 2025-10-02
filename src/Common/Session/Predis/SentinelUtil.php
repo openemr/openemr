@@ -27,8 +27,6 @@ class SentinelUtil
     private static $masterCa = 'redis-master-ca';
     private static $masterCert = 'redis-master-cert';
     private static $masterKey = 'redis-master-key';
-
-    private int $ttl;
     private string $sessionStorageMode;
     private array $predisSentinels;
     private string $predisMaster;
@@ -48,13 +46,10 @@ class SentinelUtil
 
     private SystemLogger $logger;
 
-    public function __construct(int $ttl, ?SystemLogger $logger = null)
+    public function __construct(private int $ttl, ?SystemLogger $logger = null)
     {
         // Initialize the logger
         $this->logger = $logger ?? new SystemLogger();
-
-        // Collect and validate environment variables
-        $this->ttl = $ttl;
 
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;

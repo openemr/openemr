@@ -7,10 +7,8 @@
 require_once 'html2text.php';
 class html2text
 {
-    private $html;
-    public function __construct($html)
+    public function __construct(private $html)
     {
-        $this->html = $html;
     }
 
     /**

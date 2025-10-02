@@ -17,12 +17,8 @@ require_once("IAuthenticatable.php");
 class SimpleAccount implements IAuthenticatable
 {
     private $_authenticated = false;
-    private $_username;
-    private $_password;
-    public function __construct($required_username, $required_password)
+    public function __construct(private $_username, private $_password)
     {
-        $this->_username = $required_username;
-        $this->_password = $required_password;
     }
     public function IsAnonymous()
     {

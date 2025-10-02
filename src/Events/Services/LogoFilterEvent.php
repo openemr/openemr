@@ -26,26 +26,20 @@ class LogoFilterEvent extends Event
      */
     const EVENT_NAME = 'logo.filter.url';
 
-    /**
-     * @var string The type of logo to filter on, such as core/menu/primary/
-     */
-    private $logoType;
-
-    /**
-     * @var string The file path to the logo, such as /var/www/openemr/sites/default/logos/core/menu/primary/logo.png
-     */
-    private $filePath;
-
-    /**
-     * @var string The web path to the logo, such as /sites/default/logos/core/menu/primary/logo.png
-     */
-    private $webPath;
-
-    public function __construct(string $logoType, string $filePath, string $webPath)
-    {
-        $this->logoType = $logoType;
-        $this->filePath = $filePath;
-        $this->webPath = $webPath;
+    public function __construct(
+        /**
+         * @var string The type of logo to filter on, such as core/menu/primary/
+         */
+        private string $logoType,
+        /**
+         * @var string The file path to the logo, such as /var/www/openemr/sites/default/logos/core/menu/primary/logo.png
+         */
+        private string $filePath,
+        /**
+         * @var string The web path to the logo, such as /sites/default/logos/core/menu/primary/logo.png
+         */
+        private string $webPath
+    ) {
     }
 
     /**

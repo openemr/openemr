@@ -41,14 +41,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     private $contextForNewTokens;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
-    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session)
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session)
     {
-        $this->globalsBag = $globalsBag;
-        $this->session = $session;
         $this->contextForNewTokens = null;
     }
 

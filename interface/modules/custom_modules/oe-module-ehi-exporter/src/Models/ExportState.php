@@ -35,11 +35,9 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDef
 
 class ExportState
 {
-    public \SimpleXMLElement $rootNode;
     private \SplQueue $queue;
     private Models\ExportResult $result;
     private array $tableDefinitionsMap;
-    private SystemLogger $logger;
 
     // we use this to make sure if we are scheduled to hit an item again
     private $inQueueList = [];
@@ -51,24 +49,15 @@ class ExportState
      */
     private string $tempDir;
 
-    private \SimpleXMLElement $metaNode;
-
     private ExportKeyDefinitionFilterer $keyFilterer;
 
-    private EhiExportJobTask $jobTask;
-
-    public function __construct(SystemLogger $logger, \SimpleXMLElement $tableNode, \SimpleXMLElement $metaNode, EhiExportJobTask $jobTask)
+    public function __construct(private SystemLogger $logger, public \SimpleXMLElement $rootNode, private \SimpleXMLElement $metaNode, private EhiExportJobTask $jobTask)
     {
-        $this->rootNode = $tableNode;
-        $this->metaNode = $metaNode;
         $this->queue = new \SplQueue();
         $this->result = new Models\ExportResult();
         $this->tableDefinitionsMap = [];
         $this->dataFilterer = new ExportTableDataFilterer();
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
-        $this->jobTask = $jobTask;
-
-        $this->logger = $logger;
     }
 
     public function getTempSysDir()

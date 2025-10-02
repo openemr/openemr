@@ -24,36 +24,23 @@ define("KM_TYPE_MANYTOONE", 2);
  */
 class KeyMap
 {
-    public $KeyName;
-    public $KeyProperty;
-    public $ForeignObject;
-    public $ForeignKeyProperty;
-    public $KeyType;
-    public $LoadType;
-
     /**
      * Initializes the KeyMap
      *
-     * @param string $kn
+     * @param string $KeyName
      *          KeyName a unique name for this key
-     * @param string $kp
+     * @param string $KeyProperty
      *          KeyProperty the foreign key property
-     * @param string $fo
+     * @param string $ForeignObject
      *          ForeignObject the name of the foreign model object
-     * @param string $fkp
+     * @param string $ForeignKeyProperty
      *          ForeignKeyProperty the primary key property of the foreign model object
-     * @param int $kt
+     * @param int $KeyType
      *          Key Type (optional default = KM_TYPE_ONETOMANY)
-     * @param int $lt
+     * @param int $LoadType
      *          Load Type KM_LOAD_LAZY | KM_LOAD_EAGER (optional default = KM_LOAD_LAZY)
      */
-    public function __construct($kn, $kp, $fo, $fkp, $kt = KM_TYPE_ONETOMANY, $lt = KM_LOAD_LAZY)
+    public function __construct(public $KeyName, public $KeyProperty, public $ForeignObject, public $ForeignKeyProperty, public $KeyType = KM_TYPE_ONETOMANY, public $LoadType = KM_LOAD_LAZY)
     {
-        $this->KeyName = $kn;
-        $this->KeyProperty = $kp;
-        $this->ForeignObject = $fo;
-        $this->ForeignKeyProperty = $fkp;
-        $this->KeyType = $kt;
-        $this->LoadType = $lt;
     }
 }

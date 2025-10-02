@@ -25,20 +25,13 @@ class ServiceDeleteEvent extends Event
 
     const EVENT_POST_DELETE = 'service.delete.post';
 
-    /**
-     * @var BaseService
-     */
-    private $service;
-
-    /**
-     * @var string|int|array $recordId The id of the record being deleted.  If the record id is a composite key it will contain a hashmap of the keys
-     */
-    private $recordId;
-
-    public function __construct(BaseService $service, int|string|array $recordId)
-    {
-        $this->service = $service;
-        $this->recordId = $recordId;
+    public function __construct(
+        private BaseService $service,
+        /**
+         * @var string|int|array $recordId The id of the record being deleted.  If the record id is a composite key it will contain a hashmap of the keys
+         */
+        private int|string|array $recordId
+    ) {
     }
 
     public function getService(): BaseService

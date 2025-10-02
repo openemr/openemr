@@ -12,13 +12,8 @@ class Range
     const NEG_INF = -999999;
     const POS_INF = 999999;
 
-    public $lowerBound;
-    public $upperBound;
-
-    public function __construct($lowerBound, $upperBound)
+    public function __construct(public $lowerBound, public $upperBound)
     {
-        $this->lowerBound = $lowerBound;
-        $this->upperBound = $upperBound;
     }
 
     public function test($val)

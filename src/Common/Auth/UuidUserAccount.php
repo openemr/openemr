@@ -19,16 +19,15 @@ use OpenEMR\Services\UserService;
 
 class UuidUserAccount
 {
-    private $userId;   //uuid
+    //uuid
     private $userRole; //user role
 
     const USER_ROLE_USERS = 'users';
     const USER_ROLE_PATIENT = 'patient';
     const USER_ROLE_SYSTEM = 'system';
 
-    public function __construct(string $userId)
+    public function __construct(private string $userId)
     {
-        $this->userId = $userId;
     }
 
     // get user account information

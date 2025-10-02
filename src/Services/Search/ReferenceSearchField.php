@@ -16,13 +16,10 @@ use Psr\Log\InvalidArgumentException;
 class ReferenceSearchField extends BasicSearchField
 {
     /**
-     * @var boolean
+     * @param bool $isUuid
      */
-    private $isUuid;
-
-    public function __construct($field, $values, $isUuid = false)
+    public function __construct($field, $values, private $isUuid = false)
     {
-        $this->isUuid = $isUuid;
         parent::__construct($field, SearchFieldType::REFERENCE, $field, $values);
     }
 

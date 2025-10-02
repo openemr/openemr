@@ -33,14 +33,13 @@ class MenuEvent extends Event
      */
     const MENU_RESTRICT = 'menu.restrict';
 
-
-
-    /** @var array The menu list */
-    private $menu;
-
-    public function __construct($menu = [])
-    {
-        $this->menu = $menu;
+    /**
+     * @param mixed[] $menu
+     */
+    public function __construct(
+        /** @var array The menu list */
+        private $menu = []
+    ) {
     }
 
     /**

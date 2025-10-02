@@ -29,9 +29,6 @@ class DemographicsRelatedPersonsService
     /** @var string */
     private string $table = 'patient_related_persons';
 
-    /** @var int Max number of related person blocks to fall back to if schema introspection isn't available */
-    private int $maxPeople;
-
     /** @var string[] Base column name stems for each related person */
     private array $fieldBases = [
         'uuid',
@@ -40,9 +37,10 @@ class DemographicsRelatedPersonsService
         'related_country_', 'related_phone_', 'related_workphone_', 'related_email_',
     ];
 
-    public function __construct(int $maxPeople = 3)
-    {
-        $this->maxPeople = $maxPeople;
+    public function __construct(
+        /** @var int Max number of related person blocks to fall back to if schema introspection isn't available */
+        private int $maxPeople = 3
+    ) {
     }
 
     /**

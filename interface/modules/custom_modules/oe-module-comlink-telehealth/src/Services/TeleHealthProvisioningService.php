@@ -10,27 +10,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 
 class TeleHealthProvisioningService
 {
-    /**
-     * @var TeleHealthUserRepository
-     */
-    private $telehealthUserRepo;
-
-    /**
-     * @var TeleHealthProviderRepository
-     */
-    private $providerRepository;
-
-    /**
-     * @var TeleHealthRemoteRegistrationService
-     */
-    private $telehealthRegistration;
-
-
-    public function __construct(TeleHealthUserRepository $userRepo, TeleHealthProviderRepository $providerRepo, TeleHealthRemoteRegistrationService $registrationService)
+    public function __construct(private TeleHealthUserRepository $telehealthUserRepo, private TeleHealthProviderRepository $providerRepository, private TeleHealthRemoteRegistrationService $telehealthRegistration)
     {
-        $this->telehealthUserRepo = $userRepo;
-        $this->providerRepository = $providerRepo;
-        $this->telehealthRegistration = $registrationService;
     }
 
     /**

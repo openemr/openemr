@@ -28,17 +28,8 @@ namespace ESign;
 
 class ESign
 {
-    private $_configuration = null;
-    private $_signable = null;
-    private $_button = null;
-    private $_log = null;
-
-    public function __construct(ConfigurationIF $configuration, SignableIF $signable, ButtonIF $button, LogIF $log)
+    public function __construct(private ConfigurationIF $_configuration, private SignableIF $_signable, private ButtonIF $_button, private LogIF $_log)
     {
-        $this->_configuration = $configuration;
-        $this->_signable = $signable;
-        $this->_button = $button;
-        $this->_log = $log;
     }
 
     /**

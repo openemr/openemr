@@ -31,21 +31,16 @@ use Error;
 
 class MultipledbController extends BaseController
 {
-    /**
-     * TableGateway for the Multipledb data.
-     * @var MultipledbTable
-     */
-    private $MultipledbTable;
-
     private Listener $listenerObject;
 
     /**
      * MultipledbController constructor.
+     * @param MultipledbTable $MultipledbTable TableGateway for the Multipledb data.
      */
-    public function __construct(MultipledbTable $MultipledbTable)
-    {
+    public function __construct(
+        private MultipledbTable $MultipledbTable
+    ) {
         parent::__construct();
-        $this->MultipledbTable = $MultipledbTable;
         $this->listenerObject = new Listener();
         //todo add permission of admin
     }

@@ -43,8 +43,6 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     private ServerConfig $config;
 
-    private ?SessionInterface $session;
-
     private ClaimSetRepositoryInterface $claimRepository;
 
     private ServerScopeListEntity $serverScopeList;
@@ -53,9 +51,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      * ScopeRepository constructor.
      * @param SessionInterface|null $session
      */
-    public function __construct(?SessionInterface $session = null)
+    public function __construct(private ?SessionInterface $session = null)
     {
-        $this->session = $session;
     }
 
     public function setServerScopeList(ServerScopeListEntity $serverScopeList): void

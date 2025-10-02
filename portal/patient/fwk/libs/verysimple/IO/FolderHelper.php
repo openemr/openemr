@@ -18,18 +18,15 @@ require_once("FileHelper.php");
  */
 class FolderHelper
 {
-    private $Path;
-
     /**
      * Constructor
      *
      * @access public
-     * @param string $path
+     * @param string $Path
      *          uri to directory to manipulate
      */
-    function __construct($path)
+    function __construct(private $Path)
     {
-        $this->Path = $path;
     }
 
     /**

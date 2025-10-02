@@ -35,12 +35,9 @@ class DecisionSupportInterventionService extends BaseService
 
     private bool $inNestedTransaction = false;
 
-    protected ?ClientRepository $clientRepository = null;
-
-    public function __construct(?ClientRepository $clientRepository = null)
+    public function __construct(protected ?ClientRepository $clientRepository = null)
     {
         parent::__construct(self::TABLE_NAME);
-        $this->clientRepository = $clientRepository;
     }
 
     public function setClientRepository(ClientRepository $clientRepository)

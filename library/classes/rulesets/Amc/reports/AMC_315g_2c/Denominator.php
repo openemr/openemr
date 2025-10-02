@@ -22,13 +22,8 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
 
     private $lastTestActionData;
 
-    private $billingFacilityId;
-    private $providerId;
-
-    public function __construct($billingFacilityId, $providerId)
+    public function __construct(private $billingFacilityId, private $providerId)
     {
-        $this->billingFacilityId = $billingFacilityId;
-        $this->providerId = $providerId;
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 

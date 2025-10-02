@@ -31,25 +31,23 @@ class SQLUpgradeEvent extends Event
     const EVENT_UPGRADE_POST = 'core.upgrade.sql.post';
 
     /**
-     * @var string The filename that was executed to upgrade the database
+     * @param string $filename
+     * @param string $path
      */
-    private $filename;
-
-    /**
-     * @var string The path to the filename that was executed.
-     */
-    private $path;
-
-    /**
-     * @var ISQLUpgradeService The sql upgrade service object
-     */
-    private $sqlUpgradeService;
-
-    public function __construct($filename, $path, ISQLUpgradeService $upgradeService)
-    {
-        $this->filename = $filename;
-        $this->path = $path;
-        $this->sqlUpgradeService = $upgradeService;
+    public function __construct(
+        /**
+         * @var string The filename that was executed to upgrade the database
+         */
+        private $filename,
+        /**
+         * @var string The path to the filename that was executed.
+         */
+        private $path,
+        /**
+         * @var ISQLUpgradeService The sql upgrade service object
+         */
+        private ISQLUpgradeService $sqlUpgradeService
+    ) {
     }
 
     /**

@@ -62,11 +62,6 @@ class FhirOperationExportRestController
     const FHIR_DOCUMENT_CATEGORY = 'FHIR Export Document';
 
     /**
-     * @var HttpRestRequest The current http request object
-     */
-    private $request;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -86,13 +81,16 @@ class FhirOperationExportRestController
     private FhirServiceLocator $fhirServiceLocator;
 
 
-    public function __construct(HttpRestRequest $request, OEGlobalsBag $globalsBag)
-    {
-        $this->request = $request;
+    public function __construct(/**
+         * @var HttpRestRequest The current http request object
+         */
+        private HttpRestRequest $request,
+        OEGlobalsBag $globalsBag
+    ) {
         $this->logger = new SystemLogger();
         $this->fhirExportJobService = new FhirExportJobService();
         $this->isExportDisabled = $globalsBag->getInt('rest_system_scopes_api', 0) === 0;
-        $serviceLocator = $request->attributes->get('_serviceLocator');
+        $serviceLocator = $this->request->attributes->get('_serviceLocator');
         if (!$serviceLocator instanceof FhirServiceLocator) {
             throw new \InvalidArgumentException('FhirServiceLocator must be set in the request attributes');
         }

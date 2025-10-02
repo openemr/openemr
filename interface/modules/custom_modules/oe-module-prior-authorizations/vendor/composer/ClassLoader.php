@@ -45,9 +45,6 @@ class ClassLoader
     /** @var \Closure(string):void */
     private static $includeFile;
 
-    /** @var ?string */
-    private $vendorDir;
-
     // PSR-4
     /**
      * @var array[]
@@ -106,9 +103,8 @@ class ClassLoader
     /**
      * @param ?string $vendorDir
      */
-    public function __construct($vendorDir = null)
+    public function __construct(private $vendorDir = null)
     {
-        $this->vendorDir = $vendorDir;
         self::initializeIncludeClosure();
     }
 
