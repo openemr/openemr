@@ -87,7 +87,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $dateValues = [];
 
         if (!empty($options['date_start'])) {
-            $searchFromDate = strtotime($options['date_start']);
+            $searchFromDate = strtotime((string) $options['date_start']);
             // date values for search fields have to be in ISO8601
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
             $dateStart = date(DATE_ATOM, $searchFromDate);
@@ -100,7 +100,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         if (!empty($options['date_end'])) {
-            $searchToDate = strtotime($options['date_end']);
+            $searchToDate = strtotime((string) $options['date_end']);
             // date values for search fields have to be in ISO8601
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
             $dateEnd = date(DATE_ATOM, $searchToDate);
@@ -163,8 +163,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $option['race']['code'] = '';
         $option['race_cat']['title'] = '';
         $option['race_cat']['code'] = '';
-        if (str_contains($race, '|')) {
-            $first = explode('|', $race);
+        if (str_contains((string) $race, '|')) {
+            $first = explode('|', (string) $race);
             foreach ($first as $i => $title) {
                 $result = $appTable->zQuery($query, [$title]);
                 $r = $result->current();
@@ -175,7 +175,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
                 if (
                     in_array(
-                        trim($r['title']),
+                        trim((string) $r['title']),
                         ['American Indian or Alaska Native',
                             'Asian',
                             'Black or African American',
@@ -248,11 +248,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $pregnancy_code = ($row['pregnancy_code'] ?? '');
         if (!empty($row)) {
             if (!empty($disability_code)) {
-                $parts = explode(':', $disability_code, 2);
+                $parts = explode(':', (string) $disability_code, 2);
                 $disability_code = $parts[1] ?? $disability_code;
             }
             if (!empty($pregnancy_code)) {
-                $parts = explode(':', $pregnancy_code, 2);
+                $parts = explode(':', (string) $pregnancy_code, 2);
                 $pregnancy_code = $parts[1] ?? $pregnancy_code;
             }
         }
@@ -267,7 +267,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         // Add detailed disability assessment if available
         if (!empty($row['disability_scale'])) {
-            $scale = json_decode($row['disability_scale'], true) ?: [];
+            $scale = json_decode((string) $row['disability_scale'], true) ?: [];
             // Map sub-questions to their LOINC codes
             $questions = [
                 'walk_climb' => ['code' => '69859-7', 'display' => 'Difficulty walking or climbing stairs'],
@@ -527,9 +527,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <ssn>" . xmlEscape($result['ss'] ?: '') . "</ssn>
             <dob>" . xmlEscape(str_replace('-', '', $result['DOB'])) . "</dob>
             <gender>" . xmlEscape($result['sex']) . "</gender>
-            <gender_code>" . xmlEscape(strtoupper(substr($result['sex'], 0, 1))) . "</gender_code>
+            <gender_code>" . xmlEscape(strtoupper(substr((string) $result['sex'], 0, 1))) . "</gender_code>
             <status>" . xmlEscape($result['status'] ?: "") . "</status>
-            <status_code>" . xmlEscape($result['status'] ? strtoupper(substr($result['status'], 0, 1)) : 0) . "</status_code>
+            <status_code>" . xmlEscape($result['status'] ? strtoupper(substr((string) $result['status'], 0, 1)) : 0) . "</status_code>
             <phone_home>" . xmlEscape(($result['phone_home'] ?: '')) . "</phone_home>
             <phone_mobile>" . xmlEscape(($result['phone_cell'] ?: '')) . "</phone_mobile>
             <phone_work>" . xmlEscape(($result['phone_biz'] ?: '')) . "</phone_work>
@@ -1215,7 +1215,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $getprovider = $this->getProviderId($pid);
         $getprovider_status = $this->getPatientProviderStatus($pid) ?? null;
         $provider_since_date = !empty($getprovider_status['provider_since_date'])
-            ? date('Y-m-d H:i:sO', strtotime($getprovider_status['provider_since_date']))
+            ? date('Y-m-d H:i:sO', strtotime((string) $getprovider_status['provider_since_date']))
             : date('Y-m-d H:i:sO');
 
         $provenanceXml = "";
@@ -1345,7 +1345,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $allergies = "<allergies>";
         foreach ($res as $row) {
-            $split_codes = explode(';', $row['code']);
+            $split_codes = explode(';', (string) $row['code']);
             // we go with the user the last modified the record as our provenance author
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
@@ -1384,7 +1384,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 if ($row['reaction']) {
                     $reaction_text = (new CarecoordinationTable())->getListTitle($row['reaction'], 'reaction', '');
                     $reaction_code = (new CarecoordinationTable())->getCodes($row['reaction'], 'reaction');
-                    $reaction_code = explode(':', $reaction_code);
+                    $reaction_code = explode(':', (string) $reaction_code);
                 }
 
                 $allergies .= "<allergy>" . $provenanceXml . "
@@ -1403,8 +1403,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <status_code>" . ($status_code ? xmlEscape($status_code) : 0) . "</status_code>
                 <outcome>" . xmlEscape(($row['observation'] ? Listener::z_xlt($row['observation']) : "")) . "</outcome>
                 <outcome_code>" . xmlEscape(($row['observation_code'] ?: 0)) . "</outcome_code>
-                <startdate>" . xmlEscape($row['begdate'] ? preg_replace('/-/', '', $row['begdate']) : "00000000") . "</startdate>
-                <enddate>" . xmlEscape($row['enddate'] ? preg_replace('/-/', '', $row['enddate']) : "00000000") . "</enddate>
+                <startdate>" . xmlEscape($row['begdate'] ? preg_replace('/-/', '', (string) $row['begdate']) : "00000000") . "</startdate>
+                <enddate>" . xmlEscape($row['enddate'] ? preg_replace('/-/', '', (string) $row['enddate']) : "00000000") . "</enddate>
                 <reaction_text>" . xmlEscape($reaction_text ? Listener::z_xlt($reaction_text) : "") . "</reaction_text>
                 <reaction_code>" . xmlEscape($reaction_code[1] ?? '') . "</reaction_code>
                 <reaction_code_type>" . xmlEscape(str_replace('-', ' ', $reaction_code[0] ?? '') ?: '') . "</reaction_code_type>
@@ -1531,7 +1531,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $problem_lists .= '<problem_lists>';
         foreach ($res as $row) {
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $split_codes = explode(';', $row['code']);
+            $split_codes = explode(';', (string) $row['code']);
             // we go with the user the last modified the record as our provenance author
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
@@ -1565,13 +1565,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 $observation = $row['observation'];
-                $observation_code = explode(':', $row['observation_code']);
+                $observation_code = explode(':', (string) $row['observation_code']);
                 $observation_code = $observation_code[1] ?? null;
                 $problem_lists .= "<problem>" . $provenanceXml . "
                 <problem_id>" . ($code ? xmlEscape($row['id']) : '') . "</problem_id>
                 <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
                 <sha_extension>" . xmlEscape($row['uuid']) . "</sha_extension>
-                <title>" . xmlEscape(trim($row['title'])) . "</title>
+                <title>" . xmlEscape(trim((string) $row['title'])) . "</title>
                 <code>" . ($code ? xmlEscape($code) : '') . "</code>
                 <code_type>" . ($code ? xmlEscape($code_type) : '') . "</code_type>
                 <code_text>" . xmlEscape(($code_text ?: '')) . "</code_text>
@@ -1628,7 +1628,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $medical_devices .= '<medical_devices>';
         foreach ($res as $row) {
-            $split_codes = explode(';', $row['code']);
+            $split_codes = explode(';', (string) $row['code']);
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
                 , 'time' => $row['modifydate']
@@ -1660,7 +1660,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 $observation = $row['observation'];
-                $observation_code = explode(':', $row['observation_code']);
+                $observation_code = explode(':', (string) $row['observation_code']);
                 $observation_code = $observation_code[1] ?? '';
 
                 $medical_devices .= "<device>" . $provenanceXml . "
@@ -1826,7 +1826,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         $procedure = '<procedures>';
         foreach ($rows as $row) {
-            $tmp = explode(':', $row['code']);
+            $tmp = explode(':', (string) $row['code']);
             if (count($tmp ?? []) === 2) {
                 $row['code_type'] = $tmp[0];
                 $row['code'] = $tmp[1];
@@ -1848,7 +1848,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <description>" . xmlEscape($row['code_text']) . "</description>
             <code>" . xmlEscape($row['code']) . "</code>
             <code_type>" . xmlEscape($row['code_type']) . "</code_type>
-            <date>" . xmlEscape(substr($row['date'], 0, 10)) . "</date>
+            <date>" . xmlEscape(substr((string) $row['date'], 0, 10)) . "</date>
             <npi>" . xmlEscape($row['npi']) . "</npi>
             <fname>" . xmlEscape($row['fname']) . "</fname>
             <mname>" . xmlEscape($row['mname']) . "</mname>
@@ -1867,7 +1867,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <facility_country>" . xmlEscape($row['country_code']) . "</facility_country>
             <facility_zip>" . xmlEscape($row['fzip']) . "</facility_zip>
             <facility_phone>" . xmlEscape($row['fphone']) . "</facility_phone>
-            <procedure_date>" . xmlEscape(preg_replace('/-/', '', substr($row['proc_date'], 0, 10))) . "</procedure_date>
+            <procedure_date>" . xmlEscape(preg_replace('/-/', '', substr((string) $row['proc_date'], 0, 10))) . "</procedure_date>
             </procedure>";
         }
         $procedure .= '</procedures>';
@@ -1925,7 +1925,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['units'] = $row['units'];
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['range'] = $row['range'];
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_value'] = $row['result_value'];
-            $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_time'] = substr(preg_replace('/-/', '', $row['result_time']), 0, 8);
+            $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_time'] = substr((string) preg_replace('/-/', '', (string) $row['result_time']), 0, 8);
             $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['abnormal_flag'] = $row['abnormal_flag'];
         }
 
@@ -1960,7 +1960,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <order_status>' . xmlEscape($order_status) . '</order_status>';
             foreach ($row['subtest'] as $row_1) {
                 $units = $row_1['units'] ?: '';
-                $highlow = preg_split("/[\s,-\--]+/", $row_1['range']);
+                $highlow = preg_split("/[\s,-\--]+/", (string) $row_1['range']);
                 $results .= '
             <subtest>
             <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row_1['result_code'])) . '</extension>
@@ -2026,7 +2026,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $tmp = explode(":", $row['physician_type_code'] ?? '');
             $physician_code_type = str_replace('-', ' ', $tmp[0]);
             $row['physician_type_code'] = $tmp[1] ?? '';
-            $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(($row['date']))) : '';
+            $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(((string) $row['date']))) : '';
             $date_zone_end = !empty($date_zone) ? date("Y-m-d H:i:sO", strtotime('+30 minutes', strtotime($date_zone))) : '';
             $encounter_reason = '';
             if (empty($row['reason'])) {
@@ -2063,7 +2063,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $i = 0;
                 foreach ($res_issues as $issue) {
                     $i++;
-                    $tmp = explode(":", $issue['raw_diagnosis']);
+                    $tmp = explode(":", (string) $issue['raw_diagnosis']);
                     $code_type = str_replace('-', ' ', $tmp[0]);
 
                     $encounter_activity = '';
@@ -2163,7 +2163,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <location>" . xmlEscape($row['name']) . "</location>
         <location_details>" . xmlEscape($location_details) . "</location_details>
         <date>" . xmlEscape($date_zone) . "</date>
-        <date_formatted>" . xmlEscape(str_replace("-", '', substr($row['date'], 0, 10))) . "</date_formatted>
+        <date_formatted>" . xmlEscape(str_replace("-", '', substr((string) $row['date'], 0, 10))) . "</date_formatted>
         <facility_extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['fid'])) . "</facility_extension>
         <facility_sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['fid'])) . "</facility_sha_extension>
         <facility_npi>" . xmlEscape($row['fnpi']) . "</facility_npi>
@@ -2841,7 +2841,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
                 // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
-                $tempArr = explode(" ", $temp);
+                $tempArr = explode(" ", (string) $temp);
                 $weight_value = (float)$tempArr[0];
                 $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
@@ -2853,8 +2853,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $vitals .= "<vitals>" . $provenanceXml . "
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
             <sha_extension>" . xmlEscape("c6f88321-67ad-11db-bd13-0800200c9a66") . "</sha_extension>
-            <date>" . xmlEscape(date('Y-m-d', strtotime($row['date'])) ?: '') . "</date>
-            <effectivetime>" . xmlEscape(date('Y-m-d H:i:s', strtotime($row['date']))) . "</effectivetime>
+            <date>" . xmlEscape(date('Y-m-d', strtotime((string) $row['date'])) ?: '') . "</date>
+            <effectivetime>" . xmlEscape(date('Y-m-d H:i:s', strtotime((string) $row['date']))) . "</effectivetime>
             <temperature>" . xmlEscape($temp_value ?: '') . "</temperature>
             <unit_temperature>" . xmlEscape($temp_unit ?: '') . "</unit_temperature>
             <extension_temperature>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'temperature')) . "</extension_temperature>
@@ -3021,7 +3021,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, [$pid]);
         foreach ($result as $row_folders) {
-            if ((stripos($row_folders['file_name'], 'unstructured') !== false) || $row_folders['cat_name'] == 'CCDA') {
+            if ((stripos((string) $row_folders['file_name'], 'unstructured') !== false) || $row_folders['cat_name'] == 'CCDA') {
                 continue;
             }
             $doc = Documents::getDocument($row_folders['document_id']);
@@ -3166,7 +3166,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $res = $appTable->zQuery($query, [$field_name]);
         foreach ($res as $result) {
             if (!empty($result['phonew1'])) {
-                $result['phonew1'] = trim($result['phonew1']);
+                $result['phonew1'] = trim((string) $result['phonew1']);
             }
             if (empty($result['facility_oid'])) {
                 // TODO: set the oid to an NPI number as our default if we don't have one.
@@ -3335,7 +3335,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                     foreach ($result as $row) {
                         foreach ($row as $key => $value) {
-                            $res[0][$key] .= trim($value);
+                            $res[0][$key] .= trim((string) $value);
                         }
                     }
                 }
@@ -3379,7 +3379,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         include_once($filename);
                     }
 
-                    $field_ids = explode(',', $formTables_details[3]);
+                    $field_ids = explode(',', (string) $formTables_details[3]);
                     $fields_str = '';
                     foreach ($field_ids as $value) {
                         if ($fields_str != '') {
@@ -3396,7 +3396,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $result = $appTable->zQuery($query, [$pid, $formTables_details[2]]);
 
                     foreach ($result as $row) {
-                        preg_match('/\.$/', trim($row['field_value']), $matches);
+                        preg_match('/\.$/', trim((string) $row['field_value']), $matches);
                         if (count($matches) == 0) {
                             $row['field_value'] .= ". ";
                         }
@@ -3517,7 +3517,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $form_dir = '';
             $form_type = 0;
             $form_id = 0;
-            $temp = explode('***', $row_saved_forms['formid']);
+            $temp = explode('***', (string) $row_saved_forms['formid']);
             if ($temp[1] == 1) { //Fetch HTML form id from the Combination form template
                 $form_type = 0;
                 $form_dir = $temp[0];
@@ -3637,7 +3637,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
     {
-        $content = base64_decode($content);
+        $content = base64_decode((string) $content);
         $document = new \Document();
         $document_type ??= '';
 
@@ -3806,7 +3806,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $format = $format ?: 'm/d/y';
-        $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
+        $temp = explode(' ', (string) $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -3841,7 +3841,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($rx)) {
             return $rx['drug_code'];
         }
-        $encrypted = sha1($code_text);
+        $encrypted = sha1((string) $code_text);
         $code = '';
         for ($i = 0, $iMax = strlen($encrypted); $i <= $iMax;) {
             $code .= $encrypted[$i];
@@ -3901,7 +3901,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!empty($result['phonew1'])) {
                 // not sure why we are concat_ws the phone but we need to trim off any excess white space to fix
                 // our phone formatting issues on the node side.
-                $result['phonew1'] = trim($result['phonew1']);
+                $result['phonew1'] = trim((string) $result['phonew1']);
             }
             return $result;
         }
@@ -3996,7 +3996,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $row) {
             // handle date filtering when searchFiltered enabled
             if ($this->searchFiltered) {
-                $rowDate = strtotime($row['date']);
+                $rowDate = strtotime((string) $row['date']);
                 if (
                     $rowDate === false
                     || (isset($this->searchFromDate) && $rowDate < $this->searchFromDate)
@@ -4016,7 +4016,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $isPlannedProc = ($careType === 'planned_procedure');
             $moodCode = $isPlannedProc ? 'RQO' : $row['moodCode'];
 
-            $proposedDate = !empty($row['proposed_date']) ? substr($row['proposed_date'], 0, 10) : '';
+            $proposedDate = !empty($row['proposed_date']) ? substr((string) $row['proposed_date'], 0, 10) : '';
             $status = trim($row['plan_status'] ?? $status); // planned|active|completed|canceled
             // Strip { | ... | } markup from description. Embedded issue codes are handled separately.
             $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', (string)$row['description']);
@@ -4029,7 +4029,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 // Build linked issue UUIDs
                 $issue_uuid = "<issues>\n";
                 if (!empty($row['note_issues'])) {
-                    $issues = json_decode($row['note_issues'], true);
+                    $issues = json_decode((string) $row['note_issues'], true);
                     foreach ($issues as $issue) {
                         $q = "SELECT uuid FROM lists WHERE id = ?";
                         $uuid = sqlQuery($q, [$issue])['uuid'];
@@ -4425,7 +4425,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
-            $tmp = explode(":", $row['code']);
+            $tmp = explode(":", (string) $row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
             $clt = xmlEscape($row['clinical_notes_type']);
@@ -4527,7 +4527,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // because of the way transactions store dates as string and we don't have a cross data base compliant way of
             // converting fields to dates we have to sort the dates in the application layer.
             if ($this->searchFiltered) {
-                $rowDate = strtotime($row['refer_date']);
+                $rowDate = strtotime((string) $row['refer_date']);
                 // if we can't format the date and we are filtering then we exclude it,
                 if (
                     $rowDate === false
@@ -4592,8 +4592,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function formatUid($str)
     {
-        $sha = sha1($str);
-        return substr(preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
+        $sha = sha1((string) $str);
+        return substr((string) preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
     }
 
     /**

@@ -232,7 +232,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         $profiles = $pregnancyStatusObs->getMeta()->getProfile();
         $hasPregnancyStatusProfile = false;
         foreach ($profiles as $profile) {
-            if (str_contains($profile, 'us-core-observation-pregnancystatus')) {
+            if (str_contains((string) $profile, 'us-core-observation-pregnancystatus')) {
                 $hasPregnancyStatusProfile = true;
                 break;
             }
@@ -304,7 +304,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         $profiles = $pregnancyIntentObs->getMeta()->getProfile();
         $hasPregnancyIntentProfile = false;
         foreach ($profiles as $profile) {
-            if (str_contains($profile, 'us-core-observation-pregnancyintent')) {
+            if (str_contains((string) $profile, 'us-core-observation-pregnancyintent')) {
                 $hasPregnancyIntentProfile = true;
                 break;
             }

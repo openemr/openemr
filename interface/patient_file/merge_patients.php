@@ -179,7 +179,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 while ($source_row = sqlFetchArray($source_res)) {
                     while ($target_row = sqlFetchArray($target_res)) {
                         if ($source_row['type'] == $target_row['type']) {
-                            if (strcmp($source_row['date'], $target_row['date']) < 0) {
+                            if (strcmp((string) $source_row['date'], (string) $target_row['date']) < 0) {
                                 // we delete the entry from the target since the source has
                                 // an older date, then update source to target.
                                 $sql1 = "DELETE FROM " . escape_table_name($tblname) .
@@ -318,7 +318,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             if (empty($target)) {
                 // there wasn't a target encounter date match to merge components
                 // so grab an encounter that is within the date period of source encounter.
-                $src_date = date("Ymd", strtotime($source['date']));
+                $src_date = date("Ymd", strtotime((string) $source['date']));
                 $sql = "SELECT e1.date, e1.date_end, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                     FROM `form_encounter` e1 WHERE e1.pid = ? AND ? BETWEEN e1.date and e1.date_end LIMIT 1";
                 $target = sqlQuery($sql, [$targetPid, $src_date]);

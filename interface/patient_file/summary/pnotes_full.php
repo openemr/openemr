@@ -108,7 +108,7 @@ if (isset($mode)) {
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (str_starts_with($var, 'act')) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);
@@ -457,12 +457,12 @@ function restoreSession() {
                                 }
 
                                 $body = $iter['body'];
-                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
-                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', (string) $body);
+                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', (string) $body);
+                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
                                     $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 } else {
-                                    $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                                    $body = text(oeFormatSDFT(strtotime((string) $iter['date'])) . date(' H:i', strtotime((string) $iter['date']))) .
                                     ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 }
 
@@ -619,14 +619,14 @@ function restoreSession() {
                         }
 
                         $body = $iter['body'];
-                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
                             $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         } else {
-                            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                            $body = text(oeFormatSDFT(strtotime((string) $iter['date'])) . date(' H:i', strtotime((string) $iter['date']))) .
                             ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         }
 
-                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
+                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', (string) $body);
                         $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                         // highlight the row if it's been selected for updating
@@ -735,7 +735,7 @@ if (!empty($_GET['set_pid'])) {
 //
 if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
-    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', (string) $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
         ?>

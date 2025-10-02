@@ -224,7 +224,7 @@ abstract class Reporter implements Serializable
 
         foreach ($props as $prop) {
             if (! in_array($prop, $omit)) {
-                $newProp = ($camelCase) ? lcfirst($prop) : $prop;
+                $newProp = ($camelCase) ? lcfirst((string) $prop) : $prop;
                 $obj->$newProp = $this->$prop;
             }
         }

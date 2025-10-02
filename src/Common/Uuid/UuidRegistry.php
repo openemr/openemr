@@ -137,7 +137,7 @@ class UuidRegistry
         self::appendPopulateLog('uuid_registry', $mappedRegistryUuidCounter, $logEntryComment);
 
         if (!empty($logEntryComment)) {
-            $logEntryComment = rtrim($logEntryComment, ', ');
+            $logEntryComment = rtrim((string) $logEntryComment, ', ');
         }
 
         // log it

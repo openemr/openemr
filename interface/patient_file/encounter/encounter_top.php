@@ -55,7 +55,7 @@ if (!empty($_GET['formname'])) {
 
 // This is for making the page title which will be picked up as the tab label.
 $dateres = getEncounterDateByEncounter($encounter);
-$encounter_date = date("Y-m-d", strtotime($dateres["date"]));
+$encounter_date = date("Y-m-d", strtotime((string) $dateres["date"]));
 ?>
 <!DOCTYPE html>
 <html>

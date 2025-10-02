@@ -312,7 +312,7 @@ if (
 
 if (!$exitcd) {
     foreach ($sftp_hosts as $sftp_host) {
-        $wrk =  explode(':', $sftp_host['remote_host']);
+        $wrk =  explode(':', (string) $sftp_host['remote_host']);
         $sftp_host['remote_host'] = $wrk[0];
         if (!isset($sftp_host['port'])) {
             $sftp_host['port'] = ($wrk[1] ?? '22');

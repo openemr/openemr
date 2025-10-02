@@ -75,7 +75,7 @@ $show_message = 0;
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
-    $mail_id = explode(".", $SMTP_HOST);
+    $mail_id = explode(".", (string) $SMTP_HOST);
     for ($i = 0; $i < $bg_count; $i++) {
         if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
             if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
@@ -180,9 +180,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             }
             // Now process the selection of facilities and warehouses.
             foreach ($_POST["schedule_facility"] as $tqvar) {
-                if (($i = strpos($tqvar, '/')) !== false) {
-                    $facid = substr($tqvar, 0, $i);
-                    $whid = substr($tqvar, $i + 1);
+                if (($i = strpos((string) $tqvar, '/')) !== false) {
+                    $facid = substr((string) $tqvar, 0, $i);
+                    $whid = substr((string) $tqvar, $i + 1);
                     // If there was also a facility-only selection for this warehouse then remove it.
                     if (isset($olduf["$facid/"])) {
                         $olduf["$facid/"] = true;
@@ -332,7 +332,7 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
+        $res = sqlQuery("select username from users where username = ?", [trim((string) $_POST['rumple'])]);
         $doit = true;
         if (!empty($res['username'])) {
             $doit = false;
@@ -345,7 +345,7 @@ if (isset($_POST["mode"])) {
                 if (empty($_POST["google_signin_email"])) {
                     $googleSigninEmail = "NULL";
                 } else {
-                    $googleSigninEmail = "'" . add_escape_custom(trim($_POST["google_signin_email"])) . "'";
+                    $googleSigninEmail = "'" . add_escape_custom(trim((string) $_POST["google_signin_email"])) . "'";
                 }
             }
             $insertUserSQL =
@@ -693,10 +693,10 @@ function resetCounter(username) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<td>';
                                     echo xlt('Not Applicable');
-                                } elseif (strtotime($current_date) > strtotime($grace_time)) {
+                                } elseif (strtotime((string) $current_date) > strtotime((string) $grace_time)) {
                                     echo '<td class="bg-danger text-light">';
                                     echo xlt('Expired');
-                                } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
+                                } elseif (strtotime((string) $current_date) > strtotime((string) $pwd_expires)) {
                                     echo '<td class="bg-warning text-dark">';
                                     echo xlt('Grace Period');
                                 } else {
@@ -761,7 +761,7 @@ function resetCounter(username) {
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
-                        substr($list, 0, strlen($list) - 2) . "</span><br />\n";
+                        substr((string) $list, 0, strlen((string) $list) - 2) . "</span><br />\n";
                 }
             }
             ?>

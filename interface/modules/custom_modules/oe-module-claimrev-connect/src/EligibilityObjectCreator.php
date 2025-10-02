@@ -40,7 +40,7 @@ class EligibilityObjectCreator
         $revenueTools->accountNumber = $accountNumber;
         $revenueTools->payerResponsibility = $pr;
         $revenueTools->includeCredit = false;
-        $revenueTools->serviceTypeCodes = explode(",", $serviceTypeCodes);
+        $revenueTools->serviceTypeCodes = explode(",", (string) $serviceTypeCodes);
         $revenueTools->productsToRun = $productsToRun;
 
 

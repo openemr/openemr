@@ -150,7 +150,7 @@ class Config_File_Legacy {
      */
     function &get_key($config_key)
     {
-        [$file_name, $section_name, $var_name] = explode('/', $config_key, 3);
+        [$file_name, $section_name, $var_name] = explode('/', (string) $config_key, 3);
         $result = &$this->get($file_name, $section_name, $var_name);
         return $result;
     }
@@ -279,7 +279,7 @@ class Config_File_Legacy {
         $vars =& $config_data['vars'];
 
         /* parse file line by line */
-        preg_match_all('!^.*\r?\n?!m', $contents, $match);
+        preg_match_all('!^.*\r?\n?!m', (string) $contents, $match);
         $lines = $match[0];
         for ($i=0, $count=count($lines); $i<$count; $i++) {
             $line = $lines[$i];
@@ -360,9 +360,9 @@ class Config_File_Legacy {
         }
 
         if ($booleanize) {
-            if (preg_match("/^(on|true|yes)$/i", $var_value))
+            if (preg_match("/^(on|true|yes)$/i", (string) $var_value))
                 $var_value = true;
-            else if (preg_match("/^(off|false|no)$/i", $var_value))
+            else if (preg_match("/^(off|false|no)$/i", (string) $var_value))
                 $var_value = false;
         }
 

@@ -174,19 +174,19 @@ class sms
         /* Check SMS $text length */
         if ($this->unicode == true) {
             $this->_chk_mbstring();
-            if (mb_strlen($text) > 210) {
-                die("Your unicode message is too long! (Current lenght=" . mb_strlen($text) . ")");
+            if (mb_strlen((string) $text) > 210) {
+                die("Your unicode message is too long! (Current lenght=" . mb_strlen((string) $text) . ")");
             }
 
             /* Does message need to be concatenate */
-            $concat = mb_strlen($text) > 70 ? "&concat=3" : "";
+            $concat = mb_strlen((string) $text) > 70 ? "&concat=3" : "";
         } else {
-            if (strlen($text) > 459) {
-                die("Your message is too long! (Current lenght=" . strlen($text) . ")");
+            if (strlen((string) $text) > 459) {
+                die("Your message is too long! (Current lenght=" . strlen((string) $text) . ")");
             }
 
             /* Does message need to be concatenate */
-            $concat = strlen($text) > 160 ? "&concat=3" : "";
+            $concat = strlen((string) $text) > 160 ? "&concat=3" : "";
         }
 
         /* Check $to and $from is not empty */
@@ -208,7 +208,7 @@ class sms
             $this->base,
             $this->session,
             rawurlencode($to),
-            rawurlencode($from),
+            rawurlencode((string) $from),
             $this->encode_message($text),
             $this->callback,
             $this->unicode,
@@ -227,15 +227,15 @@ class sms
     {
         if ($this->unicode != true) {
             //standard encoding
-            return rawurlencode($text);
+            return rawurlencode((string) $text);
         } else {
             //unicode encoding
-            $uni_text_len = mb_strlen($text, "UTF-8");
+            $uni_text_len = mb_strlen((string) $text, "UTF-8");
             $out_text = "";
 
             //encode each character in text
             for ($i = 0; $i < $uni_text_len; $i++) {
-                $out_text .= $this->uniord(mb_substr($text, $i, 1, "UTF-8"));
+                $out_text .= $this->uniord(mb_substr((string) $text, $i, 1, "UTF-8"));
             }
 
             return $out_text;
@@ -364,8 +364,8 @@ class sms
     */
     function _parse_auth($result)
     {
-        $session = substr($result, 4);
-        $code = substr($result, 0, 2);
+        $session = substr((string) $result, 4);
+        $code = substr((string) $result, 0, 2);
         if ($code != "OK") {
             die("Error in SMS authorization! (" . text($result) . ")");
         }
@@ -379,7 +379,7 @@ class sms
     */
     function _parse_send($result)
     {
-        $code = substr($result, 0, 2);
+        $code = substr((string) $result, 0, 2);
         if ($code != "ID") {
             die("Error sending SMS! (" . text($result) . ")");
         } else {
@@ -395,7 +395,7 @@ class sms
     */
     function _parse_getbalance($result)
     {
-        $result = substr($result, 8);
+        $result = substr((string) $result, 8);
         return (int)$result;
     }
 

@@ -60,7 +60,7 @@ class QrdaReportService
     function fetchCurrentMeasures($scope = 'active'): array
     {
         $measures = [];
-        $year = trim($GLOBALS['cqm_performance_period'] ?: '2022');
+        $year = trim((string) $GLOBALS['cqm_performance_period'] ?: '2022');
         $list = 'ecqm_' . $year . '_reporting';
         $active = $scope == 'active' ? 1 : 0;
         $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", [$list, $active]);
@@ -132,7 +132,7 @@ class QrdaReportService
         $result = $exportService->export($measures, true);
         $include = array_shift($result);
         if ((int)$include[0]->IPP === 0) {
-            error_log(errorLogEscape(xlt('Patient did not qualify') . ' pid: ' . $pid . ' Measures: ' . text(basename($measures[0]))));
+            error_log(errorLogEscape(xlt('Patient did not qualify') . ' pid: ' . $pid . ' Measures: ' . text(basename((string) $measures[0]))));
             return false;
         }
 
@@ -215,7 +215,7 @@ class QrdaReportService
         }
 
         $orgName = $GLOBALS['openemr_name'] ?? 'OpenEMR_Practice';
-        $orgName = preg_replace('/[^a-zA-Z0-9]/', '_', $orgName);
+        $orgName = preg_replace('/[^a-zA-Z0-9]/', '_', (string) $orgName);
         $timestamp = date('Ymd_His');
 
         return "{$orgName}_QRDA_III_Consolidated_{$reportingPeriod}_{$timestamp}.xml";

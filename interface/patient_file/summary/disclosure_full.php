@@ -38,10 +38,10 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
         CsrfUtils::csrfNotVerified();
     }
 
-    $dates = trim($_POST['dates']);
-    $event = trim($_POST['form_disclosure_type']);
-    $recipient_name = trim($_POST['recipient_name']);
-    $disclosure_desc = trim($_POST['desc_disc']);
+    $dates = trim((string) $_POST['dates']);
+    $event = trim((string) $_POST['form_disclosure_type']);
+    $recipient_name = trim((string) $_POST['recipient_name']);
+    $disclosure_desc = trim((string) $_POST['desc_disc']);
     $disclosure_id = trim($_POST['disclosure_id'] ?? '');
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         if (!$authWrite) {

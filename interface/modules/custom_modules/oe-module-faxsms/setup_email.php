@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $credentials = $emailSetup->getEmailSetup();
-if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_message']) < 10) {
+if (empty($credentials['email_message'] ?? '') || strlen((string) $credentials['email_message']) < 10) {
     $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
 }
 

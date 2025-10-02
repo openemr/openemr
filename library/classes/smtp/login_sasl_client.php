@@ -48,7 +48,7 @@ class login_sasl_client_class
 		switch($this->state)
 		{
 			case SASL_LOGIN_STATE_IDENTIFY_USER:
-				$message=$this->credentials["user"].(strlen($this->credentials["realm"]) ? "@".$this->credentials["realm"] : "");
+				$message=$this->credentials["user"].(strlen((string) $this->credentials["realm"]) ? "@".$this->credentials["realm"] : "");
 				$this->state=SASL_LOGIN_STATE_IDENTIFY_PASSWORD;
 				break;
 			case SASL_LOGIN_STATE_IDENTIFY_PASSWORD:

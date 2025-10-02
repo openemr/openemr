@@ -49,7 +49,7 @@ class DocumentTest extends TestCase
         if ($document->get_storagemethod() === Document::STORAGE_METHOD_FILESYSTEM) {
             // not sure how the couch db tests should work but we are going to verify if the file is stored on the file
             // system that we did indeed write a file here.
-            if (str_contains($url, 'file:')) {
+            if (str_contains((string) $url, 'file:')) {
                 $this->assertTrue(file_exists($document->get_url_filepath(), "File should exist at document location"));
             }
         }

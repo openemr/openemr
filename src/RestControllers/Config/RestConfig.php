@@ -162,9 +162,9 @@ class RestConfig
     public static function parseEndPoint($resource): array
     {
         if ($resource[0] === '/') {
-            $resource = substr($resource, 1);
+            $resource = substr((string) $resource, 1);
         }
-        return explode('/', $resource);
+        return explode('/', (string) $resource);
     }
 
     public static function getRequestEndPoint(): string
@@ -176,8 +176,8 @@ class RestConfig
             $resource = str_replace('_REWRITE_COMMAND=', '/', $_SERVER['REDIRECT_QUERY_STRING']);
         } else {
             if (!empty($_SERVER['REQUEST_URI'])) {
-                if (strpos($_SERVER['REQUEST_URI'], '?') > 0) {
-                    $resource = strstr($_SERVER['REQUEST_URI'], '?', true);
+                if (strpos((string) $_SERVER['REQUEST_URI'], '?') > 0) {
+                    $resource = strstr((string) $_SERVER['REQUEST_URI'], '?', true);
                 } else {
                     $resource = str_replace(self::$ROOT_URL ?? '', '', $_SERVER['REQUEST_URI']);
                 }
@@ -242,17 +242,17 @@ class RestConfig
 
     public static function is_fhir_request($resource): bool
     {
-        return stripos(strtolower($resource), "/fhir/") !== false;
+        return stripos(strtolower((string) $resource), "/fhir/") !== false;
     }
 
     public static function is_portal_request($resource): bool
     {
-        return stripos(strtolower($resource), "/portal/") !== false;
+        return stripos(strtolower((string) $resource), "/portal/") !== false;
     }
 
     public static function is_api_request($resource): bool
     {
-        return stripos(strtolower($resource), "/api/") !== false;
+        return stripos(strtolower((string) $resource), "/api/") !== false;
     }
 
     /** prevents external cloning */

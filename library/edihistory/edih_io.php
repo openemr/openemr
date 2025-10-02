@@ -671,7 +671,7 @@ function edih_disp_csvtable()
     csv_edihist_log("edih_disp_csvtable: $csvfile period $prd datestart $dts dateend $dte");
     //
     if ($dts && strpos($dts, '-') != 4) {
-        if (strlen($_GET['csv_date_start']) == 10 && strpos($_GET['csv_date_start'], '/') == 4) {
+        if (strlen((string) $_GET['csv_date_start']) == 10 && strpos((string) $_GET['csv_date_start'], '/') == 4) {
             $dts = str_replace('/', '-', $dts);
         } else {
             $str_html = "<p>Date " . text($dts) . " must be in YYYY-MM-DD format, no / or . please</p>" . PHP_EOL;
@@ -681,7 +681,7 @@ function edih_disp_csvtable()
     }
 
     if ($dte && strpos($dte, '-') != 4) {
-        if (strlen($_GET['csv_date_end']) == 10 && strpos($_GET['csv_date_end'], '/') == 4) {
+        if (strlen((string) $_GET['csv_date_end']) == 10 && strpos((string) $_GET['csv_date_end'], '/') == 4) {
             $dte = str_replace('/', '-', $dte);
         } else {
             $dte = '';

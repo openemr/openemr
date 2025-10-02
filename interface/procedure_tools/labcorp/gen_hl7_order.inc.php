@@ -55,12 +55,12 @@ function hl7Text($s)
 
 function hl7Zip($s)
 {
-    return hl7Text(preg_replace('/[-\s]*/', '', $s));
+    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
 }
 
 function hl7Date($s)
 {
-    return preg_replace('/[^\d]/', '', $s);
+    return preg_replace('/[^\d]/', '', (string) $s);
 }
 
 function hl7Time($s)
@@ -68,12 +68,12 @@ function hl7Time($s)
     if (empty($s)) {
         return '';
     }
-    return date('YmdHi', strtotime($s));
+    return date('YmdHi', strtotime((string) $s));
 }
 
 function hl7Sex($s)
 {
-    $s = strtoupper(substr($s, 0, 1));
+    $s = strtoupper(substr((string) $s, 0, 1));
     if ($s !== 'M' && $s !== 'F') {
         $s = 'U';
     }
@@ -82,10 +82,10 @@ function hl7Sex($s)
 
 function hl7Phone($s)
 {
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . $tmp[2] . $tmp[3];
     }
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . $tmp[2];
     }
     return '';
@@ -93,7 +93,7 @@ function hl7Phone($s)
 
 function hl7SSN($s)
 {
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . $tmp[2] . $tmp[3];
     }
     return '';
@@ -101,12 +101,12 @@ function hl7SSN($s)
 
 function hl7Priority($s)
 {
-    return strtoupper(substr($s, 0, 1)) === 'H' ? 'S' : 'R';
+    return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
 }
 
 function hl7Relation($s)
 {
-    $tmp = strtolower($s);
+    $tmp = strtolower((string) $s);
     if ($tmp == 'self' || $tmp == '') {
         return '1';
     }
@@ -128,7 +128,7 @@ function hl7Relation($s)
 
 function hl7Race($s)
 {
-    $tmp = strtolower($s);
+    $tmp = strtolower((string) $s);
     if ($tmp == '') {
         return 'X';
     } elseif ($tmp == 'asian') {
@@ -183,7 +183,7 @@ function loadPayerInfo($pid, $date = '')
     );
     $prevtype = ''; // type is primary, secondary or tertiary
     while ($drow = sqlFetchArray($dres)) {
-        if (strcmp($prevtype, $drow['type']) == 0) {
+        if (strcmp((string) $prevtype, (string) $drow['type']) == 0) {
             continue;
         }
         $prevtype = $drow['type'];
@@ -353,12 +353,12 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     $P[70] = $vitals['height'];
     $P[88] = $vitals['bps'] . '^' . $vitals['bpd'];
     $P[89] = $vitals['waist_circ'];
-    $C[17] = !empty($porow['date_collected']) ? hl7Date(date("Ymd", strtotime($porow['date_collected']))) : '';
+    $C[17] = !empty($porow['date_collected']) ? hl7Date(date("Ymd", strtotime((string) $porow['date_collected']))) : '';
     if (empty($porow['account'])) {
         return "ERROR! Missing this orders facility location account code (Facility Id) in Facility!";
     }
     // Message Header
-    $bill_type = strtoupper(substr($porow['billing_type'], 0, 1));
+    $bill_type = strtoupper(substr((string) $porow['billing_type'], 0, 1));
     $out .= "MSH" .
         $d1 . "$d2~\\&" .               // Encoding Characters (delimiters)
         $d1 . $porow['send_app_id'] .   // Sending Application ID
@@ -571,7 +571,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
 
     $setid2 = 0;
     // this gets the order default codes
-    $relcodes = explode(';', $porow['order_diagnosis']);
+    $relcodes = explode(';', (string) $porow['order_diagnosis']);
     $relcodes = array_unique($relcodes);
     foreach ($relcodes as $codestring) {
         if ($codestring === '') {
@@ -592,7 +592,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     // now from each test order list
     while ($pdrow = sqlFetchArray($pdres)) {
         if (!empty($pdrow['diagnoses'])) {
-            $relcodes = explode(';', $pdrow['diagnoses']);
+            $relcodes = explode(';', (string) $pdrow['diagnoses']);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
@@ -611,7 +611,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         }
     }
     $D[1] = substr($D[1], 0, strlen($D[1]) - 1);
-    $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+    $vvalue = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
     $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
     $lb = floor((float)$vitals['weight']);
     $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
@@ -686,8 +686,8 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         while ($qrow = sqlFetchArray($qres)) {
             // Formatting of these answer values may be lab-specific and we'll figure
             // out how to deal with that as more labs are supported.
-            $answer = trim($qrow['answer']);
-            $qcode = trim($qrow['question_code']);
+            $answer = trim((string) $qrow['answer']);
+            $qcode = trim((string) $qrow['question_code']);
             $fldtype = $qrow['fldtype'];
             $datatype = 'ST';
             if ($qcode == 'FASTIN') {
@@ -716,7 +716,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
             $d1 . "F" .
             $d0;
         }
-        $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
+        $vvalue = strtoupper((string) $_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
         $C[24] = $vvalue === "Y" ? ($vvalue . '12') : $vvalue;
         $T[$setid] = hl7Text($pcrow['procedure_code']);
         if ($vvalue === "Y" && $fastflag === false) {

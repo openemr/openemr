@@ -221,16 +221,16 @@ SessionUtil::unsetSession('pidList');
 $pid_list = [];
 
 if ($_REQUEST['action'] == "process") {
-    $new_pid = json_decode($_POST['parameter'], true);
-    $new_pc_eid = json_decode($_POST['pc_eid'], true);
+    $new_pid = json_decode((string) $_POST['parameter'], true);
+    $new_pc_eid = json_decode((string) $_POST['pc_eid'], true);
 
     if (($_POST['item'] == "phone") || (($_POST['item'] == "notes") && ($_POST['msg_notes'] > ''))) {
         $sql = "INSERT INTO medex_outgoing (msg_pc_eid, msg_type, msg_reply, msg_extra_text) VALUES (?,?,?,?)";
         sqlQuery($sql, ['recall_' . $new_pid[0], $_POST['item'], $_SESSION['authUserID'], $_POST['msg_notes']]);
         return "done";
     }
-    $pc_eidList = json_decode($_POST['pc_eid'], true);
-    $pidList = json_decode($_POST['parameter'], true);
+    $pc_eidList = json_decode((string) $_POST['pc_eid'], true);
+    $pidList = json_decode((string) $_POST['parameter'], true);
     $sessionSetArray['pc_eidList'] = $pc_eidList[0];
     $sessionSetArray['pidList'] = $pidList;
     SessionUtil::setSession($sessionSetArray);

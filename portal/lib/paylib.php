@@ -148,8 +148,8 @@ if ($_POST['mode'] == 'Stripe') {
 
 if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
+    $form_method = trim((string) $_POST['form_method']);
+    $form_source = trim((string) $_POST['form_source']);
     $upay = $_POST['form_upay'] ?? '';
     $cc = $_POST['extra_values'] ?? '';
     $amts = $_POST['inv_values'] ?? '';
@@ -162,8 +162,8 @@ if ($_POST['mode'] == 'portal-save') {
     echo true;
 } elseif ($_POST['mode'] == 'review-save') {
     $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
+    $form_method = trim((string) $_POST['form_method']);
+    $form_source = trim((string) $_POST['form_source']);
     $upay = $_POST['form_upay'] ?? '';
     $cc = $_POST['extra_values'] ?? '';
     $amts = $_POST['inv_values'] ?? '';

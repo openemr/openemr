@@ -22,7 +22,7 @@ require_once(dirname(__FILE__, 3) . "/library/allow_cronjobs.php");
 $backpic = "";
 
 //Set the working directory to the path of the file
-$current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
+$current_dir = dirname((string) $_SERVER['SCRIPT_FILENAME']);
 chdir($current_dir);
 
 require_once("../../interface/globals.php");
@@ -63,7 +63,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
     //Get the apptDate and apptTime
     $p_date = $prow['pc_eventDate'];
     //Need to format date to m/d/Y for Maviq API
-    $pieces = explode("-", $p_date);
+    $pieces = explode("-", (string) $p_date);
     $appt_date = date("m/d/Y", mktime(0, 0, 0, $pieces[1], $pieces[2], $pieces[0]));
     $appt_time = $prow['pc_startTime'];
     //get the greeting

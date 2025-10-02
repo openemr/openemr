@@ -44,7 +44,7 @@ foreach ($listOptions as $option) {
 $selectedOptions = [];
 if (!empty($fldvalue)) {
     // we have to retain our sort order here
-    $fldValueOptions = explode(";", trim($fldvalue));
+    $fldValueOptions = explode(";", trim((string) $fldvalue));
 
     foreach ($fldValueOptions as $option) {
         if (isset($listOptionsByOptionId[$option])) {

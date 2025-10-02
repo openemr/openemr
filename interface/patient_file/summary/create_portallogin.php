@@ -67,9 +67,9 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
         if ($emailResult['success']) {
-            $credMessage = nl2br(displayLogin($pid, $emailResult['plainMessage'], true));
+            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], true));
         } else {
-            $credMessage = nl2br(displayLogin($pid, $emailResult['plainMessage'], false));
+            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], false));
         }
     }
 }
@@ -86,7 +86,7 @@ echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_l
     , 'login_uname' => $credentials['portal_login_username'] ?? $trustedUserName
     , 'pwd' => $patientAccessOnSiteService->getRandomPortalPassword()
     , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
-    , 'email_direct' => trim($trustedEmail['email_direct'])
+    , 'email_direct' => trim((string) $trustedEmail['email_direct'])
     , 'forced_reset_disable' => $forced_reset_disable
     , 'forced_reset_option' => $option
     // if someone wants to add additional data fields they can add this in as a

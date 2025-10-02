@@ -133,7 +133,7 @@ class FhirEncounterService extends FhirServiceBase implements
         $identifier = new FHIRIdentifier();
         $identifier->setValue($dataRecord['euuid']);
         // the system is a unique urn
-        $identifier->setSystem("urn:uuid:" . strtolower($dataRecord['euuid']));
+        $identifier->setSystem("urn:uuid:" . strtolower((string) $dataRecord['euuid']));
         $encounterResource->addIdentifier($identifier);
 
         // status - required
@@ -235,7 +235,7 @@ class FhirEncounterService extends FhirServiceBase implements
             // (beware of link rot)
             $reason = new FHIRCodeableConcept();
             $reasonText = $dataRecord['reason'] ?? "";
-            $reason->setText(trim($reasonText));
+            $reason->setText(trim((string) $reasonText));
             $encounterResource->addReasonCode($reason);
         }
         // hospitalization - must support

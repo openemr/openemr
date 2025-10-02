@@ -46,7 +46,7 @@ class GaclAdminApi extends GaclApi {
 	 * @param string URL to return to.
 	 */
 	function return_page($url=""): never {
-        $return_page = basename($url);
+        $return_page = basename((string) $url);
         header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
         exit;
 	}

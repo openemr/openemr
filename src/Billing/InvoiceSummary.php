@@ -169,7 +169,7 @@ class InvoiceSummary
                 }
 
                 $tmp = [];
-                $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
+                $paydate = empty($row['deposit_date']) ? substr((string) $row['post_time'], 0, 10) : $row['deposit_date'];
                 if ($row['pay_amount'] != 0) {
                     $tmp['pmt'] = $row['pay_amount'];
                     $tmp['pmt_method'] = $row['payment_method'];
@@ -184,7 +184,7 @@ class InvoiceSummary
 
                 if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
                     $tmp['chg'] = 0 - $row['adj_amount'];
-                    $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim($row['follow_up_note'])) : $row['memo'];
+                    $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim((string) $row['follow_up_note'])) : $row['memo'];
                     $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
                     $tmp['rsn'] = str_replace("Ins1", ($ins_data['primary'] ?? ''), $tmp['rsn']);
                     $tmp['rsn'] = str_replace("Ins2", ($ins_data['secondary'] ?? ''), $tmp['rsn']);
@@ -234,7 +234,7 @@ class InvoiceSummary
             return $next_level;
         }
 
-        if (SLEOB::arGetPayerID($patient_id, substr($row['date'], 0, 10), $next_level)) {
+        if (SLEOB::arGetPayerID($patient_id, substr((string) $row['date'], 0, 10), $next_level)) {
             return $next_level;
         }
 

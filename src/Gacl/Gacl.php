@@ -604,7 +604,7 @@ class Gacl {
 	*/
 	function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
-		switch(strtolower($group_type)) {
+		switch(strtolower((string) $group_type)) {
 			case 'axo':
 				$group_type = 'axo';
 				$object_table = $this->_db_table_prefix .'axo';

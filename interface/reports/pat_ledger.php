@@ -152,11 +152,11 @@ function PrintEncHeader($dt, $rsn, $dr): void
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
     echo "<tr class='bg-white'>";
-    if (strlen($rsn) > 50) {
-        $rsn = substr($rsn, 0, 50) . '...';
+    if (strlen((string) $rsn) > 50) {
+        $rsn = substr((string) $rsn, 0, 50) . '...';
     }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
+    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr((string) $dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
     echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
@@ -235,7 +235,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
             $payerId = $effectiveInsurances[$pmt['payer_type'] - 1]['provider'];
             $payer = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$payerId])['name'];
         }
-        $pmt_date = $unassigned ? substr($pmt['post_to_date'], 0, 10) : substr($pmt['post_time'], 0, 10);
+        $pmt_date = $unassigned ? substr((string) $pmt['post_to_date'], 0, 10) : substr((string) $pmt['post_time'], 0, 10);
 
         $print .= "<td class='detail'>" .
         text($pmt_date) . "&nbsp;/&nbsp;" . text($payer) . "</td>";
@@ -340,14 +340,14 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
-if (str_starts_with($GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -816,8 +816,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $code_desc = $erow['code_text'];
-            if (strlen($code_desc) > 50) {
-                $code_desc = substr($code_desc, 0, 50) . '...';
+            if (strlen((string) $code_desc) > 50) {
+                $code_desc = substr((string) $code_desc, 0, 50) . '...';
             }
 
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");

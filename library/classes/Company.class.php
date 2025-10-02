@@ -76,7 +76,7 @@ class Company extends ORDataObject
         . "FID: " . $this->foreign_id . "\n"
         . $this->line1 . "\n"
         . $this->line2 . "\n"
-        . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
+        . $this->city . ", " . strtoupper((string) $this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
         . $this->country . "\n";
         return $html ? nl2br($string) : $string;
     }

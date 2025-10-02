@@ -81,7 +81,7 @@ if (isset($_GET['prov'])) {
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null);
 
-$date = $date ? substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6) : date("Y-m-d");
+$date = $date ? substr((string) $date, 0, 4) . '-' . substr((string) $date, 4, 2) . '-' . substr((string) $date, 6) : date("Y-m-d");
 
 $starttimem = '00';
 if (isset($_GET['starttimem'])) {
@@ -270,10 +270,10 @@ function DOBandEncounter($pc_eid): void
  occurrence of one of these set days. */
 function setEventDate($start_date, $recurrence)
 {
-    $timestamp = strtotime($start_date);
+    $timestamp = strtotime((string) $start_date);
     $day = date('w', $timestamp);
     //If the 'start date' is one of the set days
-    if (in_array(($day + 1), explode(',', $recurrence))) {
+    if (in_array(($day + 1), explode(',', (string) $recurrence))) {
         return $start_date;
     }
 
@@ -381,7 +381,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $my_recurrtype = 1;
         if ($my_repeat_type > 6) { // Changed from 4 to 6 to accommodate new options.
             $my_recurrtype = 2;
-            $time = strtotime($event_date);
+            $time = strtotime((string) $event_date);
             $my_repeat_on_day = 0 + date('w', $time);
             $my_repeat_on_freq = $my_repeat_freq;
             if ($my_repeat_type == 5 || $my_repeat_type == 7 || $my_repeat_type == 8 || $my_repeat_type == 9) { //Added conditions for 7th, 8th, 9th.
@@ -477,7 +477,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
                     " WHERE pc_aid = ? AND pc_multiple=?", [$provider,$row['pc_multiple']]);
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                    $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                    $selected_date = date("Ymd", strtotime((string) $_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") {
                         $oldRecurrspec['exdate'] .= "," . $selected_date;
                     } else {
@@ -517,10 +517,10 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
             } elseif ($_POST['recurr_affect'] == 'future') { // ===== Future Recurring events of a repeating series =====
                 // update all existing event records to
                 // stop recurring on this date-1
-                $selected_date = date("Y-m-d", (strtotime($_POST['selected_date']) - 24 * 60 * 60));
+                $selected_date = date("Y-m-d", (strtotime((string) $_POST['selected_date']) - 24 * 60 * 60));
                 foreach ($providers_current as $provider) {
                     // In case of a change in the middle of the event
-                    if (strcmp($_POST['event_start_date'], $_POST['selected_date']) != 0) {
+                    if (strcmp((string) $_POST['event_start_date'], (string) $_POST['selected_date']) != 0) {
                         // mod original event recur specs to end on this date
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_enddate = ? " .
@@ -645,7 +645,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 // get the original event's repeat specs
                 $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                $selected_date = date("Ymd", strtotime((string) $_POST['selected_date']));
                 if ($oldRecurrspec['exdate'] != "") {
                     $oldRecurrspec['exdate'] .= "," . $selected_date;
                 } else {
@@ -673,7 +673,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 InsertEvent($args);
             } elseif ($_POST['recurr_affect'] == 'future') {
                 // mod original event to stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime($_POST['selected_date']) - 24 * 60 * 60));
+                $selected_date = date("Ymd", (strtotime((string) $_POST['selected_date']) - 24 * 60 * 60));
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                 " pc_enddate = ? " .
                 " WHERE pc_eid = ?", [$selected_date,$eid]);
@@ -829,8 +829,8 @@ if ($eid) {
     $userid = $row['pc_aid'];
     $patientid = $row['pc_pid'];
     $groupid = $row['pc_gid'];
-    $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
-    $starttimem = substr($row['pc_startTime'], 3, 2);
+    $starttimeh = substr((string) $row['pc_startTime'], 0, 2) + 0;
+    $starttimem = substr((string) $row['pc_startTime'], 3, 2);
     $repeats = $row['pc_recurrtype'];
     $multiple_value = $row['pc_multiple'];
 
@@ -849,8 +849,8 @@ if ($eid) {
     $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
-    if (str_starts_with($hometext, ':text:')) {
-        $hometext = substr($hometext, 6);
+    if (str_starts_with((string) $hometext, ':text:')) {
+        $hometext = substr((string) $hometext, 6);
     }
 } else {
       // a NEW event
@@ -1668,7 +1668,7 @@ function isRegularRepeat($repeat)
                 $tmptitle .= "\n";
             }
             $max = $GLOBALS['number_of_ex_appts_to_show'];
-            $exdates = explode(",", $repeatexdate);
+            $exdates = explode(",", (string) $repeatexdate);
             if (!empty($exdates)) {
                 $exdates = array_slice($exdates, 0, $max, true);
             }
@@ -1699,7 +1699,7 @@ function isRegularRepeat($repeat)
             foreach ($weekdays as $key => $value) {
                 $key_attr = attr($key);
                 $value_text = text($value);
-                $checked = (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) ? "checked" : "";
+                $checked = (in_array($key, explode(',', (string) $repeatfreq)) && isDaysEveryWeek($repeats)) ? "checked" : "";
                 $html = <<<HTML
                 <div class="form-check-inline">
                     <input class="form-check-input" type="checkbox" name="day_$key_attr" id="day_$key_attr" $checked>
@@ -1996,7 +1996,7 @@ function HideRecurrPopup() {
 }
 
 function deleteEvent() {
-    if (confirm("<?php echo addslashes(xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>")) {
+    if (confirm("<?php echo addslashes((string) xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>")) {
         $('#form_action').val("delete");
 
         <?php if ($repeats) : ?>

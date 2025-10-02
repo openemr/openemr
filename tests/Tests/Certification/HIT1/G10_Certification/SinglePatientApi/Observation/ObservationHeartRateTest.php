@@ -36,7 +36,7 @@ class ObservationHeartRateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), 'Expected HTTP 200');
         $body = $response->getBody()->getContents();
         $this->assertNotEmpty($body, "Response body is empty");
-        $data = json_decode($body, true);
+        $data = json_decode((string) $body, true);
         $this->assertArrayHasKey('resourceType', $data, 'resourceType missing');
         $this->assertEquals('Bundle', $data['resourceType'], 'resourceType not Bundle');
         $this->assertArrayHasKey('entry', $data, 'entry missing');

@@ -30,7 +30,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
     getLayoutProperties($formname, $grparr, '*');
     // Check access control.
     if (!empty($grparr['']['grp_aco_spec'])) {
-        $LBF_ACO = explode('|', $grparr['']['grp_aco_spec']);
+        $LBF_ACO = explode('|', (string) $grparr['']['grp_aco_spec']);
     }
     if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
         if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
@@ -71,7 +71,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
         if ($no_wrap || ($frow['data_type'] == 34 || $frow['data_type'] == 25)) {
             $arr[$field_id] = $currvalue;
         } else {
-            $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+            $arr[$field_id] = wordwrap((string) $currvalue, 30, "\n", true);
         }
     }
 

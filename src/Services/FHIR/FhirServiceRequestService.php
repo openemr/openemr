@@ -705,7 +705,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $codesService = new CodeTypesService();
 
         // Split by semicolon for multiple diagnoses
-        $diagnoses = explode(";", $diagnosisString);
+        $diagnoses = explode(";", (string) $diagnosisString);
         foreach ($diagnoses as $diagnosis) {
             if (empty(trim($diagnosis))) {
                 continue;

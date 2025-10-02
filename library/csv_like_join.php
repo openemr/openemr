@@ -39,10 +39,10 @@ function maybe_csv_quote($string)
 function need_csv_quote($string)
 {
     if (
-        !str_contains($string, ',')
-        && !str_contains($string, '"')
-        && !str_contains($string, "\r")
-        && !str_contains($string, "\n")
+        !str_contains((string) $string, ',')
+        && !str_contains((string) $string, '"')
+        && !str_contains((string) $string, "\r")
+        && !str_contains((string) $string, "\n")
     ) {
         return false;
     }
@@ -54,7 +54,7 @@ function split_csv_line($record)
 {
     $first = null;
 
-    if (strlen($record) == 0) {
+    if (strlen((string) $record) == 0) {
         return [''];
     }
 
@@ -63,33 +63,33 @@ function split_csv_line($record)
         $start = 1;
 
         while (
-            $start < strlen($record)
-            && ($end = strpos($record, '"', $start)) !== false
-            && $end < strlen($record) - 1
+            $start < strlen((string) $record)
+            && ($end = strpos((string) $record, '"', $start)) !== false
+            && $end < strlen((string) $record) - 1
             && $record[$end + 1] !== ','
         ) {
             if ($record[$end + 1] !== '"') {
                 die("Found characters between double-quoted field and comma.");
             }
 
-            $first .= substr($record, $start, $end - $start - 1);
+            $first .= substr((string) $record, $start, $end - $start - 1);
             $start = $end + 2;
         }
 
-        if ($start < strlen($record) || $end === false) {
+        if ($start < strlen((string) $record) || $end === false) {
             die("Could not find end-quote for double-quoted field");
         }
 
-        $first .= substr($record, $start, $end - $start - 1);
+        $first .= substr((string) $record, $start, $end - $start - 1);
 
-        if ($end >= strlen($record) - 1) {
+        if ($end >= strlen((string) $record) - 1) {
             return [$first];
         }
 
         /* Assertion: $record[$end + 1] == ',' */
-        $rest = substr($record, $end + 2);
+        $rest = substr((string) $record, $end + 2);
     } else {
-        $end = strpos($record, ',');
+        $end = strpos((string) $record, ',');
 
         if ($end === false) {
             return [$record];
@@ -97,8 +97,8 @@ function split_csv_line($record)
 
         /* Assertion: $end < strlen($record) */
 
-        $first = substr($record, 0, $end);
-        $rest = substr($record, $end + 1);
+        $first = substr((string) $record, 0, $end);
+        $rest = substr((string) $record, $end + 1);
     }
 
     $fields = split_csv_line($rest);

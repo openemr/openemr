@@ -351,7 +351,7 @@ class Prescription extends ORDataObject
 
     function set_size($size)
     {
-        $this->size = preg_replace("/[^0-9\/\.\-]/", "", $size);
+        $this->size = preg_replace("/[^0-9\/\.\-]/", "", (string) $size);
     }
     function get_size()
     {
@@ -545,39 +545,39 @@ class Prescription extends ORDataObject
 
     function get_start_date_y()
     {
-        $ymd = explode("-", $this->start_date);
+        $ymd = explode("-", (string) $this->start_date);
         return $ymd[0];
     }
     function set_start_date_y($year)
     {
         if (is_numeric($year)) {
-            $ymd = explode("-", $this->start_date);
+            $ymd = explode("-", (string) $this->start_date);
             $ymd[0] = $year;
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
     function get_start_date_m()
     {
-        $ymd = explode("-", $this->start_date);
+        $ymd = explode("-", (string) $this->start_date);
         return $ymd[1];
     }
     function set_start_date_m($month)
     {
         if (is_numeric($month)) {
-            $ymd = explode("-", $this->start_date);
+            $ymd = explode("-", (string) $this->start_date);
             $ymd[1] = $month;
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
     function get_start_date_d()
     {
-        $ymd = explode("-", $this->start_date);
+        $ymd = explode("-", (string) $this->start_date);
         return $ymd[2];
     }
     function set_start_date_d($day)
     {
         if (is_numeric($day)) {
-            $ymd = explode("-", $this->start_date);
+            $ymd = explode("-", (string) $this->start_date);
             $ymd[2] = $day;
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
@@ -761,7 +761,7 @@ class Prescription extends ORDataObject
 
         $gnd = $this->provider->get_name_display();
 
-        while (strlen($gnd) < 31) {
+        while (strlen((string) $gnd) < 31) {
             $gnd .= " ";
         }
 
@@ -773,7 +773,7 @@ class Prescription extends ORDataObject
         if (!$results->EOF) {
             $rfn = $results->fields['name'];
 
-            while (strlen($rfn) < 31) {
+            while (strlen((string) $rfn) < 31) {
                 $rfn .= " ";
             }
 
@@ -784,13 +784,13 @@ class Prescription extends ORDataObject
         }
 
         $string .= "\n";
-        $string .= strtoupper($this->patient->lname) . ", " . ucfirst($this->patient->fname) . " " . $this->patient->mname . "\n";
+        $string .= strtoupper((string) $this->patient->lname) . ", " . ucfirst((string) $this->patient->fname) . " " . $this->patient->mname . "\n";
         $string .= "DOB " .  $this->patient->date_of_birth . "\n";
         $string .= "\n";
-        $string .= date("F j, Y", strtotime($this->start_date)) . "\n";
+        $string .= date("F j, Y", strtotime((string) $this->start_date)) . "\n";
         $string .= "\n";
-        $string .= strtoupper($this->drug) . " " . $this->size  . " " . ($this->unit_array[$this->unit] ?? '') . "\n";
-        if (strlen($this->note) > 0) {
+        $string .= strtoupper((string) $this->drug) . " " . $this->size  . " " . ($this->unit_array[$this->unit] ?? '') . "\n";
+        if (strlen((string) $this->note) > 0) {
             $string .= "Notes: \n" . $this->note . "\n";
         }
 

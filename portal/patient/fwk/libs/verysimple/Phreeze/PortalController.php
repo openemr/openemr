@@ -242,7 +242,7 @@ abstract class PortalController
 
         // make this case-insensitive (IE changes all headers to lower-case)
         $headers = array_change_key_case($headers, CASE_LOWER);
-        $headerName = strtolower($headerName);
+        $headerName = strtolower((string) $headerName);
 
         if (array_key_exists($headerName, $headers)) {
             if ($this->GetCSRFToken() != $headers [$headerName]) {
@@ -465,12 +465,12 @@ abstract class PortalController
         $xml .= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
 
         $xml .= "<DataPage>\r\n";
-        $xml .= "<ObjectName>" . htmlspecialchars($page->ObjectName) . "</ObjectName>\r\n";
-        $xml .= "<ObjectKey>" . htmlspecialchars($page->ObjectKey) . "</ObjectKey>\r\n";
-        $xml .= "<TotalRecords>" . htmlspecialchars($page->TotalResults) . "</TotalRecords>\r\n";
-        $xml .= "<TotalPages>" . htmlspecialchars($page->TotalPages) . "</TotalPages>\r\n";
-        $xml .= "<CurrentPage>" . htmlspecialchars($page->CurrentPage) . "</CurrentPage>\r\n";
-        $xml .= "<PageSize>" . htmlspecialchars($page->PageSize) . "</PageSize>\r\n";
+        $xml .= "<ObjectName>" . htmlspecialchars((string) $page->ObjectName) . "</ObjectName>\r\n";
+        $xml .= "<ObjectKey>" . htmlspecialchars((string) $page->ObjectKey) . "</ObjectKey>\r\n";
+        $xml .= "<TotalRecords>" . htmlspecialchars((string) $page->TotalResults) . "</TotalRecords>\r\n";
+        $xml .= "<TotalPages>" . htmlspecialchars((string) $page->TotalPages) . "</TotalPages>\r\n";
+        $xml .= "<CurrentPage>" . htmlspecialchars((string) $page->CurrentPage) . "</CurrentPage>\r\n";
+        $xml .= "<PageSize>" . htmlspecialchars((string) $page->PageSize) . "</PageSize>\r\n";
 
         $xml .= "<Records>\r\n";
 
@@ -486,16 +486,16 @@ abstract class PortalController
         }
 
         foreach ($page->Rows as $obj) {
-            $xml .= "<" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            $xml .= "<" . htmlspecialchars((string) $page->ObjectName) . ">\r\n";
             foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
                     $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
 
                     if ($fm == FM_TYPE_DATETIME) {
-                        $val = strtotime($val) ? date("m/d/Y h:i A", strtotime($val)) : $val;
+                        $val = strtotime((string) $val) ? date("m/d/Y h:i A", strtotime((string) $val)) : $val;
                     } elseif ($fm == FM_TYPE_DATE) {
-                        $val = strtotime($val) ? date("m/d/Y", strtotime($val)) : $val;
+                        $val = strtotime((string) $val) ? date("m/d/Y", strtotime((string) $val)) : $val;
                     }
 
                     // if the developer has added a property that is not a simple type
@@ -513,14 +513,14 @@ abstract class PortalController
             // Add any properties that we want from child objects
             if ($additionalProps) {
                 foreach ($additionalProps as $meth => $propPair) {
-                    $props = explode(",", $propPair);
+                    $props = explode(",", (string) $propPair);
                     foreach ($props as $prop) {
-                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
+                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars((string) $obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
             }
 
-            $xml .= "</" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            $xml .= "</" . htmlspecialchars((string) $page->ObjectName) . ">\r\n";
         }
 
         $xml .= "</Records>\r\n";

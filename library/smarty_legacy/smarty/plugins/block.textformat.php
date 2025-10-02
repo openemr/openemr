@@ -86,7 +86,7 @@ function smarty_block_textformat($params, $content, &$smarty)
             $_paragraphs[$_x] = str_repeat($indent_char, $indent_first) . $_paragraphs[$_x];
         }
         // wordwrap sentences
-        $_paragraphs[$_x] = wordwrap($_paragraphs[$_x], $wrap - $indent, $wrap_char, $wrap_cut);
+        $_paragraphs[$_x] = wordwrap((string) $_paragraphs[$_x], $wrap - $indent, $wrap_char, $wrap_cut);
         // indent lines
         if($indent > 0) {
             $_paragraphs[$_x] = preg_replace('!^!m', str_repeat($indent_char, $indent), $_paragraphs[$_x]);

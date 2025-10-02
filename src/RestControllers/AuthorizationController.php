@@ -251,7 +251,7 @@ class AuthorizationController
             $this->getSystemLogger()->debug("AuthorizationController::clientRegistration start");
             $request_headers = $request->getHeaders();
             foreach ($request_headers as $header => $value) {
-                $headers[strtolower($header)] = $value[0];
+                $headers[strtolower((string) $header)] = $value[0];
             }
             if (!$headers['content-type'] || !str_starts_with($headers['content-type'], 'application/json')) {
                 throw new OAuthServerException('Unexpected content type', 0, 'invalid_client_metadata');
@@ -403,7 +403,7 @@ class AuthorizationController
                 }
             }
             if (!empty($params['jwks'])) {
-                $params['jwks'] = json_decode($params['jwks'], true);
+                $params['jwks'] = json_decode((string) $params['jwks'], true);
             }
             if (isset($params['require_auth_time'])) {
                 $params['require_auth_time'] = ($params['require_auth_time'] === 1);
@@ -491,11 +491,11 @@ class AuthorizationController
                 }
             }
             // TODO: @adunsulag this was the server path but can't we just have it be getPathInfo()?
-            $pos = strpos($request->server->get('PATH_INFO'), '/client/');
+            $pos = strpos((string) $request->server->get('PATH_INFO'), '/client/');
             if ($pos === false) {
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
-            $uri_path = substr($request->server->get('PATH_INFO'), $pos + 8);
+            $uri_path = substr((string) $request->server->get('PATH_INFO'), $pos + 8);
             $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", [$uri_path]);
             if (!$client) {
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
@@ -505,10 +505,10 @@ class AuthorizationController
             }
             $params['client_id'] = $client['client_id'];
             $params['client_secret'] = $this->cryptoGen->decryptStandard($client['client_secret']);
-            $params['contacts'] = explode('|', $client['contacts']);
+            $params['contacts'] = explode('|', (string) $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
-            $params['redirect_uris'] = explode('|', $client['redirect_uri']);
+            $params['redirect_uris'] = explode('|', (string) $client['redirect_uri']);
 
             // need to grab dsi information
             $this->addDSIInformation($params, $client);
@@ -532,7 +532,7 @@ class AuthorizationController
         $request_headers = $request->getHeaders();
         $headers = [];
         foreach ($request_headers as $header => $value) {
-            $headers[strtolower($header)] = $value[0];
+            $headers[strtolower((string) $header)] = $value[0];
         }
         $authorization = $headers['authorization'];
         if ($authorization) {
@@ -1005,7 +1005,7 @@ class AuthorizationController
         $scopeString = $session->get('scopes', '');
         // check for offline_access
 
-        $scopesList = explode(' ', $scopeString);
+        $scopesList = explode(' ', (string) $scopeString);
         $offline_requested = false;
         $scopes = [];
         foreach ($scopesList as $scope) {
@@ -1059,8 +1059,8 @@ class AuthorizationController
 
         $updatedClaims = [];
         foreach ($claims as $key => $value) {
-            $key_n = explode('_', $key);
-            if (stripos($scopeString, $key_n[0]) === false) {
+            $key_n = explode('_', (string) $key);
+            if (stripos((string) $scopeString, $key_n[0]) === false) {
                 continue;
             }
             if ((int)$value === 1) {
@@ -1264,7 +1264,7 @@ class AuthorizationController
         $authRequest = new AuthorizationRequest();
         try {
             $requestData = $this->session->get('authRequestSerial', $this->authRequestSerial);
-            $restore = json_decode($requestData, true);
+            $restore = json_decode((string) $requestData, true);
             $outer = $restore['outer'];
             $client = $restore['client'];
             $scoped = $restore['scopes'];
@@ -1317,7 +1317,7 @@ class AuthorizationController
             // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
             if (!empty($ssbc)) {
-                $this->session->replace(json_decode($ssbc['session_cache'], true));
+                $this->session->replace(json_decode((string) $ssbc['session_cache'], true));
             } else {
                 // TODO: @adunsulag should we throw an exception here?
             }
@@ -1421,7 +1421,7 @@ class AuthorizationController
                     throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
                 }
             }
-            $session_nonce = json_decode($trustedUser['session_cache'], true)['nonce'] ?? '';
+            $session_nonce = json_decode((string) $trustedUser['session_cache'], true)['nonce'] ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);

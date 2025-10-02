@@ -63,7 +63,7 @@ class JsonWebKeySet implements Key
         }
 
         // grab the keys array from the content
-        $jwks = json_decode($content);
+        $jwks = json_decode((string) $content);
         if (!property_exists($jwks, 'keys')) {
             throw new JWKValidatorException("Malformed jwks missing keys property");
         }

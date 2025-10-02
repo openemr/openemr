@@ -163,12 +163,12 @@ class C_DocumentCategory extends Controller
             if (is_array($ar) || !empty($id)) {
                 if ($node == null) {
                     //echo "r:" . $this->tree->get_node_name($id) . "<br />";
-                    $rnode = new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false]);
+                    $rnode = new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode((string) $id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false]);
                     $this->_last_node = &$rnode;
                     $node = &$rnode;
                 } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br />";
-                    $this->_last_node = &$node->addItem(new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
+                    $this->_last_node = &$node->addItem(new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode((string) $id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
                 }
 
                 if (is_array($ar)) {

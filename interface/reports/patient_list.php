@@ -269,9 +269,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         if (!empty($row['DOB'])) {
             $dob = $row['DOB'];
             $tdy = $row['edate'] ?: date('Y-m-d');
-            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
-            $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
+            $ageInMonths = (substr((string) $tdy, 0, 4) * 12) + substr((string) $tdy, 5, 2) -
+                   (substr((string) $dob, 0, 4) * 12) - substr((string) $dob, 5, 2);
+            $dayDiff = substr((string) $tdy, 8, 2) - substr((string) $dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
@@ -280,7 +280,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         }
 
         if ($_POST['form_csvexport']) {
-            echo csvEscape(oeFormatShortDate(substr($row['edate'], 0, 10))) . ',';
+            echo csvEscape(oeFormatShortDate(substr((string) $row['edate'], 0, 10))) . ',';
             echo csvEscape($row['lname']) . ',';
             echo csvEscape($row['fname']) . ',';
             echo csvEscape($row['mname']) . ',';
@@ -295,7 +295,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             ?>
        <tr>
         <td>
-            <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
+            <?php echo text(oeFormatShortDate(substr((string) $row['edate'], 0, 10))); ?>
    </td>
    <td>
             <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>

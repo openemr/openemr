@@ -352,7 +352,7 @@ class InsuranceCompany extends ORDataObject
             }
         }
         // sort by name since we don't know that the sql query will return them in the correct order
-        usort($icompanies, fn($a, $b): int => strcasecmp($a->name, $b->name));
+        usort($icompanies, fn($a, $b): int => strcasecmp((string) $a->name, (string) $b->name));
 
         return $icompanies;
     }

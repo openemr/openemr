@@ -36,7 +36,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     $topersonalized = $_REQUEST['topersonalized'];
     $personalized = $_REQUEST['personalized'];
     foreach ($topersonalized as $value) {
-        $arr = explode("|", $value);
+        $arr = explode("|", (string) $value);
         $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $_SESSION['authUserID']]);
         if (sqlNumRows($res)) {
             Delete_Rows($arr[0]);
@@ -49,7 +49,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
     //Add new Categories
     foreach ($personalized as $value) {
-        $arr = explode("|", $value);
+        $arr = explode("|", (string) $value);
         if ($arr[1]) {
             $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $_SESSION['authUserID']]);
             Insert_Rows($arr[0]);

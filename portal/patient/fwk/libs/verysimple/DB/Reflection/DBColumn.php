@@ -41,7 +41,7 @@ class DBColumn
     function __construct($table, $row)
     {
         // typical type is something like varchar(40)
-        $typesize = explode("(", $row ["Type"]);
+        $typesize = explode("(", (string) $row ["Type"]);
 
         $tmp = isset($typesize [1]) ? str_replace(")", "", $typesize [1]) : "";
         $sizesign = explode(" ", $tmp);

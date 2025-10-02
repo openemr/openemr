@@ -518,7 +518,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = [], $path = 
 
     //remove characters not belonging in a path, prevent possible injection
     //this may break windows path accesses?
-    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path);
+    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", (string) $path);
 
     // The URL
     $final_url = pnGetBaseURL() . $path . $url;

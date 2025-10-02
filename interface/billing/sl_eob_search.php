@@ -70,7 +70,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
-                $_SESSION['portalUser'] = strtolower($pData['fname']) . $pData['id'];
+                $_SESSION['portalUser'] = strtolower((string) $pData['fname']) . $pData['id'];
                 return true;
             }
         } else {
@@ -155,8 +155,8 @@ function era_callback(&$out): void
     ++$eracount;
     // $eraname = $out['isa_control_number'];
     // since it's always sent we use isa_sender_id if payer_id is not provided
-    $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
-        '_' . ltrim($out['payer_id'] ?: $out['isa_sender_id'], '0');
+    $eraname = $out['gs_date'] . '_' . ltrim((string) $out['isa_control_number'], '0') .
+        '_' . ltrim((string) $out['payer_id'] ?: (string) $out['isa_sender_id'], '0');
 
     if (!empty($out['our_claim_id'])) {
         [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
@@ -172,7 +172,7 @@ function era_callback(&$out): void
 
 function validEmail($email)
 {
-    if (preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", $email)) {
+    if (preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", (string) $email)) {
         return true;
     }
 
@@ -233,7 +233,7 @@ function upload_file_to_client($file_to_send): void
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
     header("Content-Length: " . filesize($file_to_send));
-    header("Content-Disposition: attachment; filename=" . basename($file_to_send));
+    header("Content-Disposition: attachment; filename=" . basename((string) $file_to_send));
     header("Content-Description: File Transfer");
     readfile($file_to_send);
     // flush the content to the browser. If you don't do this, the text from the subsequent
@@ -332,7 +332,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
     header("Content-Length: " . filesize($STMT_TEMP_FILE_PDF));
-    header("Content-Disposition: attachment; filename=" . basename($STMT_TEMP_FILE_PDF));
+    header("Content-Disposition: attachment; filename=" . basename((string) $STMT_TEMP_FILE_PDF));
     header("Content-Description: File Transfer");
     readfile($STMT_TEMP_FILE_PDF);
     // flush the content to the browser. If you don't do this, the text from the subsequent
@@ -419,7 +419,7 @@ if (
     // This loops once for each invoice/encounter.
     //
     for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
-        $svcdate = substr($row['date'], 0, 10);
+        $svcdate = substr((string) $row['date'], 0, 10);
         $duedate = $svcdate; // TBD?
         $duncount = $row['stmt_count'];
         $enc_note = $row['enc_billing_note'];
@@ -495,7 +495,7 @@ if (
         }
 
         // Recompute age at each invoice.
-        $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
+        $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
         // grab last bill date from billing
         $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
@@ -535,7 +535,7 @@ if (
             $pvoice[] = $stmt;
             // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
-                fwrite($fhprint, make_statement($stmt));
+                fwrite($fhprint, (string) make_statement($stmt));
                 if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
                     $alertmsg = xlt('Notification FAILED');
                     break;
@@ -559,7 +559,7 @@ if (
                         $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt['encounter']) . "\n";
                         $tmp .= "<br />\n\014<br /><br />";
                     }
-                    fwrite($fhprint, $tmp);
+                    fwrite($fhprint, (string) $tmp);
                     // now save it to pt documents
                     $d = new Document();
                     $doc_pid = $inv_pid[$inv_count];
@@ -615,7 +615,7 @@ if (
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") . ' ' . $STMT_TEMP_FILE;
         } else {
-            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg($STMT_TEMP_FILE));
+            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg((string) $STMT_TEMP_FILE));
             if ($_REQUEST['form_without']) {
                 $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements; invoices will not be updated.');
             } else {
@@ -915,9 +915,9 @@ if (
                                 CsrfUtils::csrfNotVerified();
                             }
 
-                            $form_name = trim($_REQUEST['form_name']);
-                            $form_pid = trim($_REQUEST['form_pid']);
-                            $form_encounter = trim($_REQUEST['form_encounter']);
+                            $form_name = trim((string) $_REQUEST['form_name']);
+                            $form_pid = trim((string) $_REQUEST['form_pid']);
+                            $form_encounter = trim((string) $_REQUEST['form_encounter']);
                             $form_date = fixDate($_REQUEST['form_date'], "");
                             $form_to_date = fixDate($_REQUEST['form_to_date'], "");
 
@@ -929,9 +929,9 @@ if (
                                 $tmp_name = $_FILES['form_erafile']['tmp_name'];
 
                                 // Handle .zip extension if present.  Probably won't work on Windows.
-                                if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+                                if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
                                     rename($tmp_name, "$tmp_name.zip");
-                                    exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
+                                    exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg((string) $tmp_name));
                                     unlink("$tmp_name.zip");
                                 }
 
@@ -1082,7 +1082,7 @@ if (
                                 // Determine if customer is in collections.
                                 //
                                 $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false
+                                $in_collections = stristr((string) $billnote, 'IN COLLECTIONS') !== false
                                     || $row['in_collection'] == 1;
 
                                 // $duncount was originally supposed to be the number of times that
@@ -1109,7 +1109,7 @@ if (
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
-                                if (str_starts_with($_REQUEST['form_category'], 'Due') && !$isdueany) {
+                                if (str_starts_with((string) $_REQUEST['form_category'], 'Due') && !$isdueany) {
                                     continue;
                                 }
                                 if ($_REQUEST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {
@@ -1121,7 +1121,7 @@ if (
 
                                 $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
-                                $svcdate = substr($row['date'], 0, 10);
+                                $svcdate = substr((string) $row['date'], 0, 10);
                                 $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
                                 ?>
@@ -1294,7 +1294,7 @@ if (
     });
     <?php
     if ($alertmsg) {
-        echo "alert('" . addslashes($alertmsg) . "');\n";
+        echo "alert('" . addslashes((string) $alertmsg) . "');\n";
     }
     ?>
     $(function () {

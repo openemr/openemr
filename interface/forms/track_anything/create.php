@@ -29,7 +29,7 @@ echo "<div id='ta_type'>";
 
 
 // **** DB ACTION ******
-$dbaction = isset($_POST['dbaction']) ? trim($_POST['dbaction']) : '';
+$dbaction = isset($_POST['dbaction']) ? trim((string) $_POST['dbaction']) : '';
 
 // save new item to a track
 //-----------------------------
@@ -101,7 +101,7 @@ if ($dbaction == 'delete' && AclMain::aclCheckCore('admin', 'super')) {
 
 
 // Create a new track
-$create_track = isset($_POST['create_track']) ? trim($_POST['create_track']) : '';
+$create_track = isset($_POST['create_track']) ? trim((string) $_POST['create_track']) : '';
 if ($create_track) {
     echo "<table class='create'><tr><td>\n";
     echo "<b>" . xlt('Create a new track')  . " </b><br />&nbsp;";
@@ -130,7 +130,7 @@ if ($create_track) {
 } // end create new track
 
 // user clicked some buttons...
-$the_item = isset($_POST['typeid']) ? trim($_POST['typeid']) : '';
+$the_item = isset($_POST['typeid']) ? trim((string) $_POST['typeid']) : '';
 if ($the_item) {
     $add        = $_POST['add'] ?? null;
     $edit       = $_POST['edit'] ?? null;

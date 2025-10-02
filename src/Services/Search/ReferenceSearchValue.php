@@ -52,8 +52,8 @@ class ReferenceSearchValue implements \Stringable
     {
         $id = $relativeUri;
         $resource = null;
-        if (str_contains($relativeUri, "/")) {
-            $parts = explode("/", $relativeUri);
+        if (str_contains((string) $relativeUri, "/")) {
+            $parts = explode("/", (string) $relativeUri);
             $resource = $parts[0];
             $id = end($parts);
         }

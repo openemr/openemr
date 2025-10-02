@@ -159,7 +159,7 @@ trait FhirConditionTrait
             $clinicalStatus => [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-clinical",
                 'code' => $clinicalStatus,
-                'description' => ucwords($clinicalStatus),
+                'description' => ucwords((string) $clinicalStatus),
             ]
         ]));
     }

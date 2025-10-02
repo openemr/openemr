@@ -290,7 +290,7 @@ function csv_notes_file($content = '', $open = true)
 
         $str_html .= PHP_EOL . text($ftxt) . PHP_EOL;
     // next stanza for saving content
-    } elseif (strlen($content)) {
+    } elseif (strlen((string) $content)) {
         //echo "csv_notes_file: we have content<br />".PHP_EOL;
         // use finfo php class
         if (class_exists('finfo')) {
@@ -302,7 +302,7 @@ function csv_notes_file($content = '', $open = true)
                 //
                 return $str_html;
             }
-        } elseif (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(<ASP)|(#!)|(\$\{)|(<scr)|(<SCR)/', $content, $matches, PREG_OFFSET_CAPTURE)) {
+        } elseif (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(<ASP)|(#!)|(\$\{)|(<scr)|(<SCR)/', (string) $content, $matches, PREG_OFFSET_CAPTURE)) {
             csv_edihist_log('csv_notes_file: Filtered character in file content -- character: ' . $matches[0][0] . ' position: ' . $matches[0][1]);
             $str_html .= 'Filtered character in file content not accepted <br />' . PHP_EOL;
             $str_html .= ' character: ' . text($matches[0][0]) . '  position: ' . text($matches[0][1]) . '<br />' . PHP_EOL;
@@ -975,7 +975,7 @@ function csv_processed_files_list($type)
         }
     } else {
         // first run - no file exists
-        csv_edihist_log("csv_processed_files_list: csv file does not exist " . basename($csv_file));
+        csv_edihist_log("csv_processed_files_list: csv file does not exist " . basename((string) $csv_file));
     }
 
     // remove the header row, but avoid NULL or false
@@ -1034,14 +1034,14 @@ function edih_errseg_parse($err_seg, $id = false)
     // note: multiple IK3 segments are allowed in 997/999 x12
     //
     $ret_ar = [];
-    if (!$err_seg || !str_contains($err_seg, 'IK3')) {
+    if (!$err_seg || !str_contains((string) $err_seg, 'IK3')) {
         csv_edihist_log('edih_errseg_parse: invalid argument');
         return $ret_ar;
     }
 
     //'|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
-    $ik = explode('*', $err_seg);
+    $ik = explode('*', (string) $err_seg);
     foreach ($ik as $i => $k) {
         switch ($i) {
             case 0:
@@ -1125,11 +1125,11 @@ function edih_format_telephone($str_val)
 {
     $strtel = (string)$str_val;
     $strtel = preg_replace('/\D/', '', $strtel);
-    if (strlen($strtel) != 10) {
+    if (strlen((string) $strtel) != 10) {
         csv_edihist_log('edih_format_telephone: invalid argument: ' . $str_val);
         return $str_val;
     } else {
-        $tel = substr($strtel, 0, 3) . "-" . substr($strtel, 3, 3) . "-" . substr($strtel, 6);
+        $tel = substr((string) $strtel, 0, 3) . "-" . substr((string) $strtel, 3, 3) . "-" . substr((string) $strtel, 6);
     }
 
     return $tel;
@@ -1149,11 +1149,11 @@ function edih_format_date($str_val, $pref = "Y-m-d")
     $strdt = (string)$str_val;
     $strdt = preg_replace('/\D/', '', $strdt);
     $dt = '';
-    if (strlen($strdt) == 6) {
+    if (strlen((string) $strdt) == 6) {
         $tdy = date('Ymd');
         if ($pref == "US") {
             // assume mmddyy
-            $strdt = substr($tdy, 0, 2) . substr($strdt, -2) . substr($strdt, 0, 4);
+            $strdt = substr($tdy, 0, 2) . substr((string) $strdt, -2) . substr((string) $strdt, 0, 4);
         } else {
             // assume yymmdd
             $strdt = substr($tdy, 0, 2) . $strdt;
@@ -1464,7 +1464,7 @@ function csv_assoc_array($file_type, $csv_type)
     $fp = '';
     //
     $param = csv_parameters($file_type);
-    $fcsv = (strpos($csv_type, 'aim')) ? 'claims_csv' : 'files_csv';
+    $fcsv = (strpos((string) $csv_type, 'aim')) ? 'claims_csv' : 'files_csv';
     //
     $fp = $param[$fcsv] ?? '';
     if (!is_file($fp)) {
@@ -1799,8 +1799,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         if ($srchtype == 'encounter') {
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 // check for a match
-                if (strpos($data[2], (string) $e)) {
-                    $te = substr($data[2], strpos($data[2], '-') + 1);
+                if (strpos((string) $data[2], (string) $e)) {
+                    $te = substr((string) $data[2], strpos((string) $data[2], '-') + 1);
                     if (strcmp($te, $e) === 0) {
                         for ($i = 0; $i < $hct; $i++) {
                             $val[$h_ar[$i]] = $data[$i];
@@ -1812,8 +1812,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
             }
         } elseif ($srchtype == 'pid') {
             while (($data = fgetcsv($fh1, 1024, ',')) !== false) {
-                if (str_contains($data[2], (string) $p)) {
-                    $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2], '-')) : '';
+                if (str_contains((string) $data[2], (string) $p)) {
+                    $te = (strpos((string) $data[2], '-')) ? substr((string) $data[2], 0, strpos((string) $data[2], '-')) : '';
                     if (strcmp($te, $p) === 0) {
                         for ($i = 0; $i < $hct; $i++) {
                             $val[$h_ar[$i]] = $data[$i];
@@ -1826,7 +1826,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         } else {
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 // check for a match
-                if (strcmp($data[2], $pe) === 0) {
+                if (strcmp((string) $data[2], $pe) === 0) {
                     for ($i = 0; $i < $hct; $i++) {
                         $val[$h_ar[$i]] = $data[$i];
                     }
@@ -1838,7 +1838,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
 
         fclose($fh1);
     } else {
-        csv_edihist_log('csv_file_by_enctr: failed to open csv file ' . basename($fp));
+        csv_edihist_log('csv_file_by_enctr: failed to open csv file ' . basename((string) $fp));
         return false;
     }
 
@@ -2018,7 +2018,7 @@ function csv_denied_by_file($filetype, $filename, $trace = '')
         } elseif ($ft == 'f277') {
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 if ($data[5] == $filename) {
-                    if (!strpos('|A1|A2|A5', substr($data[3], 0, 2))) {
+                    if (!strpos('|A1|A2|A5', substr((string) $data[3], 0, 2))) {
                         $ret_ar[] = $data;
                     }
                 }

@@ -66,7 +66,7 @@ class ImmunizationController extends AbstractActionController
         if (empty($patient_id)) {
             $query_pids = '';
         } else {
-            $pid_arr = explode(',', $patient_id);
+            $pid_arr = explode(',', (string) $patient_id);
             $query_pids = '(';
             foreach ($pid_arr as $pid_val) {
                 $query_pids .= "p.pid = ( '";
@@ -206,7 +206,7 @@ class ImmunizationController extends AbstractActionController
             if (empty($patient_id)) {
                 $query_pids = '';
             } else {
-                $pid_arr = explode(',', $patient_id);
+                $pid_arr = explode(',', (string) $patient_id);
                 $query_pids = '(';
                 foreach ($pid_arr as $pid_val) {
                     $query_pids .= "p.pid = ( '";
@@ -281,7 +281,7 @@ class ImmunizationController extends AbstractActionController
                         $race_title = $this->CommonPlugin()->getListtitle('race', $r['race']);
                         $ethnicity_code = $this->getImmunizationTable()->getNotes($r['ethnicity'], 'ethnicity');
                         $ethnicity_title = $this->CommonPlugin()->getListtitle('ethnicity', $r['ethnicity']);
-                        $guardianarray = explode(' ', $r['guardiansname']);
+                        $guardianarray = explode(' ', (string) $r['guardiansname']);
                         $guardianname = $guardianarray[1] . '^' . $guardianarray[0];
                         if ($r['sex'] === 'Male') {
                             $r['sex'] = 'M';
@@ -570,7 +570,7 @@ class ImmunizationController extends AbstractActionController
                             $criteria_notes = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria'], 'immunization_observation');
                             $obs_value_notes = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria_value'], 'imm_vac_eligibility_results');
                             $criteria_value = $criteria_code . "^" . $val_obs['imo_criteria'] . "^" . $criteria_notes;
-                            $date_obs = preg_replace('/-/', '', substr($val_obs['imo_date_observation'], 0, 10));
+                            $date_obs = preg_replace('/-/', '', substr((string) $val_obs['imo_date_observation'], 0, 10));
                             if ($val_obs['imo_criteria'] == 'funding_program_eligibility') {
                                 $obs_value = $obs_value_notes . "^" . $val_obs['imo_criteria_value'] . "^HL70064";
                                 $obs_method = "VXC40^per immunization^CDCPHINVS";
@@ -617,7 +617,7 @@ class ImmunizationController extends AbstractActionController
                             if ($val_obs['imo_vis_date_published'] != 0) {
                                 $value_type = "TS";
                                 $criteria_value = "29768-9^Date vaccine information statement published^LN";
-                                $obs_value = preg_replace('/-/', '', $val_obs['imo_vis_date_published']);
+                                $obs_value = preg_replace('/-/', '', (string) $val_obs['imo_vis_date_published']);
                                 if ($key_obs > 1) {
                                     if ($last_key == 4) {
                                         $key_val = $last_key + 1;
@@ -653,7 +653,7 @@ class ImmunizationController extends AbstractActionController
                             if ($val_obs['imo_vis_date_presented'] != 0) {
                                 $value_type = "TS";
                                 $criteria_value = "29769-7^Date vaccine information statement presented^LN";
-                                $obs_value = preg_replace('/-/', '', $val_obs['imo_vis_date_presented']);
+                                $obs_value = preg_replace('/-/', '', (string) $val_obs['imo_vis_date_presented']);
                                 if ($key_obs > 1) {
                                     if ($last_key == 5) {
                                         $key_val = $last_key + 1;
@@ -750,10 +750,10 @@ class ImmunizationController extends AbstractActionController
      */
     public function format_phone($phone)
     {
-        $phone = preg_replace("/[^0-9]/", "", $phone);
-        return match (strlen($phone)) {
-            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone)),
-            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone)),
+        $phone = preg_replace("/[^0-9]/", "", (string) $phone);
+        return match (strlen((string) $phone)) {
+            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
+            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
             default => $this->tr("000 0000000"),
         };
     }

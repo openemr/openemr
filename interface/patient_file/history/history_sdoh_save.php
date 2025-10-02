@@ -162,5 +162,5 @@ if ($rec_id) {
 UuidRegistry::createMissingUuidsForTables(['form_history_sdoh']);
 // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
 // Return to demographics (or wherever you prefer)
-header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid));
+header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid));
 exit;

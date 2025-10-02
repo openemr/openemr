@@ -58,17 +58,17 @@ class EDI270
         //   '00' No Security Information Present
         //   (No Meaningful Information in I04)
         $ISA[4] = str_pad("", 10, " ");         // Security Information
-        $ISA[5] = str_pad($X12info['x12_isa05'], 2, " ");              // Interchange ID Qualifier
-        $ISA[6] = str_pad($X12info['x12_sender_id'], 15, " ");      // INTERCHANGE SENDER ID
-        $ISA[7] = str_pad($X12info['x12_isa07'], 2, " ");              // Interchange ID Qualifier
-        $ISA[8] = str_pad($X12info['x12_receiver_id'], 15, " ");      // INTERCHANGE RECEIVER ID
+        $ISA[5] = str_pad((string) $X12info['x12_isa05'], 2, " ");              // Interchange ID Qualifier
+        $ISA[6] = str_pad((string) $X12info['x12_sender_id'], 15, " ");      // INTERCHANGE SENDER ID
+        $ISA[7] = str_pad((string) $X12info['x12_isa07'], 2, " ");              // Interchange ID Qualifier
+        $ISA[8] = str_pad((string) $X12info['x12_receiver_id'], 15, " ");      // INTERCHANGE RECEIVER ID
         $ISA[9] = str_pad(date('ymd'), 6, " ");       // Interchange Date (YYMMDD)
         $ISA[10] = str_pad(date('Hi'), 4, " ");       // Interchange Time (HHMM)
         $ISA[11] = "^";                                 // Interchange Control Standards Identifier
         $ISA[12] = str_pad("00501", 5, " ");          // Interchange Control Version Number
         $ISA[13] = BillingClaimBatchControlNumber::getIsa13();      // INTERCHANGE CONTROL NUMBER
-        $ISA[14] = str_pad($X12info['x12_isa14'], 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
-        $ISA[15] = str_pad($X12info['x12_isa15'], 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
+        $ISA[14] = str_pad((string) $X12info['x12_isa14'], 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
+        $ISA[15] = str_pad((string) $X12info['x12_isa15'], 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
         $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
         $ISA['Created'] .= "*";
         $ISA['Created'] = $ISA ['Created'] . $compEleSep . $segTer;
@@ -239,7 +239,7 @@ class EDI270
         $DMG[0] = "DMG";                            // Date or Time or Period Segment ID
         $DMG[1] = "D8";                             // Date Format Qualifier - (D8 means CCYYMMDD)
         $DMG[2] = $row['dob'];                      // Subscriber's Birth date
-        $DMG[3] = strtoupper($row['sex'][0]);
+        $DMG[3] = strtoupper((string) $row['sex'][0]);
         $DMG['Created'] = implode('*', $DMG);  // Data Element Separator
         $DMG['Created'] .= $segTer;
         return trim($DMG['Created']);
@@ -425,10 +425,10 @@ class EDI270
         if ($details === false) {
             $details = "Error: Nothing returned from X12 Partner.";
         }
-        $isError = strpos($details, "Error:");
-        $isError = $isError !== false ? $isError : strpos($details, "AAA");
+        $isError = strpos((string) $details, "Error:");
+        $isError = $isError !== false ? $isError : strpos((string) $details, "AAA");
         if ($isError !== false) {
-            $details = substr($details, $isError);
+            $details = substr((string) $details, $isError);
             return "<div>" . nl2br(text($details)) . "</div>";
         }
 
@@ -494,7 +494,7 @@ class EDI270
             // make request
             $result = self::requestEligibility($X12info['id'], $PATEDI);
             $rowCount++;
-            $e = strpos($result, "Error:");
+            $e = strpos((string) $result, "Error:");
             if ($e !== false) {
                 $error_accum = $result;
             } else {
@@ -548,14 +548,14 @@ class EDI270
             $elig[5] = $row['subscriber_fname'];               // Subscriber First Name
             $elig[6] = $row['subscriber_mname'];               // Subscriber Middle Initial
             $elig[7] = $row['subscriber_dob'];                 // Subscriber Date of Birth
-            $elig[8] = substr($row['subscriber_sex'], 0, 1);       // Subscriber Sex
+            $elig[8] = substr((string) $row['subscriber_sex'], 0, 1);       // Subscriber Sex
             $elig[9] = $row['subscriber_ss'];              // Subscriber SSN
             $elig[10] = self::translateRelationship($row['subscriber_relationship']);    // Pt Relationship to insured
             $elig[11] = $row['lname'];                  // Dependent Last Name
             $elig[12] = $row['fname'];                  // Dependent First Name
             $elig[13] = $row['mname'];                  // Dependent Middle Initial
             $elig[14] = $row['dob'];                    // Dependent Date of Birth
-            $elig[15] = substr($row['sex'], 0, 1);              // Dependent Sex
+            $elig[15] = substr((string) $row['sex'], 0, 1);              // Dependent Sex
             $elig[16] = $row['pc_eventDate'];               // Date of service
             $elig[17] = "30";                       // Service Type
             $elig[18] = $row['pubpid'];                     // Patient Account Number pubpid
@@ -564,7 +564,7 @@ class EDI270
 				<td class ='detail'>" . text($row['facility_name']) . "</td>
 				<td class ='detail'>" . text($row['facility_npi']) . "</td>
 				<td class ='detail'>" . text($row['payer_name']) . "</td>
-				<td class ='detail'>" . text(date("m/d/Y", strtotime($row['pc_eventDate']))) . "</td>
+				<td class ='detail'>" . text(date("m/d/Y", strtotime((string) $row['pc_eventDate']))) . "</td>
 				<td class ='detail'>" . text($row['policy_number']) . "</td>
 				<td class ='detail'>" . text($row['subscriber_lname'] . " " . $row['subscriber_fname']) . "</td>
 				<td class ='detail'>" . text($row['subscriber_dob']) . "</td>
@@ -615,8 +615,8 @@ class EDI270
                 $showString .= "<b>" . xlt('Verified On') . ":</b> " . text($benefit['verificationDate']) . "<br/><br/>\n";
                 $showString .= "</div><br/>\n";
             }
-            $benefit['start_date'] = !str_contains($benefit['start_date'], "0000") ? $benefit['start_date'] : '';
-            $benefit['end_date'] = !str_contains($benefit['end_date'], "0000") ? $benefit['end_date'] : '';
+            $benefit['start_date'] = !str_contains((string) $benefit['start_date'], "0000") ? $benefit['start_date'] : '';
+            $benefit['end_date'] = !str_contains((string) $benefit['end_date'], "0000") ? $benefit['end_date'] : '';
             $color = "";
             switch ($benefit['type']) {
                 case '1':
@@ -637,8 +637,8 @@ class EDI270
             }
             $showString .= "\n<div class='col col-sm-6' >\n";
             $showString .= !empty($benefit['benefit_type']) ? "<b style='color: $color'>" . xlt('Benefit Type') . ": " . text($benefit['benefit_type']) . "</b><br />\n" : '';
-            $showString .= !empty($benefit['start_date']) ? "<b>" . xlt('Start Date') . ":</b> " . text(date("m/d/Y", strtotime($benefit['start_date']))) . "<br />\n" : '';
-            $showString .= !empty($benefit['end_date']) ? "<b>" . xlt('End Date') . ":</b> " . text(date("m/d/Y", strtotime($benefit['end_date']))) . "<br />\n" : '';
+            $showString .= !empty($benefit['start_date']) ? "<b>" . xlt('Start Date') . ":</b> " . text(date("m/d/Y", strtotime((string) $benefit['start_date']))) . "<br />\n" : '';
+            $showString .= !empty($benefit['end_date']) ? "<b>" . xlt('End Date') . ":</b> " . text(date("m/d/Y", strtotime((string) $benefit['end_date']))) . "<br />\n" : '';
             $showString .= !empty($benefit['coverage_level']) ? "<b>" . xlt('Coverage Level') . ":</b> " . text($benefit['coverage_level']) . "<br />\n" : '';
             $showString .= !empty($benefit['coverage_type']) ? "<b>" . xlt('Coverage Type') . ":</b> " . text($benefit['coverage_type']) . "<br />\n" : '';
             $showString .= !empty($benefit['plan_type']) ? "<b>" . xlt('Plan Type') . ":</b> " . text($benefit['plan_type']) . "<br />\n" : '';
@@ -870,12 +870,12 @@ class EDI270
         // Normalize
         $mimeBody = preg_replace('~\r\n?~', "\r\n", $formBody);
         // Extract boundary from content type
-        [$contentType, $boundaryDirective] = explode(";", trim($contentType));
+        [$contentType, $boundaryDirective] = explode(";", trim((string) $contentType));
         $boundary = trim(explode("=", trim($boundaryDirective))[1], '"');
         $boundary = preg_quote($boundary, '/');
         // Split the body using boundary
         $pattern = "/--" . $boundary . "(--)?\r?\n/";
-        $mimeFields = preg_split($pattern, $mimeBody);
+        $mimeFields = preg_split($pattern, (string) $mimeBody);
         // Remove any empty elements, like the final one after the closing boundary
         $mimeFields = array_filter($mimeFields);
         $mimeData = [];
@@ -907,7 +907,7 @@ class EDI270
         $fn = "%" . $fn . "%";
         $ln = "%" . $ln . "%";
         $sex = "%" . $sex . "%";
-        $dob = date("Y-m-d", strtotime($dob));
+        $dob = date("Y-m-d", strtotime((string) $dob));
         $sql = "SELECT pid FROM patient_data WHERE fname LIKE ? && lname LIKE ? && sex LIKE ? && DOB LIKE ?";
         $rtn = sqlQuery($sql, [$fn, $ln, $sex, $dob]);
 
@@ -923,7 +923,7 @@ class EDI270
         // not sure if want to save yet
         $target .= time();
 
-        $responses = explode("\n", $content);
+        $responses = explode("\n", (string) $content);
         if (empty($responses)) {
             $responses = $content;
         }

@@ -194,7 +194,7 @@ class CoverageValidator extends BaseValidator
                                     throw new InvalidValueException("A current policy (no end date) already exists for this patient and type.", "Record::DUPLICATE_CURRENT_POLICY");
                                 }
                             }
-                            if (!empty($values['date_end']) && strtotime($values['date']) > strtotime($values['date_end'])) {
+                            if (!empty($values['date_end']) && strtotime((string) $values['date']) > strtotime((string) $values['date_end'])) {
                                 throw new InvalidValueException("Start date cannot be after end date", "DateTime::INVALID_START_DATE");
                             }
                         }

@@ -125,8 +125,8 @@ function feSearchSort($search = '', $column = 0, $reverse = false)
     $arr = [];
     foreach ($form_encounter_layout as $feitem) {
         if (
-            $search && stripos($feitem['field_id'], (string) $search) === false &&
-            stripos($feitem['title'], (string) $search) === false
+            $search && stripos((string) $feitem['field_id'], (string) $search) === false &&
+            stripos((string) $feitem['title'], (string) $search) === false
         ) {
             continue;
         }
@@ -302,7 +302,7 @@ if ($what == 'fields' && $source == 'V') {
      * @global $code_external_tables
      */
     $stopEmptySearch = $externalTableId && $code_external_tables[$externalTableId][SKIP_TOTAL_TABLE_COUNT] ?? false;
-    if (empty(trim($searchTerm)) && $stopEmptySearch) {
+    if (empty(trim((string) $searchTerm)) && $stopEmptySearch) {
         $out['iSearchEmptyError'] = xl('Search term is required for this code type.');
         echo json_encode($out);
         exit;
@@ -333,7 +333,7 @@ if ($what == 'fields' && $source == 'V') {
     if (!empty($res)) {
         while ($count < $number && $row = sqlFetchArray($res)) {// && $iFilteredTotal < $maxCount) {
             $dynCodeType = $codetype;
-            if (stripos($codetype, 'VALUESET') !== false) {
+            if (stripos((string) $codetype, 'VALUESET') !== false) {
                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
             }
             $arow = ['DT_RowId' => genFieldIdString([
@@ -342,7 +342,7 @@ if ($what == 'fields' && $source == 'V') {
                 'codetype' => $dynCodeType,
                 'modifier' => $row['modifier'],
             ])];
-            $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+            $arow[] = str_replace('|', ':', rtrim((string) $row['code'], '|'));
             $arow[] = $row['code_text'];
             $arow[] = $row['modifier'];
             $out['aaData'][] = $arow;
@@ -364,7 +364,7 @@ if ($what == 'fields' && $source == 'V') {
             $arow[] = $row['field_id'];
             $arow[] = $row['title'];
         } else {
-            $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+            $arow[] = str_replace('|', ':', rtrim((string) $row['code'], '|'));
             $arow[] = $row['description'] ?? "";
             $arow[] = $row['modifier'] ?? "";
         }

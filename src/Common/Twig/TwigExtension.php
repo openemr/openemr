@@ -335,7 +335,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(
                 'dateToTime',
-                fn($str): int|false => strtotime($str)
+                fn($str): int|false => strtotime((string) $str)
             ),
             new TwigFilter(
                 'addCacheParam',

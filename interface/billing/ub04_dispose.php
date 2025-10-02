@@ -25,7 +25,7 @@ function ub04_dispose(): void
             $pid = $_POST['pid'] ?? $_GET['pid'];
             $encounter = $_POST['encounter'] ?? $_GET['encounter'];
             $action = $_REQUEST['action'];
-            $ub04id = json_decode($ub04id, true);
+            $ub04id = json_decode((string) $ub04id, true);
             saveTemplate($encounter, $pid, $ub04id, $action);
             exit();
         } elseif ($dispose == "payer_save") {
@@ -203,7 +203,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $exist_ub04 = exist_ub04_claim($pid, $encounter);
     if ($exist_ub04) {
         $log .= "*** Info: Using saved edited claim.";
-        return json_decode($exist_ub04, true);
+        return json_decode((string) $exist_ub04, true);
     }
     $log .= "*** Generating UB04 Claim.";
     $today = time();
@@ -216,19 +216,19 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[4] = $claim->billingFacilityStreet();
     $ub04id[8] = $claim->billingFacilityCity() . ', ' . $claim->billingFacilityState() . ', ' . $claim->billingFacilityZip(); /* 1. BILLING PROVIDER CITY, STATE, ZIP */
     $tmp = $claim->billingContactPhone();
-    $ub04id[10] = substr($tmp, 0, 3) . '-' . substr($tmp, 3, 3) . '-' . substr($tmp, 6);
+    $ub04id[10] = substr((string) $tmp, 0, 3) . '-' . substr((string) $tmp, 3, 3) . '-' . substr((string) $tmp, 6);
     $ub04id[3] = $pid . ' ' . $encounter; /* 3a. PATIENT CONTROL NUMBER */
     $ub04id[6] = $pid; /* 3b. MEDICAL/HEALTH RECORD NUMBER */
     $ub04id[7] = ! empty($ub04id[7]) ? $ub04id[7] : '831'; /* 4. TYPE OF BILL */
     $ub04id[12] = $claim->facilityETIN(); /* 5. FEDERAL TAX NUMBER */
 
     $tmp = $claim->serviceDate();
-    $ub04id[13] = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2); /* 6. STATEMENT COVERS PERIOD FROM DATE */
+    $ub04id[13] = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2); /* 6. STATEMENT COVERS PERIOD FROM DATE */
     $ub04id[14] = ''; /* 6. STATEMENT COVERS PERIOD TO DATE */
     // $ub04id[16] = ''; /* 8a. PATIENT IDENTIFIER */
     $tmp = $claim->patientLastName() . ', ' . $claim->patientFirstName();
     if ($claim->patientMiddleName()) {
-        $tmp .= ', ' . substr($claim->patientMiddleName(), 0, 1);
+        $tmp .= ', ' . substr((string) $claim->patientMiddleName(), 0, 1);
     }
     $ub04id[18] = $tmp; /* 8b. PATIENT NAME */
     $ub04id[17] = $claim->patientStreet(); /* 9a. PATIENT STREET ADDRESS */
@@ -237,10 +237,10 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[21] = $claim->patientZip(); /* 9d. PATIENT ZIP CODE */
     $ub04id[22] = ''; /* 9e. PATIENT COUNTRY CODE */
     $tmp = $claim->patientDOB();
-    $ub04id[23] = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 0, 4); /* 10. PATIENT BIRTH DATE (MMDDYYYY) */
+    $ub04id[23] = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 0, 4); /* 10. PATIENT BIRTH DATE (MMDDYYYY) */
     $ub04id[24] = $claim->patientSex(); /* 11. PATIENT SEX */
     $tmp = $claim->onsetDate();
-    $ub04id[25] = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2); /* 12. PATIENT ADMISSION/START OF CARE DATE (MMDDYY) */
+    $ub04id[25] = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2); /* 12. PATIENT ADMISSION/START OF CARE DATE (MMDDYY) */
 
     $ub04_proc_index = 0; // Test for second page of charges.
     $proccount = $claim->procCount();
@@ -294,7 +294,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
 
         // @todo need if inpatient or out patient for box 74 - 74e
         $tmp = $claim->cleanDate($revcode2[$mcnt]['date']);
-        $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
+        $sdate = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2);
         if ($pcnt < 6) {
             $ub04id[$dos++] = $revcode2[$mcnt]['code']; /* 74. PRINCIPAL PROCEDURE CODE */
             $ub04id[$dos++] = $sdate; /* 74. PRINCIPAL PROCEDURE DATE */
@@ -305,9 +305,9 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
         // @todo Deal with code modifiers $revcode2[$mcnt][modifier]
         $tmp = $claim->serviceDate();
-        $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
+        $sdate = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2);
         $ub04id[$os] = $claim->procs[$mcnt]['revenue_code']; // 42. REVENUE CODE, Line 1-23 */
-        $ub04id[++$os] = strtoupper($revcode2[$mcnt]['code_text']); /* 43. REVENUE DESCRIPTION, Line 1-23 */
+        $ub04id[++$os] = strtoupper((string) $revcode2[$mcnt]['code_text']); /* 43. REVENUE DESCRIPTION, Line 1-23 */
         $ub04id[++$os] = trim($revcode2[$mcnt]['code'] . ' ' . $revcode2[$mcnt]['modifier']); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
         $ub04id[++$os] = $sdate; /* 45. SERVICE DATE, Line 1-23 */
         $ub04id[++$os] = $revcode2[$mcnt]['units']; /* 46. SERVICE UNITS, Line 1-23 */
@@ -331,11 +331,11 @@ function get_ub04_array($pid, $encounter, &$log = "")
         $diagnosis[] = $diag;
         if (! empty($diag)) {
             if ($os == 362) {
-                $ub04id[$os++] = substr($diag, 0, 7);
+                $ub04id[$os++] = substr((string) $diag, 0, 7);
                 $ub04id[366] = "";
                 continue;
             }
-            $ub04id[$os++] = substr($diag, 0, 7);
+            $ub04id[$os++] = substr((string) $diag, 0, 7);
             $ub04id[$os++] = "";
         }
         if ($os == 346) {
@@ -372,7 +372,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     }
 
     if ($claim->insuredMiddleName()) {
-        $tmp = $claim->insuredLastName() . ', ' . $claim->insuredFirstName() . ' ' . substr($claim->insuredMiddleName(), 0, 1);
+        $tmp = $claim->insuredLastName() . ', ' . $claim->insuredFirstName() . ' ' . substr((string) $claim->insuredMiddleName(), 0, 1);
     } else {
         $tmp = $claim->insuredLastName() . ', ' . $claim->insuredFirstName();
     }
