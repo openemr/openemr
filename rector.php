@@ -49,6 +49,7 @@ use Rector\Php80\Rector\Identical\StrStartsWithRector;
 use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Php81\Rector\Array_\FirstClassCallableRector;
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Php81\Rector\MethodCall\RemoveReflectionSetAccessibleCallsRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
@@ -116,6 +117,7 @@ return RectorConfig::configure()
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         NullCoalescingOperatorRector::class, // one of the withPhpSets rules
+        NullToStrictStringFuncCallArgRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
