@@ -13,6 +13,7 @@ use Rector\Php56\Rector\FuncCall\PowToExpRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
 use Rector\Php70\Rector\If_\IfToSpaceshipRector;
+use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
@@ -67,6 +68,7 @@ return RectorConfig::configure()
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
         DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
         EregToPregMatchRector::class, // one of the withPhpSets rules
+        IfIssetToCoalescingRector::class, // one of the withPhpSets rules
         IfToSpaceshipRector::class, // one of the withPhpSets rules
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
