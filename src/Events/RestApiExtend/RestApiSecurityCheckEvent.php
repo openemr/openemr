@@ -23,11 +23,6 @@ class RestApiSecurityCheckEvent extends Event
 {
     const EVENT_HANDLE = 'api.route.security.check';
 
-    /**
-     * @var HttpRestRequest
-     */
-    private $restRequest;
-
     private $scopeType;
 
     /**
@@ -51,14 +46,13 @@ class RestApiSecurityCheckEvent extends Event
     private string $permission;
 
     /**
-     * @param HttpRestRequest|null $request
+     * @param HttpRestRequest|null $restRequest
      */
-    public function __construct(?HttpRestRequest $request = null)
+    public function __construct(private ?HttpRestRequest $restRequest = null)
     {
         $this->permission = "";
         $this->scopeType = "";
         $this->resource = "";
-        $this->restRequest = $request;
         $this->securityCheckFailedResponse = null;
         $this->skipSecurityCheck = false;
     }

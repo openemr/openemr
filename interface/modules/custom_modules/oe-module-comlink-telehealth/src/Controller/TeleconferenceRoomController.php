@@ -66,26 +66,6 @@ class TeleconferenceRoomController
     const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
 
     /**
-     * @var Environment
-     */
-    private Environment $twig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private LoggerInterface $logger;
-
-    /**
-     * @var boolean  Whether we are running as a patient in the portal context
-     */
-    private bool $isPatient;
-
-    /**
-     * @var string The location where the module assets are stored
-     */
-    private string $assetPath;
-
-    /**
      * @var EncounterService
      */
     private EncounterService $encounterService;
@@ -106,61 +86,31 @@ class TeleconferenceRoomController
     private TeleHealthUserRepository $telehealthUserRepo;
 
     /**
-     * @var TeleHealthVideoRegistrationController
+     * @param bool $isPatient
+     * @param string $assetPath
      */
-    private TeleHealthVideoRegistrationController $telehealthRegistrationController;
-
-    /**
-     * @var TeleHealthParticipantInvitationMailerService
-     */
-    private TeleHealthParticipantInvitationMailerService $mailerService;
-
-    /**
-     * @var TeleHealthFrontendSettingsController
-     */
-    private TeleHealthFrontendSettingsController $settingsController;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private TelehealthGlobalConfig $config;
-
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private TeleHealthProvisioningService $provisioningService;
-
-    /**
-     * @var ParticipantListService
-     */
-    private ParticipantListService $participantListService;
-
     public function __construct(
-        Environment $twig,
-        LoggerInterface $logger,
-        TeleHealthVideoRegistrationController $registrationController,
-        TeleHealthParticipantInvitationMailerService $mailerService,
-        TeleHealthFrontendSettingsController $settingsController,
-        TelehealthGlobalConfig $config,
-        TeleHealthProvisioningService $provisioningService,
-        ParticipantListService $participantListService,
-        $assetPath,
-        $isPatient = false
+        private Environment $twig,
+        private LoggerInterface $logger,
+        private TeleHealthVideoRegistrationController $telehealthRegistrationController,
+        private TeleHealthParticipantInvitationMailerService $mailerService,
+        private TeleHealthFrontendSettingsController $settingsController,
+        private TelehealthGlobalConfig $config,
+        private TeleHealthProvisioningService $provisioningService,
+        private ParticipantListService $participantListService,
+        /**
+         * @var string The location where the module assets are stored
+         */
+        private string $assetPath,
+        /**
+         * @var boolean  Whether we are running as a patient in the portal context
+         */
+        private bool $isPatient = false
     ) {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->isPatient = $isPatient;
         $this->appointmentService = new AppointmentService();
         $this->encounterService = new EncounterService();
         $this->sessionRepository = new TeleHealthSessionRepository();
-        $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
-        $this->mailerService = $mailerService;
-        $this->settingsController = $settingsController;
-        $this->config = $config;
-        $this->provisioningService = $provisioningService;
-        $this->participantListService = $participantListService;
     }
 
     /**

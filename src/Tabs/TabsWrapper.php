@@ -16,12 +16,10 @@ namespace OpenEMR\Tabs;
 
 class TabsWrapper
 {
-    public $tabsid;
     public $tabs = [];
 
-    function __construct($tabsid = 'tabs')
+    function __construct(public $tabsid = 'tabs')
     {
-        $this->tabsid = $tabsid;
     }
 
     // Declare an initial tab that will not be dynamically created.

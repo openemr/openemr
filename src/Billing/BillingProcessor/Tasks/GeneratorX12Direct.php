@@ -34,15 +34,6 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     use WritesToBillingLog;
 
     /**
-     * If "Allow Encounter Claims" is enabled, this allows the claims to use
-     * the alternate payor ID on the claim and sets the claims to report,
-     * not chargeable. ie: RP = reporting, CH = chargeable
-     *
-     * @var bool|mixed
-     */
-    protected $encounter_claim = false;
-
-    /**
      * An array of batches, one for each x-12 partner, indexed by partner id
      *
      * @var array
@@ -68,10 +59,15 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected $pat_segment_counts = [];
 
-    public function __construct($action, $encounter_claim = false)
-    {
+    public function __construct(
+        $action, /**
+         * If "Allow Encounter Claims" is enabled, this allows the claims to use
+         * the alternate payor ID on the claim and sets the claims to report,
+         * not chargeable. ie: RP = reporting, CH = chargeable
+         */
+        protected $encounter_claim = false
+    ) {
         parent::__construct($action);
-        $this->encounter_claim = $encounter_claim;
     }
 
     /**

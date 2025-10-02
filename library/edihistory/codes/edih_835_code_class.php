@@ -45,22 +45,14 @@ class edih_835_codes
 //
 //public $code835 = array();
     private $code835 = [];
-    private $ds = '';
-    private $dr = '';
 // the key_match array is a concept of matching code lists to
 // segment elements when diferent segments are looking for the same
 // code or reference lists
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //
-    function __construct($component_separator = '', $repetition_separator = '')
+    function __construct(private $ds = '', private $dr = '')
     {
-        //
-        //
-        // these seperators are not necessarily used and composite
-        // elements can (should) be separated out before submitting codes
-        $this->ds = $component_separator;
-        $this->dr = $repetition_separator;
         //
         // BPR Transaction Handling Code
         $this->code835['BPR01'] = [

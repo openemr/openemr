@@ -25,11 +25,6 @@ class ExportStreamWriter
     private $hasWrittenBytes = false;
 
     /**
-     * @var resource
-     */
-    private $stream;
-
-    /**
      * The last resource identifier that was processed by this export writer.  This allows callers to resume / retry
      * @var string
      */
@@ -45,9 +40,11 @@ class ExportStreamWriter
      */
     private $recordsWritten;
 
-    public function __construct($stream, \DateTime $shutdownTime)
+    /**
+     * @param resource $stream
+     */
+    public function __construct(private $stream, \DateTime $shutdownTime)
     {
-        $this->stream = $stream;
         $this->shutdownTime = $shutdownTime->getTimestamp();
         $this->recordsWritten = 0;
     }

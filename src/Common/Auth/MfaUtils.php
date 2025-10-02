@@ -25,8 +25,7 @@ class MfaUtils
     private $regs;
     private $registrations;
     private $var1U2F;
-    private $var1TOTP;
-    private $uid; // User Id who try connect
+    private $var1TOTP; // User Id who try connect
     private $errorMsg = '';
     private $appId;
 
@@ -35,13 +34,12 @@ class MfaUtils
      * Load the settings of user from login_mfa_registrations
      * @param $uid - user Id
      */
-    public function __construct($uid)
+    public function __construct(private $uid)
     {
-        $this->uid = $uid;
         $res = sqlStatementNoLog(
             "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
             "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-            [$uid]
+            [$this->uid]
         );
         while ($row = sqlFetchArray($res)) {
             if ($row['method'] == 'U2F') {

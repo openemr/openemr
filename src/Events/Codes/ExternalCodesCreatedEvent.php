@@ -21,15 +21,12 @@ class ExternalCodesCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'external_codes.register';
 
-    private $externalCodeData;
-
     /**
      * ExternalCodesEvent constructor.
      * @param $externalCodes
      */
-    public function __construct($externalCodeData)
+    public function __construct(private $externalCodeData)
     {
-        $this->externalCodeData = $externalCodeData;
     }
 
     /**

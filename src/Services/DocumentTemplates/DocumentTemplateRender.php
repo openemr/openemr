@@ -30,7 +30,6 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 class DocumentTemplateRender
 {
-    private $pid;
     private $user;
     private int $nextLocation = 0; // offset to resume scanning
     private mixed $keyLocation = false; // offset of a potential {string} to replace
@@ -52,9 +51,8 @@ class DocumentTemplateRender
     public $version;
     private DocumentTemplateService $templateService;
 
-    public function __construct($pid, $user, $encounter = null)
+    public function __construct(private $pid, $user, $encounter = null)
     {
-        $this->pid = $pid;
         $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
         $this->encounter = $encounter ?: $GLOBALS['encounter'];
         $this->version = (new VersionService())->asString();

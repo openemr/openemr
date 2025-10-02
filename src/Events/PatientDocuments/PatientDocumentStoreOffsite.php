@@ -17,15 +17,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PatientDocumentStoreOffsite extends Event
 {
     const REMOTE_STORAGE_LOCATION = 'documents.remote.storage.location';
-    private mixed $data;
     private string $remoteFileName;
     private string $mimeType;
     private mixed $category;
     private mixed $patientId;
 
-    public function __construct($data)
+    public function __construct(private mixed $data)
     {
-        $this->data = $data;
     }
     public function getData()
     {

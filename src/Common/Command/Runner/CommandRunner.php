@@ -20,25 +20,23 @@ use OpenEMR\Common\Command\IOpenEMRCommand;
 
 class CommandRunner
 {
-    /**
-     * The OpenEMR root installation folder
-     * @var string
-     */
-    private $rootPath;
-
-    /**
-     * The name of the script that is calling the command runner
-     * @var string
-     */
-    private $scriptName;
-
     const COMMAND_NAMESPACE = 'OpenEMR\\Common\\Command\\';
     const COMMAND_SUFFIX = "Command";
 
-    public function __construct($rootPath, $scriptName)
-    {
-        $this->rootPath = $rootPath;
-        $this->scriptName = $scriptName;
+    /**
+     * @param string $rootPath
+     * @param string $scriptName
+     */
+    public function __construct(
+        /**
+         * The OpenEMR root installation folder
+         */
+        private $rootPath,
+        /**
+         * The name of the script that is calling the command runner
+         */
+        private $scriptName
+    ) {
     }
 
     public function run()

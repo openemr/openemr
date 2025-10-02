@@ -26,31 +26,13 @@ use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 class TeleHealthPatientAdminController
 {
     /**
-     * @var TelehealthGlobalConfig
-     */
-    private $globalConfig;
-
-    /**
-     * @var TeleHealthUserRepository
-     */
-    private $userRepository;
-
-    /**
      * @var TelehealthRegistrationCodeService
      */
     private $registrationCodeService;
 
-    /**
-     * @var TeleHealthRemoteRegistrationService
-     */
-    private $remoteRegistrationService;
-
-    public function __construct(TelehealthGlobalConfig $globalConfig, TeleHealthUserRepository $userRepository, TeleHealthRemoteRegistrationService $remoteService)
+    public function __construct(private TelehealthGlobalConfig $globalConfig, private TeleHealthUserRepository $userRepository, private TeleHealthRemoteRegistrationService $remoteRegistrationService)
     {
-        $this->globalConfig = $globalConfig;
-        $this->userRepository = $userRepository;
-        $this->registrationCodeService = new TelehealthRegistrationCodeService($globalConfig, $userRepository);
-        $this->remoteRegistrationService = $remoteService;
+        $this->registrationCodeService = new TelehealthRegistrationCodeService($this->globalConfig, $this->userRepository);
     }
 
     public function subscribeToEvents(EventDispatcher $dispatcher)

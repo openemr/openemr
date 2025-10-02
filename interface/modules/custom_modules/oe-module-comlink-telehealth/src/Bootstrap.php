@@ -51,11 +51,6 @@ class Bootstrap
     const MODULE_NAME = "";
     const MODULE_MENU_NAME = "TeleHealth";
 
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
-
     private $moduleDirectoryName;
 
     /**
@@ -116,14 +111,17 @@ class Bootstrap
      */
     private $serviceRegistry = [];
 
-    public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
-    {
+    public function __construct(/**
+         * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
+         */
+        private EventDispatcher $eventDispatcher,
+        ?Kernel $kernel = null
+    ) {
         global $GLOBALS;
 
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
-        $this->eventDispatcher = $dispatcher;
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;

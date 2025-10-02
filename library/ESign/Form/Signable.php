@@ -30,16 +30,9 @@ require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {
-    protected $_encounterId = null;
-    protected $_formId = null;
-    protected $_formDir = null;
-
-    public function __construct($formId, $formDir, $encounterId)
+    public function __construct(protected $_formId, protected $_formDir, protected $_encounterId)
     {
-        $this->_formId = $formId;
-        $this->_formDir = $formDir;
-        $this->_encounterId = $encounterId;
-        parent::__construct($formId, 'forms');
+        parent::__construct($this->_formId, 'forms');
     }
 
     protected function getLastLockHash()

@@ -30,8 +30,6 @@ class Criteria
     protected $_map_object_class;
     private $_fieldmaps;
     private $_keymaps;
-    private $_constructor_where;
-    private $_constructor_order;
     private $_set_order;
     private $_and =  [];
     private $_or =  [];
@@ -43,13 +41,10 @@ class Criteria
      * @var $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
      */
     public $Filters;
-    public function __construct($where = "", $order = "")
+    public function __construct(private $_constructor_where = "", private $_constructor_order = "")
     {
-        $this->_constructor_where = $where;
-        $this->_constructor_order = $order;
-
-        $this->_where = $where;
-        $this->_order = $order;
+        $this->_where = $this->_constructor_where;
+        $this->_order = $this->_constructor_order;
 
         $this->Init();
     }

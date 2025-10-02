@@ -17,13 +17,16 @@ use Throwable;
 class ExportException extends \Exception
 {
     /**
-     * @var string The last FHIR resource id that was exported by the system.
+     * @param string $lastExportedId
      */
-    private $lastExportedId;
-
-    public function __construct($message = "", $code = 0, $lastExportedId = null, ?Throwable $previous = null)
-    {
-        $this->lastExportedId = $lastExportedId;
+    public function __construct(
+        $message = "",
+        $code = 0, /**
+         * @var string The last FHIR resource id that was exported by the system.
+         */
+        private $lastExportedId = null,
+        ?Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
     }
 

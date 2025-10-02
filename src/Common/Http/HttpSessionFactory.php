@@ -28,19 +28,10 @@ class HttpSessionFactory implements SessionFactoryInterface
      */
     private string $sessionType;
 
-    private HttpRestRequest $request;
-
-    private string $web_root;
-
-    private bool $readOnly;
-
     private bool $useBridge = false;
 
-    public function __construct(HttpRestRequest $request, string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, bool $readOnly = false)
+    public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
     {
-        $this->readOnly = $readOnly;
-        $this->web_root = $web_root;
-        $this->request = $request;
         if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE])) {
             throw new \InvalidArgumentException("Invalid session type: $sessionType");
         }

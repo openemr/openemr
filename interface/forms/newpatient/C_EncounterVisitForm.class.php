@@ -45,14 +45,6 @@ use Twig\TwigFunction;
 class C_EncounterVisitForm
 {
     private Environment $twig;
-    private array $issueTypes;
-
-    private string $rootdir;
-
-    /**
-     * @var string $pageName The name to use when firing off any events for this page
-     */
-    private string $pageName;
 
     private EventDispatcher $eventDispatcher;
 
@@ -65,18 +57,23 @@ class C_EncounterVisitForm
      * @param $issueTypes
      * @param $rootdir
      * @throws \Exception
+     * @param string $pageName
      */
-    public function __construct($templatePath, Kernel $kernel, $issueTypes, $rootdir, $pageName = 'newpatient/common.php')
-    {
+    public function __construct(
+        $templatePath,
+        Kernel $kernel,
+        private array $issueTypes,
+        private string $rootdir, /**
+         * @var string $pageName The name to use when firing off any events for this page
+         */
+        private string $pageName = 'newpatient/common.php'
+    ) {
         // Initialize Twig
         $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
-        $this->issueTypes = $issueTypes;
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', [$this, 'displayOption']));
         $this->eventDispatcher = $kernel->getEventDispatcher();
-        $this->rootdir = $rootdir;
-        $this->pageName = $pageName;
         $this->viewmode = false;
         $this->mode = 'edit';
     }

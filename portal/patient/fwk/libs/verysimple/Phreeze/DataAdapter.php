@@ -28,7 +28,6 @@ class DataAdapter implements IObservable
     private $_observers =  [];
     private $_dbconn;
     private $_dbopen;
-    private $_driver;
     private $_label;
     private $_transactionInProgress;
     private $_masterAdapter;
@@ -56,9 +55,8 @@ class DataAdapter implements IObservable
      * @param
      *          string (optional) a label for the DataAdapter used in debug messages (if empty a random label will be generated)
      */
-    function __construct($csetting, $listener = null, ?IDataDriver $driver = null, $label = null)
+    function __construct($csetting, $listener = null, private ?IDataDriver $_driver = null, $label = null)
     {
-        $this->_driver = $driver;
         if ($this->_driver) {
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
         }

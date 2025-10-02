@@ -26,10 +26,8 @@ define("DBH_LOG_ERROR", 32);
  */
 class DBEventHandler
 {
-    public $LogLevel;
-    function __construct($level = DBH_LOG_NONE)
+    function __construct(public $LogLevel = DBH_LOG_NONE)
     {
-        $this->LogLevel = $level;
     }
 
     /**

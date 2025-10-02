@@ -9,11 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OAuth2PublicJsonWebKeyController
 {
-    private string $publicKeyPath;
-
-    public function __construct(string $publicKeyPath)
+    public function __construct(private string $publicKeyPath)
     {
-        $this->publicKeyPath = $publicKeyPath;
         // Constructor can be used for dependency injection if needed
     }
 

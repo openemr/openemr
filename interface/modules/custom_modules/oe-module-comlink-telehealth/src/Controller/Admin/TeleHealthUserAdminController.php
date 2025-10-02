@@ -26,26 +26,8 @@ use Twig\Environment;
 
 class TeleHealthUserAdminController
 {
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-
-    /**
-     * @var TeleHealthPersonSettingsRepository
-     */
-    private $personSettingsRepository;
-
-    public function __construct(TelehealthGlobalConfig $globalConfig, Environment $twig, TeleHealthPersonSettingsRepository $settingsRepository)
+    public function __construct(private TelehealthGlobalConfig $config, private Environment $twig, private TeleHealthPersonSettingsRepository $personSettingsRepository)
     {
-        $this->config = $globalConfig;
-        $this->twig = $twig;
-        $this->personSettingsRepository = $settingsRepository;
     }
 
     public function subscribeToEvents(EventDispatcher $dispatcher)

@@ -38,10 +38,6 @@ class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-dorn";
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.
@@ -63,8 +59,12 @@ class Bootstrap
      */
     private $logger;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
-    {
+    public function __construct(/**
+         * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
+         */
+        private EventDispatcherInterface $eventDispatcher,
+        ?Kernel $kernel = null
+    ) {
         global $GLOBALS;
 
         if (empty($kernel)) {
@@ -78,7 +78,6 @@ class Bootstrap
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->eventDispatcher = $eventDispatcher;
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);

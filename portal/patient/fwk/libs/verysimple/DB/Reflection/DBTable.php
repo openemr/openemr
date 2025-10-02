@@ -21,7 +21,6 @@ require_once("DBKey.php");
  */
 class DBTable
 {
-    public $Schema;
     public $Name;
     public $Engine;
     public $Comment;
@@ -40,12 +39,11 @@ class DBTable
      * Instantiate new DBTable
      *
      * @access public
-     * @param DBSchema $schema
+     * @param DBSchema $Schema
      * @return Array $row array that is result from "show tables" statement
      */
-    function __construct($schema, $row)
+    function __construct(public $Schema, $row)
     {
-        $this->Schema = $schema;
         $this->Name = $row ["Tables_in_" . $this->Schema->Name];
         $this->Columns =  [];
         $this->PrimaryKeys =  [];
