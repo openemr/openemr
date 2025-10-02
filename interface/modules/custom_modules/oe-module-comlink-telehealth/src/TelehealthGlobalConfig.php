@@ -76,7 +76,7 @@ class TelehealthGlobalConfig
     private $publicWebPath;
 
 
-    public function __construct($publicWebPath, $moduleDirectoryName, private Environment $twig)
+    public function __construct($publicWebPath, $moduleDirectoryName, private readonly Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;

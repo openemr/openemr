@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class DeletePayment extends Event
 {
     const ACTION_DELETE_PAYMENT = 'billing.payment.action.delete.payment';
-    public function __construct(private int $paymentId)
+    public function __construct(private readonly int $paymentId)
     {
     }
     public function getPaymentId(): int

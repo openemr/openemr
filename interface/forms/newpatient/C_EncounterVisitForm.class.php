@@ -44,9 +44,9 @@ use Twig\TwigFunction;
 
 class C_EncounterVisitForm
 {
-    private Environment $twig;
+    private readonly Environment $twig;
 
-    private EventDispatcher $eventDispatcher;
+    private readonly EventDispatcher $eventDispatcher;
 
     private string $mode = '';
     private bool $viewmode = false;
@@ -63,8 +63,8 @@ class C_EncounterVisitForm
         $templatePath,
         Kernel $kernel,
         private array $issueTypes,
-        private string $rootdir,
-        private string $pageName = 'newpatient/common.php'
+        private readonly string $rootdir,
+        private readonly string $pageName = 'newpatient/common.php'
     ) {
         // Initialize Twig
         $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);

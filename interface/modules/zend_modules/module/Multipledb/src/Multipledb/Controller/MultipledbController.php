@@ -31,14 +31,14 @@ use Error;
 
 class MultipledbController extends BaseController
 {
-    private Listener $listenerObject;
+    private readonly Listener $listenerObject;
 
     /**
      * MultipledbController constructor.
      * @param MultipledbTable $MultipledbTable TableGateway for the Multipledb data.
      */
     public function __construct(
-        private MultipledbTable $MultipledbTable
+        private readonly MultipledbTable $MultipledbTable
     ) {
         parent::__construct();
         $this->listenerObject = new Listener();

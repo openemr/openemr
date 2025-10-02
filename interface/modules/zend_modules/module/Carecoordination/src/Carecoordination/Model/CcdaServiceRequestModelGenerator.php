@@ -28,7 +28,7 @@ class CcdaServiceRequestModelGenerator
     private $createdtime;
     private $exportwithDocuments;
 
-    public function __construct(private EncounterccdadispatchTable $encounterCCDADispatchTable)
+    public function __construct(private readonly EncounterccdadispatchTable $encounterCCDADispatchTable)
     {
         $this->data = "";
         $this->exportwithDocuments = $_REQUEST['with_documents'] ?? false;

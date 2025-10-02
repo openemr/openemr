@@ -23,9 +23,9 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
  */
 class FhirImmunizationRestController
 {
-    private FhirImmunizationService $fhirImmunizationService;
-    private FhirResourcesService $fhirService;
-    private FhirValidationService $fhirValidationService;
+    private readonly FhirImmunizationService $fhirImmunizationService;
+    private readonly FhirResourcesService $fhirService;
+    private readonly FhirValidationService $fhirValidationService;
 
     public function __construct()
     {

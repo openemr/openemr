@@ -84,8 +84,8 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
      * @param string $authTokenUrl The OAUTH2 token issuing url to be used as the audience parameter for JWT validation
      */
     public function __construct(
-        private SessionInterface $session,
-        private string $authTokenUrl
+        private readonly SessionInterface $session,
+        private readonly string $authTokenUrl
     ) {
         $this->logger = new SystemLogger();
         $this->trustedUserService = new TrustedUserService();

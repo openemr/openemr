@@ -54,7 +54,7 @@ class InstModuleTable
      */
     public function __construct(
         TableGateway $tableGateway,
-        private ContainerInterface $container
+        private readonly ContainerInterface $container
     ) {
         $this->tableGateway = $tableGateway;
         $adapter = GlobalAdapterFeature::getStaticAdapter();

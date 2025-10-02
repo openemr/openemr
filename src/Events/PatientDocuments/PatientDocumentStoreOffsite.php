@@ -22,7 +22,7 @@ class PatientDocumentStoreOffsite extends Event
     private mixed $category;
     private mixed $patientId;
 
-    public function __construct(private mixed $data)
+    public function __construct(private readonly mixed $data)
     {
     }
     public function getData()

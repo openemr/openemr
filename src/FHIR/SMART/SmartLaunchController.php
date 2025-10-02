@@ -39,7 +39,7 @@ class SmartLaunchController
     const CLIENT_APP_REQUIRED_LAUNCH_SCOPE = 'launch';
     const CLIENT_APP_STANDALONE_LAUNCH_SCOPE = 'launch/patient';
 
-    public function __construct(private ?EventDispatcher $dispatcher = null)
+    public function __construct(private readonly ?EventDispatcher $dispatcher = null)
     {
     }
 

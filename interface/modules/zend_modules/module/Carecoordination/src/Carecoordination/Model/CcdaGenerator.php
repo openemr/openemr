@@ -30,7 +30,7 @@ class CcdaGenerator
      */
     private $data;
 
-    public function __construct(private EncounterccdadispatchTable $dispatchTable)
+    public function __construct(private readonly EncounterccdadispatchTable $dispatchTable)
     {
     }
 

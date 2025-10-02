@@ -31,14 +31,14 @@ class PageHeadingRenderEvent extends Event
      *
      * @var MenuItems
      */
-    private MenuItems $primary_menu;
+    private readonly MenuItems $primary_menu;
 
     /**
      * UserEditRenderEvent constructor.
      * @param string $page_id The PageID being rendered
      */
     public function __construct(
-        private string $page_id
+        private readonly string $page_id
     ) {
         $this->actions = [];
         $this->primary_menu = new MenuItems();

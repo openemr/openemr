@@ -40,18 +40,18 @@ class SMARTAuthorizationController
     /**
      * @var SystemLogger
      */
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
     /**
      * @var EventDispatcherInterface
      */
-    private EventDispatcherInterface $dispatcher;
+    private readonly EventDispatcherInterface $dispatcher;
 
     private PatientContextSearchController $patientContextSearchController;
 
     private ClientRepository $clientRepository;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     private LogoService $logoService;
 
@@ -80,12 +80,12 @@ class SMARTAuthorizationController
      * @param Environment $twig The twig template engine to use for rendering pages.
      */
     public function __construct(
-        private SessionInterface $session,
+        private readonly SessionInterface $session,
         OEHttpKernel $kernel,
-        private string $authBaseFullURL,
-        private string $smartFinalRedirectURL,
-        private string $oauthTemplateDir,
-        private Environment $twig
+        private readonly string $authBaseFullURL,
+        private readonly string $smartFinalRedirectURL,
+        private readonly string $oauthTemplateDir,
+        private readonly Environment $twig
     ) {
         $this->logger = $kernel->getSystemLogger();
         $this->dispatcher = $kernel->getEventDispatcher();

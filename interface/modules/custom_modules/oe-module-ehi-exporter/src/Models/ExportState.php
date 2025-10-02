@@ -35,23 +35,23 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDef
 
 class ExportState
 {
-    private \SplQueue $queue;
-    private Models\ExportResult $result;
+    private readonly \SplQueue $queue;
+    private readonly Models\ExportResult $result;
     private array $tableDefinitionsMap;
 
     // we use this to make sure if we are scheduled to hit an item again
     private $inQueueList = [];
 
-    private ExportTableDataFilterer $dataFilterer;
+    private readonly ExportTableDataFilterer $dataFilterer;
 
     /**
      * @var string the temp directory to use for this export
      */
     private string $tempDir;
 
-    private ExportKeyDefinitionFilterer $keyFilterer;
+    private readonly ExportKeyDefinitionFilterer $keyFilterer;
 
-    public function __construct(private SystemLogger $logger, public \SimpleXMLElement $rootNode, private \SimpleXMLElement $metaNode, private EhiExportJobTask $jobTask)
+    public function __construct(private readonly SystemLogger $logger, public \SimpleXMLElement $rootNode, private readonly \SimpleXMLElement $metaNode, private readonly EhiExportJobTask $jobTask)
     {
         $this->queue = new \SplQueue();
         $this->result = new Models\ExportResult();

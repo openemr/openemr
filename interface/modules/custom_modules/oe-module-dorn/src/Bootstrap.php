@@ -64,7 +64,7 @@ class Bootstrap
      * @param ?Kernel $kernel
      */
     public function __construct(
-        private EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
         ?Kernel $kernel = null
     ) {
         global $GLOBALS;

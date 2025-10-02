@@ -116,7 +116,7 @@ class Bootstrap
      * @param ?Kernel $kernel
      */
     public function __construct(
-        private EventDispatcher $eventDispatcher,
+        private readonly EventDispatcher $eventDispatcher,
         ?Kernel $kernel = null
     ) {
         global $GLOBALS;

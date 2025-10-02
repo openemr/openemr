@@ -32,14 +32,14 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirProvenanceRestController
 {
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     /**
      * @var FhirProvenanceService
      */
-    private FhirProvenanceService $provenanceService;
+    private readonly FhirProvenanceService $provenanceService;
 
-    private FhirServiceLocator $serviceLocator;
+    private readonly FhirServiceLocator $serviceLocator;
 
     public function __construct(HttpRestRequest $request)
     {

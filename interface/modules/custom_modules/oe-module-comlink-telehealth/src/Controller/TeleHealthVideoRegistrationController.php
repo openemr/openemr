@@ -49,7 +49,7 @@ class TeleHealthVideoRegistrationController
      */
     private $logger;
 
-    public function __construct(private TeleHealthRemoteRegistrationService $remoteService, private TeleHealthProviderRepository $providerRepository)
+    public function __construct(private readonly TeleHealthRemoteRegistrationService $remoteService, private readonly TeleHealthProviderRepository $providerRepository)
     {
         $this->logger = new SystemLogger();
     }

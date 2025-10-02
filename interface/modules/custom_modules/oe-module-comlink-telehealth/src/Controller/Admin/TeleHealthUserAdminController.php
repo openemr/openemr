@@ -26,7 +26,7 @@ use Twig\Environment;
 
 class TeleHealthUserAdminController
 {
-    public function __construct(private TelehealthGlobalConfig $config, private Environment $twig, private TeleHealthPersonSettingsRepository $personSettingsRepository)
+    public function __construct(private readonly TelehealthGlobalConfig $config, private readonly Environment $twig, private readonly TeleHealthPersonSettingsRepository $personSettingsRepository)
     {
     }
 

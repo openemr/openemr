@@ -37,7 +37,7 @@ class SpherePayment
     /**
      * Constructor
      */
-    public function __construct(private string $front, private int $patientIdCc)
+    public function __construct(private readonly string $front, private readonly int $patientIdCc)
     {
         // Set if in testing mode (or false for production mode)
         $testing = empty($GLOBALS['gateway_mode_production']);

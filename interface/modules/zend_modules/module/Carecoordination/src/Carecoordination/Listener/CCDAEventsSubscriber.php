@@ -33,7 +33,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
      */
     private $viewCcdaUrl;
 
-    public function __construct(private CcdaGenerator $generator)
+    public function __construct(private readonly CcdaGenerator $generator)
     {
         $this->viewCcdaUrl = $GLOBALS['webroot'] . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }

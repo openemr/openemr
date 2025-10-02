@@ -27,7 +27,7 @@ use Twig\Environment;
 
 class TeleHealthPatientPortalController
 {
-    public function __construct(private Environment $twig, private $assetPath, private TelehealthGlobalConfig $config)
+    public function __construct(private readonly Environment $twig, private $assetPath, private readonly TelehealthGlobalConfig $config)
     {
     }
 

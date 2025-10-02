@@ -25,7 +25,7 @@ class FhirServiceLocator
      * @param array $routes
      * $type is the FQDN of a class or interface... IE type should resolve to the ::class property of a class or interface
      */
-    public function __construct(private array $routes = [])
+    public function __construct(private readonly array $routes = [])
     {
     }
 

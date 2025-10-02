@@ -23,7 +23,7 @@ class AccessDeniedException extends \Exception
      * @param ?Throwable $previous
      */
     public function __construct(
-        private string $requiredSection,
+        private readonly string $requiredSection,
         private $subCategory = '',
         $message = "",
         $code = 0,

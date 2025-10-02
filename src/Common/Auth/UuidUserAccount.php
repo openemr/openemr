@@ -28,7 +28,7 @@ class UuidUserAccount
     /**
      * @param string $userId uuid that identifies the user
      */
-    public function __construct(private string $userId)
+    public function __construct(private readonly string $userId)
     {
     }
 

@@ -34,7 +34,7 @@ class CustomPasswordGrant extends PasswordGrant
      */
     private $logger;
 
-    public function __construct(private SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
+    public function __construct(private readonly SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
         $this->logger = new SystemLogger();
         parent::__construct($userRepository, $refreshTokenRepository);

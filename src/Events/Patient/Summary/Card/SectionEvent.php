@@ -36,7 +36,7 @@ class SectionEvent extends Event
      * @param string $section The section being rendered
      */
     public function __construct(
-        private string $section
+        private readonly string $section
     ) {
         $this->cards = [];
     }

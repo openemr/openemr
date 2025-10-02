@@ -30,8 +30,8 @@ class ServiceDeleteEvent extends Event
      * @param string|int|array $recordId The id of the record being deleted.  If the record id is a composite key it will contain a hashmap of the keys
      */
     public function __construct(
-        private BaseService $service,
-        private int|string|array $recordId
+        private readonly BaseService $service,
+        private readonly int|string|array $recordId
     ) {
     }
 

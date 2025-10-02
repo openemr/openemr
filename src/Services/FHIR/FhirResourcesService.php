@@ -19,7 +19,7 @@ use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
 class FhirResourcesService
 {
-    private ServerConfig $config;
+    private readonly ServerConfig $config;
     public function __construct()
     {
         $this->config = new ServerConfig();

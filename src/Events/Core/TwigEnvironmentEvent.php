@@ -37,7 +37,7 @@ class TwigEnvironmentEvent extends Event
      */
     const EVENT_CREATED = 'core.twig.environment.create';
 
-    public function __construct(private Environment $environment)
+    public function __construct(private readonly Environment $environment)
     {
     }
 

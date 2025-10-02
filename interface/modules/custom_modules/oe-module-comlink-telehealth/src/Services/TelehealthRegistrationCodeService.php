@@ -20,7 +20,7 @@ use OpenEMR\Services\PatientService;
 
 class TelehealthRegistrationCodeService
 {
-    public function __construct(private TelehealthGlobalConfig $globalConfig, private TeleHealthUserRepository $userRepository)
+    public function __construct(private readonly TelehealthGlobalConfig $globalConfig, private readonly TeleHealthUserRepository $userRepository)
     {
     }
 
