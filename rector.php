@@ -30,6 +30,7 @@ use Rector\Php71\Rector\List_\ListToArrayDestructRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php72\Rector\While_\WhileEachToForeachRector;
+use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
@@ -116,6 +117,7 @@ return RectorConfig::configure()
         ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
         RestoreDefaultNullToNullableTypePropertyRector::class, // one of the withPhpSets rules
         ReturnNeverTypeRector::class, // one of the withPhpSets rules
+        SensitiveConstantNameRector::class, // one of the withPhpSets rules
         SensitiveHereNowDocRector::class, // one of the withPhpSets rules
         SetCookieRector::class, // one of the withPhpSets rules
         SimplifyIfElseToTernaryRector::class,
