@@ -28,11 +28,9 @@ class C_InsuranceCompany extends Controller
         return $this->list_action();
     }
 
-    public function edit_action($id = "", $patient_id = "", $p_obj = null)
+    public function edit_action($id = "", $patient_id = "")
     {
-        if ($p_obj != null && get_class($p_obj) == "insurancecompany") {
-            $this->icompanies[0] = $p_obj;
-        } elseif (empty($this->icompanies[0]) || $this->icompanies[0] == null || get_class($this->icompanies[0]) != "insurancecompany") {
+        if (!(($this->icompanies[0] ?? null) instanceof InsuranceCompany)) {
             $this->icompanies[0] = new InsuranceCompany($id);
         }
 

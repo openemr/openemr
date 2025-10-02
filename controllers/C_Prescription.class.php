@@ -119,12 +119,9 @@ class C_Prescription extends Controller
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    function edit_action($id = "", $patient_id = "", $p_obj = null)
+    function edit_action($id = "", $patient_id = "")
     {
-
-        if ($p_obj != null && get_class($p_obj) == "prescription") {
-            $this->prescriptions[0] = $p_obj;
-        } elseif (empty($this->prescriptions[0]) || !is_object($this->prescriptions[0]) || (get_class($this->prescriptions[0]) != "prescription")) {
+        if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
         }
 
