@@ -10,6 +10,7 @@ use Rector\Config\RectorConfig;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
+use Rector\Php70\Rector\If_\IfToSpaceshipRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
@@ -63,6 +64,7 @@ return RectorConfig::configure()
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
         DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
         EregToPregMatchRector::class, // one of the withPhpSets rules
+        IfToSpaceshipRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
