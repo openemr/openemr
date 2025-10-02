@@ -38,6 +38,7 @@ use Rector\Php80\Rector\Identical\StrStartsWithRector;
 use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
+use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -103,10 +104,11 @@ return RectorConfig::configure()
         SetCookieRector::class, // one of the withPhpSets rules
         StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
-        StringifyStrNeedlesRector::class, // one of the withPhpSets rules
         StrStartsWithRector::class, // one of the withPhpSets rules
+        StringifyStrNeedlesRector::class, // one of the withPhpSets rules
         TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
         ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
+        Utf8DecodeEncodeToMbConvertEncodingRector::class, // one of the withPhpSets rules
         VarToPublicPropertyRector::class, // one of the withPhpSets rules
         WhileEachToForeachRector::class, // one of the withPhpSets rules
     ])
