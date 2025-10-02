@@ -31,6 +31,7 @@ use Rector\Php72\Rector\While_\WhileEachToForeachRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
+use Rector\Php74\Rector\Assign\NullCoalescingOperatorRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
@@ -101,6 +102,7 @@ return RectorConfig::configure()
         LongArrayToShortArrayRector::class, // one of the withPhpSets rules
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
+        NullCoalescingOperatorRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
