@@ -1,0 +1,82 @@
+# Front controller routing rules
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Deny forbidden paths
+    RewriteCond %{REQUEST_URI} ^/portal/patient/fwk/libs/
+    RewriteRule ^ - [F,L]
+
+    RewriteCond %{REQUEST_URI} ^/sites/[^/]+/documents/
+    RewriteRule ^ - [F,L]
+
+    # Pass through existing front controllers
+    RewriteCond %{REQUEST_URI} ^/apis/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/portal/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/oauth2/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/gacl/admin/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/interface/esign/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/interface/main/calendar/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/interface/modules/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/interface/therapy_groups/
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/interface/super/rules/
+    RewriteRule ^ - [L]
+
+    # Pass through static assets
+    RewriteCond %{REQUEST_URI} \.(css|scss)$
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} \.(js|mjs)$
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} \.(jpg|jpeg|png|gif|svg|ico|webp|bmp)$
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} \.(woff|woff2|ttf|eot|otf)$
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} \.(pdf|txt|xml|json|map|yaml|htm|html)$
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_URI} ^/swagger/
+    RewriteRule ^ - [L]
+
+    # Block .inc.php files (must be before physical file check)
+    RewriteCond %{REQUEST_URI} \.inc\.php$
+    RewriteRule ^ - [F,L]
+
+    # Pass through physical files and directories
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route PHP files through front controller
+    RewriteCond %{REQUEST_URI} \.php$
+    RewriteRule ^(.*)$ home.php?_ROUTE=$1 [QSA,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
