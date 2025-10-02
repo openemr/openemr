@@ -72,8 +72,10 @@ if ($route !== '' && substr($route, -1) === '/') {
 }
 
 // Deny always-forbidden paths
-if (preg_match('#^portal/patient/fwk/libs/#', $route) ||
-    preg_match('#^sites/[^/]+/documents/#', $route)) {
+if (
+    preg_match('#^portal/patient/fwk/libs/#', $route) ||
+    preg_match('#^sites/[^/]+/documents/#', $route)
+) {
     http_response_code(404);
     error_log("OpenEMR Front Controller: Denied path: $route");
     exit('Not Found');
