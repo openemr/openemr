@@ -223,7 +223,7 @@ trait FhirObservationTrait
                     $valueCoding = new FHIRCoding();
                     $valueCoding->setSystem(new FHIRUri($system));
                     $valueCoding->setCode(new FHIRCode($code));
-                    $valueCoding->setDisplay($this->getCodeTypesService()->lookup_code_description($value));
+                    $valueCoding->setDisplay($codeDescription ?? $this->getCodeTypesService()->lookup_code_description($value));
                     $valueCC->addCoding($valueCoding);
                     $observation->setValueCodeableConcept($valueCC);
                     break;

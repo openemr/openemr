@@ -54,7 +54,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             'fullcode' => 'LOINC:' . self::PREGNANCY_STATUS_LOINC_CODE
             ,'code' => self::PREGNANCY_STATUS_LOINC_CODE
             ,'description' => 'Pregnancy status'
-            ,'column' => 'pregnancy_status_codes'
+            ,'column' => 'pregnancy_status'
             ,'category' => self::CATEGORY_SOCIAL_HISTORY
             ,'screening_category_code' => null
             ,'screening_category_display' => null
@@ -66,7 +66,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             'fullcode' => 'LOINC:' . self::PREGNANCY_INTENT_LOINC_CODE
             ,'code' => self::PREGNANCY_INTENT_LOINC_CODE
             ,'description' => 'Pregnancy intent'
-            ,'column' => 'pregnancy_intent_codes'
+            ,'column' => 'pregnancy_intent'
             ,'category' => self::CATEGORY_SOCIAL_HISTORY
             ,'screening_category_code' => null
             ,'screening_category_display' => null
@@ -218,6 +218,12 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                 $profiles[] = $this->getProfileForVersions($profile, $versions);
             }
             $profiles = array_merge(...$profiles);
+            $value = $record[$mapping['column']] ?? null;
+            $valueDescription = null;
+            if (isset($record[$mapping['column'] . '_codes'])) {
+                $value = $record[$mapping['column'] . '_codes'];
+                $valueDescription = $record[$mapping['column'] . '_display'] ?? null;
+            }
             $observation = [
                 "code" => $mapping['fullcode']
                 , "description" => $mapping['description'] ?? null
@@ -233,7 +239,8 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                 , "date" => $record['created_at']
                 , "last_updated" => $record['updated_at']
                 , "profiles" => $profiles
-                , 'value' => $record[$mapping['column']] ?? null // only a single column so we can directly map it
+                , 'value' => $value // only a single column so we can directly map it
+                , 'value_code_description' => $valueDescription
             ];
 
             $columns = $this->getColumnsForCode($code);
