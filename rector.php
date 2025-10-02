@@ -8,6 +8,7 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
+use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php56\Rector\FuncCall\PowToExpRector;
@@ -83,6 +84,7 @@ return RectorConfig::configure()
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
         RandomFunctionRector::class, // one of the withPhpSets rules
+        ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
         SetCookieRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
         TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
