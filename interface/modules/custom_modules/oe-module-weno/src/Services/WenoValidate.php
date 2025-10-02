@@ -12,7 +12,7 @@ class WenoValidate extends ModuleService
     private string $userEmail;
     private string $md5UserPassword;
     private mixed $encryptionKey;
-    private Client $client;
+    private readonly Client $client;
 
     public function __construct()
     {

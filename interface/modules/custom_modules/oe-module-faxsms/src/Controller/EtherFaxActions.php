@@ -29,7 +29,7 @@ class EtherFaxActions extends AppDispatch
     protected $credentials;
     public string $portalUrl;
     protected CryptoGen $crypto;
-    private EtherFaxClient $client;
+    private readonly EtherFaxClient $client;
     private mixed $appSecret;
     private mixed $sid;
     private mixed $appKey;

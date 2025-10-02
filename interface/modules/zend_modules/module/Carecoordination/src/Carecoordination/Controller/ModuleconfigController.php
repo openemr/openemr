@@ -23,7 +23,7 @@ class ModuleconfigController extends AbstractActionController
 {
     protected InputFilterInterface $inputFilter;
 
-    public function __construct(private ?AdapterInterface $dbAdapter = null)
+    public function __construct(private readonly ?AdapterInterface $dbAdapter = null)
     {
     }
 

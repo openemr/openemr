@@ -59,12 +59,12 @@ class Bootstrap
      */
     private $logger;
 
-    private string $modulePath;
+    private readonly string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private SelectedPatientPharmacy $selectedPatientPharmacy;
+    private readonly SelectedPatientPharmacy $selectedPatientPharmacy;
     public string $installPath;
     /**
      * @var mixed|string

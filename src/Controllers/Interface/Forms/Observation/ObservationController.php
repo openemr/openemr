@@ -37,12 +37,12 @@ use InvalidArgumentException;
 class ObservationController
 {
     const DATE_FORMAT_SAVE = 'Y-m-d H:i:s';
-    private ObservationService $observationService;
-    private FormService $formService;
-    private Environment $twig;
-    private SystemLogger $logger;
+    private readonly ObservationService $observationService;
+    private readonly FormService $formService;
+    private readonly Environment $twig;
+    private readonly SystemLogger $logger;
     private CodeTypesService $codeTypeService;
-    private PatientService $patientService;
+    private readonly PatientService $patientService;
 
     public function __construct(
         ?ObservationService $observationService = null,

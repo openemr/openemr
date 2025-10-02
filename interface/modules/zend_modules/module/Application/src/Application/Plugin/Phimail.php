@@ -23,7 +23,7 @@ class Phimail extends AbstractPlugin
 {
     protected $application;
 
-    private Listener $listenerObject;
+    private readonly Listener $listenerObject;
   /**
   *
   * Application Table Object

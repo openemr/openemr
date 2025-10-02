@@ -68,22 +68,22 @@ class TeleconferenceRoomController
     /**
      * @var Environment
      */
-    private Environment $twig;
+    private readonly Environment $twig;
 
     /**
      * @var LoggerInterface
      */
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var boolean  Whether we are running as a patient in the portal context
      */
-    private bool $isPatient;
+    private readonly bool $isPatient;
 
     /**
      * @var string The location where the module assets are stored
      */
-    private string $assetPath;
+    private readonly string $assetPath;
 
     /**
      * @var EncounterService
@@ -98,42 +98,42 @@ class TeleconferenceRoomController
     /**
      * @var TeleHealthSessionRepository
      */
-    private TeleHealthSessionRepository $sessionRepository;
+    private readonly TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private TeleHealthUserRepository $telehealthUserRepo;
+    private readonly TeleHealthUserRepository $telehealthUserRepo;
 
     /**
      * @var TeleHealthVideoRegistrationController
      */
-    private TeleHealthVideoRegistrationController $telehealthRegistrationController;
+    private readonly TeleHealthVideoRegistrationController $telehealthRegistrationController;
 
     /**
      * @var TeleHealthParticipantInvitationMailerService
      */
-    private TeleHealthParticipantInvitationMailerService $mailerService;
+    private readonly TeleHealthParticipantInvitationMailerService $mailerService;
 
     /**
      * @var TeleHealthFrontendSettingsController
      */
-    private TeleHealthFrontendSettingsController $settingsController;
+    private readonly TeleHealthFrontendSettingsController $settingsController;
 
     /**
      * @var TelehealthGlobalConfig
      */
-    private TelehealthGlobalConfig $config;
+    private readonly TelehealthGlobalConfig $config;
 
     /**
      * @var TeleHealthProvisioningService
      */
-    private TeleHealthProvisioningService $provisioningService;
+    private readonly TeleHealthProvisioningService $provisioningService;
 
     /**
      * @var ParticipantListService
      */
-    private ParticipantListService $participantListService;
+    private readonly ParticipantListService $participantListService;
 
     public function __construct(
         Environment $twig,

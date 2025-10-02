@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 class OAuth2DiscoveryController
 {
     private ScopeRepository $scopeRepository;
-    private OEGlobalsBag $globalsBag;
-    private string $baseUrl;
+    private readonly OEGlobalsBag $globalsBag;
+    private readonly string $baseUrl;
     private ClaimRepository $claimRepository;
 
     public function __construct(ClaimRepository $claimRepository, ScopeRepository $scopeRepository, OEGlobalsBag $globalsBag, $baseUrl)

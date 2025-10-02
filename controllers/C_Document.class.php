@@ -39,7 +39,7 @@ class C_Document extends Controller
     private $Document;
     private $cryptoGen;
     private bool $skip_acl_check = false;
-    private DocumentTemplateService $templateService;
+    private readonly DocumentTemplateService $templateService;
     private bool $returnRetrieveKey = false;
 
     public function __construct($template_mod = "general")

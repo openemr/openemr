@@ -18,7 +18,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 
 class C_FormSOAP extends Controller
 {
-    private TwigContainer $twig;
+    private readonly TwigContainer $twig;
     public function __construct()
     {
         $path = $this->getTemplatePath();

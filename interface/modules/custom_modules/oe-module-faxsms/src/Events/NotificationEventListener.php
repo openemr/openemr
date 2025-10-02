@@ -27,11 +27,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
 {
-    private bool $isSmsEnabled;
-    private bool $isEmailEnabled;
-    private bool $isFaxEnabled;
-    private bool $isVoiceEnabled;
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly bool $isSmsEnabled;
+    private readonly bool $isEmailEnabled;
+    private readonly bool $isFaxEnabled;
+    private readonly bool $isVoiceEnabled;
+    private readonly EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var \Twig\Environment The twig rendering environment

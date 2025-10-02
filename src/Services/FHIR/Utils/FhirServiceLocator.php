@@ -23,7 +23,7 @@ class FhirServiceLocator
     /**
      * @var $routes The FHIR routes that are registered in the system.  This is used to find the FHIR resources service classes.
      */
-    private array $routes;
+    private readonly array $routes;
 
     /**
      * FhirExportServiceLocator constructor.

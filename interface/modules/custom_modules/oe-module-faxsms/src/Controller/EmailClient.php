@@ -26,8 +26,8 @@ class EmailClient extends AppDispatch
     public $credentials;
     public string $portalUrl;
     protected CryptoGen $crypto;
-    private EmailClient $client;
-    private bool $smtpEnabled;
+    private readonly EmailClient $client;
+    private readonly bool $smtpEnabled;
 
     public function __construct()
     {

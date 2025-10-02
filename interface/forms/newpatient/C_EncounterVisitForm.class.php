@@ -44,17 +44,17 @@ use Twig\TwigFunction;
 
 class C_EncounterVisitForm
 {
-    private Environment $twig;
+    private readonly Environment $twig;
     private array $issueTypes;
 
-    private string $rootdir;
+    private readonly string $rootdir;
 
     /**
      * @var string $pageName The name to use when firing off any events for this page
      */
-    private string $pageName;
+    private readonly string $pageName;
 
-    private EventDispatcher $eventDispatcher;
+    private readonly EventDispatcher $eventDispatcher;
 
     private string $mode = '';
     private bool $viewmode = false;

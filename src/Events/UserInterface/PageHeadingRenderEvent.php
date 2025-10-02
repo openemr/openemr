@@ -29,7 +29,7 @@ class PageHeadingRenderEvent extends Event
      *
      * @var string
      */
-    private string $page_id;
+    private readonly string $page_id;
 
     private array $actions;
 
@@ -38,7 +38,7 @@ class PageHeadingRenderEvent extends Event
      *
      * @var MenuItems
      */
-    private MenuItems $primary_menu;
+    private readonly MenuItems $primary_menu;
 
     /**
      * UserEditRenderEvent constructor.

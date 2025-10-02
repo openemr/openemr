@@ -30,7 +30,7 @@ class DemographicsRelatedPersonsService
     private string $table = 'patient_related_persons';
 
     /** @var int Max number of related person blocks to fall back to if schema introspection isn't available */
-    private int $maxPeople;
+    private readonly int $maxPeople;
 
     /** @var string[] Base column name stems for each related person */
     private array $fieldBases = [

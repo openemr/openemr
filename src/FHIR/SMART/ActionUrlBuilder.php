@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ActionUrlBuilder
 {
-    public function __construct(private SessionInterface $session, private string $actionURL, private string $csrfTokenName = 'csrf_token')
+    public function __construct(private readonly SessionInterface $session, private readonly string $actionURL, private readonly string $csrfTokenName = 'csrf_token')
     {
     }
 

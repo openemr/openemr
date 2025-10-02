@@ -37,7 +37,7 @@ class LogoService
      */
     private $fs;
 
-    private EventDispatcher $dispatcher;
+    private readonly EventDispatcher $dispatcher;
 
     public function __construct(?EventDispatcher $dispatcher = null)
     {

@@ -42,9 +42,9 @@ class FhirDocumentRestController
      */
     private $defaultMimeTypeHandler;
 
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
-    private SessionInterface $session;
+    private readonly SessionInterface $session;
 
     public function __construct(HttpRestRequest $request)
     {

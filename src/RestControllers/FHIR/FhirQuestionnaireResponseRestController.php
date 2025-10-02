@@ -27,12 +27,12 @@ class FhirQuestionnaireResponseRestController
     /**
      * @var FhirQuestionnaireResponseService
      */
-    private FhirQuestionnaireResponseService $resourceService;
+    private readonly FhirQuestionnaireResponseService $resourceService;
 
     /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     /**
      * @param ?FhirQuestionnaireResponseService $resourceService
