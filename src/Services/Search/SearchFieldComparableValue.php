@@ -58,7 +58,7 @@ class SearchFieldComparableValue
             if (method_exists($value, '__toString')) {
                 $value = $value->__toString();
             } else {
-                $value = get_class($value);
+                $value = $value::class;
             }
         }
         return "(value=" . $value . ",comparator=" . $this->getComparator() ?? "" . ")";

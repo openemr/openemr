@@ -1953,7 +1953,7 @@ class Smarty_Legacy
 	{
 		if (is_array($function)) {
 			$_class_name = (is_object($function[0]) ?
-				get_class($function[0]) : $function[0]);
+				$function[0]::class : $function[0]);
 			return $_class_name . '_' . $function[1];
 		}
 		else {

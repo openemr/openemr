@@ -856,7 +856,7 @@ function edih_278_html($filename, $bht03 = '')
         return $html_str;
     } else {
         $obj278 = csv_check_x12_obj($filename, 'f278');
-        if ($obj278 && 'edih_x12_file' == get_class($obj278)) {
+        if ($obj278 && 'edih_x12_file' == $obj278::class) {
             if ($bht03) {
                 // particular transaction
                 $html_str .= edih_278_transaction_html($obj278, $bht03);

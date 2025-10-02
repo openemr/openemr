@@ -63,7 +63,7 @@ class Criteria
      */
     protected function Init()
     {
-        $this->_map_object_class = str_replace("Criteria", "Map", get_class($this));
+        $this->_map_object_class = str_replace("Criteria", "Map", $this::class);
     }
 
     /**
@@ -195,7 +195,7 @@ class Criteria
     final protected function Prepare()
     {
         if (! $this->_is_prepared) {
-            if (get_class($this) == "Criteria") {
+            if ($this::class == "Criteria") {
                 if ($this->PrimaryKeyField) {
                     // PrimaryKeyField property was specified. this might be coming from $phreezer->Get
                     $this->_where = " " . $this->PrimaryKeyField . " = '" . $this->Escape($this->PrimaryKeyValue) . "'";
@@ -445,7 +445,7 @@ class Criteria
         try {
             Includer::RequireClass($objectclass, "Model/DAO/");
         } catch (IncludeException $ex) {
-            throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . get_class($this) . ' can implement GetFieldFromProp instead.');
+            throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . $this::class . ' can implement GetFieldFromProp instead.');
         }
     }
     protected function GetFieldMaps()
@@ -460,7 +460,7 @@ class Criteria
     }
     public function GetFieldFromProp($propname)
     {
-        if (get_class($this) == "Criteria") {
+        if ($this::class == "Criteria") {
             throw new Exception("Phreeze is unable to determine field mapping.  The base Criteria class should only be used to query by primary key without sorting");
         }
 
@@ -468,7 +468,7 @@ class Criteria
 
         // make sure this property is defined
         if (! isset($fms [$propname])) {
-            throw new Exception(get_class($this) . " is unable to determine the database column for the property: '$propname'");
+            throw new Exception($this::class . " is unable to determine the database column for the property: '$propname'");
         }
 
         // print_r($this->_fieldmaps);
