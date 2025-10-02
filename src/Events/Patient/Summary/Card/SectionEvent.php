@@ -103,7 +103,7 @@ class SectionEvent extends Event
 
         foreach ($this->cards as $card) {
             if (!$card instanceof CardInterface) {
-                $objtype = get_class($card);
+                $objtype = $card::class;
                 throw new \UnexpectedValueException("Expecting an object implementing CardInterface. Received {$objtype}");
             }
             $_idArr[] = $card->getIdentifier();

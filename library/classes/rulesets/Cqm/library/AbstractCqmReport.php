@@ -23,7 +23,7 @@ abstract class AbstractCqmReport implements RsReportIF
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget)
     {
         // require all .php files in the report's sub-folder
-        $className = get_class($this);
+        $className = $this::class;
         foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }

@@ -592,7 +592,7 @@ function csv_check_x12_obj($filepath, $type = '')
     //
     if ($fp) {
         $x12obj = new edih_x12_file($fp);
-        if ('edih_x12_file' == get_class($x12obj)) {
+        if ('edih_x12_file' == $x12obj::class) {
             if ($x12obj->edih_valid() == 'ovigs') {
                 $ok = count($x12obj->edih_segments());
                 $ok = ($ok) ?  count($x12obj->edih_envelopes()) : false;

@@ -72,15 +72,15 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ('edih_835_codes' == get_class($codes835)) {
+    if ('edih_835_codes' == $codes835::class) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x)) {
+    } elseif ('edih_835_codes' == $codes27x::class) {
         $cd835 = $codes27x;
     }
 
-    if ('edih_271_codes' == get_class($codes27x)) {
+    if ('edih_271_codes' == $codes27x::class) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835)) {
+    } elseif ('edih_271_codes' == $codes835::class) {
         $cd27x = $codes835;
     }
 
@@ -332,15 +332,15 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ('edih_835_codes' == get_class($codes835)) {
+    if ('edih_835_codes' == $codes835::class) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x)) {
+    } elseif ('edih_835_codes' == $codes27x::class) {
         $cd835 = $codes27x;
     }
 
-    if ('edih_271_codes' == get_class($codes27x)) {
+    if ('edih_271_codes' == $codes27x::class) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835)) {
+    } elseif ('edih_271_codes' == $codes835::class) {
         $cd27x = $codes835;
     }
 
@@ -905,15 +905,15 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ('edih_835_codes' == get_class($codes835)) {
+    if ('edih_835_codes' == $codes835::class) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x)) {
+    } elseif ('edih_835_codes' == $codes27x::class) {
         $cd835 = $codes27x;
     }
 
-    if ('edih_271_codes' == get_class($codes27x)) {
+    if ('edih_271_codes' == $codes27x::class) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835)) {
+    } elseif ('edih_271_codes' == $codes835::class) {
         $cd27x = $codes835;
     }
 
@@ -1574,7 +1574,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     //
     if (trim($filename)) {
         $obj835 = csv_check_x12_obj($filename, 'f835');
-        if ($obj835 && 'edih_x12_file' == get_class($obj835)) {
+        if ($obj835 && 'edih_x12_file' == $obj835::class) {
             $fn = $obj835->edih_filename();
             $delims = $obj835->edih_delimiters();
             $env_ar = $obj835->edih_x12_envelopes();

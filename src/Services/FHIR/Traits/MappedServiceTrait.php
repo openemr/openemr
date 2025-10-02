@@ -39,7 +39,7 @@ trait MappedServiceTrait
             if ($service instanceof FhirServiceBase) {
                 $validServices[] = $service;
             } else {
-                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . get_class($service));
+                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . $service::class);
             }
         }
         $this->services = $validServices;
