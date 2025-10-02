@@ -1014,12 +1014,12 @@ class Document extends ORDataObject
             } elseif (!empty($higher_level_path)) {
                 // Allow higher level directory structure in documents directory and there is no patient mapping
                 // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . rand(1, 10000)  . '/';
+                $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
                 ++$path_depth;
             } elseif (!(is_numeric($patient_id)) || !($patient_id > 0)) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . rand(1, 10000)  . '/';
+                $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
                 $path_depth = 2;
                 $patient_id = 0;
             } else {

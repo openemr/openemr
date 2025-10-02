@@ -225,7 +225,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
                     $sql = $this->CountSQL;
                 } else {
                     $this->_phreezer->Observe("(DataSet.Count: CountSQL was not provided so a counter query will be generated.  Implement GetCustomCountQuery in the reporter class to improve performance.)", OBSERVE_WARN);
-                    $sql = "select count(1) as counter from (" . $this->_sql . ") tmptable" . rand(1000, 9999);
+                    $sql = "select count(1) as counter from (" . $this->_sql . ") tmptable" . random_int(1000, 9999);
                 }
 
                 $rs = $this->_phreezer->DataAdapter->Select($sql);
