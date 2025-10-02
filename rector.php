@@ -47,6 +47,7 @@ use Rector\Php80\Rector\Identical\StrEndsWithRector;
 use Rector\Php80\Rector\Identical\StrStartsWithRector;
 use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Php81\Rector\MethodCall\RemoveReflectionSetAccessibleCallsRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnNeverTypeRector;
@@ -113,6 +114,7 @@ return RectorConfig::configure()
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
         RemoveParentCallWithoutParentRector::class, // one of the withPhpSets rules
+        RemoveReflectionSetAccessibleCallsRector::class, // one of the withPhpSets rules
         RemoveUnusedVariableInCatchRector::class, // one of the withPhpSets rules
         ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
         RestoreDefaultNullToNullableTypePropertyRector::class, // one of the withPhpSets rules
