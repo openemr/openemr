@@ -27,6 +27,7 @@ use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php72\Rector\While_\WhileEachToForeachRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
+use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
@@ -92,6 +93,7 @@ return RectorConfig::configure()
         SetCookieRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
         StrStartsWithRector::class, // one of the withPhpSets rules
+        StringifyStrNeedlesRector::class, // one of the withPhpSets rules
         TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
         ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
         WhileEachToForeachRector::class, // one of the withPhpSets rules
