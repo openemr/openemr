@@ -113,7 +113,7 @@ class BillingReport
                     ];
                     $query_part .= ' AND ' . escape_identifier($elements[0], $criteriaItemsWhitelist, true) . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
 
-                    if (substr($criteria_value, 0, 12) === 'billing.user' && ($daysheet)) {
+                    if (str_starts_with($criteria_value, 'billing.user') && ($daysheet)) {
                         $query_part_day .=  ' AND ' . 'ar_activity.post_user' . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
                     }
                 }

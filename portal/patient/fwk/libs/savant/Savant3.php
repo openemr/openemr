@@ -779,7 +779,7 @@ class Savant3
             // that the realpath() results in a directory registered
             // with Savant so that non-registered directores are not
             // accessible via directory traversal attempts.
-            if (file_exists($fullname) && is_readable($fullname) && substr($fullname, 0, strlen($path)) == $path) {
+            if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, $path)) {
                 return $fullname;
             }
         }
@@ -1140,7 +1140,7 @@ class Savant3
         foreach ($this->__config ['filters'] as $callback) {
             // if the callback is a static Savant3_Filter method,
             // and not already loaded, try to auto-load it.
-            if (is_array($callback) && is_string($callback [0]) && substr($callback [0], 0, 15) == 'Savant3_Filter_' && ! class_exists($callback [0], $autoload)) {
+            if (is_array($callback) && is_string($callback [0]) && str_starts_with($callback [0], 'Savant3_Filter_') && ! class_exists($callback [0], $autoload)) {
                 // load the Savant3_Filter_*.php resource
                 $file = $callback [0] . '.php';
                 $result = $this->findFile('resource', $file);

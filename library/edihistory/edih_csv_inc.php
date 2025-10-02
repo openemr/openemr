@@ -286,7 +286,7 @@ function csv_notes_file($content = '', $open = true)
             csv_edihist_log('csv_notes_file: file error');
         }
 
-        if (substr($ftxt, 0, 5) == 'empty' && strlen($ftxt) == 5) {
+        if (str_starts_with($ftxt, 'empty') && strlen($ftxt) == 5) {
             $ftxt = '## ' . date("F j, Y, g:i a");
         } elseif (!$ftxt) {
             $ftxt = '## ' . date("F j, Y, g:i a");
@@ -300,7 +300,7 @@ function csv_notes_file($content = '', $open = true)
         if (class_exists('finfo')) {
             $finfo = new finfo(FILEINFO_MIME);
             $mimeinfo = $finfo->buffer($content);
-            if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
+            if (!str_starts_with($mimeinfo, 'text/plain; charset=us-ascii')) {
                 csv_edihist_log('csv_notes_file: invalid mime-type ' . $mimeinfo);
                 $str_html = 'csv_notes_file: invalid mime-type <br />' . text($mimeinfo);
                 //
@@ -800,7 +800,7 @@ function csv_table_select_list($outtp = 'json')
             continue;
         }
 
-        if (strpos($csvf, 'old') === 0) {
+        if (str_starts_with($csvf, 'old')) {
             continue;
         }
 

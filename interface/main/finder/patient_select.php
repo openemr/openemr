@@ -178,7 +178,7 @@ if ($popup) {
     "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
-        if (strpos($field_id, 'em_') === 0) {
+        if (str_starts_with($field_id, 'em_')) {
             continue;
         }
 

@@ -194,7 +194,7 @@ class ReceiveHl7Results
         $rhl7_segnum = 0;
         $obrPerformingOrganization = '';
 
-        if (substr($hl7, 0, 3) != 'MSH') {
+        if (!str_starts_with($hl7, 'MSH')) {
             return $this->rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
         }
 

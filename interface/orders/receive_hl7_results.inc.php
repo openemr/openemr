@@ -739,7 +739,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     $rhl7_segnum = 0;
     $obrPerformingOrganization = '';
 
-    if (substr($hl7, 0, 3) != 'MSH') {
+    if (!str_starts_with($hl7, 'MSH')) {
         return rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
     }
 

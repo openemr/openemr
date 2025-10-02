@@ -183,7 +183,7 @@ function phimail_check(): void
             phimail_close($fp);
             phimail_logit(1, "message check completed");
             return;
-        } elseif (substr($ret, 0, 6) == "STATUS") {
+        } elseif (str_starts_with($ret, "STATUS")) {
             //Format STATUS message-id status-code [additional-information]
             $val = explode(" ", trim($ret), 4);
             $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
@@ -263,7 +263,7 @@ function phimail_check(): void
                 phimail_close($fp);
                 return;
             }
-        } elseif (substr($ret, 0, 4) == "MAIL") {
+        } elseif (str_starts_with($ret, "MAIL")) {
             $val = explode(" ", trim($ret), 5); // MAIL recipient sender #attachments msg-id
             $recipient = $val[1];
             $sender = $val[2];

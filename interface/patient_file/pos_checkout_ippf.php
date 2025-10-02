@@ -355,7 +355,7 @@ function ippfReceiptDetailLine(
     if (!$details) {
         return;
     }
-    if (empty($postdate) || substr($postdate, 0, 4) == '0000') {
+    if (empty($postdate) || str_starts_with($postdate, '0000')) {
         $postdate = $billtime;
     }
     echo " <tr>\n";
@@ -426,7 +426,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && substr($billtime, 0, 4) != '0000') {
+    if (!empty($billtime) && !str_starts_with($billtime, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
             text(oeFormatShortDate($billtime)) . attr(substr($billtime, 10)) . "'";
     }

@@ -202,7 +202,7 @@ class ModulesApplication
         $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
         // make sure we haven't left our root path ie interface folder
-        if (strpos($realpath, $moduleRootLocation) === 0 && file_exists($realpath) && strpos($realpath, ".php") !== false) {
+        if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && strpos($realpath, ".php") !== false) {
             return true;
         }
         return false;
@@ -236,7 +236,7 @@ class ModulesApplication
                 $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
                 // make sure we haven't left our root path ie interface folder
-                if (strpos($realPath, $moduleRootLocation) === 0 && file_exists($realPath)) {
+                if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {
                     return $scriptSrc;
                 }
                 return null;

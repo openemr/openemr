@@ -171,7 +171,7 @@ class PhoneNumber extends ORDataObject
                 $this->prefix = $nums[1];
                 $this->number = $nums[2];
             }
-        } elseif (strlen($num) == 14 && substr($num, 0, 1) == "(") {
+        } elseif (strlen($num) == 14 && str_starts_with($num, "(")) {
             $nums[0] = substr($num, 1, 3);
             $nums[1] = substr($num, 6, 3);
             $nums[2] = substr($num, 10, 4);

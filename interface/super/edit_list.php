@@ -224,13 +224,13 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                 }
 
                 // Force List Based Form names to start with LBF.
-                if ($list_id == 'lbfnames' && substr($id, 0, 3) != 'LBF') {
+                if ($list_id == 'lbfnames' && !str_starts_with($id, 'LBF')) {
                     $id = "LBF$id";
                     $real_id = "LBF$real_id";
                 }
 
                 // Force Transaction Form names to start with LBT.
-                if ($list_id == 'transactions' && substr($id, 0, 3) != 'LBT') {
+                if ($list_id == 'transactions' && !str_starts_with($id, 'LBT')) {
                     $id = "LBT$id";
                     $real_id = "LBT$real_id";
                 }
