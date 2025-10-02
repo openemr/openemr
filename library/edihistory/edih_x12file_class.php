@@ -181,7 +181,7 @@ class edih_x12_file
      */
     public function classname()
     {
-        return get_class($this);
+        return $this::class;
     }
     public function edih_filepath()
     {

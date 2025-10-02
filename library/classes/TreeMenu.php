@@ -124,7 +124,7 @@ class HTML_TreeMenu
             * Wolfram Kriesings' PEAR Tree class
             */
             case 'kriesing':
-                $className = strtolower(get_class($params['structure']->dataSourceClass));
+                $className = strtolower($params['structure']->dataSourceClass::class);
                 $isXMLStruct = strpos($className, '_xml') !== false ? true : false;
 
                 // Get the entire tree, the $nodes are sorted like in the tree view
