@@ -40,26 +40,23 @@ class ImmunizationValidatorTest extends TestCase
         $this->assertInstanceOf(ImmunizationValidator::class, $validator);
     }
 
-    public function testValidatorHasEmptyConfiguration(): void
+    public function testValidatorSupportsInsertContext(): void
     {
-        // ImmunizationValidator currently has an empty configureValidator() method
-        // This test documents the current state - it doesn't add any validation contexts
+        // ImmunizationValidator now properly configures insert and update contexts
+        // Test that insert context validation works without errors
+        $result = $this->validator->validate(['test' => 'data'], BaseValidator::DATABASE_INSERT_CONTEXT);
 
-        // We can test this by trying to validate with unsupported contexts
-        // The empty configuration causes internal errors in the validator
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to a member function merge() on null');
-
-        $this->validator->validate(['test' => 'data'], BaseValidator::DATABASE_INSERT_CONTEXT);
+        // Since no specific validations are defined, it should succeed
+        $this->assertTrue($result->isValid());
     }
 
-    public function testValidatorRejectsUpdateContext(): void
+    public function testValidatorSupportsUpdateContext(): void
     {
-        // Similar test for update context
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to a member function merge() on null');
+        // Test that update context validation works without errors
+        $result = $this->validator->validate(['test' => 'data'], BaseValidator::DATABASE_UPDATE_CONTEXT);
 
-        $this->validator->validate(['test' => 'data'], BaseValidator::DATABASE_UPDATE_CONTEXT);
+        // Since no specific validations are defined, it should succeed
+        $this->assertTrue($result->isValid());
     }
 
     public function testValidatorClassExists(): void
