@@ -218,7 +218,7 @@ abstract class PortalController
         $token = $this->Context->Get('X-CSRFToken');
 
         if (! $token) {
-            $token = md5(rand(1111111111, 9999999999) . microtime());
+            $token = md5(random_int(1111111111, 9999999999) . microtime());
             $this->Context->Set('X-CSRFToken', $token);
         }
 
