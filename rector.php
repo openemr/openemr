@@ -9,6 +9,7 @@ use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
+use Rector\Php56\Rector\FuncCall\PowToExpRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
 use Rector\Php70\Rector\If_\IfToSpaceshipRector;
@@ -69,6 +70,7 @@ return RectorConfig::configure()
         IfToSpaceshipRector::class, // one of the withPhpSets rules
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
+        PowToExpRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
