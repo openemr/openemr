@@ -33,6 +33,7 @@ use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
 use Rector\Php80\Rector\Identical\StrStartsWithRector;
+use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\ValueObject\PhpVersion;
 
@@ -91,6 +92,7 @@ return RectorConfig::configure()
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
         SetCookieRector::class, // one of the withPhpSets rules
+        StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
         StrStartsWithRector::class, // one of the withPhpSets rules
         StringifyStrNeedlesRector::class, // one of the withPhpSets rules
