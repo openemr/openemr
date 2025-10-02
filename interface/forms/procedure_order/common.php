@@ -803,7 +803,7 @@ if (!empty($row['lab_id'])) {
         }
 
         // Update addProcLine to always return lineCount:
-        function addProcLine(skipPopup = false) {
+        function addProcLine(flag = false) {
             if (!('content' in document.createElement('template'))) {
                 console.error("Old browser detected as template content property is not supported");
                 return false;
@@ -814,14 +814,17 @@ if (!empty($row['lab_id'])) {
                 console.error("Cannot add procedure line due to missing template node with id procedure_order_code_template");
                 return false;
             }
-
+            // grab our content, update all our ids, setup any event listeners and add the item in
             let node = template.content.cloneNode(true);
+
+            // now we need to update our procedure key names here
             let lineCountNodes = document.querySelectorAll(".procedure-order-container .proc-table-main");
             let lineCount = 0;
             if (lineCountNodes && lineCountNodes.length) {
                 lineCount = lineCountNodes.length;
             }
 
+            // now we are going to rename all of our templated nodes to be our newest index.
             let remapArrayIndex = function (value) {
                 if (value && value.indexOf("[")) {
                     let parts = value.split("[");
@@ -833,6 +836,7 @@ if (!empty($row['lab_id'])) {
             let remapNames = function (node) {
                 node.name = remapArrayIndex(node.name);
             };
+            // wierdly all of our mapped ids use array indexes as part of the id.
             let remapIds = function (node) {
                 node.id = remapArrayIndex(node.id);
             };
@@ -842,7 +846,6 @@ if (!empty($row['lab_id'])) {
                     mapNodes.forEach(map);
                 }
             };
-
             remapSelectors('input,select', remapNames);
             remapSelectors('.qoe-table-sel-procedure', remapIds);
             remapSelectors('[data-toggle-container]', function (node) {
@@ -852,6 +855,7 @@ if (!empty($row['lab_id'])) {
                 node.id = "reason_code_" + lineCount;
             });
 
+            // now we need to add our events
             let nullableFunction = function (selector, event, callback) {
                 let nodeForCallback = node.querySelector(selector);
                 if (nodeForCallback) {
@@ -860,38 +864,49 @@ if (!empty($row['lab_id'])) {
                     console.error("Failed to find node with selector ", selector);
                 }
             };
-
+            // once our node is in the DOM, we need to add event listeners to it.
             nullableFunction('.itemTransport', 'click', function (event) {
-                var boundLineCount = lineCount + 0;
+                // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
+                // and we curry against the outer lineCount
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
                 getDetails(event, boundLineCount);
             });
             nullableFunction('.btn-secondary.btn-search', 'click', function (event) {
-                var boundLineCount = lineCount + 0;
+                // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
+                // and we curry against the outer lineCount
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
                 selectProcedureCode(boundLineCount);
             });
             nullableFunction('.search-current-diagnoses', 'click', function (event) {
-                current_diagnoses(event.currentTarget);
+                current_diagnoses(event.currentTarget); // use the bound target
             });
+
             nullableFunction('.add-diagnosis-sel-related', 'click', function (event) {
                 sel_related(event.currentTarget.name);
             });
+
             nullableFunction('.add-diagnosis-sel-related', 'focus', function (event) {
                 event.currentTarget.blur();
             });
+
             nullableFunction('.sel-proc-type', 'click', function (event) {
-                var boundLineCount = lineCount + 0;
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
                 sel_proc_type(boundLineCount);
             });
             nullableFunction('.sel-proc-type', 'focus', function (event) {
                 event.currentTarget.blur();
             });
+
             nullableFunction('.itemDelete', 'click', deleteRow);
 
+            // now we will take all the children of the doc fragment and stuff it into the DOM
             $(".procedure-order-container").append(node);
+
+
             initForm();
 
-            // Only auto-open popup if skipPopup is false
-            if (!skipPopup) {
+            if (!flag) {// flag true indicates add procedure item from custom group callback with current index.
+                // note the proc type order id is -1 for a new row... this makes the popup happy, not sure why this was originally set to -1.
                 sel_proc_type(lineCount);
             }
 
