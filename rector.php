@@ -33,6 +33,7 @@ use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
@@ -104,12 +105,13 @@ return RectorConfig::configure()
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
         ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
+        RestoreDefaultNullToNullableTypePropertyRector::class, // one of the withPhpSets rules
         ReturnNeverTypeRector::class, // one of the withPhpSets rules
         SetCookieRector::class, // one of the withPhpSets rules
         StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
-        StrStartsWithRector::class, // one of the withPhpSets rules
         StringifyStrNeedlesRector::class, // one of the withPhpSets rules
+        StrStartsWithRector::class, // one of the withPhpSets rules
         TernaryToElvisRector::class, // one of the withPhpSets rules
         TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
         ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
