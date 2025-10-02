@@ -159,7 +159,7 @@ function era_callback(&$out): void
         '_' . ltrim($out['payer_id'] ? $out['payer_id'] : $out['isa_sender_id'], '0');
 
     if (!empty($out['our_claim_id'])) {
-        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
         if ($pid && $encounter) {
             if ($where) {
                 $where .= ' OR ';

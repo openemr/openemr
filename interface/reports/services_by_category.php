@@ -224,7 +224,7 @@ if (!empty($_POST['form_refresh'])) {
             echo "   <td class='text'>";
             $arel = explode(';', $row['related_code']);
             foreach ($arel as $tmp) {
-                list($reltype, $relcode) = explode(':', $tmp);
+                [$reltype, $relcode] = explode(':', $tmp);
                 $reltype = $code_types[$reltype]['id'];
                 $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
                 "code_type = ? AND code = ? LIMIT 1", array($reltype, $relcode));

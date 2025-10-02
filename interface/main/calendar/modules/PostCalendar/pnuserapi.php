@@ -262,7 +262,7 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         $first_day_of_week = sprintf('%02d', $the_day - $week_day);
         $week_first_day = date('m/d/Y', mktime(0, 0, 0, $the_month, $first_day_of_week, $the_year));
-        list($week_first_day_month, $week_first_day_date, $week_first_day_year) = explode('/', $week_first_day);
+        [$week_first_day_month, $week_first_day_date, $week_first_day_year] = explode('/', $week_first_day);
         $week_first_day_month_name = pnModAPIFunc(
             __POSTCALENDAR__,
             'user',
@@ -270,7 +270,7 @@ function postcalendar_userapi_buildView($args)
             array('Date' => mktime(0, 0, 0, $week_first_day_month, $week_first_day_date, $week_first_day_year))
         );
         $week_last_day = date('m/d/Y', mktime(0, 0, 0, $the_month, $first_day_of_week + 6, $the_year));
-        list($week_last_day_month, $week_last_day_date, $week_last_day_year) = explode('/', $week_last_day);
+        [$week_last_day_month, $week_last_day_date, $week_last_day_year] = explode('/', $week_last_day);
         $week_last_day_month_name = pnModAPIFunc(
             __POSTCALENDAR__,
             'user',
@@ -626,9 +626,9 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $start = Date_Calc::dateNow('%Y-%m-%d');
     }
 
-    list($sy,$sm,$sd) = explode('-', $start);
+    [$sy, $sm, $sd] = explode('-', $start);
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -714,17 +714,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         if (isset($tmp)) {
             unset($tmp);
         } $tmp = array();
-        list($tmp['eid'],          $tmp['uname'],         $tmp['catid'],
-         $tmp['title'],        $tmp['time'],          $tmp['hometext'],
-         $tmp['eventDate'],    $tmp['duration'],      $tmp['endDate'],
-         $tmp['startTime'],    $tmp['recurrtype'],    $tmp['recurrfreq'],
-         $tmp['recurrspec'],   $tmp['topic'],         $tmp['alldayevent'],
-         $tmp['location'],     $tmp['conttel'],       $tmp['contname'],
-         $tmp['contemail'],    $tmp['website'],       $tmp['fee'],
-         $tmp['sharing'],      $tmp['prefcatid'],     $tmp['catcolor'],
-         $tmp['catname'],      $tmp['catdesc'],       $tmp['pid'],
-         $tmp['aid'],          $tmp['provider_name'], $tmp['patient_name'],
-         $tmp['owner_name'],  $tmp['patient_address'],  $tmp['patient_dob'],   $tmp['facility'])   = $result->fields;
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -748,7 +738,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['duration']    = $tmp['duration'];
         // there has to be a more intelligent way to do this
 
-        @list($events[$i]['duration_hours'],$dmin) = @explode('.', ($tmp['duration'] / 60 / 60));
+        @[$events[$i]['duration_hours'], $dmin] = @explode('.', ($tmp['duration'] / 60 / 60));
         $events[$i]['duration_minutes'] = substr(sprintf('%.2f', '.' . 60 * ($dmin / 100)), 2, 2);
         //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         $events[$i]['endDate']     = $tmp['endDate'];
@@ -896,9 +886,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $start = Date_Calc::dateNow('%Y-%m-%d');
     }
 
-    list($sy,$sm,$sd) = explode('-', $start);
+    [$sy, $sm, $sd] = explode('-', $start);
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -1046,20 +1036,49 @@ function &postcalendar_userapi_pcQueryEvents($args)
         if (isset($tmp)) {
             unset($tmp);
         } $tmp = array();
-        list($tmp['eid'],          $tmp['uname'],       $tmp['catid'],
-         $tmp['title'],        $tmp['time'],        $tmp['hometext'],
-         $tmp['eventDate'],    $tmp['duration'],    $tmp['endDate'],
-         $tmp['startTime'],    $tmp['recurrtype'],  $tmp['recurrfreq'],
-         $tmp['recurrspec'],   $tmp['topic'],       $tmp['alldayevent'],
-         $tmp['location'],     $tmp['conttel'],     $tmp['contname'],
-         $tmp['contemail'],    $tmp['website'],     $tmp['fee'],
-         $tmp['sharing'],      $tmp['prefcatid'],   $tmp['catcolor'],
-         $tmp['catname'],      $tmp['catdesc'],     $tmp['pid'],
-         $tmp['apptstatus'],   $tmp['aid'],         $tmp['provider_name'],
-         $tmp['patient_name'],
-         $tmp['owner_name'],  $tmp['patient_address'],   $tmp['patient_dob'], //RM
-         $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],
-         $tmp['group_name'],   $tmp['group_type'],  $tmp['group_status']) = $result->fields;
+        [
+            $tmp['eid'],
+            $tmp['uname'],
+            $tmp['catid'],
+            $tmp['title'],
+            $tmp['time'],
+            $tmp['hometext'],
+            $tmp['eventDate'],
+            $tmp['duration'],
+            $tmp['endDate'],
+            $tmp['startTime'],
+            $tmp['recurrtype'],
+            $tmp['recurrfreq'],
+            $tmp['recurrspec'],
+            $tmp['topic'],
+            $tmp['alldayevent'],
+            $tmp['location'],
+            $tmp['conttel'],
+            $tmp['contname'],
+            $tmp['contemail'],
+            $tmp['website'],
+            $tmp['fee'],
+            $tmp['sharing'],
+            $tmp['prefcatid'],
+            $tmp['catcolor'],
+            $tmp['catname'],
+            $tmp['catdesc'],
+            $tmp['pid'],
+            $tmp['apptstatus'],
+            $tmp['aid'],
+            $tmp['provider_name'],
+            $tmp['patient_name'],
+            $tmp['owner_name'],
+            $tmp['patient_address'],
+            $tmp['patient_dob'],
+            //RM
+            $tmp['facility'],
+            $tmp['pubpid'],
+            $tmp['gid'],
+            $tmp['group_name'],
+            $tmp['group_type'],
+            $tmp['group_status'],
+        ] = $result->fields;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1220,9 +1239,9 @@ function &postcalendar_userapi_pcGetEvents($args)
     $cd = substr($date, 6, 2);
     if (isset($start) && isset($end)) {
         // parse start date
-        list($sm,$sd,$sy) = explode('/', $start);
+        [$sm, $sd, $sy] = explode('/', $start);
         // parse end date
-        list($em,$ed,$ey) = explode('/', $end);
+        [$em, $ed, $ey] = explode('/', $end);
 
         $s = (int) "$sy$sm$sd";
         if ($s > $date) {
@@ -1380,7 +1399,7 @@ function calculateEvents($days, $events, $viewtype)
                     $stop = $last_date;
                 }
 
-                list($esY,$esM,$esD) = explode('-', $event['eventDate']);
+                [$esY, $esM, $esD] = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['recurrtype'], $event_recurrspec)) {
@@ -1399,7 +1418,7 @@ function calculateEvents($days, $events, $viewtype)
                 $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while ($occurance < $start_date) {
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
 
                 while ($occurance <= $stop) {
@@ -1433,7 +1452,7 @@ function calculateEvents($days, $events, $viewtype)
                     }
 
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
                 break;
 
@@ -1451,7 +1470,7 @@ function calculateEvents($days, $events, $viewtype)
                     $stop = $last_date;
                 }
 
-                list($esY,$esM,$esD) = explode('-', $event['eventDate']);
+                [$esY, $esM, $esD] = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['recurrtype'], $event_recurrspec)) {
@@ -1482,7 +1501,7 @@ function calculateEvents($days, $events, $viewtype)
                 // make us current
                 while ($ny < $cy) {
                     $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
 
                 // populate the event array
@@ -1519,7 +1538,7 @@ function calculateEvents($days, $events, $viewtype)
                     }
 
                     $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
                 break;
         } // <- end of switch($event['recurrtype'])

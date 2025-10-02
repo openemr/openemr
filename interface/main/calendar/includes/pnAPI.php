@@ -94,7 +94,7 @@ function pnConfigInit()
 {
     global $pnconfig;
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $table = $pntable['module_vars'];
@@ -118,7 +118,7 @@ function pnConfigInit()
     }
 
     while (!$dbresult->EOF) {
-        list($k, $v) = $dbresult->fields;
+        [$k, $v] = $dbresult->fields;
         $dbresult->MoveNext();
         if (
             ($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
@@ -147,7 +147,7 @@ function pnConfigGetVar($name)
         /*
          * Fetch base data
          */
-        list($dbconn) = pnDBGetConn();
+        [$dbconn] = pnDBGetConn();
         $pntable = pnDBGetTables();
 
         $table = $pntable['module_vars'];
@@ -177,7 +177,7 @@ function pnConfigGetVar($name)
         /*
          * Get data
          */
-        list ($result) = $dbresult->fields;
+        [$result] = $dbresult->fields;
         $result = unserialize($result, ['allowed_classes' => false]);
 
         /*

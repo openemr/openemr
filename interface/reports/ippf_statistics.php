@@ -313,7 +313,7 @@ function getRelatedContraceptiveCode($row)
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype !== 'IPPF') {
                 continue;
             }
@@ -341,7 +341,7 @@ function getRelatedAbortionMethod($row)
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype !== 'IPPF') {
                 continue;
             }
@@ -975,7 +975,7 @@ function process_referral($row): void
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
 
             if ($codetype == 'REF') {
                 // This is the expected case; a direct IPPF code is obsolete.
@@ -983,7 +983,7 @@ function process_referral($row): void
                 "code_type = '16' AND code = ? AND active = 1 " .
                 "ORDER BY id LIMIT 1", array($code));
                 if (!empty($rrow['related_code'])) {
-                        list($codetype, $code) = explode(':', $rrow['related_code']);
+                        [$codetype, $code] = explode(':', $rrow['related_code']);
                 }
             }
 
@@ -1517,7 +1517,7 @@ if ($_POST['form_submit']) {
                             continue;
                         }
 
-                        list($codetype, $code) = explode(':', $codestring);
+                        [$codetype, $code] = explode(':', $codestring);
                         if ($codetype !== 'IPPF') {
                             continue;
                         }

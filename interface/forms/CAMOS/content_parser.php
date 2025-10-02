@@ -275,8 +275,8 @@ function replace($pid, $enc, $content)
 function patient_age($birthday, $date)
 {
  //calculate age from birthdate and a given later date
-    list($birth_year,$birth_month,$birth_day) = explode("-", $birthday);
-    list($date_year,$date_month,$date_day) = explode("-", $date);
+    [$birth_year, $birth_month, $birth_day] = explode("-", $birthday);
+    [$date_year, $date_month, $date_day] = explode("-", $date);
     $year_diff  = $date_year - $birth_year;
     $month_diff = $date_month - $birth_month;
     $day_diff   = (int) $date_day - $birth_day;

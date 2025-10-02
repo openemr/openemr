@@ -45,7 +45,7 @@ function pnModGetVar($modname, $name)
         return $pnmodvar[$modname][$name];
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulevarstable = $pntable['module_vars'];
@@ -65,7 +65,7 @@ function pnModGetVar($modname, $name)
         return;
     }
 
-    list($value) = $result->fields;
+    [$value] = $result->fields;
     $result->Close();
 
     $pnmodvar[$modname][$name] = $value;
@@ -85,7 +85,7 @@ function pnModSetVar($modname, $name, $value)
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $curvar = pnModGetVar($modname, $name);
@@ -136,7 +136,7 @@ function pnModGetIDFromName($module)
         return $modid[$module];
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -155,7 +155,7 @@ function pnModGetIDFromName($module)
         return false;
     }
 
-    list($id) = $result->fields;
+    [$id] = $result->fields;
     $result->Close();
 
     $modid[$module] = $id;
@@ -180,7 +180,7 @@ function pnModGetInfo($modid)
         return $modinfo[$modid];
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -205,13 +205,7 @@ function pnModGetInfo($modid)
         return false;
     }
 
-    list($resarray['name'],
-         $resarray['type'],
-         $resarray['directory'],
-         $resarray['regid'],
-         $resarray['displayname'],
-         $resarray['description'],
-         $resarray['version']) = $result->fields;
+    [$resarray['name'], $resarray['type'], $resarray['directory'], $resarray['regid'], $resarray['displayname'], $resarray['description'], $resarray['version']] = $result->fields;
     $result->Close();
 
     $modinfo[$modid] = $resarray;
@@ -234,7 +228,7 @@ function pnModAPILoad($modname, $type = 'user')
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     if (!empty($loaded["$modname$type"])) {
@@ -259,10 +253,10 @@ function pnModAPILoad($modname, $type = 'user')
         return false;
     }
 
-    list($name, $directory, $state) = $result->fields;
+    [$name, $directory, $state] = $result->fields;
     $result->Close();
 
-    list($osdirectory, $ostype) = pnVarPrepForOS($directory, $type);
+    [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
 
     $osfile = "modules/$osdirectory/pn{$ostype}api.php";
     if (!file_exists($osfile)) {
@@ -301,7 +295,7 @@ function pnModDBInfoLoad($modname, $directory = '')
 
     // Get the directory if we don't already have it
     if (empty($directory)) {
-        list($dbconn) = pnDBGetConn();
+        [$dbconn] = pnDBGetConn();
         $pntable = pnDBGetTables();
         $modulestable = $pntable['modules'];
         $modulescolumn = &$pntable['modules_column'];
@@ -352,7 +346,7 @@ function pnModLoad($modname, $type = 'user')
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -377,11 +371,11 @@ function pnModLoad($modname, $type = 'user')
         return false;
     }
 
-    list($directory, $state) = $result->fields;
+    [$directory, $state] = $result->fields;
     $result->Close();
 
     // Load the module and module language files
-    list($osdirectory, $ostype) = pnVarPrepForOS($directory, $type);
+    [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
     $osfile = "modules/$osdirectory/pn$ostype.php";
 
     if (!file_exists($osfile)) {
@@ -553,7 +547,7 @@ function pnModAvailable($modname)
         }
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -572,7 +566,7 @@ function pnModAvailable($modname)
         return false;
     }
 
-    list($state) = $result->fields;
+    [$state] = $result->fields;
     $result->Close();
 
     $modstate[$modname] = $state;

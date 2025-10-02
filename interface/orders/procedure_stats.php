@@ -586,7 +586,7 @@ if (!empty($_POST['form_submit'])) {
 
       // If the key is an MA or IPPF code, then get its description.
         if ($form_by === '5') {
-            list($codetype, $code) = explode(':', $key);
+            [$codetype, $code] = explode(':', $key);
             $type = $code_types[$codetype]['id'];
             $dispkey = array($key, '');
             $crow = sqlQuery("SELECT code_text FROM codes WHERE " .

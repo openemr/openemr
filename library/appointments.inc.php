@@ -228,13 +228,13 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                [$ny, $nm, $nd] = explode('-', $event['pc_eventDate']);
         //        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
                 $occurance = $event['pc_eventDate'];
 
                 while ($occurance < $from_date) {
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
 
                 while ($occurance <= $stopDate) {
@@ -265,7 +265,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     }
 
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurance);
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
                 break;
 
@@ -281,7 +281,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                [$ny, $nm, $nd] = explode('-', $event['pc_eventDate']);
 
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1;
@@ -297,7 +297,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 // $nd has no influence past the mktime functions.
                 while ($occuranceYm < $from_dateYm) {
                     $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occuranceYmX);
+                    [$ny, $nm, $nd] = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
                 }
 
@@ -337,7 +337,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     }
 
                     $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occuranceYmX);
+                    [$ny, $nm, $nd] = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
                 }
                 break;

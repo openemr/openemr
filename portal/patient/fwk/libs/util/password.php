@@ -136,7 +136,7 @@ if (! function_exists('password_get_info')) {
         if (substr($hash, 0, 4) == '$2y$' && strlen($hash) == 60) {
             $return ['algo'] = PASSWORD_BCRYPT;
             $return ['algoName'] = 'bcrypt';
-            list ( $cost ) = sscanf($hash, "$2y$%d$");
+            [$cost] = sscanf($hash, "$2y$%d$");
             $return ['options'] ['cost'] = $cost;
         }
 

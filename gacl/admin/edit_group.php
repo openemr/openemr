@@ -107,7 +107,7 @@ switch ($postAction) {
 				FROM	'. $group_table .'
 				WHERE	id='. (int)$_GET['group_id'];
 
-			list($id, $parent_id, $value, $name) = $db->GetRow($query);
+			[$id, $parent_id, $value, $name] = $db->GetRow($query);
 			//showarray($row);
 		} else {
 			$parent_id = $_GET['parent_id'] ?? null;

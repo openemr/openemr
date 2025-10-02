@@ -17,7 +17,7 @@ function smarty_core_load_plugins($params, &$smarty): void
 {
 
     foreach ($params['plugins'] as $_plugin_info) {
-        list($_type, $_name, $_tpl_file, $_tpl_line, $_delayed_loading) = $_plugin_info;
+        [$_type, $_name, $_tpl_file, $_tpl_line, $_delayed_loading] = $_plugin_info;
         $_plugin = &$smarty->_plugins[$_type][$_name];
 
         /*

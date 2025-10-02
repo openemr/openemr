@@ -34,7 +34,7 @@ function postcalendar_adminapi_updateCategories($args)
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     foreach ($updates as $update) {
         $result = $dbconn->Execute($update);
         if ($result === false) {
@@ -51,7 +51,7 @@ function postcalendar_adminapi_deleteCategories($args)
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $result = $dbconn->Execute($delete);
     if ($result === false) {
         return false;
@@ -66,7 +66,7 @@ function postcalendar_adminapi_addCategories($args)
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $name = pnVarPrepForStore($name);

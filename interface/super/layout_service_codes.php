@@ -235,7 +235,7 @@ while ($row = sqlFetchArray($res)) {
         echo "</td>\n";
 
         echo "  <td class='detail'>\n";
-        list ($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         $crow = sqlQuery(
             "SELECT code_text FROM codes WHERE " .
             "code_type = ? AND code = ? AND active = 1 " .

@@ -302,7 +302,7 @@ function popup_close() {
                     }
                 }
 
-                list($patient_id, $timestamp, $ref_id) = explode(".", $payment);
+                [$patient_id, $timestamp, $ref_id] = explode(".", $payment);
                 // if (empty($ref_id)) $ref_id = -1;
                 $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
                 $payres = sqlStatement("SELECT * FROM payments WHERE " .
@@ -383,7 +383,7 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                list($patient_id, $encounter_id) = explode(".", $billing);
+                [$patient_id, $encounter_id] = explode(".", $billing);
 
                 row_modify(
                     "ar_activity",

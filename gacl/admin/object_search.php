@@ -79,7 +79,7 @@ switch ($_GET['action']) {
 			$total_rows = $rs->RecordCount();
 
 			while ($row = $rs->FetchRow()) {
-				list($section_value, $value, $name) = $row;
+				[$section_value, $value, $name] = $row;
 				$options_objects[attr($value)] = attr($name);
 			}
 		}

@@ -81,7 +81,7 @@ class EmailClient extends AppDispatch
      */
     public function authenticate($acl = ['patients', 'appt']): int
     {
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 

@@ -180,7 +180,7 @@ class CouchDB
             $response .= fgets($s);
         }
 
-        list($this->headers, $this->body) = explode("\r\n\r\n", $response);
+        [$this->headers, $this->body] = explode("\r\n\r\n", $response);
         return $this->body;
     }
 }
