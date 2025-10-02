@@ -122,7 +122,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['created_at']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
                 new ServiceField('uuid', ServiceField::TYPE_UUID)
                 ]),
@@ -132,7 +132,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['updated_at']);
     }
 
     /**

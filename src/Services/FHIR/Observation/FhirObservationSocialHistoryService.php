@@ -24,6 +24,7 @@ use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -43,7 +44,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
-    use VersionedProfileTrait;
+    use FhirObservationTrait;
 
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -62,6 +63,9 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             ,'code' => self::SMOKING_CESSATION_CODE
             ,'description' => 'Tobacco smoking status NHIS'
             ,'column' => ['smoking_status_codes', 'tobacco']
+            ,'profiles' => [
+                self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_ALL
+            ]
         ]
     ];
 
@@ -199,24 +203,32 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         $uuidMappings = $this->getUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
 
+
         foreach ($observationCodesToReturn as $code) {
-            $vitalsRecord = [
+            $mapping = self::COLUMN_MAPPINGS[$code];
+            if (!isset($mapping)) {
+                continue;
+            }
+
+            $profileVersions = $mapping['profiles'] ?? [self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_ALL];
+            $profiles = [];
+            foreach ($profileVersions as $profile => $versions) {
+                $profiles[] = $this->getProfileForVersions($profile, $versions);
+            }
+            $observation = [
                 "code" => $code
                 ,"description" => $this->getDescriptionForCode($code)
-                ,"category" => "social-history"
+                ,"ob_type" => self::CATEGORY
                 , "puuid" => $record['puuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
+                ,"user_uuid" => 'provider_uuid'
                 ,"date" => $record['date']
+                ,"last_updated" => $record['date']
+                ,"profiles" => $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions())
+                ,"value" => null
             ];
-
-            $columns = $this->getColumnsForCode($code);
-            // if any value of the column is populated we will return that the record has a value.
-            foreach ($columns as $column) {
-                if (isset($record[$column]) && $record[$column] != "") {
-                    $vitalsRecord[$column] = $record[$column];
-                }
-            }
-            $processingResult->addData($vitalsRecord);
+            $this->addColumnsForCode($observation, $record);
+            $processingResult->addData($observation);
         }
     }
 
@@ -305,9 +317,22 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         }
     }
 
-    private function getColumnsForCode($code)
+    private function addColumnsForCode(array &$observation, array $record)
     {
-        $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
+        $codeMapping = self::COLUMN_MAPPINGS[$observation['code']] ?? null;
+        switch ($observation['code']) {
+            case self::SMOKING_CESSATION_CODE:
+                if (!empty($record['smoking_status_codes'])) {
+                    // TODO: @adunsulag should we refactor FhirObservationTrait to take in an array for the value as a codeableconcept?
+                    $observation['value'] = $record['smoking_status_codes']['code_type'] . ':' . $record['smoking_status_codes']['code'];
+                    $observation['value_code_description'] = $record['smoking_status_codes']['description'];
+                }
+
+                if (isset($value)) {
+                    $observation['value'] = $value;
+                }
+                break;
+        }
         if (isset($codeMapping)) {
             return is_array($codeMapping['column']) ? $codeMapping['column'] : [$codeMapping['column']];
         }

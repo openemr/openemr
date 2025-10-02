@@ -385,9 +385,14 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 }
                 foreach ($code->getValues() as $value) {
                     $code = $value->getCode();
-                    $observationCodesToReturn[$code] = $code;
+                    if ($this->supportsCode($code)) {
+                        $observationCodesToReturn[$code] = $code;
+                    }
                 }
                 unset($openEMRSearchParameters['code']);
+                if (empty($observationCodesToReturn)) {
+                    return $processingResult; // nothing to return if we don't support any of the codes
+                }
             }
 
 

@@ -106,24 +106,38 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 $fhirSearchParameters[$field->getName()] = $puuidBind;
             }
 
+            $servicesMap = [];
+            $services = [];
             if (isset($fhirSearchParameters['category'])) {
                 /**
                  * @var TokenSearchField
                  */
                 $category = $fhirSearchParameters['category'];
 
-                $services = $this->getServiceListForCategory(
+                $cateServices = $this->getServiceListForCategory(
                     new TokenSearchField('category', $category)
                 );
-                $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['code'])) {
-                $services = $this->getServiceListForCode(
+                foreach ($cateServices as $service) {
+                    $servicesMap[$service::class] = $service;
+                }
+                $services = $servicesMap;
+            }
+            $codeMap = [];
+            if (isset($fhirSearchParameters['code'])) {
+                // we narrow our services down by code
+                $codeServices = $this->getServiceListForCode(
                     new TokenSearchField('code', $fhirSearchParameters['code']),
                 );
-                $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
-            } else {
-                $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
+                $codeMap = [];
+                foreach ($codeServices as $service) {
+                    $codeMap[$service::class] = $service;
+                }
+                $services = array_intersect_key($servicesMap, $codeMap);
             }
+            if (empty($services)) {
+                $services = $this->getMappedServices();
+            }
+            $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
             $systemLogger->error("FhirObservationService->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -154,6 +168,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         }
 
         // if its not mapped we will leave the _id alone and let the subsequent sub service pull the right resource
+        // TODO: @adunsulag we could optimize this to go directly to the service that has the uuid but for now we'll just let it go through the normal search process
         if ($registryRecord['mapped'] != '1') {
             return null;
         }

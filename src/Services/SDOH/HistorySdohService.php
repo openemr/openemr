@@ -1417,7 +1417,7 @@ class HistorySdohService extends BaseService
      * @param bool $andCondition
      * @return ProcessingResult
      */
-    public function search($openEMRSearchParameters = [], $isAndCondition = false): ProcessingResult
+    public function search($openEMRSearchParameters = [], $isAndCondition = true): ProcessingResult
     {
         try {
             $sql = "SELECT o.*
@@ -1446,10 +1446,10 @@ class HistorySdohService extends BaseService
                             FROM users
                      ) cu ON o.created_by = cu.cuid
                      LEFT JOIN (
-                              select id AS uuid,
+                              select id AS updated_by_id,
                                   uuid AS updated_by_uuid
                              FROM users
-                        ) uu ON o.updated_by = uu.uuid
+                        ) uu ON o.updated_by = uu.updated_by_id
                      LEFT JOIN (
                         SELECT codes AS pregnancy_status_codes
                         , title AS pregnancy_status_display
