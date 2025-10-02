@@ -20,6 +20,7 @@ use Rector\Php70\Rector\If_\IfToSpaceshipRector;
 use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
+use Rector\Php70\Rector\Variable\WrapVariableVariableNameInCurlyBracesRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\List_\ListToArrayDestructRector;
@@ -111,6 +112,7 @@ return RectorConfig::configure()
         Utf8DecodeEncodeToMbConvertEncodingRector::class, // one of the withPhpSets rules
         VarToPublicPropertyRector::class, // one of the withPhpSets rules
         WhileEachToForeachRector::class, // one of the withPhpSets rules
+        WrapVariableVariableNameInCurlyBracesRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
