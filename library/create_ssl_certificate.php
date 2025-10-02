@@ -93,7 +93,7 @@ function create_csr(
  */
 function create_crt($csr, $cacert, $cakey)
 {
-    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, ['digest_alg' => 'sha256'], rand(1000, 9999));
+    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, ['digest_alg' => 'sha256'], random_int(1000, 9999));
     return $cert;
 }
 

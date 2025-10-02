@@ -325,7 +325,7 @@ if (($_REQUEST['unlock'] ?? null) === '1') {
     }
 
     if (!($_REQUEST['LOCKEDBY'] ?? '')) {
-        $_REQUEST['LOCKEDBY'] = rand();
+        $_REQUEST['LOCKEDBY'] = random_int(0, mt_getrandmax());
     }
 }
 

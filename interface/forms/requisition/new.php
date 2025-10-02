@@ -157,7 +157,7 @@ table, th, td {
                 if (!empty($storeBar)) {
                     $bar = $storeBar['req_id'];
                 } else {
-                    $bar = rand(1000, 999999);
+                    $bar = random_int(1000, 999999);
                     saveBarCode($bar, $pid, $order[0]);
                 }
 

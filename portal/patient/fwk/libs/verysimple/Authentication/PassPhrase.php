@@ -23,7 +23,7 @@ class PassPhrase
      */
     static function GetRandomPassPhrase($length = 8)
     {
-        srand((double) microtime() * 1000000);
+        mt_srand((double) microtime() * 1000000);
 
         $vowels = array (
                 "a",
@@ -96,7 +96,7 @@ class PassPhrase
         $password = "";
 
         for ($i = 0; $i < $length; $i++) {
-            $password .= $cons [rand(0, $num_cons - 1)] . $vowels [rand(0, $num_vowels - 1)];
+            $password .= $cons [random_int(0, $num_cons - 1)] . $vowels [random_int(0, $num_vowels - 1)];
         }
 
         $newpass = substr($password, 0, $length);

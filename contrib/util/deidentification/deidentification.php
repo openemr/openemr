@@ -175,20 +175,20 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
         $i++;
         $string = '';
         //Give the user a new last name in patient_data.lname
-        $last_name = $lnames[rand(0, 800)];
+        $last_name = $lnames[random_int(0, 800)];
 
         //Give the user a new first name
-        $first_name_male = $male[rand(0, 32)];
-        $first_name_female = $female[rand(0, 74)];
+        $first_name_male = $male[random_int(0, 32)];
+        $first_name_female = $female[random_int(0, 74)];
 
         //Change the street address patient_Data.street
-        $street = rand(1, 9999) . " " . rand(0, 200) . " Avenue ";
+        $street = random_int(1, 9999) . " " . random_int(0, 200) . " Avenue ";
 
         //remove the drivers license
-        $drivers_license = rand(2, 999) . rand(0, 999) . rand(0, 99);
+        $drivers_license = random_int(2, 999) . random_int(0, 999) . random_int(0, 99);
 
         //change the patient_data.phone_home
-        $phone_home = rand(200, 999) . "-" . rand(200, 999) . "-" . rand(1000, 9999);
+        $phone_home = random_int(200, 999) . "-" . random_int(200, 999) . "-" . random_int(1000, 9999);
 
         $string = "update patient_data set lname = '$last_name', ";
 
