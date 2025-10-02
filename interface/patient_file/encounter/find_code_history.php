@@ -26,7 +26,7 @@ function get_history_codes($pid)
         array('medical_problem', $pid)
     );
     while ($diag = sqlFetchArray($dres)) {
-        $diag['codes'] = preg_replace('/^;+|;+$/', '', $diag['codes']);
+        $diag['codes'] = preg_replace('/^;+|;+$/', '', (string) $diag['codes']);
         $bld = explode(';', $diag['codes']);
         foreach ($bld as $cde) {
             $probcodes[] = array(
@@ -46,7 +46,7 @@ function get_history_codes($pid)
     $origin = xlt('Procedures');
     $dxcodes = array();
     while ($diag = sqlFetchArray($dres)) {
-        $diag['codes'] = preg_replace('/^;+|;+$/', '', $diag['codes']);
+        $diag['codes'] = preg_replace('/^;+|;+$/', '', (string) $diag['codes']);
         $bld = explode(';', $diag['codes']);
         foreach ($bld as $cde) {
             $dxcodes[] = array(
@@ -204,7 +204,7 @@ function get_history_codes($pid)
                 <?php
                 $dxcodes = get_history_codes($pid);
                 foreach ($dxcodes as $pc) {
-                    $code = explode(':', $pc['code']);
+                    $code = explode(':', (string) $pc['code']);
                     $code[0] = text($code[0]);
                     $code[1] = text($code[1]); ?>
 

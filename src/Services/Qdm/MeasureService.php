@@ -57,7 +57,7 @@ class MeasureService
     public static function fetchMeasureFiles($measurePath)
     {
         return [
-            'measure' => $measurePath . '/' . basename($measurePath) . '.json',
+            'measure' => $measurePath . '/' . basename((string) $measurePath) . '.json',
             'valueSets' => $measurePath . '/value_sets.json'
         ];
     }

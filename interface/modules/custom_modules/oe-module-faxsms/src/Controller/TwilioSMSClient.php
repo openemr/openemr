@@ -119,7 +119,7 @@ class TwilioSMSClient extends AppDispatch
     public function formatPhone($number): string
     {
         // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', $number);
+        $n = preg_replace('/[^0-9]/', '', (string) $number);
         if (stripos($n, '1') === 0) {
             $n = '+' . $n;
         } else {
@@ -160,8 +160,8 @@ class TwilioSMSClient extends AppDispatch
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01Z';
             $timeTo = 'T23:59:59Z';
-            $dateFrom = trim($dateFrom) . $timeFrom;
-            $dateTo = trim($dateTo) . $timeTo;
+            $dateFrom = trim((string) $dateFrom) . $timeFrom;
+            $dateTo = trim((string) $dateTo) . $timeTo;
 
             try {
                 $twilio = new Client($this->appKey, $this->appSecret, $this->sid);

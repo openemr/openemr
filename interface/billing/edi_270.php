@@ -79,7 +79,7 @@ if ($form_provider != "") {
 }
 
 if ($exclude_policy != "") {
-    $arrayExplode = explode(",", $exclude_policy);
+    $arrayExplode = explode(",", (string) $exclude_policy);
     $excludePlacemakers = "";
     $firstFlag = true;
     foreach ($arrayExplode as $processExclude) {
@@ -143,7 +143,7 @@ if ($exclude_policy != "") {
     while ($row = sqlFetchArray($rslt)) {
         foreach ($appts as $tmp) {
             if ((int)$tmp['pc_eid'] === (int)$row['pc_eid']) {
-                $row['pc_eventDate'] = date("Ymd", strtotime($tmp['pc_eventDate']));
+                $row['pc_eventDate'] = date("Ymd", strtotime((string) $tmp['pc_eventDate']));
             }
         }
         $res[] = $row;
@@ -161,7 +161,7 @@ if ($exclude_policy != "") {
         $eFlag = !$GLOBALS['disable_eligibility_log'];
         // make the batch request
         $log = EDI270::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
-        $e = strpos($log, "Error:");
+        $e = strpos((string) $log, "Error:");
         if ($e !== false) {
             $log =  text(xlt("One or more transactions failed") .
                 "\n" . $log . "\n");

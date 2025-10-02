@@ -27,7 +27,7 @@ if ($_GET['group_type'] != '') {
 	$group_type = $_POST['group_type'];
 }
 
-switch(strtolower(trim($group_type))) {
+switch(strtolower(trim((string) $group_type))) {
 	case 'axo':
 		$group_type = 'axo';
 		$table = $gacl_api->_db_table_prefix . 'axo';
@@ -54,7 +54,7 @@ switch ($postAction) {
 		//Parse the form values
 		//foreach ($_POST['delete_assigned_aro'] as $aro_value) {
         foreach ($_POST['delete_assigned_object'] as $object_value) {
-			$split_object_value = explode('^', $object_value);
+			$split_object_value = explode('^', (string) $object_value);
 			$selected_object_array[$split_object_value[0]][] = $split_object_value[1];
 		}
 
@@ -68,7 +68,7 @@ switch ($postAction) {
 		}
 
 		//Return page.
-		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode($_POST['group_type']) .'&group_id='. urlencode($_POST['group_id']));
+		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode((string) $_POST['group_type']) .'&group_id='. urlencode((string) $_POST['group_id']));
 
 		break;
 	case 'Submit':
@@ -78,7 +78,7 @@ switch ($postAction) {
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
         foreach ($_POST['selected_'.$_POST['group_type']] as $object_value) {
-			$split_object_value = explode('^', $object_value);
+			$split_object_value = explode('^', (string) $object_value);
 			$selected_object_array[$split_object_value[0]][] = $split_object_value[1];
 		}
 
@@ -91,7 +91,7 @@ switch ($postAction) {
 			}
 		}
 
-		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode($_POST['group_type']) .'&group_id='. urlencode($_POST['group_id']));
+		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode((string) $_POST['group_type']) .'&group_id='. urlencode((string) $_POST['group_id']));
 
 		break;
 	default:
@@ -130,9 +130,9 @@ switch ($postAction) {
 		while ($row = $rs->FetchRow()) {
 			//list($section_value, $value, $name) = $row;
 
-			$section_value = addslashes($row[0]);
-			$value = addslashes($row[1]);
-			$name = addslashes($row[2]);
+			$section_value = addslashes((string) $row[0]);
+			$value = addslashes((string) $row[1]);
+			$name = addslashes((string) $row[2]);
 
 			//Prepare javascript code for dynamic select box.
 			//Init the javascript sub-array.

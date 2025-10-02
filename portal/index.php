@@ -51,7 +51,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
-$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode((string) $_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */

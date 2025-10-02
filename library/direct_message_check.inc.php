@@ -47,7 +47,7 @@ function phimail_connect(&$phimail_error)
         return false; //for safety
     }
 
-    $phimail_server = @parse_url($GLOBALS['phimail_server_address']);
+    $phimail_server = @parse_url((string) $GLOBALS['phimail_server_address']);
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = new CryptoGen();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
@@ -341,7 +341,7 @@ function phimail_check(): void
                     $idnum = $doc_id['doc_id'];
                     $all_doc_ids[] = $idnum;
                     $url = $doc_id['url'];
-                    $url = substr($url, strrpos($url, "/") + 1);
+                    $url = substr((string) $url, strrpos((string) $url, "/") + 1);
                     $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
                         filesize($body) . " bytes) Main message body";
                 }
@@ -394,7 +394,7 @@ function phimail_check(): void
                     $idnum = $att_doc_id['doc_id'];
                     $all_doc_ids[] = $idnum;
                     $url = $att_doc_id['url'];
-                    $url = substr($url, strrpos($url, "/") + 1);
+                    $url = substr((string) $url, strrpos((string) $url, "/") + 1);
                     $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
                         $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
                 }
@@ -484,7 +484,7 @@ function phimail_check(): void
  */
 function phimail_write($fp, $text): void
 {
-    fwrite($fp, $text);
+    fwrite($fp, (string) $text);
     fflush($fp);
 }
 
@@ -570,7 +570,7 @@ function phimail_read_blob($fp, $len)
  */
 function phimail_extension($mime)
 {
-    $m = explode("/", $mime);
+    $m = explode("/", (string) $mime);
     switch ($mime) {
         case 'text/plain':
             return (".txt");

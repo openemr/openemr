@@ -123,7 +123,7 @@ class C_Document extends Controller
         if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
             foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
                 $zfn = $GLOBALS['temporary_files_dir'] . "/" . $name;
-                $fparts = pathinfo($name);
+                $fparts = pathinfo((string) $name);
                 if (empty($fparts['extension'])) {
                     // viewer requires lowercase.
                     $fparts['extension'] = "dcm";
@@ -213,7 +213,7 @@ class C_Document extends Controller
 
         if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
-            $study_name = $_POST['destination'] ? (trim($_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            $study_name = $_POST['destination'] ? (trim((string) $_POST['destination']) . ".zip") : 'DicomStudy.zip';
             $study_name =  preg_replace('/\s+/', '_', $study_name);
             $_POST['destination'] = "";
             $zipped = $this->zip_dicom_folder($study_name);
@@ -244,7 +244,7 @@ class C_Document extends Controller
                     $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 } else {
                     // Test for a zip of DICOM images
-                    if (stripos($_FILES['file']['type'][$key], 'zip') !== false) {
+                    if (stripos((string) $_FILES['file']['type'][$key], 'zip') !== false) {
                         $za = new ZipArchive();
                         $handler = $za->open($_FILES['file']['tmp_name'][$key]);
                         if ($handler) {
@@ -295,7 +295,7 @@ class C_Document extends Controller
                     // test for single DICOM and assign extension if missing.
                     if (strpos($filetext, 'DICM') !== false) {
                         $mimetype = 'application/dicom';
-                        $parts = pathinfo($fname);
+                        $parts = pathinfo((string) $fname);
                         if (!$parts['extension']) {
                             $fname .= '.dcm';
                         }
@@ -402,11 +402,11 @@ class C_Document extends Controller
                 // place it in a temporary file and will remove the file below after emailed
                 $temp_couchdb_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/couch_' . date("YmdHis") . $d->get_url_file();
                 $fh = fopen($temp_couchdb_url, "w");
-                fwrite($fh, base64_decode($content));
+                fwrite($fh, base64_decode((string) $content));
                 fclose($fh);
                 $temp_url = $temp_couchdb_url; // doing this ensure hard drive file never deleted in case something weird happens
             } else {
-                $url = preg_replace("|^(.*)://|", "", $url);
+                $url = preg_replace("|^(.*)://|", "", (string) $url);
         // Collect filename and path
                 $from_all = explode("/", $url);
                 $from_filename = array_pop($from_all);
@@ -452,9 +452,9 @@ class C_Document extends Controller
         $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken());
 
         $this->assign("file", $d);
-        $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode($d->get_id()) . "&");
+        $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");
         $this->assign("NOTE_ACTION", $this->_link("note"));
-        $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . urlencode($d->get_id()) . "&process=true");
+        $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . urlencode((string) $d->get_id()) . "&process=true");
         $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("assets_static_relative", $GLOBALS['assets_static_relative']);
         $this->assign("webroot", $GLOBALS['webroot']);
@@ -486,7 +486,7 @@ class C_Document extends Controller
             if ($ISSUE_TYPES[$desc]) {
                 $desc = $ISSUE_TYPES[$desc][2];
             }
-            $desc .= ": " . text($irow['begdate']) . " " . text(substr($irow['title'], 0, 40));
+            $desc .= ": " . text($irow['begdate']) . " " . text(substr((string) $irow['title'], 0, 40));
             $sel = ($irow['id'] == $d->get_list_id()) ? ' selected' : '';
             $issues_options .= "<option value='" . attr($irow['id']) . "'$sel>$desc</option>";
         }
@@ -494,21 +494,21 @@ class C_Document extends Controller
 
         // For tagging to encounter
         // Populate the dropdown with patient's encounter list
-        $this->assign("TAG_ACTION", $this->_link("tag") . "document_id=" . urlencode($d->get_id()) . "&process=true");
+        $this->assign("TAG_ACTION", $this->_link("tag") . "document_id=" . urlencode((string) $d->get_id()) . "&process=true");
         $encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
         $result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
             "LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc", array($patient_id));
         if (sqlNumRows($result_docs) > 0) {
             while ($row_result_docs = sqlFetchArray($result_docs)) {
                 $sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
-                $encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>" . text(oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date'])))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
+                $encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>" . text(oeFormatShortDate(date('Y-m-d', strtotime((string) $row_result_docs['date'])))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
             }
         }
         $this->assign("ENC_LIST", $encOptions);
 
         //clear encounter tag
         if ($d->get_encounter_id() != 0) {
-            $this->assign('clear_encounter_tag', $this->_link('clear_encounter_tag') . "document_id=" . urlencode($d->get_id()));
+            $this->assign('clear_encounter_tag', $this->_link('clear_encounter_tag') . "document_id=" . urlencode((string) $d->get_id()));
         } else {
             $this->assign('clear_encounter_tag', 'javascript:void(0)');
         }
@@ -527,7 +527,7 @@ class C_Document extends Controller
 
         $this->assign("notes", $notes);
 
-        $this->assign("PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . urlencode($d->get_id()));
+        $this->assign("PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . urlencode((string) $d->get_id()));
         // Populate the dropdown with procedure order list
         $imgOptions = "<option value='0'>-- " . xlt('Select Procedure') . " --</option>";
         $imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code,poc.procedure_order_title from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?", array($patient_id));
@@ -538,13 +538,13 @@ class C_Document extends Controller
                 if ((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id'])) {
                     $sel_proc = 'selected';
                 }
-                $imgOptions .= "<option value='" . attr($row['procedure_order_id']) . "' data-code='" . attr($row['procedure_code']) . "' $sel_proc>" . text($row['procedure_name'] . ' - ' . $row['procedure_code'] . ' : ' . ucfirst($row['procedure_order_title'])) . "</option>";
+                $imgOptions .= "<option value='" . attr($row['procedure_order_id']) . "' data-code='" . attr($row['procedure_code']) . "' $sel_proc>" . text($row['procedure_name'] . ' - ' . $row['procedure_code'] . ' : ' . ucfirst((string) $row['procedure_order_title'])) . "</option>";
             }
         }
 
         $this->assign('TAG_PROCEDURE_LIST', $imgOptions);
 
-        $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag') . "document_id=" . urlencode($d->get_id()));
+        $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag') . "document_id=" . urlencode((string) $d->get_id()));
 
         $this->_last_node = null;
 
@@ -681,7 +681,7 @@ class C_Document extends Controller
             if ($d->get_encrypted() == 1) {
                 $filetext = $this->cryptoGen->decryptStandard($content, null, 'database');
             } else {
-                $filetext = base64_decode($content);
+                $filetext = base64_decode((string) $content);
             }
             if ($disable_exit == true) {
                 return $filetext;
@@ -719,7 +719,7 @@ class C_Document extends Controller
                 if ($d->get_encrypted() == 1) {
                     $contentM = $this->cryptoGen->decryptStandard($respM->data, null, 'database');
                 } else {
-                    $contentM = base64_decode($respM->data);
+                    $contentM = base64_decode((string) $respM->data);
                 }
                 if ($contentM == '' && $GLOBALS['couchdb_log'] == 1) {
                     $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
@@ -762,14 +762,14 @@ class C_Document extends Controller
                 if ($d->get_encrypted() == 1) {
                     $content = $this->cryptoGen->decryptStandard($respF->data, null, 'database');
                 } else {
-                    $content = base64_decode($respF->data);
+                    $content = base64_decode((string) $respF->data);
                 }
             } else {
                 // decrypt/decode when converted jpg already exists
                 if ($d->get_encrypted() == 1) {
                     $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
-                    $content = base64_decode($resp->data);
+                    $content = base64_decode((string) $resp->data);
                 }
             }
             $filetext = $content;
@@ -792,7 +792,7 @@ class C_Document extends Controller
         }
 
         //strip url of protocol handler
-        $url = preg_replace("|^(.*)://|", "", $url);
+        $url = preg_replace("|^(.*)://|", "", (string) $url);
 
         // change full path to current webroot.  this is for documents that may have
         // been moved from a different filesystem and the full path in the database
@@ -880,10 +880,10 @@ class C_Document extends Controller
                 //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
                 //try to convert it if it has not yet been converted
                 $originalUrl = $url;
-                if (strrpos(basename_international($url), '.') === false) {
+                if (strrpos((string) basename_international($url), '.') === false) {
                     $convertedFile = basename_international($url) . '_converted.jpg';
                 } else {
-                    $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
+                    $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
                 }
                 $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
                 if (!is_file($url)) {
@@ -996,13 +996,13 @@ class C_Document extends Controller
             if ($d->get_encrypted() == 1) {
                 $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
             } else {
-                $content = base64_decode($resp->data);
+                $content = base64_decode((string) $resp->data);
             }
         } else {
                 $url =  $d->get_url();
 
                 //strip url of protocol handler
-                $url = preg_replace("|^(.*)://|", "", $url);
+                $url = preg_replace("|^(.*)://|", "", (string) $url);
 
                 //change full path to current webroot.  this is for documents that may have
                 //been moved from a different filesystem and the full path in the database
@@ -1038,7 +1038,7 @@ class C_Document extends Controller
             }
         }
 
-        if (!empty($d->get_hash()) && (strlen($d->get_hash()) < 50)) {
+        if (!empty($d->get_hash()) && (strlen((string) $d->get_hash()) < 50)) {
             // backward compatibility for documents that were hashed prior to OpenEMR 6.0.0
             $current_hash = sha1($content);
         } else {
@@ -1090,7 +1090,7 @@ class C_Document extends Controller
                 $messages .= xl('Document successfully renamed.') . "\n";
             }
 
-            if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
+            if (preg_match('/^\d\d\d\d-\d+-\d+$/', (string) $docdate)) {
                 $docdate = "$docdate";
             } else {
                 $docdate = "NULL";
@@ -1210,7 +1210,7 @@ class C_Document extends Controller
             $icon = "file3.png";
             if (!empty($categories[$id]) && is_array($categories[$id])) {
                 foreach ($categories[$id] as $doc) {
-                    $link = $this->_link("view") . "doc_id=" . urlencode($doc['document_id']) . "&";
+                    $link = $this->_link("view") . "doc_id=" . urlencode((string) $doc['document_id']) . "&";
           // If user has no access then there will be no link.
                     if (!AclMain::aclCheckAcoSpec($doc['aco_spec'])) {
                         $link = '';

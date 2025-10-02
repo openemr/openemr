@@ -878,7 +878,7 @@ class AuthUtils
         if ($user == '') {
             $user = $_SESSION['authUser'];
         }
-        $exarr = explode(',', $GLOBALS['gbl_ldap_exclusions']);
+        $exarr = explode(',', (string) $GLOBALS['gbl_ldap_exclusions']);
         foreach ($exarr as $ex) {
             if ($user == trim($ex)) {
                 return false;
@@ -897,7 +897,7 @@ class AuthUtils
     private function activeDirectoryValidation($user, &$pass)
     {
         // Make sure the connection is not anonymous.
-        if ($pass === '' || preg_match('/^\0/', $pass) || !preg_match('/^[\w.-]+$/', $user)) {
+        if ($pass === '' || preg_match('/^\0/', (string) $pass) || !preg_match('/^[\w.-]+$/', (string) $user)) {
             error_log("Empty user or password for activeDirectoryValidation()");
             return false;
         }
@@ -1020,7 +1020,7 @@ class AuthUtils
     private function testMinimumPasswordLength(&$pwd)
     {
         if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
-            if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
+            if (strlen((string) $pwd) < $GLOBALS['gbl_minimum_password_length']) {
                 $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . $GLOBALS['gbl_minimum_password_length'];
                 return false;
             }
@@ -1047,7 +1047,7 @@ class AuthUtils
     private function testMaximumPasswordLength(&$pwd)
     {
         if ((!empty($GLOBALS['gbl_maximum_password_length'])) && (check_integer($GLOBALS['gbl_maximum_password_length']))) {
-            if (strlen($pwd) > $GLOBALS['gbl_maximum_password_length']) {
+            if (strlen((string) $pwd) > $GLOBALS['gbl_maximum_password_length']) {
                 $this->errorMessage = xl("Password too long. Maximum characters allowed") . ": " . $GLOBALS['gbl_maximum_password_length'];
                 return false;
             }
@@ -1068,7 +1068,7 @@ class AuthUtils
             $features = 0;
             $reg_security = array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
             foreach ($reg_security as $expr) {
-                if (preg_match($expr, $pwd)) {
+                if (preg_match($expr, (string) $pwd)) {
                     $features++;
                 }
             }

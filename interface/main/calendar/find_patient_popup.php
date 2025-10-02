@@ -27,7 +27,7 @@ $info_msg = "";
 $result = "";
 if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
     $searchby = $_REQUEST['searchby'];
-    $searchparm = trim($_REQUEST['searchparm']);
+    $searchparm = trim((string) $_REQUEST['searchparm']);
 
     if ($searchby == "Last") {
         $result = getPatientLnames("$searchparm", "*");

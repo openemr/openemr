@@ -223,7 +223,7 @@ if ($codetype) {
             while ($row = sqlFetchArray($res)) {
                 $row_count += 1;
                 $itercode = $row['code'];
-                $itertext = ucfirst(strtolower(trim($row['code_text'])));
+                $itertext = ucfirst(strtolower(trim((string) $row['code_text'])));
                 ?>
                  <input type="checkbox" id="chkbox" value= "<?php echo attr($form_code_type) . ":" . attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
             }

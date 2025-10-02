@@ -116,9 +116,9 @@ class PortalPatientController extends AppBasePortalController
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
             $newv = array();
             foreach ($changed as $key => $val) {
-                $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", function ($match) {
+                $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", function ($match) {
                     return strtoupper($match[2]);
-                }, strtolower($key))))] = $val;
+                }, strtolower((string) $key))))] = $val;
             }
 
             $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
@@ -148,7 +148,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
             $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
             $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
-            $patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            $patient->Dob = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'dob', $patient->Dob)));
             $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
             $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
             $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
@@ -164,7 +164,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
             $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
             $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
-            $patient->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $patient->Date)));
+            $patient->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $patient->Date)));
             $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
             $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
             $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
@@ -196,7 +196,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
             $patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);*/
             if (!empty($patient->Regdate)) {
-                $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+                $patient->Regdate = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'regdate', $patient->Regdate)));
             }
             /*$patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
             $patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);

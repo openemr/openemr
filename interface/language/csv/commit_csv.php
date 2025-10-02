@@ -44,7 +44,7 @@ $updated = array();
 
 if (!$errmsg) {
     $lang_id = $_REQUEST['lang_id'];
-    $translations = json_decode($_REQUEST['translations']);
+    $translations = json_decode((string) $_REQUEST['translations']);
     foreach ($translations as $translation) {
         $result = verify_translation(
             str_replace("\r\n", "\n", $translation[0]),
@@ -54,14 +54,14 @@ if (!$errmsg) {
             "",
             $preview
         );
-        if (strpos($result, '[2]') !== 0) { // Definition Exists
-            if (strpos($result, '[1]') !== 0) { // Empty Definition
+        if (strpos((string) $result, '[2]') !== 0) { // Definition Exists
+            if (strpos((string) $result, '[1]') !== 0) { // Empty Definition
                 if ($result) {
                     array_push($changed, $result);
-                    if (strpos($result, '[3]') === 0) {
-                        array_push($updated, substr($result, 3));
-                    } else if (strpos($result, '[5]') === 0) {
-                        array_push($created, substr($result, 3));
+                    if (strpos((string) $result, '[3]') === 0) {
+                        array_push($updated, substr((string) $result, 3));
+                    } else if (strpos((string) $result, '[5]') === 0) {
+                        array_push($created, substr((string) $result, 3));
                     }
                 }
             } else {

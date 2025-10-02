@@ -59,8 +59,8 @@ class ReferenceSearchValue
     {
         $id = $relativeUri;
         $resource = null;
-        if (strpos($relativeUri, "/") !== false) {
-            $parts = explode("/", $relativeUri);
+        if (strpos((string) $relativeUri, "/") !== false) {
+            $parts = explode("/", (string) $relativeUri);
             $resource = $parts[0];
             $id = end($parts);
         }

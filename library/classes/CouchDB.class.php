@@ -44,7 +44,7 @@ class CouchDB
     function check_connection()
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
-        $response = json_decode($resp);
+        $response = json_decode((string) $resp);
         if ($response->couchdb && $response->version) {
             return true;
         } else {
@@ -69,7 +69,7 @@ class CouchDB
             $couch_json[$key] = $value;
         }
         $resp = $this->send("PUT", "/" . $this->dbase . "/" . $data['_id'], json_encode($couch_json));
-        return json_decode($resp);
+        return json_decode((string) $resp);
     }
 
     // note this will include _id and _rev in the $data
@@ -80,7 +80,7 @@ class CouchDB
             $couch_json[$key] = $value;
         }
         $resp = $this->send("PUT", "/" . $this->dbase . "/" . $data['_id'], json_encode($couch_json));
-        return json_decode($resp);
+        return json_decode((string) $resp);
     }
 
     function DeleteDoc($docid, $revid)
@@ -92,7 +92,7 @@ class CouchDB
     function retrieve_doc($docid)
     {
         $resp = $this->send("GET", "/" . $this->dbase . "/" . $docid);
-        return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
+        return json_decode((string) $resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
     // category is either documents or ccda
@@ -167,7 +167,7 @@ class CouchDB
         }
 
         if ($post_data) {
-            $request .= "Content-Length: " . strlen($post_data) . "\r\n\r\n";
+            $request .= "Content-Length: " . strlen((string) $post_data) . "\r\n\r\n";
             $request .= "$post_data\r\n";
         } else {
             $request .= "\r\n";

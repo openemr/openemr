@@ -16,7 +16,7 @@ class DiabetesExclusions implements CqmFilterIF
 
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        $beginMinus2Years = strtotime('-2 year', strtotime($beginDate));
+        $beginMinus2Years = strtotime('-2 year', strtotime((string) $beginDate));
         if (
             ( Helper::checkDiagActive(Diagnosis::POLYCYSTIC_OVARIES, $patient, $patient->dob, $endDate) &&
               !( Helper::checkDiagActive(Diagnosis::DIABETES, $patient, $beginMinus2Years, $endDate) &&

@@ -186,7 +186,7 @@ class TelemetryService
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode($response, true);
+            $responseData = json_decode((string) $response, true);
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report
             } else {

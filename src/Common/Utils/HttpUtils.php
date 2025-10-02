@@ -15,6 +15,6 @@ class HttpUtils
 {
     public static function base64url_encode($data): string
     {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        return rtrim(strtr(base64_encode((string) $data), '+/', '-_'), '=');
     }
 }

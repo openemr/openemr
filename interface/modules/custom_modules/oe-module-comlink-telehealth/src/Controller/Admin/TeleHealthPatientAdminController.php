@@ -96,7 +96,7 @@ class TeleHealthPatientAdminController
 
         // we need to inject in the actual code if the twig template is the email message
         // if matches message.html.twig, message.text.twig
-        if (strpos($event->getTemplateName(), 'emails/patient/portal_login/message') === 0) {
+        if (strpos((string) $event->getTemplateName(), 'emails/patient/portal_login/message') === 0) {
             $data['comlink_registration_code'] = $registrationCode;
         } else if ($event->getTemplateName() == 'patient/portal_login/print.html.twig') {
             // inject the data needed for the user edit field

@@ -1801,7 +1801,7 @@ class BillingUtilities
     {
         $irnumber = self::getInvoiceRefNumber();
         // Here "?" specifies a minimal match, to get the most digits possible:
-        if (preg_match('/^(.*?)(\d+)(\D*)$/', $irnumber, $matches)) {
+        if (preg_match('/^(.*?)(\d+)(\D*)$/', (string) $irnumber, $matches)) {
             $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
             $newnumber = $matches[1] . $newdigs . $matches[3];
             sqlStatement(

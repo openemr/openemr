@@ -135,7 +135,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
 
         // is the file a PNG? if so, check user agent, we will need to
         // make special allowances for Microsoft IE.
-        if (stristr($_SERVER ['HTTP_USER_AGENT'], 'MSIE') && $type === 3) {
+        if (stristr((string) $_SERVER ['HTTP_USER_AGENT'], 'MSIE') && $type === 3) {
             // support alpha transparency for PNG files in MSIE
             $html = '<span style="position: relative;';
 
@@ -149,7 +149,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
 
             $html .= ' filter:progid:DXImageTransform.Microsoft.AlphaImageLoader';
             $html .= "(src='" . htmlspecialchars($file) . "',sizingMethod='scale');\"";
-            $html .= ' title="' . htmlspecialchars($alt) . '"';
+            $html .= ' title="' . htmlspecialchars((string) $alt) . '"';
 
             $html .= $this->Savant->htmlAttribs($attr);
 
@@ -169,12 +169,12 @@ class Savant3_Plugin_image extends Savant3_Plugin
 
             // add the height attribute
             if ($height) {
-                $html .= ' height="' . htmlspecialchars($height) . '"';
+                $html .= ' height="' . htmlspecialchars((string) $height) . '"';
             }
 
             // add the width attribute
             if ($width) {
-                $html .= ' width="' . htmlspecialchars($width) . '"';
+                $html .= ' width="' . htmlspecialchars((string) $width) . '"';
             }
 
             $html .= $this->Savant->htmlAttribs($attr);

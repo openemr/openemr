@@ -93,7 +93,7 @@ if (! function_exists('password_hash')) {
             $salt = __password_make_salt($required_salt_len);
         }
 
-        $salt = substr($salt, 0, $required_salt_len);
+        $salt = substr((string) $salt, 0, $required_salt_len);
 
         $hash = $hash_format . $salt;
 

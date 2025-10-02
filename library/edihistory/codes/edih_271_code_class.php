@@ -2404,12 +2404,12 @@ class edih_271_codes
         //
         $e = (string)$elem;
         $val = '';
-        if (($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false)) {
-            if ($this->ds && strpos($code, $this->ds) !== false) {
-                $cdar = explode($this->ds, $code);
+        if (($this->ds && strpos((string) $code, (string) $this->ds) !== false) || ($this->dr && strpos((string) $code, (string) $this->dr) !== false)) {
+            if ($this->ds && strpos((string) $code, (string) $this->ds) !== false) {
+                $cdar = explode($this->ds, (string) $code);
                 foreach ($cdar as $cd) {
-                    if ($this->dr && strpos($code, $this->dr) !== false) {
-                        $cdar2 = explode($this->dr, $code);
+                    if ($this->dr && strpos((string) $code, (string) $this->dr) !== false) {
+                        $cdar2 = explode($this->dr, (string) $code);
                         foreach ($cdar2 as $cd2) {
                             if (isset($this->code271[$e][$cd2])) {
                                 $val .= $this->code271[$e][$cd2] . '; ';
@@ -2421,8 +2421,8 @@ class edih_271_codes
                         $val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd] . ' ' : "code $cd unknown ";
                     }
                 }
-            } elseif ($this->dr && strpos($code, $this->dr) !== false) {
-                $cdar = explode($this->dr, $code);
+            } elseif ($this->dr && strpos((string) $code, (string) $this->dr) !== false) {
+                $cdar = explode($this->dr, (string) $code);
                 foreach ($cdar as $cd) {
                     $val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd] . '; ' : "code $cd unknown ";
                 }

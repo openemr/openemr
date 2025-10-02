@@ -93,7 +93,7 @@ class eRxGlobals
      */
     public function getSoapPaths()
     {
-        return explode(';', $this->getGlobalValue('erx_newcrop_path_soap'));
+        return explode(';', (string) $this->getGlobalValue('erx_newcrop_path_soap'));
     }
 
     /**

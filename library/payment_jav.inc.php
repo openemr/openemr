@@ -182,7 +182,7 @@
             top.restoreSession();
             document.forms[0].submit();
         } else {
-            alert("<?php echo htmlspecialchars(xl('Please Select a Patient.'), ENT_QUOTES) ?>")
+            alert("<?php echo htmlspecialchars((string) xl('Please Select a Patient.'), ENT_QUOTES) ?>")
         }
     }
 
@@ -201,7 +201,7 @@
         //Numeric validations, used while typing numbers.
         // Take into account comma currency numbers and allow.
         if (isNaN(formatNumber(TheObject.value))) {
-            alert("<?php echo htmlspecialchars(xl('Value Should be Numeric'), ENT_QUOTES) ?>");
+            alert("<?php echo htmlspecialchars((string) xl('Value Should be Numeric'), ENT_QUOTES) ?>");
             TheObject.focus();
             return false;
         }
@@ -210,7 +210,7 @@
     function SavePayment() {//Used before saving.
         if (FormValidations())//FormValidations contains the form checks
         {
-            if (confirm("<?php echo htmlspecialchars(xl('Would you like to save?'), ENT_QUOTES) ?>")) {
+            if (confirm("<?php echo htmlspecialchars((string) xl('Would you like to save?'), ENT_QUOTES) ?>")) {
                 top.restoreSession();
                 document.getElementById('mode').value = 'new_payment';
                 document.forms[0].submit();
@@ -319,10 +319,10 @@
             } else {
                 InsPatDropDownValue = document.getElementById('payment_ins' + RowCount).options[document.getElementById('payment_ins' + RowCount).selectedIndex].value;
                 if (PayingEntity == 'patient' && InsPatDropDownValue > 0) {
-                    alert("<?php echo htmlspecialchars(xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
+                    alert("<?php echo htmlspecialchars((string) xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
                     return false;
                 } else if (PayingEntity == 'insurance' && InsPatDropDownValue == 0) {
-                    alert("<?php echo htmlspecialchars(xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
+                    alert("<?php echo htmlspecialchars((string) xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
                     return false;
                 }
             }
@@ -364,7 +364,7 @@
             });
             document.getElementById('post_to_date').focus();
             return false;
-        } else if (DateCheckGreater(document.getElementById('post_to_date').value, '<?php echo $GLOBALS['post_to_date_benchmark'] == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
+        } else if (DateCheckGreater(document.getElementById('post_to_date').value, '<?php echo $GLOBALS['post_to_date_benchmark'] == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars((string) oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
             '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Post To Date must be greater than the financial close date.') ?>;
             (async (message, time) => {

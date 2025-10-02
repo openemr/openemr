@@ -289,7 +289,7 @@ class InstallerController extends AbstractActionController
         $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
         $moduleClassPath = $modPath . '/ModuleManagerListener.php';
         $className = 'ModuleManagerListener';
-        $action = trim($action);
+        $action = trim((string) $action);
 
         // Check if the module class file exists
         if (!file_exists($moduleClassPath)) {
@@ -539,7 +539,7 @@ class InstallerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;
-        echo $this->getInstallerTable()->validateNickName(trim($nickname));
+        echo $this->getInstallerTable()->validateNickName(trim((string) $nickname));
         exit(0);
     }
 
@@ -925,7 +925,7 @@ class InstallerController extends AbstractActionController
             $div[] = ob_get_contents();
             ob_end_clean();
 
-            if (strlen($version) > 0) {
+            if (strlen((string) $version) > 0) {
                 $values = array($Module->mod_nick_name, $Module->mod_enc_menu);
                 $values[2] = $Module->sql_version;
                 $values[3] = $this->getModuleVersionFromFile($modId);

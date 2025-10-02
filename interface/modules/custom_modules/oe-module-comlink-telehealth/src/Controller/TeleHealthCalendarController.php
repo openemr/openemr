@@ -236,7 +236,7 @@ class TeleHealthCalendarController
     private function isAppointmentPageInclude($pageName, $scriptPath)
     {
         // make sure our script path is in calendar
-        return $pageName == "add_edit_event.php" && basename(dirname($scriptPath)) == 'calendar';
+        return $pageName == "add_edit_event.php" && basename(dirname((string) $scriptPath)) == 'calendar';
     }
 
     private function isCalendarPageInclude($pageName)

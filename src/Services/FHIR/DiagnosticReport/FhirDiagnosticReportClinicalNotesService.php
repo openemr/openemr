@@ -134,7 +134,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         if (!empty($dataRecord['description'])) {
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setData(base64_encode((string) $dataRecord['description']));
             $report->addPresentedForm($attachment);
         } else {
             // need to support data missing if its not there.

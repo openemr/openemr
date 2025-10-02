@@ -74,7 +74,7 @@ $isSaved = false;
 $valid = ((!empty(trim($_POST['uname'] ?? ''))) &&
     (!empty(trim($_POST['login_uname'] ?? ''))) &&
     (!empty($password)) &&
-    (trim($_POST['uname']) == $auth[COL_POR_USER]) &&
+    (trim((string) $_POST['uname']) == $auth[COL_POR_USER]) &&
     (AuthHash::passwordVerify($password, $auth[COL_POR_PWD])));
 if (isset($_POST['submit'])) {
     if (!$valid) {

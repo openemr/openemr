@@ -30,7 +30,7 @@ $patdata = sqlQuery("SELECT " .
 
 
 $today = date('m/d/Y');
-$dob   = substr($patdata['DOB'], 5, 2) . "/" . Substr($patdata['DOB'], 8, 2) . "/" . Substr($patdata['DOB'], 0, 4);
+$dob   = substr((string) $patdata['DOB'], 5, 2) . "/" . Substr((string) $patdata['DOB'], 8, 2) . "/" . Substr((string) $patdata['DOB'], 0, 4);
 
 
 

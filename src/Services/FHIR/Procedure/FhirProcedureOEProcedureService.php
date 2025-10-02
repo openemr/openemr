@@ -150,7 +150,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
         $codesService = new CodeTypesService();
         if (!empty($dataRecord['diagnosis'])) {
-            $codes = explode(";", $dataRecord['diagnosis']);
+            $codes = explode(";", (string) $dataRecord['diagnosis']);
             foreach ($codes as $code) {
                 $codeParts = $codesService->parseCode($code);
                 $codeParts['description'] = $codesService->lookup_code_description($code) ?? '';

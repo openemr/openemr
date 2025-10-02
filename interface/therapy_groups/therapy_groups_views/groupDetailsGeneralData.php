@@ -247,7 +247,7 @@ use OpenEMR\Common\Acl\AclMain;
         while ($rowresult4 = sqlFetchArray($result4)) {
             ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;
-    EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+    EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
     CalendarCategoryArray[Count]=<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
     Count++;
             <?php

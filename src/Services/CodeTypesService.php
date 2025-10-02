@@ -191,7 +191,7 @@ class CodeTypesService
         if (empty($type) || empty($code)) {
             return "";
         }
-        $tmp = explode(':', $code);
+        $tmp = explode(':', (string) $code);
         if (is_array($tmp) && count($tmp ?? []) === 2) {
             if (!$oe_format) {
                 return $code;
@@ -351,8 +351,8 @@ class CodeTypesService
 
         // use valueset table if code description not found.
         if (empty($currentCodeText)) {
-            if (strpos($codeType, '2.16.840.1.113883.') !== false) {
-                $oid = trim($codeType);
+            if (strpos((string) $codeType, '2.16.840.1.113883.') !== false) {
+                $oid = trim((string) $codeType);
                 $codeType = "";
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);
@@ -413,7 +413,7 @@ class CodeTypesService
 
     public function parseCodesIntoCodeableConcepts($codes)
     {
-        $codes = explode(";", $codes);
+        $codes = explode(";", (string) $codes);
         $codeableConcepts = array();
         foreach ($codes as $codeItem) {
             $parsedCode = $this->parseCode($codeItem);

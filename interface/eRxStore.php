@@ -481,7 +481,7 @@ class eRxStore
 				);',
             array(
                 $encounter,
-                substr($prescriptionData['PrescriptionDate'], 0, 10),
+                substr((string) $prescriptionData['PrescriptionDate'], 0, 10),
                 $authUserId,
                 $providerId,
                 $formOptionId,

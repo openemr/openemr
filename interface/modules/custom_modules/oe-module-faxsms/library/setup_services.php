@@ -512,7 +512,7 @@ $vendors = $boot->getVendorGlobals();
                             </span>
                             </div>
                             <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
-                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst($selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
+                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string) $selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
                                     <li><strong><?php echo xlt('Execution Run Interval'); ?>: </strong><?php echo text($currentStatus[$selectedService]['execute_interval']) . ' ' . xlt('Minutes'); ?></li>

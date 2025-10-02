@@ -21,7 +21,7 @@ class NQF_0028a_Numerator implements CqmFilterIF
             $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
             foreach ($dates as $date) {
                 // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-                $date = date('Y-m-d 23:59:59', strtotime($date));
+                $date = date('Y-m-d 23:59:59', strtotime((string) $date));
                 $beginMinus24Months = strtotime('-24 month', strtotime($date));
                 $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
                 // this is basically a check to see if the patient's tobacco status has been evaluated in the two years previous to encounter.

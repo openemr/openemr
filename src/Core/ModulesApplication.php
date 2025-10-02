@@ -88,11 +88,11 @@ class ModulesApplication
         // as we do this we are going to do a security check against the current script name
         // if we are in a module
         $scriptName = $webRootPath . $_SERVER['SCRIPT_NAME'];
-        if (str_starts_with($scriptName, $modulePath)) {
+        if (str_starts_with($scriptName, (string) $modulePath)) {
             // the script being called is a custom module directory.
             $type = $modType == self::MODULE_TYPE_LAMINAS ? self::MODULE_TYPE_LAMINAS : '';
 
-            $truncatedPath = substr($scriptName, strlen($modulePath));
+            $truncatedPath = substr($scriptName, strlen((string) $modulePath));
             $folderName = strtok($truncatedPath, '/');
             if ($folderName !== false) {
                 $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules "
@@ -226,9 +226,9 @@ class ModulesApplication
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = stripos($scriptSrcPath, $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, (string) $GLOBALS['web_root']);
                 if ($pos !== false) {
-                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($GLOBALS['web_root']));
+                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen((string) $GLOBALS['web_root']));
                 } else {
                     $scriptSrcPathWithoutWebroot = $scriptSrcPath;
                 }

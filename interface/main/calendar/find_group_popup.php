@@ -36,7 +36,7 @@ $group_types = TherapyGroupsController::prepareGroupTypesList();
 $searchby = $_POST['searchby'] ?? null;
 $searchparm = $_POST['searchparm'] ?? null;
 if ($searchby && $searchparm) {
-    $searchparm = trim($searchparm);
+    $searchparm = trim((string) $searchparm);
 
     if ($searchby == "Name") {
         $result = getGroupData("$searchparm", "*", 'group_name');

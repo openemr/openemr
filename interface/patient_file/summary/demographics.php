@@ -148,7 +148,7 @@ function getHiddenDashboardCards(): array
 
 function print_as_money($money)
 {
-    preg_match("/(\d*)\.?(\d*)/", $money, $moneymatches);
+    preg_match("/(\d*)\.?(\d*)/", (string) $money, $moneymatches);
     $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
     $ccheck = strrev($tmp);
     if ($ccheck[0] == ",") {
@@ -295,7 +295,7 @@ function deceasedDays($days_deceased)
     }
 
     if (strlen($days_deceased['date_deceased'] ?? '') > 10 && $GLOBALS['date_display_format'] < 1) {
-        $deceased_date = substr($days_deceased['date_deceased'], 0, 10);
+        $deceased_date = substr((string) $days_deceased['date_deceased'], 0, 10);
     } else {
         $deceased_date = oeFormatShortDate($days_deceased['date_deceased'] ?? '');
     }
@@ -314,7 +314,7 @@ function image_widget($doc_id, $doc_catg): void
     $image_file = $docobj->get_url_file();
     $image_file_name = $docobj->get_name();
     $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
-    $extension = substr($image_file_name, strrpos($image_file_name, "."));
+    $extension = substr((string) $image_file_name, strrpos((string) $image_file_name, "."));
     $viewable_types = array('.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP');
     if (in_array($extension, $viewable_types)) { // extension matches list
         $to_url = "<td> <a href = '$web_root" .
@@ -918,7 +918,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 if (sqlNumRows($result4) > 0) {
                     while ($rowresult4 = sqlFetchArray($result4)) { ?>
             EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
-            EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+            EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
             CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
             Count++;
                         <?php
@@ -933,7 +933,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
             encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter); ?> +'&pid=' + <?php echo js_url($pid); ?>;
-            parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
+            parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
             top.restoreSession();
             parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
             <?php } // end setting new encounter id (only if new pid is also set)
@@ -1085,7 +1085,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 function filterActiveIssues(array $i): array
                 {
                     return array_filter($i, function ($_i) {
-                        return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now')));
+                        return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime((string) $_i['enddate']) > strtotime('now')));
                     });
                 }
 
@@ -1467,7 +1467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     while ($gfrow = sqlFetchArray($gfres)) :
                         // $jobj = json_decode($gfrow['notes'], true);
-                        $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', $gfrow['grp_aco_spec']);
+                        $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', (string) $gfrow['grp_aco_spec']);
                         if ($LBF_ACO && !AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
                             continue;
                         }
@@ -1607,7 +1607,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
                                     $dateTimeDoc = $myrows4['date'];
                                     // remove time from datetime stamp
-                                    $tempParse = explode(" ", $dateTimeDoc);
+                                    $tempParse = explode(" ", (string) $dateTimeDoc);
                                     $dateDoc = $tempParse[0];
                                     $idDoc = $myrows4['id'];
                                     $tmp = [
@@ -1765,10 +1765,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $appts = [];
                         foreach ($events as $row) {
                             $count++;
-                            $dayname = date("D", strtotime($row['pc_eventDate']));
+                            $dayname = date("D", strtotime((string) $row['pc_eventDate']));
                             $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
-                            $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-                            $dispmin = substr($row['pc_startTime'], 3, 2);
+                            $disphour = substr((string) $row['pc_startTime'], 0, 2) + 0;
+                            $dispmin = substr((string) $row['pc_startTime'], 3, 2);
                             if ($disphour >= 12 && $GLOBALS['time_display_format'] == 1) {
                                 $displayMeridiem = "pm";
                                 if ($disphour > 12) {
@@ -1809,7 +1809,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['bgColor'] = $bgColor;
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;
-                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
+                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", (string) $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $appts[] = $row;
                         }
 
@@ -1885,10 +1885,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         foreach ($pastAppts as $row) {
                             $count++;
-                            $dayname = date("D", strtotime($row['pc_eventDate']));
+                            $dayname = date("D", strtotime((string) $row['pc_eventDate']));
                             $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
-                            $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-                            $dispmin = substr($row['pc_startTime'], 3, 2);
+                            $disphour = substr((string) $row['pc_startTime'], 0, 2) + 0;
+                            $dispmin = substr((string) $row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
                                 $displayMeridiem = "pm";
                                 if ($disphour > 12 && $GLOBALS['time_display_format'] == 1) {
@@ -1908,7 +1908,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['displayMeridiem'] = $displayMeridiem;
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['uname'] = text($row['ufname'] . " " . $row['ulname']);
-                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
+                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", (string) $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $past_appts[] = $row;
                         }
                     }

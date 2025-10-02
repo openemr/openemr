@@ -366,7 +366,7 @@ class PatientValidatorTestStub extends PatientValidator
         // Simulate validation logic without database
 
         // Return false for invalid UUID format
-        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $uuid)) {
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', (string) $uuid)) {
             return false;
         }
 

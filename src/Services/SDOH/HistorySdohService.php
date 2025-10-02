@@ -454,7 +454,7 @@ class HistorySdohService
                 'subject' => ['reference' => 'Patient/' . $pid],
             ];
             if ($when) {
-                $goal['startDate'] = substr($when, 0, 10);
+                $goal['startDate'] = substr((string) $when, 0, 10);
             }
 
             $target = [];
@@ -465,7 +465,7 @@ class HistorySdohService
                 $target['detailCodeableConcept'] = $spec['target'];
             }
             if ($due) {
-                $target['dueDate'] = substr($due, 0, 10);
+                $target['dueDate'] = substr((string) $due, 0, 10);
             }
 
             $goal['target'] = [$target];
@@ -572,7 +572,7 @@ class HistorySdohService
                 'authoredOn' => substr($when, 0, 10),
             ];
             if ($due) {
-                $sr['occurrenceDateTime'] = substr($due, 0, 10);
+                $sr['occurrenceDateTime'] = substr((string) $due, 0, 10);
             }
             $out[] = $sr;
         }
@@ -629,10 +629,10 @@ class HistorySdohService
                 $suffix[] = "reason: $reason";
             }
             if ($include_due && !empty($sr['occurrenceDateTime'])) {
-                $suffix[] = "due: " . substr($sr['occurrenceDateTime'], 0, 10);
+                $suffix[] = "due: " . substr((string) $sr['occurrenceDateTime'], 0, 10);
             }
             if ($include_when && !empty($sr['authoredOn'])) {
-                $suffix[] = "ordered: " . substr($sr['authoredOn'], 0, 10);
+                $suffix[] = "ordered: " . substr((string) $sr['authoredOn'], 0, 10);
             }
 
             $line = trim($bullet . ' ' . implode(' ', $parts));
@@ -744,10 +744,10 @@ class HistorySdohService
                 $suffix[] = "measure: $tMeasure";
             }
             if ($due !== '') {
-                $suffix[] = "due: " . substr($due, 0, 10);
+                $suffix[] = "due: " . substr((string) $due, 0, 10);
             }
             if ($start !== '') {
-                $suffix[] = "start: " . substr($start, 0, 10);
+                $suffix[] = "start: " . substr((string) $start, 0, 10);
             }
 
             $line = trim($bullet . ' ' . implode(' ', $parts));
@@ -1025,7 +1025,7 @@ class HistorySdohService
         if (empty($goals['goals'])) {
             return null;
         }
-        return json_decode($goals['goals'], true);
+        return json_decode((string) $goals['goals'], true);
     }
 
     private function ccText($cc): string

@@ -113,7 +113,7 @@ class ThumbnailGenerator
     private function generate_HD_file($url, $path_depth)
     {
         //remove 'file://'
-        $url = preg_replace("|^(.*)://|", "", $url);
+        $url = preg_replace("|^(.*)://|", "", (string) $url);
 
         //change full path to current webroot.  this is for documents that may have
         //been moved from a different filesystem and the full path in the database
@@ -174,7 +174,7 @@ class ThumbnailGenerator
             return false;
         }
 
-        $resource = $this->thumb_obj->create_thumbnail(null, base64_decode($resp->data));
+        $resource = $this->thumb_obj->create_thumbnail(null, base64_decode((string) $resp->data));
         if (!$resource) {
             return false;
         }

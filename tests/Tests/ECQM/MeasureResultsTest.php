@@ -128,7 +128,7 @@ class MeasureResultsTest extends TestCase
             // Check response result against our measure map
             foreach ($response as $populationSets) {
                 foreach ($populationSets as $setName => $populationSet) {
-                    $parts = explode('_', $setName);
+                    $parts = explode('_', (string) $setName);
                     $setNumber = $parts[1];
                     // Only check results if the population set is correct
                     if ($measureResult['pop_set'] == $setNumber) {

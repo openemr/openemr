@@ -118,7 +118,7 @@ if (!empty($_POST)) {
                     foreach ($datas as $data) {
                         ?>
                         <tr>
-                            <td scope="row"><?php echo text(substr($data->receivedDate, 0, 10)); ?></td>
+                            <td scope="row"><?php echo text(substr((string) $data->receivedDate, 0, 10)); ?></td>
                             <td scope="row"><?php echo text($data->payerName); ?></td>
                             <td scope="row"><?php echo text($data->payerNumber); ?></td>
                             <td scope="row"><?php echo text($data->billedAmt); ?></td>

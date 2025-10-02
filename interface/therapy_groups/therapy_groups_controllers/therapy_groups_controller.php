@@ -294,9 +294,9 @@ class TherapyGroupsController extends BaseController
     private function shortenNotes($notes)
     {
 
-        $length = strlen($notes);
+        $length = strlen((string) $notes);
         if ($length > $this->notes_preview_proper_length) {
-            $notes = mb_substr($notes, 0, 50) . '...';
+            $notes = mb_substr((string) $notes, 0, 50) . '...';
         }
 
         return $notes;

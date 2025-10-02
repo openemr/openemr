@@ -34,7 +34,7 @@ class USPSAddressVerifyTest extends TestCase
     {
         $verify = new USPSAddressVerify('myusername');
         $postData = $verify->getPostData();
-        $this->assertNotFalse(strpos($postData['XML'], 'myusername'));
+        $this->assertNotFalse(strpos((string) $postData['XML'], 'myusername'));
     }
 
     public function testApiVersionIsSetCorrectly(): void
@@ -167,10 +167,10 @@ class USPSAddressVerifyTest extends TestCase
 
         // Verify XML contains address data
         $xml = $postData['XML'];
-        $this->assertNotFalse(strpos($xml, '123 Test St'));
-        $this->assertNotFalse(strpos($xml, 'Test City'));
-        $this->assertNotFalse(strpos($xml, 'TX'));
-        $this->assertNotFalse(strpos($xml, 'testuser'));
+        $this->assertNotFalse(strpos((string) $xml, '123 Test St'));
+        $this->assertNotFalse(strpos((string) $xml, 'Test City'));
+        $this->assertNotFalse(strpos((string) $xml, 'TX'));
+        $this->assertNotFalse(strpos((string) $xml, 'testuser'));
     }
 
     public function testVerifyMethodReturnsResponse(): void

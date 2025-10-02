@@ -27,7 +27,7 @@ class NameValue
      */
     function __construct($line = "", $delim = "=", $nameonly = false)
     {
-        $keyval = explode($delim, $line);
+        $keyval = explode($delim, (string) $line);
         $this->Name = $keyval [0];
         $this->Value = $nameonly == false && isset($keyval [1]) ? $keyval [1] : $keyval [0];
     }

@@ -61,7 +61,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         }
 
         $mstatus = true;
-        $mstatus = @mail($to, $subject, $vBody, $headers);
+        $mstatus = @mail((string) $to, (string) $subject, (string) $vBody, $headers);
         // larry :: debug
         //echo "\nDEBUG :email: send email from=".$from." to=".$to." sbj=".$subject." body=".$vBody." head=".$headers."\n";
         //echo "\nDEBUG :email: send status=".$mstatus."\n";
@@ -78,11 +78,11 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $sender_line = __LINE__;
         $strTo = $to;
         $recipient_line = __LINE__;
-        if (strlen($strFrom) == 0) {
+        if (strlen((string) $strFrom) == 0) {
             return( false );
         }
 
-        if (strlen($strTo) == 0) {
+        if (strlen((string) $strTo) == 0) {
             return( false );
         }
 

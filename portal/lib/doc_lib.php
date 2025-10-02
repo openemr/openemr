@@ -115,12 +115,12 @@ try {
         $category = $result['id'] ?: 3;
     }
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
-    $len = stripos($htmlin, 'data:application/pdf;base64,');
+    $len = stripos((string) $htmlin, 'data:application/pdf;base64,');
     if ($len !== false) {
         if ($dispose == "download") {
             //'<object data=data:application/pdf;base64,'
-            $len = strpos($htmlin, ',');
-            $content = substr($htmlin, $len + 1);
+            $len = strpos((string) $htmlin, ',');
+            $content = substr((string) $htmlin, $len + 1);
             $content = str_replace("type='application/pdf' width='100%' height='450'></object>", '', $content);
 
             $pdf = base64_decode($content);
@@ -164,7 +164,7 @@ try {
     if ($dispose == 'fetch_pdf') {
         try {
             $file = $pdfObject->Output($form_filename, 'S');
-            $file = base64_encode($file);
+            $file = base64_encode((string) $file);
             echo $file;
             $logit->portalLog('fetched PDF', $cpid, ('document:' . $form_filename));
             exit;

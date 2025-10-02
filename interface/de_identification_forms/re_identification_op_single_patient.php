@@ -64,7 +64,7 @@ if ($status == 0) {
 
 <form enctype="Re_identification_output" method="POST"><?php
 if ($_POST["re_id_code"]) {
-    $reIdCode = isset($_POST['re_id_code']) ? trim($_POST['re_id_code']) : '';
+    $reIdCode = isset($_POST['re_id_code']) ? trim((string) $_POST['re_id_code']) : '';
 }
 
 //to store input for re-idenitification
@@ -81,7 +81,7 @@ $query = "update re_identification_status set status = 1;";
 $res = sqlStatement($query);
 
 //call procedure - execute in background
-$sh_cmd = './re_identification_procedure.sh ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' &';
+$sh_cmd = './re_identification_procedure.sh ' . escapeshellarg((string) $sqlconf["host"]) . ' ' . escapeshellarg((string) $sqlconf["login"]) . ' ' . escapeshellarg((string) $sqlconf["pass"]) . ' ' . escapeshellarg((string) $sqlconf["dbase"]) . ' &';
 system($sh_cmd);
 
 ?>

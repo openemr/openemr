@@ -124,7 +124,7 @@ function smarty_function_html_image($params, &$smarty)
     }
 
     if(isset($params['dpi'])) {
-        if(strstr($server_vars['HTTP_USER_AGENT'], 'Mac')) {
+        if(strstr((string) $server_vars['HTTP_USER_AGENT'], 'Mac')) {
             $dpi_default = 72;
         } else {
             $dpi_default = 96;

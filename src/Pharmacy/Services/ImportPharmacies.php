@@ -72,7 +72,7 @@ class ImportPharmacies
 
         $body = $response->body(); // already should be json.
 
-        $pharmacyObj = json_decode($body, true, 512, 0);
+        $pharmacyObj = json_decode((string) $body, true, 512, 0);
         $i = 0;
         foreach ($pharmacyObj as $value) {
             foreach ($value as $show) {
@@ -83,8 +83,8 @@ class ImportPharmacies
                 }
                /*************Check Zip Code Length**********************/
                 $zipCode = $show['addresses'][0]['postal_code'];
-                if (strlen($zipCode) > 5) {
-                    $zip = substr($zipCode, 0, -4);
+                if (strlen((string) $zipCode) > 5) {
+                    $zip = substr((string) $zipCode, 0, -4);
                 }
                 /******************************************************/
                 $identifiers = $show['identifiers'];

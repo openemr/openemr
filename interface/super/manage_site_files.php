@@ -38,7 +38,7 @@ if (!empty($_POST['bn_save'])) {
      // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
-        $form_dest_filename = strtolower(basename($form_dest_filename));
+        $form_dest_filename = strtolower(basename((string) $form_dest_filename));
         if (substr($form_dest_filename, -4) != '.pdf') {
             die(xlt('Filename must end with ".pdf"'));
         }

@@ -239,7 +239,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $patient_id = $row['patient_id'];
         $date_ordered = $row['date_ordered'];
 
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;

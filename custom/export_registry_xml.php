@@ -36,11 +36,11 @@ if (!empty($GLOBALS['cdr_report_nice'])) {
 function getLabelNumber($label)
 {
 
-    if (strlen($label) == 0) {
+    if (strlen((string) $label) == 0) {
         return "1";
     }
 
-    $tokens = explode(" ", $label);
+    $tokens = explode(" ", (string) $label);
 
     $num_tokens = count($tokens);
     if ($tokens[$num_tokens - 1] != null) {
@@ -69,8 +69,8 @@ function getMeasureNumber($row)
 
 
 // Collect parameters (set defaults if empty)
-$target_date = (isset($_GET['target_date'])) ? trim($_GET['target_date']) : date('Y-m-d H:i:s');
-$nested = (isset($_GET['nested'])) ? trim($_GET['nested']) : 'false';
+$target_date = (isset($_GET['target_date'])) ? trim((string) $_GET['target_date']) : date('Y-m-d H:i:s');
+$nested = (isset($_GET['nested'])) ? trim((string) $_GET['nested']) : 'false';
 $xml = new PQRIXml();
 
 // Add the XML parent tag.

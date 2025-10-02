@@ -12,7 +12,7 @@
 
 function check_pattern($data, $pat)
 {
-    if (preg_match("/" . addcslashes($pat, '/') . "/", $data)) {
+    if (preg_match("/" . addcslashes((string) $pat, '/') . "/", (string) $data)) {
         return true ;
     } else {
         return false;

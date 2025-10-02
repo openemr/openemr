@@ -27,7 +27,7 @@ $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
 
-if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
+if (stripos((string) $validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
     echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings or Weno Administrator to configure Weno Prescriber Id.");
     return "Fail";
 }
@@ -41,7 +41,7 @@ $cite = <<<CITE
     <span>$status</span>
 </cite>
 CITE;
-if (str_starts_with($pharmacyLog['status'], 'Success')) {
+if (str_starts_with((string) $pharmacyLog['status'], 'Success')) {
     $cite = '';
 }
 
@@ -81,7 +81,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     // parse user weno id and location. If location is present, it is separated by a colon
     // $provider_id is the user id that was passed in the prescription when prescribed.
     // If all else fails then use logged in user id;
-    $match = explode(":", $external_id);
+    $match = explode(":", (string) $external_id);
     if (is_countable($match) && count($match) > 1) {
         $external_id = $match[0];
     }

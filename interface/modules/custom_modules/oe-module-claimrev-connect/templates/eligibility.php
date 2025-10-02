@@ -48,7 +48,7 @@ if (isset($_POST['checkElig'])) {
 foreach ($insurance as $row) {
     ?>
             <li class="nav-item" role="presentation">
-                <a id="claimrev-ins-<?php echo attr(ucfirst($row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst($row['payer_responsibility']));?>"> <?php echo xlt(ucfirst($row['payer_responsibility']));?>  </a>
+                <a id="claimrev-ins-<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>"> <?php echo xlt(ucfirst((string) $row['payer_responsibility']));?>  </a>
             </li>
     <?php
     $first = "false";
@@ -62,12 +62,12 @@ foreach ($insurance as $row) {
         $classActive = "in active";
 foreach ($insurance as $row) {
     ?>
-            <div id="<?php echo attr(ucfirst($row['payer_responsibility']));?>" class="tab-pane <?php echo($classActive);?>">
+            <div id="<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>" class="tab-pane <?php echo($classActive);?>">
                 <div class="row">
                     <div class="col-2">
 
                         <form method="post" action="../../patient_file/summary/demographics.php">
-                            <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst($row['payer_responsibility']));?>">
+                            <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>">
                             <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>
                     </div>
@@ -113,7 +113,7 @@ foreach ($insurance as $row) {
                         echo xlt("No Results");
         } else {
                     $individualJson = $check["individual_json"];
-                    $individual = json_decode($individualJson);
+                    $individual = json_decode((string) $individualJson);
                     $results = $individual->eligibility;
                     $index = 0;
             foreach ($results as $result) {

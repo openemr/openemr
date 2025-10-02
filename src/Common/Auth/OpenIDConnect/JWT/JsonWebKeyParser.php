@@ -107,7 +107,7 @@ class JsonWebKeyParser
             throw new \InvalidArgumentException("Token cannot be empty");
         }
         // determine if access or refresh.
-        $access_parts = explode(".", $rawToken);
+        $access_parts = explode(".", (string) $rawToken);
         if (count($access_parts) === 3) {
             $token_hint = 'access_token';
         } else {

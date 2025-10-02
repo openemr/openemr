@@ -123,7 +123,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
 
         if (!empty($dataRecord['diagnosis'])) {
             $codesService = new CodeTypesService();
-            $codes = explode(";", $dataRecord['diagnosis']);
+            $codes = explode(";", (string) $dataRecord['diagnosis']);
             $diagnosisCode = new FHIRCodeableConcept();
             foreach ($codes as $code) {
                 $description = $codesService->lookup_code_description($code);

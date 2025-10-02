@@ -312,7 +312,7 @@ use OpenEMR\OeUI\OemrUI;
                             <td><?php echo text($value1['form_name']); ?></td>
                             <td><?php echo text(oeFormatDateTime($value1['deadline'])); ?></td>
                             <td><?php echo text($value1['status']); ?></td>
-                            <td><?php echo text(substr($value1['score'], 0, 4)); ?></td>
+                            <td><?php echo text(substr((string) $value1['score'], 0, 4)); ?></td>
                         </tr>
                     <?php } ?>
                 </table>

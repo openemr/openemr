@@ -98,7 +98,7 @@ if (sqlNumRows($res) > 0) {
                 $class = "class1_odd";
                 $even = true;
             }
-            $date = explode('-', $row['date_ordered']);
+            $date = explode('-', (string) $row['date_ordered']);
             echo "<tr class='" . $class . "'>";
             echo "<td>" . text($date[1] . "/" . $date[2] . "/" . $date[0]) . "</td>";
             echo "<td>" . text($row['procedure_name']) . "</td>";

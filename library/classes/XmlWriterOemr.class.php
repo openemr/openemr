@@ -30,28 +30,28 @@ class XmlWriterOemr
         $this->_indent();
         $this->xml .= '<' . $element;
         foreach ($attributes as $key => $value) {
-            $this->xml .= ' ' . htmlspecialchars($key) . '="' . htmlspecialchars($value) . '"';
+            $this->xml .= ' ' . htmlspecialchars((string) $key) . '="' . htmlspecialchars((string) $value) . '"';
         }
 
         $this->xml .= ">\n";
-        $this->stack[] = htmlspecialchars($element);
+        $this->stack[] = htmlspecialchars((string) $element);
     }
     function element($element, $content, $attributes = array())
     {
         $this->_indent();
         $this->xml .= '<' . $element;
         foreach ($attributes as $key => $value) {
-            $this->xml .= ' ' . htmlspecialchars($key) . '="' . htmlspecialchars($value) . '"';
+            $this->xml .= ' ' . htmlspecialchars((string) $key) . '="' . htmlspecialchars((string) $value) . '"';
         }
 
-        $this->xml .= '>' . htmlspecialchars($content) . '</' . htmlspecialchars($element) . '>' . "\n";
+        $this->xml .= '>' . htmlspecialchars((string) $content) . '</' . htmlspecialchars((string) $element) . '>' . "\n";
     }
     function emptyelement($element, $attributes = array())
     {
         $this->_indent();
-        $this->xml .= '<' . htmlspecialchars($element);
+        $this->xml .= '<' . htmlspecialchars((string) $element);
         foreach ($attributes as $key => $value) {
-            $this->xml .= ' ' . htmlspecialchars($key) . '="' . htmlspecialchars($value) . '"';
+            $this->xml .= ' ' . htmlspecialchars((string) $key) . '="' . htmlspecialchars((string) $value) . '"';
         }
 
         $this->xml .= " />\n";
@@ -60,7 +60,7 @@ class XmlWriterOemr
     {
         $element = array_pop($this->stack);
         $this->_indent();
-        $this->xml .= "</" . htmlspecialchars($element) . ">" . "\n";
+        $this->xml .= "</" . htmlspecialchars((string) $element) . ">" . "\n";
     }
     function getXml()
     {

@@ -60,7 +60,7 @@ require_once(dirname(__FILE__, 2) . "/interface/globals.php");
 require_once("$srcdir/documents.php");
 
 if ($arg['category'] != 1) {
-    $rec_cat = sqlQuery('SELECT id FROM categories WHERE name=?', array(urldecode($arg['category'])));
+    $rec_cat = sqlQuery('SELECT id FROM categories WHERE name=?', array(urldecode((string) $arg['category'])));
     if (isset($rec_cat['id'])) {
         $arg['category'] = $rec_cat['id'];
     }

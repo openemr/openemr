@@ -104,7 +104,7 @@ class InsuranceCompanyService extends BaseService
                     ", " . $insuranceCompany['state'] . ", " . $insuranceCompany['zip'] . ", " . $insuranceCompany['cms_id'] . ")";
                 break;
             case '7':
-                preg_match("/\d+/", $insuranceCompany['line1'], $matches);
+                preg_match("/\d+/", (string) $insuranceCompany['line1'], $matches);
                 $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['zip'] .
                     "," . $matches[0] . ")";
                 break;

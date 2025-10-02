@@ -145,7 +145,7 @@ function end_row(): void
 function end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
+    if (strlen((string) $last_group) > 0) {
         end_row();
         echo " </table>\n";
         echo "</div>\n";
@@ -487,8 +487,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($frow = sqlFetchArray($fres)) {
                             $this_group = $frow['group_id'];
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
-                                $group_seq  = substr($this_group, 0, 1);
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {
@@ -544,9 +544,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             // Handle a data category (group) change.
-                            if (strcmp($this_group, $last_group) != 0) {
+                            if (strcmp((string) $this_group, (string) $last_group) != 0) {
                                 end_group();
-                                $group_seq  = substr($this_group, 0, 1);
+                                $group_seq  = substr((string) $this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
                                 if ($group_seq == 1) {

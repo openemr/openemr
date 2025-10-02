@@ -220,11 +220,11 @@ class Phreezer extends Observable
             return false;
         }
 
-        if (strlen($key) > 250) {
-            $key = substr($key, 0, 150) . md5($key);
+        if (strlen((string) $key) > 250) {
+            $key = substr((string) $key, 0, 150) . md5((string) $key);
         }
 
-        $this->_level1Cache->Set(md5($key), $val, 0, $timeout);
+        $this->_level1Cache->Set(md5((string) $key), $val, 0, $timeout);
         return $this->_level2Cache->Set($key, $val, 0, $timeout);
     }
 
@@ -366,7 +366,7 @@ class Phreezer extends Observable
 */
     static function Compare($a, $b)
     {
-        return strcmp($a->ToString(), $b->ToString());
+        return strcmp((string) $a->ToString(), (string) $b->ToString());
     }
 
 /**

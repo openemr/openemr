@@ -51,7 +51,7 @@ class DocumentService extends BaseService
 
     public function isValidPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
 
         unset($docPathParts[0]);
 
@@ -82,7 +82,7 @@ class DocumentService extends BaseService
 
     public function getLastIdOfPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
         $lastInPath = end($docPathParts);
 
         $sql  = "  SELECT id";

@@ -98,7 +98,7 @@ class DownloadWenoPharmacies
             $batchSize = 30000;
             $batchRecords = [];
             foreach ($records as $record) {
-                if (stripos($record['Created'], 'Confidential WENO Exchange') !== false) {
+                if (stripos((string) $record['Created'], 'Confidential WENO Exchange') !== false) {
                     continue;
                 }
                 $rowNumber++;
@@ -111,9 +111,9 @@ class DownloadWenoPharmacies
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Deleted']);
                 $record['Deleted'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
 
-                $record['Business_Name'] = ucwords(strtolower($record['Business_Name']));
-                $record['Address_Line_1'] = ucwords(strtolower($record['Address_Line_1']));
-                $record['City'] = ucwords(strtolower($record['City']));
+                $record['Business_Name'] = ucwords(strtolower((string) $record['Business_Name']));
+                $record['Address_Line_1'] = ucwords(strtolower((string) $record['Address_Line_1']));
+                $record['City'] = ucwords(strtolower((string) $record['City']));
 
                 if (count($record) !== count($headers)) {
                     error_log(text("Column count mismatch at row $rowNumber in file: $filePath"));

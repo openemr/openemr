@@ -52,7 +52,7 @@ $(function () {
         });
 
 function PrintForm() {
-    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode($_GET["id"])); ?>,"mywin");
+    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode((string) $_GET["id"])); ?>,"mywin");
 }
 
 </script>

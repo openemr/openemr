@@ -127,7 +127,7 @@ function set_main_compl_list() {
   // We use the checkbox object values as a scratch area to note which
   // complications were already selected from other forms.
     while ($row = sqlFetchArray($res)) {
-        $a = explode('|', $row['field_value']);
+        $a = explode('|', (string) $row['field_value']);
         foreach ($a as $complid) {
             if (empty($complid)) {
                 continue;
@@ -291,7 +291,7 @@ function LBFgcac_default_in_ab_proc()
             continue;
         }
 
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -305,7 +305,7 @@ function LBFgcac_default_in_ab_proc()
             $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
             "WHERE list_id = 'in_ab_proc' AND activity = 1");
             while ($lrow = sqlFetchArray($lres)) {
-                  $maparr = explode(':', $lrow['mapping']);
+                  $maparr = explode(':', (string) $lrow['mapping']);
                 if (empty($maparr[1])) {
                     continue;
                 }

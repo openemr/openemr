@@ -102,7 +102,7 @@ function generate_order_summary($orderid): void
 
     $lab_id = intval($orow['lab_id']);
     $patient_id = intval($orow['patient_id']);
-    $encdate = substr($orow['date'], 0, 10);
+    $encdate = substr((string) $orow['date'], 0, 10);
 
   // Get insurance info.
     $ins_policy = '';
@@ -305,7 +305,7 @@ function generate_order_summary($orderid): void
             while ($qrow = sqlFetchArray($qres)) {
                 // Formatting of these answer values may be lab-specific and we'll figure
                 // out how to deal with that as more labs are supported.
-                $answer = trim($qrow['answer']);
+                $answer = trim((string) $qrow['answer']);
                 $fldtype = $qrow['fldtype'];
                 if ($fldtype == 'G') {
                     $weeks = intval($answer / 7);

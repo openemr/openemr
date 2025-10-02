@@ -133,7 +133,7 @@ class DateSearchField extends BasicSearchField
         // unfortunately php will fill in the date with the current date which does not conform to spec.
         // spec requires that we fill in missing values with the lowest bounds of missing parameters.
 
-        if (preg_match(self::COMPARATOR_MATCH, $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
+        if (preg_match(self::COMPARATOR_MATCH, (string) $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
             throw new \InvalidArgumentException("Date format invalid must match ISO8601 format and values SHALL be populated from left to right");
         }
         if (empty($matches[self::COMPARATOR_INDEX_YEAR])) {

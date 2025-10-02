@@ -34,7 +34,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
     $data = formFetch("form_vitals", $id);
     $patient_data = getPatientData($GLOBALS['pid']);
     $patient_age = getPatientAge($patient_data['DOB']);
-    $is_pediatric_patient = ($patient_age <= 20 || (preg_match('/month/', $patient_age)));
+    $is_pediatric_patient = ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)));
 
     $vitals = "";
     if ($data) {

@@ -35,7 +35,7 @@ class eRxSOAP
     {
         $encoded = json_encode($array);
         $fixed = $xmltoarray->fix_html_entities($encoded);
-        return json_decode($fixed, true);
+        return json_decode((string) $fixed, true);
     }
 
     /**
@@ -285,7 +285,7 @@ class eRxSOAP
             return true;
         }
 
-        return strtotime('-' . $ttl . ' seconds') >= strtotime($soap);
+        return strtotime('-' . $ttl . ' seconds') >= strtotime((string) $soap);
     }
 
     /**

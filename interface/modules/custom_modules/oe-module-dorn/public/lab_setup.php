@@ -277,7 +277,7 @@ if (!empty($_POST)) {
                                         <td scope="row"><?php echo text($data->city); ?></td>
                                         <td scope="row"><?php echo text($data->state); ?></td>
                                         <td scope="row"><?php echo text($data->zipCode); ?></td>
-                                        <td scope="row"><?php echo text(substr($data->lastCompendiumUpdateDate, 0, 10)); ?></td>
+                                        <td scope="row"><?php echo text(substr((string) $data->lastCompendiumUpdateDate, 0, 10)); ?></td>
                                         <td scope="row"><?php echo text($data->compendiumDownloadDateTime); ?></td>
                                         <td scope="row"><?php echo text($data->numberOfActiveRoutes); ?></td>
                                         <td scope="row"><?php echo text($data->isEulaRequired ? 'Yes' : ''); ?></td>

@@ -66,7 +66,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
                 if ($report_id) {
                 // collect log from a previous run to show
                     $results_log = collectReportDatabase($report_id);
-                    $data_log = json_decode($results_log['data'], true);
+                    $data_log = json_decode((string) $results_log['data'], true);
                     $update_rem_log = $data_log[0];
                     if ($results_log['type'] == "process_send_reminders") {
                         $send_rem_log = $data_log[1];
