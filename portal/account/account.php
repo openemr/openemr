@@ -77,11 +77,11 @@ if ($action == 'userIsUnique') {
         ((int)$_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
     ) {
         // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
-        if (empty(trim($_REQUEST['account']))) {
+        if (empty(trim((string) $_REQUEST['account']))) {
             echo "0";
             exit;
         }
-        $tmp = trim($_REQUEST['loginUname']);
+        $tmp = trim((string) $_REQUEST['loginUname']);
         if (empty($tmp)) {
             echo "0";
             exit;
@@ -92,7 +92,7 @@ if ($action == 'userIsUnique') {
             exit;
         }
 
-        if ($auth['portal_username'] === trim($_REQUEST['account'])) {
+        if ($auth['portal_username'] === trim((string) $_REQUEST['account'])) {
             echo "1";
             exit;
         }

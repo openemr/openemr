@@ -498,7 +498,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     private function IsLocked($cachekey)
     {
-        return $this->_phreezer->LockFilePath && file_exists($this->_phreezer->LockFilePath . md5($cachekey) . ".lock");
+        return $this->_phreezer->LockFilePath && file_exists($this->_phreezer->LockFilePath . md5((string) $cachekey) . ".lock");
     }
 
     /**
@@ -509,7 +509,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function LockCache($cachekey)
     {
         if ($this->_phreezer->LockFilePath) {
-            touch($this->_phreezer->LockFilePath . md5($cachekey) . ".lock");
+            touch($this->_phreezer->LockFilePath . md5((string) $cachekey) . ".lock");
         }
     }
 
@@ -521,7 +521,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function UnlockCache($cachekey)
     {
         if ($this->_phreezer->LockFilePath) {
-            $lockfile = $this->_phreezer->LockFilePath . md5($cachekey) . ".lock";
+            $lockfile = $this->_phreezer->LockFilePath . md5((string) $cachekey) . ".lock";
             if (file_exists($lockfile)) {
                 @unlink($lockfile);
             }

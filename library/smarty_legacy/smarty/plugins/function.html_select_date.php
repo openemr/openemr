@@ -142,7 +142,7 @@ function smarty_function_html_select_date($params, &$smarty)
         $time = date('Y-m-d', $time);
     }
     // If $time is not in format yyyy-mm-dd
-    if (preg_match('/^(\d{0,4}-\d{0,2}-\d{0,2})/', $time, $found)) {
+    if (preg_match('/^(\d{0,4}-\d{0,2}-\d{0,2})/', (string) $time, $found)) {
         $time = $found[1];
     } else {
         // use smarty_make_timestamp to get an unix timestamp and

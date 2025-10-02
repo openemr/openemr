@@ -201,7 +201,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
         // grab category and code
         $query_vars = [];
-        parse_str($mapping['resource_path'], $query_vars);
+        parse_str((string) $mapping['resource_path'], $query_vars);
         if (empty($query_vars['category'])) {
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
             $this->getSystemLogger()->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);

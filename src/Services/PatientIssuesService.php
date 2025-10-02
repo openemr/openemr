@@ -132,7 +132,7 @@ class PatientIssuesService extends BaseService
                     . 'medication = 0 where patient_id = ? '
                     . " and upper(trim(drug)) = ? "
                     . ' and medication = 1',
-                    [$issueRecord['pid'], strtoupper($title)]
+                    [$issueRecord['pid'], strtoupper((string) $title)]
                 );
             }
             $whiteListDict['medication'] = $medication;

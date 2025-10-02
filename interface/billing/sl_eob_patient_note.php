@@ -41,7 +41,7 @@ $info_msg = "";
             CsrfUtils::csrfNotVerified();
         }
 
-        $thevalue = trim($_POST['form_note']);
+        $thevalue = trim((string) $_POST['form_note']);
 
         sqlStatement("UPDATE patient_data SET " .
             "billing_note = ? " .

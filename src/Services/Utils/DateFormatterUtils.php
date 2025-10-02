@@ -36,7 +36,7 @@ class DateFormatterUtils
         if ($GLOBALS['date_display_format'] == 0) {
             return $DateValue;
         } elseif ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
-            $DateValueArray = explode('/', $DateValue);
+            $DateValueArray = explode('/', (string) $DateValue);
             if ($GLOBALS['date_display_format'] == 1) {
                 return $DateValueArray[2] . '-' . $DateValueArray[0] . '-' . $DateValueArray[1];
             }
@@ -101,22 +101,22 @@ class DateFormatterUtils
         if (strlen($date ?? '') >= 10) {
             // assume input is yyyy-mm-dd
             if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
-                $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
+                $newDate = substr((string) $date, 5, 2) . '/' . substr((string) $date, 8, 2);
             } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
-                $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
+                $newDate = substr((string) $date, 8, 2) . '/' . substr((string) $date, 5, 2);
             }
 
             // process the year (add for formats 1 and 2; remove for format 0)
             if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
                 if ($showYear) {
-                    $newDate .= '/' . substr($date, 0, 4);
+                    $newDate .= '/' . substr((string) $date, 0, 4);
                 }
             } elseif (!$showYear) { // $GLOBALS['date_display_format'] == 0
                 // need to remove the year
-                $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
+                $newDate = substr((string) $date, 5, 2) . '-' . substr((string) $date, 8, 2);
             } else { // $GLOBALS['date_display_format'] == 0
                 // keep the year (so will simply be the original $date)
-                $newDate = substr($date, 0, 10);
+                $newDate = substr((string) $date, 0, 10);
             }
 
             return $newDate;

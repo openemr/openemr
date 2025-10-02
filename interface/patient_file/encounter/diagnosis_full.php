@@ -55,21 +55,21 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
             $html = "<tr>";
             $html .= "<td class='align-middle'></td>" .
                 "<td><div><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower((string) $iter["code_text"]))) .
                 "</a></div></td>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $counter++;
         } elseif ($iter["code_type"] == "COPAY") {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower((string) $iter["code_text"]))) .
                 "</a></td>\n";
         } else {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower((string) $iter["code_text"]))) .
                 "</a><span class=\"small\">";
-            $js = explode(":", $iter['justify']);
+            $js = explode(":", (string) $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if (!empty($j)) {

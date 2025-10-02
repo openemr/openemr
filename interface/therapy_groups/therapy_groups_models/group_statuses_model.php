@@ -55,7 +55,7 @@ class Group_Statuses
         $result = sqlStatement($sql, ['attendstat']);
         $final_result = [];
         while ($row = sqlFetchArray($result)) {
-            $row['title'] = xla(trim($row['title']));
+            $row['title'] = xla(trim((string) $row['title']));
             $final_result[] = $row;
         }
 

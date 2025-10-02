@@ -217,7 +217,7 @@ class FhirConditionService3_1_1Test extends TestCase
         $this->assertStringStartsWith('Patient/', $reference);
 
         // Verify UUID format
-        $patientUuid = substr($reference, 8); // Remove 'Patient/' prefix
+        $patientUuid = substr((string) $reference, 8); // Remove 'Patient/' prefix
         $this->assertTrue(UuidRegistry::isValidStringUUID($patientUuid));
     }
 

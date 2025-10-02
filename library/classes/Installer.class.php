@@ -781,7 +781,7 @@ $config = 1; /////////////
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
-                if (is_array($fldtype) || !str_starts_with($fldtype, 'm_')) {
+                if (is_array($fldtype) || !str_starts_with((string) $fldtype, 'm_')) {
                     $this->writeGlobal($fldid, $flddef, 0, true);
                 }
             }

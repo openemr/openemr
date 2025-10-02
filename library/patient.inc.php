@@ -94,7 +94,7 @@ function getInsuranceProviders()
         $rez = sqlStatement($sql);
 
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-            preg_match("/\d+/", $row['line1'], $matches);
+            preg_match("/\d+/", (string) $row['line1'], $matches);
             $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
               "," . $matches[0] . ")";
         }
@@ -291,16 +291,16 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
 function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
-    if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
-        if (!empty($pi[0]["mname"]) && (strlen($pi[0]["mname"]) > 0)) {
+    if (!empty($pi[0]["lname"]) && (strlen((string) $pi[0]["lname"]) > 0)) {
+        if (!empty($pi[0]["mname"]) && (strlen((string) $pi[0]["mname"]) > 0)) {
             $pi[0]["fname"] .= " " . $pi[0]["mname"];
         }
 
-        if (!empty($pi[0]["suffix"]) && (strlen($pi[0]["suffix"]) > 0)) {
+        if (!empty($pi[0]["suffix"]) && (strlen((string) $pi[0]["suffix"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
         }
 
-        if (!empty($pi[0]["valedictory"]) && (strlen($pi[0]["valedictory"]) > 0)) {
+        if (!empty($pi[0]["valedictory"]) && (strlen((string) $pi[0]["valedictory"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["valedictory"];
         }
 
@@ -507,7 +507,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 
     foreach ($names as $key => $val) {
         if (!empty($val)) {
-            $names[$key] = strlen($val) > 1 && $names[$key][0] != strtoupper($names[$key][0]) ? '%' . $val . '%' : $val . '%';
+            $names[$key] = strlen((string) $val) > 1 && $names[$key][0] != strtoupper((string) $names[$key][0]) ? '%' . $val . '%' : $val . '%';
         }
     }
 
@@ -705,7 +705,7 @@ function getByPatientDemographicsFilter(
     $search_service_code = ''
 ) {
 
-    $layoutCols = explode('~', $searchFields);
+    $layoutCols = explode('~', (string) $searchFields);
     $sqlBindArray = [];
     $where = "";
     $i = 0;
@@ -805,7 +805,7 @@ function getPatientPID($args)
         $pid = "NULL";
     }
 
-    if (strstr($pid, "%")) {
+    if (strstr((string) $pid, "%")) {
         $command = "like";
     }
 
@@ -957,7 +957,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $phone = preg_replace("/[[:punct:]]/", "", $phone);
+    $phone = preg_replace("/[[:punct:]]/", "", (string) $phone);
     $sqlBindArray = [];
     $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
     array_push($sqlBindArray, $phone);
@@ -1128,7 +1128,7 @@ function newPatientData(
 function fixDate($date, $default = "0000-00-00")
 {
     $fixed_date = $default;
-    $date = trim($date);
+    $date = trim((string) $date);
     if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
         $dmy = preg_split("'[/.-]'", $date);
         if ($dmy[0] > 99) {
@@ -1162,7 +1162,7 @@ function pdValueOrNull($key, $value)
 {
     if (
         ($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-        str_starts_with($key, 'userdate') || $key == 'deceased_date') &&
+        str_starts_with((string) $key, 'userdate') || $key == 'deceased_date') &&
         (empty($value) || $value == '0000-00-00')
     ) {
         return "NULL";
@@ -1281,7 +1281,7 @@ function newInsuranceData(
     $effective_date_end = null
 ) {
 
-    if (strlen($type) <= 0) {
+    if (strlen((string) $type) <= 0) {
         return false;
     }
 
@@ -1470,10 +1470,10 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
     $age = -1;
 
     // strip any dashes from the DOB
-    $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD, 6, 2);
-    $dobMonth = substr($dobYMD, 4, 2);
-    $dobYear = substr($dobYMD, 0, 4);
+    $dobYMD = preg_replace("/-/", "", (string) $dobYMD);
+    $dobDay = substr((string) $dobYMD, 6, 2);
+    $dobMonth = substr((string) $dobYMD, 4, 2);
+    $dobYear = substr((string) $dobYMD, 0, 4);
 
     // set the 'now' date values
     if ($nowYMD == null) {
@@ -1481,9 +1481,9 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
         $nowMonth = date("m");
         $nowYear = date("Y");
     } else {
-        $nowDay = substr($nowYMD, 6, 2);
-        $nowMonth = substr($nowYMD, 4, 2);
-        $nowYear = substr($nowYMD, 0, 4);
+        $nowDay = substr((string) $nowYMD, 6, 2);
+        $nowMonth = substr((string) $nowYMD, 4, 2);
+        $nowYear = substr((string) $nowYMD, 0, 4);
     }
 
     // do the date math
@@ -1508,7 +1508,7 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
 }
 function dateToDB($date)
 {
-    $date = substr($date, 6, 4) . "-" . substr($date, 3, 2) . "-" . substr($date, 0, 2);
+    $date = substr((string) $date, 6, 4) . "-" . substr((string) $date, 3, 2) . "-" . substr((string) $date, 0, 2);
     return $date;
 }
 
@@ -1595,7 +1595,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
     $feres = sqlStatement($sqlstatement, $bindarray);
     while ($ferow = sqlFetchArray($feres)) {
         $encounter = $ferow['encounter'];
-        $dos = substr($ferow['date'], 0, 10);
+        $dos = substr((string) $ferow['date'], 0, 10);
         $insarr = getEffectiveInsurances($pid, $dos);
         $inscount = count($insarr);
         if (!$with_insurance && $ferow['last_level_closed'] < $inscount) {

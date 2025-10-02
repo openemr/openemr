@@ -86,7 +86,7 @@ class OneTimeAuth
             throw new RuntimeException($err);
         }
 
-        $redirect_raw = trim($p['redirect_link'] ?? null);
+        $redirect_raw = trim((string) ($p['redirect_link'] ?? null));
         if (!empty($redirect_raw) && $encrypt_redirect) {
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
             $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
@@ -98,7 +98,7 @@ class OneTimeAuth
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
-            $site_addr = trim($GLOBALS['portal_onsite_two_address']);
+            $site_addr = trim((string) $GLOBALS['portal_onsite_two_address']);
         } else {
             $err = xlt("Onetime creation failed. Missing site address!");
             $this->systemLogger->error($err);
@@ -151,7 +151,7 @@ class OneTimeAuth
         $one_time = '';
         $t_info = [];
 
-        if (strlen($onetime_token) >= 64) {
+        if (strlen((string) $onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
                 $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, 'drive', 6);
                 if (!empty($one_time)) {
@@ -219,7 +219,7 @@ class OneTimeAuth
     private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
     {
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
-        if (stripos($site_addr, "portal") !== false) {
+        if (stripos((string) $site_addr, "portal") !== false) {
             $site_addr = strtok($site_addr, '?');
             if (stripos($site_addr, "index.php") !== false) {
                 $site_addr = dirname($site_addr);
@@ -229,7 +229,7 @@ class OneTimeAuth
             }
         }
         $format = "%s&%s";
-        if (stripos($site_addr, "?") === false) {
+        if (stripos((string) $site_addr, "?") === false) {
             $format = "%s?%s";
         }
         if ($this->scope == 'register') {

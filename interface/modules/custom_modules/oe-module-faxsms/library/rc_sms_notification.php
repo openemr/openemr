@@ -180,7 +180,7 @@ $db_sms_msg['message'] = $MESSAGE;
                                 $db_sms_msg['message'] ?? '',
                                 $db_sms_msg['email_sender'] ?? ''
                             );
-                            if (stripos($error, 'error') !== false) {
+                            if (stripos((string) $error, 'error') !== false) {
                                 $strMsg .= " | " . xlt("Error:") . "<strong>" . text($error) . "</strong>\n";
                                 error_log($strMsg); // text
                                 echo(nl2br($strMsg));
@@ -255,12 +255,12 @@ $db_sms_msg['message'] = $MESSAGE;
 <?php
 function isValidPhone($phone): array|bool|string|null
 {
-    $justNums = preg_replace("/[^0-9]/", '', $phone);
-    if (strlen($justNums) === 11) {
-        $justNums = preg_replace("/^1/", '', $justNums);
+    $justNums = preg_replace("/[^0-9]/", '', (string) $phone);
+    if (strlen((string) $justNums) === 11) {
+        $justNums = preg_replace("/^1/", '', (string) $justNums);
     }
     //if we have 10 digits left, it's probably valid.
-    if (strlen($justNums) === 10) {
+    if (strlen((string) $justNums) === 10) {
         return $justNums;
     } else {
         return false;

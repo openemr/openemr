@@ -94,11 +94,11 @@ if (!empty($_POST['bn_upload'])) {
             $form_dest_filename = $_FILES['form_file']['name'];
         }
 
-        $form_dest_filename = convert_safe_file_dir_name(basename($form_dest_filename));
+        $form_dest_filename = convert_safe_file_dir_name(basename((string) $form_dest_filename));
         if ($form_dest_filename == '') {
             die(xlt('Cannot determine a destination filename'));
         }
-        $path_parts = pathinfo($form_dest_filename);
+        $path_parts = pathinfo((string) $form_dest_filename);
         $extension = strtolower($path_parts['extension'] ?? '');
 
         if (!in_array($extension, ['odt', 'txt', 'docx', 'zip'])) {

@@ -117,7 +117,7 @@ class QuestionnaireService extends BaseService
         if (empty($name)) {
             $name = $q_ob['name'] ?? null;
         }
-        $name = trim($name);
+        $name = trim((string) $name);
         $id = empty($q_record_id) ? $this->getQuestionnaireIdAndVersion($name, $q_id) : $q_record_id;
         if (empty($id)) {
             $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
@@ -416,9 +416,9 @@ class QuestionnaireService extends BaseService
             $oOption = $this->fhirObjectToArray($option);
             if (count($oOption['extension'] ?? [])) {
                 foreach ($oOption['extension'] as $e) {
-                    if (stripos($e['url'], 'ordinalValue') !== false) {
+                    if (stripos((string) $e['url'], 'ordinalValue') !== false) {
                         foreach ($e as $k => $v) {
-                            if (stripos($k, 'value') !== false) {
+                            if (stripos((string) $k, 'value') !== false) {
                                 $score = $v;
                             }
                         }

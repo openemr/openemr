@@ -1244,7 +1244,7 @@ class GaclApi extends Gacl {
 	 */
 	function sort_groups($group_type='ARO') {
 
-		$table = match (strtolower(trim($group_type))) {
+		$table = match (strtolower(trim((string) $group_type))) {
             'axo' => $this->_db_table_prefix .'axo_groups',
             default => $this->_db_table_prefix .'aro_groups',
         };
@@ -1307,7 +1307,7 @@ class GaclApi extends Gacl {
 			unset($keys);
 
 			foreach ($sorted_groups[$root_id] as $id => $name) {
-				switch (strtoupper($type)) {
+				switch (strtoupper((string) $type)) {
 					case 'TEXT':
 						/*
 						 * Formatting optimized for TEXT (combo box) output.
@@ -1317,19 +1317,19 @@ class GaclApi extends Gacl {
 							$level = str_repeat('&nbsp;&nbsp; ', $level);
 						}
 
-						if ( strlen($level) >= 8 ) {
+						if ( strlen((string) $level) >= 8 ) {
 							if ( $id == $last_id ) {
-								$spacing = substr($level, 0, -8) .'\'- ';
-								$level = substr($level, 0, -8) .'&nbsp;&nbsp; ';
+								$spacing = substr((string) $level, 0, -8) .'\'- ';
+								$level = substr((string) $level, 0, -8) .'&nbsp;&nbsp; ';
 							} else {
-								$spacing = substr($level, 0, -8) .'|- ';
+								$spacing = substr((string) $level, 0, -8) .'|- ';
 							}
 						} else {
 							$spacing = $level;
 						}
 
 						$next = $level .'|&nbsp; ';
-						$text = $spacing.htmlspecialchars($name,ENT_QUOTES);
+						$text = $spacing.htmlspecialchars((string) $name,ENT_QUOTES);
 						break;
 					case 'HTML':
 						/*
@@ -1338,7 +1338,7 @@ class GaclApi extends Gacl {
 						$width= $level * 20;
 						$spacing = "<img src=\"s.gif\" width=\"$width\">";
 						$next = $level + 1;
-						$text = $spacing." ".htmlspecialchars($name,ENT_QUOTES);
+						$text = $spacing." ".htmlspecialchars((string) $name,ENT_QUOTES);
 						break;
 					case 'ARRAY':
 						$next = $level;
@@ -1385,13 +1385,13 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("get_group_id(): Value: $value, Name: $name, Type: $group_type" );
 
-		$table = match (strtolower(trim($group_type))) {
+		$table = match (strtolower(trim((string) $group_type))) {
             'axo' => $this->_db_table_prefix .'axo_groups',
             default => $this->_db_table_prefix .'aro_groups',
         };
 
-		$name = trim($name);
-		$value = trim($value);
+		$name = trim((string) $name);
+		$value = trim((string) $value);
 
 		if (empty($name) AND empty($value) ) {
 			$this->debug_text("get_group_id(): name and value, at least one is required");
@@ -1443,7 +1443,7 @@ class GaclApi extends Gacl {
 	function get_group_children($group_id, $group_type = 'ARO', $recurse = 'NO_RECURSE') {
 		$this->debug_text("get_group_children(): Group_ID: $group_id Group Type: $group_type Recurse: $recurse");
 
-		switch (strtolower(trim($group_type))) {
+		switch (strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'axo_groups';
@@ -1463,7 +1463,7 @@ class GaclApi extends Gacl {
 				FROM		'. $table .' g1';
 
 		//FIXME-mikeb: Why is group_id in quotes?
-		match (strtoupper($recurse)) {
+		match (strtoupper((string) $recurse)) {
             'RECURSE' => $query .= '
 				LEFT JOIN 	'. $table .' g2 ON g2.lft<g1.lft AND g2.rgt>g1.rgt
 				WHERE		g2.id='. $this->db->quote($group_id),
@@ -1497,7 +1497,7 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("get_group_data(): Group_ID: $group_id Group Type: $group_type");
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'axo_groups';
@@ -1539,7 +1539,7 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("get_group_parent_id(): ID: $id Group Type: $group_type");
 
-		$table = match (strtolower(trim($group_type))) {
+		$table = match (strtolower(trim((string) $group_type))) {
             'axo' => $this->_db_table_prefix .'axo_groups',
             default => $this->_db_table_prefix .'aro_groups',
         };
@@ -1589,7 +1589,7 @@ class GaclApi extends Gacl {
 
 		$this->debug_text('get_root_group_id(): Group Type: '. $group_type);
 
-		switch (strtolower($group_type)) {
+		switch (strtolower((string) $group_type)) {
 			case 'axo':
 				$table = $this->_db_table_prefix .'axo_groups';
 				break;
@@ -1668,7 +1668,7 @@ class GaclApi extends Gacl {
 	 */
 	function add_group($value, $name, $parent_id=0, $group_type='ARO') {
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'axo_groups';
@@ -1681,8 +1681,8 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("add_group(): Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
-		$name = trim($name);
-		$value = trim($value);
+		$name = trim((string) $name);
+		$value = trim((string) $value);
 
 		if ( $name == '' ) {
 			$this->debug_text("add_group(): name ($name) OR parent id ($parent_id) is empty, this is required");
@@ -1796,7 +1796,7 @@ class GaclApi extends Gacl {
 	 */
 	function get_group_objects($group_id, $group_type='ARO', $option='NO_RECURSE') {
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$object_table = $this->_db_table_prefix .'axo';
@@ -1871,7 +1871,7 @@ class GaclApi extends Gacl {
 	 */
 	function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'groups_axo_map';
@@ -1888,8 +1888,8 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("add_group_object(): Group ID: $group_id Section Value: $object_section_value Value: $object_value Group Type: $group_type");
 
-		$object_section_value = trim($object_section_value);
-		$object_value = trim($object_value);
+		$object_section_value = trim((string) $object_section_value);
+		$object_value = trim((string) $object_value);
 
 		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
 			$this->debug_text("add_group_object(): Group ID: ($group_id) OR Value ($object_value) OR Section value ($object_section_value) is empty, this is required");
@@ -1963,7 +1963,7 @@ class GaclApi extends Gacl {
 	 */
 	function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'groups_axo_map';
@@ -1976,8 +1976,8 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("del_group_object(): Group ID: $group_id Section value: $object_section_value Value: $object_value");
 
-		$object_section_value = trim($object_section_value);
-		$object_value = trim($object_value);
+		$object_section_value = trim((string) $object_section_value);
+		$object_value = trim((string) $object_value);
 
 		if (empty($group_id) OR empty($object_value) OR empty($object_section_value)) {
 			$this->debug_text("del_group_object(): Group ID:  ($group_id) OR Section value: $object_section_value OR Value ($object_value) is empty, this is required");
@@ -2023,7 +2023,7 @@ class GaclApi extends Gacl {
 	function edit_group($group_id, $value=NULL, $name=NULL, $parent_id=NULL, $group_type='ARO') {
 		$this->debug_text("edit_group(): ID: $group_id Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'axo_groups';
@@ -2044,7 +2044,7 @@ class GaclApi extends Gacl {
 			return FALSE;
 		}
 
-		$name = trim($name);
+		$name = trim((string) $name);
 
 		// don't set name if it is unchanged
 		if ($name == $curr[3]) {
@@ -2147,7 +2147,7 @@ class GaclApi extends Gacl {
 	function rebuild_tree($group_type = 'ARO', $group_id = NULL, $left = 1) {
 		$this->debug_text("rebuild_tree(): Group Type: $group_type Group ID: $group_id Left: $left");
 
-		switch (strtolower(trim($group_type))) {
+		switch (strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'axo_groups';
@@ -2246,7 +2246,7 @@ class GaclApi extends Gacl {
 	 */
 	function del_group($group_id, $reparent_children=TRUE, $group_type='ARO') {
 
-		switch(strtolower(trim($group_type))) {
+		switch(strtolower(trim((string) $group_type))) {
 			case 'axo':
 				$group_type = 'axo';
 				$table = $this->_db_table_prefix .'axo_groups';
@@ -2494,7 +2494,7 @@ class GaclApi extends Gacl {
 	 */
 	function get_object($section_value = null, $return_hidden=1, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -2561,7 +2561,7 @@ class GaclApi extends Gacl {
 
 	function get_ungrouped_objects($return_hidden=1, $object_type=NULL) {
 
-		   switch(strtolower(trim($object_type))) {
+		   switch(strtolower(trim((string) $object_type))) {
 				   case 'aro':
 						   $object_type = 'aro';
 						   $table = $this->_db_table_prefix .'aro';
@@ -2621,7 +2621,7 @@ class GaclApi extends Gacl {
 	 * @param string Object Type, either 'ACO', 'ARO', 'AXO'
 	 */
 	function get_objects($section_value = NULL, $return_hidden = 1, $object_type = NULL) {
-		switch (strtolower(trim($object_type))) {
+		switch (strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -2686,7 +2686,7 @@ class GaclApi extends Gacl {
 	 */
 	function get_object_data($object_id, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -2746,7 +2746,7 @@ class GaclApi extends Gacl {
 	 */
 	function get_object_id($section_value, $value, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -2766,8 +2766,8 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("get_object_id(): Section Value: $section_value Value: $value Object Type: $object_type");
 
-		$section_value = trim($section_value);
-		$value = trim($value);
+		$section_value = trim((string) $section_value);
+		$value = trim((string) $value);
 
 		if (empty($section_value) AND empty($value) ) {
 			$this->debug_text("get_object_id(): Section Value ($value) AND value ($value) is empty, this is required");
@@ -2817,7 +2817,7 @@ class GaclApi extends Gacl {
 	 */
 	function get_object_section_value($object_id, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -2890,7 +2890,7 @@ class GaclApi extends Gacl {
 	function get_object_groups($object_id, $object_type = 'ARO', $option = 'NO_RECURSE') {
 		$this->debug_text('get_object_groups(): Object ID: '. $object_id .' Object Type: '. $object_type .' Option: '. $option);
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'axo':
 				$object_type = 'axo';
 				$group_table = $this->_db_table_prefix .'axo_groups';
@@ -2911,7 +2911,7 @@ class GaclApi extends Gacl {
 			return FALSE;
 		}
 
-		if (strtoupper($option) == 'RECURSE') {
+		if (strtoupper((string) $option) == 'RECURSE') {
 		    $query = '
 				SELECT		DISTINCT g.id AS group_id
 				FROM		'. $map_table .' gm
@@ -2957,7 +2957,7 @@ class GaclApi extends Gacl {
 	 */
 	function add_object($section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -2980,10 +2980,10 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("add_object(): Section Value: $section_value Value: $value Order: $order Name: $name Object Type: $object_type");
 
-		$section_value = trim($section_value);
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
+		$section_value = trim((string) $section_value);
+		$name = trim((string) $name);
+		$value = trim((string) $value);
+		$order = trim((string) $order);
 		$hidden = intval($hidden);
 
 		if ($order == NULL OR $order == '') {
@@ -3061,7 +3061,7 @@ class GaclApi extends Gacl {
 	 */
 	function edit_object($object_id, $section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -3081,10 +3081,10 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("edit_object(): ID: $object_id Section Value: $section_value Value: $value Order: $order Name: $name Object Type: $object_type");
 
-		$section_value = trim($section_value);
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
+		$section_value = trim((string) $section_value);
+		$name = trim((string) $name);
+		$value = trim((string) $value);
+		$order = trim((string) $order);
 		$hidden = intval($hidden);
 
 		if (empty($object_id) OR empty($section_value) ) {
@@ -3124,7 +3124,7 @@ class GaclApi extends Gacl {
 			return false;
 		}
 
-		$this->debug_text('edit_object(): Modified '. strtoupper($object_type) .' ID: '. $object_id);
+		$this->debug_text('edit_object(): Modified '. strtoupper((string) $object_type) .' ID: '. $object_id);
 
 		if ($old[0] != $value OR $old[1] != $section_value) {
 			$this->debug_text("edit_object(): Value OR Section Value Changed, update other tables.");
@@ -3166,7 +3166,7 @@ class GaclApi extends Gacl {
 	 */
 	function del_object($object_id, $object_type=NULL, $erase=FALSE) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -3380,12 +3380,12 @@ class GaclApi extends Gacl {
 	function get_object_section_section_id($name = NULL, $value = NULL, $object_type = NULL) {
 		$this->debug_text("get_object_section_section_id(): Value: $value Name: $name Object Type: $object_type");
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 			case 'aro':
 			case 'axo':
 			case 'acl':
-				$object_type = strtolower(trim($object_type));
+				$object_type = strtolower(trim((string) $object_type));
 				$table = $this->_db_table_prefix . $object_type;
 				$object_sections_table = $this->_db_table_prefix . $object_type .'_sections';
 				break;
@@ -3395,7 +3395,7 @@ class GaclApi extends Gacl {
 		}
 
 		$name = trim($name ?? '');
-		$value = trim($value);
+		$value = trim((string) $value);
 
 		if (empty($name) AND empty($value) ) {
 			$this->debug_text('get_object_section_section_id(): Both Name ('. $name .') and Value ('. $value .') are empty, you must specify at least one.');
@@ -3459,7 +3459,7 @@ class GaclApi extends Gacl {
 	 */
 	function add_object_section($name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$object_sections_table = $this->_db_table_prefix .'aco_sections';
@@ -3480,9 +3480,9 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("add_object_section(): Value: $value Order: $order Name: $name Object Type: $object_type");
 
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
+		$name = trim((string) $name);
+		$value = trim((string) $value);
+		$order = trim((string) $order);
 		$hidden = intval($hidden);
 
 		if ($order == NULL OR $order == '') {
@@ -3528,7 +3528,7 @@ class GaclApi extends Gacl {
 	 */
 	function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco';
@@ -3559,9 +3559,9 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("edit_object_section(): ID: $object_section_id Value: $value Order: $order Name: $name Object Type: $object_type");
 
-		$name = trim($name);
-		$value = trim($value);
-		$order = trim($order);
+		$name = trim((string) $name);
+		$value = trim((string) $value);
+		$order = trim((string) $order);
 		$hidden = intval($hidden);
 
 		if (empty($object_section_id) ) {
@@ -3665,7 +3665,7 @@ class GaclApi extends Gacl {
 	 */
 	function del_object_section($object_section_id, $object_type=NULL, $erase=FALSE) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$object_sections_table = $this->_db_table_prefix .'aco_sections';
@@ -3761,7 +3761,7 @@ class GaclApi extends Gacl {
 	 */
 	function get_section_data($section_value, $object_type=NULL) {
 
-		switch(strtolower(trim($object_type))) {
+		switch(strtolower(trim((string) $object_type))) {
 			case 'aco':
 				$object_type = 'aco';
 				$table = $this->_db_table_prefix .'aco_sections';

@@ -202,8 +202,8 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
                     displayError(xl("ERROR: Unable to Create Zip Archive."));
                     return;
         }
-    } elseif (str_starts_with($raw, "send")) {
-        $recipient = trim(stripslashes(substr($raw, 5)));
+    } elseif (str_starts_with((string) $raw, "send")) {
+        $recipient = trim(stripslashes(substr((string) $raw, 5)));
         $ccd_out = $ccr->saveXml();
         $result = transmitCCD($pid, $ccd_out, $recipient, $requested_by, "CCR");
         echo htmlspecialchars($result, ENT_NOQUOTES);
@@ -303,8 +303,8 @@ function viewCCD($ccr, $raw = "no", $requested_by = ""): void
         }
     }
 
-    if (str_starts_with($raw, "send")) {
-        $recipient = trim(stripslashes(substr($raw, 5)));
+    if (str_starts_with((string) $raw, "send")) {
+        $recipient = trim(stripslashes(substr((string) $raw, 5)));
         $ccd_out = $ccd->saveXml();
         $result = transmitCCD($pid, $ccd_out, $recipient, $requested_by);
         echo htmlspecialchars($result, ENT_NOQUOTES);
@@ -339,7 +339,7 @@ function sourceType($ccr, $uuid)
 
 function displayError($message): void
 {
-    echo '<script>alert("' . addslashes($message) . '");</script>';
+    echo '<script>alert("' . addslashes((string) $message) . '");</script>';
 }
 
 
@@ -388,10 +388,10 @@ function createHybridXML($ccr): void
 if ($_POST['ccrAction']) {
     $raw = $_POST['raw'];
   /* If transmit requested, fail fast if the recipient address fails basic validation */
-    if (str_starts_with($raw, "send")) {
-        $send_to = trim(stripslashes(substr($raw, 5)));
+    if (str_starts_with((string) $raw, "send")) {
+        $send_to = trim(stripslashes(substr((string) $raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
-            echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
+            echo(htmlspecialchars((string) xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
 

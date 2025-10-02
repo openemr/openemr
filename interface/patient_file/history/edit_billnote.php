@@ -40,7 +40,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
             CsrfUtils::csrfNotVerified();
         }
 
-        $fenote = trim($_POST['form_note']);
+        $fenote = trim((string) $_POST['form_note']);
         if ($_POST['form_submit']) {
             sqlStatement("UPDATE form_encounter " .
             "SET billing_note = ? WHERE id = ?", [$fenote,$feid]);

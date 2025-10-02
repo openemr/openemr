@@ -18,7 +18,7 @@ class X125010837I
 {
     public static function x12Date($frmdate)
     {
-        return ('20' . substr($frmdate, 4, 2) . substr($frmdate, 0, 2) . substr($frmdate, 2, 2));
+        return ('20' . substr((string) $frmdate, 4, 2) . substr((string) $frmdate, 0, 2) . substr((string) $frmdate, 2, 2));
     }
 
     public $ub04id = [];
@@ -64,7 +64,7 @@ class X125010837I
         $out .= "GS" .
             "*HC" .
             "*" . $claim->x12gsgs02() .
-            "*" . trim($claim->x12gs03()) .
+            "*" . trim((string) $claim->x12gs03()) .
             "*" . date('Ymd', $today) .
             "*" . date('Hi', $today) .
             "*" . BillingClaimBatchControlNumber::getGs06() .
@@ -91,7 +91,7 @@ class X125010837I
 
         ++$edicount;
         //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
-        $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+        $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
         if ($billingFacilityName == '') {
             $log .= "*** billing facility name in 1000A loop is empty\n";
         }
@@ -143,7 +143,7 @@ class X125010837I
         // Situational CUR segment (foreign currency information) omitted here.
         ++$edicount;
         //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
-        $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+        $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
         $out .= "NM1" .       // Loop 2010AA Billing Provider stays in the 837I
             "*" . "85" .
             "*" . "2" .
@@ -270,7 +270,7 @@ class X125010837I
         // Segment REF*Y4 (Property and Casualty Claim Number) omitted.
         // Segment PER*IC (Property and Casualty Subscriber Contact Information) omitted.
         ++$edicount;
-        $payerName = substr($claim->payerName(), 0, 60);
+        $payerName = substr((string) $claim->payerName(), 0, 60);
         $out .= "NM1" .       // Loop 2010BB Payer
             "*PR" .
             "*" . "2" .
@@ -360,7 +360,7 @@ class X125010837I
             "*";
         // Service location this need to be bill type from ub form type_of_bill
         if (strlen($ub04id[7] ?? '') >= 3) {
-            $out .= "*" . substr($ub04id[7], 1, 1) . ":" . substr($ub04id[7], 2, 1) . ":" . substr($ub04id[7], 3, 1);
+            $out .= "*" . substr((string) $ub04id[7], 1, 1) . ":" . substr((string) $ub04id[7], 2, 1) . ":" . substr((string) $ub04id[7], 3, 1);
         }
 
         $out .= "*" .
@@ -791,7 +791,7 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310E Service Location
                 "*77" . "*2";
-            $facilityName = substr($claim->facilityName(), 0, 60);
+            $facilityName = substr((string) $claim->facilityName(), 0, 60);
             if ($claim->facilityName() || $claim->facilityNPI() || $claim->facilityETIN()) {
                 $out .= "*" . $facilityName;
             }
@@ -942,7 +942,7 @@ class X125010837I
 
             // Segment REF (Other Subscriber Secondary Identification) omitted.
             ++$edicount;
-            $payerName = substr($claim->payerName($ins), 0, 60);
+            $payerName = substr((string) $claim->payerName($ins), 0, 60);
             $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 322/359.
                 "*" . "PR" .
                 "*" . "2" .
@@ -1040,7 +1040,7 @@ class X125010837I
             $out .= "DTP" . // Date of Service. Needs to be when service preformed.
                 "*" . "472" . "*" . "D8" . "*" . $ub04id[$dosos] . "~\n"; //$claim->serviceDate()
 
-            $testnote = rtrim($claim->cptNotecodes($prockey));
+            $testnote = rtrim((string) $claim->cptNotecodes($prockey));
             if (!empty($testnote)) {
                 ++$edicount;
                 $out .= "NTE" . // Explain Unusual Circumstances.
@@ -1091,7 +1091,7 @@ class X125010837I
                     "*" . $ndc .
                     "~\n";
 
-                if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp) && !preg_match('/^\d{11}$/', $ndc)) {
+                if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', (string) $ndc, $tmp) && !preg_match('/^\d{11}$/', (string) $ndc)) {
                     $log .= "*** NDC code '$ndc' has invalid format!\n";
                 }
 

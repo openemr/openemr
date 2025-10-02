@@ -227,7 +227,7 @@ function issue_diagnoses($pid, $encounter)
     while ($res = sqlFetchArray($results)) {
         $title = $res['title'];
         $db_id = $res['id'];
-        $codes = explode(";", $res['diagnosis']);
+        $codes = explode(";", (string) $res['diagnosis']);
         foreach ($codes as $code_key) {
             $diagnosis = explode(":", $code_key);
             $code = $diagnosis[1] ?? '';

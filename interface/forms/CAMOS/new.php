@@ -405,11 +405,11 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
     $query = "SELECT code_text, code FROM billing WHERE encounter=? AND pid=? AND code_type like 'ICD10' AND activity=1";
     $statement = sqlStatement($query, [$_SESSION['encounter'], $_SESSION['pid']]);
     if ($result = sqlFetchArray($statement)) {
-        $code_list = "\n\n" . trim(preg_replace('/\r\n|\r|\n/', '', text($result['code'] . " " . $result['code_text'])));
+        $code_list = "\n\n" . trim((string) preg_replace('/\r\n|\r|\n/', '', text($result['code'] . " " . $result['code_text'])));
     }
 
     while ($result = sqlFetchArray($statement)) {
-        $code_list .= "\n\n" . trim(preg_replace('/\r\n|\r|\n/', '', text($result['code'] . " " . $result['code_text'])));
+        $code_list .= "\n\n" . trim((string) preg_replace('/\r\n|\r|\n/', '', text($result['code'] . " " . $result['code_text'])));
     }
 
     $code_list = "icd10_list=" . js_escape($code_list . "\n") . ";\n";
@@ -438,7 +438,7 @@ $i = 0;
 $query = "SELECT id, item, content, subcategory_id FROM " . mitigateSqlTableUpperCase("form_CAMOS_item") . " ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array3[" . attr(addslashes($i)) . "] = new Array(" . js_escape($result['item']) . ", " . js_escape_protected(strip_tags($result['content'], "<b>,<i>"), '\r\n') . ", " . js_escape($result['subcategory_id']) .
+    echo "array3[" . attr(addslashes($i)) . "] = new Array(" . js_escape($result['item']) . ", " . js_escape_protected(strip_tags((string) $result['content'], "<b>,<i>"), '\r\n') . ", " . js_escape($result['subcategory_id']) .
     "," . js_escape($result['id']) . ");\n";
     $i++;
 }
@@ -498,7 +498,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
             $clone_item_term = " and item like '" . add_escape_custom($_POST['item']) . "'";
         }
 
-        $clone_search = trim($_POST['clone_others_search']);
+        $clone_search = trim((string) $_POST['clone_others_search']);
 
         $name_data_flag = false; //flag to see if we are going to use patient names in search result of clone others.
         $show_phone_flag = false; //if we do show patient names, flag to see if we show phone numbers too
@@ -519,17 +519,17 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
         $clone_search_term = '';
         if (!empty($clone_search)) {
             $clone_search =  preg_replace('/\s+/', '%', $clone_search);
-            if (str_starts_with($clone_search, "`")) {
+            if (str_starts_with((string) $clone_search, "`")) {
                 $clone_subcategory_term = '';
                 $clone_item_term = '';
-                $clone_search = substr($clone_search, 1);
+                $clone_search = substr((string) $clone_search, 1);
             }
 
             $clone_search_term = " and content like '%" . add_escape_custom($clone_search) . "%'";
         }
 
         if (str_starts_with($_POST['hidden_mode'] ?? '', 'clone others')) {
-            if (preg_match('/^(export)(.*)/', $clone_search, $matches)) {
+            if (preg_match('/^(export)(.*)/', (string) $clone_search, $matches)) {
                 $query1 = "select id, category from " . mitigateSqlTableUpperCase("form_CAMOS_category");
                 $statement1 = sqlStatement($query1);
                 while ($result1 = sqlFetchArray($statement1)) {
@@ -557,8 +557,8 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 
                 $clone_data_array = [];
             } elseif (
-                (preg_match('/^(billing)(.*)/', $clone_search, $matches)) ||
-                (preg_match('/^(codes)(.*)/', $clone_search, $matches))
+                (preg_match('/^(billing)(.*)/', (string) $clone_search, $matches)) ||
+                (preg_match('/^(codes)(.*)/', (string) $clone_search, $matches))
             ) {
                   $table = $matches[1];
                   $line = $matches[2];
@@ -653,7 +653,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
             }
 
             while ($result = sqlFetchArray($statement)) {
-                if (preg_match('/^[\s\r\n]*$/', $result['content']) == 0) {
+                if (preg_match('/^[\s\r\n]*$/', (string) $result['content']) == 0) {
                     if ($_POST['hidden_mode'] == 'clone last visit') {
                         $clone_category = $result['category'];
                     }
@@ -708,7 +708,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 //added ability to grab justifications also - bm
                     $clone_justify = "";
                     $clone_justify_raw = $result['justify'];
-                    $clone_justify_array = explode(":", $clone_justify_raw);
+                    $clone_justify_array = explode(":", (string) $clone_justify_raw);
                     foreach ($clone_justify_array as $temp_justify) {
                         trim($temp_justify);
                         if ($temp_justify != "") {
@@ -1282,7 +1282,7 @@ formFooter();
 function searchName($string)
 {
  //match one or more names and return clause for query of pids
-    $string = trim($string);
+    $string = trim((string) $string);
     if ($string == 'this') {
         return " and (pid = '" . add_escape_custom($_SESSION['pid']) . "') ";
     }

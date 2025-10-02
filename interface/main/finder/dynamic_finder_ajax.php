@@ -49,7 +49,7 @@ if ($searchAny) {
         $aColumns[] = $row['field_id'];
     }
 } else {
-    $aColumns = explode(',', $_GET['sColumns']);
+    $aColumns = explode(',', (string) $_GET['sColumns']);
 }
 // Paging parameters.  -1 means not applicable.
 //
@@ -101,9 +101,9 @@ function dateSearch($sSearch)
         ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
     // If no delimiters then just search the whole date.
     $mystr = "%$sSearch%";
-    if (preg_match('/[^0-9]/', $sSearch)) {
+    if (preg_match('/[^0-9]/', (string) $sSearch)) {
         // Delimiter found. Separate it all into year, month and day components.
-        $parts = preg_split('/[^0-9]/', $sSearch);
+        $parts = preg_split('/[^0-9]/', (string) $sSearch);
         $parts[1] ??= '';
         $parts[2] ??= '';
         // If the first part is more than 2 digits then assume y/m/d format.
@@ -135,7 +135,7 @@ function dateSearch($sSearch)
 $where = "";
 $srch_bind = [];
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = trim($_GET['sSearch']);
+    $sSearch = trim((string) $_GET['sSearch']);
     foreach ($aColumns as $colname) {
         $where .= $where ? " OR " : " ( ";
         if ($colname == 'name') {
@@ -210,7 +210,7 @@ $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
 // Always includes pid because we need it for row identification.
 //
 if ($searchAny) {
-    $aColumns = explode(',', $_GET['sColumns']);
+    $aColumns = explode(',', (string) $_GET['sColumns']);
 }
 $sellist = 'pid';
 foreach ($aColumns as $colname) {

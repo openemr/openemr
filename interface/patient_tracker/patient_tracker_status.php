@@ -59,7 +59,7 @@ if (!empty($_POST['statustype'])) {
     }
 
     $status = $_POST['statustype'];
-    if (strlen($_POST['roomnum']) != 0) {
+    if (strlen((string) $_POST['roomnum']) != 0) {
          $theroom = $_POST['roomnum'];
     }
 

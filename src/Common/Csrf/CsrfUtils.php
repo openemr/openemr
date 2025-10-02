@@ -58,7 +58,7 @@ class CsrfUtils
             error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
             return false;
         }
-        return substr(hash_hmac('sha256', $subject, $privateKey), 0, 40);
+        return substr(hash_hmac('sha256', (string) $subject, (string) $privateKey), 0, 40);
     }
 
     // Function to verify a csrf_token

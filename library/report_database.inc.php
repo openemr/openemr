@@ -287,7 +287,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     $dispTitle = "";
     $report_view = collectReportDatabase($report_id);
     $type_report = $report_view['type'];
-    $dataSheet = json_decode($report_view['data'], true);
+    $dataSheet = json_decode((string) $report_view['data'], true);
     $display_group_provider_info = false;
     $group_label = '';
     $group_provider_label = '';
@@ -475,7 +475,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
  */
 function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode($data, true) ?? [];
+    $dataSheet = json_decode((string) $data, true) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
@@ -528,10 +528,10 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
             $base_link = sprintf(
                 "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
                 . "&itemized_test_id=%d&numerator_label=%s&csrf_token_form=%s",
-                urlencode($report_id),
-                urlencode($row['itemized_test_id']),
+                urlencode((string) $report_id),
+                urlencode((string) $row['itemized_test_id']),
                 urlencode($row['numerator_label'] ?? ''),
-                urlencode($csrf_token)
+                urlencode((string) $csrf_token)
             );
 
             // we need the provider & group id here...

@@ -138,7 +138,7 @@ trait EmailTestingTrait
                 $messageSubject = $message['Subject'] ?? '';
 
                 foreach ($toAddresses as $to) {
-                    if (strcasecmp($to['Address'], $recipient) === 0) {
+                    if (strcasecmp((string) $to['Address'], $recipient) === 0) {
                         if ($subject === null || stripos($messageSubject, $subject) !== false) {
                             return $message;
                         }
@@ -214,7 +214,7 @@ trait EmailTestingTrait
             $toAddresses = $message['To'] ?? [];
 
             foreach ($toAddresses as $to) {
-                if (strcasecmp($to['Address'], $recipient) === 0) {
+                if (strcasecmp((string) $to['Address'], $recipient) === 0) {
                     return $message;
                 }
             }

@@ -123,7 +123,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
         $reminders[$i]['fromName'] = $drRow['ffname'] . ' ' . $drRow['fmname'] . ' ' . $drRow['flname'];
 
 // --------- if the message is due or overdue set $hasAlerts to true, this will stop autohiding of reminders
-        if (strtotime($drRow['dr_message_due_date']) <= $today) {
+        if (strtotime((string) $drRow['dr_message_due_date']) <= $today) {
             $hasAlerts = true;
         }
     }
@@ -228,15 +228,15 @@ function getRemindersHTML($today, $reminders = []): string
         $class = 'text dr';
 
 // --------- check if reminder is  overdue
-        if (strtotime($r['dueDate']) < $today) {
+        if (strtotime((string) $r['dueDate']) < $today) {
             $warning = '<i class=\'fa fa-exclamation-triangle fa-lg text-danger\' aria-hidden=\'true\'></i> ' . xlt('OVERDUE');
             //$class = 'bold alert dr';
             $class = '';
-        } elseif (strtotime($r['dueDate']) == $today) {
+        } elseif (strtotime((string) $r['dueDate']) == $today) {
             // --------- check if reminder is due
             $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color: var(--orange)\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
             $class = '';
-        } elseif (strtotime($r['dueDate']) > $today) {
+        } elseif (strtotime((string) $r['dueDate']) > $today) {
             $warning = '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');
             $class = '';
         }
@@ -244,13 +244,13 @@ function getRemindersHTML($today, $reminders = []): string
         // end check if reminder is due or overdue
         // apend to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr(addslashes($r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes($r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(addslashes((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes((string) $r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
             $warning . '
-            <span onclick="goPid(' . attr(addslashes($r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
+            <span onclick="goPid(' . attr(addslashes((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']
@@ -358,11 +358,11 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $dueDate) and
+        preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) $dueDate) and
 // ------- check priority, only allow 1-3
         intval($priority) <= 3 and
 // ------- check message, only up to 255 characters
-        strlen($message) <= 255 and strlen($message) > 0 and
+        strlen((string) $message) <= 255 and strlen((string) $message) > 0 and
 // ------- check if PatientID is set and in numeric
         is_numeric($patID)
     ) {

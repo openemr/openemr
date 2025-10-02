@@ -239,7 +239,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $update_by       = $username['username'];
         $update_date     = $row['update_date'];
         if ($_POST['form_csvexport']) {
-            echo csvEscape(oeFormatShortDate(substr($msg_date, 0, 10))) . ',';
+            echo csvEscape(oeFormatShortDate(substr((string) $msg_date, 0, 10))) . ',';
             echo csvEscape($user) . ',';
             echo csvEscape($row['lname']) . ',';
             echo csvEscape($row['fname']) . ',';
@@ -248,7 +248,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape(xl($msg_type)) . ',';
             echo csvEscape(xl($msg_status)) . ',';
             echo csvEscape($update_by) . ',';
-            echo csvEscape(oeFormatShortDate(substr($update_date, 0, 10))) . "\n";
+            echo csvEscape(oeFormatShortDate(substr((string) $update_date, 0, 10))) . "\n";
         } else {
             ?>
    <tr>

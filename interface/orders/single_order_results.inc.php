@@ -77,9 +77,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
     $procedure_code = empty($row['procedure_code']) ? '' : $row['procedure_code'];
     $diagnosis = empty($row['diagnoses']) ? '' : $row['diagnoses'];
     $procedure_name = empty($row['procedure_name']) ? '' : $row['procedure_name'];
-    $date_report = empty($row['date_report']) ? '' : substr($row['date_report'], 0, 16);
+    $date_report = empty($row['date_report']) ? '' : substr((string) $row['date_report'], 0, 16);
     $date_report_suf = empty($row['date_report_tz']) ? '' : (' ' . $row['date_report_tz']);
-    $date_collected = empty($row['date_collected']) ? '' : substr($row['date_collected'], 0, 16);
+    $date_collected = empty($row['date_collected']) ? '' : substr((string) $row['date_collected'], 0, 16);
     $date_collected_suf = empty($row['date_collected_tz']) ? '' : (' ' . $row['date_collected_tz']);
     $specimen_num = empty($row['specimen_num']) ? '' : $row['specimen_num'];
     $report_status = empty($row['report_status']) ? '' : $row['report_status'];
@@ -98,7 +98,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
 
         // Allowing for multiple report notes separated by newlines.
         if (!empty($row['report_notes'])) {
-            $notes = explode("\n", $row['report_notes']);
+            $notes = explode("\n", (string) $row['report_notes']);
             foreach ($notes as $note) {
                 if ($note === '') {
                     continue;
@@ -242,7 +242,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
         echo "</td>\n";
         echo "  <td>";
         $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
-        if ($result_abnormal && strtolower($result_abnormal) != 'no') {
+        if ($result_abnormal && strtolower((string) $result_abnormal) != 'no') {
             echo "<p class='font-weight-bold text-danger'>$tmp</p>";
         } else {
             echo $tmp;
@@ -508,7 +508,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Status'); ?></td>
                 <td><?php echo $orow['order_status'] ? myCellText($orow['order_status']) : xlt('Pending'); ?></td>
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
-                <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
+                <td><?php echo myCellText(oeFormatShortDate(substr((string) $orow['date'], 0, 10))); ?></td>
             </tr>
             <tr>
                 <td class="font-weight-bold text-nowrap"><?php echo xlt('Lab'); ?></td>

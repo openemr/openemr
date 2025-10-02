@@ -57,7 +57,7 @@ if (!empty($_POST['form_save'])) {
     // $pattern = '|/(\d+),(\d+),([YN])|';
     $pattern = '|/(\d+),(\d+)|';
 
-    preg_match_all($pattern, $form_pelist, $matches);
+    preg_match_all($pattern, (string) $form_pelist, $matches);
     $numsets = count($matches[1]);
     $patientIssuesService = new PatientIssuesService();
     $encountersByListId = [];
@@ -330,7 +330,7 @@ function doclick(pfx, id) {
                                     while ($row = sqlFetchArray($eres)) {
                                         $rowid = $row['encounter'];
                                         echo "    <tr class='detail' id='e_" . attr($rowid) . "' onclick='doclick(\"e\", " . attr_js($rowid) . ")'>\n";
-                                        echo "     <td class='align-top'>" . text(substr($row['date'], 0, 10)) . "</td>\n";
+                                        echo "     <td class='align-top'>" . text(substr((string) $row['date'], 0, 10)) . "</td>\n";
                                         echo "     <td class='align-top'>" . text($row['reason']) . "</td>\n";
                                         echo "    </tr>\n";
                                         $endjs .= "eselected[" . js_escape($rowid) . "] = '';\n";

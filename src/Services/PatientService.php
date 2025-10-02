@@ -698,10 +698,10 @@ class PatientService extends BaseService
             return '';
         }
         // strip any dashes from the DOB
-        $dobYMD = preg_replace("/-/", "", $dobYMD);
-        $dobDay = substr($dobYMD, 6, 2);
-        $dobMonth = substr($dobYMD, 4, 2);
-        $dobYear = (int) substr($dobYMD, 0, 4);
+        $dobYMD = preg_replace("/-/", "", (string) $dobYMD);
+        $dobDay = substr((string) $dobYMD, 6, 2);
+        $dobMonth = substr((string) $dobYMD, 4, 2);
+        $dobYear = (int) substr((string) $dobYMD, 0, 4);
 
         // set the 'now' date values
         if ($nowYMD == null) {
@@ -709,9 +709,9 @@ class PatientService extends BaseService
             $nowMonth = date("m");
             $nowYear = date("Y");
         } else {
-            $nowDay = substr($nowYMD, 6, 2);
-            $nowMonth = substr($nowYMD, 4, 2);
-            $nowYear = substr($nowYMD, 0, 4);
+            $nowDay = substr((string) $nowYMD, 6, 2);
+            $nowMonth = substr((string) $nowYMD, 4, 2);
+            $nowYear = substr((string) $nowYMD, 0, 4);
         }
 
         $dayDiff = $nowDay - $dobDay;
@@ -870,7 +870,7 @@ class PatientService extends BaseService
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
         foreach ($suffixes as $s) {
-            if (stripos($patientRecord['lname'], (string) $s) !== false) {
+            if (stripos((string) $patientRecord['lname'], (string) $s) !== false) {
                 $suffix = $s;
                 $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
                 break;

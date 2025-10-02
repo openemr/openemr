@@ -109,7 +109,7 @@ class TelehealthGlobalConfig
             return $this->getQualifiedSiteAddress() . '/portal/patient';
         } else {
             $site_addr = $this->getGlobalSetting('portal_onsite_two_address');
-            if (stripos($site_addr, "portal") !== false) {
+            if (stripos((string) $site_addr, "portal") !== false) {
                 $site_addr = strtok($site_addr, '?');
                 if (stripos($site_addr, "index.php") !== false) {
                     $site_addr = dirname($site_addr);
@@ -419,8 +419,8 @@ class TelehealthGlobalConfig
         // need to check and make sure the portal site address has the same hostname / address as the site address override
         $qualifiedSiteAddress = $this->getQualifiedSiteAddress();
         $portalAddress = $this->getPortalOnsiteAddress();
-        $qualifiedHost = parse_url($qualifiedSiteAddress, PHP_URL_HOST);
-        $portalHost = parse_url($portalAddress, PHP_URL_HOST);
+        $qualifiedHost = parse_url((string) $qualifiedSiteAddress, PHP_URL_HOST);
+        $portalHost = parse_url((string) $portalAddress, PHP_URL_HOST);
         $hostnamesMatch = $qualifiedHost === $portalHost;
 
         $isValidRegistrationUri = filter_var($this->getRegistrationAPIURI(), FILTER_VALIDATE_URL);

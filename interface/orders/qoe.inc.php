@@ -50,8 +50,8 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
     "ORDER BY q.seq, q.question_text", [$ptid]);
 
     while ($qrow = sqlFetchArray($qres)) {
-        $options = trim($qrow['options']);
-        $qfieldid = $prefix . trim($qrow['question_code']);
+        $options = trim((string) $qrow['options']);
+        $qfieldid = $prefix . trim((string) $qrow['question_code']);
         $fldtype = $qrow['fldtype'];
         $maxsize = 0 + $qrow['maxsize'];
         $qrow['tips'] = str_ireplace("^", " ", $qrow['tips']); // in case of HL7
@@ -165,7 +165,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
              *****************************************************************/
         } elseif ($fldtype == 'M') {
             // List of checkboxes.
-            $a = explode(';', $qrow['options']);
+            $a = explode(';', (string) $qrow['options']);
             $i = 0;
             foreach ($a as $aval) {
                 [$desc, $code] = explode(':', $aval);
@@ -187,7 +187,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             }
         } else {
             // Radio buttons or drop-list, depending on the number of choices.
-            $a = explode(';', $qrow['options']);
+            $a = explode(';', (string) $qrow['options']);
             if (count($a) > 5) {
                 $s .= "<select class='input-sm' name='" . attr($qfieldid) . "'";
                 $s .= ">";

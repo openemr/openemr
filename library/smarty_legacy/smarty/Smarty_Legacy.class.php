@@ -1133,12 +1133,12 @@ class Smarty_Legacy
 
         if (!$this->debugging && $this->debugging_ctrl == 'URL') {
             $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : $GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'];
-            if (@strstr($_query_string, $this->_smarty_debug_id)) {
-                if (@strstr($_query_string, $this->_smarty_debug_id . '=on')) {
+            if (@strstr((string) $_query_string, $this->_smarty_debug_id)) {
+                if (@strstr((string) $_query_string, $this->_smarty_debug_id . '=on')) {
                     // enable debugging for this browser session
                     @setcookie('SMARTY_DEBUG', true);
                     $this->debugging = true;
-                } elseif (@strstr($_query_string, $this->_smarty_debug_id . '=off')) {
+                } elseif (@strstr((string) $_query_string, $this->_smarty_debug_id . '=off')) {
                     // disable debugging for this browser session
                     @setcookie('SMARTY_DEBUG', false);
                     $this->debugging = false;
@@ -1209,7 +1209,7 @@ class Smarty_Legacy
                     }
                     if ($this->cache_modified_check) {
                         $_server_vars = ($this->request_use_auto_globals) ? $_SERVER : $GLOBALS['HTTP_SERVER_VARS'];
-                        $_last_modified_date = @substr($_server_vars['HTTP_IF_MODIFIED_SINCE'], 0, strpos($_server_vars['HTTP_IF_MODIFIED_SINCE'], 'GMT') + 3);
+                        $_last_modified_date = @substr((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 0, strpos((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 'GMT') + 3);
                         $_gmt_mtime = gmdate('D, d M Y H:i:s', $this->_cache_info['timestamp']).' GMT';
                         if (empty($this->_cache_info['insert_tags'])
                             && !$this->_cache_serials
@@ -1626,7 +1626,7 @@ class Smarty_Legacy
     {
 
         // split tpl_path by the first colon
-        $_resource_name_parts = explode(':', $params['resource_name'], 2);
+        $_resource_name_parts = explode(':', (string) $params['resource_name'], 2);
 
         if (count($_resource_name_parts) == 1) {
             // no resource type given
@@ -1643,7 +1643,7 @@ class Smarty_Legacy
         }
 
         if ($params['resource_type'] == 'file') {
-            if (!preg_match('/^([\/\\\\]|[a-zA-Z]:[\/\\\\])/', $params['resource_name'])) {
+            if (!preg_match('/^([\/\\\\]|[a-zA-Z]:[\/\\\\])/', (string) $params['resource_name'])) {
                 // relative pathname to $params['resource_base_path']
                 // use the first directory where the file is found
                 foreach ((array)$params['resource_base_path'] as $_curr_path) {

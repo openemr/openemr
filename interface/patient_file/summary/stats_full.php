@@ -272,7 +272,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($row = sqlFetchArray($pres)) :
                             $rowid = $row['id'];
 
-                            $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+                            $disptitle = trim((string) $row['title']) ? $row['title'] : "[Missing Title]";
 
                             $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", [$rowid]);
 
@@ -285,7 +285,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             // look up the diag codes
                             $codetext = "";
                             if ($row['diagnosis'] != "") {
-                                $diags = explode(";", $row['diagnosis']);
+                                $diags = explode(";", (string) $row['diagnosis']);
                                 foreach ($diags as $diag) {
                                     $codedesc = lookup_code_descriptions($diag);
                                     [$codetype, $code] = explode(':', $diag);

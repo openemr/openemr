@@ -141,7 +141,7 @@ if ($deIdentificationStatus == 0) {
 
     try {
         //call procedure - execute in background
-        $sh_cmd = './de_identification_procedure.sh ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' &';
+        $sh_cmd = './de_identification_procedure.sh ' . escapeshellarg((string) $sqlconf["host"]) . ' ' . escapeshellarg((string) $sqlconf["login"]) . ' ' . escapeshellarg((string) $sqlconf["pass"]) . ' ' . escapeshellarg((string) $sqlconf["dbase"]) . ' &';
         system($sh_cmd);
 
 
@@ -271,7 +271,7 @@ if ($deIdentificationStatus == 0) {
     if (file_exists($filename)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename=' . basename($filename));
+        header('Content-Disposition: attachment; filename=' . basename((string) $filename));
         header('Content-Transfer-Encoding: binary');
         header('Content-Type: application/vnd.ms-excel;');                 // This should work for IE & Opera
         header("Content-type: application/x-msexcel");                    // This should work for the rest

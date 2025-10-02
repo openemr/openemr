@@ -17,7 +17,7 @@ class DiabetesDenominator implements CqmFilterIF
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // TODO how to check for these medication types?
-        $beginMinus2Years = strtotime('-2 year', strtotime($beginDate));
+        $beginMinus2Years = strtotime('-2 year', strtotime((string) $beginDate));
         if (
             Helper::checkMed(Medication::DISP_DIABETES, $patient, $beginMinus2Years, $endDate) ||
             Helper::checkMed(Medication::ORDER_DIABETES, $patient, $beginMinus2Years, $endDate) ||

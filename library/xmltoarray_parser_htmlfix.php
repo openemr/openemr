@@ -79,7 +79,7 @@ class xmltoarray_parser_htmlfix
         }
 
         foreach ($keys as $key => $value) {
-            $xml =  preg_replace("/" . $key . "/", $value, $xml);
+            $xml =  preg_replace("/" . $key . "/", $value, (string) $xml);
         }
 
         $xml =  str_replace("&", "%and%", $xml);

@@ -503,10 +503,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             ?>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text(substr($newarrive, 11)) ?>
+        <td class="detail">&nbsp;<?php echo text(substr((string) $newarrive, 11)) ?>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text(substr($newend, 11)) ?>
+        <td class="detail">&nbsp;<?php echo text(substr((string) $newend, 11)) ?>
         </td>
 
             <?php if ($no_visit != 1) { ?>
@@ -546,10 +546,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     <?php
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
                         ?>
-             <td class="detail"><b>&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
+             <td class="detail"><b>&nbsp;<?php echo text(substr((string) $tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
                         <?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr((string) $tracker_elements[$i]['start_datetime'], 11)); ?></td>
                         <?php # figure out the next time of the status
                     }
 
@@ -565,15 +565,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     }
 
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
-                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td><?php
+                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td><?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td>
                         <?php # compute the total time of the status
                     }
 
                     $tracker_time = get_Tracker_Time_Interval($start_tracker_time, $next_tracker_time);
                 # add code to alert if over time interval for status
-                    $timecheck = round(abs(strtotime($start_tracker_time) -  strtotime($next_tracker_time)) / 60, 0);
+                    $timecheck = round(abs(strtotime((string) $start_tracker_time) -  strtotime((string) $next_tracker_time)) / 60, 0);
                     if ($timecheck > $alert_time && ($alert_time != '0')) {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
  <td class="detail font-weight-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php

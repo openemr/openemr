@@ -41,7 +41,7 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
   // in the sending form. While this will usually be all the reports linked to
   // the order it's possible for a new report to come in while viewing these,
   // and it would be very bad to sign results that nobody has seen!
-    $arrSign = explode(',', $_POST['form_sign_list']);
+    $arrSign = explode(',', (string) $_POST['form_sign_list']);
     foreach ($arrSign as $id) {
         sqlStatement("UPDATE procedure_report SET " .
         "review_status = 'reviewed' WHERE " .
@@ -81,7 +81,7 @@ if (!empty($_POST['form_send_to_portal'])) {
     'message'  => xl('Please see the attached PDF.'),
     'filename' => 'results.pdf',
     'mimetype' => 'application/pdf',
-    'contents' => base64_encode($contents),
+    'contents' => base64_encode((string) $contents),
     ]);
     if ($result['errmsg']) {
         die(text($result['errmsg']));

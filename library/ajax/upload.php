@@ -131,13 +131,13 @@ if (!empty($_FILES)) {
 function dicom_history_action($action, $doc_id, $json_data = ''): bool|string
 {
     if ($action == 'save') {
-        $json_data = base64_encode($json_data);
+        $json_data = base64_encode((string) $json_data);
         return json_encode(sqlQuery("UPDATE documents SET document_data = ? WHERE id = ?", [$json_data, $doc_id]));
     }
 
     if ($action == 'fetch') {
         $qrtn = sqlQuery("Select document_data FROM documents WHERE id = ?", [$doc_id]);
-        return base64_decode($qrtn['document_data']);
+        return base64_decode((string) $qrtn['document_data']);
     }
 
     return xlj("Unknown");

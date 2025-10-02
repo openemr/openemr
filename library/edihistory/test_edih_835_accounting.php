@@ -234,19 +234,19 @@ function edih_835_accounting($segments, $delimiters)
     }
 
     foreach ($segments as $seg) {
-        if (strncmp('GS' . $de, $seg, 3) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('GS' . $de, (string) $seg, 3) === 0) {
+            $sar = explode($de, (string) $seg);
             $gs_date = (isset($sar[4]) && $sar[4]) ? trim($sar[4]) : '';
         }
 
-        if (strncmp('BPR' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('BPR' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $check_amount = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : '';
             $check_date = (isset($sar[16]) && $sar[16]) ? trim($sar[16]) : '';
         }
 
-        if (strncmp('TRN' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('TRN' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $ck = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : count($out);
             $out[$ck]['gs_date'] = $gs_date;
             $out[$ck]['check_amount'] = $check_amount;
@@ -254,11 +254,11 @@ function edih_835_accounting($segments, $delimiters)
             $out[$ck]['check_number'] = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : '';
         }
 
-        if (strncmp('LX' . $de, $seg, 3) === 0) {
+        if (strncmp('LX' . $de, (string) $seg, 3) === 0) {
         }
 
-        if (strncmp('CLP' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('CLP' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $loopid = '2100';
             //
             $i = (isset($out[$ck]['clp'])) ? count($out[$ck]['clp']) : 0;
@@ -291,8 +291,8 @@ function edih_835_accounting($segments, $delimiters)
             $out[$ck]['clp'][$i]['payer_claim_id']  = (isset($sar[7]) && $sar[7]) ? trim($sar[7]) : ""; // payer's claim number
         }
 
-        if (strncmp('CAS' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('CAS' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             if ($loop == '2100') {
                 //
                 // This is a claim-level adjustment and should be unusual.
@@ -322,7 +322,7 @@ function edih_835_accounting($segments, $delimiters)
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['amount']      = $sar[$k + 1];
                 }
             } elseif ($loopid == '2110') {
-                $sar = explode($de, $seg);
+                $sar = explode($de, (string) $seg);
                 $j = count($out[$ck]['clp'][$i]['svc']);
                 $out[$ck]['clp'][$i]['svc'][$j] = [];
                 if (! $out['loopid']) {
@@ -339,7 +339,7 @@ function edih_835_accounting($segments, $delimiters)
                     $out[$ck]['clp'][$i]['warnings'] .= "Submitted procedure modified " . $svc[1] .
                         " as " . $tmp[1] . ".\n";
                 } else {
-                    $svc = explode($delimiter3, $seg[1]);
+                    $svc = explode($delimiter3, (string) $seg[1]);
                 }
 
                 if ($svc[0] != 'HC') {
@@ -368,8 +368,8 @@ function edih_835_accounting($segments, $delimiters)
                     // Note: SVC05, if present, indicates the paid units of service.
                     // It defaults to 1.
             }
-        } elseif (strncmp('NM1' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        } elseif (strncmp('NM1' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $id = (isset($sar[1]) && $sar[1]) ? trim($sar[1]) : "";
             if ($id == 'QC') {
                 // QC Patient
@@ -393,12 +393,12 @@ function edih_835_accounting($segments, $delimiters)
                 //Claim automatic forward case.
                 $out[$ck]['clp'][$i]['crossover'] = 1;
             }
-        } elseif ((strncmp('PER' . $de, $seg, 4) === 0 ) && ($segid == 'PER' && $out['loopid'] == '2100')) {
-              $sar = explode($de, $seg);
-            $out['payer_insurance']  = trim($seg[2]);
+        } elseif ((strncmp('PER' . $de, (string) $seg, 4) === 0 ) && ($segid == 'PER' && $out['loopid'] == '2100')) {
+              $sar = explode($de, (string) $seg);
+            $out['payer_insurance']  = trim((string) $seg[2]);
             $out['warnings'] .= 'Claim contact information: ' . $seg[4];
-        } elseif (strncmp('PLB' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        } elseif (strncmp('PLB' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $p = (isset($out[$ck]['plb'])) ? count($out[$ck]['plb']) : 0;
             $q = 0;
             //
@@ -436,7 +436,7 @@ function edih_835_accounting($segments, $delimiters)
         // I am not sure that the assignment is corrent here, but based on the flow, I frame it.
     }
 }
-if (strncmp('SVC' . $de, $seg, 4) === 0) {
+if (strncmp('SVC' . $de, (string) $seg, 4) === 0) {
     $loopid = '2110';
 }
 

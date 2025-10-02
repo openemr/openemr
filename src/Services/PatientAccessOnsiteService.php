@@ -140,7 +140,7 @@ class PatientAccessOnsiteService
             'uname' => $updatedEvent->getUsername()
             , 'login_uname' => $updatedEvent->getLoginUsername()
             , 'pwd' => $clear_pass
-            , 'email_direct' => trim($trustedEmail['email_direct'])
+            , 'email_direct' => trim((string) $trustedEmail['email_direct'])
         ];
     }
 
@@ -155,7 +155,7 @@ class PatientAccessOnsiteService
             , 'uname' => $username
             , 'login_uname' => $loginUsername
             , 'pwd' => $pwd
-            , 'email_direct' => trim($emailDirect)
+            , 'email_direct' => trim((string) $emailDirect)
             , 'fhir_address' => $fhirServerConfig->getFhirUrl()
             , 'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
         ];
@@ -220,7 +220,7 @@ class PatientAccessOnsiteService
         $dup_check = sqlQueryNoLog("SELECT * FROM patient_access_onsite WHERE pid != ? AND portal_login_username = ?", [$pid, $trustedUserName]);
 // make unique if needed
         if (!empty($dup_check)) {
-            if (strpos($trustedUserName, '@')) {
+            if (strpos((string) $trustedUserName, '@')) {
                 $trustedUserName = str_replace("@", "$pid@", $trustedUserName);
             } else {
                 // account name will be used and is unique
@@ -242,7 +242,7 @@ class PatientAccessOnsiteService
     public function getTrustedEmailForPid($pid)
     {
         $trustedEmail = sqlQueryNoLog("SELECT email_direct, email FROM `patient_data` WHERE `pid`=?", [$pid]);
-        $trustedEmail['email_direct'] = !empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : text(trim($trustedEmail['email']));
+        $trustedEmail['email_direct'] = !empty(trim((string) $trustedEmail['email_direct'])) ? text(trim((string) $trustedEmail['email_direct'])) : text(trim((string) $trustedEmail['email']));
         return $trustedEmail;
     }
 

@@ -51,7 +51,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
 function display_desc($desc)
 {
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
+    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
         $desc = $matches[1];
     }
 
@@ -587,7 +587,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $row['encounter'],
             $row['title'] ?? '',
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'] ?? 1,
             $row['fee'],
             $row['invoice_refno']
@@ -625,7 +625,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $row['encounter'],
             xl('Products'),
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['fee'],
             $row['invoice_refno']

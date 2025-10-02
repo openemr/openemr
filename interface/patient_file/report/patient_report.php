@@ -322,7 +322,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             $rowid = $prow['id'];
-                                            $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
+                                            $disptitle = trim((string) $prow['title']) ? $prow['title'] : "[Missing Title]";
 
                                             $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
                                             "pid = ? AND list_id = ?", [$pid, $rowid]);
@@ -380,7 +380,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $html_strings = [];
                                         $registry_form_name = [];
                                         while ($result2 = sqlFetchArray($res2)) {
-                                            array_push($registry_form_name, trim($result2['name']));
+                                            array_push($registry_form_name, trim((string) $result2['name']));
                                         }
 
                                         while ($result = sqlFetchArray($res)) {
@@ -409,16 +409,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 // show encounter reason, not just 'New Encounter'
                                                 // trim to a reasonable length for display purposes --cfapress
                                                 $maxReasonLength = 20;
-                                                if (strlen($result["reason"]) > $maxReasonLength) {
+                                                if (strlen((string) $result["reason"]) > $maxReasonLength) {
                                                     // The default encoding for this mb_substr() call is set near top of globals.php
-                                                    $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
+                                                    $result['reason'] = mb_substr((string) $result['reason'], 0, $maxReasonLength) . " ... ";
                                                 }
                                                 echo text($result["reason"]) .
-                                                " (" . text(date("Y-m-d", strtotime($result["date"]))) .
+                                                " (" . text(date("Y-m-d", strtotime((string) $result["date"]))) .
                                                 ")\n";
                                                 echo "<div class='encounter_forms'>\n";
                                             } else {
-                                                $form_name = trim($result["form_name"]);
+                                                $form_name = trim((string) $result["form_name"]);
                                                 //if form name is not in registry, look for the closest match by
                                                 // finding a registry name which is  at the start of the form name.
                                                 //this is to allow for forms to put additional helpful information

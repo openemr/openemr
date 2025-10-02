@@ -124,7 +124,7 @@ class FhirOperationExportRestController
         }
         $type = $exportParams['type'] ?? '';
         $groupId = $exportParams['groupId'] ?? null;
-        $resources = !empty($type) ? explode(",", $type) : [];
+        $resources = !empty($type) ? explode(",", (string) $type) : [];
 
         $this->logger->debug(self::class . " Patient export call made", [
             '_outputFormat' => $outputFormat,

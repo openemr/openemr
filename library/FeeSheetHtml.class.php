@@ -129,8 +129,8 @@ class FeeSheetHtml extends FeeSheet
                         $allowed = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
                     }
                     if (
-                        ((strlen($default) == 0 && $lrow['is_default']) ||
-                        (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
+                        ((strlen((string) $default) == 0 && $lrow['is_default']) ||
+                        (strlen((string) $default)  > 0 && $lrow['option_id'] == $default)) &&
                         ($is_sold || $allowed)
                     ) {
                         $s .= " selected";
@@ -187,7 +187,7 @@ class FeeSheetHtml extends FeeSheet
                 // If price level notes contains a percentage,
                 // calculate price as percentage of standard price
                 $notes = $lrow['notes'];
-                if (!empty($notes) && strpos($notes, '%') > -1) {
+                if (!empty($notes) && strpos((string) $notes, '%') > -1) {
                     $percent = intval(str_replace('%', '', $notes));
                     if ($percent > 0) {
                         $price = $standardPrice * ((100 - $percent) / 100);
@@ -201,8 +201,8 @@ class FeeSheetHtml extends FeeSheet
             $s .= "<option value='" . attr($lrow['option_id']) . "'";
             $s .= " id='prc_$price'";
             if (
-                (strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
-                (strlen($default)  > 0 && $lrow['option_id'] == $default)
+                (strlen((string) $default) == 0 && $lrow['is_default'] && !$disabled) ||
+                (strlen((string) $default)  > 0 && $lrow['option_id'] == $default)
             ) {
                 $s .= " selected";
             }

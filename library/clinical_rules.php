@@ -103,7 +103,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $tooltip = "<span style='white-space: pre-line;' title='" . $tooltipText . "'><i class='fas fa-question-circle' role='button'></i></span>";
 
             if (!empty($linked_referential_cds)) {
-                $codeParse = explode(":", $linked_referential_cds);
+                $codeParse = explode(":", (string) $linked_referential_cds);
                 $codetype = $codeParse[0] ?? null;
                 $code = $codeParse[1] ?? null;
                 if (!empty($codetype) && !empty($code)) {
@@ -120,7 +120,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             echo "<a href='" . $url . "' class='medium_modal' onclick='return top.restoreSession()'>";
         } elseif ($action['clin_rem_link']) {
             // Start link for reminders that use the custom rules input screen
-            $pieces_url = parse_url($action['clin_rem_link']);
+            $pieces_url = parse_url((string) $action['clin_rem_link']);
             $url_prefix = $pieces_url['scheme'] ?? '';
             if ($url_prefix == 'https' || $url_prefix == 'http') {
                 echo "<a href='" . $action['clin_rem_link'] .
@@ -190,7 +190,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             //  is being passed via an ajax call by using a dummy image.
             echo '<img src="../../pic/empty.gif" onload="alert(\'' . xls('New Due Clinical Reminders') . '\n\n';
             foreach ($new_targets as $key => $value) {
-                $category_item = explode(":", $key);
+                $category_item = explode(":", (string) $key);
                 $category = $category_item[0];
                 $item = $category_item[1];
                 echo generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category) .
@@ -278,7 +278,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
         if (!empty($new_targets)) {
             $returnOutput .= "<br />" . xlt('New Items (see above for details)') . ":<br />";
             foreach ($new_targets as $key => $value) {
-                $category_item = explode(":", $key);
+                $category_item = explode(":", (string) $key);
                 $category = $category_item[0];
                 $item = $category_item[1];
                 $returnOutput .= generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category) .
@@ -405,7 +405,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
                                  "ORDER BY `id` DESC LIMIT 1", [$category,$patient_id,$userid]);
     $prior_targets = [];
     if (!empty($prior_targets_sql['value'])) {
-        $prior_targets = json_decode($prior_targets_sql['value'], true);
+        $prior_targets = json_decode((string) $prior_targets_sql['value'], true);
     }
 
   // Compare the current with most recent log
@@ -2028,7 +2028,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 // merge the custom plan with the default plan
                 $mergedPlan = [];
                 foreach ($customPlan as $key => $value) {
-                    if ($value == null && preg_match("/_flag$/", $key)) {
+                    if ($value == null && preg_match("/_flag$/", (string) $key)) {
                         // use default setting
                         $mergedPlan[$key] = $plan[$key];
                     } else {
@@ -2167,7 +2167,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
     foreach ($returnArray as $rule) {
         // If user is set, then check if user has access to the rule
         if (!empty($user)) {
-            $access_control = explode(':', $rule['access_control']);
+            $access_control = explode(':', (string) $rule['access_control']);
             if (!empty($access_control[0]) && !empty($access_control[1])) {
                 // Section and ACO filters are not empty, so do the test for access.
                 if (!AclMain::aclCheckCore($access_control[0], $access_control[1], $user)) {
@@ -2197,7 +2197,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
                     // note this explicitly relies on type conversion, null, "", 0 becoming equal to null...
                     // if anything changes in language spec this might break.
                     // TODO: consider using strict comparison
-                    if ($value == null && preg_match("/_flag$/", $key)) {
+                    if ($value == null && preg_match("/_flag$/", (string) $key)) {
                         // use default setting
                         $mergedRule[$key] = $rule[$key];
                     } else {
@@ -2442,7 +2442,7 @@ function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $
     foreach ($filter as $row) {
         // Row description
         //   [0]=>special modes
-        $temp_df = explode("::", $row['value']);
+        $temp_df = explode("::", (string) $row['value']);
 
         if ($temp_df[0] == "CUSTOM") {
             // Row description
@@ -2530,7 +2530,7 @@ function procedure_check($patient_id, $filter, $interval = '', $dateFocus = '', 
         // [0]=>title [1]=>code [2]=>value comparison [3]=>value [4]=>number of hits comparison [5]=>number of hits
         //   code description
         //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
-        $temp_df = explode("::", $row['value']);
+        $temp_df = explode("::", (string) $row['value']);
         if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateFocus, $dateTarget)) {
             // Record the match
             $isMatch = true;
@@ -2716,7 +2716,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, [$patient_id]);
     } else {
         // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-        if ((str_ends_with($data, '**')) && (($compSql == "=") || ($compSql == "!="))) {
+        if ((str_ends_with((string) $data, '**')) && (($compSql == "=") || ($compSql == "!="))) {
             $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
             $data = substr_replace($data, '', -2);
         } else {
@@ -2838,7 +2838,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
     }
 
     // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-    if ((str_ends_with($result_data, '**')) && (($compSql == "=") || ($compSql == "!="))) {
+    if ((str_ends_with((string) $result_data, '**')) && (($compSql == "=") || ($compSql == "!="))) {
         $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
         $result_data = substr_replace($result_data, '', -2);
     } else {

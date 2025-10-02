@@ -219,7 +219,7 @@ $communication = trim($_POST["communication"] ?? '');
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <span class='title'>
-<?php echo htmlspecialchars(xl('Report - Clinical'), ENT_NOQUOTES); ?>
+<?php echo htmlspecialchars((string) xl('Report - Clinical'), ENT_NOQUOTES); ?>
 </span>
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
@@ -569,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
 
     if ($type == 'Procedure') {
          $whr_stmt .= " AND po.date_ordered >= ? AND po.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(po.date_ordered) <= ?";
-             array_push($sqlBindArray, substr($sql_date_from, 0, 10), substr($sql_date_to, 0, 10), date("Y-m-d"));
+             array_push($sqlBindArray, substr((string) $sql_date_from, 0, 10), substr((string) $sql_date_to, 0, 10), date("Y-m-d"));
     }
 
     if ($type == "Service Codes") {
@@ -702,7 +702,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 
-    $odrstmt = empty($odrstmt) ? " ORDER BY patient_id" : " ORDER BY " . ltrim($odrstmt, ",");
+    $odrstmt = empty($odrstmt) ? " ORDER BY patient_id" : " ORDER BY " . ltrim((string) $odrstmt, ",");
 
     if ($type == 'Medical History') {
         $sqlstmt = "select * from (" . $sqlstmt . " " . $whr_stmt . " " . $odrstmt . ",history_data_date desc) a group by patient_id";
@@ -885,7 +885,7 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                             <tr class='bg-white'>
                     <?php
-                                    $procedure_type_standard_code_arr = explode(':', $row['procedure_type_standard_code']);
+                                    $procedure_type_standard_code_arr = explode(':', (string) $row['procedure_type_standard_code']);
                                     $procedure_type_standard_code = $procedure_type_standard_code_arr[1];
                     ?>
                                   <!-- Procedure -->
@@ -918,9 +918,9 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                 <tr class='bg-white'>
                     <?php
-                    $tmp_t = explode('|', $row['history_data_tobacco']);
-                    $tmp_a = explode('|', $row['history_data_alcohol']);
-                    $tmp_d = explode('|', $row['history_data_recreational_drugs']);
+                    $tmp_t = explode('|', (string) $row['history_data_tobacco']);
+                    $tmp_a = explode('|', (string) $row['history_data_alcohol']);
+                    $tmp_d = explode('|', (string) $row['history_data_recreational_drugs']);
                     $his_tobac =  generate_display_field(['data_type' => '1','list_id' => 'smoking_status'], $tmp_t[3]);
                     ?>
                 <td> <?php echo text(oeFormatShortDate($row['history_data_date'])); ?>&nbsp;</td>

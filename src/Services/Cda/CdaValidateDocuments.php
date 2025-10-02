@@ -33,7 +33,7 @@ class CdaValidateDocuments
         $this->externalValidatorUrl = null;
         if ($this->externalValidatorEnabled) {
             // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: '';
+            $this->externalValidatorUrl = trim((string) ($GLOBALS['mdht_conformance_server'] ?? null)) ?: '';
             if (!str_ends_with($this->externalValidatorUrl, '/')) {
                 $this->externalValidatorUrl .= '/';
             }
@@ -312,7 +312,7 @@ class CdaValidateDocuments
                 $error_str .= "Fatal Error $error->code: ";
                 break;
         }
-        $error_str .= trim($error->message);
+        $error_str .= trim((string) $error->message);
         $error_str .= " on line $error->line\n";
 
         return $error_str;

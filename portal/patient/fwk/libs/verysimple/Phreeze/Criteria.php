@@ -281,7 +281,7 @@ class Criteria
                     } elseif (str_ends_with($prop, "_In") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
-                            $val = explode(',', $val);
+                            $val = explode(',', (string) $val);
                         }
 
                             // if the count is zero, technically the user is saying that they don't
@@ -306,7 +306,7 @@ class Criteria
                     } elseif (str_ends_with($prop, "_NotIn") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
-                            $val = explode(',', $val);
+                            $val = explode(',', (string) $val);
                         }
 
                             // if the count is zero, technically the user is saying that they don't

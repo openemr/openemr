@@ -27,7 +27,7 @@ SessionUtil::portalSessionStart();
 require_once("./../library/pnotes.inc.php");
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
@@ -86,7 +86,7 @@ if (!empty($_POST['form_pid'])) {
     }
 }
 
-$date = $date ? substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6) : date("Y-m-d");
+$date = $date ? substr((string) $date, 0, 4) . '-' . substr((string) $date, 4, 2) . '-' . substr((string) $date, 6) : date("Y-m-d");
 // internationalize the date
 $date = oeFormatShortDate($date);
 
@@ -206,7 +206,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 //that the event is scheduled. For example if you set the event to repeat on each monday
 //the start date of the event will be set on the first monday after the day the event is scheduled
     if (($_POST['form_repeat_type'] ?? null) == 5) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Tue") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -222,7 +222,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 6) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Wed") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -238,7 +238,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 7) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Thu") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -254,7 +254,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 8) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Fri") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -270,7 +270,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     } elseif (($_POST['form_repeat_type'] ?? null) == 9) {
-        $exploded_date = explode("-", $event_date);
+        $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Sat") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
@@ -550,22 +550,22 @@ if ($eid !== 0) {
     $date = oeFormatShortDate($row['pc_eventDate']);
     $userid = $row['pc_aid'];
     $patientid = $row['pc_pid'];
-    $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
-    $starttimem = substr($row['pc_startTime'], 3, 2);
+    $starttimeh = substr((string) $row['pc_startTime'], 0, 2) + 0;
+    $starttimem = substr((string) $row['pc_startTime'], 3, 2);
     $repeats = $row['pc_recurrtype'];
     $multiple_value = $row['pc_multiple'];
 
-    if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+    if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', (string) $row['pc_recurrspec'], $matches)) {
         $repeattype = $matches[1];
     }
 
-    if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+    if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', (string) $row['pc_recurrspec'], $matches)) {
         $repeatfreq = $matches[1];
     }
 
     $hometext = $row['pc_hometext'];
-    if (str_starts_with($hometext, ':text:')) {
-        $hometext = substr($hometext, 6);
+    if (str_starts_with((string) $hometext, ':text:')) {
+        $hometext = substr((string) $hometext, 6);
     }
 } else {
     $patientid = $pid;

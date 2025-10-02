@@ -37,7 +37,7 @@ function formatcyp($amount)
 
 function display_desc($desc)
 {
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
+    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
         $desc = $matches[1];
     }
 
@@ -327,7 +327,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $row['pid'],
             $row['encounter'],
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'],
             $row['cyp_factor'],
             $row['invoice_refno']
@@ -360,7 +360,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $row['pid'],
             $row['encounter'],
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['cyp_factor'],
             $row['invoice_refno']

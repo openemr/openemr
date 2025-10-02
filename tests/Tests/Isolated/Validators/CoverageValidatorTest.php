@@ -313,7 +313,7 @@ class CoverageValidatorStub extends CoverageValidator
     {
         if ($isUuid) {
             // Simple UUID format check
-            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $lookupId)) {
+            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', (string) $lookupId)) {
                 $validationResult = new ProcessingResult();
                 $validationMessages = [
                     $field => ["invalid or nonexisting value" => "value " . $lookupId],
