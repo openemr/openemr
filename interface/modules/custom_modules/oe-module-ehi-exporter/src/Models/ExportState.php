@@ -117,10 +117,7 @@ class ExportState
 
     public function getTableDefinitionForTable(string $tableName): ?ExportTableDefinition
     {
-        if (isset($this->tableDefinitionsMap[$tableName])) {
-            return $this->tableDefinitionsMap[$tableName];
-        }
-        return null;
+        return $this->tableDefinitionsMap[$tableName] ?? null;
     }
 
     public function getNextTableDefinitionToProcess(): ExportTableDefinition
