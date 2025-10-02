@@ -22,6 +22,7 @@ use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php80\Rector\Identical\StrEndsWithRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\ValueObject\PhpVersion;
 
@@ -75,6 +76,7 @@ return RectorConfig::configure()
         MultiDirnameRector::class, // one of the withPhpSets rules
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
+        StrEndsWithRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
