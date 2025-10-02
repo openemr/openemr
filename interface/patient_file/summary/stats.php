@@ -245,7 +245,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
         if (sqlNumRows($dres) > 0 && $need_head) {
             $formRows = [];
             while ($row = sqlFetchArray($dres)) {
-                list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
+                [$completed, $start_date, $template_name] = explode('|', $row['value'], 3);
                 $formRows['startDate'] = $start_date;
                 $formRws['templateName'] = $template_name;
                 $formRows['id'] = $row['id'];

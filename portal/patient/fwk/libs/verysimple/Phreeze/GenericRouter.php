@@ -90,7 +90,7 @@ class GenericRouter implements IRouter
             // literal match check
         if (isset($this->routeMap [$uri])) {
             // expects mapped values to be in the form: Controller.Model
-            list ( $controller, $method ) = explode(".", $this->routeMap [$uri] ["route"]);
+            [$controller, $method] = explode(".", $this->routeMap [$uri] ["route"]);
 
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 // p_acl check
@@ -162,7 +162,7 @@ class GenericRouter implements IRouter
                 );
 
                 // expects mapped values to be in the form: Controller.Model
-                list ( $controller, $method ) = explode(".", $value ["route"]);
+                [$controller, $method] = explode(".", $value ["route"]);
                 return array (
                         $controller,
                         $method
@@ -227,7 +227,7 @@ class GenericRouter implements IRouter
 
         // enumerate all of the routes in the map and look for the first one that matches
         foreach ($this->routeMap as $key => $value) {
-            list ( $routeController, $routeMethod ) = explode(".", $value ["route"]);
+            [$routeController, $routeMethod] = explode(".", $value ["route"]);
 
             $routeRequestMethodArr = explode(":", $key, 2);
             $routeRequestMethod = $routeRequestMethodArr [0];

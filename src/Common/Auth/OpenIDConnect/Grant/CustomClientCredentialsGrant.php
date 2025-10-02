@@ -277,7 +277,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     protected function validateClient(ServerRequestInterface $request)
     {
         // skip everything else for now.
-        list($clientId) = $this->getClientCredentials($request);
+        [$clientId] = $this->getClientCredentials($request);
 
 
         // grab the client

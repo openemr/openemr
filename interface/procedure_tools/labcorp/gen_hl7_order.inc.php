@@ -581,7 +581,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         if ($codestring === '') {
             continue;
         }
-        list($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         $desc = lookup_code_descriptions($codestring);
         $out .= "DG1" .
         $d1 . ++$setid2;
@@ -601,7 +601,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
                 if ($codestring === '') {
                     continue;
                 }
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 $desc = lookup_code_descriptions($codestring);
                 $out .= "DG1" .
                 $d1 . ++$setid2;             // Set ID

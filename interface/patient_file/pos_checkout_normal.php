@@ -1047,7 +1047,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                                 if ($codestring === '') {
                                                     continue;
                                                 }
-                                                list($codetype, $code) = explode(':', $codestring);
+                                                [$codetype, $code] = explode(':', $codestring);
                                                 if ($codetype !== 'IPPF') {
                                                     continue;
                                                 }

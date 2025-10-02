@@ -399,7 +399,7 @@ class Events extends Base
                                 continue;
                             }
                         }
-                        list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                        [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results == false) {
                             continue;
                         }
@@ -457,7 +457,7 @@ class Events extends Base
                 $result = sqlStatement($query);
 
                 while ($recall = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $recall, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $recall, $icon);
                     if ($results == false) {
                         continue;
                     }
@@ -607,7 +607,7 @@ class Events extends Base
                             ORDER BY pc_eventDate,pc_startTime";
                 $result = sqlStatement($sql_ANNOUNCE, $escapedArr);
                 while ($appt = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results == false) {
                         continue;
                     }
@@ -697,7 +697,7 @@ class Events extends Base
                                     LIMIT " . $v;
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt = sqlFetchArray($result)) {
-                        list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                        [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results == false) {
                             continue; //not happening - either not allowed or not possible
                         }
@@ -747,7 +747,7 @@ class Events extends Base
                               ORDER BY `due_status`, `date_created`";
                 $ures = sqlStatementCdrEngine($sql);
                 while ($urow = sqlFetchArray($ures)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $urow, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $urow, $icon);
                     if ($results == false) {
                         continue; //not happening - either not allowed or not possible
                     }
@@ -917,7 +917,7 @@ class Events extends Base
                     exit;
                 }
                 while ($appt = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
+                    [$response, $results] = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results == false) {
                         continue; //not happening - either not allowed or not possible
                     }
@@ -1169,7 +1169,7 @@ class Events extends Base
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                [$ny, $nm, $nd] = explode('-', $event['pc_eventDate']);
                 $occurence = $event['pc_eventDate'];
 
                 // prep work to start cooking...
@@ -1178,7 +1178,7 @@ class Events extends Base
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
                     $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurence);
+                    [$ny, $nm, $nd] = explode('-', $occurence);
                 }
                 //now we are cooking...
                 while ($occurence <= $stop_date) {
@@ -1197,7 +1197,7 @@ class Events extends Base
                         $data[] = $occurence;
                     }
                     $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    list($ny,$nm,$nd) = explode('-', $occurence);
+                    [$ny, $nm, $nd] = explode('-', $occurence);
                 }
                 break;
 
@@ -1212,7 +1212,7 @@ class Events extends Base
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                [$ny, $nm, $nd] = explode('-', $event['pc_eventDate']);
 
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1;
@@ -1228,7 +1228,7 @@ class Events extends Base
                 // $nd has no influence past the mktime functions.
                 while ($occurenceYm < $from_dateYm) {
                     $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occurenceYmX);
+                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
                     $occurenceYm = "$ny-$nm";
                 }
 
@@ -1260,7 +1260,7 @@ class Events extends Base
                     }
 
                     $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    list($ny,$nm,$nd) = explode('-', $occurenceYmX);
+                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
                     $occurenceYm = "$ny-$nm";
                 }
                 break;

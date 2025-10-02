@@ -88,7 +88,7 @@ class Dispatcher
         }
 
         // get the route and normalize the controller name
-        list ( $controller_param, $method_param ) = $router->GetRoute($action);
+        [$controller_param, $method_param] = $router->GetRoute($action);
         $controller_class = $controller_param . "Controller";
 
         if (self::$FAST_LOOKUP) {

@@ -319,7 +319,7 @@ function ippfReceiptDetailLine(
         $isadjust = true;
         $adjust = 0 - $charge;
         $charge = 0;
-        list($payer, $code_type, $code) = explode('|', $code);
+        [$payer, $code_type, $code] = explode('|', $code);
         $memo = $description;
         $description = $GLOBALS['simplified_demographics'] ? '' : "$payer ";
         $description .= $code ? xl('Item Adjustment') : xl('Invoice Adjustment');
@@ -2402,7 +2402,7 @@ while ($brow = sqlFetchArray($bres)) {
             if ($codestring === '') {
                 continue;
             }
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype !== 'IPPF2') {
                 continue;
             }

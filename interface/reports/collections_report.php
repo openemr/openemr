@@ -700,7 +700,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
         $where = "( 1 = 2";
         foreach ($_POST['form_cb'] as $key => $value) {
-             list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key);
+             [$key_newval['pid'], $key_newval['encounter']] = explode(".", $key);
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
@@ -1126,8 +1126,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     $orow = -1;
 
     foreach ($rows as $key => $row) {
-        list($insname, $unused , $ptname, $trash) = explode('|', $key);
-        list($pid, $encounter) = explode(".", $row['invnumber']);
+        [$insname, $unused, $ptname, $trash] = explode('|', $key);
+        [$pid, $encounter] = explode(".", $row['invnumber']);
         if (!empty($_POST['form_cb'])) {
             if (($_POST['form_cb'][$row['invnumber']] ?? '') == 'on') {
                 $encounters[] = $encounter;

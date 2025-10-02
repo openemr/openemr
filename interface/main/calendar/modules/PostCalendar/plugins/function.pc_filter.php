@@ -67,7 +67,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $pcTemplate = 'default';
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
     //================================================================
     //  build the username filter pulldown

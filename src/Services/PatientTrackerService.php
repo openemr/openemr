@@ -291,7 +291,7 @@ class PatientTrackerService extends BaseService
             return $option;
         }
 
-        list($color_settings['color'], $color_settings['time_alert']) = explode("|", $row['notes']);
+        [$color_settings['color'], $color_settings['time_alert']] = explode("|", $row['notes']);
         return $color_settings;
     }
 

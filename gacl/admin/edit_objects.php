@@ -69,7 +69,7 @@ switch ($postAction) {
         //Update objects
         if (!empty($_POST['objects'])) {
             foreach ($_POST['objects'] as $row) {
-                list($id, $value, $order, $name) = $row;
+                [$id, $value, $order, $name] = $row;
                 $gacl_api->edit_object($id, $_POST['section_value'], $name, $value, $order, 0, $object_type);
             }
         }
@@ -81,7 +81,7 @@ switch ($postAction) {
 
         //Insert new sections
         foreach ($_POST['new_objects'] as $row) {
-            list($value, $order, $name) = $row;
+            [$value, $order, $name] = $row;
 
             if (!empty($value) AND !empty($name)) {
                 $object_id= $gacl_api->add_object($_POST['section_value'], $name, $value, $order, 0, $object_type);
@@ -109,7 +109,7 @@ switch ($postAction) {
         $rows = $rs->GetRows();
 
         foreach ($rows as $row) {
-            list($id, $section_value, $value, $order_value, $name) = $row;
+            [$id, $section_value, $value, $order_value, $name] = $row;
 
                 $objects[] = array(
                                                 'id' => $id,

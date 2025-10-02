@@ -465,7 +465,7 @@ function write_report_line(&$row): void
         if ($codestring === '') {
             continue;
         }
-        list($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         // For IPPF just the IPPFCM codes are wanted.
         if ($GLOBALS['ippf_specific'] && $codetype !== 'IPPFCM') {
             continue;

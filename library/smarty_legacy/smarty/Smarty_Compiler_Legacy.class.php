@@ -318,7 +318,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $this->_current_line_no += substr_count($template_tags[$i], "\n");
         }
         if (count($this->_tag_stack)>0) {
-            list($_open_tag, $_line_no) = end($this->_tag_stack);
+            [$_open_tag, $_line_no] = end($this->_tag_stack);
             $this->_syntax_error("unclosed tag \{$_open_tag} (opened line $_line_no).", E_USER_ERROR, __FILE__, __LINE__);
             return;
         }
@@ -478,7 +478,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 return $this->_compile_if_tag($tag_args);
 
             case 'else':
-                list($_open_tag) = end($this->_tag_stack);
+                [$_open_tag] = end($this->_tag_stack);
                 if ($_open_tag != 'if' && $_open_tag != 'elseif')
                     $this->_syntax_error('unexpected {else}', E_USER_ERROR, __FILE__, __LINE__);
                 else
@@ -486,7 +486,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 return '<?php else: ?>';
 
             case 'elseif':
-                list($_open_tag) = end($this->_tag_stack);
+                [$_open_tag] = end($this->_tag_stack);
                 if ($_open_tag != 'if' && $_open_tag != 'elseif')
                     $this->_syntax_error('unexpected {elseif}', E_USER_ERROR, __FILE__, __LINE__);
                 if ($_open_tag == 'if')
@@ -855,7 +855,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $start_tag = true;
         }
 
-        list($object, $obj_comp) = explode('->', $tag_command);
+        [$object, $obj_comp] = explode('->', $tag_command);
 
         $arg_list = array();
         if(count($attrs)) {
@@ -1239,7 +1239,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $output = "<?php ob_start(); ?>";
             $this->_capture_stack[] = array($buffer, $assign, $append);
         } else {
-            list($buffer, $assign, $append) = array_pop($this->_capture_stack);
+            [$buffer, $assign, $append] = array_pop($this->_capture_stack);
             $output = "<?php \$this->_smarty_vars['capture'][$buffer] = ob_get_contents(); ";
             if (isset($assign)) {
                 $output .= " \$this->assign($assign, ob_get_contents());";
@@ -1919,7 +1919,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     function _parse_modifiers(&$output, $modifier_string)
     {
         preg_match_all('~\|(@?\w+)((?>:(?:'. $this->_qstr_regexp . '|[^|]+))*)~', '|' . $modifier_string, $_match);
-        list(, $_modifiers, $modifier_arg_strings) = $_match;
+        [, $_modifiers, $modifier_arg_strings] = $_match;
 
         for ($_i = 0, $_for_max = count($_modifiers); $_i < $_for_max; $_i++) {
             $_modifier_name = $_modifiers[$_i];
@@ -2322,7 +2322,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     {
         $message = '';
         if (count($this->_tag_stack)>0) {
-            list($_open_tag, $_line_no) = array_pop($this->_tag_stack);
+            [$_open_tag, $_line_no] = array_pop($this->_tag_stack);
             if ($close_tag == $_open_tag) {
                 return $_open_tag;
             }

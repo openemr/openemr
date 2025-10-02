@@ -245,7 +245,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
 
             $brow = sqlQuery("SELECT count(*) AS count " .
             "FROM billing AS b, form_encounter AS fe WHERE " .

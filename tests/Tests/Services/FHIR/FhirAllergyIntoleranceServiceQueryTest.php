@@ -126,7 +126,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $uuids = array_map(function ($v) {
             return UuidRegistry::uuidToString($v);
         }, $records);
-        list($uuidPatient1, $uuidPatient2) = $uuids;
+        [$uuidPatient1, $uuidPatient2] = $uuids;
 
         // replace any values that we will use for searching
         $parameterValue = str_replace(":uuid1", $uuidPatient1, $parameterValue);

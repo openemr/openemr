@@ -76,16 +76,7 @@ EOF;
     $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
     $output->Text($header);
     $output->Text(postcalendar_adminmenu("category"));
-    list($id, $del, $name, $constantid, $value_cat_type, $desc, $color,
-        $event_repeat, $event_repeat_freq,
-        $event_repeat_freq_type, $event_repeat_on_num,
-        $event_repeat_on_day, $event_repeat_on_freq, $durationh, $durationm,
-        $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco,
-        $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_repeat_freq,
-        $new_event_repeat_freq_type, $new_event_repeat_on_num, $new_event_repeat_on_day,
-        $new_event_repeat_on_freq, $new_durationh, $new_durationm, $new_limitid, $new_end_date_flag,
-        $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco
-        ) = pnVarCleanFromInput(
+    [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat, $event_repeat_freq, $event_repeat_freq_type, $event_repeat_on_num, $event_repeat_on_day, $event_repeat_on_freq, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_repeat_freq, $new_event_repeat_freq_type, $new_event_repeat_on_num, $new_event_repeat_on_day, $new_event_repeat_on_freq, $new_durationh, $new_durationm, $new_limitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
             'id',
             'del',
             'name',
@@ -264,16 +255,10 @@ function postcalendar_admin_categoriesUpdate()
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
-    list($id,$del,$name,$constantid,$value_cat_type,$desc,$color,
-        $event_repeat_array,$event_recurrspec_array,$dels,$durationh,$durationm,
-        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,$newname,$newconstantid,$newdesc,$newcolor,
-        $new_event_repeat,$new_event_recurrspec,$new_event_recurrfreq,
-        $new_duration,$new_dailylimitid,$new_end_date_flag,$new_end_date_type,
-        $new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence,$newaco
-        ) = pnVarCleanFromInput(
+    [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat_array, $event_recurrspec_array, $dels, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_recurrspec, $new_event_recurrfreq, $new_duration, $new_dailylimitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
             'id',
             'del',
             'name',
