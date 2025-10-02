@@ -21,12 +21,12 @@ class RouteController
     const CDR_ACTION_INFO = "cdr-info";
 
     public function __construct(
-        private SessionInterface $session,
-        private ClientRepository $repo,
-        private LoggerInterface $logger,
+        private readonly SessionInterface $session,
+        private readonly ClientRepository $repo,
+        private readonly LoggerInterface $logger,
         private Environment $twig,
-        private ActionUrlBuilder $actionUrlBuilder,
-        private DecisionSupportInterventionService $dsiService
+        private readonly ActionUrlBuilder $actionUrlBuilder,
+        private readonly DecisionSupportInterventionService $dsiService
     ) {
         $this->setTwigEnvironment($twig);
     }

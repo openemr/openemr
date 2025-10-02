@@ -17,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PatientDocumentStoreOffsite extends Event
 {
     const REMOTE_STORAGE_LOCATION = 'documents.remote.storage.location';
-    private mixed $data;
+    private readonly mixed $data;
     private string $remoteFileName;
     private string $mimeType;
     private mixed $category;

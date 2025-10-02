@@ -36,8 +36,8 @@ class TransmitProperties
     private $cryptoGen;
     private $pharmacy;
     private $encounter;
-    private mixed $wenoProviderID;
-    private string|false $csrf;
+    private readonly mixed $wenoProviderID;
+    private readonly string|false $csrf;
     private mixed $responsibleParty;
     public mixed $wenoLocation;
 

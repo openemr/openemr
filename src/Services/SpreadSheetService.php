@@ -27,7 +27,7 @@ use PhpOffice\PhpSpreadsheet\{
 class SpreadSheetService extends Spreadsheet
 {
     private array $arrayData;
-    private string $fileName;
+    private readonly string $fileName;
     private array $header;
     private array $row;
     private array $fields;

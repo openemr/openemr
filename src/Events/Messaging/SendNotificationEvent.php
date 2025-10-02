@@ -40,7 +40,7 @@ class SendNotificationEvent extends Event
 
     private mixed $eventData;
     private array|bool $patientDetails;
-    private mixed $pid;
+    private readonly mixed $pid;
     private string|null $sendNotificationMethod;
 
     public function __construct($pid, $data = [], $sendMethod = 'both') // 'both', 'sms', 'email'

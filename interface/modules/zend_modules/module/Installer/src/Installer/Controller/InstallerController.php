@@ -40,7 +40,7 @@ class InstallerController extends AbstractActionController
      * @var Laminas\Db\Adapter\Adapter
      */
     private $dbAdapter;
-    private ModulesClassLoader $listener;
+    private readonly ModulesClassLoader $listener;
 
     public function __construct(InstModuleTable $installerTable)
     {

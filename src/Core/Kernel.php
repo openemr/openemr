@@ -31,7 +31,7 @@ class Kernel
     /** @var ContainerBuilder */
     private $container;
 
-    public function __construct(private ?EventDispatcher $dispatcher = null)
+    public function __construct(private readonly ?EventDispatcher $dispatcher = null)
     {
         $this->prepareContainer();
     }

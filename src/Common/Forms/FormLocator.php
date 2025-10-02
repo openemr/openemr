@@ -20,8 +20,8 @@ use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
 class FormLocator
 {
     private array $pathCache = [];
-    private string $fileRoot;
-    private SystemLogger $logger;
+    private readonly string $fileRoot;
+    private readonly SystemLogger $logger;
 
     // AI GENERATED CODE: HEADER END
     public function __construct(?SystemLogger $logger = null)

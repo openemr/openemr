@@ -79,11 +79,11 @@ class FhirOperationExportRestController
     /**
      * @var bool
      */
-    private bool $isExportDisabled;
+    private readonly bool $isExportDisabled;
 
-    private FhirExportJobService $fhirExportJobService;
+    private readonly FhirExportJobService $fhirExportJobService;
 
-    private FhirServiceLocator $fhirServiceLocator;
+    private readonly FhirServiceLocator $fhirServiceLocator;
 
 
     public function __construct(HttpRestRequest $request, OEGlobalsBag $globalsBag)

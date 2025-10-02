@@ -13,7 +13,7 @@ class OEHttpKernel extends HttpKernel
 {
     private SystemLogger $logger;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     public function __construct(EventDispatcherInterface $dispatcher, ControllerResolverInterface $resolver, ?RequestStack $requestStack = null, ?ArgumentResolverInterface $argumentResolver = null, bool $handleAllThrowables = false)
     {

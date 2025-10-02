@@ -36,8 +36,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
  */
 class FhirMetaDataRestController
 {
-    private RestControllerHelper $restHelper;
-    private ServerConfig $config;
+    private readonly RestControllerHelper $restHelper;
+    private readonly ServerConfig $config;
 
     public function __construct()
     {

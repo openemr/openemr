@@ -20,8 +20,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class TeleHealthProviderRepository
 {
-    private TeleHealthPersonSettingsRepository $personSettings;
-    private TelehealthGlobalConfig $config;
+    private readonly TeleHealthPersonSettingsRepository $personSettings;
+    private readonly TelehealthGlobalConfig $config;
 
     public function __construct(SystemLogger $logger, TelehealthGlobalConfig $config)
     {

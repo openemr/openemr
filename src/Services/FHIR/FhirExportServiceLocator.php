@@ -16,7 +16,7 @@ use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 
 class FhirExportServiceLocator
 {
-    private FhirServiceLocator $innerLocator;
+    private readonly FhirServiceLocator $innerLocator;
     /**
      * FhirExportServiceLocator constructor.
      */

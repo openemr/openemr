@@ -28,7 +28,7 @@ class FhirQuestionnaireRestController
     /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct(private readonly SystemLogger $logger, private readonly FhirQuestionnaireService $questionnaireResourceService)
     {

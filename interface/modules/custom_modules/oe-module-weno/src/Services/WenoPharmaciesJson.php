@@ -15,8 +15,8 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
-    private CryptoGen $cryptoGen;
-    private string $encrypted;
+    private readonly CryptoGen $cryptoGen;
+    private readonly string $encrypted;
 
     public function __construct(CryptoGen $cryptoGen)
     {

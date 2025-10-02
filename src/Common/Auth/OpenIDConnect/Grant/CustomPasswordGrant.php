@@ -34,7 +34,7 @@ class CustomPasswordGrant extends PasswordGrant
      */
     private $logger;
 
-    private SessionInterface $session;
+    private readonly SessionInterface $session;
 
     public function __construct(SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {

@@ -40,43 +40,43 @@ class SMARTAuthorizationController
     /**
      * @var SystemLogger
      */
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
     /**
      * The base URL of the oauth2 url
      * @var string
      */
-    private string $authBaseFullURL;
+    private readonly string $authBaseFullURL;
 
     /**
      * The oauth2 endpoint url to send to once smart authorization is complete.
      * @var string
      */
-    private string $smartFinalRedirectURL;
+    private readonly string $smartFinalRedirectURL;
 
     /**
      * The directory that the oauth template files can be included from
      * @var string
      */
-    private string $oauthTemplateDir;
+    private readonly string $oauthTemplateDir;
 
     /**
      * @var Environment The twig template engine
      */
-    private Environment $twig;
+    private readonly Environment $twig;
 
     /**
      * @var EventDispatcherInterface
      */
-    private EventDispatcherInterface $dispatcher;
+    private readonly EventDispatcherInterface $dispatcher;
 
-    private SessionInterface $session;
+    private readonly SessionInterface $session;
 
     private PatientContextSearchController $patientContextSearchController;
 
     private ClientRepository $clientRepository;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     private LogoService $logoService;
 

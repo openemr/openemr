@@ -21,15 +21,15 @@ use SessionHandlerInterface;
 
 class PredisSessionHandler implements SessionHandlerInterface
 {
-    private Client $redis;
-    private int $ttl;
-    private int $lockTimeout;
-    private int $waitTimeout;
-    private int $waitInterval;
+    private readonly Client $redis;
+    private readonly int $ttl;
+    private readonly int $lockTimeout;
+    private readonly int $waitTimeout;
+    private readonly int $waitInterval;
 
     private ?string $currentSessionId = null;
 
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
     public function __construct(Client $redis, int $ttl, int $lockTimeout = 60, int $waitTimeout = 70, int $waitInterval = 150000)
     {

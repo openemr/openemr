@@ -19,10 +19,10 @@ class DornLabEvent extends Event
     public const GEN_BARCODE = 'dorn.gen_barcode';
     public const SEND_ORDER = 'dorn.send_order';
 
-    private int $ppid;
-    private int $formid;
-    private ?string $hl7;
-    private ?string $reqStr;
+    private readonly int $ppid;
+    private readonly int $formid;
+    private readonly ?string $hl7;
+    private readonly ?string $reqStr;
     private array $messages = [];
     private $sendOrderResponse;
 

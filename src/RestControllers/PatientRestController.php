@@ -20,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class PatientRestController
 {
-    private PatientService $patientService;
+    private readonly PatientService $patientService;
 
     /**
      * White list of patient search fields

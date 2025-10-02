@@ -27,9 +27,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class HttpRestRouteHandler
 {
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     public function __construct(private readonly OEHttpKernel $kernel)
     {
