@@ -14,7 +14,7 @@ class OAuth2DiscoveryController
     private ScopeRepository $scopeRepository;
     private ClaimRepository $claimRepository;
 
-    public function __construct(ClaimRepository $claimRepository, ScopeRepository $scopeRepository, private OEGlobalsBag $globalsBag, private string $baseUrl)
+    public function __construct(ClaimRepository $claimRepository, ScopeRepository $scopeRepository, private readonly OEGlobalsBag $globalsBag, private readonly string $baseUrl)
     {
         $this->setClaimRepository($claimRepository);
         $this->setScopeRepository($scopeRepository);

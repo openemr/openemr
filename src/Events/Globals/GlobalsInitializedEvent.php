@@ -31,7 +31,7 @@ class GlobalsInitializedEvent extends Event
      * GlobalsInitializedEvent constructor.
      * @param array $globalsService
      */
-    public function __construct(private GlobalsService $globalsService)
+    public function __construct(private readonly GlobalsService $globalsService)
     {
     }
 

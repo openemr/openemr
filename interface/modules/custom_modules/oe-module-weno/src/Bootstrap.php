@@ -54,12 +54,12 @@ class Bootstrap
      */
     private $logger;
 
-    private string $modulePath;
+    private readonly string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private SelectedPatientPharmacy $selectedPatientPharmacy;
+    private readonly SelectedPatientPharmacy $selectedPatientPharmacy;
     public string $installPath;
     /**
      * @var mixed|string
@@ -71,7 +71,7 @@ class Bootstrap
      * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
      */
     public function __construct(
-        private EventDispatcher $eventDispatcher
+        private readonly EventDispatcher $eventDispatcher
     ) {
         $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();

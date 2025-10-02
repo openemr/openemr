@@ -23,9 +23,9 @@ class PredisSessionHandler implements SessionHandlerInterface
 {
     private ?string $currentSessionId = null;
 
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
-    public function __construct(private Client $redis, private int $ttl, private int $lockTimeout = 60, private int $waitTimeout = 70, private int $waitInterval = 150000)
+    public function __construct(private readonly Client $redis, private readonly int $ttl, private readonly int $lockTimeout = 60, private readonly int $waitTimeout = 70, private readonly int $waitInterval = 150000)
     {
         $this->logger = new SystemLogger();
     }

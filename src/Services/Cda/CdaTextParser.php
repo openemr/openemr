@@ -19,7 +19,7 @@ class CdaTextParser
 {
     private $xml;
 
-    public function __construct($xmlContent, private mixed $title = "Imported CarePlan Notes.")
+    public function __construct($xmlContent, private readonly mixed $title = "Imported CarePlan Notes.")
     {
         $dom = new DOMDocument();
         $dom->loadXML($xmlContent);

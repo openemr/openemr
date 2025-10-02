@@ -28,7 +28,7 @@ namespace ESign;
 
 class ESign
 {
-    public function __construct(private ConfigurationIF $_configuration, private SignableIF $_signable, private ButtonIF $_button, private LogIF $_log)
+    public function __construct(private readonly ConfigurationIF $_configuration, private readonly SignableIF $_signable, private readonly ButtonIF $_button, private readonly LogIF $_log)
     {
     }
 

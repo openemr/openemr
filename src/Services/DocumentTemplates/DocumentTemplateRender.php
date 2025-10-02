@@ -47,9 +47,9 @@ class DocumentTemplateRender
     private int $ta_cnt = -1;
     private int $signed_cnt = -1;
     private bool $html_flag = false;
-    private mixed $encounter;
+    private readonly mixed $encounter;
     public $version;
-    private DocumentTemplateService $templateService;
+    private readonly DocumentTemplateService $templateService;
 
     public function __construct(private $pid, $user, $encounter = null)
     {

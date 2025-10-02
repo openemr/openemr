@@ -74,7 +74,7 @@ class TeleHealthRemoteRegistrationService
 
     private TeleHealthUserRepository $userRepository;
 
-    public function __construct(TelehealthGlobalConfig $config, private TelehealthRegistrationCodeService $codeService)
+    public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService)
     {
         $this->apiURL = $config->getRegistrationAPIURI();
         $this->apiId = $config->getRegistrationAPIUserId();

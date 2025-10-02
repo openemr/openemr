@@ -27,17 +27,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
 {
-    private bool $isSmsEnabled;
-    private bool $isEmailEnabled;
-    private bool $isFaxEnabled;
-    private bool $isVoiceEnabled;
+    private readonly bool $isSmsEnabled;
+    private readonly bool $isEmailEnabled;
+    private readonly bool $isFaxEnabled;
+    private readonly bool $isVoiceEnabled;
 
     /**
      * @var \Twig\Environment The twig rendering environment
      */
     private $twig;
 
-    public function __construct(private EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
         $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);

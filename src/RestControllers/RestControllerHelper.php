@@ -56,7 +56,7 @@ class RestControllerHelper
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
-    public function __construct(private string $restURL = "")
+    public function __construct(private readonly string $restURL = "")
     {
     }
 

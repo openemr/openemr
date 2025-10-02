@@ -45,7 +45,7 @@ class TeleHealthCalendarController
      */
     private $apptService;
 
-    private TeleHealthProviderRepository $healthProviderRepository;
+    private readonly TeleHealthProviderRepository $healthProviderRepository;
 
     /**
      * @param TelehealthGlobalConfig $config
@@ -56,8 +56,8 @@ class TeleHealthCalendarController
      */
     public function __construct(
         TelehealthGlobalConfig $config,
-        private Environment $twig,
-        private SystemLogger $logger,
+        private readonly Environment $twig,
+        private readonly SystemLogger $logger,
         private $assetPath,
         $loggedInUserId
     ) {

@@ -19,7 +19,7 @@ class FhirExportServiceLocator
     /**
      * FhirExportServiceLocator constructor.
      */
-    public function __construct(private FhirServiceLocator $innerLocator)
+    public function __construct(private readonly FhirServiceLocator $innerLocator)
     {
     }
 

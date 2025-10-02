@@ -7,7 +7,7 @@ use Twig\Environment;
 
 class ParticipantListService
 {
-    public function __construct(private Environment $twig, private TeleHealthProvisioningService $provisioningService, private $publicPathFQDN)
+    public function __construct(private readonly Environment $twig, private readonly TeleHealthProvisioningService $provisioningService, private $publicPathFQDN)
     {
     }
 

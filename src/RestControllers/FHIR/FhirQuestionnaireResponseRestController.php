@@ -27,12 +27,12 @@ class FhirQuestionnaireResponseRestController
     /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     /**
      * @param ?FhirQuestionnaireResponseService $resourceService
      */
-    public function __construct(private ?FhirQuestionnaireResponseService $resourceService = null)
+    public function __construct(private readonly ?FhirQuestionnaireResponseService $resourceService = null)
     {
         $this->fhirService = new FhirResourcesService();
     }

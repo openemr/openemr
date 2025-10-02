@@ -74,11 +74,11 @@ class FhirOperationExportRestController
     /**
      * @var bool
      */
-    private bool $isExportDisabled;
+    private readonly bool $isExportDisabled;
 
-    private FhirExportJobService $fhirExportJobService;
+    private readonly FhirExportJobService $fhirExportJobService;
 
-    private FhirServiceLocator $fhirServiceLocator;
+    private readonly FhirServiceLocator $fhirServiceLocator;
 
 
     /**
@@ -86,7 +86,7 @@ class FhirOperationExportRestController
      * @param OEGlobalsBag $globalsBag
      */
     public function __construct(
-        private HttpRestRequest $request,
+        private readonly HttpRestRequest $request,
         OEGlobalsBag $globalsBag
     ) {
         $this->logger = new SystemLogger();

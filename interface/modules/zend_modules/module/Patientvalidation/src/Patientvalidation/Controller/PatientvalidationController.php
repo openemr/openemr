@@ -29,12 +29,12 @@ use Error;
 
 class PatientvalidationController extends BaseController
 {
-    private Listener $listenerObject;
+    private readonly Listener $listenerObject;
 
     /**
      * PatientvalidationController constructor.
      */
-    public function __construct(private PatientDataTable $PatientDataTable)
+    public function __construct(private readonly PatientDataTable $PatientDataTable)
     {
         parent::__construct();
         $this->listenerObject = new Listener();

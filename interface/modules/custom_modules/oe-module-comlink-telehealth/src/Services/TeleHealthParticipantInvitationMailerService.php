@@ -28,7 +28,7 @@ class TeleHealthParticipantInvitationMailerService
 
     const MESSAGE_ID_TELEHEALTH_NEW_PATIENT = 'comlink-telehealth-invitation-new-patient';
 
-    public function __construct(private EventDispatcher $dispatcher, private Environment $twig, private $publicPathFQDN, private TelehealthGlobalConfig $config)
+    public function __construct(private readonly EventDispatcher $dispatcher, private readonly Environment $twig, private $publicPathFQDN, private readonly TelehealthGlobalConfig $config)
     {
     }
 

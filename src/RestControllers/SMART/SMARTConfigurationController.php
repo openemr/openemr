@@ -23,7 +23,7 @@ class SMARTConfigurationController
     /**
      * @var ServerConfig
      */
-    private ServerConfig $serverConfig;
+    private readonly ServerConfig $serverConfig;
 
     public function __construct()
     {

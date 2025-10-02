@@ -32,8 +32,8 @@ class LogoFilterEvent extends Event
      * @param string $webPath The web path to the logo, such as /sites/default/logos/core/menu/primary/logo.png
      */
     public function __construct(
-        private string $logoType,
-        private string $filePath,
+        private readonly string $logoType,
+        private readonly string $filePath,
         private string $webPath
     ) {
     }

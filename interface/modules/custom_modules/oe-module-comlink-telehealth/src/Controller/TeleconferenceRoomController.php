@@ -78,12 +78,12 @@ class TeleconferenceRoomController
     /**
      * @var TeleHealthSessionRepository
      */
-    private TeleHealthSessionRepository $sessionRepository;
+    private readonly TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private TeleHealthUserRepository $telehealthUserRepo;
+    private readonly TeleHealthUserRepository $telehealthUserRepo;
 
     /**
      * @param Environment $twig
@@ -98,16 +98,16 @@ class TeleconferenceRoomController
      * @param bool $isPatient Whether we are running as a patient in the portal context
      */
     public function __construct(
-        private Environment $twig,
-        private LoggerInterface $logger,
-        private TeleHealthVideoRegistrationController $telehealthRegistrationController,
-        private TeleHealthParticipantInvitationMailerService $mailerService,
-        private TeleHealthFrontendSettingsController $settingsController,
-        private TelehealthGlobalConfig $config,
-        private TeleHealthProvisioningService $provisioningService,
-        private ParticipantListService $participantListService,
-        private string $assetPath,
-        private bool $isPatient = false
+        private readonly Environment $twig,
+        private readonly LoggerInterface $logger,
+        private readonly TeleHealthVideoRegistrationController $telehealthRegistrationController,
+        private readonly TeleHealthParticipantInvitationMailerService $mailerService,
+        private readonly TeleHealthFrontendSettingsController $settingsController,
+        private readonly TelehealthGlobalConfig $config,
+        private readonly TeleHealthProvisioningService $provisioningService,
+        private readonly ParticipantListService $participantListService,
+        private readonly string $assetPath,
+        private readonly bool $isPatient = false
     ) {
         $this->appointmentService = new AppointmentService();
         $this->encounterService = new EncounterService();

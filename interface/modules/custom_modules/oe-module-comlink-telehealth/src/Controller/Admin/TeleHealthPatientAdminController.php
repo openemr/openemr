@@ -30,7 +30,7 @@ class TeleHealthPatientAdminController
      */
     private $registrationCodeService;
 
-    public function __construct(private TelehealthGlobalConfig $globalConfig, private TeleHealthUserRepository $userRepository, private TeleHealthRemoteRegistrationService $remoteRegistrationService)
+    public function __construct(private readonly TelehealthGlobalConfig $globalConfig, private readonly TeleHealthUserRepository $userRepository, private readonly TeleHealthRemoteRegistrationService $remoteRegistrationService)
     {
         $this->registrationCodeService = new TelehealthRegistrationCodeService($this->globalConfig, $this->userRepository);
     }

@@ -18,7 +18,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class TeleHealthPersonSettingsRepository
 {
-    public function __construct(private SystemLogger $logger)
+    public function __construct(private readonly SystemLogger $logger)
     {
     }
 

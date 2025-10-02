@@ -36,7 +36,7 @@ class SpreadSheetService extends Spreadsheet
      * @param array $fields
      * @param string $fileName
      */
-    public function __construct(private array $arrayData, private array $fields, private string $fileName = 'report')
+    public function __construct(private array $arrayData, private array $fields, private readonly string $fileName = 'report')
     {
         if ($this->isCli()) {
             throw new \RuntimeException(self::class . ' should only be run from a Web browser');

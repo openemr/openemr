@@ -42,9 +42,9 @@ class OAuth2KeyConfig
      */
     private $publicKey;
 
-    private CryptoGen $cryptoGen;
+    private readonly CryptoGen $cryptoGen;
 
-    private OAuth2KeyMissing $oauth2KeyMissing;
+    private readonly OAuth2KeyMissing $oauth2KeyMissing;
 
     public function __construct($siteDir = null)
     {

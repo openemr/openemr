@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
 
 class PatientContextSearchController
 {
-    public function __construct(private PatientService $service, private LoggerInterface $logger)
+    public function __construct(private readonly PatientService $service, private readonly LoggerInterface $logger)
     {
     }
 

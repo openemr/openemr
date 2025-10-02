@@ -33,7 +33,7 @@ class ServiceSaveEvent extends Event
      * UserCreatedEvent constructor.
      * @param $saveData
      */
-    public function __construct(private BaseService $service, private array $saveData)
+    public function __construct(private readonly BaseService $service, private array $saveData)
     {
     }
 

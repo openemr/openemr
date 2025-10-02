@@ -11,7 +11,7 @@ use OpenEMR\RestControllers\Finder\IRouteFinder;
 
 class FhirRouteFinder implements IRouteFinder
 {
-    public function __construct(private OEHttpKernel $kernel)
+    public function __construct(private readonly OEHttpKernel $kernel)
     {
     }
 

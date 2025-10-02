@@ -27,26 +27,26 @@ class SentinelUtil
     private static $masterCa = 'redis-master-ca';
     private static $masterCert = 'redis-master-cert';
     private static $masterKey = 'redis-master-key';
-    private string $sessionStorageMode;
-    private array $predisSentinels;
-    private string $predisMaster;
-    private ?string $predisSentinelsPassword;
-    private ?string $predisMasterPassword;
+    private readonly string $sessionStorageMode;
+    private readonly array $predisSentinels;
+    private readonly string $predisMaster;
+    private readonly ?string $predisSentinelsPassword;
+    private readonly ?string $predisMasterPassword;
 
-    private bool $predisTls;
-    private bool $predisX509;
+    private readonly bool $predisTls;
+    private readonly bool $predisX509;
 
-    private ?string $predisSentinelCertKeyPath;
-    private ?string $sentinelCaFile;
-    private ?string $sentinelCertFile;
-    private ?string $sentinelKeyFile;
-    private ?string $masterCaFile;
-    private ?string $masterCertFile;
-    private ?string $masterKeyFile;
+    private readonly ?string $predisSentinelCertKeyPath;
+    private readonly ?string $sentinelCaFile;
+    private readonly ?string $sentinelCertFile;
+    private readonly ?string $sentinelKeyFile;
+    private readonly ?string $masterCaFile;
+    private readonly ?string $masterCertFile;
+    private readonly ?string $masterKeyFile;
 
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
-    public function __construct(private int $ttl, ?SystemLogger $logger = null)
+    public function __construct(private readonly int $ttl, ?SystemLogger $logger = null)
     {
         // Initialize the logger
         $this->logger = $logger ?? new SystemLogger();
