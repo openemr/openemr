@@ -1414,7 +1414,7 @@ function csv_convert_bytes($bytes)
     if ($i == 0) {
         return $bytes . ' ' . $sizes[$i];
     } else {
-        return round($bytes / pow(1024, $i), 1) . ' ' . $sizes[$i];
+        return round($bytes / 1024 ** $i, 1) . ' ' . $sizes[$i];
     }
 }
 
