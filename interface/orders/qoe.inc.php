@@ -168,7 +168,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             $a = explode(';', $qrow['options']);
             $i = 0;
             foreach ($a as $aval) {
-                list($desc, $code) = explode(':', $aval);
+                [$desc, $code] = explode(':', $aval);
                 if (empty($code)) {
                     $code = $desc;
                 }
@@ -192,7 +192,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                 $s .= "<select class='input-sm' name='" . attr($qfieldid) . "'";
                 $s .= ">";
                 foreach ($a as $aval) {
-                    list($desc, $code) = explode(':', $aval);
+                    [$desc, $code] = explode(':', $aval);
                     if (empty($code)) {
                         $code = $desc;
                     }
@@ -209,7 +209,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             } else {
                 $i = 0;
                 foreach ($a as $aval) {
-                    list($desc, $code) = explode(':', $aval);
+                    [$desc, $code] = explode(':', $aval);
                     if (empty($code)) {
                         $code = $desc;
                         if (empty($code)) {

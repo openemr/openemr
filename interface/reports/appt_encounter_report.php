@@ -421,7 +421,7 @@ if (!empty($_POST['form_refresh'])) {
                                 continue;
                             }
 
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             if ($codetype !== 'IPPF') {
                                 continue;
                             }

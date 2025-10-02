@@ -166,7 +166,7 @@ function checkBackgroundServices(): void
             if (in_array($grpname, $USER_SPECIFIC_TABS)) {
                 foreach ($grparr as $fldid => $fldarr) {
                     if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                        list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                        [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
                             if (empty(trim($_POST["form_$i"]))) {
@@ -241,7 +241,7 @@ function checkBackgroundServices(): void
         $i = 0;
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
                 if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
                     if (isset($_POST["form_$i"])) {
@@ -462,7 +462,7 @@ function checkBackgroundServices(): void
 
                                         foreach ($grparr as $fldid => $fldarr) {
                                             if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                                                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                                                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
 
                                                 // if the setting defines field options for our global setting we grab it, otherwise we default empty
                                                 $fldoptions = $fldarr[4] ?? [];

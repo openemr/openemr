@@ -692,7 +692,7 @@ class GaclApi extends Gacl {
 			return false;
 		}
 
-		list($retarr['acl_id'], $retarr['allow'], $retarr['enabled'], $retarr['return_value'], $retarr['note']) = $acl_row;
+		[$retarr['acl_id'], $retarr['allow'], $retarr['enabled'], $retarr['return_value'], $retarr['note']] = $acl_row;
 
 		//Grab selected ACO's
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aco_map a, ".$this->_db_table_prefix."aco b, ".$this->_db_table_prefix."aco_sections c
@@ -702,7 +702,7 @@ class GaclApi extends Gacl {
 
 		$retarr['aco'] = array();
 		foreach ($rows as $row) {
-			list($section_value, $value, $section, $aco) = $row;
+			[$section_value, $value, $section, $aco] = $row;
 			$this->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
 
 			$retarr['aco'][$section_value][] = $value;
@@ -718,7 +718,7 @@ class GaclApi extends Gacl {
 
 		$retarr['aro'] = array();
         foreach ($rows as $row) {
-			list($section_value, $value, $section, $aro) = $row;
+			[$section_value, $value, $section, $aro] = $row;
 			$this->debug_text("Section Value: $section_value Value: $value Section: $section ARO: $aro");
 
 			$retarr['aro'][$section_value][] = $value;
@@ -734,7 +734,7 @@ class GaclApi extends Gacl {
 
 		$retarr['axo'] = array();
         foreach ($rows as $row) {
-			list($section_value, $value, $section, $axo) = $row;
+			[$section_value, $value, $section, $axo] = $row;
 			$this->debug_text("Section Value: $section_value Value: $value Section: $section AXO: $axo");
 
 			$retarr['axo'][$section_value][] = $value;

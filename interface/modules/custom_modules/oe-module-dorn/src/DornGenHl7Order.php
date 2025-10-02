@@ -190,7 +190,7 @@ class DornGenHl7Order extends GenHl7OrderBase
                     if (empty($codestring)) {
                         continue;
                     }
-                    list($codetype, $code) = explode(':', $codestring);
+                    [$codetype, $code] = explode(':', $codestring);
                     $desc = lookup_code_descriptions($codestring);
                     $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
                     $hasDiagnosisSegment = true;
@@ -208,7 +208,7 @@ class DornGenHl7Order extends GenHl7OrderBase
                         if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
                         }
-                        list($codetype, $code) = explode(':', $codestring);
+                        [$codetype, $code] = explode(':', $codestring);
                         $desc = lookup_code_descriptions($codestring);
                         $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
                         $hasDiagnosisSegment = true;

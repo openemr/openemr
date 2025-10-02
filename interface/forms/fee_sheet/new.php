@@ -1543,9 +1543,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if ($codestring === '') {
                                             continue;
                                         }
-                                        list($newtype, $newcode) = explode('|', $codestring);
+                                        [$newtype, $newcode] = explode('|', $codestring);
                                         if ($newtype == 'MA') {
-                                            list($code, $modifier) = explode(":", $newcode);
+                                            [$code, $modifier] = explode(":", $newcode);
                                             $tmp = sqlQuery(
                                                 "SELECT sex FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
                                                 array($code_types[$newtype]['id'], $code)

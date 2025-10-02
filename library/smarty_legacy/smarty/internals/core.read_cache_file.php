@@ -28,7 +28,7 @@ function smarty_core_read_cache_file(&$params, &$smarty)
     }
 
     if (isset($content_cache[$params['tpl_file'].','.$params['cache_id'].','.$params['compile_id']])) {
-        list($params['results'], $smarty->_cache_info) = $content_cache[$params['tpl_file'].','.$params['cache_id'].','.$params['compile_id']];
+        [$params['results'], $smarty->_cache_info] = $content_cache[$params['tpl_file'].','.$params['cache_id'].','.$params['compile_id']];
         return true;
     }
 

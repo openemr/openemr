@@ -419,7 +419,7 @@ function gen_hl7_order($orderid, &$out)
                     continue;
                 }
 
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 if ($codetype !== 'ICD10') {
                     continue;
                 }

@@ -43,19 +43,14 @@ pnModAPILoad(__POSTCALENDAR__, 'user');
 function postcalendar_user_view()
 {
     // get the vars that were passed in
-    list($Date,
-         $print,
-         $viewtype,
-         $jumpday,
-         $jumpmonth,
-         $jumpyear) = pnVarCleanFromInput(
-             'Date',
-             'print',
-             'viewtype',
-             'jumpday',
-             'jumpmonth',
-             'jumpyear'
-         );
+    [$Date, $print, $viewtype, $jumpday, $jumpmonth, $jumpyear] = pnVarCleanFromInput(
+        'Date',
+        'print',
+        'viewtype',
+        'jumpday',
+        'jumpmonth',
+        'jumpyear'
+    );
 
     $Date = postcalendar_getDate();
 
@@ -82,18 +77,17 @@ function postcalendar_user_view()
  */
 function postcalendar_user_display($args)
 {
-    list($eid, $viewtype, $tplview,
-         $pc_username, $Date, $print, $category, $topic, $pc_facility) = pnVarCleanFromInput(
-             'eid',
-             'viewtype',
-             'tplview',
-             'pc_username',
-             'Date',
-             'print',
-             'pc_category',
-             'pc_topic',
-             'pc_facility'
-         );
+    [$eid, $viewtype, $tplview, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
+        'eid',
+        'viewtype',
+        'tplview',
+        'pc_username',
+        'Date',
+        'print',
+        'pc_category',
+        'pc_topic',
+        'pc_facility'
+    );
     // added to allow the view & providers to remain as the user last saw it -- JRM
     if ($_SESSION['viewtype']) {
         $viewtype = $_SESSION['viewtype'];

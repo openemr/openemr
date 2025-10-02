@@ -96,7 +96,7 @@ function docancel() {
         ///////////////////////////////////////////////////////////////////////
 
         if ($action == 'reg1') {
-            list ($request, $signs) = $u2f->getRegisterData();
+            [$request, $signs] = $u2f->getRegisterData();
             ?>
         <div class="row">
             <div class="col-sm-12">

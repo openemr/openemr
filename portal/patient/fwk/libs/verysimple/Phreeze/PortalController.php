@@ -965,7 +965,7 @@ abstract class PortalController
         }
 
         // support for deprecated Controller/Method format
-        list ( $controller, $method ) = explode(".", str_replace("/", ".", $action));
+        [$controller, $method] = explode(".", str_replace("/", ".", $action));
 
         $url = $this->GetRouter()->GetUrl($controller, $method, $params);
 

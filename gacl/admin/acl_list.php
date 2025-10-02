@@ -194,7 +194,7 @@ switch ($getAction) {
 
 				if ( is_object($rs) ) {
 					while ( $row = $rs->FetchRow() ) {
-						list($acl_id, $name, $section_name) = $row;
+						[$acl_id, $name, $section_name] = $row;
 
 						if ( isset($acls[$acl_id]) ) {
 							$acls[$acl_id][$type][$section_name][] = $name;
@@ -215,7 +215,7 @@ switch ($getAction) {
 
 				if ( is_object($rs) ) {
 					while ( $row = $rs->FetchRow () ) {
-						list($acl_id, $name) = $row;
+						[$acl_id, $name] = $row;
 
 						if ( isset($acls[$acl_id]) ) {
 							$acls[$acl_id][$type .'_groups'][] = $name;

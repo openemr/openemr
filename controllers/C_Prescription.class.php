@@ -713,7 +713,7 @@ class C_Prescription extends Controller
             $this->function_argument_error();
         }
 
-        list($pdf, $patient) = $this->generatePdfObjectForPrescriptionIds($id);
+        [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
 
         $pFirstName = $patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
         $pFName = convert_safe_file_dir_name($pFirstName);
@@ -962,11 +962,11 @@ class C_Prescription extends Controller
 
         $mail = new MyMailer();
         if ($sendAsPdf) {
-            list($pdf, $patient) = $this->generatePdfObjectForPrescriptionIds($id);
+            [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
             $pdfAsString = $pdf->output();
             $mailBody = $GLOBALS['openemr_name'] . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
         } else {
-            list($mailBody, $patient) = $this->generateHtmlObjectForPrescriptionIds($id);
+            [$mailBody, $patient] = $this->generateHtmlObjectForPrescriptionIds($id);
             $mail->isHTML(true);
         }
 

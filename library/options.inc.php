@@ -3374,7 +3374,7 @@ function getCodeDescription($codestring, $defaulttype = 'ICD10')
     if ($codestring === '') {
         return '';
     }
-    list($ctype, $code) = explode(':', $codestring);
+    [$ctype, $code] = explode(':', $codestring);
     if (empty($code)) {
         $code = $ctype;
         $ctype = $defaulttype;

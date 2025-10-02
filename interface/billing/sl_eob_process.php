@@ -248,7 +248,7 @@ function era_callback(&$out): void
         $last_code = '';
         $invoice_total = 0.00;
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
 
         // Get details, if we have them, for the invoice.
         $inverror = true;

@@ -51,7 +51,7 @@ function parseArgs($argv): array
     $args = [];
     foreach ($argv as $arg) {
         if (str_starts_with($arg, '--')) {
-            list($key, $value) = explode('=', substr($arg, 2), 2) + [1 => null];
+            [$key, $value] = explode('=', substr($arg, 2), 2) + [1 => null];
             if ($key === 'help') {
                 showHelp();
             }

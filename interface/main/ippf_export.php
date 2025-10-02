@@ -224,7 +224,7 @@ function exportEncounter($pid, $encounter, $date): void
                     continue;
                 }
 
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 if ($codetype !== 'IPPF') {
                     continue;
                 }
@@ -285,14 +285,14 @@ function exportEncounter($pid, $encounter, $date): void
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype == 'REF') {
                 // This is the expected case; a direct IPPF code is obsolete.
                 $rrow = sqlQuery("SELECT related_code FROM codes WHERE " .
                 "code_type = '16' AND code = ? AND active = 1 " .
                 "ORDER BY id LIMIT 1", array($code));
                 if (!empty($rrow['related_code'])) {
-                        list($codetype, $code) = explode(':', $rrow['related_code']);
+                        [$codetype, $code] = explode(':', $rrow['related_code']);
                 }
             }
 

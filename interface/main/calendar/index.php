@@ -100,7 +100,7 @@ SessionUtil::setSession($sessionSetArray);
 pnInit();
 
 // Get variables
-list($module, $func, $type) = pnVarCleanFromInput('module', 'func', 'type');
+[$module, $func, $type] = pnVarCleanFromInput('module', 'func', 'type');
 
 if ($module != "PostCalendar") {
     // exit if not using PostCalendar module
