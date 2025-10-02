@@ -922,11 +922,11 @@ class Events extends Base
                         continue; //not happening - either not allowed or not possible
                     }
                     if ($no_fu) {
-                        $sql_NoFollowUp = "SELECT pc_pid FROM openemr_postcalendar_events WHERE
+                        $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
                             pc_eventDate > ( ? + INTERVAL " . escape_limit($no_interval) . " DAY)";
                         $result = sqlQuery($sql_NoFollowUp, array($appt['pc_pid'], $appt['pc_eventDate']));
-                        if (count($result) > '') {
+                        if ($result['num'] > 0) {
                             continue;
                         }
                     }
