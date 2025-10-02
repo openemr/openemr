@@ -329,7 +329,12 @@ class ApiTestClientTest extends TestCase
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         // remove the route scope
-        $scopeCustom = str_replace(self::API_ROUTE_SCOPE, '', ApiTestClient::ALL_SCOPES);
+        $scopeCustom = str_replace(
+            self::API_ROUTE_SCOPE,
+            '',
+            implode(' ', ApiTestClient::ALL_SCOPES)
+        );
+
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
@@ -386,7 +391,11 @@ class ApiTestClientTest extends TestCase
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         // remove the endpoint scope
-        $scopeCustom = str_replace(self::EXAMPLE_API_ENDPOINT_SCOPE, '', ApiTestClient::ALL_SCOPES);
+        $scopeCustom = str_replace(
+            self::EXAMPLE_API_ENDPOINT_SCOPE,
+            '',
+            implode(' ', ApiTestClient::ALL_SCOPES)
+        );
 
         $refreshBody = [
             "grant_type" => "refresh_token",
