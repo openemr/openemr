@@ -23,6 +23,7 @@ use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php72\Rector\While_\WhileEachToForeachRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
@@ -81,6 +82,7 @@ return RectorConfig::configure()
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
         RandomFunctionRector::class, // one of the withPhpSets rules
+        SetCookieRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
         WhileEachToForeachRector::class, // one of the withPhpSets rules
     ])
