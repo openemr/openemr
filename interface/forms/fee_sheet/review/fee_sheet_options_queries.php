@@ -16,23 +16,13 @@
  */
 class fee_sheet_option
 {
-    function __construct($c, $ct, $desc, $price, $category)
+    function __construct(public $code, public $code_type, public $description, public $price, public $category)
     {
-        $this->code = $c;
-        $this->code_type = $ct;
-        $this->description = $desc;
-        $this->price = $price;
-        $this->category = $category;
-        if ($price == null) {
+        if ($this->price == null) {
             $this->price = xl("Not Specified");
         }
     }
-    public $code;
-    public $code_type;
-    public $description;
-    public $price;
     public $fee_display;
-    public $category;
 }
 /**
  * get a list of fee sheet options

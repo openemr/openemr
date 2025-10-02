@@ -29,18 +29,11 @@ use RuntimeException;
 
 class OneTimeAuth
 {
-    private $scope;
-    private $context;
-    private $profile;
     private $cryptoGen;
     private $systemLogger;
 
-    public function __construct($context = 'portal', $scope = 'redirect', $profile = 'default')
+    public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
-        // scope = portal/service tasks (reset, register). context = portal, patient etc.
-        $this->context = $context;
-        $this->scope = $scope;
-        $this->profile = $profile;
         $this->cryptoGen = new CryptoGen();
         $this->systemLogger = new SystemLogger();
     }

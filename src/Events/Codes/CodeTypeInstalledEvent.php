@@ -30,19 +30,19 @@ class CodeTypeInstalledEvent extends Event
     const EVENT_INSTALLED_POST = 'external_codes.installed.post';
 
     /**
-     * @var string The code type system that was installed
+     * @param string $code_type
+     * @param mixed[] $details
      */
-    private $code_type;
-
-    /**
-     * @var array Additional details for the specific code type that was installed.
-     */
-    private $details;
-
-    public function __construct($code_type, $details)
-    {
-        $this->code_type = $code_type;
-        $this->details = $details;
+    public function __construct(
+        /**
+         * @var string The code type system that was installed
+         */
+        private $code_type,
+        /**
+         * @var array Additional details for the specific code type that was installed.
+         */
+        private $details
+    ) {
     }
 
     /**

@@ -31,11 +31,6 @@ require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
 class BaseService implements BaseServiceInterface
 {
-    /**
-     * Passed in data should be vetted and fully qualified from calling service class
-     * Expect to see some search helpers here as well.
-     */
-    private $table;
     private $fields;
     private $autoIncrements;
 
@@ -64,11 +59,14 @@ class BaseService implements BaseServiceInterface
     /**
      * Default constructor.
      */
-    public function __construct($table)
-    {
-        $this->table = $table;
-        $this->fields = sqlListFields($table);
-        $this->autoIncrements = self::getAutoIncrements($table);
+    public function __construct(/**
+         * Passed in data should be vetted and fully qualified from calling service class
+         * Expect to see some search helpers here as well.
+         */
+        private $table
+    ) {
+        $this->fields = sqlListFields($this->table);
+        $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }

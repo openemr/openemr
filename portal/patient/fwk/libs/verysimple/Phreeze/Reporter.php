@@ -16,7 +16,6 @@
  */
 abstract class Reporter implements Serializable
 {
-    protected $_phreezer;
     private $_isLoaded;
     private $_isPartiallyLoaded;
     private $_cacheLevel = 0;
@@ -105,13 +104,11 @@ abstract class Reporter implements Serializable
      * constructor
      *
      * @access public
-     * @param Phreezer $phreezer
+     * @param Phreezer $_phreezer
      * @param Array $row
      */
-    final function __construct(&$phreezer, $row = null)
+    final function __construct(protected $_phreezer, $row = null)
     {
-        $this->_phreezer = $phreezer;
-
         if ($row) {
             $this->Load($row);
         }

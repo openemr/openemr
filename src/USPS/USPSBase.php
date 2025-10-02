@@ -28,11 +28,6 @@ use LaLit\XML2Array;
 class USPSBase
 {
     const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
-
-  /**
-   * @var string - the usps username provided by the usps website
-   */
-    protected $username = '';
   /**
    *  the error code if one exists
    * @var integer
@@ -109,9 +104,8 @@ class USPSBase
    * Constructor
    * @param string $username - the usps api username
    */
-    public function __construct($username = '')
+    public function __construct(protected $username = '')
     {
-        $this->username = $username;
     }
   /**
    * set the usps api username we are going to user

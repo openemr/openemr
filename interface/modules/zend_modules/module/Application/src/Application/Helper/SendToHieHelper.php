@@ -20,14 +20,8 @@ use Application\Controller\SendtoController;
 
 class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
 {
-  /**
-   * @var \Application\Controller\SendtoController
-   */
-    private $sendController;
-
-    public function __construct(SendtoController $sendController)
+    public function __construct(private SendtoController $sendController)
     {
-        $this->sendController = $sendController;
     }
 
   /**

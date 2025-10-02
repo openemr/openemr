@@ -30,30 +30,27 @@ class PatientFinderFilterEvent extends AbstractBoundFilterEvent
     const EVENT_HANDLE = 'patientFinder.customFilter';
 
     /**
-     * @var array
-     *
-     * Array of columns displayed on the UI of patient finder
-     */
-    private $displayedColumns = [];
-
-    /**
-     * @var array
-     *
-     * Array of ColumnFilters that the end-user has created through UI
-     */
-    private $userColumnFilters = [];
-
-    /**
      * PatientFinderFilterEvent constructor.
      * @param BoundFilter the filter object to be modified to create custom filter
      * @param $displayedColumns
      * @param array of ColumnFilter objects $userColumnFilters
+     * @param mixed[] $displayedColumns
+     * @param mixed[] $userColumnFilters
      */
-    public function __construct(BoundFilter $boundFilter, $displayedColumns, $userColumnFilters = [])
-    {
+    public function __construct(
+        BoundFilter $boundFilter, /**
+         * @var array
+         *
+         * Array of columns displayed on the UI of patient finder
+         */
+        private $displayedColumns, /**
+         * @var array
+         *
+         * Array of ColumnFilters that the end-user has created through UI
+         */
+        private $userColumnFilters = []
+    ) {
         parent::__construct($boundFilter);
-        $this->displayedColumns = $displayedColumns;
-        $this->userColumnFilters = $userColumnFilters;
     }
 
     public function getDisplayedColumns()

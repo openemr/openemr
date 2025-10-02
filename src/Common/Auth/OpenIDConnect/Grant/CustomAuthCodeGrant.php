@@ -29,17 +29,20 @@ class CustomAuthCodeGrant extends AuthCodeGrant
 {
     use SystemLoggerAwareTrait;
 
-    /**
-     * @var string[] The expected 'aud' query parameter to validate a JWT grant against
-     */
-    private array $expectedAudience;
-
     private array $openEMRCodeChallengeVerifiers;
 
-    public function __construct(AuthCodeRepositoryInterface $authCodeRepository, RefreshTokenRepositoryInterface $refreshTokenRepository, DateInterval $authCodeTTL, $expectedAudience)
-    {
+    /**
+     * @param string[] $expectedAudience
+     */
+    public function __construct(
+        AuthCodeRepositoryInterface $authCodeRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        DateInterval $authCodeTTL, /**
+         * @var string[] The expected 'aud' query parameter to validate a JWT grant against
+         */
+        private array $expectedAudience
+    ) {
         parent::__construct($authCodeRepository, $refreshTokenRepository, $authCodeTTL);
-        $this->expectedAudience = $expectedAudience;
         // the only code challenge methods we allow
         $this->openEMRCodeChallengeVerifiers = ['S256' => true];
     }

@@ -17,21 +17,18 @@ namespace OpenEMR\Services\Search;
 class SearchFieldComparableValue
 {
     /**
-     * @var mixed
-     */
-    private $value;
-
-    /**
      * @var string
      */
     private $comparator;
 
-    public function __construct($value, $comparator = SearchComparator::EQUALS)
+    /**
+     * @param mixed $value
+     */
+    public function __construct(private $value, $comparator = SearchComparator::EQUALS)
     {
         if (!SearchComparator::isValidComparator($comparator)) {
             throw new \InvalidArgumentException("Invalid comparator of '" . $comparator . "' found");
         }
-        $this->value = $value;
         $this->comparator = $comparator;
     }
 

@@ -24,24 +24,18 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 class FHIRSearchFieldFactory
 {
     /**
-     * @var FhirSearchParameterDefinition[];
-     */
-    private $resourceSearchParameters;
-
-    /**
      * @var FhirUrlResolver
      */
     private $fhirUrlResolver;
 
     /**
      * FHIRSearchFieldFactory constructor.
-     * @param FhirSearchParameterDefinition[] $searchFieldDefinitions
+     * @param FhirSearchParameterDefinition[] $resourceSearchParameters
      * @throws \InvalidArgumentException if $searchFieldDefinitions are not an instance of FhirSearchParameterDefinition
      */
-    public function __construct(array $searchFieldDefinitions)
+    public function __construct(private array $resourceSearchParameters)
     {
-        $this->resourceSearchParameters = $searchFieldDefinitions;
-        foreach ($searchFieldDefinitions as $key => $definition) {
+        foreach ($this->resourceSearchParameters as $key => $definition) {
             if (!$definition instanceof FhirSearchParameterDefinition) {
                 throw new \InvalidArgumentException("Search parameter contains invalid class definition " . $key);
             }

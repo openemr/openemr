@@ -29,51 +29,25 @@ require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 class Signature implements SignatureIF
 {
-    private $id; // id of the signature
-    private $tid;
-    private $table;
-    private $isLock = null; // flag signifying whether the signable object is locked
-    private $uid; // user id of the signer
-    private $firstName; // first name of signer
-    private $lastName; // last name of signer
-    private $suffix; // suffix of signer
-    private $valedictory; // aka credential of signer
-    private $datetime; // date and time of the signature
-    private $hash; // hash of the thing being signed on (SignableIF)
-    private $signatureHash = null; // hash of data in this signature
-    private $amendment = null; // note about the signature, if any
+    // note about the signature, if any
 
     private $_verification = null;
 
     public function __construct(
-        $id,
-        $tid,
-        $table,
-        $isLock,
-        $uid,
-        $firstName,
-        $lastName,
-        $suffix,
-        $valedictory,
-        $datetime,
-        $hash,
-        $amendment = null,
-        $signatureHash = null
+        private $id,
+        private $tid,
+        private $table,
+        private $isLock,
+        private $uid,
+        private $firstName,
+        private $lastName,
+        private $suffix,
+        private $valedictory,
+        private $datetime,
+        private $hash,
+        private $amendment = null,
+        private $signatureHash = null
     ) {
-        $this->id = $id;
-        $this->tid = $tid;
-        $this->table = $table;
-        $this->isLock = $isLock;
-        $this->uid = $uid;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->suffix = $suffix;
-        $this->valedictory = $valedictory;
-        $this->datetime = $datetime;
-        $this->hash = $hash;
-        $this->amendment = $amendment;
-        $this->signatureHash = $signatureHash;
-
         $this->_verification = new Utils_Verification();
     }
 

@@ -29,21 +29,15 @@ use Error;
 
 class PatientvalidationController extends BaseController
 {
-    /**
-     * @var PatientDataTable
-     */
-    private $PatientDataTable;
-
     private Listener $listenerObject;
 
     /**
      * PatientvalidationController constructor.
      */
-    public function __construct(PatientDataTable $dataTable)
+    public function __construct(private PatientDataTable $PatientDataTable)
     {
         parent::__construct();
         $this->listenerObject = new Listener();
-        $this->PatientDataTable = $dataTable;
         //todo add permission of admin
     }
 

@@ -14,7 +14,6 @@
 class DBKey
 {
     public $Table;
-    public $Name;
     public $NameNoPrefix;
     public $GetterName;
     public $KeyColumn;
@@ -26,13 +25,12 @@ class DBKey
      * @access public
      * @param DBTable $table
      *          that is the dependent/child table
-     * @param string $keyname
+     * @param string $Name
      * @param string $columnname
      */
-    function __construct($table, $keyname, $columnname)
+    function __construct($table, public $Name, $columnname)
     {
         $this->Table = & $table;
-        $this->Name = $keyname;
         $this->KeyColumn = str_replace("`", "", $columnname);
         $this->KeyComment = $this->Table->Columns [$this->KeyColumn]->Comment;
 

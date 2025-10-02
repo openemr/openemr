@@ -27,17 +27,8 @@ use Twig\Environment;
 
 class TeleHealthPatientPortalController
 {
-    private $twig;
-    private $assetPath;
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-    public function __construct(Environment $twig, $assetPath, TelehealthGlobalConfig $config)
+    public function __construct(private Environment $twig, private $assetPath, private TelehealthGlobalConfig $config)
     {
-        $this->twig = $twig;
-        $this->assetPath = $assetPath;
-        $this->config = $config;
     }
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)

@@ -25,13 +25,11 @@ class CcrController extends AbstractActionController
 {
     protected $ccrTable;
     protected $listenerObject;
-    private $documentsController;
 
-    public function __construct(CcrTable $ccrTable, DocumentsController $documentsController)
+    public function __construct(CcrTable $ccrTable, private DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
         $this->listenerObject   = new Listener();
-        $this->documentsController = $documentsController;
     }
 
     /*

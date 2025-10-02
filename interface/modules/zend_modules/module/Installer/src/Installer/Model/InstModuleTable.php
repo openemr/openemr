@@ -39,11 +39,6 @@ class InstModuleTable
     protected $applicationTable;
 
     /**
-     * We have to create and populate some classes so we use the service container to load them
-     */
-    private $container;
-
-    /**
      * The path for the zend modules locations
      *
      * @var string
@@ -53,14 +48,17 @@ class InstModuleTable
     public const MODULE_TYPE_ZEND = 1;
     public const MODULE_TYPE_CUSTOM = 0;
 
-    public function __construct(TableGateway $tableGateway, ContainerInterface $container)
-    {
+    public function __construct(
+        TableGateway $tableGateway, /**
+         * We have to create and populate some classes so we use the service container to load them
+         */
+        private ContainerInterface $container
+    ) {
         $this->tableGateway = $tableGateway;
         $adapter = GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->applicationTable = new ApplicationTable();
-        $this->container = $container;
         $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
             . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
     }

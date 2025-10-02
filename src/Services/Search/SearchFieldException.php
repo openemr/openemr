@@ -16,13 +16,16 @@ use Throwable;
 class SearchFieldException extends \InvalidArgumentException
 {
     /**
-     * @var string The name of the field that the exception was triggered on
+     * @param string $field
      */
-    private $field;
-
-    public function __construct($field, $message = "", $code = 0, ?Throwable $previous = null)
-    {
-        $this->field = $field;
+    public function __construct(/**
+         * @var string The name of the field that the exception was triggered on
+         */
+        private $field,
+        $message = "",
+        $code = 0,
+        ?Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
     }
 

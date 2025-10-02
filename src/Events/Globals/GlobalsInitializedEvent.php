@@ -28,19 +28,11 @@ class GlobalsInitializedEvent extends Event
     const EVENT_HANDLE = 'globals.initialized';
 
     /**
-     * @var array
-     *
-     * The globals service for manipulating globals data structure
-     */
-    private $globalsService = null;
-
-    /**
      * GlobalsInitializedEvent constructor.
      * @param array $globalsService
      */
-    public function __construct(GlobalsService $globalsService)
+    public function __construct(private GlobalsService $globalsService)
     {
-        $this->globalsService = $globalsService;
     }
 
     /**

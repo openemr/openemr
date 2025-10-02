@@ -23,11 +23,9 @@ class CurlRequest
     private $cookies = [];
     private $response = '';
     private $handle;
-    private $sessionFile;
 
-    public function __construct($sessionFile)
+    public function __construct(private $sessionFile)
     {
-        $this->sessionFile = $sessionFile;
         $this->restoreSession();
     }
 
@@ -109,13 +107,11 @@ class CurlRequest
 
 class Base
 {
-    protected $MedEx;
     protected $curl;
 
-    public function __construct($MedEx)
+    public function __construct(protected $MedEx)
     {
-        $this->MedEx = $MedEx;
-        $this->curl = $MedEx->curl;
+        $this->curl = $this->MedEx->curl;
     }
 }
 

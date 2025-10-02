@@ -43,34 +43,9 @@ class SMARTAuthorizationController
     private SystemLogger $logger;
 
     /**
-     * The base URL of the oauth2 url
-     * @var string
-     */
-    private string $authBaseFullURL;
-
-    /**
-     * The oauth2 endpoint url to send to once smart authorization is complete.
-     * @var string
-     */
-    private string $smartFinalRedirectURL;
-
-    /**
-     * The directory that the oauth template files can be included from
-     * @var string
-     */
-    private string $oauthTemplateDir;
-
-    /**
-     * @var Environment The twig template engine
-     */
-    private Environment $twig;
-
-    /**
      * @var EventDispatcherInterface
      */
     private EventDispatcherInterface $dispatcher;
-
-    private SessionInterface $session;
 
     private PatientContextSearchController $patientContextSearchController;
 
@@ -103,21 +78,26 @@ class SMARTAuthorizationController
      * @param $smartFinalRedirectURL string The URL that should be redirected to once all SMART authorizations are complete.
      * @param $oauthTemplateDir string The directory that the oauth template files can be included from.
      * @param Environment $twig The twig template engine to use for rendering pages.
- */
+     * @param string $authBaseFullURL
+     */
     public function __construct(
-        SessionInterface $session,
+        private SessionInterface $session,
         OEHttpKernel $kernel,
-        $authBaseFullURL,
-        string $smartFinalRedirectURL,
-        string $oauthTemplateDir,
-        Environment $twig
+        /**
+         * The base URL of the oauth2 url
+         */
+        private string $authBaseFullURL,
+        /**
+         * The oauth2 endpoint url to send to once smart authorization is complete.
+         */
+        private string $smartFinalRedirectURL,
+        /**
+         * The directory that the oauth template files can be included from
+         */
+        private string $oauthTemplateDir,
+        private Environment $twig
     ) {
-        $this->session = $session;
         $this->logger = $kernel->getSystemLogger();
-        $this->authBaseFullURL = $authBaseFullURL;
-        $this->smartFinalRedirectURL = $smartFinalRedirectURL;
-        $this->oauthTemplateDir = $oauthTemplateDir;
-        $this->twig = $twig;
         $this->dispatcher = $kernel->getEventDispatcher();
         $this->globalsBag = $kernel->getGlobalsBag();
     }

@@ -24,13 +24,6 @@ class PageHeadingRenderEvent extends Event
 {
     const EVENT_PAGE_HEADING_RENDER = 'oemrui.page.header.render';
 
-    /**
-     * The PageID being rendered
-     *
-     * @var string
-     */
-    private string $page_id;
-
     private array $actions;
 
     /**
@@ -46,9 +39,11 @@ class PageHeadingRenderEvent extends Event
      * @param int|null $userId The userid that is being edited, null if this is a brand new user
      * @param array $context
      */
-    public function __construct(string $page_id)
-    {
-        $this->page_id = $page_id;
+    public function __construct(/**
+         * The PageID being rendered
+         */
+        private string $page_id
+    ) {
         $this->actions = [];
         $this->primary_menu = new MenuItems();
     }

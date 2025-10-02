@@ -33,12 +33,6 @@ class GenericRouter implements IRouter
      */
     public $routeMap;
 
-    /** @var string the default action if requested route is empty (typically the application home page) */
-    public $defaultAction = 'Default.Home';
-
-    /** @var string the fully qualified root url for the app. Ex: "https://site.local/" */
-    public $appRootUrl = '';
-
     /** @var string cached URI  */
     private $uri = '';
 
@@ -58,10 +52,8 @@ class GenericRouter implements IRouter
      * @param array $mapping
      *          the
      */
-    public function __construct($appRootUrl, $defaultAction, array $routeMap)
+    public function __construct(public $appRootUrl, public $defaultAction, array $routeMap)
     {
-        $this->defaultAction = $defaultAction;
-        $this->appRootUrl = $appRootUrl;
         $this->routeMap = $routeMap;
         $this->matchedRoute = null;
     }

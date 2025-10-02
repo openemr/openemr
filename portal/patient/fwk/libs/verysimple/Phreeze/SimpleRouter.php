@@ -27,7 +27,6 @@ require_once("verysimple/Phreeze/IRouter.php");
 class SimpleRouter implements IRouter
 {
     public static $ROUTE_NOT_FOUND = "Default.Error404";
-    private $routes =  [];
     private $defaultAction = 'Default.Home';
     private $appRootUrl = '';
 
@@ -35,16 +34,14 @@ class SimpleRouter implements IRouter
      *
      * @param string $appRootUrl
      * @param string $defaultAction
-     * @param array $mapping
+     * @param array $routes
      *          routeMap
      */
-    public function __construct($appRootUrl = '', $defaultAction = '', $mapping = [])
+    public function __construct($appRootUrl = '', $defaultAction = '', private $routes = [])
     {
         if ($defaultAction) {
             $this->defaultAction = $defaultAction;
         }
-
-        $this->routes = $mapping;
     }
 
     /**

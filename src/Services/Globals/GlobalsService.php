@@ -20,38 +20,35 @@ namespace OpenEMR\Services\Globals;
 class GlobalsService
 {
     /**
-     * @var array
-     *
-     * The entire globals structure
-     */
-    private $globalsMetadata = [];
-
-    /**
-     * @var array
-     *
-     * User-specific globals
-     */
-    private $userSpecificGlobals = [];
-
-    /**
-     * @var array
-     *
-     *  User specific tabs
-     */
-    private $userSpecificTabs = [];
-
-    /**
      * GlobalsInitEvent constructor.
      * @param $userService
      * @param $GLOBALS_METADATA
      * @param $USER_SPECIFIC_GLOBALS
      * @param $USER_SPECIFIC_TABS
+     * @param mixed[] $GLOBALS_METADATA
+     * @param mixed[] $USER_SPECIFIC_GLOBALS
+     * @param mixed[] $USER_SPECIFIC_TABS
      */
-    public function __construct($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS)
-    {
-        $this->globalsMetadata = $GLOBALS_METADATA;
-        $this->userSpecificGlobals = $USER_SPECIFIC_GLOBALS;
-        $this->userSpecificTabs = $USER_SPECIFIC_TABS;
+    public function __construct(
+        /**
+         * @var array
+         *
+         * The entire globals structure
+         */
+        private $globalsMetadata,
+        /**
+         * @var array
+         *
+         * User-specific globals
+         */
+        private $userSpecificGlobals,
+        /**
+         * @var array
+         *
+         *  User specific tabs
+         */
+        private $userSpecificTabs
+    ) {
     }
 
     /**

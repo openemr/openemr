@@ -16,14 +16,8 @@ namespace OpenEMR\Reminder;
 
 class BirthdayReminder
 {
-    private $pid;
-
-    private $user_id;
-
-    public function __construct($pid, $user_id)
+    public function __construct(private $pid, private $user_id)
     {
-        $this->pid = $pid;
-        $this->user_id = $user_id;
     }
 
     public function birthdayAlertResponse($turnOff)

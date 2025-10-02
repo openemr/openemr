@@ -15,13 +15,11 @@ use OpenEMR\Services\Qdm\PopulationSet;
 
 class AggregateCount
 {
-    public $measure_id;
     public $populations = [];
     public $population_groups = [];
 
-    public function __construct($measure_id)
+    public function __construct(public $measure_id)
     {
-        $this->measure_id = $measure_id;
     }
 
     public function add_entry($cache_entry, array $population_sets)

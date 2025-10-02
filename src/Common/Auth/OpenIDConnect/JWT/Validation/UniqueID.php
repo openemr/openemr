@@ -19,14 +19,8 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class UniqueID implements Constraint
 {
-    /**
-     * @var JWTRepository
-     */
-    private $jwtRepository;
-
-    public function __construct(JWTRepository $jwtRepository)
+    public function __construct(private JWTRepository $jwtRepository)
     {
-        $this->jwtRepository = $jwtRepository;
     }
 
     /** @throws ConstraintViolation */
