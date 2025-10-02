@@ -8,6 +8,7 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\StaticCall\RemoveParentCallWithoutParentRector;
 use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
@@ -108,6 +109,7 @@ return RectorConfig::configure()
         PowToExpRector::class, // one of the withPhpSets rules
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
+        RemoveParentCallWithoutParentRector::class, // one of the withPhpSets rules
         ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
         RestoreDefaultNullToNullableTypePropertyRector::class, // one of the withPhpSets rules
         ReturnNeverTypeRector::class, // one of the withPhpSets rules
