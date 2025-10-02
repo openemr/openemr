@@ -35,11 +35,7 @@ class ClinicalNoteParser
             '18748-4' => 'imaging_narrative',
             '81222-2' => 'consultation_note',
         ];
-
-        if (isset($options[$code])) {
-            return $options[$code];
-        }
-        return null;
+        return $options[$code] ?? null;
     }
 
     /**
