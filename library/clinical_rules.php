@@ -697,9 +697,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
         //  will actually need rather than pass in a explicit patient_id for each patient in
         //  a separate call to this function.
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
-        $filteredRules = array_filter($rules, function ($rule) {
-            return $rule['amc_flag'] || $rule['cqm_flag'];
-        });
+        $filteredRules = array_filter($rules, fn($rule): bool => $rule['amc_flag'] || $rule['cqm_flag']);
 
         // TODO: @adunsulag I'd prefer to use a service here, but in order to be consistent with everything else in this file we will use sqlStatementCdrEngine
         $sql =  "SELECT id, name, federal_ein, facility_npi, tax_id_type FROM facility WHERE facility.billing_location = 1 "

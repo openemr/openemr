@@ -1084,9 +1084,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                  */
                 function filterActiveIssues(array $i): array
                 {
-                    return array_filter($i, function ($_i) {
-                        return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now')));
-                    });
+                    return array_filter($i, fn($_i): bool => ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now'))));
                 }
 
                 // ALLERGY CARD

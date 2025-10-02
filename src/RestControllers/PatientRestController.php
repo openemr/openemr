@@ -96,9 +96,7 @@ class PatientRestController
     {
         $validSearchFields = array_filter(
             $search,
-            function ($key) {
-                return in_array($key, self::SUPPORTED_SEARCH_FIELDS);
-            },
+            fn($key): bool => in_array($key, self::SUPPORTED_SEARCH_FIELDS),
             ARRAY_FILTER_USE_KEY
         );
         $processingResult = $this->patientService->getAll($validSearchFields, true, null, $config);

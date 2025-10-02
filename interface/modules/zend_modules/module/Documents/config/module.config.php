@@ -21,9 +21,7 @@ use Interop\Container\ContainerInterface;
 return array(
     'controllers' => array(
         'factories' => [
-            DocumentsController::class => function (ContainerInterface $container, $requestedName) {
-                return new DocumentsController($container->get(DocumentsTable::class));
-            }
+            DocumentsController::class => fn(ContainerInterface $container, $requestedName): \Documents\Controller\DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
         ],
 
     ),
@@ -71,9 +69,7 @@ return array(
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     'controller_plugins' => array(
         'factories' => array(
-            'Documents' => function (ContainerInterface $container, $requestedName) {
-                return new Plugin\Documents($container);
-            }
+            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents($container)
         )
     ),
     'service_manager' => [
@@ -84,9 +80,7 @@ return array(
             },
             // this class is used in other places such as the CCR module, etc so we have to expose it again.
             // TODO: we can turn this into a factory so we don't have the dup code here...
-            DocumentsController::class => function (ContainerInterface $container, $requestedName) {
-                return new DocumentsController($container->get(DocumentsTable::class));
-            }
+            DocumentsController::class => fn(ContainerInterface $container, $requestedName): \Documents\Controller\DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
         ]
 
 

@@ -466,9 +466,7 @@ class CodeTypesService
             throw new InvalidArgumentException("Unsupported code category: $category");
         }
 
-        $return = array_keys(array_filter($code_types, function ($ct_arr) use ($cat_code) {
-            return ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false);
-        }));
+        $return = array_keys(array_filter($code_types, fn($ct_arr): bool => ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false)));
 
         return $return_format === 'csv' ? csv_like_join($return) : $return;
     }

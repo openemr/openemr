@@ -72,9 +72,7 @@ class FacilityValidator extends BaseValidator
                     }
                 );
                 // additional euuid validation
-                $context->required("uuid", "Facility UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "facility", $value, true);
-                })->uuid();
+                $context->required("uuid", "Facility UUID")->callback(fn($value) => $this->validateId("uuid", "facility", $value, true))->uuid();
             }
         );
     }

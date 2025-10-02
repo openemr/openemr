@@ -522,9 +522,7 @@ class Installer
             'v_database' => $v_database,
             'v_acl' => $v_acl
         ]);
-        $update_parts = array_map(function ($field) use ($version_fields) {
-            return sprintf("%s = '%s'", $field, $version_fields[$field]);
-        }, array_keys($version_fields));
+        $update_parts = array_map(fn($field): string => sprintf("%s = '%s'", $field, $version_fields[$field]), array_keys($version_fields));
 
         // Join the parts with commas
         $update_sql = "UPDATE version SET " . implode(", ", $update_parts);
@@ -1838,9 +1836,7 @@ $config = 1; /////////////
     public function listThemes(): array
     {
         $themes_img_dir = "public/images/stylesheets/";
-        $arr_themes_img = array_values(array_filter($this->scanDir($themes_img_dir), function ($item) {
-            return $item[0] !== '.';
-        }));
+        $arr_themes_img = array_values(array_filter($this->scanDir($themes_img_dir), fn($item): bool => $item[0] !== '.'));
         return $arr_themes_img;
     }
 

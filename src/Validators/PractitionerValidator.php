@@ -36,9 +36,7 @@ class PractitionerValidator extends BaseValidator
                 $context->required("npi", "NPI")->numeric()->lengthBetween(10, 15);
                 $context->optional("facility_id", "Facility Id")->numeric()->callback(
                     // check if facility exist
-                    function ($value) {
-                        return $this->validateId("id", "facility", $value);
-                    }
+                    fn($value) => $this->validateId("id", "facility", $value)
                 );
                 $context->optional("email", "Email")->email();
             }
@@ -57,9 +55,7 @@ class PractitionerValidator extends BaseValidator
                     }
                 );
                 // additional euuid validation
-                $context->required("uuid", "Practitioner UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "users", $value, true);
-                })->uuid();
+                $context->required("uuid", "Practitioner UUID")->callback(fn($value) => $this->validateId("uuid", "users", $value, true))->uuid();
             }
         );
     }

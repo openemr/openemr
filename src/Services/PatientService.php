@@ -466,9 +466,7 @@ class PatientService extends BaseService
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
-                return "?";
-            }, $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
+            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(fn($uuid): string => "?", $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults, $pagination);
             $processingResult->getPagination()->setTotalCount($uuidCount);
@@ -829,9 +827,7 @@ class PatientService extends BaseService
     {
         // get integer only filtered pids for sql safety
         $pids = array_map('intval', $patientPids);
-        $pids = array_filter($pids, function ($pid) {
-            return $pid > 0;
-        });
+        $pids = array_filter($pids, fn($pid): bool => $pid > 0);
 
         $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "
         . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY pid";

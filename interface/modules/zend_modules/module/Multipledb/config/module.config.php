@@ -34,9 +34,7 @@ return array(
     /* declare all controllers */
     'controllers' => array(
         'factories' => [
-            MultipledbController::class => function (ContainerInterface $container, $requestedName) {
-                return new MultipledbController($container->get(MultipledbTable::class));
-            },
+            MultipledbController::class => fn(ContainerInterface $container, $requestedName): \Multipledb\Controller\MultipledbController => new MultipledbController($container->get(MultipledbTable::class)),
             ModuleconfigController::class => InvokableFactory::class
         ],
     ),

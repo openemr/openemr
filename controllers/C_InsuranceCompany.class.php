@@ -66,9 +66,7 @@ class C_InsuranceCompany extends Controller
                 ];
                 $iCompanies[] = $company;
             }
-            usort($iCompanies, function ($a, $b) {
-                return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
-            });
+            usort($iCompanies, fn($a, $b): int => strcasecmp($a['name'] ?? '', $b['name'] ?? ''));
         }
         $templateVars = [
             'CURRENT_ACTION' => $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&"

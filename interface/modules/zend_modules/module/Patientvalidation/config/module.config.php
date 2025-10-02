@@ -33,9 +33,7 @@ return array(
     /* declare all controllers */
     'controllers' => array(
         'factories' => [
-            PatientvalidationController::class =>  function (ContainerInterface $container, $requestedName) {
-                return new PatientvalidationController($container->get(PatientDataTable::class));
-            }
+            PatientvalidationController::class =>  fn(ContainerInterface $container, $requestedName): \Patientvalidation\Controller\PatientvalidationController => new PatientvalidationController($container->get(PatientDataTable::class))
         ],
     ),
 

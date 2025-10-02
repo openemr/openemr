@@ -109,25 +109,15 @@ return array(
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     ,'controller_plugins' => array(
         'factories' => array(
-            'CommonPlugin' => function (ContainerInterface $container, $requestedName) {
-                return new Plugin\CommonPlugin($container);
-            }
-            ,'Phimail' => function (ContainerInterface $container) {
-                return new Plugin\Phimail($container);
-            }
+            'CommonPlugin' => fn(ContainerInterface $container, $requestedName): \Application\Plugin\CommonPlugin => new Plugin\CommonPlugin($container)
+            ,'Phimail' => fn(ContainerInterface $container): \Application\Plugin\Phimail => new Plugin\Phimail($container)
         )
     )
     ,'controllers' => array(
         'factories' => [
-            IndexController::class => function (ContainerInterface $container, $requestedName) {
-                return new IndexController($container->get(ApplicationTable::class));
-            },
-            SoapController::class => function (ContainerInterface $container, $requestedName) {
-                return new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class));
-            },
-            SendtoController::class => function (ContainerInterface $container, $requestedName) {
-                return new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class));
-            }
+            IndexController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\IndexController => new IndexController($container->get(ApplicationTable::class)),
+            SoapController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SoapController => new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class)),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class))
         ]
     ),
     'service_manager' => array(
@@ -138,12 +128,8 @@ return array(
                 $table = new ApplicationTable();
                 return $table;
             },
-            SendtoTable::class => function (ContainerInterface $container, $requestedName) {
-                return new SendtoTable();
-            },
-            SendtoController::class => function (ContainerInterface $container, $requestedName) {
-                return new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class));
-            },
+            SendtoTable::class => fn(ContainerInterface $container, $requestedName): \Application\Model\SendtoTable => new SendtoTable(),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
             ModuleMenuSubscriber::class => InvokableFactory::class
         ),
     ),
@@ -168,14 +154,11 @@ return array(
             'javascriptGlobals' => \Application\Helper\Javascript::class,
         ),
         'factories' => [
-            'translate' => function (\Interop\Container\ContainerInterface $container, $requestedName) {
+            'translate' => fn(\Interop\Container\ContainerInterface $container, $requestedName): \Application\Helper\TranslatorViewHelper =>
                 // TODO: we should look at renaming this to be TranslatorAdapter
-                return new \Application\Helper\TranslatorViewHelper();
-            }
+                new \Application\Helper\TranslatorViewHelper()
             // TODO: this used to be the Getvariables functionality.. the whole thing has a leaky abstraction and should be refactored into services instead of jumping to a controller view
-            , 'sendToHie'      => function (\Interop\Container\ContainerInterface $container, $requestedName) {
-                return new \Application\Helper\SendToHieHelper($container->get(SendtoController::class));
-            }
+            , 'sendToHie'      => fn(\Interop\Container\ContainerInterface $container, $requestedName): \Application\Helper\SendToHieHelper => new \Application\Helper\SendToHieHelper($container->get(SendtoController::class))
         ]
     ),
 );
