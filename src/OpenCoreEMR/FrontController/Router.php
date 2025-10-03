@@ -51,10 +51,9 @@ class Router
      */
     public function determineSiteId(): string
     {
+        // explicit site parameter or session-based detection.
         if (!empty($_GET['site'])) {
             $this->siteId = $_GET['site'];
-        } elseif (is_dir("sites/" . ($_SERVER['HTTP_HOST'] ?? 'default'))) {
-            $this->siteId = ($_SERVER['HTTP_HOST'] ?? 'default');
         } else {
             $this->siteId = 'default';
         }

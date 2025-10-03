@@ -22,10 +22,8 @@ use Dotenv\Dotenv;
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Load .env variables using Dotenv library
-if (file_exists(__DIR__ . '/.env')) {
-    $dotenv = Dotenv::createImmutable(__DIR__);
-    $dotenv->safeLoad();
-}
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
 
 // Check feature flag - when disabled, provide transparent pass-through
 if (!getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') || getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') !== '1') {
@@ -83,8 +81,6 @@ $GLOBALS['kernel']->getEventDispatcher()->dispatch(
 $router = new Router(__DIR__);
 
 // Determine multisite and route
-// Note: Using $_SERVER['HTTP_HOST'] as fallback for site detection
-// This allows multisite to work when site parameter is not explicitly provided
 $router->determineSiteId();
 $route = $router->extractRoute();
 
