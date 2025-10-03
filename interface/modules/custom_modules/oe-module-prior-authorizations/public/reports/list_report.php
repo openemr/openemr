@@ -152,7 +152,7 @@ $total_used_units = 0;
                             $percentRemaining = 0;
                         }
 
-                        $barColor = match(true) {
+                        $barColor = match (true) {
                             ($percentRemaining <= 33) => '#dc3545', // Red: Empty
                             ($percentRemaining <= 66) => '#ffc107', // Yellow: Getting low
                             default => '#4CAF50', // Green: Full/Plenty remaining

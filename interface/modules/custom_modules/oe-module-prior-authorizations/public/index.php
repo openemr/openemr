@@ -171,12 +171,12 @@ const TABLE_TD = "</td><td>";
                             $percentRemaining = 0;
                         }
 
-                        $barColor = match(true) {
+                        $barColor = match (true) {
                             ($percentRemaining <= 33) => '#dc3545', // Red: Empty
                             ($percentRemaining <= 66) => '#ffc107', // Yellow: Getting low
                             default => '#4CAF50', // Green: Full/Plenty remaining
                         };
-                    
+
                         echo TABLE_TD;
                         echo "<div style='background-color:#eee; height:20px; width:100px; border:1px solid #ccc; position:relative;'>";
                         echo "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
