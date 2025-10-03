@@ -849,9 +849,7 @@ class PatientService extends BaseService
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";
-        $patientUuids = array_map(function ($uuid) {
-            return UuidRegistry::uuidToBytes($uuid);
-        }, $patientUuids);
+        $patientUuids = array_map(UuidRegistry::uuidToBytes(...), $patientUuids);
 
         $sql = "SELECT uuid,providerID FROM patient_data WHERE uuid IN (" . $bindString . ") "
             . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY uuid";

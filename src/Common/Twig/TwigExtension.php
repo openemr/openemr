@@ -89,9 +89,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return [
             new TwigFunction(
                 'setupHeader',
-                function ($assets = array()) {
-                    return Header::setupHeader($assets);
-                }
+                Header::setupHeader(...)
             ),
 
             new TwigFunction(
@@ -180,9 +178,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'csrfTokenRaw',
-                function ($subject = 'default') {
-                    return CsrfUtils::collectCsrfToken($subject);
-                }
+                CsrfUtils::collectCsrfToken(...)
             ),
             new TwigFunction(
                 'jqueryDateTimePicker',
@@ -236,9 +232,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'aclCore',
-                function ($section, $value, $user = '', $return_value = '') {
-                    return AclMain::aclCheckCore($section, $value, $user, $return_value);
-                }
+                AclMain::aclCheckCore(...)
             ),
             new TwigFunction(
                 'getLogo',
@@ -249,15 +243,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'getListItemTitle',
-                function (string $list, $option) {
-                    return LayoutsUtils::getListItemTitle($list, $option);
-                }
+                LayoutsUtils::getListItemTitle(...)
             )
             ,new TwigFunction(
                 'getAssetCacheParamRaw',
-                function () {
-                    return CacheUtils::getAssetCacheParamRaw();
-                }
+                CacheUtils::getAssetCacheParamRaw(...)
             )
         ];
     }
@@ -390,9 +380,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFilter(
                 'addCacheParam',
-                function ($path) {
-                    return CacheUtils::addAssetCacheParamToPath($path);
-                }
+                CacheUtils::addAssetCacheParamToPath(...)
             )
         ];
     }
