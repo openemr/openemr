@@ -180,7 +180,7 @@ const TABLE_TD = "</td><td>";
                         echo TABLE_TD;
                         echo "<div style='background-color:#eee; height:20px; width:100px; border:1px solid #ccc; position:relative;'>";
                         echo "<div style='background-color:" . attr($barColor) . "; height:100%; width:" . attr($percentRemaining) . "%; position:absolute;'></div>";
-                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
+                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>" . text($percentRemaining) . "%</div>";
                         echo "</div>";
                         echo "</td>";
 

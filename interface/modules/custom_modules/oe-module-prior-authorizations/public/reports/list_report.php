@@ -162,7 +162,7 @@ $total_used_units = 0;
                         echo "<td>";
                         echo "<div style='background-color:#eee; height:20px; width:150px; border:1px solid #ccc; position:relative;'>";
                         echo "<div style='background-color:" . attr($barColor) . "; height:100%; width:" . attr($percentRemaining) . "%; position:absolute;'></div>";
-                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
+                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>" . text($percentRemaining) . "%</div>";
                         echo "</div>";
                         echo "</td>";
                     }
@@ -180,8 +180,8 @@ $total_used_units = 0;
         &copy; <?php echo date('Y') . " Juggernaut Systems Express" ?>
     </div>
    <script>
-    const total_initial = <?php echo $total_initial_units; ?>;
-    const total_used = <?php echo $total_used_units; ?>;
+    const total_initial = <?php echo js_escape($total_initial_units); ?>;
+    const total_used = <?php echo js_escape($total_used_units); ?>;
     const total_remaining = total_initial - total_used;
 
     const ctx = document.getElementById('usageChart');
