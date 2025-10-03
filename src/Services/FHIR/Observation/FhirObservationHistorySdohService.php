@@ -148,15 +148,27 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
         try {
             $observationCodesToReturn = [];
 
+            // once we've reached here (via calls to supportCategory and supportCode) we know that any category or code
+            // parameters are supported by this service, so we can just remove them from the search parameters
             if (isset($openEMRSearchParameters['category']) && $openEMRSearchParameters['category'] instanceof TokenSearchField) {
-                if (!$openEMRSearchParameters['category']->hasCodeValue(self::CATEGORY_SOCIAL_HISTORY)) {
-                    throw new SearchFieldException("category", "invalid value");
+                foreach ($openEMRSearchParameters['category']->getValues() as $value) {
+                    $category = $value->getCode();
+                    if ($category === self::CATEGORY_SOCIAL_HISTORY) {
+                        $observationCodesToReturn[self::PREGNANCY_INTENT_LOINC_CODE] = self::PREGNANCY_INTENT_LOINC_CODE;
+                        $observationCodesToReturn[self::PREGNANCY_STATUS_LOINC_CODE] = self::PREGNANCY_STATUS_LOINC_CODE;
+                    } else if ($category === 'survey') {
+                        // grab everything, but social-history codes are handled by the social-history category
+                        $codes = $this->getSupportedCodes();
+                        $codes = array_diff($codes, [self::PREGNANCY_INTENT_LOINC_CODE, self::PREGNANCY_STATUS_LOINC_CODE]);
+                        $observationCodesToReturn = array_combine($codes, $codes);
+                        break; // no need to continue since we are grabbing everything
+                    }
                 }
-                // we only support one category and then we remove it.
                 unset($openEMRSearchParameters['category']);
             }
 
             if (isset($openEMRSearchParameters['code'])) {
+                $codesToInclude = [];
                 /**
                  * @var TokenSearchField
                  */
@@ -166,9 +178,16 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                 }
                 foreach ($code->getValues() as $value) {
                     $code = $value->getCode();
-                    $observationCodesToReturn[$code] = $code;
+                    $codesToInclude[$code] = $code;
                 }
                 unset($openEMRSearchParameters['code']);
+                // codes are a constraint inside the category so we have to find the intersection of the codes and the category
+                if (!empty($observationCodesToReturn)) {
+                    $observationCodesToReturn = array_intersect($observationCodesToReturn, $codesToInclude);
+                } else {
+                    // we haven't constrained by category so we can just use the codes
+                    $observationCodesToReturn = $codesToInclude;
+                }
             }
 
 
