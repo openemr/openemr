@@ -2,11 +2,14 @@
 
 /**
  * FhirProcedureOEProcedureService.php
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\FHIR\Procedure;
@@ -19,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
@@ -71,6 +75,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['procedure_code', 'standard_code']), // ADDED THIS
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['result_status']), // ADDED THIS
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('report_uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
@@ -125,6 +131,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
+        $meta->addProfile(new FHIRUri(['value' => 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure']));
+
         $procedureResource->setMeta($meta);
 
 
@@ -224,6 +232,19 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             $annotation->setText($report['notes']);
         }
 
+        if (!empty($dataRecord['order_uuid'])) {
+            $procedureResource->addBasedOn(
+                UtilsService::createRelativeReference('ServiceRequest', $dataRecord['order_uuid'])
+            );
+        }
+        // Add reasonReference support (in addition to reasonCode)
+        // Both per US Core 8.0
+        if (!empty($dataRecord['reason_reference_uuid'])) {
+            $procedureResource->addReasonReference(
+                UtilsService::createRelativeReference('Condition', $dataRecord['reason_reference_uuid'])
+            );
+        }
+
         if ($encode) {
             return json_encode($procedureResource);
         } else {
@@ -255,5 +276,31 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         } else {
             return $fhirProvenance;
         }
+    }
+
+    private function normalizeProcedureCodingSystem(?string $hint): ?string
+    {
+        if (!$hint) {
+            return null; }
+        $h = strtolower($hint);
+        if (str_contains($h, 'snomed')) {
+            return 'http://snomed.info/sct';
+        }
+        if ($h === 'cpt' || str_contains($h, 'ama')) {
+            return 'http://www.ama-assn.org/go/cpt';
+        }
+        if (str_contains($h, 'hcpcs')) {
+            return 'http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets';
+        }
+        if (str_contains($h, 'icd10pcs') || str_contains($h, 'icd-10-pcs')) {
+            return 'http://www.cms.gov/Medicare/Coding/ICD10';
+        }
+        if (str_contains($h, 'cdt')) {
+            return 'http://www.ada.org/cdt';
+        }
+        if (str_contains($h, 'loinc')) {
+            return 'http://loinc.org';
+        }
+        return $hint;
     }
 }

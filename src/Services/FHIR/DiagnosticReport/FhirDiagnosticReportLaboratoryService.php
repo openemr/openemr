@@ -2,11 +2,14 @@
 
 /**
  * FhirDiagnosticReportLaboratoryService.php
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\FHIR\DiagnosticReport;
@@ -151,6 +154,18 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
 
         if (!empty($dataRecord['encounter']['uuid'])) {
             $report->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
+        }
+        // Add basedOn to link to the originating order (REQUIRED per US Core 8.0)
+        if (!empty($dataRecord['order_uuid'])) {
+            $report->addBasedOn(
+                UtilsService::createRelativeReference('ServiceRequest', $dataRecord['order_uuid'])
+            );
+        }
+        // Add resultsInterpreter (for provenance - US Core 8.0)
+        if (!empty($dataRecord['provider']['uuid'])) {
+            $report->addResultsInterpreter(
+                UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid'])
+            );
         }
 
         if (!empty($dataRecordReport['status'])) {
