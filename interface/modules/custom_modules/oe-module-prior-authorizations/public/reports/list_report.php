@@ -82,6 +82,8 @@ $total_used_units = 0;
                     } else {
                         $pid = $iter['mrn'];
                     }
+
+                    $is_expired = !empty($iter['end_date']) && $iter['end_date'] !== '0000-00-00' && $iter['end_date'] < date('Y-m-d');
             // This part requires custom form and custom table to function
             /*
                     $requireAuth = AuthorizationService::requiresAuthorization($iter['pid']);
@@ -96,11 +98,10 @@ $total_used_units = 0;
                     }
             */
 
-                    if ($hide_expired) {
-                        if (!empty($iter['end_date']) && $iter['end_date'] !== '0000-00-00' && $iter['end_date'] < date('Y-m-d')) {
-                            continue;
-                        }
+                    if ($hide_expired && $is_expired) {
+                        continue;
                     }
+
                     $numbers = AuthorizationService::countUsageOfAuthNumber(
                         $iter['auth_num'],
                         $pid,
@@ -112,38 +113,38 @@ $total_used_units = 0;
                     $insurance = AuthorizationService::insuranceName($pid);
 
                     if ($name !== $iter['fname'] . " " . $iter['lname']) {
-                        print "<tr><td><a href='#' onclick='openNewTopWindow(" . attr_js($pid) . ")'>" . text($pid) . "</a></td>";
-                        print "<td><strong>" . text($iter['lname']) . ", " . text($iter['fname']) . "</strong></td>";
-                        print "<td style='max-width:75px;'>" . text($insurance) . "</td>";
+                        echo "<tr><td><a href='#' onclick='openNewTopWindow(" . attr_js($pid) . ")'>" . text($pid) . "</a></td>";
+                        echo "<td><strong>" . text($iter['lname']) . ", " . text($iter['fname']) . "</strong></td>";
+                        echo "<td style='max-width:75px;'>" . text($insurance) . "</td>";
                     } else {
-                        print "<td></td>";
-                        print "<td></td>";
-                        print "<td></td>";
+                        echo "<td></td>";
+                        echo "<td></td>";
+                        echo "<td></td>";
                     }
-                    print "<td>" . text($iter['auth_num']) . "</td>";
-                    print "<td>" . text($iter['cpt']) . "</td>";
-                    print "<td>" . text($iter['start_date']) . "</td>";
-                    print "<td>" . text($iter['end_date']) . "</td>";
+                    echo "<td>" . text($iter['auth_num']) . "</td>";
+                    echo "<td>" . text($iter['cpt']) . "</td>";
+                    echo "<td>" . text($iter['start_date']) . "</td>";
+                    echo "<td>" . text($iter['end_date']) . "</td>";
 
-                    if (($iter['end_date'] < date('Y-m-d')) && ($iter['end_date'] !== '0000-00-00') && (!empty($iter['auth_num']))) {
-                        print "<td style='color: red'><strong>" . xlt('Expired') . "</strong></td>";
-                        print "<td></td>";
-                        print "<td></td>";
+                    if ($is_expired && !empty($iter['auth_num'])) {
+                        echo "<td style='color: red'><strong>" . xlt('Expired') . "</strong></td>";
+                        echo "<td></td>";
+                        echo "<td></td>";
                     } else {
                         $initialUnits = (int)$iter['init_units'];
-                        print "<td>" . text($initialUnits) . "</td>";
+                        echo "<td>" . text($initialUnits) . "</td>";
 
                         $usedUnits = $initialUnits - $numbers;
                         $unitCount = $usedUnits;
-                        if (($iter['end_date'] >= date('Y-m-d') || $iter['end_date'] === '0000-00-00') && !empty($iter['auth_num'])) {
+                        if (!$is_expired && !empty($iter['auth_num'])) {
                             $total_initial_units += $initialUnits;
                             $total_used_units += $usedUnits;
                         }
 
                         if ($unitCount > 0) {
-                            print "<td>" . text($unitCount) . "</td>";
+                            echo "<td>" . text($unitCount) . "</td>";
                         } else {
-                            print "<td>&nbsp</td>";
+                            echo "<td>&nbsp</td>";
                         }
 
                         if ($initialUnits > 0) {
@@ -158,14 +159,14 @@ $total_used_units = 0;
                             default => '#4CAF50', // Green: Full/Plenty remaining
                         };
 
-                        print "<td>";
-                        print "<div style='background-color:#eee; height:20px; width:150px; border:1px solid #ccc; position:relative;'>";
-                        print "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
-                        print "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
-                        print "</div>";
-                        print "</td>";
+                        echo "<td>";
+                        echo "<div style='background-color:#eee; height:20px; width:150px; border:1px solid #ccc; position:relative;'>";
+                        echo "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
+                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
+                        echo "</div>";
+                        echo "</td>";
                     }
-                    print "</tr>";
+                    echo "</tr>";
                     $name = $iter['fname'] . " " . $iter['lname'];
                     $count++;
                 }
