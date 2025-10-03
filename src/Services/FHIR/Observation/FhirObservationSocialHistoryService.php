@@ -14,11 +14,7 @@ namespace OpenEMR\Services\FHIR\Observation;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\CodeTypesService;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -27,10 +23,7 @@ use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
-use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
-use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -199,14 +192,14 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         return $processingResult;
     }
 
-    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn)
+    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn): void
     {
         $uuidMappings = $this->getUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
 
 
         foreach ($observationCodesToReturn as $code) {
-            $mapping = self::COLUMN_MAPPINGS[$code];
+            $mapping = self::COLUMN_MAPPINGS[$code] ?? null;
             if (!isset($mapping)) {
                 continue;
             }
@@ -246,7 +239,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
                 ,"value" => $value
                 ,'value_code_description' => $valueDescription
             ];
-            $this->addColumnsForCode($observation, $record);
             $processingResult->addData($observation);
         }
     }
@@ -269,40 +261,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         return $codeMappings;
     }
 
-    private function populateSmokingCessation(FHIRObservation $observation, $dataRecord)
-    {
-        if (empty($dataRecord['smoking_status_codes'])) {
-            // we are going to create our null flavor code here
-            $concept = UtilsService::createDataAbsentUnknownCodeableConcept();
-            $observation->setValueCodeableConcept($concept);
-        } else {
-            $concept = UtilsService::createCodeableConcept($dataRecord['smoking_status_codes'], FhirCodeSystemConstants::SNOMED_CT);
-            $observation->setValueCodeableConcept($concept);
-        }
-    }
-
-    private function addColumnsForCode(array &$observation, array $record)
-    {
-        $codeMapping = self::COLUMN_MAPPINGS[$observation['code']] ?? null;
-        switch ($observation['code']) {
-            case self::SMOKING_CESSATION_CODE:
-                if (!empty($record['smoking_status_codes'])) {
-                    // TODO: @adunsulag should we refactor FhirObservationTrait to take in an array for the value as a codeableconcept?
-                    $observation['value'] = $record['smoking_status_codes']['code_type'] . ':' . $record['smoking_status_codes']['code'];
-                    $observation['value_code_description'] = $record['smoking_status_codes']['description'];
-                }
-
-                if (isset($value)) {
-                    $observation['value'] = $value;
-                }
-                break;
-        }
-        if (isset($codeMapping)) {
-            return is_array($codeMapping['column']) ? $codeMapping['column'] : [$codeMapping['column']];
-        }
-        return [];
-    }
-
     private function getDescriptionForCode($code)
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
@@ -317,7 +275,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return false|string|FHIRProvenance the FHIR Resource. Returned format is defined using $encode parameter.
      */
     public function createProvenanceResource($dataRecord, $encode = false)
     {

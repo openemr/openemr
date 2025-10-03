@@ -42,7 +42,8 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
 
     const USCGI_PROFILE_SCREENING_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
     const CATEGORY_SOCIAL_HISTORY = 'social-history';
-    const SUPPORTED_CATEGORIES = ['survey',self::CATEGORY_SOCIAL_HISTORY];
+    const CATEGORY_SDOH = 'sdoh';
+    const SUPPORTED_CATEGORIES = ['survey',self::CATEGORY_SDOH, self::CATEGORY_SOCIAL_HISTORY];
     const PREGNANCY_STATUS_LOINC_CODE = '82810-3'; // Pregnancy status
     const PREGNANCY_INTENT_LOINC_CODE = '86645-9'; // Pregnancy intent
 
@@ -72,18 +73,6 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             ,'screening_category_display' => null
             ,'profiles' => [
                 self::USCDI_PREGNANCY_INTENT => self::PROFILE_VERSIONS_V2
-            ]
-        ],
-        self::OCCUPATION_LOINC_CODE => [
-            'fullcode' => 'LOINC:' . self::OCCUPATION_LOINC_CODE
-            ,'code' => self::OCCUPATION_LOINC_CODE
-            ,'description' => 'Occupation'
-            ,'column' => 'occupation'
-            ,'category' => self::CATEGORY_SOCIAL_HISTORY
-            ,'screening_category_code' => null
-            ,'screening_category_display' => null
-            ,'profiles' => [
-                self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_V2
             ]
         ],
     ];
@@ -156,7 +145,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                     if ($category === self::CATEGORY_SOCIAL_HISTORY) {
                         $observationCodesToReturn[self::PREGNANCY_INTENT_LOINC_CODE] = self::PREGNANCY_INTENT_LOINC_CODE;
                         $observationCodesToReturn[self::PREGNANCY_STATUS_LOINC_CODE] = self::PREGNANCY_STATUS_LOINC_CODE;
-                    } else if ($category === 'survey') {
+                    } else if ($category === 'survey') { // base category for SDOH is 'survey' but supplemental category is 'sdoh'
                         // grab everything, but social-history codes are handled by the social-history category
                         $codes = $this->getSupportedCodes();
                         $codes = array_diff($codes, [self::PREGNANCY_INTENT_LOINC_CODE, self::PREGNANCY_STATUS_LOINC_CODE]);
@@ -238,9 +227,12 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             }
             $profiles = array_merge(...$profiles);
             $value = $record[$mapping['column']] ?? null;
-            $valueDescription = null;
-            if (isset($record[$mapping['column'] . '_codes'])) {
-                $value = $record[$mapping['column'] . '_codes'];
+            $valueDescription =  $mapping['description'] ?? null;
+            // if we have a db interaction that populates a _codes column we will use that as the value and the display column as the description
+            // as it has the master source record
+            $column = $mapping['column'];
+            if (isset($record[$column . '_codes'])) {
+                $value = $record[$column . '_codes'];
                 $valueDescription = $record[$mapping['column'] . '_display'] ?? null;
             }
             $observation = [
@@ -350,16 +342,19 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             foreach ($sdohCodes as $column => $mapping) {
                 foreach (['SNOMED-CT' => 'snomed', 'ICD-10-CM' => 'icd10'] as $systemPrefix => $codeSystem) {
                     if (isset($mapping[$codeSystem])) {
+                        $fullcode = $systemPrefix . ':' . ($mapping[$codeSystem]['code'] ?? '');
                         $columnMappings[$mapping[$codeSystem]['code']] = [
-                            'fullcode' => $systemPrefix . ':' . ($mapping[$codeSystem]['code'] ?? ''),
+                            'fullcode' => $fullcode,
                             'code' => $mapping[$codeSystem]['code'] ?? '',
                             'description' => $mapping[$codeSystem]['display'] ?? $mapping[$codeSystem]['code'],
                             'category' => 'survey',
-                            'screening_category_code' => self::CATEGORY_SOCIAL_HISTORY,
-                            'screening_category_display' => 'Social History',
+                            'screening_category_code' => self::CATEGORY_SDOH,
+                            'screening_category_display' => 'Social Determinants of Health',
                             'profiles' => [
                                 self::USCGI_SCREENING_ASSESSMENT_URI => self::PROFILE_VERSIONS_ALL
                             ],
+                            "{$column}_codes" => $fullcode,
+                            "{$column}_display" =>  $mapping[$codeSystem]['display'] ?? $mapping[$codeSystem]['code'],
                             // TODO: until we can figure out how to treat the SDOH history as an actual QuestionnaireResponse, we will will skip the derivedFrom
                             'column' => $column,
                         ];

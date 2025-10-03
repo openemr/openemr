@@ -47,8 +47,6 @@ class ObservationControllerTest extends TestCase
     private MockObject $mockTwig;
     private MockObject $mockPatientService;
 
-    private Session $session;
-
     private ?string $globalWebrootBackup;
     private ?int $globalDateFormat;
     private ?Kernel $globalKernelBackup = null;

@@ -44,9 +44,9 @@ trait FhirObservationTrait
     use VersionedProfileTrait;
 
     const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI = 'http://terminology.hl7.org/CodeSystem/observation-category';
-    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
+    const US_CORE_CODESYSTEM_OBSERVATION_CATEGORY = ['social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'exam', 'therapy', 'activity'];
     const US_CORE_CODESYSTEM_CATEGORY_URI = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
-    const US_CORE_CODESYSTEM_CATEGORY = ['social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'exam', 'therapy', 'activity'];
+    const US_CORE_CODESYSTEM_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation';
     const USCGI_SCREENING_ASSESSMENT_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
@@ -309,6 +309,7 @@ trait FhirObservationTrait
         $code = new FHIRCodeableConcept();
         $coding = new FHIRCoding();
         $codeDescription = $this->getCodeTypesService()->lookup_code_description($dataRecord['code']);
+        $codeDescription = !empty($codeDescription) ? $codeDescription : ($dataRecord['description'] ?? '');
         // Parse system and code from format like "LOINC:72133-2"
         $codeParts = $this->getCodeTypesService()->parseCode($dataRecord['code']);
         $codeType = $codeParts['code_type'] ?? FhirCodeSystemConstants::LOINC;

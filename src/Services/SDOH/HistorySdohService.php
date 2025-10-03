@@ -595,6 +595,24 @@ class HistorySdohService extends BaseService
     }
 
     /**
+     * @return string[] Map of SDOH domains to list_options list names
+     */
+    public static function getListMapForDomains(): array
+    {
+        return [
+            'food_insecurity'           => 'sdoh_food_insecurity_risk',
+            'housing_instability'       => 'sdoh_housing_worry',
+            'transportation_insecurity' => 'sdoh_transportation_barrier',
+            'utilities_insecurity'      => 'sdoh_utilities_shutoff',
+            'interpersonal_safety'      => 'sdoh_ipv_yesno',
+            'financial_strain'          => 'sdoh_financial_strain',
+            'social_isolation'          => 'sdoh_social_isolation_freq',
+            'childcare_needs'           => 'sdoh_childcare_needs',
+            'digital_access'            => 'sdoh_digital_access',
+        ];
+    }
+
+    /**
      * Build "calculated" SDOH Interventions (array of ServiceRequest-like resources)
      * based on the same domain logic used for Goals. These are intended to feed the
      * C-CDA Plan of Care/Treatment Plan (planned activities) and UI text areas.
@@ -1420,15 +1438,13 @@ class HistorySdohService extends BaseService
     public function search($openEMRSearchParameters = [], $isAndCondition = true): ProcessingResult
     {
         try {
-            $sql = "SELECT o.*
+            $selectColumns = "SELECT o.*
                     , p.puuid
                     , enc.euuid
                     , cu.created_by_uuid
-                    , uu.updated_by_uuid
-                    , lo_pregnancy_status.pregnancy_status_display
-                    , lo_pregnancy_status.pregnancy_status_codes
-                    , lo_pregnancy_intent.pregnancy_intent_display
-                    , lo_pregnancy_intent.pregnancy_intent_codes
+                    , uu.updated_by_uuid ";
+            // Join to get display and codes for each domain option
+            $join = "
                     FROM form_history_sdoh o
                     JOIN (
                         select pid AS patient_id,
@@ -1449,24 +1465,23 @@ class HistorySdohService extends BaseService
                               select id AS updated_by_id,
                                   uuid AS updated_by_uuid
                              FROM users
-                        ) uu ON o.updated_by = uu.updated_by_id
-                     LEFT JOIN (
-                        SELECT codes AS pregnancy_status_codes
-                        , title AS pregnancy_status_display
+                        ) uu ON o.updated_by = uu.updated_by_id ";
+            $optionCodes = self::getListMapForDomains();
+            // add the additional pregnancy fields
+            $optionCodes['pregnancy_status'] = 'pregnancy_status';
+            $optionCodes['pregnancy_intent'] = 'pregnancy_intent';
+            foreach ($optionCodes as $col => $listId) {
+                $selectColumns .= ", lo_{$col}.{$col}_display, lo_{$col}.{$col}_codes ";
+                $join .= " LEFT JOIN (
+                        SELECT codes AS {$col}_codes
+                        , title AS {$col}_display
                         , option_id AS option_id
                         , list_id
                         FROM list_options
-                    ) lo_pregnancy_status ON (o.pregnancy_status = lo_pregnancy_status.option_id AND lo_pregnancy_status.list_id = 'pregnancy_status')
-                    LEFT JOIN (
-                        SELECT codes AS pregnancy_intent_codes
-                        , title AS pregnancy_intent_display
-                        , option_id AS option_id
-                        , list_id
-                        FROM list_options
-                    ) lo_pregnancy_intent ON (o.pregnancy_intent = lo_pregnancy_intent.option_id AND lo_pregnancy_intent.list_id = 'pregnancy_intent')
-                    ";
+                    ) lo_{$col} ON (o.{$col} = lo_{$col}.option_id AND lo_{$col}.list_id = '{$listId}') ";
+            }
             $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters, $isAndCondition);
-            $sql .= $whereClause->getFragment();
+            $sql = $selectColumns . $join . $whereClause->getFragment();
             $results = QueryUtils::fetchRecords($sql, $whereClause->getBoundValues());
             $processingResult = new ProcessingResult();
             foreach ($results as $record) {
