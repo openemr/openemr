@@ -161,7 +161,7 @@ $total_used_units = 0;
 
                         echo "<td>";
                         echo "<div style='background-color:#eee; height:20px; width:150px; border:1px solid #ccc; position:relative;'>";
-                        echo "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
+                        echo "<div style='background-color:" . attr($barColor) . "; height:100%; width:" . attr($percentRemaining) . "%; position:absolute;'></div>";
                         echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
                         echo "</div>";
                         echo "</td>";
