@@ -181,8 +181,8 @@ $total_used_units = 0;
         &copy; <?php echo date('Y') . " Juggernaut Systems Express" ?>
     </div>
    <script>
-    const total_initial = <?php echo (int)$total_initial_units; ?>;
-    const total_used = <?php echo (int)$total_used_units; ?>;
+    const total_initial = <?php echo $total_initial_units; ?>;
+    const total_used = <?php echo $total_used_units; ?>;
     const total_remaining = total_initial - total_used;
 
     const ctx = document.getElementById('usageChart');
@@ -211,7 +211,7 @@ $total_used_units = 0;
                     },
                     title: {
                         display: true,
-                        text: '<?php echo xlt("Total Units: ") . (int)$total_initial_units; ?>'
+                        text: '<?php echo xlt("Total Units: ") . $total_initial_units; ?>'
                     }
                 }
             }
