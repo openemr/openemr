@@ -56,7 +56,7 @@ run_test() {
     http_code=$(curl -s -o /dev/null -w "%{http_code}" -L "$url")
 
     # Check if code matches any of the expected codes
-    if [[ "$expected_codes" == *"$http_code"* ]]; then
+    if [[ "$expected_codes" = *"$http_code"* ]]; then
         printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
         PASSED_TESTS=$((PASSED_TESTS + 1))
         echo "  ✓ $description" | tee -a "$REPORT_FILE"
@@ -73,7 +73,7 @@ run_test() {
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: Core Entry Points" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "index.php" \
@@ -97,7 +97,7 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: Existing Front Controllers" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "REST API routing" \
@@ -121,7 +121,7 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: Multisite Support" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "Multisite via query parameter" \
@@ -139,7 +139,7 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: Core Workflows" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "Patient file workflow" \
@@ -163,7 +163,7 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: Static Assets" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 # Test if public directory exists
 if [[ -d "$(dirname "$0")/../../public" ]]; then
@@ -180,14 +180,14 @@ if [[ -d "$(dirname "$0")/../../public" ]]; then
         "JS files should be served directly (not routed through PHP)"
 else
     echo "  ℹ Skipping static asset tests (public directory not found)" | tee -a "$REPORT_FILE"
-    echo "" | tee -a "$REPORT_FILE"
+    echo | tee -a "$REPORT_FILE"
 fi
 
 # Test 6: Custom Modules
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: Custom Modules" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "Custom modules path" \
@@ -199,7 +199,7 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: POST Requests" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 TOTAL_TESTS=$((TOTAL_TESTS + 1))
 printf "Testing: POST request handling... " | tee -a "$REPORT_FILE"
@@ -208,7 +208,7 @@ http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
     -d "authUser=test&authPass=test" \
     "$BASE_URL/interface/login/login.php")
 
-if [[ "$http_code" == "404" || "$http_code" == "403" ]]; then
+if [[ "$http_code" = "404" || "$http_code" = "403" ]]; then
     printf "%sFAIL%s (HTTP %s)\n" "$RED" "$NC" "$http_code" | tee -a "$REPORT_FILE"
     FAILED_TESTS=$((FAILED_TESTS + 1))
     echo "  ✗ POST requests are being blocked" | tee -a "$REPORT_FILE"
@@ -223,7 +223,7 @@ echo | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: File Upload Paths" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "File upload handler" \
@@ -235,7 +235,7 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST CATEGORY: AJAX Endpoints" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 run_test \
     "AJAX endpoints" \

@@ -70,7 +70,9 @@
     RewriteRule ^ - [L]
 
     # Route PHP files through front controller
-    # Front controller (home.php) checks OPENEMR_ENABLE_FRONT_CONTROLLER and returns 404 if disabled
+    # Front controller (home.php) checks OPENEMR_ENABLE_FRONT_CONTROLLER:
+    # - If enabled: Routes through front controller with security checks
+    # - If disabled: Acts as transparent pass-through to target file
     # This approach simplifies deployment - no Apache environment variable configuration required
     RewriteCond %{REQUEST_URI} \.php$
     RewriteRule ^(.*)$ home.php?_ROUTE=$1 [QSA,L]
