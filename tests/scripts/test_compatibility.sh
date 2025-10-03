@@ -7,6 +7,9 @@
 #
 # AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
 #
+# Copyright (c) 2025 OpenCoreEMR, Inc.
+# License: GPLv3
+#
 # Usage: ./test_compatibility.sh [base_url]
 # Example: ./test_compatibility.sh http://localhost/openemr
 
@@ -17,19 +20,21 @@ BASE_URL="${1:-http://localhost/openemr}"
 REPORT_DIR="$(dirname "$0")/../../reports"
 REPORT_FILE="$REPORT_DIR/compatibility-test-report-$(date +%Y%m%d-%H%M%S).txt"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Colors for output using tput
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+NC=$(tput sgr0) # No Color
 
 # Create report directory
 mkdir -p "$REPORT_DIR"
 
-echo "Compatibility Test Report" | tee "$REPORT_FILE"
-echo "Date: $(date)" | tee -a "$REPORT_FILE"
-echo "URL: $BASE_URL" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+{
+    echo "Compatibility Test Report"
+    echo "Date: $(date)"
+    echo "URL: $BASE_URL"
+    echo
+} | tee "$REPORT_FILE"
 
 # Test counters
 TOTAL_TESTS=0
@@ -45,23 +50,23 @@ run_test() {
 
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
 
-    echo -n "Testing: $test_name... " | tee -a "$REPORT_FILE"
+    printf "Testing: %s... " "$test_name" | tee -a "$REPORT_FILE"
 
     # Make HTTP request and get status code
     http_code=$(curl -s -o /dev/null -w "%{http_code}" -L "$url")
 
     # Check if code matches any of the expected codes
-    if [[ "$expected_codes" == *"$http_code"* ]]; then
-        echo -e "${GREEN}PASS${NC} (HTTP $http_code)" | tee -a "$REPORT_FILE"
+    if [[ "$expected_codes" = *"$http_code"* ]]; then
+        printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
         PASSED_TESTS=$((PASSED_TESTS + 1))
         echo "  ✓ $description" | tee -a "$REPORT_FILE"
     else
-        echo -e "${RED}FAIL${NC} (Expected [$expected_codes], got $http_code)" | tee -a "$REPORT_FILE"
+        printf "%sFAIL%s (Expected [%s], got %s)\n" "$RED" "$NC" "$expected_codes" "$http_code" | tee -a "$REPORT_FILE"
         FAILED_TESTS=$((FAILED_TESTS + 1))
         echo "  ✗ $description" | tee -a "$REPORT_FILE"
         echo "  URL: $url" | tee -a "$REPORT_FILE"
     fi
-    echo "" | tee -a "$REPORT_FILE"
+    echo | tee -a "$REPORT_FILE"
 }
 
 # Test 1: Core Entry Points
@@ -161,7 +166,7 @@ echo "========================================" | tee -a "$REPORT_FILE"
 echo "" | tee -a "$REPORT_FILE"
 
 # Test if public directory exists
-if [ -d "$(dirname "$0")/../../public" ]; then
+if [[ -d "$(dirname "$0")/../../public" ]]; then
     run_test \
         "Static CSS files" \
         "$BASE_URL/public/assets/css/style.css" \
@@ -197,22 +202,22 @@ echo "========================================" | tee -a "$REPORT_FILE"
 echo "" | tee -a "$REPORT_FILE"
 
 TOTAL_TESTS=$((TOTAL_TESTS + 1))
-echo -n "Testing: POST request handling... " | tee -a "$REPORT_FILE"
+printf "Testing: POST request handling... " | tee -a "$REPORT_FILE"
 
 http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
     -d "authUser=test&authPass=test" \
     "$BASE_URL/interface/login/login.php")
 
-if [ "$http_code" != "404" ] && [ "$http_code" != "403" ]; then
-    echo -e "${GREEN}PASS${NC} (HTTP $http_code)" | tee -a "$REPORT_FILE"
+if [[ "$http_code" != "404" && "$http_code" != "403" ]]; then
+    printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
     PASSED_TESTS=$((PASSED_TESTS + 1))
     echo "  ✓ POST requests are processed correctly" | tee -a "$REPORT_FILE"
 else
-    echo -e "${RED}FAIL${NC} (HTTP $http_code)" | tee -a "$REPORT_FILE"
+    printf "%sFAIL%s (HTTP %s)\n" "$RED" "$NC" "$http_code" | tee -a "$REPORT_FILE"
     FAILED_TESTS=$((FAILED_TESTS + 1))
     echo "  ✗ POST requests are being blocked" | tee -a "$REPORT_FILE"
 fi
-echo "" | tee -a "$REPORT_FILE"
+echo | tee -a "$REPORT_FILE"
 
 # Test 8: File Uploads
 echo "========================================" | tee -a "$REPORT_FILE"
@@ -242,21 +247,27 @@ run_test \
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "TEST SUMMARY" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
-echo "Total Tests: $TOTAL_TESTS" | tee -a "$REPORT_FILE"
-echo -e "Passed: ${GREEN}$PASSED_TESTS${NC}" | tee -a "$REPORT_FILE"
-echo -e "Failed: ${RED}$FAILED_TESTS${NC}" | tee -a "$REPORT_FILE"
-echo "" | tee -a "$REPORT_FILE"
+{
+    echo "Total Tests: $TOTAL_TESTS"
+    printf "Passed: %s%s%s\n" "$GREEN" "$PASSED_TESTS" "$NC"
+    printf "Failed: %s%s%s\n" "$RED" "$FAILED_TESTS" "$NC"
+    echo
+} | tee -a "$REPORT_FILE"
 
-if [ $FAILED_TESTS -eq 0 ]; then
-    echo -e "${GREEN}✓ ALL COMPATIBILITY TESTS PASSED${NC}" | tee -a "$REPORT_FILE"
-    echo "" | tee -a "$REPORT_FILE"
-    echo "The front controller maintains 100% backward compatibility." | tee -a "$REPORT_FILE"
-    echo "All existing functionality works as expected." | tee -a "$REPORT_FILE"
+if [[ $FAILED_TESTS -eq 0 ]]; then
+    printf "%s✓ ALL COMPATIBILITY TESTS PASSED%s\n" "$GREEN" "$NC" | tee -a "$REPORT_FILE"
+    {
+        echo
+        echo "The front controller maintains 100% backward compatibility."
+        echo "All existing functionality works as expected."
+    } | tee -a "$REPORT_FILE"
     exit 0
 else
-    echo -e "${RED}✗ SOME COMPATIBILITY TESTS FAILED${NC}" | tee -a "$REPORT_FILE"
-    echo "" | tee -a "$REPORT_FILE"
-    echo "Please review the failed tests above." | tee -a "$REPORT_FILE"
-    echo "Some existing functionality may be broken." | tee -a "$REPORT_FILE"
+    printf "%s✗ SOME COMPATIBILITY TESTS FAILED%s\n" "$RED" "$NC" | tee -a "$REPORT_FILE"
+    {
+        echo
+        echo "Please review the failed tests above."
+        echo "Some existing functionality may be broken."
+    } | tee -a "$REPORT_FILE"
     exit 1
 fi

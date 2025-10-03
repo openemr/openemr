@@ -35,24 +35,46 @@ Web Server (Apache/Nginx)
     ├── Pass through static assets (CSS, JS, images, fonts)
     └── Route .php files → home.php
         ↓
-home.php Front Controller
+home.php Front Controller Entry Point
     ├── CLI Detection (exit if CLI)
     ├── Load .env variables
     ├── Feature Flag Check (exit if disabled)
-    ├── Early Extension Hook (optional custom logic)
+    ├── Early Extension Hook (custom/front_controller_early.php)
     ├── Multisite Selection (domain or ?site parameter)
+    └── Delegate to Router
+        ↓
+Router (src/OpenCoreEMR/FrontController/Router.php)
+    ├── Load Route Configuration (RouteConfig)
     ├── Extract Route from ?_ROUTE parameter
     ├── Trailing Slash Redirect (301)
-    ├── Security Validation
+    ├── Security Validation Layer
     │   ├── Deny forbidden paths (404)
-    │   ├── Admin path detection (sets flag)
+    │   ├── Admin path detection (sets $_SERVER['REQUIRE_ADMIN'])
     │   ├── Block .inc.php files (403)
     │   ├── Prevent path traversal (404)
     │   └── Validate file type (404)
-    ├── Late Extension Hook (optional custom logic)
+    ├── Late Extension Hook (custom/front_controller_late.php)
     └── Include Target File
         ↓
 Target PHP File (handles auth/sessions/logic unchanged)
+```
+
+### Extensible Configuration System
+
+**Route Configuration** (`src/OpenCoreEMR/FrontController/RouteConfig.php`):
+- Centralized routing rules (forbidden paths, admin paths, bypass patterns)
+- Extensible via Event System for custom rules
+- Module integration support
+- Easy to modify and test
+
+**Event System Integration**:
+```php
+// Modules can add custom routing rules
+$this->dispatcher->addListener('route.config.before', function($event) {
+    $config = $event->getConfig();
+    $config->addForbiddenPath('/custom/sensitive/*');
+    $config->addAdminPath('/custom/admin.php');
+});
 ```
 
 ## Security Features
@@ -222,21 +244,35 @@ curl -I "https://your-domain/home.php?_ROUTE=../../../etc/passwd"
 
 ### Automated Test Suites
 
-**Security Tests**:
+**CI-Integrated PHPUnit Tests**:
 ```bash
-vendor/bin/phpunit tests/FrontController/SecurityTest.php
+# Run all front controller tests
+vendor/bin/phpunit --testsuite frontcontroller
+
+# Or run individually
+vendor/bin/phpunit tests/Tests/FrontController/SecurityTest.php
+vendor/bin/phpunit tests/Tests/FrontController/CompatibilityTest.php
+```
+
+**Shell Script Tests** (for deployment validation):
+```bash
+# Security validation
 ./tests/scripts/test_security.sh https://your-domain
-```
 
-**Compatibility Tests**:
-```bash
-vendor/bin/phpunit tests/FrontController/CompatibilityTest.php
+# Backward compatibility check
 ./tests/scripts/test_compatibility.sh https://your-domain
+
+# Performance benchmarking (100 iterations)
+./tests/scripts/test_performance.sh https://your-domain 100
 ```
 
-**Performance Tests**:
+**CLI Support**:
 ```bash
-./tests/scripts/test_performance.sh https://your-domain 100
+# Set test URL via environment variable
+export OPENEMR_TEST_URL=https://your-domain
+
+# Run tests
+vendor/bin/phpunit --testsuite frontcontroller
 ```
 
 ### Manual Testing Checklist
@@ -273,8 +309,10 @@ This removes all front controller files and creates backups.
 
 ## Files Implemented
 
-**Core** (6 files):
-- `home.php` - Main front controller with routing logic
+**Core** (8 files):
+- `home.php` - Main front controller entry point
+- `src/OpenCoreEMR/FrontController/Router.php` - Routing engine with security validation
+- `src/OpenCoreEMR/FrontController/RouteConfig.php` - Extensible routing configuration
 - `security-check.php` - PHP-level .inc.php blocking (auto-prepended)
 - `.htaccess` - Apache routing and security rules
 - `nginx-front-controller.conf` - Nginx configuration
@@ -282,8 +320,8 @@ This removes all front controller files and creates backups.
 - `custom/.gitkeep` - Extension hooks directory
 
 **Tests** (6 files):
-- `tests/FrontController/SecurityTest.php` - PHPUnit security suite
-- `tests/FrontController/CompatibilityTest.php` - PHPUnit compatibility suite
+- `tests/Tests/FrontController/SecurityTest.php` - PHPUnit security suite (CI integrated)
+- `tests/Tests/FrontController/CompatibilityTest.php` - PHPUnit compatibility suite (CI integrated)
 - `tests/scripts/test_security.sh` - Shell security tests
 - `tests/scripts/test_compatibility.sh` - Shell compatibility tests
 - `tests/scripts/test_performance.sh` - Performance benchmarks
@@ -342,6 +380,67 @@ Auto-prepend security check for Herd/Nginx environments:
 auto_prepend_file = "/path/to/openemr/security-check.php"
 ```
 
+## Troubleshooting
+
+### .htaccess Feature Flag Not Working
+
+**Problem**: `.env` file changes not taking effect in Apache environments.
+
+**Cause**: Apache doesn't natively support `.env` files. The `.htaccess` file sets a default value.
+
+**Solution Options**:
+
+1. **Edit .htaccess directly** (recommended for Apache):
+```apache
+# Change this line in .htaccess:
+SetEnvIf Request_URI .* OPENEMR_ENABLE_FRONT_CONTROLLER=1
+```
+
+2. **Use Apache virtual host config** (system-wide):
+```apache
+<VirtualHost *:80>
+    SetEnv OPENEMR_ENABLE_FRONT_CONTROLLER 1
+</VirtualHost>
+```
+
+3. **Use PHP's putenv()** (for custom setups):
+```php
+// In globals.php or custom config
+putenv('OPENEMR_ENABLE_FRONT_CONTROLLER=1');
+```
+
+**Note**: For Nginx/Herd environments, `.env` file works correctly via `fastcgi_param`.
+
+### Performance Issues
+
+**Problem**: Slow page loads after enabling front controller.
+
+**Diagnosis**:
+```bash
+# Check overhead percentage
+./tests/scripts/test_performance.sh https://your-domain 100
+```
+
+**Solutions**:
+- Enable OPcache in PHP
+- Use PHP-FPM with FastCGI
+- Verify static assets bypass front controller
+- Check for custom hooks causing delays
+
+### CLI Scripts Not Working
+
+**Problem**: CLI scripts fail with routing errors.
+
+**Cause**: CLI detection not working properly.
+
+**Solution**: Router automatically detects CLI via `php_sapi_name()`. If issues persist:
+```php
+// Add to script before including files:
+if (PHP_SAPI === 'cli') {
+    putenv('OPENEMR_ENABLE_FRONT_CONTROLLER=0');
+}
+```
+
 ## FAQ
 
 **Q: Do I need to modify existing code?**
@@ -354,7 +453,7 @@ A: OpenEMR works exactly as before. Front controller is optional.
 A: Minimal (<5%). Security benefits outweigh the cost.
 
 **Q: How do I disable it?**
-A: Set `OPENEMR_ENABLE_FRONT_CONTROLLER=0` in `.env` file.
+A: Set `OPENEMR_ENABLE_FRONT_CONTROLLER=0` in `.env` file (or `.htaccess` for Apache).
 
 **Q: Does it work with Docker?**
 A: Yes. Set in `docker-compose.yml`:
@@ -367,7 +466,7 @@ environment:
 A: `/portal/patient/fwk/libs/*` and `/sites/*/documents/*` return 404.
 
 **Q: How are admin paths handled?**
-A: Front controller sets `$_SERVER['REQUIRE_ADMIN']` flag. Target file validates.
+A: Router sets `$_SERVER['REQUIRE_ADMIN']` flag. Target file validates.
 
 **Q: Can I add custom logic?**
 A: Yes. Create `/custom/front_controller_early.php` or `/custom/front_controller_late.php`.
@@ -377,4 +476,7 @@ A: Yes. Uses `.user.ini` auto-prepend for PHP-level security.
 
 **Q: What about trailing slashes?**
 A: Automatically redirects `/path/` to `/path` (301 redirect).
+
+**Q: How do I extend routing rules?**
+A: Use Event System in RouteConfig.php to add custom paths dynamically.
 
