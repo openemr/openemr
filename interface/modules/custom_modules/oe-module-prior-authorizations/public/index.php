@@ -9,6 +9,7 @@
  */
 
 require_once dirname(__FILE__, 5) . "/globals.php";
+require_once dirname(__FILE__, 2) . '/vendor/autoload.php';
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
@@ -121,7 +122,7 @@ const TABLE_TD = "</td><td>";
                 </div>
                 <div class="form-row">
                     <div class="col my-1">
-                        <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPTs') ?>">
+                        <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPT') ?>">
                     </div>
                 </div>
                 <div class="form-row">
@@ -140,7 +141,8 @@ const TABLE_TD = "</td><td>";
                     <th scope="col"><?php echo xlt('Remaining Units'); ?></th>
                     <th scope="col"><?php echo xlt('Start Date'); ?></th>
                     <th scope="col"><?php echo xlt('End Date'); ?></th>
-                    <th scope="col"><?php echo xlt('CPTs'); ?></th>
+                    <th scope="col"><?php echo xlt('CPT'); ?></th>
+                    <th scope="col">%</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
                 </tr>
@@ -161,6 +163,29 @@ const TABLE_TD = "</td><td>";
                             print TABLE_TD . text($iter['end_date']);
                         }
                         print TABLE_TD . text($iter['cpt']);
+
+                        $initialUnits = (int)$iter['init_units'];
+
+                        if ($initialUnits > 0) {
+                            $percentRemaining = round(($remaining / $initialUnits) * 100);
+                        } else {
+                            $percentRemaining = 0;
+                        }
+                        $barColor = '#4CAF50'; // Green: Full/Plenty remaining
+                        if ($percentRemaining <= 66) {
+                            $barColor = '#ffc107'; // Yellow: Getting low
+                        }
+                        if ($percentRemaining <= 33) {
+                            $barColor = '#dc3545'; // Red: Very low
+                        }
+
+                        print TABLE_TD;
+                        print "<div style='background-color:#eee; height:20px; width:100px; border:1px solid #ccc; position:relative;'>";
+                        print "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
+                        print "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
+                        print "</div>";
+                        print "</td>";
+
                         print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
                         <input type='hidden' id='" . attr_js($iter['id']) . "' value='" . attr($editData) . "' ></td>";
                         print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";

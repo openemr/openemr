@@ -9,12 +9,17 @@
  */
 
 require_once dirname(__FILE__, 6) . "/globals.php";
+require_once dirname(__FILE__, 3) . '/vendor/autoload.php';
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use OpenEMR\Core\Header;
 
 $data = new AuthorizationService();
 $patients = $data->listPatientAuths();
+
+$hide_expired = isset($_GET['hide_expired']) && $_GET['hide_expired'] == '1';
+$total_initial_units = 0;
+$total_used_units = 0;
 
 ?>
 <!doctype html>
@@ -26,6 +31,7 @@ $patients = $data->listPatientAuths();
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?php echo xlt("List Exising Prior Auths Report"); ?></title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         // opens the demographic and encounter screens in a new window
         function openNewTopWindow(newpid) {
@@ -37,17 +43,36 @@ $patients = $data->listPatientAuths();
 <body>
     <div class="container-lg" style="padding-top: 6em">
         <h1><?php echo xlt("Prior Auths") ?></h1>
+          <form method="get" action="">
+              <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" name="hide_expired" value="1" id="hideExpiredCheck" <?php echo isset($_GET['hide_expired']) && $_GET['hide_expired'] == '1' ? 'checked' : ''; ?> onchange="this.form.submit()">
+                  <label class="form-check-label" for="hideExpiredCheck">
+                      <?php echo xlt("Hide Expired Authorizations"); ?>
+                  </label>
+              </div>
+          </form>
         <div class="table">
+          <div class="row mb-4">
+              <div class="col-md-4 mx-auto">
+                  <h2><?php echo xlt("Usage Summary"); ?></h2>
+                  <div style="height: 300px;">
+                      <canvas id="usageChart"></canvas>
+                  </div>
+              </div>
+          </div>
             <table class="table table-striped">
                 <caption><?php echo xlt("Patients with prior auths"); ?></caption>
                 <th scope="col"><?php echo xlt("MRN"); ?></th>
                 <th scope="col"><?php echo xlt("Name"); ?></th>
                 <th scope="col"><?php echo xlt("Ins"); ?></th>
                 <th scope="col"><?php echo xlt("Auths"); ?></th>
+                <th scope="col"><?php echo xlt("CPT"); ?></th>
                 <th scope="col"><?php echo xlt("Start"); ?></th>
                 <th scope="col"><?php echo xlt("End"); ?></th>
                 <th scope="col">#<?php echo xlt("of Units"); ?></th>
                 <th scope="col"><?php echo xlt("Remaining"); ?></th>
+                <th scope="col"><?php echo xlt("%"); ?></th>
+  
 
                 <?php
                 $count = 0;
@@ -58,7 +83,6 @@ $patients = $data->listPatientAuths();
                     } else {
                         $pid = $iter['mrn'];
                     }
-
             // This part requires custom form and custom table to function
             /*
                     $requireAuth = AuthorizationService::requiresAuthorization($iter['pid']);
@@ -73,6 +97,11 @@ $patients = $data->listPatientAuths();
                     }
             */
 
+                    if ($hide_expired) {
+                        if (!empty($iter['end_date']) && $iter['end_date'] !== '0000-00-00' && $iter['end_date'] < date('Y-m-d')) {
+                            continue;
+                        }
+                    }
                     $numbers = AuthorizationService::countUsageOfAuthNumber(
                         $iter['auth_num'],
                         $pid,
@@ -80,6 +109,7 @@ $patients = $data->listPatientAuths();
                         $iter['start_date'],
                         $iter['end_date']
                     );
+
                     $insurance = AuthorizationService::insuranceName($pid);
 
                     if ($name !== $iter['fname'] . " " . $iter['lname']) {
@@ -92,21 +122,52 @@ $patients = $data->listPatientAuths();
                         print "<td></td>";
                     }
                     print "<td>" . text($iter['auth_num']) . "</td>";
+                    print "<td>" . text($iter['cpt']) . "</td>";
                     print "<td>" . text($iter['start_date']) . "</td>";
                     print "<td>" . text($iter['end_date']) . "</td>";
-                    if (($iter['end_date'] < date('Y-m-d')) && ($iter['end_date'] !== '0000-00-00') && !empty($iter['auth_num'])) {
+
+                    if (($iter['end_date'] < date('Y-m-d')) && ($iter['end_date'] !== '0000-00-00') && (!empty($iter['auth_num']))) {
                         print "<td style='color: red'><strong>" . xlt('Expired') . "</strong></td>";
                         print "<td></td>";
+                        print "<td></td>";
                     } else {
-                        print "<td>" . text($iter['init_units']) . "</td>";
-                        $unitCount = $iter['init_units'] - $numbers;
+                        $initialUnits = (int)$iter['init_units'];
+                        print "<td>" . text($initialUnits) . "</td>";
+
+                        $usedUnits = $initialUnits - $numbers;
+                        $unitCount = $initialUnits - $numbers;
+                        if (($iter['end_date'] >= date('Y-m-d') || $iter['end_date'] === '0000-00-00') && !empty($iter['auth_num'])) {
+                            $total_initial_units += $initialUnits;
+                            $total_used_units += $usedUnits;
+                        }
+
                         if ($unitCount > 0) {
                             print "<td>" . text($unitCount) . "</td>";
                         } else {
                             print "<td>&nbsp</td>";
                         }
-                    }
 
+                        if ($initialUnits > 0) {
+                            $percentRemaining = round(($usedUnits / $initialUnits) * 100);
+                        } else {
+                            $percentRemaining = 0;
+                        }
+
+                        $barColor = '#4CAF50'; // Green: Full/Plenty remaining
+                        if ($percentRemaining <= 66) {
+                            $barColor = '#ffc107'; // Yellow: Getting low
+                        }
+                        if ($percentRemaining <= 33) {
+                            $barColor = '#dc3545'; // Red: Empty
+                        }
+
+                        print "<td>";
+                        print "<div style='background-color:#eee; height:20px; width:150px; border:1px solid #ccc; position:relative;'>";
+                        print "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
+                        print "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
+                        print "</div>";
+                        print "</td>";
+                    }
                     print "</tr>";
                     $name = $iter['fname'] . " " . $iter['lname'];
                     $count++;
@@ -120,6 +181,49 @@ $patients = $data->listPatientAuths();
         </div>
         &copy; <?php echo date('Y') . " Juggernaut Systems Express" ?>
     </div>
+   <script>
+    const total_initial = <?php echo (int)($total_initial_units ?? 0); ?>;
+    const total_used = <?php echo (int)$total_used_units; ?>;
+    const total_remaining = total_initial - total_used;
 
+    const ctx = document.getElementById('usageChart');
+
+    if (total_initial > 0) {
+        new Chart(ctx, {
+            type: 'doughnut', // circle chart
+            data: {
+                labels: ['<?php echo xlt("Units Used"); ?>', '<?php echo xlt("Units Remaining"); ?>'],
+                datasets: [{
+                    label: '<?php echo xlt("Unit Count"); ?>',
+                    data: [total_used, total_remaining],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.8)', 
+                        'rgba(255, 99, 132, 0.8)' 
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '<?php echo xlt("Total Units: ") . (int)$total_initial_units; ?>'
+                    }
+                }
+            }
+        });
+    } else {
+        ctx.style.display = 'none';
+        const container = ctx.closest('.col-md-4');
+        if (container) {
+            container.innerHTML = '<p class="text-center"><?php echo xlt("No active authorizations with units found."); ?></p>';
+        }
+    }
+    </script>
 </body>
 </html>
