@@ -105,7 +105,7 @@ class PortalCard extends CardModel
 
     private function addListener()
     {
-        $this->ed->addListener(SectionEvent::EVENT_HANDLE, [$this, 'addPatientCardToSection']);
+        $this->ed->addListener(SectionEvent::EVENT_HANDLE, $this->addPatientCardToSection(...));
     }
 
     public function addPatientCardToSection(SectionEvent $e)

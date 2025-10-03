@@ -640,10 +640,7 @@ class Savant3
             echo $this->escape($value);
         } else {
             $args = func_get_args();
-            echo call_user_func_array(array (
-                    $this,
-                    'escape'
-            ), $args);
+            echo call_user_func_array($this->escape(...), $args);
         }
     }
 
