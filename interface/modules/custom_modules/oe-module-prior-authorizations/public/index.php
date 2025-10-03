@@ -151,17 +151,17 @@ const TABLE_TD = "</td><td>";
                         $editData = json_encode($iter);
                         $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);
                         $remaining = $iter['init_units'] - $used;
-                        print "<tr><td>";
-                        print text($iter['auth_num']);
-                        print TABLE_TD . text($iter['init_units']);
-                        print TABLE_TD . text($remaining);
-                        print TABLE_TD . text($iter['start_date']);
+                        echo "<tr><td>";
+                        echo text($iter['auth_num']);
+                        echo TABLE_TD . text($iter['init_units']);
+                        echo TABLE_TD . text($remaining);
+                        echo TABLE_TD . text($iter['start_date']);
                         if ($iter['end_date'] == '0000-00-00') {
-                            print TABLE_TD;
+                            echo TABLE_TD;
                         } else {
-                            print TABLE_TD . text($iter['end_date']);
+                            echo TABLE_TD . text($iter['end_date']);
                         }
-                        print TABLE_TD . text($iter['cpt']);
+                        echo TABLE_TD . text($iter['cpt']);
 
                         $initialUnits = (int)$iter['init_units'];
 
@@ -170,26 +170,25 @@ const TABLE_TD = "</td><td>";
                         } else {
                             $percentRemaining = 0;
                         }
-                        $barColor = '#4CAF50'; // Green: Full/Plenty remaining
-                        if ($percentRemaining <= 66) {
-                            $barColor = '#ffc107'; // Yellow: Getting low
-                        }
-                        if ($percentRemaining <= 33) {
-                            $barColor = '#dc3545'; // Red: Very low
-                        }
 
-                        print TABLE_TD;
-                        print "<div style='background-color:#eee; height:20px; width:100px; border:1px solid #ccc; position:relative;'>";
-                        print "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
-                        print "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
-                        print "</div>";
-                        print "</td>";
+                        $barColor = match(true) {
+                            ($percentRemaining <= 33) => '#dc3545', // Red: Empty
+                            ($percentRemaining <= 66) => '#ffc107', // Yellow: Getting low
+                            default => '#4CAF50', // Green: Full/Plenty remaining
+                        };
+                    
+                        echo TABLE_TD;
+                        echo "<div style='background-color:#eee; height:20px; width:100px; border:1px solid #ccc; position:relative;'>";
+                        echo "<div style='background-color:{$barColor}; height:100%; width:{$percentRemaining}%; position:absolute;'></div>";
+                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>{$percentRemaining}%</div>";
+                        echo "</div>";
+                        echo "</td>";
 
-                        print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
+                        echo TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
                         <input type='hidden' id='" . attr_js($iter['id']) . "' value='" . attr($editData) . "' ></td>";
-                        print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";
+                        echo "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";
 
-                        print "</tr>";
+                        echo "</tr>";
                     }
                 }
                 ?>
