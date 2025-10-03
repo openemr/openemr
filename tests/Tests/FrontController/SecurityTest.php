@@ -17,16 +17,24 @@
 
 namespace OpenCoreEMR\Tests\FrontController;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use PHPUnit\Framework\TestCase;
 
 class SecurityTest extends TestCase
 {
     private static $baseUrl;
+    private static $client;
     private static $vulnerable_inc_files = [];
 
     public static function setUpBeforeClass(): void
     {
         self::$baseUrl = getenv('OPENEMR_TEST_URL') ?: 'http://localhost/openemr';
+        self::$client = new Client([
+            'base_uri' => self::$baseUrl,
+            'http_errors' => false,
+            'allow_redirects' => true,
+        ]);
         self::loadVulnerableIncFiles();
     }
 
@@ -50,13 +58,8 @@ class SecurityTest extends TestCase
         $sampleFiles = array_slice(self::$vulnerable_inc_files, 0, 10);
 
         foreach ($sampleFiles as $file) {
-            $url = self::$baseUrl . '/' . $file;
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $response = self::$client->head('/' . $file);
+            $httpCode = $response->getStatusCode();
 
             $this->assertEquals(
                 403,
@@ -72,14 +75,8 @@ class SecurityTest extends TestCase
     public function testHistoryIncPhpBlocked(): void
     {
         // This is the file from the security log that caused xl() undefined error
-        $url = self::$baseUrl . '/interface/patient_file/history/history.inc.php';
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $response = self::$client->head('/interface/patient_file/history/history.inc.php');
+        $httpCode = $response->getStatusCode();
 
         $this->assertEquals(
             403,
@@ -102,15 +99,10 @@ class SecurityTest extends TestCase
         ];
 
         foreach ($attackVectors as $vector) {
-            $url = self::$baseUrl . '/home.php?_ROUTE=' . urlencode($vector);
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-            curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $response = self::$client->head('/home.php?_ROUTE=' . urlencode($vector), [
+                'allow_redirects' => false
+            ]);
+            $httpCode = $response->getStatusCode();
 
             $this->assertEquals(
                 404,
@@ -134,14 +126,8 @@ class SecurityTest extends TestCase
         ];
 
         foreach ($nonPhpFiles as $file) {
-            $url = self::$baseUrl . '/home.php?_ROUTE=' . urlencode($file);
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $response = self::$client->head('/home.php?_ROUTE=' . urlencode($file));
+            $httpCode = $response->getStatusCode();
 
             $this->assertEquals(
                 404,
@@ -163,14 +149,8 @@ class SecurityTest extends TestCase
         ];
 
         foreach ($nonExistentFiles as $file) {
-            $url = self::$baseUrl . '/home.php?_ROUTE=' . urlencode($file);
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $response = self::$client->head('/home.php?_ROUTE=' . urlencode($file));
+            $httpCode = $response->getStatusCode();
 
             $this->assertEquals(
                 404,
@@ -191,15 +171,8 @@ class SecurityTest extends TestCase
         ];
 
         foreach ($legitimateFiles as $file) {
-            $url = self::$baseUrl . '/' . $file;
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $response = self::$client->head('/' . $file);
+            $httpCode = $response->getStatusCode();
 
             $this->assertContains(
                 $httpCode,
@@ -231,30 +204,26 @@ class SecurityTest extends TestCase
      */
     public function testSecurityHeadersPresent(): void
     {
-        $url = self::$baseUrl . '/index.php';
+        $response = self::$client->head('/index.php');
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $this->assertStringContainsString(
-            'X-Content-Type-Options: nosniff',
-            $response,
+        $this->assertTrue(
+            $response->hasHeader('X-Content-Type-Options'),
             'Security header X-Content-Type-Options should be present'
         );
 
-        $this->assertStringContainsString(
-            'X-XSS-Protection:',
-            $response,
+        $this->assertEquals(
+            'nosniff',
+            $response->getHeaderLine('X-Content-Type-Options'),
+            'X-Content-Type-Options should be nosniff'
+        );
+
+        $this->assertTrue(
+            $response->hasHeader('X-XSS-Protection'),
             'Security header X-XSS-Protection should be present'
         );
 
-        $this->assertStringContainsString(
-            'X-Frame-Options:',
-            $response,
+        $this->assertTrue(
+            $response->hasHeader('X-Frame-Options'),
             'Security header X-Frame-Options should be present'
         );
     }
