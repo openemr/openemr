@@ -16,7 +16,7 @@ use OpenEMR\Core\Header;
 $data = new AuthorizationService();
 $patients = $data->listPatientAuths();
 
-$hide_expired = isset($_GET['hide_expired']) && $_GET['hide_expired'] == '1';
+$hide_expired = ($_GET['hide_expired'] ?? '0') === '1';
 $total_initial_units = 0;
 $total_used_units = 0;
 
@@ -30,7 +30,7 @@ $total_used_units = 0;
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?php echo xlt("List Exising Prior Auths Report"); ?></title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         // opens the demographic and encounter screens in a new window
         function openNewTopWindow(newpid) {
@@ -134,7 +134,7 @@ $total_used_units = 0;
                         print "<td>" . text($initialUnits) . "</td>";
 
                         $usedUnits = $initialUnits - $numbers;
-                        $unitCount = $initialUnits - $numbers;
+                        $unitCount = $usedUnits;
                         if (($iter['end_date'] >= date('Y-m-d') || $iter['end_date'] === '0000-00-00') && !empty($iter['auth_num'])) {
                             $total_initial_units += $initialUnits;
                             $total_used_units += $usedUnits;
@@ -152,13 +152,11 @@ $total_used_units = 0;
                             $percentRemaining = 0;
                         }
 
-                        $barColor = '#4CAF50'; // Green: Full/Plenty remaining
-                        if ($percentRemaining <= 66) {
-                            $barColor = '#ffc107'; // Yellow: Getting low
-                        }
-                        if ($percentRemaining <= 33) {
-                            $barColor = '#dc3545'; // Red: Empty
-                        }
+                        $barColor = match(true) {
+                            ($percentRemaining <= 33) => '#dc3545', // Red: Empty
+                            ($percentRemaining <= 66) => '#ffc107', // Yellow: Getting low
+                            default => '#4CAF50', // Green: Full/Plenty remaining
+                        };
 
                         print "<td>";
                         print "<div style='background-color:#eee; height:20px; width:150px; border:1px solid #ccc; position:relative;'>";
