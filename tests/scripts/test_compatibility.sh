@@ -56,7 +56,7 @@ run_test() {
     http_code=$(curl -s -o /dev/null -w "%{http_code}" -L "$url")
 
     # Check if code matches any of the expected codes
-    if [[ "$expected_codes" = *"$http_code"* ]]; then
+    if [[ "$expected_codes" == *"$http_code"* ]]; then
         printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
         PASSED_TESTS=$((PASSED_TESTS + 1))
         echo "  ✓ $description" | tee -a "$REPORT_FILE"
@@ -208,14 +208,14 @@ http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
     -d "authUser=test&authPass=test" \
     "$BASE_URL/interface/login/login.php")
 
-if [[ "$http_code" != "404" && "$http_code" != "403" ]]; then
-    printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
-    PASSED_TESTS=$((PASSED_TESTS + 1))
-    echo "  ✓ POST requests are processed correctly" | tee -a "$REPORT_FILE"
-else
+if [[ "$http_code" == "404" || "$http_code" == "403" ]]; then
     printf "%sFAIL%s (HTTP %s)\n" "$RED" "$NC" "$http_code" | tee -a "$REPORT_FILE"
     FAILED_TESTS=$((FAILED_TESTS + 1))
     echo "  ✗ POST requests are being blocked" | tee -a "$REPORT_FILE"
+else
+    printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+    echo "  ✓ POST requests are processed correctly" | tee -a "$REPORT_FILE"
 fi
 echo | tee -a "$REPORT_FILE"
 

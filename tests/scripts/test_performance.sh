@@ -66,15 +66,15 @@ run_performance_test() {
     # Run Apache Bench test
     ab_output=$(ab -n "$ITERATIONS" -c 10 -q "$url" 2>&1 || true)
 
-    # Extract key metrics using herestrings
-    requests_per_sec=$(grep "Requests per second" <<< "$ab_output" | awk '{print $4}')
-    time_per_request=$(grep "Time per request.*mean\)" <<< "$ab_output" | head -1 | awk '{print $4}')
-    failed_requests=$(grep "Failed requests" <<< "$ab_output" | awk '{print $3}')
+    # Extract key metrics using awk
+    requests_per_sec=$(awk '/Requests per second/ {print $4}' <<< "$ab_output")
+    time_per_request=$(awk '/Time per request.*mean\)/ {print $4; exit}' <<< "$ab_output")
+    failed_requests=$(awk '/Failed requests/ {print $3}' <<< "$ab_output")
 
-    # Extract percentiles using herestrings
-    p50=$(grep "50%" <<< "$ab_output" | awk '{print $2}')
-    p95=$(grep "95%" <<< "$ab_output" | awk '{print $2}')
-    p99=$(grep "99%" <<< "$ab_output" | awk '{print $2}')
+    # Extract percentiles using awk
+    p50=$(awk '/50%/ {print $2}' <<< "$ab_output")
+    p95=$(awk '/95%/ {print $2}' <<< "$ab_output")
+    p99=$(awk '/99%/ {print $2}' <<< "$ab_output")
 
     # Display results
     {
