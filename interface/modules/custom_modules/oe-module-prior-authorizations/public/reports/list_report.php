@@ -181,7 +181,7 @@ $total_used_units = 0;
         &copy; <?php echo date('Y') . " Juggernaut Systems Express" ?>
     </div>
    <script>
-    const total_initial = <?php echo (int)($total_initial_units ?? 0); ?>;
+    const total_initial = <?php echo (int)$total_initial_units; ?>;
     const total_used = <?php echo (int)$total_used_units; ?>;
     const total_remaining = total_initial - total_used;
 
