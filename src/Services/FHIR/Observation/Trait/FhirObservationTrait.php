@@ -104,6 +104,8 @@ trait FhirObservationTrait
         $status->setValue($statusValue);
         $observation->setStatus($status);
 
+        $this->setObservationIssued($observation, $dataRecord);
+
         // Set Code (required, mustSupport)
         $this->setObservationCode($observation, $dataRecord);
 
@@ -334,6 +336,23 @@ trait FhirObservationTrait
         $subject = new FHIRReference();
         $subject->setReference(new FHIRString('Patient/' . $dataRecord['puuid']));
         $observation->setSubject($subject);
+    }
+
+    /**
+     * issued date (optional for US Core 7+ but mustSupport for US Core 3.1.1)
+     * @param FHIRObservation $observation
+     * @param array $dataRecord
+     * @return void
+     */
+    protected function setObservationIssued(FHIRObservation $observation, array $dataRecord): void
+    {
+        $issuedDate = $dataRecord['date_issued'] ?? $dateRecord['last_updated_time'] ?? $dataRecord['date'] ?? null;
+        if (!empty($issuedDate)) {
+            $issuedDateTime = new FHIRDateTime();
+            $dateIssued = UtilsService::getLocalDateAsUTC($issuedDate);
+            $issuedDateTime->setValue($dateIssued);
+            $observation->setIssued($issuedDateTime);
+        }
     }
 
     /**
