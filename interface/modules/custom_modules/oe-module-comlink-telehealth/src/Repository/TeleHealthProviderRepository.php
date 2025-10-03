@@ -55,9 +55,7 @@ class TeleHealthProviderRepository
                 $service->getUsersForCalendar($_SESSION['authUserID']);
             }
             if (!empty($dataArray)) {
-                $providers = array_map(function ($provider) {
-                    return $this->mapProviderToPersonSetting($provider);
-                }, $dataArray);
+                $providers = array_map($this->mapProviderToPersonSetting(...), $dataArray);
             }
         } else {
             // just grab all of our enabled users

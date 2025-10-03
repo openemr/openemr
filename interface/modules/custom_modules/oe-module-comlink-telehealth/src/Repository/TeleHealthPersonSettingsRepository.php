@@ -95,9 +95,7 @@ class TeleHealthPersonSettingsRepository
         $records = QueryUtils::fetchRecords("Select id,user_id, patient_id,date_created,date_updated,enabled "
             . " from comlink_telehealth_person_settings WHERE enabled = 1 ORDER BY user_id ");
         if (!empty($records)) {
-            return array_map(function ($record) {
-                return $this->createResultRecordFromDatabaseResult($record);
-            }, $records);
+            return array_map($this->createResultRecordFromDatabaseResult(...), $records);
         }
         return [];
     }
