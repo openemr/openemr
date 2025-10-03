@@ -128,7 +128,6 @@ class FhirObservationHistorySdohServiceTest extends TestCase
             $this->testUserData['npi']
         ]);
         $this->testUserData['id'] = $insertId;
-        $this->testUserData['uuid'] = $this->testUserData['uuid'];
     }
 
     /**

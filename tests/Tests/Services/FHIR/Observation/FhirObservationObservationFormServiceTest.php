@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -387,7 +388,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
         // Verify US Core Screening Assessment profile is set in meta
         $profiles = $observation->getMeta()->getProfile();
-        $profileValues = array_map(fn($uri) => $uri, $profiles);
+        $profileValues = array_map(fn($uri): FHIRCanonical => $uri, $profiles);
         $this->assertContains(FhirObservationObservationFormService::USCGI_PROFILE_URI, $profileValues);
     }
 
