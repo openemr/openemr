@@ -26,10 +26,10 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole';
-
     use VersionedProfileTrait;
     use FhirServiceBaseEmptyTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole';
 
     /**
      * @var PractitionerRoleService
