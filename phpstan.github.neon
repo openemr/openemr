@@ -14852,10 +14852,6 @@ parameters:
     identifier: constant.notFound
     count: 1
     path: library/classes/smtp/smtp.php
-  - message: '#^Function ereg_replace not found\.$#'
-    identifier: function.notFound
-    count: 4
-    path: library/classes/smtp/smtp.php
   - message: '#^Method smtp_class\:\:GetLine\(\) invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
@@ -16452,10 +16448,6 @@ parameters:
     identifier: variable.undefined
     count: 4
     path: portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php
-  - message: '#^Function eregi not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/HTTP/FormValidator.php
   - message: '#^Method HttpRequest\:\:FilePost\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
     count: 1
