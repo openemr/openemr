@@ -43,7 +43,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
-    use FhirServiceBaseEmptyTrait;
     use FhirObservationTrait;
 
     // we set this to be 'Final' which has the follow interpretation
@@ -62,7 +61,9 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             'fullcode' => 'LOINC:' . self::SMOKING_CESSATION_CODE
             ,'code' => self::SMOKING_CESSATION_CODE
             ,'description' => 'Tobacco smoking status NHIS'
-            ,'column' => ['smoking_status_codes', 'tobacco']
+            // TODO: can we make this more generic? and consolidate it across the observation services?
+            ,'column' => 'tobacco' // different than our services but we have to be backwards compatible with the way the underlying service is
+            ,'column_codes' => 'smoking_status_codes'
             ,'profiles' => [
                 self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_ALL
             ]
@@ -187,7 +188,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
-            foreach ($result->getData() as $record) {
+            foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseSocialHistoryIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
             }
@@ -215,17 +216,35 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             foreach ($profileVersions as $profile => $versions) {
                 $profiles[] = $this->getProfileForVersions($profile, $versions);
             }
+
+            $value = null;
+            $valueDescription = null;
+            $codes = $record[$mapping['column_codes']] ?? [];
+            if (!empty($codes)) {
+                $codes = array_values($codes)[0];
+                $value = $codes['code_type'] . ':' . $codes['code'];
+                $valueDescription = $codes['description'];
+            } else {
+                $value = $record[$mapping['column']];
+            }
+            // no value means we skip this observation as value is a required field
+            if (empty($value)) {
+                continue;
+            }
+
             $observation = [
-                "code" => $code
+                "code" => $mapping['fullcode']
                 ,"description" => $this->getDescriptionForCode($code)
                 ,"ob_type" => self::CATEGORY
-                , "puuid" => $record['puuid']
+                ,"ob_status" => 'final' // we always set this to final as there's no in-between state
+                ,"puuid" => $record['puuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
                 ,"user_uuid" => 'provider_uuid'
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions())
-                ,"value" => null
+                ,"value" => $value
+                ,'value_code_description' => $valueDescription
             ];
             $this->addColumnsForCode($observation, $record);
             $processingResult->addData($observation);
@@ -248,61 +267,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             }
         }
         return $codeMappings;
-    }
-
-    /**
-     * Parses an OpenEMR data record, returning the equivalent FHIR Resource
-     *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
-     */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
-    {
-        $observation = new FHIRObservation();
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
-        } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $observation->setMeta($meta);
-
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $observation->setId($id);
-
-        if (!empty($dataRecord['date'])) {
-            $observation->setIssued(UtilsService::getLocalDateAsUTC($dataRecord['date']));
-        } else {
-            $observation->setIssued(UtilsService::createDataMissingExtension());
-        }
-
-        $code = $dataRecord['code'];
-        $description = $this->getDescriptionForCode($code);
-
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
-        if (!empty($dataRecord['code'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($description);
-            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observation->setCode($categoryCode);
-        }
-
-
-        $observation->setStatus(self::DEFAULT_OBSERVATION_STATUS);
-        $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
-
-        // more complicated codes
-        switch ($code) {
-            case self::SMOKING_CESSATION_CODE: // vital-signs panel
-                $this->populateSmokingCessation($observation, $dataRecord);
-                break;
-        }
-        return $observation;
     }
 
     private function populateSmokingCessation(FHIRObservation $observation, $dataRecord)
