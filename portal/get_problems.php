@@ -27,7 +27,7 @@ require_once("verify_session.php");
 
 $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medical_problem' ORDER BY begdate";
 
-$res = sqlStatement($sql, array($pid));
+$res = sqlStatement($sql, [$pid]);
 
 if (sqlNumRows($res) > 0) { ?>
 <table class="table table-sm table-striped">

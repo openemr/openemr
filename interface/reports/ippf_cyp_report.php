@@ -302,7 +302,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $productqty = 0;
     $grandqty = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT b.pid, b.encounter, b.code_type, b.code, b.units, " .
     "b.code_text, c.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -334,7 +334,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         );
     }
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
     "d.name, d.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .

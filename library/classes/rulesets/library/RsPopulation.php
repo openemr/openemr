@@ -14,7 +14,7 @@ require_once("RsPatient.php");
 class RsPopulation implements Countable, Iterator, ArrayAccess
 {
     private $position = 0;
-    protected $_patients = array();
+    protected $_patients = [];
 
     /*
      * initialize the patient population

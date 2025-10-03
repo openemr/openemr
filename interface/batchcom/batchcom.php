@@ -28,10 +28,10 @@ if (!AclMain::aclCheckCore('admin', 'batchcom')) {
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
-$process_choices = array(xl('Download CSV File'), xl('Send Emails'), xl('Phone call list'));
-$gender_choices = array(xl('Any{{Gender}}'), xl('Male'), xl('Female'));
-$hipaa_choices = array(xl('No'), xl('Yes'));
-$sort_by_choices = array(xl('Zip Code') => 'patient_data.postal_code', xl('Last Name') => 'patient_data.lname', xl('Appointment Date') => 'last_appt');
+$process_choices = [xl('Download CSV File'), xl('Send Emails'), xl('Phone call list')];
+$gender_choices = [xl('Any{{Gender}}'), xl('Male'), xl('Female')];
+$hipaa_choices = [xl('No'), xl('Yes')];
+$sort_by_choices = [xl('Zip Code') => 'patient_data.postal_code', xl('Last Name') => 'patient_data.lname', xl('Appointment Date') => 'last_appt'];
 
 // process form
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
@@ -93,7 +93,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
                     as cal_date on cal_date.pc_pid=patient_data.pid left outer join (select pid,max(date)
                     as last_visit from forms where curdate() >= date group by pid)
                     as forms on forms.pid=patient_data.pid where 1=1";
-        $params = array();
+        $params = [];
 
         //appointment dates
         if ($_POST['app_s'] != 0 and $_POST['app_s'] != '') {

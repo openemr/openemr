@@ -35,7 +35,7 @@ class CodeTypesService
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
     const CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY = "2.16.840.1.114222.4.11.1066";
-    const CODE_TYPE_OID = array(
+    const CODE_TYPE_OID = [
         '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
         '2.16.840.1.113883.6.12' => self::CODE_TYPE_CPT4,
         '2.16.840.1.113883.6.1' => self::CODE_TYPE_LOINC,
@@ -70,7 +70,7 @@ class CodeTypesService
         '2.16.840.1.113883.18.2' => 'AdministrativeSex',
         '2.16.840.1.113883.5.1' => 'AdministrativeGender',
         self::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY => 'HealthCareProviderTaxonomy'
-    );
+    ];
     /**
      * @var array
      */
@@ -328,7 +328,7 @@ class CodeTypesService
     {
         $valueset = '';
         $valueset_name = '';
-        $default = array(
+        $default = [
             'code' => $code ?? '',
             'formatted_code' => $code . ':' . $codeType,
             'formatted_code_type' => $codeType ?? '',
@@ -336,7 +336,7 @@ class CodeTypesService
             'system_oid' => '',
             'valueset' => '',
             'valueset_name' => ''
-        );
+        ];
         if (empty($code)) {
             $default['formatted_code'] = '';
             return $default;
@@ -366,7 +366,7 @@ class CodeTypesService
             $valueset = $value['valueset'] ?? '';
         }
 
-        return array(
+        return [
             'code' => $code ?? "",
             'formatted_code' => $formatted_code ?: $code,
             'formatted_code_type' => $formatted_type ?: $codeType,
@@ -374,7 +374,7 @@ class CodeTypesService
             'system_oid' => $oid ?? "",
             'valueset' => $valueset ?? "",
             'valueset_name' => $valueset_name ?? ""
-        );
+        ];
     }
 
     public function getInstalledCodeTypes()
@@ -387,12 +387,12 @@ class CodeTypesService
         if (empty($codeSystem) && empty($codeType)) {
             $value = sqlQuery(
                 "Select * From valueset Where code = ? LIMIT 1",
-                array($code)
+                [$code]
             );
         } else {
             $value = sqlQuery(
                 "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
-                array($code, $codeType, "$codeType%", $codeSystem)
+                [$code, $codeType, "$codeType%", $codeSystem]
             );
         }
         return $value;
@@ -414,7 +414,7 @@ class CodeTypesService
     public function parseCodesIntoCodeableConcepts($codes)
     {
         $codes = explode(";", $codes);
-        $codeableConcepts = array();
+        $codeableConcepts = [];
         foreach ($codes as $codeItem) {
             $parsedCode = $this->parseCode($codeItem);
             $codeType = $parsedCode['code_type'];

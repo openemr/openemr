@@ -54,7 +54,7 @@ $where = addwhere($where, 'a.city', $_GET['form_city']);
 $where = addwhere($where, 'a.state', $_GET['form_state']);
 $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 
-$phone_parts = array();
+$phone_parts = [];
 $area_code = null;
 $prefix = null;
 $digits = null;

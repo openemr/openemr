@@ -85,7 +85,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     " LIMIT " . escape_limit(($M + 1)) .
     "";
 
-    if ($res = sqlStatement($sql, array($pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']))) {
+    if ($res = sqlStatement($sql, [$pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']])) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }

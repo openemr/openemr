@@ -18,7 +18,7 @@ require_once("$srcdir/patient.inc.php");
 
 $CPR = 4; // cells per row
 
-$pprow = array();
+$pprow = [];
 
 function end_cell(): void
 {
@@ -82,15 +82,15 @@ function issue_ippf_gcac_form($issue, $thispid): void
     $shrow = getHistoryData($thispid);
 
     if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", array($issue));
+        $pprow = sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$issue]);
     } else {
-        $pprow = array();
+        $pprow = [];
     }
 
     echo "<div id='ippf_gcac' style='display:none'>\n";
 
     // Load array of properties for this layout and its groups.
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties('GCA', $grparr);
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -228,15 +228,15 @@ function issue_ippf_con_form($issue, $thispid): void
     $shrow = getHistoryData($thispid);
 
     if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", array($issue));
+        $pprow = sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$issue]);
     } else {
-        $pprow = array();
+        $pprow = [];
     }
 
     echo "<div id='ippf_con' style='display:none'>\n";
 
     // Load array of properties for this layout and its groups.
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties('CON', $grparr);
 
     $fres = sqlStatement("SELECT * FROM layout_options " .

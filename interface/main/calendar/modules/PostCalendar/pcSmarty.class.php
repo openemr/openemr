@@ -73,7 +73,7 @@ class pcSmarty extends Smarty_Legacy
 
         unset($use_safe_mode, $safe_mode, $safe_mode_gid, $open_basedir);
 
-        $this->autoload_filters = array('output' => array('trimwhitespace'));
+        $this->autoload_filters = ['output' => ['trimwhitespace']];
 
         $lang = 'eng';
         $func = pnVarCleanFromInput('func');

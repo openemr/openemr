@@ -74,14 +74,14 @@ class PatientValidatorTest extends TestCase
 
         $fixturePid = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture['pubpid'])
+            [$patientFixture['pubpid']]
         )['pid'];
 
         $this->patientFixture['pid'] = intval($fixturePid);
 
         $fixtureUuid = sqlQuery(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture['pubpid'])
+            [$patientFixture['pubpid']]
         )['uuid'];
 
         $fixtureUuid = UuidRegistry::uuidToString($fixtureUuid);
@@ -105,7 +105,7 @@ class PatientValidatorTest extends TestCase
 
         $fixtureUuid = sqlQuery(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture['pubpid'])
+            [$patientFixture['pubpid']]
         )['uuid'];
 
         $fixtureUuid = UuidRegistry::uuidToString($fixtureUuid);

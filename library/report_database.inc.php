@@ -66,7 +66,7 @@ function listingReportDatabase($start_date = '', $end_date = '')
                            GROUP BY `report_id`
                          ) AS pt
                          WHERE pt.date_report < ?
-                         ORDER BY pt.report_id", array($end_date));
+                         ORDER BY pt.report_id", [$end_date]);
     } else {
         $res = sqlStatement("SELECT *, TIMESTAMPDIFF(MINUTE,pt.date_report,pt.date_report_complete) as `report_time_processing`
                          FROM (
@@ -81,7 +81,7 @@ function listingReportDatabase($start_date = '', $end_date = '')
                            GROUP BY `report_id`
                          ) AS pt
                          WHERE pt.date_report > ? AND pt.date_report < ?
-                         ORDER BY pt.report_id", array($start_date,$end_date));
+                         ORDER BY pt.report_id", [$start_date,$end_date]);
     }
 
     return $res;
@@ -104,7 +104,7 @@ function bookmarkReportDatabase()
     }
 
   // Set the bookmark token
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,"bookmark",1));
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"bookmark",1]);
 
     return $new_report_id;
 }
@@ -133,11 +133,11 @@ function beginReportDatabase($type, $fields, $report_id = null)
     }
 
   // Set the required tokens
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,"progress","pending"));
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,"type",$type));
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,"progress_items","0"));
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,"data",""));
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,"date_report",date("Y-m-d H:i:s")));
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"progress","pending"]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"type",$type]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"progress_items","0"]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"data",""]);
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"date_report",date("Y-m-d H:i:s")]);
 
   // Set the fields tokens
     if (!empty($fields)) {
@@ -157,7 +157,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
             }
 
             // place the token
-            sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,$key,$value));
+            sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,$key,$value]);
         }
     }
 
@@ -175,7 +175,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
 function setTotalItemsReportDatabase($report_id, $total_items): void
 {
   // Insert the total items that are to be processed
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"total_items",$total_items));
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$report_id,"total_items",$total_items]);
 }
 
 /**
@@ -188,7 +188,7 @@ function setTotalItemsReportDatabase($report_id, $total_items): void
 function updateReportDatabase($report_id, $items_processed): void
 {
   // Update the items that have been processed
-    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id));
+    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", [$items_processed,$report_id]);
 }
 
 /**
@@ -203,13 +203,13 @@ function finishReportDatabase($report_id, $data): void
 {
 
   // Record the data
-    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", array($data,$report_id));
+    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", [$data,$report_id]);
 
   // Record the finish date/time
-    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"date_report_complete",date("Y-m-d H:i:s")));
+    sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$report_id,"date_report_complete",date("Y-m-d H:i:s")]);
 
   // Set progress to complete
-    sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", array($report_id));
+    sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", [$report_id]);
 }
 
 /**
@@ -222,12 +222,12 @@ function collectReportDatabase($report_id)
 {
 
   // Collect the rows of data
-    $res = sqlStatement("SELECT * FROM `report_results` WHERE `report_id`=?", array($report_id));
+    $res = sqlStatement("SELECT * FROM `report_results` WHERE `report_id`=?", [$report_id]);
 
   // Convert data into an array
-    $final_array = array();
+    $final_array = [];
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array, array($row['field_id'] => $row['field_value']));
+        $final_array = array_merge($final_array, [$row['field_id'] => $row['field_value']]);
     }
 
     return $final_array;
@@ -243,7 +243,7 @@ function getStatusReportDatabase($report_id)
 {
 
   // Collect the pertinent rows of data
-    $res = sqlStatement("SELECT `field_id`, `field_value` FROM `report_results` WHERE `report_id`=? AND (`field_id`='progress' OR `field_id`='total_items' OR `field_id`='progress_items')", array($report_id));
+    $res = sqlStatement("SELECT `field_id`, `field_value` FROM `report_results` WHERE `report_id`=? AND (`field_id`='progress' OR `field_id`='total_items' OR `field_id`='progress_items')", [$report_id]);
 
   // If empty, then just return Pending, since stil haven't likely created the entries yet
     if (sqlNumRows($res) < 1) {
@@ -251,9 +251,9 @@ function getStatusReportDatabase($report_id)
     }
 
   // Place into an array for quick processing
-    $final_array = array();
+    $final_array = [];
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array, array($row['field_id'] => $row['field_value']));
+        $final_array = array_merge($final_array, [$row['field_id'] => $row['field_value']]);
     }
 
     if ($final_array['progress'] == "complete") {
@@ -278,7 +278,7 @@ function getStatusReportDatabase($report_id)
  */
 function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '', $rule_id = '', $itemizedDetails = ''): void
 {
-    $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id, $rule_id, $itemizedDetails);
+    $sqlParameters = [$report_id,$itemized_test_id,$numerator_label,$pass,$patient_id, $rule_id, $itemizedDetails];
     sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`,`rule_id`,`item_details`) VALUES (?,?,?,?,?,?,?)", $sqlParameters);
 }
 
@@ -324,7 +324,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
         if (isset($row['is_main']) || isset($row['is_sub'])) {
             if (isset($row['is_main'])) {
                 // Store this
-                $dispTitle = $group_provider_label . ' ' . generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
+                $dispTitle = $group_provider_label . ' ' . generate_display_field(['data_type' => '1','list_id' => 'clinical_rules'], $row['id']);
             }
 
             if (($row['itemized_test_id'] == $itemized_test_id) && (($row['numerator_label'] ?? '') == $numerator_label)) {
@@ -377,8 +377,8 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                         $dispTitle .= ", " . xlt($row['concatenated_label']) . " ";
                     }
                 } else { // isset($row['is_sub']
-                    $dispTitle .= " - " .  generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category']);
-                    $dispTitle .= ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
+                    $dispTitle .= " - " .  generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $row['action_category']);
+                    $dispTitle .= ": " . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $row['action_item']);
                 }
 
                 return $dispTitle;
@@ -430,12 +430,12 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
             break;
     }
 
-    $sqlParameters = array($report_id,$itemized_test_id,$numerator_label);
+    $sqlParameters = [$report_id,$itemized_test_id,$numerator_label];
 
     if ($pass == "all") {
         $sql_where = " WHERE `report_itemized`.`pass` != 3 AND `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? ";
     } elseif ($pass == "fail") {
-        $exlPidArr = array();
+        $exlPidArr = [];
         $exludeResult = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, 'exclude', $numerator_label, false, $sqllimit, $fstart);
         foreach ($exludeResult as $exlResArr) {
             $exlPidArr[] = $exlResArr['pid'];
@@ -466,7 +466,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
     } else {
         $rez = sqlStatementCdrEngine($sql_query, $sqlParameters);
         // create array of listing for return
-        $returnval = array();
+        $returnval = [];
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             $returnval[$iter] = $row;
         }
@@ -485,7 +485,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
  * @param $amc_report_types If an AMC report, the specific AMC report type
  * @return array A formatted array of record rows to be used for displaying a CQM/AMC/Standard report.
  */
-function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = array())
+function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = [])
 {
     $dataSheet = json_decode($data, true) ?? [];
     $formatted = [];
@@ -517,7 +517,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
         if (isset($row['is_main'])) {
             // note that the is_main record must always come before is_sub in the report or the data will not work.
             $main_pass_filter = $row['pass_filter'] ?? 0;
-            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
+            $row['display_field'] = generate_display_field(['data_type' => '1','list_id' => 'clinical_rules'], $row['id']);
             if ($type_report == "standard") {
                 // Excluded is not part of denominator in standard rules so do not use in calculation
                 $failed_items = $row['pass_filter'] - $row['pass_target'];
@@ -526,12 +526,12 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
             }
             $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
         } else if (isset($row['is_sub'])) {
-            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
-                . ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
+            $row['display_field'] = generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $row['action_category'])
+                . ': ' . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $row['action_item']);
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $main_pass_filter - $row['pass_target'];
         } else if (isset($row['is_plan'])) {
-            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
+            $row['display_field'] = generate_display_field(['data_type' => '1','list_id' => 'clinical_plans'], $row['id']);
         }
 
         if (isset($row['itemized_test_id'])) {

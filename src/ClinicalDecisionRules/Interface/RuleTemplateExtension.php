@@ -68,7 +68,7 @@ class RuleTemplateExtension
             <span class="end_col">
             <input data-grp-tgt="flt_target_interval" class="form-control field short" type="text" name="fld_target_interval" value="<?php echo xlt($criteria->interval); ?>" />
 
-            <?php echo self::timeunit_select(array( "context" => "rule_target_intervals", "target" => "fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
+            <?php echo self::timeunit_select([ "context" => "rule_target_intervals", "target" => "fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType ]); ?>
         </span>
         </p>
     <?php } ?>
@@ -87,7 +87,7 @@ class RuleTemplateExtension
             '',
             '',
             $args['id'] ?? '',
-            array( "data-grp-tgt" => $args['target'] )
+            [ "data-grp-tgt" => $args['target'] ]
         );
     }
 
@@ -96,7 +96,7 @@ class RuleTemplateExtension
         require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
         // get from list_options
-        $result = generate_display_field(array('data_type' => '1','list_id' => $list_id), $value);
+        $result = generate_display_field(['data_type' => '1','list_id' => $list_id], $value);
         // trap for fa-exclamation-circle used to indicate empty input from layouts options.
         if ($result != '' && stripos($result, 'fa-exclamation-circle') === false) {
             return $result;
@@ -112,7 +112,7 @@ class RuleTemplateExtension
         // get from layout_options
         $sql = sqlStatement(
             "SELECT title from layout_options WHERE form_id = ? and field_id = ?",
-            array($form_id, $value)
+            [$form_id, $value]
         );
         if (sqlNumRows($sql) > 0) {
             $result = sqlFetchArray($sql);

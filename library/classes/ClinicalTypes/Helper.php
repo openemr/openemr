@@ -19,17 +19,17 @@ class Helper
     public static function checkDiagActive($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         // TODO append options array
-        return self::check(ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, array( Diagnosis::OPTION_STATE => Diagnosis::STATE_ACTIVE ));
+        return self::check(ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, [ Diagnosis::OPTION_STATE => Diagnosis::STATE_ACTIVE ]);
     }
 
     public static function checkDiagInactive($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check(ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, array( Diagnosis::OPTION_STATE => Diagnosis::STATE_INACTIVE ));
+        return self::check(ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, [ Diagnosis::OPTION_STATE => Diagnosis::STATE_INACTIVE ]);
     }
 
     public static function checkDiagResolved($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check(ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, array( Diagnosis::OPTION_STATE => Diagnosis::STATE_RESOLVED ));
+        return self::check(ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, [ Diagnosis::OPTION_STATE => Diagnosis::STATE_RESOLVED ]);
     }
 
     public static function checkEncounter($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)

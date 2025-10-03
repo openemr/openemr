@@ -67,17 +67,17 @@ function docancel() {
 
 </script>
 <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Register Universal 2nd Factor Key') . " - " . xl('U2F'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -154,14 +154,14 @@ function docancel() {
             $row = sqlQuery(
                 "SELECT COUNT(*) AS count FROM login_mfa_registrations WHERE " .
                 "`user_id` = ? AND `name` = ?",
-                array($userid, $_POST['form_name'])
+                [$userid, $_POST['form_name']]
             );
             if (empty($row['count'])) {
                 sqlStatement(
                     "INSERT INTO login_mfa_registrations " .
                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                     "(?, 'U2F', ?, ?, ?)",
-                    array($userid, $_POST['form_name'], json_encode($data), '')
+                    [$userid, $_POST['form_name'], json_encode($data), '']
                 );
             } else {
                 echo " alert(" . xlj('This key name is already in use by you. Try again.') . ");\n";

@@ -158,7 +158,7 @@ if ($parameters['go'] == "Go") {
             continue;
         }
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sqlstmt = "select id, pid, fname, lname, dob, sex, ss " .
                     " from patient_data where ";
         $sqland = "";

@@ -159,7 +159,7 @@ class Cache_Lite
     *
     * @var array $_memoryCachingArray
     */
-    var $_memoryCachingArray = array();
+    var $_memoryCachingArray = [];
 
     /**
     * Memory caching counter
@@ -222,9 +222,9 @@ class Cache_Lite
     * @param array $options options
     * @access public
     */
-    function __construct($options = array(NULL))
+    function __construct($options = [NULL])
     {
-        $availableOptions = array('automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode');
+        $availableOptions = ['automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode'];
         foreach($options as $key => $value) {
             if(in_array($key, $availableOptions)) {
                 $property = '_'.$key;
@@ -428,10 +428,10 @@ class Cache_Lite
     function saveMemoryCachingState($id, $group = 'default')
     {
         if ($this->_caching) {
-            $array = array(
+            $array = [
                 'counter' => $this->_memoryCachingCounter,
                 'array' => $this->_memoryCachingState
-            );
+            ];
             $data = serialize($array);
             $this->save($data, $id, $group);
         }

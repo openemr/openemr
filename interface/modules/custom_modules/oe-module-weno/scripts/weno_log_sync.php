@@ -20,7 +20,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 function getModuleState($modId): bool
 {
     $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_directory` = ?";
-    $flag = sqlQuery($sql, array($modId));
+    $flag = sqlQuery($sql, [$modId]);
 
     return !empty($flag['mod_active']);
 }

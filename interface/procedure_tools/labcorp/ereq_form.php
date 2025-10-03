@@ -57,7 +57,7 @@ STYLES;
         $account_facility = $procedure['account_facility'];
         $facility = sqlQuery("SELECT * FROM facility f WHERE f.id=?", [$account_facility]);
         $location = sqlQueryNoLog("SELECT f.facility_code FROM users as u " .
-            "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($procedure['provider_id']));
+            "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", [$procedure['provider_id']]);
 
         $account = $facility['facility_code'];
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
@@ -164,8 +164,8 @@ STYLES;
         $proc_order = sqlNumRows($proc_sql);
         $procedure_right = floor($proc_order / 2);
         $procedure_left = $proc_order - $procedure_right;
-        $all_procedures = array();
-        $all_diagnoses = array();
+        $all_procedures = [];
+        $all_diagnoses = [];
 
         if (!empty($procedure['order_diagnosis'])) {
             $all_diagnoses[] = $procedure['order_diagnosis'];
@@ -243,7 +243,7 @@ STYLES;
                 "AND q.procedure_code = ? AND q.question_code = a.question_code " .
                 "WHERE a.procedure_order_id = ? AND a.procedure_order_seq = ? " .
                 "ORDER BY q.seq, a.answer_seq",
-                array($procedure['lab_id'], $all_procedures[$i]['procedure_code'], $form_id, $all_procedures[$i]['procedure_order_seq'])
+                [$procedure['lab_id'], $all_procedures[$i]['procedure_code'], $form_id, $all_procedures[$i]['procedure_order_seq']]
             );
             foreach ($aoe_list as $aoe_data) {
                 if ($aoe_data['question_code']) {
@@ -346,7 +346,7 @@ STYLES;
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
-        $race = array("declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1);
+        $race = ["declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
         $hispanic = empty($patient['ethnicity']) ? "9" : null;
         $hispanic = ($patient['ethnicity'] === "hisp_or_latin" && empty($hispanic)) ? 1 : 2;
         $pdfContent .= '<td style="padding-left:8px;" colspan="2"><b>Blood Lead Information: </b></td>';
@@ -754,9 +754,9 @@ STYLES;
         $mpdfData = $mpdf->Output($filename, "S");
 
 // register the new document
-        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("LabCorp"));
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["LabCorp"]);
         if (!$category['id']) {
-            $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array('Lab Report'));
+            $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ['Lab Report']);
         }
         $DOCUMENT_CATEGORY = $category['id'];
 
@@ -770,7 +770,7 @@ STYLES;
         $documentationOf = "$unique";
         sqlStatement(
             "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
-            array($documentationOf, $form_id, $d->id)
+            [$documentationOf, $form_id, $d->id]
         );
     } catch (Exception $e) {
         echo "Message: " . $e->getMessage();

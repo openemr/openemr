@@ -95,7 +95,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         return true;
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $report = new FHIRDiagnosticReport();
         $dataRecordReport = array_pop($dataRecord['reports']);

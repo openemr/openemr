@@ -17,7 +17,7 @@ class C_DocumentCategory extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->document_categories = array();
+        $this->document_categories = [];
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&document_category&");
@@ -46,7 +46,7 @@ class C_DocumentCategory extends Controller
         $rnode = $this->_array_recurse($this->tree->tree);
 
         $menu->addItem($rnode);
-        $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
+        $treeMenu = new HTML_TreeMenu_DHTML($menu, ['images' => 'public/images', 'defaultClass' => 'treeMenuDefault']);
         $this->assign("tree_html", $treeMenu->toHTML());
         $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
         $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
@@ -155,7 +155,7 @@ class C_DocumentCategory extends Controller
     function &_array_recurse($array)
     {
         if (!is_array($array)) {
-            $array = array();
+            $array = [];
         }
 
         $node = &$this->_last_node;
@@ -165,12 +165,12 @@ class C_DocumentCategory extends Controller
             if (is_array($ar) || !empty($id)) {
                 if ($node == null) {
                     //echo "r:" . $this->tree->get_node_name($id) . "<br />";
-                    $rnode = new HTML_TreeNode(array('text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false));
+                    $rnode = new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false]);
                     $this->_last_node = &$rnode;
                     $node = &$rnode;
                 } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br />";
-                    $this->_last_node = &$node->addItem(new HTML_TreeNode(array('text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
+                    $this->_last_node = &$node->addItem(new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
                 }
 
                 if (is_array($ar)) {
@@ -180,13 +180,13 @@ class C_DocumentCategory extends Controller
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);
                   //echo "b:" . $this->tree->get_node_name($id) . "<br />";
-                    $node->addItem(new HTML_TreeNode(array('text' => $info['value'], 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
+                    $node->addItem(new HTML_TreeNode(['text' => $info['value'], 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
                 } else {
                     //there is a third case that is implicit here when title === 0 and $ar is empty, in that case we do not want to do anything
                     //this conditional tree could be more efficient but working with trees makes my head hurt, TODO
                     if ($id !== 0 && is_object($node)) {
                       //echo "n:" . $this->tree->get_node_name($id) . "<br />";
-                        $node->addItem(new HTML_TreeNode(array('text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
+                        $node->addItem(new HTML_TreeNode(['text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node", true) . "parent_id=" . urlencode($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
                     }
                 }
             }

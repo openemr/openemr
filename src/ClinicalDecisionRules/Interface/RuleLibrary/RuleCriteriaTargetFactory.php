@@ -33,7 +33,7 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory
     function modify($criteria, $ruleId)
     {
         // get interval
-        $result = sqlQuery(self::SQL_RULE_INTERVAL, array($ruleId));
+        $result = sqlQuery(self::SQL_RULE_INTERVAL, [$ruleId]);
         $criteria->interval = $result['interval'] ?? 1;
         $criteria->intervalType = isset($result['value']) ? TimeUnit::from($result['value']) : TimeUnit::from(TimeUnit::Month);
     }

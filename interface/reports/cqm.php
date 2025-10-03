@@ -71,7 +71,7 @@ if (!empty($report_id)) {
     $pat_prov_rel = $report_view['pat_prov_rel'];
 
 
-    $amc_report_data = $amc_report_types[$type_report] ?? array();
+    $amc_report_data = $amc_report_types[$type_report] ?? [];
     $dataSheet = formatReportData($report_id, $report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_data);
 } else {
   // Collect report type parameter (standard, amc, cqm)
@@ -129,7 +129,7 @@ $formData = [
         'heading_title' => xl('Add/Edit Patient Transaction'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "cqm.php",//only for actions - reset, link and back

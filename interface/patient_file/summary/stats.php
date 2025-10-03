@@ -153,10 +153,10 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $list = [];
             $rxArr = [];
             while ($row = sqlFetchArray($res)) {
-                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                $row['unit'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_units'], $row['unit']);
+                $row['form'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_form'], $row['form']);
+                $row['route'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_route'], $row['route']);
+                $row['interval'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_interval'], $row['interval']);
                 $unit = ($row['size'] > 0) ? text($row['size']) . " " . $row['unit'] : "";
                 $row['unit'] = $unit;
                 $rxArr[] = $row;
@@ -282,12 +282,12 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
-            $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+            $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
                 $row['field'] = htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
             } else {
-                $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+                $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
             }
         }
 

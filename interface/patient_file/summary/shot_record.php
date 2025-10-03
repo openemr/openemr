@@ -25,7 +25,7 @@ $res = $facilityService->getFacilityForUserFormatted($_SESSION['authUserID']);
 $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name " .
                 ",date_format(p.DOB,'%c/%e/%Y') as patient_DOB " .
                 ",concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address" .
-                " from patient_data p where p.pid = ?", array($pid));
+                " from patient_data p where p.pid = ?", [$pid]);
 
 //collect immunizations
 $res3 = getImmunizationList($pid, $_GET['sortby'], false);
@@ -51,12 +51,12 @@ function convertToDataArray($data_array)
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
-            $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+            $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {
                 $vaccine_display = xlt($row['code_text_short']);
             } else {
-                $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
             }
         }
 
@@ -65,7 +65,7 @@ function convertToDataArray($data_array)
         //Amount
         if ($row['amount_administered'] > 0) {
             $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " .
-            generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
+            generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['amount_administered_unit']);
         } else {
             $data[$current][xl('Amount') . "\n" . xl('Admin')] = "";
         }
@@ -92,10 +92,10 @@ function convertToDataArray($data_array)
         $data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
 
         //Route
-        $data[$current][xl('Route')] = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']);
+        $data[$current][xl('Route')] = generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']);
 
         //Admin Site
-        $data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(array('data_type' => '1','list_id' => 'proc_body_site'), $row['administration_site']);
+        $data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(['data_type' => '1','list_id' => 'proc_body_site'], $row['administration_site']);
 
         //Comments
         $data[$current][xl('Comments')] = $row['note'];
@@ -112,16 +112,16 @@ function printPDF($res, $res2, $data): void
     $pdf->ezSetMargins(72, 30, 50, 30);
     $pdf->selectFont('Helvetica');
 
-    $opts = array('justification' => "center");
+    $opts = ['justification' => "center"];
     $pdf->ezText($res['facility_address'], "", $opts);
 
     $pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
     $pdf->ezText("\n");
 
-    $opts = array('maxWidth' => 550, 'fontSize' => 8);
+    $opts = ['maxWidth' => 550, 'fontSize' => 8];
 
     $pdf->ezTable($data, "", $title, $opts);
-    $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________", "", array('justification' => 'right'));
+    $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________", "", ['justification' => 'right']);
     $pdf->ezStream();
 }
 
@@ -130,8 +130,8 @@ function printHTML($res, $res2, $data): void
 //print html css
 
   //convert end of line characters to html (escape for html output first)
-    $patterns = array ('/\n/');
-    $replace = array ('<br />');
+    $patterns =  ['/\n/'];
+    $replace =  ['<br />'];
     $res['facility_address'] = text($res['facility_address']);
     $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
     $res2['patient_address'] = text($res2['patient_address']);
@@ -232,8 +232,8 @@ function printHTML($res, $res2, $data): void
         echo "<tr>\n";
         foreach ($data[0] as $key => $value) {
           //convert end of line characters to space
-            $patterns = array ('/\n/');
-            $replace = array (' ');
+            $patterns =  ['/\n/'];
+            $replace =  [' '];
             $key = preg_replace($patterns, $replace, $key);
             echo "<th>" . text($key) . "</th>\n";
         }

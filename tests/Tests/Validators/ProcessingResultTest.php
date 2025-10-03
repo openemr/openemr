@@ -38,7 +38,7 @@ class ProcessingResultTest extends TestCase
     public function testGetSetOperations(): void
     {
         $this->assertEquals(0, count($this->processingResult->getValidationMessages()));
-        $this->processingResult->setValidationMessages(array("foo" => "bar"));
+        $this->processingResult->setValidationMessages(["foo" => "bar"]);
         $this->assertEquals(1, count($this->processingResult->getValidationMessages()));
 
         $this->assertEquals(0, count($this->processingResult->getInternalErrors()));
@@ -46,7 +46,7 @@ class ProcessingResultTest extends TestCase
         $this->assertEquals(1, count($this->processingResult->getInternalErrors()));
 
         $this->assertEquals(0, count($this->processingResult->getData()));
-        $this->processingResult->addData(array("fname" => "John", "lname" => "Doe"));
+        $this->processingResult->addData(["fname" => "John", "lname" => "Doe"]);
         $this->assertEquals(1, count($this->processingResult->getData()));
     }
 
@@ -54,7 +54,7 @@ class ProcessingResultTest extends TestCase
     {
         $this->assertTrue($this->processingResult->isValid());
 
-        $this->processingResult->setValidationMessages(array("foo" => "bar"));
+        $this->processingResult->setValidationMessages(["foo" => "bar"]);
         $this->assertFalse($this->processingResult->isValid());
     }
 
@@ -64,16 +64,16 @@ class ProcessingResultTest extends TestCase
         $this->assertFalse($this->processingResult->hasErrors());
 
         // single validation error
-        $this->processingResult->setValidationMessages(array("foo" => "bar"));
+        $this->processingResult->setValidationMessages(["foo" => "bar"]);
         $this->assertTrue($this->processingResult->hasErrors());
 
         // single processing error
-        $this->processingResult->setValidationMessages(array());
+        $this->processingResult->setValidationMessages([]);
         $this->processingResult->addInternalError("internal error");
         $this->assertTrue($this->processingResult->hasErrors());
 
         // validation and processing errors
-        $this->processingResult->setValidationMessages(array("foo" => "bar"));
+        $this->processingResult->setValidationMessages(["foo" => "bar"]);
         $this->assertTrue($this->processingResult->hasErrors());
     }
 

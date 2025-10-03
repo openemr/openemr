@@ -67,7 +67,7 @@ if (! isset($parameters['otherid'])) {
 
 // get the PID matching the masterid
 $sqlstmt = "select pid from patient_data where id=?";
-$qResults = sqlStatement($sqlstmt, array($parameters['masterid']));
+$qResults = sqlStatement($sqlstmt, [$parameters['masterid']]);
 if (! $qResults) {
     echo "Error fetching master PID.";
     exit;
@@ -85,7 +85,7 @@ if ($parameters['confirm'] == 'yes') {
 foreach ($parameters['otherid'] as $otherID) {
     // get info about the "otherID"
     $sqlstmt = "select lname, pid from patient_data where id=?";
-    $qResults = sqlStatement($sqlstmt, array($otherID));
+    $qResults = sqlStatement($sqlstmt, [$otherID]);
     if (! $qResults) {
         echo "Error fetching master PID.";
         exit;
@@ -133,7 +133,7 @@ foreach ($parameters['otherid'] as $otherID) {
     $newlname = "~~~MERGED~~~" . $orow['lname'];
     $sqlstmt = "update patient_data set lname=? where pid=?";
     if ($commitchanges == true) {
-        $qResults = sqlStatement($sqlstmt, array($newlname, $otherPID));
+        $qResults = sqlStatement($sqlstmt, [$newlname, $otherPID]);
     }
 
     echo "<li>Altered last name of PID " . text($otherPID) . " to '" . text($newlname) . "'</li>";
@@ -171,9 +171,9 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
     if ($qResults) {
         $row = sqlFetchArray($qResults);
         if ($row['numrows'] > 0) {
-            $sqlstmt = "update " . escape_table_name($tablename) . " set " . escape_sql_column_name($pid_col, array($tablename)) . "=? where " . escape_sql_column_name($pid_col, array($tablename)) . "=?";
+            $sqlstmt = "update " . escape_table_name($tablename) . " set " . escape_sql_column_name($pid_col, [$tablename]) . "=? where " . escape_sql_column_name($pid_col, [$tablename]) . "=?";
             if ($commitchanges == true) {
-                $qResults = sqlStatement($sqlstmt, array($newvalue, $oldvalue));
+                $qResults = sqlStatement($sqlstmt, [$newvalue, $oldvalue]);
             }
 
             $rowsupdated = generic_sql_affected_rows();

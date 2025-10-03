@@ -109,7 +109,7 @@ foreach ($dataSheet as $row) {
     if (isset($row['is_main']) || isset($row['is_sub'])) {
         if (isset($row['is_main'])) {
             // Add PQRI measures
-            $pqri_measures = array();
+            $pqri_measures = [];
             $pqri_measures['pqri-measure-number'] =  getMeasureNumber($row);
             $pqri_measures['patient-population'] = getLabelNumber($row['population_label']);
             $pqri_measures['numerator'] = getLabelNumber($row['numerator_label']);
@@ -130,7 +130,7 @@ foreach ($dataSheet as $row) {
         }
 
          // Add the provider
-        $physician_ids = array();
+        $physician_ids = [];
         if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
             if (!empty($row['npi'])) {
                 $physician_ids['npi'] = $row['npi'];

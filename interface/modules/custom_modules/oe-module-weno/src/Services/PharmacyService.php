@@ -69,7 +69,7 @@ class PharmacyService
     public function getWenoLastSearch($pid)
     {
         $sql = "SELECT `search_persist` FROM weno_assigned_pharmacy WHERE pid = ?";
-        return json_decode(sqlQuery($sql, array($pid))['search_persist'] ?? '');
+        return json_decode(sqlQuery($sql, [$pid])['search_persist'] ?? '');
     }
 
     public function getWenoPrimaryPharm($pid): false|array|null
@@ -78,7 +78,7 @@ class PharmacyService
         $sql .= "wp.city, wp.address_line_1, wp.ncpdp_safe, wp.state FROM weno_assigned_pharmacy wap ";
         $sql .= "INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe ";
         $sql .= "WHERE wap.pid = ?";
-        $result = sqlQuery($sql, array($pid));
+        $result = sqlQuery($sql, [$pid]);
 
         return $result;
     }
@@ -90,7 +90,7 @@ class PharmacyService
         $sql .= "INNER JOIN weno_pharmacy wp ON wap.alternate_ncpdp = wp.ncpdp_safe ";
         $sql .= "WHERE wap.pid = ?";
 
-        $result = sqlQuery($sql, array($pid));
+        $result = sqlQuery($sql, [$pid]);
 
         return $result;
     }

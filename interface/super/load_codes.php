@@ -72,7 +72,7 @@ if (!empty($_POST['bn_upload'])) {
 
     $inscount = 0;
     $repcount = 0;
-    $seen_codes = array();
+    $seen_codes = [];
 
     if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
         $zipin = new ZipArchive();
@@ -96,7 +96,7 @@ if (!empty($_POST['bn_upload'])) {
         }
 
         if ($form_replace) {
-            sqlStatement("DELETE FROM codes WHERE code_type = ?", array($code_type_id));
+            sqlStatement("DELETE FROM codes WHERE code_type = ?", [$code_type_id]);
         }
 
 
@@ -125,15 +125,15 @@ if (!empty($_POST['bn_upload'])) {
 
                 $seen_codes[$code] = 1;
                 if (!$form_replace) {
-                    $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", array($code_type_id, $code));
+                    $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", [$code_type_id, $code]);
                     if (!empty($tmp)) {
-                        sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", array($a[14], $code_type_id, $code));
+                        sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", [$a[14], $code_type_id, $code]);
                         ++$repcount;
                         continue;
                     }
                 }
 
-                sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", array($code_type_id, $code, $a[14]));
+                sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", [$code_type_id, $code, $a[14]]);
                 ++$inscount;
             }
 
@@ -180,7 +180,7 @@ if (!empty($_POST['bn_upload'])) {
                             <td>
                                 <select name='form_code_type'>
                                     <?php
-                                    foreach (array('RXCUI') as $codetype) {
+                                    foreach (['RXCUI'] as $codetype) {
                                         echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
                                     }
                                     ?>

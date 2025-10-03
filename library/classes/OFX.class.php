@@ -13,7 +13,7 @@ class OFX
     /**
      * Constructor sets all OFX attributes to their default value
      */
-    function __construct($ba = array())
+    function __construct($ba = [])
     {
         $this->billing_array = $ba;
         $this->config = $GLOBALS['oer_config']['ofx'];
@@ -22,7 +22,7 @@ class OFX
     function get_OFX()
     {
         $string = $this->_ofx_header() . "\n";
-        $trns = array();
+        $trns = [];
         $sum = 0.00;
         $date_start = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));
         $date_end = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));

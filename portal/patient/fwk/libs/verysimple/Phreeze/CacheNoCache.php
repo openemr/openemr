@@ -18,7 +18,7 @@ require_once("ICache.php");
  */
 class CacheNoCache implements ICache
 {
-    private $ram = array ();
+    private $ram =  [];
     public function Get($key, $flags = null)
     {
         return null;

@@ -39,7 +39,7 @@ $where = "1 = 1";
 $res = sqlStatement("SELECT $selects " .
     "FROM procedure_order AS po $joins " .
     "WHERE po.patient_id = ? AND $where " .
-    "ORDER BY $orderby", array($pid));
+    "ORDER BY $orderby", [$pid]);
 
 if (sqlNumRows($res) > 0) {
     ?>
@@ -103,12 +103,12 @@ if (sqlNumRows($res) > 0) {
             echo "<td>" . text($date[1] . "/" . $date[2] . "/" . $date[0]) . "</td>";
             echo "<td>" . text($row['procedure_name']) . "</td>";
             echo "<td>" . text($rrow['name']) . "</td>";
-            echo "<td>" . generate_display_field(array('data_type' => '1', 'list_id' => 'proc_res_abnormal'), $rrow['abnormal']) . "</td>";
+            echo "<td>" . generate_display_field(['data_type' => '1', 'list_id' => 'proc_res_abnormal'], $rrow['abnormal']) . "</td>";
             echo "<td>" . text($rrow['result']) . "</td>";
             echo "<td>" . text($rrow['pt2_range']) . "</td>";
-            echo "<td>" . generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $rrow['pt2_units']) . "</td>";
-            echo "<td>" . generate_display_field(array('data_type' => '1', 'list_id' => 'proc_res_status'), $rrow['result_status']) . "</td>";
-            echo "<td>" . generate_display_field(array('data_type' => '1', 'list_id' => 'proc_rep_status'), $row['report_status']) . "</td>";
+            echo "<td>" . generate_display_field(['data_type' => '1', 'list_id' => 'proc_unit'], $rrow['pt2_units']) . "</td>";
+            echo "<td>" . generate_display_field(['data_type' => '1', 'list_id' => 'proc_res_status'], $rrow['result_status']) . "</td>";
+            echo "<td>" . generate_display_field(['data_type' => '1', 'list_id' => 'proc_rep_status'], $row['report_status']) . "</td>";
             echo "</tr>";
         }
     }

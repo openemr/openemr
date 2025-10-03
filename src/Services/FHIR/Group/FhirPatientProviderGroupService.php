@@ -60,7 +60,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         return $this->service->searchPatientProviderGroups($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();

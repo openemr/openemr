@@ -69,8 +69,8 @@ class CcdController extends AbstractActionController
             $time_start         = date('Y-m-d H:i:s');
             $obj_doc            = $this->documentsController;
             $cdoc               = $obj_doc->uploadAction($request);
-            $uploaded_documents = array();
-            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
+            $uploaded_documents = [];
+            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"]   = 'YES';
@@ -87,14 +87,14 @@ class CcdController extends AbstractActionController
             }
         }
 
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
-        $view = new ViewModel(array(
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCD','type' => '13']);
+        $view = new ViewModel([
           'records'       => $records,
           'category_id'   => $category_details[0]['id'],
           'file_location' => basename($_FILES['file']['name'] ?? ''),
           'patient_id'    => '00',
           'listenerObject' => $this->listenerObject
-        ));
+        ]);
         sleep(1);
         return $view;
     }

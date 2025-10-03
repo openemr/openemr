@@ -42,8 +42,8 @@ if (!empty($_POST['execute_report_id'])) {
 
 
   // Process a new report and collect results
-    $options = array();
-    $array_date = array();
+    $options = [];
+    $array_date = [];
 
     // all 'amc' reports start with 'amc_', will need to make sure a user can't define their own rule with this pattern
     if (CertificationReportTypes::isAMCReportType($rule_filter)) {
@@ -52,7 +52,7 @@ if (!empty($_POST['execute_report_id'])) {
         //   need to send a manual data entry option (number of labs)
         $array_date['dateBegin'] = $_POST['date_begin'] ?? null;
         $array_date['dateTarget'] = $target_date;
-        $options = array('labs_manual' => $_POST['labs'] ?? 0);
+        $options = ['labs_manual' => $_POST['labs'] ?? 0];
     } else {
         // For others, use the unmodified target date array and send an empty options array
         $array_date = $target_date;

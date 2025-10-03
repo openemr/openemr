@@ -147,7 +147,7 @@ class PractitionerApiTest extends TestCase
     {
         $this->fixtureManager->installPractitionerFixtures();
 
-        $actualResponse = $this->testClient->get(self::PRACTITIONER_API_ENDPOINT, array("npi" => "0123456789"));
+        $actualResponse = $this->testClient->get(self::PRACTITIONER_API_ENDPOINT, ["npi" => "0123456789"]);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);

@@ -81,7 +81,7 @@ class GlobalsService
             ) {
                 $beforeSectionIndex = array_search($beforeSection, array_keys($this->globalsMetadata));
                 $this->globalsMetadata = array_slice($this->globalsMetadata, 0, $beforeSectionIndex, true) +
-                    array($section => []) +
+                    [$section => []] +
                     array_slice($this->globalsMetadata, $beforeSectionIndex, count($this->globalsMetadata) - 1, true) ;
             } else {
                 $this->globalsMetadata[$section] = [];

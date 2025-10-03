@@ -163,7 +163,7 @@ $N = 1;
 $k = 1;
 $anypats = 0;
 $the_first_time = 1;
-$itero = array();
+$itero = [];
 
 if ($ret = getBillsBetweendayReport($code_type)) {
 // checking to see if there is any information in the array if not display a message (located after this if statment)

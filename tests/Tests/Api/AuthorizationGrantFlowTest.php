@@ -151,7 +151,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $clientRepository = new ClientRepository();
         $clientEntity = $clientRepository->getClientEntity($clientIdentifier);
         $clientRepository->saveIsEnabled($clientEntity, true);
-        return array($clientIdentifier, $clientSecret);
+        return [$clientIdentifier, $clientSecret];
     }
 
     /**

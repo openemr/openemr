@@ -32,14 +32,14 @@ class zipfile
      *
      * @var array $datasec
      */
-    var $datasec = array ();
+    var $datasec =  [];
 
     /**
      * Central directory
      *
      * @var array $ctrl_dir
      */
-    var $ctrl_dir = array ();
+    var $ctrl_dir =  [];
 
     /**
      * End of central directory record

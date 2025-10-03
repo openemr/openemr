@@ -55,7 +55,7 @@ function split_csv_line($record)
     $first = null;
 
     if (strlen($record) == 0) {
-        return array('');
+        return [''];
     }
 
     if ($record[0] === '"') {
@@ -83,7 +83,7 @@ function split_csv_line($record)
         $first .= substr($record, $start, $end - $start - 1);
 
         if ($end >= strlen($record) - 1) {
-            return array($first);
+            return [$first];
         }
 
         /* Assertion: $record[$end + 1] == ',' */
@@ -92,7 +92,7 @@ function split_csv_line($record)
         $end = strpos($record, ',');
 
         if ($end === false) {
-            return array($record);
+            return [$record];
         }
 
         /* Assertion: $end < strlen($record) */

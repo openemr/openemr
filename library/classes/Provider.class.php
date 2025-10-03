@@ -36,7 +36,7 @@ class Provider extends ORDataObject
         $this->federal_drug_id = "";
         $this->_table = "users";
         $this-> npi = "";
-        $this->insurance_numbers = array();
+        $this->insurance_numbers = [];
         $this->state_license_number = "";
         if ($id != "") {
             $this->populate();
@@ -62,7 +62,7 @@ class Provider extends ORDataObject
 
     function utility_provider_array()
     {
-        $provider_array = array();
+        $provider_array = [];
         $res = sqlQ("Select id,fname,lname  from users where authorized = 1");
         while ($row = sqlFetchArray($res)) {
                     $provider_array[$row['id']] = $row['fname'] . " " . $row['lname'];
@@ -73,7 +73,7 @@ class Provider extends ORDataObject
 
     function providers_factory($sort = "ORDER BY lname,fname")
     {
-        $psa = array();
+        $psa = [];
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
         $results = sqlQ($sql);
 

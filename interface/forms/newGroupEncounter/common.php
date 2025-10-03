@@ -28,7 +28,7 @@ $facilityService = new FacilityService();
 
 if ($viewmode) {
     $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
-    $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", array($id));
+    $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", [$id]);
     $encounter = $result['encounter'];
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         echo "<body>\n<html>\n";
@@ -312,7 +312,7 @@ $help_icon = '';
                                     if ($viewmode) {
                                         $def_facility = $result['facility_id'];
                                     } else {
-                                        $dres = sqlStatement("select facility_id from users where username = ?", array($_SESSION['authUser']));
+                                        $dres = sqlStatement("select facility_id from users where username = ?", [$_SESSION['authUser']]);
                                         $drow = sqlFetchArray($dres);
                                         $def_facility = $drow['facility_id'];
                                     }
@@ -385,7 +385,7 @@ if (!$viewmode) { ?>
     " AND fe.date <= ? " .
     " AND " .
     "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
-    "ORDER BY fe.encounter DESC LIMIT 1", array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+    "ORDER BY fe.encounter DESC LIMIT 1", [$therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')]);
 
     if (!empty($erow['encounter'])) {
         // If there is an encounter from today then present the duplicate visit dialog

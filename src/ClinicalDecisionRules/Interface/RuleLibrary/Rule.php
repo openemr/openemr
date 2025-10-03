@@ -158,7 +158,7 @@ class Rule
      */
     public ?string $feedback;
 
-    function __construct($id = '', $title = '', $ruleTypes = array())
+    function __construct($id = '', $title = '', $ruleTypes = [])
     {
         $this->id = $id;
         $this->title = $title;
@@ -358,7 +358,7 @@ class Rule
 
     function getRuleTypeLabels()
     {
-        $labels = array();
+        $labels = [];
         foreach ($this->ruleTypes as $ruleType) {
             array_push($labels, RuleType::from($ruleType)->lbl);
         }

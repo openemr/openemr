@@ -96,7 +96,7 @@ class FixtureManager
 
         foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
-            $sqlBinds = array();
+            $sqlBinds = [];
 
             foreach ($fixture as $field => $fieldValue) {
                 // not sure I like table specific comparisons here...
@@ -210,7 +210,7 @@ class FixtureManager
      */
     public function installSinglePatientFixture($patientFixture)
     {
-        return $this->installFixtures("patient_data", array($patientFixture));
+        return $this->installFixtures("patient_data", [$patientFixture]);
     }
 
     /**
@@ -229,7 +229,7 @@ class FixtureManager
 
         // remove the patients
         $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
-        sqlStatement($delete, array($bindVariable));
+        sqlStatement($delete, [$bindVariable]);
     }
 
     public function installAllergyIntoleranceFixtures()

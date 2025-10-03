@@ -70,7 +70,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
 
         # Check if randomization has not yet been done (is random_drug_test NULL). If already done, then exit.
         $drug_test_done = sqlQuery("SELECT `random_drug_test`, pid from patient_tracker " .
-            "WHERE id =? ", array($tracker_id));
+            "WHERE id =? ", [$tracker_id]);
         $Patient_id = $drug_test_done['pid'];
 
         if (is_null($drug_test_done['random_drug_test'])) {
@@ -79,7 +79,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
                 # check to see if screens are within the current year.
                 $lastyear = date("Y-m-d", strtotime("-1 year", strtotime(date("Y-m-d H:i:s"))));
                 $drug_test_count = sqlQuery("SELECT COUNT(*) from patient_tracker " .
-                    "WHERE drug_screen_completed = '1' AND apptdate >= ? AND pid =? ", array($lastyear,$Patient_id));
+                    "WHERE drug_screen_completed = '1' AND apptdate >= ? AND pid =? ", [$lastyear,$Patient_id]);
             }
 
             # check that the patient is not at the yearly limit.
@@ -98,7 +98,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
             #Update the tracker file.
             sqlStatement("UPDATE patient_tracker SET " .
                 "random_drug_test = ? " .
-                "WHERE id =? ", array($drugtest,$tracker_id));
+                "WHERE id =? ", [$drugtest,$tracker_id]);
         }
     }
 }

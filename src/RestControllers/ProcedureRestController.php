@@ -43,7 +43,7 @@ class ProcedureRestController
     /**
      * Returns procedure resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = [])
     {
         $processingResult = $this->procedureService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);

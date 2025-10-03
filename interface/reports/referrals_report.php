@@ -202,7 +202,7 @@ if (!empty($_POST['form_refresh'])) {
         "WHERE t.title = 'LBTref' AND " .
         "d1.field_value >= ? AND d1.field_value <= ? " .
         "ORDER BY ut.organization, d1.field_value, t.id";
-        $res = sqlStatement($query, array($form_from_date, $form_to_date));
+        $res = sqlStatement($query, [$form_from_date, $form_to_date]);
 
         while ($row = sqlFetchArray($res)) {
             // If a facility is specified, ignore rows that do not match.

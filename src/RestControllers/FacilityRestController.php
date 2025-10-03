@@ -24,7 +24,7 @@ class FacilityRestController
     /**
      * White list of facility search fields
      */
-    private const WHITELISTED_FIELDS = array(
+    private const WHITELISTED_FIELDS = [
         "name",
         "phone",
         "fax",
@@ -44,7 +44,7 @@ class FacilityRestController
         "accepts_assignment",
         "oid",
         "service_location"
-    );
+    ];
 
     public function __construct()
     {
@@ -72,7 +72,7 @@ class FacilityRestController
      * @param HttpRestRequest $request - The HTTP request object.
      * @param array $search - An array of search fields to filter the results.
      */
-    public function getAll(HttpRestRequest $request, $search = array()): Response
+    public function getAll(HttpRestRequest $request, $search = []): Response
     {
         $validSearchFields = $this->facilityService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->getAll($validSearchFields);

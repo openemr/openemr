@@ -685,7 +685,7 @@ class AuthUtils
                     return false;
                 }
                 // Collect the new user id from the users table
-                privStatement($insert_sql, array());
+                privStatement($insert_sql, []);
                 $getUserID = "SELECT `id`" .
                     " FROM `users`" .
                     " WHERE BINARY `username` = ?";
@@ -766,7 +766,7 @@ class AuthUtils
                 die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
             }
 
-            $updateParams = array();
+            $updateParams = [];
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `login_fail_counter` = 0";
@@ -1066,7 +1066,7 @@ class AuthUtils
     {
         if ($GLOBALS['secure_password']) {
             $features = 0;
-            $reg_security = array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
+            $reg_security = ["/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/"];
             foreach ($reg_security as $expr) {
                 if (preg_match($expr, $pwd)) {
                     $features++;

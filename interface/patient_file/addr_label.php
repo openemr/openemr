@@ -23,7 +23,7 @@ $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.postal_code, p.pid " .
   "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+  "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 // re-order the dates
 //
@@ -54,7 +54,7 @@ $text1 = sprintf("%s %s\n", $patdata['fname'], $patdata['lname']);
 $text2 = sprintf("%s \n", $patdata['street']);
 $text3 = sprintf("%s , %s %s", $patdata['city'], $patdata['state'], $patdata['postal_code']);
 
-$pdf = new eFPDF('P', 'mm', array($x_width, $y_height)); // set the orentation, unit of measure and size of the page
+$pdf = new eFPDF('P', 'mm', [$x_width, $y_height]); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', $font_size);
 $pdf->TextWithRotation($x, $y + $yt, $text1, $angle);

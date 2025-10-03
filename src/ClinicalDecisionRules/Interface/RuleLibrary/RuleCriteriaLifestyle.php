@@ -58,12 +58,12 @@ class RuleCriteriaLifestyle extends RuleCriteria
             . "AND lp.grp_title LIKE '%Lifestyle%'"
         );
 
-        $options = array();
+        $options = [];
 
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $id = $row['field_id'];
             $label = xl_layout_label($row['title']);
-            $option = array("id" => $id, "label" => $label);
+            $option = ["id" => $id, "label" => $label];
             array_push($options, $option);
         }
 

@@ -70,7 +70,7 @@ $form_DOB = $args['DOB'];
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 if ($form_key) {
-    $clarr = array();
+    $clarr = [];
     $clsql = "0";
 // First name.
     if ($form_fname !== '') {

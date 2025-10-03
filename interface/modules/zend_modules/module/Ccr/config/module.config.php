@@ -14,46 +14,46 @@ use Ccr\Model\Ccr;
 use Documents\Controller\DocumentsController;
 use Laminas\Db\TableGateway\TableGateway;
 
-return array(
-    'controllers' => array(
+return [
+    'controllers' => [
         'factories' => [
             CcrController::class => function (ContainerInterface $container, $requestedName) {
                 return new CcrController($container->get(CcrTable::class), $container->get(DocumentsController::class));
             }
         ],
-    ),
+    ],
 
-    'router' => array(
-        'routes' => array(
-            'ccr' => array(
+    'router' => [
+        'routes' => [
+            'ccr' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/ccr[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => CcrController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-        ),
-    ),
+                    ],
+                ],
+            ],
+        ],
+    ],
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'ccr' => __DIR__ . '/../view/',
-        ),
-        'template_map' => array(
+        ],
+        'template_map' => [
             'ccr/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        ),
-        'strategies' => array(
+        ],
+        'strategies' => [
             'ViewJsonStrategy',
             'ViewFeedStrategy',
-        ),
-    ),
+        ],
+    ],
     'service_manager' => [
         'factories' => [
             // TODO: it is odd that this has to be available to the service manager to be dynamically instantiated... but its in the controller namespace.
@@ -75,4 +75,4 @@ return array(
     ,'module_dependencies' => [
         'Documents'       // Handles the saving and retrieving of embedded documents in this module.
     ]
-);
+];

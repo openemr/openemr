@@ -33,15 +33,15 @@ require_once("../../interface/globals.php");
 use OpenEMR\Core\Header;
 
 if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
-    $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?", array($_POST['contextname']));
+    $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?", [$_POST['contextname']]);
     if (!sqlNumRows($res)) {
-        $id = sqlInsert("INSERT INTO customlists (cl_list_type,cl_list_item_long) VALUES(?,?)", array(2,$_POST['contextname']));
-        sqlStatement("UPDATE customlists SET cl_list_id=? WHERE cl_list_slno=?", array($id,$id));
+        $id = sqlInsert("INSERT INTO customlists (cl_list_type,cl_list_item_long) VALUES(?,?)", [2,$_POST['contextname']]);
+        sqlStatement("UPDATE customlists SET cl_list_id=? WHERE cl_list_slno=?", [$id,$id]);
     }
 } elseif (($_POST['action'] ?? '') == 'delete' && $_POST['item'] != '') {
-    sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_type=2 AND cl_list_slno=?", array($_POST['item']));
+    sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_type=2 AND cl_list_slno=?", [$_POST['item']]);
 } elseif (($_POST['action'] ?? '') == 'update' && $_POST['item'] != '') {
-    sqlStatement("UPDATE customlists SET cl_list_item_long=? WHERE cl_deleted=0 AND cl_list_type=2 AND cl_list_slno=?", array($_POST['updatecontextname'],$_POST['item']));
+    sqlStatement("UPDATE customlists SET cl_list_item_long=? WHERE cl_deleted=0 AND cl_list_type=2 AND cl_list_slno=?", [$_POST['updatecontextname'],$_POST['item']]);
 }
 ?>
 <html>

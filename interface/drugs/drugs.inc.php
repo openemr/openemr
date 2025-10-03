@@ -20,7 +20,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 // is reversed.
 $GLOBALS['SELL_FROM_ONE_WAREHOUSE'] = true;
 
-$substitute_array = array('', xl('Allowed'), xl('Not Allowed'));
+$substitute_array = ['', xl('Allowed'), xl('Not Allowed')];
 
 function send_drug_email($subject, $body): void
 {
@@ -78,7 +78,7 @@ function sellDrug(
     if (!$testonly) {
         $tmp = sqlQuery(
             "SELECT count(*) AS count from form_encounter WHERE pid = ? AND encounter = ?",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
         if (empty($tmp['count'])) {
             die(xlt('Internal error: the referenced encounter no longer exists.') . text(" $patient_id $encounter_id"));
@@ -87,13 +87,13 @@ function sellDrug(
 
     if (empty($default_warehouse)) {
         // Get the default warehouse, if any, for the user.
-        $rowuser = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?", array($user));
+        $rowuser = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?", [$user]);
         $default_warehouse = $rowuser['default_warehouse'];
     }
 
   // Get relevant options for this product.
     $rowdrug = sqlQuery("SELECT allow_combining, reorder_point, name, dispensable " .
-    "FROM drugs WHERE drug_id = ?", array($drug_id));
+    "FROM drugs WHERE drug_id = ?", [$drug_id]);
     $allow_combining = $rowdrug['allow_combining'];
     $dispensable     = $rowdrug['dispensable'];
 
@@ -108,7 +108,7 @@ function sellDrug(
             "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
             "sale_date, quantity, fee ) VALUES ( " .
             "?, 0, ?, ?, ?, ?, ?, ?, ?)",
-            array($drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee)
+            [$drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee]
         );
         return $sale_id;
     }
@@ -119,7 +119,7 @@ function sellDrug(
         $allow_combining = 0;
     }
 
-    $rows = array();
+    $rows = [];
   // $firstrow = false;
     $qty_left = $quantity;
     $bad_lot_list = '';
@@ -138,7 +138,7 @@ function sellDrug(
     "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
     "WHERE " .
     "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
-    $sqlarr = array($drug_id);
+    $sqlarr = [$drug_id];
     if ($GLOBALS['SELL_FROM_ONE_WAREHOUSE'] && $default_warehouse) {
         $query .= "AND di.warehouse_id = ? ";
         $sqlarr[] = $default_warehouse;
@@ -262,17 +262,17 @@ function sellDrug(
         // Update inventory and create the sale line item.
         sqlStatement("UPDATE drug_inventory SET " .
         "on_hand = on_hand - ? " .
-        "WHERE inventory_id = ?", array($thisqty,$inventory_id));
+        "WHERE inventory_id = ?", [$thisqty,$inventory_id]);
         $sale_id = sqlInsert(
             "INSERT INTO drug_sales ( " .
             "drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector ) " .
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            array($drug_id, $inventory_id, $prescription_id, $patient_id, $encounter_id, $user,
+            [$drug_id, $inventory_id, $prescription_id, $patient_id, $encounter_id, $user,
             $sale_date,
             $thisqty,
             $thisfee,
             $pricelevel,
-            $selector)
+            $selector]
         );
 
         // If this sale exhausted the lot then auto-destroy it if that is wanted.
@@ -281,9 +281,9 @@ function sellDrug(
                   "UPDATE drug_inventory SET " .
                   "destroy_date = ?, destroy_method = ?, destroy_witness = ?, destroy_notes = ? "  .
                   "WHERE drug_id = ? AND inventory_id = ?",
-                  array($sale_date, xl('Automatic from sale'), $user, "sale_id = $sale_id",
+                  [$sale_date, xl('Automatic from sale'), $user, "sale_id = $sale_id",
                   $drug_id,
-                  $inventory_id)
+                  $inventory_id]
               );
         }
     }
@@ -312,7 +312,7 @@ function isUserRestricted($userid = 0)
     }
 
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
-    "tablename = 'users' AND table_id = ?", array($userid));
+    "tablename = 'users' AND table_id = ?", [$userid]);
     return !empty($countrow['count']);
 }
 
@@ -327,13 +327,13 @@ function isFacilityAllowed($facid, $userid = 0)
     $countrow = sqlQuery(
         "SELECT count(*) AS count FROM users_facility WHERE " .
         "tablename = 'users' AND table_id = ? AND facility_id = ?",
-        array($userid, $facid)
+        [$userid, $facid]
     );
     if (empty($countrow['count'])) {
         $countrow = sqlQuery(
             "SELECT count(*) AS count FROM users WHERE " .
             "id = ? AND facility_id = ?",
-            array($userid, $facid)
+            [$userid, $facid]
         );
         return !empty($countrow['count']);
     }
@@ -353,13 +353,13 @@ function isWarehouseAllowed($facid, $whid, $userid = 0)
         "SELECT count(*) AS count FROM users_facility WHERE " .
         "tablename = 'users' AND table_id = ? AND facility_id = ? AND " .
         "(warehouse_id = ? OR warehouse_id = '')",
-        array($userid, $facid, $whid)
+        [$userid, $facid, $whid]
     );
     if (empty($countrow['count'])) {
         $countrow = sqlQuery(
             "SELECT count(*) AS count FROM users WHERE " .
             "id = ? AND default_warehouse = ?",
-            array($userid, $whid)
+            [$userid, $whid]
         );
         return !empty($countrow['count']);
     }
@@ -379,7 +379,7 @@ function isProductSelectable($drug_id)
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
         "WHERE di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand > 0 AND " .
         "(di.expiration IS NULL OR di.expiration > NOW())",
-        array($drug_id)
+        [$drug_id]
     );
     while ($wfrow = sqlFetchArray($wfres)) {
         if ($is_user_restricted && !isWarehouseAllowed($wfrow['facid'], $wfrow['warehouse_id'])) {

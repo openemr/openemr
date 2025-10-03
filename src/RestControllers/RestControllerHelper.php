@@ -486,7 +486,7 @@ class RestControllerHelper
         $mode->setValue('server');
         $restItem->setMode($mode);
 
-        $resourcesHash = array();
+        $resourcesHash = [];
         foreach ($routes as $key => $function) {
             $items = explode("/", $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {

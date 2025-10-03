@@ -450,7 +450,7 @@ class C_FormVitals
         foreach ($_POST as $varname => $var) {
             $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
+            if ((!(str_starts_with("_", $varname))) && is_callable([$obj,$func])) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);
@@ -469,7 +469,7 @@ class C_FormVitals
         $obj->set_authorized($_SESSION['userauthorized']);
 
         // handle all of the vital details that we need here.
-        $detailsToUpdate = array();
+        $detailsToUpdate = [];
         if (isset($_POST['interpretation'])) {
             $interpretationList = $this->get_interpretation_list_as_hash();
             // grab our default list options

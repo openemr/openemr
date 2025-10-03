@@ -24,8 +24,8 @@ class AMC_302d_Numerator implements AmcFilterIF
         //  (In the lists_touch, theres is also a special case entry to support the NewCropRx module
         //   since that module also manages medications. These special case entries use the prescription_erx
         //   token.)
-        $firstCheck = sqlQuery("SELECT * FROM `lists_touch` WHERE `pid`=? AND (`type`=? OR type=?)", array($patient->id,'medication','prescription_erx'));
-        $secondCheck = sqlQuery("SELECT * FROM `lists` WHERE `activity`='1' AND `pid`=? AND `type`=?", array($patient->id,'medication'));
+        $firstCheck = sqlQuery("SELECT * FROM `lists_touch` WHERE `pid`=? AND (`type`=? OR type=?)", [$patient->id,'medication','prescription_erx']);
+        $secondCheck = sqlQuery("SELECT * FROM `lists` WHERE `activity`='1' AND `pid`=? AND `type`=?", [$patient->id,'medication']);
         if (!(empty($firstCheck)) || !(empty($secondCheck))) {
             return true;
         } else {

@@ -74,7 +74,7 @@ if (!($id ?? '')) {
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query, array($_SESSION['authUserID']));
+$result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);
@@ -120,7 +120,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
                     forms.form_id=form_eye_locking.id and
                     forms.encounter=? and
                     forms.pid=? ";
-    $objQuery = sqlQuery($query, array($encounter,$pid));
+    $objQuery = sqlQuery($query, [$encounter,$pid]);
     @extract($objQuery);
 
     $dated = new DateTime($encounter_date);
@@ -251,7 +251,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $encounter_data = sqlQuery($query, array($encounter, $pid));
+    $encounter_data = sqlQuery($query, [$encounter, $pid]);
     @extract($encounter_data);
     $providerID = getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
@@ -475,7 +475,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-                    $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+                    $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
 
                 if (empty($result) || empty($result['id'])) {
                     //echo "no photo";
@@ -520,7 +520,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         $count_rx = '0';
 
                         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
-                        $wear = sqlStatement($query, array($pid, $form_id, $encounter));
+                        $wear = sqlStatement($query, [$pid, $form_id, $encounter]);
                     while ($wearing = sqlFetchArray($wear)) {
                         $count_rx++;
                         ${"display_W_$count_rx"} = '';
@@ -854,7 +854,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
                         }
 
-                        $zone = array(
+                        $zone = [
                             "MOTILITY_RRSO",
                             "MOTILITY_RS",
                             "MOTILITY_RLSO",
@@ -873,7 +873,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             "MOTILITY_LRIO",
                             "MOTILITY_LI",
                             "MOTILITY_LLIO"
-                        );
+                        ];
                         for ($i = 0; $i < count($zone); ++$i) {
                             ($$zone[$i] >= '1') ? ($$zone[$i] = "-" . $$zone[$i]) : ($$zone[$i] = '');
                         }
@@ -2366,13 +2366,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
      *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
      */
     $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? order by IMPPLAN_order ASC";
-    $result = sqlStatement($query, array($form_id, $pid));
+    $result = sqlStatement($query, [$form_id, $pid]);
     $i = '0';
-    $order = array("\r\n", "\n", "\r", "\v", "\f", "\x85", "\u2028", "\u2029");
+    $order = ["\r\n", "\n", "\r", "\v", "\f", "\x85", "\u2028", "\u2029"];
     $replace = "<br />";
     // echo '<ol>';
     while ($ip_list = sqlFetchArray($result)) {
-        $newdata = array(
+        $newdata = [
             'form_id' => $ip_list['form_id'],
             'pid' => $ip_list['pid'],
             'title' => $ip_list['title'],
@@ -2381,7 +2381,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             'codetext' => $ip_list['codetext'],
             'plan' => str_replace($order, $replace, $ip_list['plan']),
             'IMPPLAN_order' => $ip_list['IMPPLAN_order']
-        );
+        ];
         $IMPPLAN_items[$i] = $newdata;
         $i++;
     }
@@ -2408,7 +2408,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             echo $item['plan'] . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
-            $PLAN_results = sqlStatement($query, array($form_id, $pid));
+            $PLAN_results = sqlStatement($query, [$form_id, $pid]);
 
 
         if (!empty($PLAN_results)) { ?>

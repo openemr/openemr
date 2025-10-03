@@ -88,7 +88,7 @@ $list_id = $_REQUEST['list_id'];
                                     "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) ORDER BY lname, fname";
                             $res = sqlStatement($query);
                             $sel_query = "SELECT tu_user_id FROM template_users WHERE tu_template_id=?";
-                            $row_sel = sqlQuery($sel_query, array($list_id));
+                            $row_sel = sqlQuery($sel_query, [$list_id]);
                             while ($row = sqlFetchArray($res)) {
                                 foreach ($row_sel as $value) {
                                     if ($value == $row['id']) {

@@ -33,7 +33,7 @@ if (AclMain::aclCheckCore('patients', 'med')) {
     }
 }
 
-if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
     die(xlt("Not authorized"));
 }
 ?>
@@ -224,17 +224,17 @@ div.tab {
 }
 </style>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Edit History and Lifestyle'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "back",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "history.php",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => ""
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>

@@ -64,9 +64,9 @@ class CcdTable extends AbstractTableGateway
                   imported = ?,
                   audit_master_approval_status=?
               WHERE id = ?";
-        $appTable->zQuery($query, array($audit_master_id,
+        $appTable->zQuery($query, [$audit_master_id,
                                     1,
                                     $audit_master_approval_status,
-                                    $document_id));
+                                    $document_id]);
     }
 }

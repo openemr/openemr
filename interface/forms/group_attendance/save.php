@@ -40,7 +40,7 @@ if ($_GET['mode'] == 'new') {
     // Insert into form_group_attendance table
     $sql_for_table_ftga = "INSERT INTO form_group_attendance (id, date, group_id, user, groupname, authorized, encounter_id, activity) " .
         "VALUES(?,NOW(),?,?,?,?,?,?);";
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     array_push($sqlBindArray, $newid, $therapy_group, $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $encounter, '1');
     sqlStatement($sql_for_table_ftga, $sqlBindArray);
 
@@ -50,13 +50,13 @@ if ($_GET['mode'] == 'new') {
     // Update form_group_attendance table
     $id = $_GET['id'];
     $sql_for_form_tga = "UPDATE form_group_attendance SET date = NOW(), user = ?, groupname = ?, authorized = ? WHERE id = ?;";
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     array_push($sqlBindArray, $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $id);
     sqlStatement($sql_for_form_tga, $sqlBindArray);
 
     // Delete from therapy_groups_participant_attendance table
     $sql_delete_from_table_tgpa = "DELETE FROM therapy_groups_participant_attendance WHERE form_id = ?;";
-    sqlStatement($sql_delete_from_table_tgpa, array($id));
+    sqlStatement($sql_delete_from_table_tgpa, [$id]);
 
     // Database insertions for participants
     participant_insertions($id, $therapy_group, $group_encounter_data, $appt_data);

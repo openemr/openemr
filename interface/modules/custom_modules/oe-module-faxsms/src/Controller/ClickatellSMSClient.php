@@ -37,7 +37,7 @@ class ClickatellSMSClient extends AppDispatch
         $message = $message ?: $this->getRequest('comments');
 
         /* Reformat $toPhone number */
-        $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
+        $cleanup_chr =  ["+", " ", "(", ")", "\r", "\n", "\r\n"];
         $toPhone = str_replace($cleanup_chr, "", $toPhone);
         if (!str_starts_with($toPhone, "1")) {
             $toPhone = "1" . $toPhone;

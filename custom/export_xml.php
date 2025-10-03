@@ -24,7 +24,7 @@
 function custom_xml_Add($tag, $text): void
 {
     global $out, $indent;
-    $text = trim(str_replace(array("\r", "\n", "\t"), " ", ($text ?? '')));
+    $text = trim(str_replace(["\r", "\n", "\t"], " ", ($text ?? '')));
     if ($text) {
         for ($i = 0; $i < $indent; ++$i) {
             $out .= "\t";
@@ -124,10 +124,10 @@ function addInsurance($row, $seq): void
 
  // This mess gets all the info for the patient.
  //~Well, now it does...-Art
- $insrow = array();
-foreach (array('primary','secondary','tertiary') as $value) {
+ $insrow = [];
+foreach (['primary','secondary','tertiary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);
 }
 
  $query = "SELECT " .
@@ -185,7 +185,7 @@ foreach (array('primary','secondary','tertiary') as $value) {
   "LEFT OUTER JOIN addresses AS a3 ON a3.foreign_id = c3.id " .
   "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query, array(($insrow[0]['id'] ?? null), ($insrow[1]['id'] ?? null), ($insrow[2]['id'] ?? null), $pid)));
+ $row = sqlFetchArray(sqlStatement($query, [($insrow[0]['id'] ?? null), ($insrow[1]['id'] ?? null), ($insrow[2]['id'] ?? null), $pid]));
 
  $rowed = getEmployerData($pid);
 
@@ -244,7 +244,7 @@ foreach (array('primary','secondary','tertiary') as $value) {
 if ($row['providerID']) {
     $query = "select id, fname, mname, lname from users where authorized = 1";
     $query .= " AND id = ?";
-    $prow = sqlFetchArray(sqlStatement($query, array($row['providerID'])));
+    $prow = sqlFetchArray(sqlStatement($query, [$row['providerID']]));
     OpenTag("pcp");
     custom_xml_Add("id", $prow['id']);
     custom_xml_Add("lname", $prow['lname']);

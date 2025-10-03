@@ -33,8 +33,8 @@ if (SessionTracker::isSessionExpired()) {
 // keep this below above time out check.
 OpenEMR\Common\Session\SessionUtil::setSession('keepAliveTime', time());
 
-$total_counts = array();
-$other_count = array();
+$total_counts = [];
+$other_count = [];
 // if portal is enabled get various alerts
 if (!empty($_POST['isPortal'])) {
     $total_counts = GetPortalAlertCounts();

@@ -33,7 +33,7 @@ class PatientValidator extends BaseValidator
 
         $result = sqlQuery(
             'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
-            array($uuidLookup)
+            [$uuidLookup]
         );
 
         $existingUuid = $result['uuid'] ?? null;

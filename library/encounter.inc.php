@@ -17,7 +17,7 @@ function fetchCategoryIdByEncounter($encounter)
     global $attendant_type;
     $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
     $sql = "SELECT pc_catid FROM " . escape_table_name($table) . " WHERE encounter = ? limit 1";
-    $result = sqlQuery($sql, array($encounter));
+    $result = sqlQuery($sql, [$encounter]);
     return $result['pc_catid'];
 }
 

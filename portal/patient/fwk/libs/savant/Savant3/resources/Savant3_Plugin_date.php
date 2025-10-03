@@ -69,10 +69,10 @@ class Savant3_Plugin_date extends Savant3_Plugin
      * @var array
      *
      */
-    public $custom = array (
+    public $custom =  [
             'date' => '%Y-%m-%d',
             'time' => '%H:%M:%S'
-    );
+    ];
 
     /**
      *

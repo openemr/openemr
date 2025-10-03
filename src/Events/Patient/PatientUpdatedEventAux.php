@@ -40,9 +40,9 @@ class PatientUpdatedEventAux extends Event
      */
     public function getUpdatedPatientData()
     {
-        $pid = array(
+        $pid = [
             "pid" => $this->pid
-        );
+        ];
 
         $this->updatedPatientData = array_merge($this->updatedPatientData, $pid);
         return $this->updatedPatientData;

@@ -34,7 +34,7 @@ function smarty_function_html_options($params, &$smarty)
     $name = null;
     $values = null;
     $options = null;
-    $selected = array();
+    $selected = [];
     $output = null;
 
     $extra = '';

@@ -116,7 +116,7 @@ function invalue($name)
 if (!empty($_POST['form_save'])) {
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
-    $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
+    $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", [trim($_POST['form_abook_type'])]);
     $option_abook_type = $type_sql_row['option_value'] ?? '';
  // Set up any abook_type specific settings
     if ($option_abook_type == 3) {
@@ -232,7 +232,7 @@ if (!empty($_POST['form_save'])) {
 } elseif (!empty($_POST['form_delete'])) {
     if ($userid) {
        // Be careful not to delete internal users.
-        sqlStatement("DELETE FROM users WHERE id = ? AND (username = '' OR username IS NULL)", array($userid));
+        sqlStatement("DELETE FROM users WHERE id = ? AND (username = '' OR username IS NULL)", [$userid]);
     }
 }
 
@@ -250,7 +250,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
 }
 
 if ($userid) {
-    $row = sqlQuery("SELECT * FROM users WHERE id = ?", array($userid));
+    $row = sqlQuery("SELECT * FROM users WHERE id = ?", [$userid]);
 }
 
 if ($type) { // note this only happens when its new
@@ -288,7 +288,7 @@ if ($type) { // note this only happens when its new
         <label for="title" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Name'); ?>:</label>
     </div>
     <div class="col-auto">
-        <?php generate_form_field(array('data_type' => 1,'field_id' => 'title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '), ($row['title'] ?? '')); ?>
+        <?php generate_form_field(['data_type' => 1,'field_id' => 'title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '], ($row['title'] ?? '')); ?>
     </div>
     <div class="col-auto">
         <label for="form_lname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Last{{Name}}'); ?>:</label>
@@ -342,7 +342,7 @@ if ($type) { // note this only happens when its new
     <div class="form-row my-1">
         <div class="col-auto">
             <?php
-            generate_form_field(array('data_type' => 1,'field_id' => 'director_title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '), ($row['title'] ?? ''));
+            generate_form_field(['data_type' => 1,'field_id' => 'director_title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '], ($row['title'] ?? ''));
             ?>
         </div>
         <div class="col-auto">

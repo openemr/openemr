@@ -187,7 +187,7 @@ function phimail_check(): void
             //Format STATUS message-id status-code [additional-information]
             $val = explode(" ", trim($ret), 4);
             $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
-            $res = sqlStatementNoLog($sql, array($val[1]));
+            $res = sqlStatementNoLog($sql, [$val[1]]);
             if ($res === false) { //database problem
                 phimail_close($fp);
                 phimail_logit(0, "database problem");
@@ -227,7 +227,7 @@ function phimail_check(): void
             }
 
             $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
-            $res = sqlStatementNoLog($sql, array($status, $val[3], $val[1]));
+            $res = sqlStatementNoLog($sql, [$status, $val[3], $val[1]]);
             if ($res === false) { //database problem
                 phimail_close($fp);
                 phimail_logit(0, "database problem updating: " . $val[1]);
@@ -237,7 +237,7 @@ function phimail_check(): void
             if (!$success) {
                 //notify local user of failure
                 $sql = "SELECT username FROM users WHERE id = ?";
-                $res2 = sqlStatementNoLog($sql, array($msg['user_id']));
+                $res2 = sqlStatementNoLog($sql, [$msg['user_id']]);
                 $fail_user = ($res2 === false || ($user_row = sqlFetchArray($res2)) === false) ?
                     xl('unknown (see log)') : $user_row['username'];
                 $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
@@ -321,7 +321,7 @@ function phimail_check(): void
 
             //main part gets stored as document if not plain text content
             //(if plain text it will be the body of the final pnote)
-            $all_doc_ids = array();
+            $all_doc_ids = [];
             $doc_id = 0;
             $att_detail = "";
             if ($mime_type_main != "text/plain" && $mime_type_main != "text/html") {
@@ -409,7 +409,7 @@ function phimail_check(): void
             //logging only after succesful download, storage, and acknowledgement of message
             $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
                 "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
-            $res = sqlStatementNoLog($sql, array($msg_id, $sender, $recipient, phimail_service_userID()));
+            $res = sqlStatementNoLog($sql, [$msg_id, $sender, $recipient, phimail_service_userID()]);
 
             phimail_logit(1, $ret);
 
@@ -587,7 +587,7 @@ function phimail_service_userID($name = 'phimail-service')
 {
     $sql = "SELECT id FROM users WHERE username=?";
     if (
-        ($r = sqlStatementNoLog($sql, array($name))) === false ||
+        ($r = sqlStatementNoLog($sql, [$name])) === false ||
         ($u = sqlFetchArray($r)) === false
     ) {
         $user = 1; //default if we don't have a service user

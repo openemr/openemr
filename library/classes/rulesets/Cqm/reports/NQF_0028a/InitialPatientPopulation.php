@@ -16,8 +16,8 @@ class NQF_0028a_InitialPatientPopulation implements CqmFilterIF
 
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        $oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        $twoEncounters = array( Encounter::OPTION_ENCOUNTER_COUNT => 2 );
+        $oneEncounter = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
+        $twoEncounters = [ Encounter::OPTION_ENCOUNTER_COUNT => 2 ];
 
         if (
             $patient->calculateAgeOnDate($beginDate) >= 18 &&

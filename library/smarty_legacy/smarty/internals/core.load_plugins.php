@@ -49,7 +49,7 @@ function smarty_core_load_plugins($params, &$smarty): void
              */
             $_plugin_func = 'insert_' . $_name;
             if (function_exists($_plugin_func)) {
-                $_plugin = array($_plugin_func, $_tpl_file, $_tpl_line, true, false);
+                $_plugin = [$_plugin_func, $_tpl_file, $_tpl_line, true, false];
                 continue;
             }
         }
@@ -112,7 +112,7 @@ function smarty_core_load_plugins($params, &$smarty): void
         }
 
         if ($_found) {
-            $smarty->_plugins[$_type][$_name] = array($_plugin_func, $_tpl_file, $_tpl_line, true, true);
+            $smarty->_plugins[$_type][$_name] = [$_plugin_func, $_tpl_file, $_tpl_line, true, true];
         } else {
             // output error
             $smarty->_trigger_fatal_error('[plugin] ' . $_message, $_tpl_file, $_tpl_line, __FILE__, __LINE__);

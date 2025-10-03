@@ -118,7 +118,7 @@ class ConditionService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
 
@@ -196,10 +196,10 @@ class ConditionService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -278,12 +278,12 @@ class ConditionService extends BaseService
         $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         $sql  = "DELETE FROM lists WHERE pid=? AND uuid=? AND type='medical_problem'";
 
-        $results = sqlStatement($sql, array($pid, $auuid));
+        $results = sqlStatement($sql, [$pid, $auuid]);
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'uuid' => $uuid
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

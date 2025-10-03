@@ -18,7 +18,7 @@ require_once("IObservable.php");
  */
 abstract class Observable implements IObservable
 {
-    private $_observers = array ();
+    private $_observers =  [];
 
     /**
      * Registers an observer with this object

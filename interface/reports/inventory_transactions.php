@@ -267,14 +267,14 @@ if ($form_action == 'export') {
       <select name='form_trans_type' onchange='trans_type_changed()'>
     <?php
     foreach (
-        array(
+        [
         '0' => xl('All'),
         '2' => xl('Purchase/Return'),
         '1' => xl('Sale'),
         '6' => xl('Distribution'),
         '4' => xl('Transfer'),
         '5' => xl('Adjustment'),
-        ) as $key => $value
+        ] as $key => $value
     ) {
         echo "       <option value='" . attr($key) . "'";
         if ($key == $form_trans_type) {
@@ -407,7 +407,7 @@ if ($form_action) { // if submit or export
 
     $query .= "ORDER BY s.sale_date, s.sale_id";
   //
-    $res = sqlStatement($query, array($from_date, $to_date));
+    $res = sqlStatement($query, [$from_date, $to_date]);
     while ($row = sqlFetchArray($res)) {
         inventoryTransactionsLineItem($row);
     }

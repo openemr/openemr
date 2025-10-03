@@ -620,7 +620,7 @@ class ClientAdminController
      * @param array $options
      * @return string
      */
-    private function getActionUrl($action, array $options = array()): string
+    private function getActionUrl($action, array $options = []): string
     {
         if (is_array($action)) {
             $action = implode("/", $action);

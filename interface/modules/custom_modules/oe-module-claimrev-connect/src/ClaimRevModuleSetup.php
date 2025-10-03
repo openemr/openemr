@@ -24,7 +24,7 @@ class ClaimRevModuleSetup
     {
         $x12Name = $GLOBALS['oe_claimrev_x12_partner_name'];
         $sql = "SELECT * FROM x12_partners WHERE name = ?";
-        $sqlarr = array($x12Name);
+        $sqlarr = [$x12Name];
         $result = sqlStatementNoLog($sql, $sqlarr);
         $rowCount = sqlNumRows($result);
 
@@ -58,13 +58,13 @@ class ClaimRevModuleSetup
     public static function updateBackGroundServiceSetRequireOnce($name, $requireOnce)
     {
         $sql = "UPDATE background_services SET require_once = ? WHERE name = ?";
-        $sqlarr = array($requireOnce,$name);
+        $sqlarr = [$requireOnce,$name];
         sqlStatement($sql, $sqlarr);
     }
     public static function getServiceRecord($name)
     {
         $sql = "SELECT * FROM background_services WHERE name = ? LIMIT 1";
-        $sqlarr = array($name);
+        $sqlarr = [$name];
         $result = sqlStatement($sql, $sqlarr);
         if (sqlNumRows($result) == 1) {
             foreach ($result as $row) {

@@ -30,7 +30,7 @@ class PractitionerRestControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->practitionerData = array(
+        $this->practitionerData = [
             "id" => "test-fixture-789456",
             "uuid" => "90cde167-7b9b-4ed1-bd55-533925cb2605",
             "title" => "Mrs.",
@@ -65,7 +65,7 @@ class PractitionerRestControllerTest extends TestCase
             "physician_title" => "Attending physician",
             "physician_code" => "SNOMED-CT =>405279007",
             "username" => "kperez"
-        );
+        ];
 
         $this->fixtureManager = new PractitionerFixtureManager();
         $this->practitionerController = new PractitionerRestController();
@@ -173,7 +173,7 @@ class PractitionerRestControllerTest extends TestCase
         $restRequest->server = $this->createMock(ServerBag::class);
         $restRequest->server->method('get')->with('REDIRECT_URL')->willReturn('http://localhost/');
         $restRequest->query = new InputBag();
-        $response = $this->practitionerController->getAll($restRequest, array("npi" => "0123456789"));
+        $response = $this->practitionerController->getAll($restRequest, ["npi" => "0123456789"]);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $searchResult = json_decode($response->getBody(), true);

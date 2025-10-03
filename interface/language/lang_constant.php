@@ -41,7 +41,7 @@ if (!empty($_POST['add'])) {
     }
 
     $sql = "SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
-    $res = SqlQuery($sql, array($_POST['constant_name']));
+    $res = SqlQuery($sql, [$_POST['constant_name']]);
     if ($res) {
         echo xlt('Data Alike is already in database, please change constant name') . '<br />';
         $err = 'y';
@@ -52,7 +52,7 @@ if (!empty($_POST['add'])) {
     } else {
             //insert into the main table
         $sql = "INSERT INTO lang_constants SET constant_name=?";
-        SqlStatement($sql, array($_POST['constant_name']));
+        SqlStatement($sql, [$_POST['constant_name']]);
 
                 //insert into the log table - to allow persistant customizations
             insert_language_log('', '', $_POST['constant_name'], '');

@@ -253,7 +253,7 @@ if (!empty($_GET['forward_email_verify'])) {
         if ($crypto->cryptCheckStandard($_GET['forward'])) {
             $one_time = $crypto->decryptStandard($_GET['forward'], null, 'drive', 6);
             if (!empty($one_time)) {
-                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", array($one_time . '%'));
+                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
             }
         }
     }
@@ -289,7 +289,7 @@ $_SESSION['itsme'] = 1;
 //
 // collect default language id (skip this if this is a password update or reset)
 if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])))) {
-    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [$GLOBALS['language_default']]);
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
     }
@@ -318,7 +318,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
             "ld.lang_id = ? " .
             "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-        $res3 = SqlStatement($sql, array($mainLangID));
+        $res3 = SqlStatement($sql, [$mainLangID]);
         for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
             $result3[$iter] = $row;
         }

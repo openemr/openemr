@@ -280,8 +280,8 @@ $loading = "";
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
             <?php // Bring in the translations ?>
-            <?php $translationsDatatablesOverride = array('search' => (xla('Search all columns') . ':')); ?>
-            <?php $translationsDatatablesOverride = array('processing' => $loading); ?>
+            <?php $translationsDatatablesOverride = ['search' => (xla('Search all columns') . ':')]; ?>
+            <?php $translationsDatatablesOverride = ['processing' => $loading]; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
 
@@ -357,18 +357,18 @@ $loading = "";
 <?php
     /** @var EventDispatcher */
     $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
     'expandable' => true,
-    'expandable_files' => array('dynamic_finder_xpd'),//all file names need suffix _xpd
+    'expandable_files' => ['dynamic_finder_xpd'],//all file names need suffix _xpd
     'action' => "search",//conceal, reveal, search, reset, link or back
     'action_title' => "",//only for action link, leave empty for conceal, reveal, search
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => "",
     'page_id' => 'dynamic_finder',
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
     $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event): void {

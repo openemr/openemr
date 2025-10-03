@@ -124,7 +124,7 @@ class PractitionerService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
         if (!empty($search)) {
             $fields = $this->getFields();
@@ -210,10 +210,10 @@ class PractitionerService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

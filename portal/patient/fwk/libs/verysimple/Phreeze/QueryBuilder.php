@@ -28,9 +28,9 @@ class QueryBuilder
     public function __construct($phreezer)
     {
         $this->_phreezer = & $phreezer;
-        $this->Columns = array ();
-        $this->Tables = array ();
-        $this->Joins = array ();
+        $this->Columns =  [];
+        $this->Tables =  [];
+        $this->Joins =  [];
     }
 
     /**
@@ -50,7 +50,7 @@ class QueryBuilder
 
         $this->Columns [$tablealias . "-" . $fm->ColumnName] = $fm->FieldType == FM_CALCULATION ? $fm->ColumnName : "`" . $tablealias . "`.`" . $fm->ColumnName . "` as `" . $fm->ColumnName . "___" . $fm->TableName . "___" . $this->_counter++ . "`";
     }
-    private $_keymapcache = array (); // used to check for recursive eager fetching
+    private $_keymapcache =  []; // used to check for recursive eager fetching
     private $_prevkeymap; // used to check for recursive eager fetching
 
     /**

@@ -60,7 +60,7 @@ switch ($getAction) {
 					$axo_value
 				) = $row;
 
-				$acls[] = array(
+				$acls[] = [
 					'id' => $id,
 					'allow' => $allow,
 					'return_value' => $return_value,
@@ -75,7 +75,7 @@ switch ($getAction) {
 
 					'axo_section_value' => $axo_section_value,
 					'axo_value' => $axo_value,
-				);
+				];
 			}
 		}
 

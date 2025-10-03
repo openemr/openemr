@@ -20,7 +20,7 @@
 function fetchProcedureId($pid, $encounter): mixed
 {
     $sql = "SELECT procedure_order_id FROM procedure_order WHERE patient_id = ? AND encounter_id = ?";
-    $res = sqlQuery($sql, array($pid,$encounter));
+    $res = sqlQuery($sql, [$pid,$encounter]);
 
     return $res['procedure_order_id'];
 }
@@ -43,8 +43,8 @@ function getProceduresInfo($oid, $encounter): array
 	 AND po.encounter_id = ?
 	 AND po.procedure_order_id = ?";
 
-    $listOrders = sqlStatement($sql, array($oid,$encounter,$oid));
-    $orders = array();
+    $listOrders = sqlStatement($sql, [$oid,$encounter,$oid]);
+    $orders = [];
     while ($rows = sqlFetchArray($listOrders)) {
         $orders[] = $rows['procedure_order_id'];
         $orders[] = $rows['procedure_order_seq'];
@@ -73,7 +73,7 @@ function getProceduresInfo($oid, $encounter): array
 function getSelfPay($pid)
 {
     $sql = "SELECT `subscriber_relationship` FROM `insurance_data` WHERE pid = ?";
-    $res = sqlQuery($sql, array($pid));
+    $res = sqlQuery($sql, [$pid]);
 
     return $res['subscriber_relationship'];
 }
@@ -85,8 +85,8 @@ function getSelfPay($pid)
 function getNPI($prov_id)
 {
     $sql = "SELECT `npi`, `upin` FROM `users` WHERE `id` = ?";
-    $res = sqlQuery($sql, array($prov_id));
-    return array($res['npi'], $res['upin']);
+    $res = sqlQuery($sql, [$prov_id]);
+    return [$res['npi'], $res['upin']];
 }
 
 /**
@@ -97,7 +97,7 @@ function getProcedureProvider($prov_id): array|bool
     $sql = "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director " .
            "FROM users AS i, procedure_providers AS pi WHERE pi.ppid = ? AND pi.lab_director = i.id ";
 
-    $res = sqlStatement($sql, array($prov_id));
+    $res = sqlStatement($sql, [$prov_id]);
     return sqlFetchArray($res) ?? [];
 }
 
@@ -109,7 +109,7 @@ function getLabProviders($prov_id): ?array
 {
 
     $sql = "select fname, lname from users where authorized = 1 and active = 1 and username != '' and id = ?";
-    $rez = sqlQuery($sql, array($prov_id));
+    $rez = sqlQuery($sql, [$prov_id]);
 
 
     return $rez;
@@ -128,7 +128,7 @@ function getLabconfig(): bool|array|null
 function saveBarCode($bar, $pid, $order): void
 {
     $sql = "INSERT INTO `requisition` (`id`, `req_id`, `pid`, `lab_id`) VALUES (NULL, ?, ?, ?)";
-    $inarr = array($bar,$pid,$order);
+    $inarr = [$bar,$pid,$order];
     sqlStatement($sql, $inarr);
 }
 
@@ -139,10 +139,10 @@ function getBarId($lab_id, $pid): bool|array|string|null
     //the requisition needs to be removed if a lab order is deleted
     $checkForLabOrder = "SELECT * FROM `procedure_order` WHERE `procedure_order_id` = ? AND `patient_id` = ?";
     $sql = "SELECT `req_id` FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?";
-    $bar = sqlQuery($sql, array($lab_id,$pid));
-    $isOrder = sqlQuery($checkForLabOrder, array($lab_id,$pid));
+    $bar = sqlQuery($sql, [$lab_id,$pid]);
+    $isOrder = sqlQuery($checkForLabOrder, [$lab_id,$pid]);
     if (empty($isOrder['procedure_order_id'])) {
-        sqlStatement("DELETE FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?", array($lab_id,$pid));
+        sqlStatement("DELETE FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?", [$lab_id,$pid]);
         return '';
     }
     return $bar;
@@ -161,7 +161,7 @@ function getFacilityInfo($facilityID): bool|array
     if (count($facility) > 1) {
         $query = "SELECT `title`, `fname`, `lname`, `street`, `city`, `state`, `zip`, `organization`, `phone` FROM `users` WHERE `id` = ?";
 
-        $res = sqlStatement($query, array($facility[1]));
+        $res = sqlStatement($query, [$facility[1]]);
         return sqlFetchArray($res);
     }
 

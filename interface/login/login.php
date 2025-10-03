@@ -59,7 +59,7 @@ $layout = $GLOBALS['login_page_layout'];
 //
 // Build a list of valid entries
 // Original merge v5.0.1
-$emr_app = array();
+$emr_app = [];
 $sql = "SELECT option_id, title,is_default FROM list_options WHERE list_id=? and activity=1 ORDER BY seq, option_id";
 $rs = sqlStatement($sql, ['apps']);
 if (sqlNumRows($rs)) {

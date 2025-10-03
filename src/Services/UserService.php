@@ -285,9 +285,9 @@ class UserService
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT  id,
                         uuid,
@@ -330,7 +330,7 @@ class UserService
 
         if (!empty($search)) {
             $sql .= ' AND ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);

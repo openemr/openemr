@@ -31,11 +31,11 @@ if ($_GET) {
 
     if (!$isAdmin) {
         if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = array(intval($_SESSION['authUserID']));
+            $_GET['sentTo'] = [intval($_SESSION['authUserID'])];
         }
     }
 
-    $remindersArray = array();
+    $remindersArray = [];
     $TempRemindersArray = logRemindersArray();
     foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
@@ -141,8 +141,8 @@ if ($_GET) {
     <!-- Required for the popup date selectors -->
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
         <?php
-        $allUsers = array();
-        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
+        $allUsers = [];
+        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($_SESSION['authUserID'])]);
         for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
             $allUsers[] = $uRow;
         }

@@ -34,7 +34,7 @@ class DBSchema
     {
         $this->Server = & $server;
         $this->Name = $server->Connection->DBName;
-        $this->Tables = array ();
+        $this->Tables =  [];
 
         $this->Load();
 

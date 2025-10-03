@@ -17,7 +17,7 @@ class NQF_0064_Numerator2 implements CqmFilterIF
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $range = new Range(Range::NEG_INF, 100);
-        $options = array( LabResult::OPTION_RANGE => $range );
+        $options = [ LabResult::OPTION_RANGE => $range ];
         if (Helper::checkLab(LabResult::LDL_TEST, $patient, $beginDate, $endDate, $options)) {
             return true;
         }

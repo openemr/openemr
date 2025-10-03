@@ -72,7 +72,7 @@ class DocumentsController extends AbstractActionController
         }
         if ($request->isPost()) {
             $error = false;
-            $files = array();
+            $files = [];
             $uploaddir = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $request->getPost('file_location');
             $pid = $request->getPost('patient_id');
             $encounter = $request->getPost('encounter_id');
@@ -81,7 +81,7 @@ class DocumentsController extends AbstractActionController
             $encrypted_file = $request->getPost('encrypted_file');
             $encryption_key = $request->getPost('encryption_key');
             $storage_method = $GLOBALS['document_storage_method'];
-            $documents = array();
+            $documents = [];
             $i = 0;
             foreach ($_FILES as $file) {
                 $i++;
@@ -92,14 +92,14 @@ class DocumentsController extends AbstractActionController
                 if ($file['type'] != 'text/xml' && $file['type'] != 'application/xml') {
                     continue;
                 }
-                $documents[$i] = array(
+                $documents[$i] = [
                     'name' => $file_name,
                     'type' => $file['type'],
                     'batch_upload' => $batch_upload,
                     'storage' => $storage_method,
                     'category_id' => $category_id,
                     'pid' => $pid,
-                );
+                ];
 
                 // Read File Contents
                 $tmpfile = fopen($file['tmp_name'], "r");
@@ -136,7 +136,7 @@ class DocumentsController extends AbstractActionController
     {
 
         // List of Preview Available File types
-        $previewAvailableFiles = array(
+        $previewAvailableFiles = [
             'application/pdf',
             'image/jpeg',
             'image/png',
@@ -144,7 +144,7 @@ class DocumentsController extends AbstractActionController
             'text/plain',
             'text/html',
             'text/xml',
-        );
+        ];
 
         $request = $this->getRequest();
         $documentId = $this->params()->fromRoute('id');
@@ -158,7 +158,7 @@ class DocumentsController extends AbstractActionController
 
         // @see Documents/Plugin/Documents
         $document = $this->Documents()->getDocument($documentId, $doEncryption, $encryptionKey);
-        $categoryIds = $this->getDocumentsTable()->getCategoryIDs(array('CCD', 'CCR', 'CCDA'));
+        $categoryIds = $this->getDocumentsTable()->getCategoryIDs(['CCD', 'CCR', 'CCDA']);
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml' && !$doEncryption) {
             $xml = simplexml_load_string($document);
             $xsl = new DomDocument();

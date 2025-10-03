@@ -30,7 +30,7 @@ $is_rxnorm = $_GET['use_rxnorm'] == "true";
 $is_rxcui = $_GET['use_rxcui'] == "true";
 
 if (isset($_GET['term'])) {
-    $return_arr = array();
+    $return_arr = [];
     $term = filter_input(INPUT_GET, "term");
     if ($is_rxnorm) {
         $sql = "SELECT `str` as name, `RXCUI` as `rxnorm` FROM `rxnconso` WHERE `SAB` = 'RXNORM' AND `str` LIKE ? GROUP BY `RXCUI` ORDER BY `str` LIMIT 100";
@@ -39,21 +39,21 @@ if (isset($_GET['term'])) {
     } else {
         $sql = "SELECT `name`, `drug_code` as rxnorm FROM `drugs` WHERE `name` LIKE ? GROUP BY `drug_code` ORDER BY `name` LIMIT 100";
     }
-    $val = array($term . '%');
+    $val = [$term . '%'];
     if ($is_rxcui) {
-        $code_type = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
-        $val = array($term . '%', $code_type['ct_id']);
+        $code_type = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", ['RXCUI']);
+        $val = [$term . '%', $code_type['ct_id']];
         if (empty($code_type['ct_id'])) {
             throw new \Exception(xlt('Install RxCUI monthly via Native Load or enable in Lists!'));
         }
     }
     $res = sqlStatement($sql, $val);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] = array(
+        $return_arr[] = [
             'display_name' => text($row['name'] . " (RxCUI:" . trim($row['rxnorm']) . ")"),
             'id_name' => text($row['name']),
             'rxnorm' => text($row['rxnorm'])
-        );
+        ];
     }
 
     /* Toss back results as json encoded array. */

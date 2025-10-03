@@ -83,7 +83,7 @@ if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 // Set up default configuration settings
-$installSettings = array();
+$installSettings = [];
 $installSettings['iuser']                    = 'admin';
 $installSettings['iuname']                   = 'Administrator';
 $installSettings['iuserpass']                = 'pass';
@@ -112,7 +112,7 @@ for ($i = 1; $i < count($argv); $i++) {
 }
 
 // Convert BLANK settings to empty
-$tempInstallSettings = array();
+$tempInstallSettings = [];
 foreach ($installSettings as $setting => $value) {
     if ($value == "BLANK") {
         $value = '';

@@ -25,7 +25,7 @@ class PatientRestController
     /**
      * White list of patient search fields
      */
-    private const SUPPORTED_SEARCH_FIELDS = array(
+    private const SUPPORTED_SEARCH_FIELDS = [
         "fname",
         "lname",
         "ss",
@@ -41,7 +41,7 @@ class PatientRestController
         'country_code',
         "email",
         "DOB",
-    );
+    ];
 
     public function __construct()
     {

@@ -35,7 +35,7 @@ $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ?
 /**
  * @Global $pid Patient id setup during verify_session.php
  */
-$fres = sqlStatement($sql, array($pid));
+$fres = sqlStatement($sql, [$pid]);
 
 $documents = [];
 while ($file = sqlFetchArray($fres)) {
@@ -43,12 +43,12 @@ while ($file = sqlFetchArray($fres)) {
     $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
             WHERE `categories_to_documents`.`category_id` = `categories`.`id`
             AND `categories_to_documents`.`document_id` = ?";
-    $catres = sqlStatement($sql, array($file['id']));
+    $catres = sqlStatement($sql, [$file['id']]);
     $cat = sqlFetchArray($catres);
 
     // Find the tree of the document's category
     $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, array($cat['lft'], $cat['rght']));
+    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $displayPath = "";

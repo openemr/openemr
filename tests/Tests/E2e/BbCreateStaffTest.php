@@ -48,9 +48,9 @@ class BbCreateStaffTest extends PantherTestCase
     {
         // remove the created user
         $delete = "DELETE FROM users WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
+        sqlStatement($delete, ['foobar']);
 
         $delete = "DELETE FROM users_secure WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
+        sqlStatement($delete, ['foobar']);
     }
 }

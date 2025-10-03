@@ -42,7 +42,7 @@ class BladeRenderEngine implements IRenderEngine
     /**
      * stores the assigned vars
      */
-    public $model = array ();
+    public $model =  [];
 
     /**
      *
@@ -99,9 +99,9 @@ class BladeRenderEngine implements IRenderEngine
 
         Laravel\Blade::sharpen();
 
-        $responses = Laravel\Event::fire(Laravel\View::engine, array (
+        $responses = Laravel\Event::fire(Laravel\View::engine, [
                 $view
-        ));
+        ]);
 
         return $responses [0];
     }
@@ -123,7 +123,7 @@ class BladeRenderEngine implements IRenderEngine
      */
     function clearAll()
     {
-        $this->model == array ();
+        $this->model ==  [];
     }
 
     /**

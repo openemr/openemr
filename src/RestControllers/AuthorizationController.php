@@ -256,7 +256,7 @@ class AuthorizationController
     public function clientRegistration(HttpRestRequest $request): ResponseInterface
     {
         $response = $this->createServerResponse();
-        $headers = array();
+        $headers = [];
         try {
             $this->getSystemLogger()->debug("AuthorizationController::clientRegistration start");
             $request_headers = $request->getHeaders();
@@ -272,19 +272,19 @@ class AuthorizationController
             }
             $this->getSystemLogger()->debug("AuthorizationController::clientRegistration passed client_metadata checks");
             // many of these are optional and are here if we want to implement
-            $keys = array('contacts' => null,
+            $keys = ['contacts' => null,
                 'application_type' => null,
                 'client_name' => null,
                 'logo_uri' => null,
                 'redirect_uris' => null,
                 'post_logout_redirect_uris' => null,
-                'token_endpoint_auth_method' => array('client_secret_basic', 'client_secret_post', 'private_key_jwt'),
+                'token_endpoint_auth_method' => ['client_secret_basic', 'client_secret_post', 'private_key_jwt'],
                 'policy_uri' => null,
                 'tos_uri' => null,
                 'jwks_uri' => null,
                 'jwks' => null,
                 'sector_identifier_uri' => null,
-                'subject_type' => array('pairwise', 'public'),
+                'subject_type' => ['pairwise', 'public'],
                 'default_max_age' => null,
                 'require_auth_time' => null,
                 'default_acr_values' => null,
@@ -299,18 +299,18 @@ class AuthorizationController
                 // additional meta attributes can be added here
                 'dsi_type' => array_values(DecisionSupportInterventionService::DSI_TYPES),
                 'dsi_source_attributes' => [] // do we care to report errors on source attributes for the values we support? they won't save if we don't have it in the system
-            );
+            ];
             $this->getSystemLogger()->debug("Initial validation passed");
             $clientRepository = $this->getClientRepository();
             $client_id = $clientRepository->generateClientId();
             $reg_token = $clientRepository->generateRegistrationAccessToken();
             $reg_client_uri_path = $clientRepository->generateRegistrationClientUriPath();
-            $params = array(
+            $params = [
                 'client_id' => $client_id,
                 'client_id_issued_at' => time(),
                 'registration_access_token' => $reg_token,
                 'registration_client_uri_path' => $reg_client_uri_path
-            );
+            ];
 
             $params['client_role'] = 'patient';
             // only include secret if a confidential app else force PKCE for native and web apps.
@@ -339,9 +339,9 @@ class AuthorizationController
 
             foreach ($keys as $key => $supported_values) {
                 if ($data->has($key)) {
-                    if (in_array($key, array('contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'))) {
+                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
-                    } else if (in_array($key, array('dsi_source_attributes'))) {
+                    } else if (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
                         $jwks = $data->all('jwks');
@@ -398,15 +398,15 @@ class AuthorizationController
             }
             $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;
             unset($params['registration_client_uri_path']);
-            $client_json = array(
+            $client_json = [
                 'client_id' => $client_id,
                 'client_secret' => $client_secret,
                 'registration_access_token' => $reg_token,
                 'registration_client_uri' => $reg_uri,
                 'client_id_issued_at' => time(),
                 'client_secret_expires_at' => 0
-            );
-            $array_params = array('contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'response_types', 'grant_types', 'default_acr_values');
+            ];
+            $array_params = ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'response_types', 'grant_types', 'default_acr_values'];
             foreach ($array_params as $aparam) {
                 if (isset($params[$aparam])) {
                     $params[$aparam] = explode('|', $params[$aparam]);
@@ -506,7 +506,7 @@ class AuthorizationController
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
             $uri_path = substr($request->server->get('PATH_INFO'), $pos + 8);
-            $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", array($uri_path));
+            $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", [$uri_path]);
             if (!$client) {
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
@@ -778,15 +778,15 @@ class AuthorizationController
             $client['redirectUri'] = $authRequest->getClient()->getRedirectUri();
             $client['identifier'] = $authRequest->getClient()->getIdentifier();
             $client['isConfidential'] = $authRequest->getClient()->isConfidential();
-            $outer = array(
+            $outer = [
                 'grantTypeId' => $authRequest->getGrantTypeId(),
                 'authorizationApproved' => false,
                 'redirectUri' => $authRequest->getRedirectUri(),
                 'state' => $authRequest->getState(),
                 'codeChallenge' => $authRequest->getCodeChallenge(),
                 'codeChallengeMethod' => $authRequest->getCodeChallengeMethod(),
-            );
-            $result = array('outer' => $outer, 'scopes' => $scoped, 'client' => $client);
+            ];
+            $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
             $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
             $session->set('authRequestSerial', $this->authRequestSerial);
         } catch (Exception $e) {
@@ -1165,7 +1165,7 @@ class AuthorizationController
             default:
                 return '';
         }
-        $id = sqlQueryNoLog($account_sql, array($userId))['uuid'];
+        $id = sqlQueryNoLog($account_sql, [$userId])['uuid'];
 
         return UuidRegistry::uuidToString($id);
     }
@@ -1438,7 +1438,7 @@ class AuthorizationController
             }
             // clear the users session
             $this->trustedUserService->deleteTrustedUserById($trustedUser['id']);
-            $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", array($client_id, $post_logout_url));
+            $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", [$client_id, $post_logout_url]);
             if (!empty($post_logout_url) && !empty($client['valid'])) {
                 $this->session->invalidate();
                 return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
@@ -1476,11 +1476,11 @@ class AuthorizationController
             ['token_type_hint' => $token_hint, 'client_id' => $clientId]
         );
 
-        $result = array('active' => false);
+        $result = ['active' => false];
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
             // so regardless of client type(private/public) we need client for client app type and secret.
-            $client = sqlQueryNoLog("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", array($clientId));
+            $client = sqlQueryNoLog("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
             if (empty($client)) {
                 throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
             }
@@ -1530,7 +1530,7 @@ class AuthorizationController
                     }
                     if ($audience !== $clientId) {
                         // return no info in this case. possible Phishing
-                        $result = array('active' => false);
+                        $result = ['active' => false];
                     }
                 } catch (Exception $exception) {
                     // JWT couldn't be parsed
@@ -1562,7 +1562,7 @@ class AuthorizationController
                 }
                 if ($result['client_id'] !== $clientId) {
                     // return no info in this case. possible Phishing
-                    $result = array('active' => false);
+                    $result = ['active' => false];
                 }
             }
         } catch (OAuthServerException $exception) {

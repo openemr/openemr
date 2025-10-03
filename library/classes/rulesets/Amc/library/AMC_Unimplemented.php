@@ -13,7 +13,7 @@ class AMC_Unimplemented extends AbstractAmcReport implements RsUnimplementedIF, 
 {
     public function __construct()
     {
-        parent::__construct(array(), array(), null, array());
+        parent::__construct([], [], null, []);
     }
 
     public function getObjectToCount()

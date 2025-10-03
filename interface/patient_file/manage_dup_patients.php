@@ -54,7 +54,7 @@ function displayRow($row, $pid = ''): void
 
     $first_time = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
-    $phones = array();
+    $phones = [];
     if (trim($row['phone_home'])) {
         $phones[] = trim($row['phone_home']);
     }
@@ -138,7 +138,7 @@ function calculateScores(): int
     $finished = false;
 
     while (!$finished && time() < $endtime) {
-        $scores = array();
+        $scores = [];
         $query = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
             " FROM patient_data AS p1, patient_data AS p2" .
             " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
@@ -150,7 +150,7 @@ function calculateScores(): int
         foreach ($scores as $pid => $score) {
             sqlStatementNoLog(
                 "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
-                array($score, $pid)
+                [$score, $pid]
             );
             ++$count;
         }
@@ -289,7 +289,7 @@ $score_calculate = getDupScoreSQL();
                 if ($form_action == 'U') {
                     sqlStatement(
                         "UPDATE patient_data SET dupscore = -1 WHERE pid = ?",
-                        array($_POST['form_toppid'])
+                        [$_POST['form_toppid']]
                     );
                 } elseif ($form_action == 'R') {
                     updateDupScore($_POST['form_toppid']);
@@ -303,7 +303,7 @@ $score_calculate = getDupScoreSQL();
                         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
                         "p1.pid = ? AND p2.pid < p1.pid AND ($score_calculate) > 12 " .
                         "ORDER BY myscore DESC, p2.pid DESC";
-                    $res2 = sqlStatement($query, array($row1['pid']));
+                    $res2 = sqlStatement($query, [$row1['pid']]);
                     while ($row2 = sqlFetchArray($res2)) {
                         displayRow($row2, $row1['pid']);
                     }

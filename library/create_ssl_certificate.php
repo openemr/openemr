@@ -43,30 +43,30 @@ function create_csr(
     }
 
     /* Build the Distinguished Name (DN) for the certificate */
-    $dn = array("commonName" => $commonName);
+    $dn = ["commonName" => $commonName];
 
     if ($emailAddress) {
-        $dn = array_merge($dn, array("emailAddress" => $emailAddress));
+        $dn = array_merge($dn, ["emailAddress" => $emailAddress]);
     }
 
     if ($countryName) {
-        $dn = array_merge($dn, array("countryName" => $countryName));
+        $dn = array_merge($dn, ["countryName" => $countryName]);
     }
 
     if ($stateOrProvinceName) {
-        $dn = array_merge($dn, array("stateOrProvinceName" => $stateOrProvinceName));
+        $dn = array_merge($dn, ["stateOrProvinceName" => $stateOrProvinceName]);
     }
 
     if ($localityName) {
-        $dn = array_merge($dn, array("localityName" => $localityName));
+        $dn = array_merge($dn, ["localityName" => $localityName]);
     }
 
     if ($organizationName) {
-        $dn = array_merge($dn, array("organizationName" => $organizationName));
+        $dn = array_merge($dn, ["organizationName" => $organizationName]);
     }
 
     if ($organizationalUnitName) {
-        $dn = array_merge($dn, array("organizationalUnitName" => $organizationalUnitName));
+        $dn = array_merge($dn, ["organizationalUnitName" => $organizationalUnitName]);
     }
 
     /* Create the public/private key pair */
@@ -80,7 +80,7 @@ function create_csr(
         return false;
     }
 
-    return array($csr, $privkey);
+    return [$csr, $privkey];
 }
 
 
@@ -121,7 +121,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
 
     /* user id is used as serial number to sign a certificate */
     $serial = (is_int($serial)) ? $serial : 0;
-    $res = sqlStatement("SELECT id FROM users WHERE username = ?", array($commonName));
+    $res = sqlStatement("SELECT id FROM users WHERE username = ?", [$commonName]);
     if ($row = sqlFetchArray($res)) {
         $serial = $row['id'];
     }

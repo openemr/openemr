@@ -17,7 +17,7 @@ namespace OpenEMR\Tabs;
 class TabsWrapper
 {
     public $tabsid;
-    public $tabs = array();
+    public $tabs = [];
 
     function __construct($tabsid = 'tabs')
     {
@@ -33,11 +33,11 @@ class TabsWrapper
         $content = '<p>Content of first tab.</p>',
         $closeable = false
     ) {
-        $this->tabs[] = array(
+        $this->tabs[] = [
             'title'     => $title,
             'content'   => $content,
             'closeable' => $closeable,
-        );
+        ];
     }
 
     // Generate styling. Call once for each tab set.

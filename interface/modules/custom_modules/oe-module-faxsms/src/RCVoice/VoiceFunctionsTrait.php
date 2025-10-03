@@ -225,13 +225,13 @@ trait VoiceFunctionsTrait
                 $result['msg'] = "Using existing webhook subscription: " . $existingSubscription->id;
             } else {
                 // Create new subscription
-                $response = $this->platform->post('/subscription', array(
-                    'eventFilters' => array($expectedEventFilter),
-                    'deliveryMode' => array(
+                $response = $this->platform->post('/subscription', [
+                    'eventFilters' => [$expectedEventFilter],
+                    'deliveryMode' => [
                         'transportType' => 'WebHook',
                         'address' => $expectedWebhookUrl
-                    )
-                ));
+                    ]
+                ]);
 
                 $subscription = $response->json();
                 $subscriptionId = $subscription->id;

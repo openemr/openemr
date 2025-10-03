@@ -72,7 +72,7 @@ class PatientMenuRole extends MenuRole
         $this->menuUpdateEntries($menu_parsed);
         $updatedPatientMenuEvent = $this->dispatcher->dispatch(new PatientMenuEvent($menu_parsed), PatientMenuEvent::MENU_UPDATE);
 
-        $menu_restrictions = array();
+        $menu_restrictions = [];
         $tmp = $updatedPatientMenuEvent->getMenu();
         $this->menuApplyRestrictions($tmp, $menu_restrictions);
         $updatedPatientMenuRestrictions = $this->dispatcher->dispatch(new PatientMenuEvent($menu_restrictions), PatientMenuEvent::MENU_RESTRICT);

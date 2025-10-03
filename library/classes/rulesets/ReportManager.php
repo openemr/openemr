@@ -26,10 +26,10 @@ class ReportManager
         }
     }
 
-    public function runReport($rowRule, $patients, $dateTarget, $options = array())
+    public function runReport($rowRule, $patients, $dateTarget, $options = [])
     {
         $ruleId = $rowRule['id'];
-        $patientData = array();
+        $patientData = [];
         foreach ($patients as $patient) {
             $patientData [] = $patient['pid'];
         }
@@ -48,7 +48,7 @@ class ReportManager
             $report = $reportFactory->createReport(ReportTypes::getClassName($ruleId), $rowRule, $patientData, $dateTarget, $options);
         }
 
-        $results = array();
+        $results = [];
         if (
             $report instanceof RsReportIF &&
             !$report instanceof RsUnimplementedIF

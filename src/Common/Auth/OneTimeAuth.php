@@ -159,7 +159,7 @@ class OneTimeAuth
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
-                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", array($t_info['pid']));
+                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
                     }
                 } else {
                     $this->systemLogger->error("Onetime decrypt token failed. Empty!");
@@ -291,7 +291,7 @@ class OneTimeAuth
         $access_ip = $ip ?: $_SERVER['REMOTE_ADDR'] ?? null;
         $sql = "UPDATE `onetime_auth` SET `remote_ip` = ?, `last_accessed` = current_timestamp(), `access_count` = `access_count`+1 WHERE `pid` = ? AND `onetime_token` = ?";
 
-        return sqlQuery($sql, array($access_ip, $pid, $token));
+        return sqlQuery($sql, [$access_ip, $pid, $token]);
     }
 
     /**

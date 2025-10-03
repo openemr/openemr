@@ -35,7 +35,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
             exit();
         }
         $r = $response->getParsedData();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "ok" : "failed";
         $cc['authCode'] = $r->transactionResponse->authCode;
@@ -63,7 +63,7 @@ if ($_POST['mode'] == 'Stripe') {
         "FROM patient_data AS p " .
         "LEFT OUTER JOIN insurance_data AS i ON " .
         "i.pid = p.pid AND i.type = 'primary' " .
-        "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
+        "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -82,7 +82,7 @@ if ($_POST['mode'] == 'Stripe') {
             exit();
         }
         $r = $response->getSource();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "ok" : "failed";
         $cc['authCode'] = $r['fingerprint'];
@@ -113,7 +113,7 @@ if ($_GET['mode'] == 'terminal_token') {
 
     try {
         $connectionToken = ConnectionToken::create();
-        echo json_encode(array('secret' => $connectionToken->secret), JSON_THROW_ON_ERROR);
+        echo json_encode(['secret' => $connectionToken->secret], JSON_THROW_ON_ERROR);
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
@@ -177,7 +177,7 @@ if ($_GET['mode'] == 'terminal_create') {
             "FROM patient_data AS p " .
             "LEFT OUTER JOIN insurance_data AS i ON " .
             "i.pid = p.pid AND i.type = 'primary' " .
-            "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
+            "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
 
         $intent = PaymentIntent::create([
             'amount' => $json_obj->amount,
@@ -192,7 +192,7 @@ if ($_GET['mode'] == 'terminal_create') {
                 'Invoice Total' => number_format(($json_obj->amount / 100), 2, '.', '')
                 ]
         ]);
-        echo json_encode(array('client_secret' => $intent->client_secret), JSON_THROW_ON_ERROR);
+        echo json_encode(['client_secret' => $intent->client_secret], JSON_THROW_ON_ERROR);
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);

@@ -16,7 +16,7 @@ namespace OpenEMR\Billing;
 
 class BillingUtilities
 {
-    public const CLAIM_STATUS_CODES_CLP02 = array(
+    public const CLAIM_STATUS_CODES_CLP02 = [
         '1'  => 'Processed as Primary',
         '2'  => 'Processed as Secondary',
         '3'  => 'Processed as Tertiary',
@@ -34,9 +34,9 @@ class BillingUtilities
         '23' => 'Not Our Claim, Forwarded to Additional Payer(s)',
         '25' => 'Predetermination Pricing Only - No Payment',
         '27' => 'Reviewed',
-    );
+    ];
 
-    public const CLAIM_ADJUSTMENT_REASON_CODES = array(
+    public const CLAIM_ADJUSTMENT_REASON_CODES = [
         '1' => 'Deductible Amount',
         '2' => 'Coinsurance Amount',
         '3' => 'Co-payment Amount',
@@ -328,9 +328,9 @@ class BillingUtilities
         'P27' => 'Payment denied based on the Liability Coverage Benefits jurisdictional regulations and/or payment policies. Usage: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Insurance Policy Number Segment (Loop 2100 Other Claim Related Information REF qualifier \'IG\') if the jurisdictional regulation applies. If adjustment is at the Line Level, the payer must send and the provider should refer to the 835 Healthcare Policy Identification Segment (loop 2110 Service Payment information REF) if the regulations apply. To be used for Property and Casualty Auto only.',
         'P28' => 'Payment adjusted based on the Liability Coverage Benefits jurisdictional regulations and/or payment policies. Usage: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Insurance Policy Number Segment (Loop 2100 Other Claim Related Information REF qualifier \'IG\') if the jurisdictional regulation applies. If adjustment is at the Line Level, the payer must send and the provider should refer to the 835 Healthcare Policy Identification Segment (loop 2110 Service Payment information REF) if the regulations apply. To be used for Property and Casualty Auto only.',
         'P29' => 'Liability Benefits jurisdictional fee schedule adjustment. Usage: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Class of Contract Code Identification Segment (Loop 2100 Other Claim Related Information REF). If adjustment is at the Line Level, the payer must send and the provider should refer to the 835 Healthcare Policy Identification Segment (loop 2110 Service Payment information REF) if the regulations apply. To be used for Property and Casualty Auto only.'
-    );
+    ];
 
-    public const REMITTANCE_ADVICE_REMARK_CODES = array(
+    public const REMITTANCE_ADVICE_REMARK_CODES = [
         'M1' => 'X-ray not taken within the past 12 months or near enough to the start of treatment.',
         'M2' => 'Not paid separately when the patient is an inpatient.',
         'M3' => 'Equipment is the same or similar to equipment already being used.',
@@ -1414,13 +1414,13 @@ class BillingUtilities
         'N883' => 'Alert: Processed according to state law',
         'N884' => 'Alert: The No Surprises Act may apply to this claim. Please contact payer for instructions on how to submit information regarding whether or not the item or service was furnished during a patient visit to a participating facility.',
         'N885' => 'Alert: This claim was not processed in accordance with the No Surprises Act cost-sharing or out-of-network payment requirements. The payer disagrees with your determination that those requirements apply. You may contact the payer to find out why it disagrees. You may appeal this adverse determination on behalf of the patient through the payer’s internal appeals and external review processes.',
-    );
+    ];
 
     public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
     {
-        $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), array('billing')) . " from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter, $pid));
+        $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['billing']) . " from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", [$encounter, $pid]);
 
-        $all = array();
+        $all = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
         }
@@ -1454,7 +1454,7 @@ class BillingUtilities
         // Sanity check.
         $tmp = sqlQuery(
             "SELECT count(*) AS count from form_encounter WHERE pid = ? AND encounter = ?",
-            array($pid, $encounter_id)
+            [$pid, $encounter_id]
         );
         if (empty($tmp['count'])) {
             die(xlt('Internal error: the referenced encounter no longer exists.'));
@@ -1465,24 +1465,24 @@ class BillingUtilities
             "modifier, units, fee, ndc_info, justify, notecodes, pricelevel, revenue_code, payer_id) VALUES (" .
             "NOW(), ?, ?, ?, ?, ?, ?, ?, ?,  1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        return sqlInsert($sql, array($encounter_id, $code_type, $code, $code_text, $pid, $authorized,
+        return sqlInsert($sql, [$encounter_id, $code_type, $code, $code_text, $pid, $authorized,
             $_SESSION['authUserID'], $_SESSION['authProvider'], $billed, $provider, $modifier, $units, $fee,
-            $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code, $payer_id));
+            $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code, $payer_id]);
     }
 
     public static function authorizeBilling($id, $authorized = "1")
     {
-        sqlQuery("update billing set authorized = ? where id = ?", array($authorized, $id));
+        sqlQuery("update billing set authorized = ? where id = ?", [$authorized, $id]);
     }
 
     public static function deleteBilling($id)
     {
-        sqlStatement("update billing set activity = 0 where id = ?", array($id));
+        sqlStatement("update billing set activity = 0 where id = ?", [$id]);
     }
 
     public static function clearBilling($id)
     {
-        sqlStatement("update billing set justify = '' where id = ?", array($id));
+        sqlStatement("update billing set justify = '' where id = ?", [$id]);
     }
 
     // This function supports the Billing page (billing_process.php),
@@ -1530,7 +1530,7 @@ class BillingUtilities
         $submitted_claim = ''
     ) {
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         if (!$newversion) {
             $sql = "SELECT * FROM claims WHERE patient_id = ? AND " .
                 "encounter_id = ? AND status > 0 AND status < 4 ";
@@ -1572,9 +1572,9 @@ class BillingUtilities
         }
 
         $claimset = "";
-        $sqlBindClaimset = array();
+        $sqlBindClaimset = [];
         $billset = "";
-        $sqlBindBillset = array();
+        $sqlBindBillset = [];
         if (empty($payer_id) || $payer_id < 0) {
             $payer_id = 0;
         }
@@ -1670,9 +1670,9 @@ class BillingUtilities
              * "x12_partner_id = '$partner_id'";
              ****/
             sqlBeginTrans();
-            $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array($patient_id, $encounter_id));
+            $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", [$patient_id, $encounter_id]);
 
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             array_push($sqlBindArray, $patient_id, $encounter_id);
             if ($crossover <> 1) {
                 $sql = "INSERT INTO claims SET " .
@@ -1708,7 +1708,7 @@ class BillingUtilities
             if ($payer_type > 0) {
                 sqlStatement("UPDATE form_encounter SET " .
                     "last_level_billed = ? WHERE " .
-                    "pid = ? AND encounter = ?", array($payer_type, $patient_id, $encounter_id));
+                    "pid = ? AND encounter = ?", [$payer_type, $patient_id, $encounter_id]);
             }
         }
 
@@ -1734,7 +1734,7 @@ class BillingUtilities
             "SELECT billed FROM drug_sales WHERE " .
             "pid = ? AND " .
             "encounter = ?",
-            array($pid, $encounter, $pid, $encounter)
+            [$pid, $encounter, $pid, $encounter]
         );
 
         while ($brow = sqlFetchArray($bres)) {
@@ -1757,7 +1757,7 @@ class BillingUtilities
     {
         $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
             "WHERE pid = ? AND type = 'primary' " .
-            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1", array($patient_id, $encdate, $encdate));
+            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1", [$patient_id, $encdate, $encdate]);
         if (!empty($tmp['provider'])) {
             return sprintf('%01.2f', floatval($tmp['copay']));
         }
@@ -1771,7 +1771,7 @@ class BillingUtilities
         $resMoneyGot = sqlStatement(
             "SELECT sum(pay_amount) as PatientPay FROM ar_activity where " .
             "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0 AND account_code = 'PCP'",
-            array($patient_id, $encounter)
+            [$patient_id, $encounter]
         );
         //new fees screen copay gives account_code='PCP'
         $rowMoneyGot = sqlFetchArray($resMoneyGot);
@@ -1788,7 +1788,7 @@ class BillingUtilities
             "FROM users AS u, list_options AS lo " .
             "WHERE u.username = ? AND " .
             "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
-            array($_SESSION['authUser'])
+            [$_SESSION['authUser']]
         );
         return empty($trow['notes']) ? '' : $trow['notes'];
     }
@@ -1809,7 +1809,7 @@ class BillingUtilities
                 "SET lo.notes = ? WHERE " .
                 "u.username = ? AND " .
                 "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool",
-                array($newnumber, $_SESSION['authUser'])
+                [$newnumber, $_SESSION['authUser']]
             );
         }
 
@@ -1835,7 +1835,7 @@ class BillingUtilities
                 "(SELECT bill_date FROM drug_sales WHERE " .
                 "pid = ? AND encounter = ? AND bill_date IS NOT NULL) " .
                 "ORDER BY bill_date DESC LIMIT 1",
-                array($patient_id, $encounter_id, $patient_id, $encounter_id)
+                [$patient_id, $encounter_id, $patient_id, $encounter_id]
             );
             if (!empty($corow['bill_date'])) {
                 $date_original = $corow['bill_date'];
@@ -1845,7 +1845,7 @@ class BillingUtilities
                 "SELECT SUM(pay_amount) AS payments, " .
                 "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
                 "deleted IS NULL AND pid = ? AND encounter = ?",
-                array($patient_id, $encounter_id)
+                [$patient_id, $encounter_id]
             );
             $adjustments = empty($row['adjustments']) ? 0 : $row['adjustments'];
             $payments = empty($row['payments']) ? 0 : $row['payments'];
@@ -1859,7 +1859,7 @@ class BillingUtilities
                 "SELECT SUM(pay_amount) AS payments, " .
                 "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
                 "deleted IS NULL AND pid = ? AND encounter = ? AND post_time = ?",
-                array($patient_id, $encounter_id, $date_original)
+                [$patient_id, $encounter_id, $date_original]
             );
             $adjustments = empty($row['adjustments']) ? 0 : $row['adjustments'];
             $payments = empty($row['payments']) ? 0 : $row['payments'];
@@ -1869,7 +1869,7 @@ class BillingUtilities
         $encrow = sqlQuery(
             "SELECT invoice_refno FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? LIMIT 1",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
         $old_invoice_refno = $encrow['invoice_refno'];
         //
@@ -1887,7 +1887,7 @@ class BillingUtilities
                 "other_info = ?, " .
                 "reason = ?, " .
                 "notes = ?";
-            $sqlarr = array(
+            $sqlarr = [
                 $patient_id,
                 $encounter_id,
                 $what_voided,
@@ -1897,7 +1897,7 @@ class BillingUtilities
                 $old_invoice_refno,
                 $reason,
                 $notes
-            );
+            ];
             if ($date_original) {
                 $query .= ", date_original = ?";
                 $sqlarr[] = $date_original;
@@ -1913,38 +1913,38 @@ class BillingUtilities
                 sqlStatement(
                     "UPDATE ar_activity SET deleted = NOW() WHERE " .
                     "deleted IS NULL AND pid = ? AND encounter = ? AND post_time = ?",
-                    array($patient_id, $encounter_id, $date_original)
+                    [$patient_id, $encounter_id, $date_original]
                 );
                 sqlStatement(
                     "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
                     "pid = ? AND encounter = ? AND activity = 1 AND " .
                     "bill_date IS NOT NULL AND bill_date = ?",
-                    array($patient_id, $encounter_id, $date_original)
+                    [$patient_id, $encounter_id, $date_original]
                 );
                 sqlStatement(
                     "update drug_sales SET billed = 0, bill_date = NULL WHERE " .
                     "pid = ? AND encounter = ? AND " .
                     "bill_date IS NOT NULL AND bill_date = ?",
-                    array($patient_id, $encounter_id, $date_original)
+                    [$patient_id, $encounter_id, $date_original]
                 );
             } else {
                 if ($time == 'all') {
                     sqlStatement(
                         "UPDATE ar_activity SET deleted = NOW() WHERE " .
                         "deleted IS NULL AND pid = ? AND encounter = ?",
-                        array($patient_id, $encounter_id)
+                        [$patient_id, $encounter_id]
                     );
                 }
 
                 sqlStatement(
                     "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
                     "pid = ? AND encounter = ? AND activity = 1",
-                    array($patient_id, $encounter_id)
+                    [$patient_id, $encounter_id]
                 );
                 sqlStatement(
                     "update drug_sales SET billed = 0, bill_date = NULL WHERE " .
                     "pid = ? AND encounter = ?",
-                    array($patient_id, $encounter_id)
+                    [$patient_id, $encounter_id]
                 );
             }
 
@@ -1956,7 +1956,7 @@ class BillingUtilities
                 "UPDATE form_encounter " .
                 "SET invoice_refno = ? " .
                 "WHERE pid = ? AND encounter = ?",
-                array($new_invoice_refno, $patient_id, $encounter_id)
+                [$new_invoice_refno, $patient_id, $encounter_id]
             );
         }
     }
@@ -1967,14 +1967,14 @@ class BillingUtilities
         sqlStatement(
             "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
             "pid = ? AND encounter = ? AND activity = 1",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
 
         sqlStatement(
             "UPDATE form_encounter SET last_level_billed = 0, " .
             "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
             "WHERE pid = ? AND encounter = ?",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
     }
 }

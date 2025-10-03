@@ -43,10 +43,10 @@ class ReminderIntervalType
 
     private static function map()
     {
-        $map = array(
+        $map = [
             'clinical' => new ReminderIntervalType('clinical', xl('Clinical')),
             'patient' => new ReminderIntervalType('patient', xl('Patient'))
-        );
+        ];
         return $map;
     }
 }

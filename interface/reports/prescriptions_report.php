@@ -217,7 +217,7 @@ if (!empty($_POST['form_refresh'])) {
 <tbody>
     <?php
     if ($_POST['form_refresh']) {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $where = "r.date_modified >= ? AND " .
         "r.date_modified <= ?";
@@ -278,13 +278,13 @@ if (!empty($_POST['form_refresh'])) {
             $drug_name       = empty($row['name']) ? $row['drug'] : $row['name'];
             $ndc_number      = $row['ndc_number'];
             $drug_units      = text($row['size']) . ' ' .
-                   generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']);
+                   generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']);
             $refills         = $row['refills'];
             $reactions       = $row['reactions'];
             $instructed      = text($row['dosage']) . ' ' .
-                   generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
+                   generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']) .
                    ' ' .
-                       generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row['interval']);
+                       generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']);
             //if ($row['patient_id'] == $last_patient_id) {
             if (strcmp($row['pubpid'], $last_patient_id) == 0) {
                 $patient_name = $patient_id  = '';

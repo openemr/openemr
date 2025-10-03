@@ -43,13 +43,13 @@ $alertmsg = ''; // not used yet but maybe later
 
 // For each sorting option, specify the ORDER BY argument.
 //
-$ORDERHASH = array(
+$ORDERHASH = [
   'doctor'  => 'lower(u.lname), lower(u.fname), fe.date',
   'patient' => 'lower(p.lname), lower(p.fname), fe.date',
   'pubpid'  => 'lower(p.pubpid), fe.date',
   'time'    => 'fe.date, lower(u.lname), lower(u.fname)',
   'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
-);
+];
 
 function show_doc_total($lastdocname, $doc_encounters): void
 {
@@ -93,7 +93,7 @@ if ($form_not_esigned) {
     $esign_joins = "LEFT JOIN esign_signatures AS es on es.tid = fe.encounter ";
 }
 
-$sqlBindArray = array();
+$sqlBindArray = [];
 
 $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
@@ -451,7 +451,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
                 // Figure product sales into billing status.
                 $sres = sqlStatement("SELECT billed FROM drug_sales " .
-                "WHERE pid = ? AND encounter = ?", array($row['pid'], $row['encounter']));
+                "WHERE pid = ? AND encounter = ?", [$row['pid'], $row['encounter']]);
                 while ($srow = sqlFetchArray($sres)) {
                     if ($srow['billed']) {
                         ++$billed_count;

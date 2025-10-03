@@ -46,11 +46,11 @@ class Pharmacy extends ORDataObject
         $this->name = "";
         $this->email = "";
         $this->transmit_method = 1;
-        $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx"));
+        $this->transmit_method_array = [xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx")];
         $this->_table = "pharmacies";
         $phone  = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
-        $this->phone_numbers = array($phone);
+        $this->phone_numbers = [$phone];
         $this->address = new Address();
         if ($id != "") {
             $this->populate();
@@ -219,7 +219,7 @@ class Pharmacy extends ORDataObject
 
     function utility_pharmacy_array()
     {
-        $pharmacy_array = array();
+        $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
             "FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
         $res = sqlQ($sql);
@@ -239,7 +239,7 @@ class Pharmacy extends ORDataObject
     function pharmacies_factory()
     {
         $p = new Pharmacy();
-        $pharmacies = array();
+        $pharmacies = [];
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id ";

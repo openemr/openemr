@@ -42,7 +42,7 @@ class GroupService extends BaseService
      * @param bool $isAndCondition
      * @return ProcessingResult
      */
-    public function searchPatientProviderGroups($search = array(), $isAndCondition = true)
+    public function searchPatientProviderGroups($search = [], $isAndCondition = true)
     {
         // we inner join on status in case we ever decide to add a status property (and layers above this one can rely
         // on the property without changing code).

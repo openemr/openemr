@@ -45,7 +45,7 @@ $group_list = $templateService->fetchDefaultGroups();
 // for empty lists
 $none_message = xlt("Nothing to show for current actions.");
 // init status array
-$audit_status_blank = array(
+$audit_status_blank = [
     'audit_id' => null,
     'pid' => null,
     'create_date' => null,
@@ -80,7 +80,7 @@ $audit_status_blank = array(
     'action_user' => null,
     'action_taken_time' => null,
     'checksum' => null,
-);
+];
 
 $searchTerm = '';
 if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
@@ -614,10 +614,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         <!--<label class='font-weight-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
                         <?PHP
                         $searchTerm = '';
-                        $ppt = array(
+                        $ppt = [
                             ['pid' => '0', 'ptname' => 'All Patients'],
                             ['pid' => '-1', 'ptname' => 'Repository'],
-                        );
+                        ];
                         if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $searchTerm = $_GET['search_term'] ?? $_GET['search'];
                         }

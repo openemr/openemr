@@ -23,7 +23,7 @@ class C_X12Partner extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->x12_partners = array();
+        $this->x12_partners = [];
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&");

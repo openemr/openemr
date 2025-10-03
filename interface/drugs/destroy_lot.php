@@ -88,14 +88,14 @@ if ($_POST['form_save']) {
         "destroy_witness = ?, " .
         "destroy_notes = ? "  .
         "WHERE drug_id = ? AND inventory_id = ?",
-        array(
+        [
             (empty($_POST['form_date']) ? "NULL" : $_POST['form_date']),
             $_POST['form_method'],
             $_POST['form_witness'],
             $_POST['form_notes'],
             $drug_id,
             $lot_id
-        )
+        ]
     );
 
   // Close this window and redisplay the updated list of drugs.
@@ -112,7 +112,7 @@ if ($_POST['form_save']) {
 }
 
  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = ? " .
-  "AND inventory_id = ?", array($drug_id,$lot_id));
+  "AND inventory_id = ?", [$drug_id,$lot_id]);
     ?>
 
 <form method='post' name='theform' onsubmit='return validate(this);'

@@ -225,7 +225,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $total1 = 0.00;
         $total2 = 0.00;
 
-        $inputArray = array($from_date . ' 00:00:00', $to_date . ' 23:59:59');
+        $inputArray = [$from_date . ' 00:00:00', $to_date . ' 23:59:59'];
         $query = "SELECT r.pid, r.dtime, " .
         "SUM(r.amount1) AS amount1, " .
         "SUM(r.amount2) AS amount2, " .
