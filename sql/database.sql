@@ -9721,6 +9721,56 @@ CREATE TABLE `procedure_result` (
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `procedure_specimen`;
+CREATE TABLE `procedure_specimen` (
+  `procedure_specimen_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'record id',
+  `uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Specimen id',
+  `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'links to procedure_order.procedure_order_id',
+  `procedure_order_seq` INT(11) NOT NULL COMMENT 'links to procedure_order_code.procedure_order_seq (per test line)',
+  `specimen_identifier` VARCHAR(128) DEFAULT NULL COMMENT 'tube/barcode/internal id',
+  `accession_identifier` VARCHAR(128) DEFAULT NULL COMMENT 'lab accession number',
+  `specimen_type_code` VARCHAR(64) DEFAULT NULL COMMENT 'prefer SNOMED CT code',
+  `specimen_type` VARCHAR(255) DEFAULT NULL COMMENT 'display/text',
+  `collection_method_code` VARCHAR(64) DEFAULT NULL,
+  `collection_method` VARCHAR(255) DEFAULT NULL,
+  `specimen_location_code` VARCHAR(64) DEFAULT NULL,
+  `specimen_location` VARCHAR(255) DEFAULT NULL,
+  `collected_date` DATETIME DEFAULT NULL COMMENT 'single instant',
+  `collection_date_low` DATETIME DEFAULT NULL COMMENT 'period start',
+  `collection_date_high` DATETIME DEFAULT NULL COMMENT 'period end',
+  `volume_value` DECIMAL(10,3) DEFAULT NULL,
+  `volume_unit` VARCHAR(32) DEFAULT 'mL',
+  `condition_code` VARCHAR(32) DEFAULT NULL COMMENT 'HL7 v2 0493 (e.g., ACT, HEM)',
+  `condition` VARCHAR(64) DEFAULT NULL,
+  `comments` TEXT,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT(20) DEFAULT NULL,
+  `updated_by` BIGINT(20) DEFAULT NULL,
+  PRIMARY KEY (`procedure_specimen_id`),
+  UNIQUE KEY `uuid_unique` (`uuid`),
+  KEY `idx_order_line` (`procedure_order_id`,`procedure_order_seq`),
+  KEY `idx_identifier` (`specimen_identifier`),
+  KEY `idx_accession` (`accession_identifier`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `procedure_specimen_container`;
+CREATE TABLE `procedure_specimen_container` (
+  `procedure_specimen_container_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'record id',
+  `procedure_specimen_id` BIGINT(20) NOT NULL COMMENT 'links to procedure_specimen.procedure_specimen_id',
+  `container_seq` INT(11) NOT NULL DEFAULT 1 COMMENT 'supports multi containers per specimen',
+  `container_identifier` VARCHAR(128) DEFAULT NULL,
+  `container_description` VARCHAR(255) DEFAULT NULL,
+  `specimen_quantity_value` DECIMAL(10,3) DEFAULT NULL,
+  `specimen_quantity_unit` VARCHAR(32) DEFAULT 'mL',
+  `additive_code` VARCHAR(64) DEFAULT NULL,
+  `additive_display` VARCHAR(255) DEFAULT NULL,
+  `additive_system` VARCHAR(255) DEFAULT NULL,
+  `container_type_code` VARCHAR(64) DEFAULT NULL,
+  `container_type` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`procedure_specimen_container_id`),
+  KEY `idx_specimen` (`procedure_specimen_id`)
+) ENGINE=InnoDB;
 -- -----------------------------------------------------------------------------------
 
 --
