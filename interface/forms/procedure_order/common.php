@@ -26,6 +26,7 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
@@ -76,6 +77,7 @@ function saveEreq($pid, $form_id, $mpdfData)
 
     return $good;
 }
+
 function isDornLab($ppid): bool
 {
     $sql = "SHOW TABLES LIKE 'mod_dorn_routes'";
@@ -165,6 +167,7 @@ function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq
     }
     return $output;
 }
+
 function normalizeDirectoryName(string $input): string
 {
     $normalized = $input;
@@ -200,17 +203,22 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             $_POST['form_account'] = '';
         }
     }
+
     $sets =
         "date_ordered = ?, " .
         "provider_id = ?, " .
         "lab_id = ?, " .
         "date_collected = ?, " .
+        "date_collected_end = ?, " .
+        "specimen_type = ?, " .
+        "specimen_location = ?, " .
+        "specimen_volume = ?, " .
+        "specimen_condition = ?, " .
         "order_priority = ?, " .
         "order_status = ?, " .
         "billing_type = ?, " .
         "order_psc = ?, " .
         "specimen_fasting = ?, " .
-        "specimen_volume = ?, " .
         "clinical_hx = ?, " .
         "patient_instructions = ?, " .
         "patient_id = ?, " .
@@ -222,17 +230,22 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "account_facility = ?, " .
         "collector_id = ?, " .
         "procedure_order_type = ?";
+
     $set_array = array(
         QuotedOrNull($_POST['form_date_ordered']),
         (int)$_POST['form_provider_id'],
         $ppid,
         QuotedOrNull($_POST['form_date_collected']),
+        QuotedOrNull($_POST['form_date_collected_end']),
+        trim($_POST['form_specimen_type'] ?? ''),
+        trim($_POST['form_specimen_location'] ?? ''),
+        $_POST['form_specimen_volume'] ?? null,
+        trim($_POST['form_specimen_condition'] ?? ''),
         $_POST['form_order_priority'],
         $_POST['form_order_status'],
         $_POST['form_billing_type'],
         $_POST['form_order_psc'],
         $_POST['form_specimen_fasting'] ?? '',
-        $_POST['form_specimen_volume'] ?? '',
         trim($_POST['form_clinical_hx']),
         trim($_POST['form_patient_instructions']),
         $pid,
@@ -261,6 +274,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     } else {
         $query = "INSERT INTO procedure_order SET $sets";
         $formid = sqlInsert($query, $set_array);
+        UuidRegistry::createMissingUuidsForTables(['procedure_order']);
         $gbl_lab = get_lab_name($ppid);
         $order_date = oeFormatShortDate($_POST['form_date_ordered'] ?? '');
         $tmp = $_POST['procedure_type_names'] ?: $formid;
@@ -365,6 +379,74 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $procedure_order_seq['increment']
             )
         );
+        // Wipe and reinsert specimens for this order line
+        sqlStatement(
+            "DELETE FROM procedure_specimen WHERE procedure_order_id = ? AND procedure_order_seq = ?",
+            [$formid, $poseq]
+        );
+
+        // Pull arrays for this line index $i
+        $ids = $_POST['form_proc_specimen_identifier'][$i] ?? [];
+        $accs = $_POST['form_proc_accession_identifier'][$i] ?? [];
+        $types = $_POST['form_proc_specimen_type'][$i] ?? []; // display (from list)
+        $sites = $_POST['form_proc_specimen_location'][$i] ?? []; // display (from list)
+        $lowDates = $_POST['form_proc_specimen_date_low'][$i] ?? [];
+        $highDates = $_POST['form_proc_specimen_date_high'][$i] ?? [];
+        $volValues = $_POST['form_proc_specimen_volume_value'][$i] ?? [];
+        $volUnits = $_POST['form_proc_specimen_volume_unit'][$i] ?? [];
+        $conds = $_POST['form_proc_specimen_condition'][$i] ?? [];
+
+        $rows = max(
+            count($ids),
+            count($accs),
+            count($types),
+            count($sites),
+            count($lowDates),
+            count($highDates),
+            count($volValues),
+            count($conds)
+        );
+
+        for ($s = 0; $s < $rows; $s++) {
+            // Skip entirely empty rows
+            $any = trim($ids[$s] ?? '') . trim($accs[$s] ?? '') . trim($types[$s] ?? '') .
+                trim($sites[$s] ?? '') . trim($lowDates[$s] ?? '') . trim($highDates[$s] ?? '') .
+                trim($volValues[$s] ?? '') . trim($conds[$s] ?? '');
+            if ($any === '') {
+                continue;
+            }
+
+            $uuid = (new UuidRegistry(['table_name' => 'procedure_specimen']))->createUuid();
+
+            // Normalize nulls for DATETIME
+            $dateLow = QuotedOrNull($lowDates[$s] ?? null);
+            $dateHigh = QuotedOrNull($highDates[$s] ?? null);
+            $collected = null; // optional instant; if you want: $collected = $dateLow && !$dateHigh ? $dateLow : null;
+
+            sqlStatement(
+                "INSERT INTO procedure_specimen SET
+               uuid = ?, procedure_order_id = ?, procedure_order_seq = ?,
+               specimen_identifier = ?, accession_identifier = ?,
+               specimen_type = ?, specimen_location = ?,
+               collection_date_low = ?, collection_date_high = ?, collected_date = ?,
+               volume_value = ?, volume_unit = ?, condition_code = ?,
+               created_by = ?, updated_by = ?",
+                [
+                    $uuid, $formid, $poseq,
+                    trim($ids[$s] ?? '') ?: null,
+                    trim($accs[$s] ?? '') ?: null,
+                    trim($types[$s] ?? '') ?: null,
+                    trim($sites[$s] ?? '') ?: null,
+                    $dateLow, $dateHigh, $collected,
+                    (strlen($volValues[$s] ?? '') ? (float)$volValues[$s] : null),
+                    ($volUnits[$s] ?? 'mL') ?: 'mL',
+                    trim($conds[$s] ?? '') ?: null,
+                    ($_SESSION['authUserID'] ?? null),
+                    ($_SESSION['authUserID'] ?? null),
+                ]
+            );
+        }
+
         sqlCommitTrans();
 
         $poseq = $procedure_order_seq['increment'];
@@ -701,7 +783,7 @@ if (!empty($row['lab_id'])) {
             let ptvarname = 'form_proc_type[' + formseq + ']';
 
             let title = <?php echo xlj("Find Procedure Order"); ?>;
-// This replaces the previous search for an easier/faster order picker tool.
+            // This replaces the previous search for an easier/faster order picker tool.
             dlgopen('../../orders/find_order_popup.php' +
                 '?labid=' + encodeURIComponent(f.form_lab_id.value) +
                 '&order=' + encodeURIComponent(f[ptvarname].value) +
@@ -742,7 +824,14 @@ if (!empty($row['lab_id'])) {
             initCalendars();
         }
 
+        function addProcedure() {
+            $(".procedure-order-container").append($(".procedure-order").clone());
+            let newOrder = $(".procedure-order-container .procedure-order:last");
+            $(newOrder + " label:first").append("1");
+        }
+
         // New lab selected so clear all procedures and questions from the form.
+        // Replace your lab_id_changed function with this:
         function lab_id_changed(el) {
             if (viewmode) {
                 let msg = "Changing Labs will clear this order. Are you sure you want to continue?";
@@ -759,6 +848,7 @@ if (!empty($row['lab_id'])) {
             if (lab.toLowerCase().indexOf('clarity') !== -1) currentLab = 'clarity';
 
             let f = document.forms[0];
+            // Remove all existing procedure items
             for (let i = 0; true; ++i) {
                 let ix = '[' + i + ']';
                 if (!f['form_proc_type' + ix]) break;
@@ -769,26 +859,28 @@ if (!empty($row['lab_id'])) {
             if (viewmode) {
                 $("#bn_save").click();
             } else {
-                addProcLine(false);
+                // Add new line and wait for DOM to update before opening popup
+                setTimeout(function () {
+                    let lineCount = addProcLine(true); // Add line without auto-popup
+                    if (lineCount !== false && lineCount >= 0) {
+                        // Now manually trigger the popup after DOM is ready
+                        sel_proc_type(lineCount);
+                    }
+                }, 100);
             }
         }
 
-        function addProcedure() {
-            $(".procedure-order-container").append($(".procedure-order").clone());
-            let newOrder = $(".procedure-order-container .procedure-order:last");
-            $(newOrder + " label:first").append("1");
-        }
-
+        // Update addProcLine to always return lineCount:
         function addProcLine(flag = false) {
             if (!('content' in document.createElement('template'))) {
                 console.error("Old browser detected as template content property is not supported");
-                return;
+                return false;
             }
 
             let template = document.getElementById('procedure_order_code_template');
             if (!template) {
                 console.error("Cannot add procedure line due to missing template node with id procedure_order_code_template");
-                return;
+                return false;
             }
             // grab our content, update all our ids, setup any event listeners and add the item in
             let node = template.content.cloneNode(true);
@@ -829,6 +921,14 @@ if (!empty($row['lab_id'])) {
             });
             remapSelectors('.reasonCodeContainer', function (node) {
                 node.id = "reason_code_" + lineCount;
+            });
+
+            // Map specimen panel ids/datasets to current line index
+            remapSelectors('[data-toggle-specimen]', function (node) {
+                node.dataset.toggleSpecimen = "specimen_code_" + lineCount;
+            });
+            remapSelectors('.specimenContainer', function (node) {
+                node.id = "specimen_code_" + lineCount;
             });
 
             // now we need to add our events
@@ -884,10 +984,9 @@ if (!empty($row['lab_id'])) {
             if (!flag) {// flag true indicates add procedure item from custom group callback with current index.
                 // note the proc type order id is -1 for a new row... this makes the popup happy, not sure why this was originally set to -1.
                 sel_proc_type(lineCount);
-                return false;
-            } else {
-                return lineCount;
             }
+
+            return lineCount; // Always return the line count
         }
 
         // The name of the form field for find-code popup results.
@@ -1022,6 +1121,31 @@ if (!empty($row['lab_id'])) {
                 })
                 return false;
             });
+
+            // Toggle the specimen panel
+            $(document).on('click', '.specimen-code-btn', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-toggle-specimen');
+                $('#' + id).collapse('toggle');
+            });
+            // Add specimen row
+            $(document).on('click', '.add-specimen-row', function (e) {
+                e.preventDefault();
+                const line = this.getAttribute('data-specimen-line');
+                const tbody = document.getElementById('specimen_rows_' + line);
+                const tpl = document.getElementById('specimen_row_template_' + line);
+                if (!tbody || !tpl) return;
+                const node = tpl.content.cloneNode(true);
+                tbody.appendChild(node);
+                // (re)init date pickers on the new inputs
+                initCalendars();
+            });
+            // Remove specimen row
+            $(document).on('click', '.remove-specimen-row', function (e) {
+                e.preventDefault();
+                $(this).closest('tr').remove();
+            });
+
             <?php if ($row['date_transmitted'] ?? '') { ?>
             $("#summary").collapse("toggle");
             <?php } ?>
@@ -1262,14 +1386,21 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 generate_form_field($pscOrderOpts, $row['order_psc'] ?? '');
                                 ?>
                             </div>
-                            <label for="form_date_collected" class="col-form-label col-md-2"><?php echo xlt('Time Collected'); ?></label>
+                            <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
-                                <input class='datetimepicker form-control'
-                                    type='text'
-                                    name='form_date_collected'
-                                    id='form_date_collected'
-                                    value="<?php echo attr(substr($row['date_collected'] ?? '', 0, 16)); ?>"
-                                    title="<?php echo xla('Date and time that the sample was collected'); ?>" />
+                                <select name='form_order_abn' id='form_order_abn' class='form-control'>
+                                    <option value="not_required" <?php echo $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php echo $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php echo $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
+                                </select>
+                            </div>
+                            <label for="form_billing_type"
+                                class="col-form-label col-md-2"><?php echo xlt('Billing'); ?></label>
+                            <div class="col-md-2">
+                                <?php
+                                generate_form_field(array('data_type' => 1, 'field_id' => 'billing_type',
+                                    'list_id' => 'procedure_billing'), $row['billing_type'] ?? '');
+                                ?>
                             </div>
                             <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php echo xlt('Sending From'); ?></label>
                             <div class="col-md-2 labcorp">
@@ -1298,7 +1429,6 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <!--------------------Collections--------------------------->
                         <div class="form-group form-row">
                             <label for="form_specimen_fasting" class="col-form-label col-md-2"><?php echo xlt('Fasting'); ?></label>
                             <div class="col-md-2">
@@ -1311,17 +1441,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <div class="col-md-2">
                                 <?php generate_form_field(array('data_type' => 10, 'field_id' => 'collector_id'), $row['collector_id'] ?? ''); ?>
                             </div>
-                            <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
-                            <div class="col-md-2">
-                                <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo ($row['order_abn'] ?? '') === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
-                                    <option value="required" <?php echo ($row['order_abn'] ?? '') === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
-                                    <option value="signed" <?php echo ($row['order_abn'] ?? '') === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
-                                </select>
-                            </div>
                             <div class="clearfix"></div>
-                        </div>
-                        <div class="form-group form-row">
                             <label for="form_order_priority"
                                 class="col-form-label col-md-2"><?php echo xlt('Priority'); ?></label>
                             <div class="col-md-2">
@@ -1330,6 +1450,8 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     'list_id' => 'ord_priority'), $row['order_priority'] ?? '');
                                 ?>
                             </div>
+                        </div>
+                        <div class="form-group form-row">
                             <label for="form_order_status"
                                 class="col-form-label col-md-2"><?php echo xlt('Status'); ?></label>
                             <div class="col-md-2">
@@ -1338,17 +1460,6 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     'list_id' => 'ord_status'), $row['order_status'] ?? '');
                                 ?>
                             </div>
-                            <label for="form_billing_type"
-                                class="col-form-label col-md-2"><?php echo xlt('Billing'); ?></label>
-                            <div class="col-md-2">
-                                <?php
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'billing_type',
-                                    'list_id' => 'procedure_billing'), $row['billing_type'] ?? '');
-                                ?>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-                        <div class="form-group form-row">
                             <label for="form_history_order"
                                 class="col-form-label col-md-2"><?php echo xlt('History Order'); ?></label>
                             <div class="col-md-2">
@@ -1486,7 +1597,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         //
                         // If any procedures have already been saved for this form, then a top-level table row is
                         // created for each of them, and includes the relevant questions and any existing answers.
-                        // Otherwise a single empty table row is created for entering the first or only procedure.
+                        // Otherwise, a single empty table row is created for entering the first or only procedure.
                         //
                         // If a new procedure is selected or changed, the questions for it are (re)generated from
                         // the dialog window from which the procedure is selected, via JavaScript.  The sel_proc_type
@@ -1498,9 +1609,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         // The $i counter that you see below is to resolve the need for unique names for form fields
                         // that may occur for each of the multiple procedure requests within the same order.
                         // procedure_order_seq serves a similar need for uniqueness at the database level.
-
                         ?>
-
                         <?php
                         $i = -1;
                         // we need to generate our template here
@@ -1563,12 +1672,20 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
+                                        <!-- Action button for reason panel -->
                                         <button class="btn btn-secondary reason-code-btn mt-2 float-right"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i></button>
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i>
+                                        </button>
+                                        <button class="btn btn-secondary specimen-code-btn mt-2 mr-2 float-right"
+                                            title="<?php echo xla('Click here to add one or more specimens for this test'); ?>"
+                                            data-toggle-specimen="specimen_code_<?php echo attr($i); ?>">
+                                            <i class="fa fa-flask"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
+                                <?php include "templates/procedure_specimen_row.php" ?>
                                 </tbody>
                             </table>
                         </template>
@@ -1654,10 +1771,17 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <td>
                                         <button class="btn btn-secondary reason-code-btn mt-2 float-right"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i></button>
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i>
+                                        </button>
+                                        <button class="btn btn-secondary specimen-code-btn mt-2 mr-2 float-right"
+                                            title="<?php echo xla('Click here to add one or more specimens for this test'); ?>"
+                                            data-toggle-specimen="specimen_code_<?php echo attr($i); ?>">
+                                            <i class="fa fa-flask"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
+                                <?php include "templates/procedure_specimen_row.php" ?>
                                 </tbody>
                             </table>
                             <?php
