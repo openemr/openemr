@@ -344,7 +344,11 @@ class AuthorizationController
                     } else if (in_array($key, array('dsi_source_attributes'))) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
-                        $params[$key] = json_encode($data->getString($key));
+                        $jwks = $data->all('jwks');
+                        if (is_string($jwks)) {
+                            $jwks = json_decode($jwks, true, 512, JSON_THROW_ON_ERROR);
+                        }
+                        $params[$key] = json_encode($jwks);
                     } else {
                         $params[$key] = $data->get($key);
                     }
@@ -606,6 +610,8 @@ class AuthorizationController
 
             // If needed, serialize into a users session
             if ($this->providerForm) {
+                // used to keep track of the auth flow and avoid the session from being destroyed on login / patient selection
+                $session->set("oauth2_in_progress", true);
                 $this->serializeUserSession($authRequest, $session);
                 $logger->debug("AuthorizationController->oauthAuthorizationFlow() redirecting to provider form");
                 $psrFactory = new Psr17Factory();

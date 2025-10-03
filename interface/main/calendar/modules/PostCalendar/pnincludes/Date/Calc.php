@@ -1414,58 +1414,25 @@ class Date_Calc
             $char = substr($format, $strpos, 1);
             if ($char == "%") {
                 $nextchar = substr($format, $strpos + 1, 1);
-                switch ($nextchar) {
-                    case "a":
-                        $output .= Date_Calc::getWeekdayAbbrname($day, $month, $year);
-                        break;
-                    case "A":
-                        $output .= Date_Calc::getWeekdayFullname($day, $month, $year);
-                        break;
-                    case "b":
-                        $output .= Date_Calc::getMonthAbbrname($month);
-                        break;
-                    case "B":
-                        $output .= Date_Calc::getMonthFullname($month);
-                        break;
-                    case "d":
-                        $output .= sprintf("%02d", $day);
-                        break;
-                    case "e":
-                        $output .= $day;
-                        break;
-                    case "E":
-                        $output .= Date_Calc::dateToDays($day, $month, $year);
-                        break;
-                    case "j":
-                        $output .= Date_Calc::julianDate($day, $month, $year);
-                        break;
-                    case "m":
-                        $output .= sprintf("%02d", $month);
-                        break;
-                    case "n":
-                        $output .= "\n";
-                        break;
-                    case "t":
-                        $output .= "\t";
-                        break;
-                    case "w":
-                        $output .= Date_Calc::dayOfWeek($day, $month, $year);
-                        break;
-                    case "U":
-                        $output .= Date_Calc::weekOfYear($day, $month, $year);
-                        break;
-                    case "y":
-                        $output .= substr($year, 2, 2);
-                        break;
-                    case "Y":
-                        $output .= $year;
-                        break;
-                    case "%":
-                        $output .= "%";
-                        break;
-                    default:
-                        $output .= $char . $nextchar;
-                }
+                match ($nextchar) {
+                    "a" => $output .= Date_Calc::getWeekdayAbbrname($day, $month, $year),
+                    "A" => $output .= Date_Calc::getWeekdayFullname($day, $month, $year),
+                    "b" => $output .= Date_Calc::getMonthAbbrname($month),
+                    "B" => $output .= Date_Calc::getMonthFullname($month),
+                    "d" => $output .= sprintf("%02d", $day),
+                    "e" => $output .= $day,
+                    "E" => $output .= Date_Calc::dateToDays($day, $month, $year),
+                    "j" => $output .= Date_Calc::julianDate($day, $month, $year),
+                    "m" => $output .= sprintf("%02d", $month),
+                    "n" => $output .= "\n",
+                    "t" => $output .= "\t",
+                    "w" => $output .= Date_Calc::dayOfWeek($day, $month, $year),
+                    "U" => $output .= Date_Calc::weekOfYear($day, $month, $year),
+                    "y" => $output .= substr($year, 2, 2),
+                    "Y" => $output .= $year,
+                    "%" => $output .= "%",
+                    default => $output .= $char . $nextchar,
+                };
 
                 $strpos++;
             } else {

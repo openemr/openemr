@@ -647,17 +647,13 @@ class X125010837I
                     $out .= "*" . $diag_type_code . ":" . $ub04id[319];
                     $diag_type_code = 'TC';
                 }
-                if ($i = 1) {
-                    if ($ub04id[322]) {
-                        $out .= "*" . $diag_type_code . ":" . $ub04id[322];
-                        $diag_type_code = 'TC';
-                    }
+                if ($i === 1 && $ub04id[322]) {
+                    $out .= "*" . $diag_type_code . ":" . $ub04id[322];
+                    $diag_type_code = 'TC';
                 }
-                if ($i = 2) {
-                    if ($ub04id[325]) {
-                        $out .= "*" . $diag_type_code . ":" . $ub04id[325];
-                        $diag_type_code = 'TC';
-                    }
+                if ($i === 2 && $ub04id[325]) {
+                    $out .= "*" . $diag_type_code . ":" . $ub04id[325];
+                    $diag_type_code = 'TC';
                 }
 
                 ++$tmp;

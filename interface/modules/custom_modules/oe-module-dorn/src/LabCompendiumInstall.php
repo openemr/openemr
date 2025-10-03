@@ -197,15 +197,12 @@ class LabCompendiumInstall
         List of Check boxes = M
         Radio buttons or drop-list, depending on the number of choices. = anything else (maybe S) for a single select
         */
-        switch ($questionType) {
-            case 'Free Text':
-                return 'T';
-            case 'List':
-                return 'S';
-            case 'Multi-Select List':
-                return 'M';
-        }
-        return 'T';
+        return match ($questionType) {
+            'Free Text' => 'T',
+            'List' => 'S',
+            'Multi-Select List' => 'M',
+            default => 'T',
+        };
     }
 
     public static function uninstall($lab_id)

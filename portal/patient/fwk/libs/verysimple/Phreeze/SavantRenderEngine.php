@@ -96,7 +96,7 @@ class SavantRenderEngine implements IRenderEngine
      */
     function clear($key)
     {
-        if (array_key_exists($key, $this->savant)) {
+        if (property_exists($this->savant, $key)) {
             unset($this->savant [$key]);
         }
     }

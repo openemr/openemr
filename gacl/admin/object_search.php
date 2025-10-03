@@ -13,13 +13,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
-switch (strtolower($_GET['object_type'])) {
-	case 'axo':
-		$object_type = 'axo';
-		break;
-	default:
-		$object_type = 'aro';
-}
+$object_type = match (strtolower($_GET['object_type'])) {
+    'axo' => 'axo',
+    default => 'aro',
+};
 
 switch ($_GET['action']) {
 	case 'Search':

@@ -755,14 +755,11 @@ class ImmunizationController extends AbstractActionController
     public function format_phone($phone)
     {
         $phone = preg_replace("/[^0-9]/", "", $phone);
-        switch (strlen($phone)) {
-            case 7:
-                return $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone));
-            case 10:
-                return $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone));
-            default:
-                return $this->tr("000 0000000");
-        }
+        return match (strlen($phone)) {
+            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone)),
+            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone)),
+            default => $this->tr("000 0000000"),
+        };
     }
 
     /*

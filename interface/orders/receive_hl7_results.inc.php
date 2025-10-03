@@ -904,19 +904,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $in_state = rhl7Text($tmp[3] ?? '');
             $in_zip = rhl7Text($tmp[4] ?? '');
             $in_phone = rhl7Text($a[13]) ?? '';
-            switch (strtoupper($a[8])) {
-                case 'M':
-                    $in_sex = 'Male';
-                    break;
-                case 'F':
-                    $in_sex = 'Female';
-                    break;
-                case 'T':
-                    $in_sex = 'Transgender';
-                    break;
-                default:
-                    $in_sex = 'Unassigned';
-            }
+            $in_sex = match (strtoupper($a[8])) {
+                'M' => 'Male',
+                'F' => 'Female',
+                'T' => 'Transgender',
+                default => 'Unassigned',
+            };
             $tmp = explode($d2, $a[5]);
             $in_lname = rhl7Text($tmp[0]);
             $in_fname = rhl7Text($tmp[1]);

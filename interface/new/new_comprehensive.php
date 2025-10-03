@@ -60,23 +60,13 @@ function getLayoutRes()
 //
 function getSearchClass($data_type)
 {
-    switch ($data_type) {
-        case 1: // single-selection list
-        case 10: // local provider list
-        case 11: // provider list
-        case 12: // pharmacy list
-        case 13: // squads
-        case 14: // address book list
-        case 26: // single-selection list with add
-        case 35: // facilities
-            return 2;
-        case 2: // text field
-        case 3: // textarea
-        case 4: // date
-            return 1;
-    }
-
-    return 0;
+    return match ($data_type) {
+        // facilities
+        1, 10, 11, 12, 13, 14, 26, 35 => 2,
+        // date
+        2, 3, 4 => 1,
+        default => 0,
+    };
 }
 
 $fres = getLayoutRes();

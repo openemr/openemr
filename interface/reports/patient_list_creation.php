@@ -832,26 +832,14 @@ if (!empty($_POST['form_refresh'])) {
     // This is for sorting the records, which columns visually allow sorting are decided when drawing the table
     $sort = array_keys($search_options[$srch_option]["cols"]);
     if ($sortby == "") {
-        switch ($srch_option_pointer) {
-            case "diagnosis_check":
-                $sortby = $sort[1];
-                break;
-            /* case "results":
-                // $odrstmt = " result_result";
-                break; */
-            case "comms":
-                // $commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                $sortby = $sort[6];
-                // $odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-                break;
-            case "insurers":
-                // $commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                $sortby = $sort[7];
-                // $odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-                break;
-            default:
-                $sortby = $sort[0];
-        }
+        $sortby = match ($srch_option_pointer) {
+            "diagnosis_check" => $sort[1],
+            // $commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+            "comms" => $sort[6],
+            // $commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+            "insurers" => $sort[7],
+            default => $sort[0],
+        };
     }
 
     if ($sortorder == "") {

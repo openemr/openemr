@@ -99,28 +99,15 @@ abstract class RuleCriteria
 
     protected function decodeComparator($comparator)
     {
-        switch ($comparator) {
-            case "eq":
-                return "";
-                break;
-            case "ne":
-                return "!=";
-                break;
-            case "gt":
-                return ">";
-                break;
-            case "lt":
-                return "<";
-                break;
-            case "ge":
-                return ">=";
-                break;
-            case "le":
-                return "<=";
-                break;
-        }
-
-        return "";
+        return match ($comparator) {
+            "eq" => "",
+            "ne" => "!=",
+            "gt" => ">",
+            "lt" => "<",
+            "ge" => ">=",
+            "le" => "<=",
+            default => "",
+        };
     }
 
     /**

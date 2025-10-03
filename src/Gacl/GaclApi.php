@@ -1252,14 +1252,10 @@ class GaclApi extends Gacl {
 	 */
 	function sort_groups($group_type='ARO') {
 
-		switch(strtolower(trim($group_type))) {
-			case 'axo':
-				$table = $this->_db_table_prefix .'axo_groups';
-				break;
-			default:
-				$table = $this->_db_table_prefix .'aro_groups';
-				break;
-		}
+		$table = match (strtolower(trim($group_type))) {
+            'axo' => $this->_db_table_prefix .'axo_groups',
+            default => $this->_db_table_prefix .'aro_groups',
+        };
 
 		//Grab all groups from the database.
 		$query  = 'SELECT id, parent_id, name FROM '. $table .' ORDER BY parent_id, name';
@@ -1397,14 +1393,10 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("get_group_id(): Value: $value, Name: $name, Type: $group_type" );
 
-		switch(strtolower(trim($group_type))) {
-			case 'axo':
-				$table = $this->_db_table_prefix .'axo_groups';
-				break;
-			default:
-				$table = $this->_db_table_prefix .'aro_groups';
-				break;
-		}
+		$table = match (strtolower(trim($group_type))) {
+            'axo' => $this->_db_table_prefix .'axo_groups',
+            default => $this->_db_table_prefix .'aro_groups',
+        };
 
 		$name = trim($name);
 		$value = trim($value);
@@ -1479,16 +1471,13 @@ class GaclApi extends Gacl {
 				FROM		'. $table .' g1';
 
 		//FIXME-mikeb: Why is group_id in quotes?
-		switch (strtoupper($recurse)) {
-			case 'RECURSE':
-				$query .= '
+		match (strtoupper($recurse)) {
+            'RECURSE' => $query .= '
 				LEFT JOIN 	'. $table .' g2 ON g2.lft<g1.lft AND g2.rgt>g1.rgt
-				WHERE		g2.id='. $this->db->quote($group_id);
-				break;
-			default:
-				$query .= '
-				WHERE		g1.parent_id='. $this->db->quote($group_id);
-		}
+				WHERE		g2.id='. $this->db->quote($group_id),
+            default => $query .= '
+				WHERE		g1.parent_id='. $this->db->quote($group_id),
+        };
 
 		$query .= '
 				ORDER BY	g1.value';
@@ -1558,14 +1547,10 @@ class GaclApi extends Gacl {
 
 		$this->debug_text("get_group_parent_id(): ID: $id Group Type: $group_type");
 
-		switch(strtolower(trim($group_type))) {
-			case 'axo':
-				$table = $this->_db_table_prefix .'axo_groups';
-				break;
-			default:
-				$table = $this->_db_table_prefix .'aro_groups';
-				break;
-		}
+		$table = match (strtolower(trim($group_type))) {
+            'axo' => $this->_db_table_prefix .'axo_groups',
+            default => $this->_db_table_prefix .'aro_groups',
+        };
 
 		if (empty($id) ) {
 			$this->debug_text("get_group_parent_id(): ID ($id) is empty, this is required");
@@ -3357,7 +3342,7 @@ class GaclApi extends Gacl {
 		if ( ( isset($acl_ids) AND !empty($acl_ids) ) OR ( isset($groups_ids) AND !empty($groups_ids) ) ) {
 			// The Object is referenced somewhere (group or acl), can't delete it
 
-			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode($groups_ids).") or ACLs (".@implode($acl_ids,",").")");
+			$this->debug_text("del_object(): Can't delete the object as it is being referenced by GROUPs (".@implode('', $groups_ids).") or ACLs (".@implode(",", $acl_ids).")");
 			$this->db->RollBackTrans();
 			return false;
 		} else {

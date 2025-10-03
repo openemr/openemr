@@ -196,6 +196,6 @@ class SiteSetupListener implements EventSubscriberInterface
     private function checkForOauth2Request(HttpRestRequest $request): bool
     {
         $path = $request->getBasePath();
-        return str_ends_with($path, "/oauth2/");
+        return str_ends_with($path, "/oauth2");
     }
 }

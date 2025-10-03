@@ -466,11 +466,11 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
                 continue;
             }
 
-            if ($loopid = '2100C' || $loopid = '2115C' || $loopid = '2120C') {
-                $loopid = '2110C';
-            } elseif ($loopid = '2100D' || $loopid = '2115D' || $loopid = '2120D') {
-                $loopid = '2110D';
-            }
+            $loopid = match ($loopid) {
+                '2100C', '2115C', '2120C' => '2110C',
+                '2100D', '2115D', '2120D' => '2110D',
+                default => $loopid,
+            };
 
             $str_html .= "<tr><td class='btloop'>" . text($loopid) . "</td><td class='btnum'>" . text($key) . "</td><td class='btseg'>" . text($seg) . "</td></tr>" . PHP_EOL;
             $prevseg = substr($seg, 0, 3);
@@ -482,13 +482,11 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
         //
         if (strncmp('III' . $de, $seg, 4) === 0 && $has_eb) {
             // the III segment begins a loop in 271 type, but not in 270
-            if ($loopid = '2110C') {
-                $loopid = '2115C';
-            }
-
-            if ($loopid = '2100D') {
-                $loopid = '2115D';
-            }
+            $loopid = match ($loopid) {
+                '2110C' => '2115C',
+                '2100D' => '2115D',
+                default => $loopid,
+            };
 
             if ($has_iii) {
                 $str_html .= "<tr><td class='btloop'></td><td class='btnum'>" . text($key) . "</td><td class='btseg'>" . text($seg) . "</td></tr>" . PHP_EOL;
@@ -503,11 +501,11 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
 
         //
         if (strncmp('LS' . $de, $seg, 3) === 0) {
-            if ($loopid = '2110C' || $loopid = '2115C') {
-                $loopid = '2120C';
-            } elseif ($loopid = '2110D' || $loopid = '2115D') {
-                $loopid = '2120D';
-            }
+            $loopid = match ($loopid) {
+                '2110C', '2115C' => '2120C',
+                '2110D', '2115D' => '2120D',
+                default => $loopid,
+            };
 
             $str_html .= "<tr><td class='btloop'>" . text($loopid) . "</td><td class='btnum'>" . text($key) . "</td><td class='btseg'>" . text($seg) . "</td></tr>" . PHP_EOL;
             continue;

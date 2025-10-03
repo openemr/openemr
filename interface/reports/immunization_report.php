@@ -63,27 +63,22 @@ function format_phone($phone)
 {
 
     $phone = preg_replace("/[^0-9]/", "", $phone);
-    switch (strlen($phone)) {
-        case 7:
-            return tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone));
-        case 10:
-            return tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone));
-        default:
-            return tr("000 0000000");
-    }
+    return match (strlen($phone)) {
+        7 => tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone)),
+        10 => tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone)),
+        default => tr("000 0000000"),
+    };
 }
 
 function format_ethnicity($ethnicity)
 {
 
-    switch ($ethnicity) {
-        case "hisp_or_latin":
-            return ("H^Hispanic or Latino^HL70189");
-        case "not_hisp_or_latin":
-            return ("N^not Hispanic or Latino^HL70189");
-        default: // Unknown
-            return ("U^Unknown^HL70189");
-    }
+    return match ($ethnicity) {
+        "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
+        "not_hisp_or_latin" => "N^not Hispanic or Latino^HL70189",
+        // Unknown
+        default => "U^Unknown^HL70189",
+    };
 }
 
 $sqlBindArray = array();

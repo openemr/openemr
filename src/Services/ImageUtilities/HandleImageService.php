@@ -217,14 +217,11 @@ class HandleImageService
         $base = pathinfo($sourceImage, PATHINFO_FILENAME);
         $outputImage = $base . '_resized' . ($imageType == IMAGETYPE_PNG ? '.png' : '.jpg');
 
-        switch ($imageType) {
-            case IMAGETYPE_JPEG:
-                imagejpeg($targetImage, $outputImage, 90); // 90 is the quality level
-                break;
-            case IMAGETYPE_PNG:
-                imagepng($targetImage, $outputImage);
-                break;
-        }
+        match ($imageType) {
+            IMAGETYPE_JPEG => imagejpeg($targetImage, $outputImage, 90),
+            IMAGETYPE_PNG => imagepng($targetImage, $outputImage),
+            default => $outputImage,
+        };
         return $outputImage;
     }
 
