@@ -209,11 +209,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "provider_id = ?, " .
         "lab_id = ?, " .
         "date_collected = ?, " .
-        "date_collected_end = ?, " .  // NEW: Specimen collection end time
+        "date_collected_end = ?, " .
         "specimen_type = ?, " .
         "specimen_location = ?, " .
         "specimen_volume = ?, " .
-        "specimen_condition = ?, " .   // NEW: Specimen condition acceptability
+        "specimen_condition = ?, " .
         "order_priority = ?, " .
         "order_status = ?, " .
         "billing_type = ?, " .
@@ -235,8 +235,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         QuotedOrNull($_POST['form_date_ordered']),
         (int)$_POST['form_provider_id'],
         $ppid,
-        QuotedOrNull($_POST['form_date_collected']),        // Collection start
-        QuotedOrNull($_POST['form_date_collected_end']),    // Collection end
+        QuotedOrNull($_POST['form_date_collected']),
+        QuotedOrNull($_POST['form_date_collected_end']),
         trim($_POST['form_specimen_type'] ?? ''),
         trim($_POST['form_specimen_location'] ?? ''),
         $_POST['form_specimen_volume'] ?? null,
@@ -379,6 +379,74 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $procedure_order_seq['increment']
             )
         );
+        // Wipe and reinsert specimens for this order line
+        sqlStatement(
+            "DELETE FROM procedure_specimen WHERE procedure_order_id = ? AND procedure_order_seq = ?",
+            [$formid, $poseq]
+        );
+
+        // Pull arrays for this line index $i
+        $ids = $_POST['form_proc_specimen_identifier'][$i] ?? [];
+        $accs = $_POST['form_proc_accession_identifier'][$i] ?? [];
+        $types = $_POST['form_proc_specimen_type'][$i] ?? []; // display (from list)
+        $sites = $_POST['form_proc_specimen_location'][$i] ?? []; // display (from list)
+        $lowDates = $_POST['form_proc_specimen_date_low'][$i] ?? [];
+        $highDates = $_POST['form_proc_specimen_date_high'][$i] ?? [];
+        $volValues = $_POST['form_proc_specimen_volume_value'][$i] ?? [];
+        $volUnits = $_POST['form_proc_specimen_volume_unit'][$i] ?? [];
+        $conds = $_POST['form_proc_specimen_condition'][$i] ?? [];
+
+        $rows = max(
+            count($ids),
+            count($accs),
+            count($types),
+            count($sites),
+            count($lowDates),
+            count($highDates),
+            count($volValues),
+            count($conds)
+        );
+
+        for ($s = 0; $s < $rows; $s++) {
+            // Skip entirely empty rows
+            $any = trim($ids[$s] ?? '') . trim($accs[$s] ?? '') . trim($types[$s] ?? '') .
+                trim($sites[$s] ?? '') . trim($lowDates[$s] ?? '') . trim($highDates[$s] ?? '') .
+                trim($volValues[$s] ?? '') . trim($conds[$s] ?? '');
+            if ($any === '') {
+                continue;
+            }
+
+            $uuid = (new UuidRegistry(['table_name' => 'procedure_specimen']))->createUuid();
+
+            // Normalize nulls for DATETIME
+            $dateLow = QuotedOrNull($lowDates[$s] ?? null);
+            $dateHigh = QuotedOrNull($highDates[$s] ?? null);
+            $collected = null; // optional instant; if you want: $collected = $dateLow && !$dateHigh ? $dateLow : null;
+
+            sqlStatement(
+                "INSERT INTO procedure_specimen SET
+               uuid = ?, procedure_order_id = ?, procedure_order_seq = ?,
+               specimen_identifier = ?, accession_identifier = ?,
+               specimen_type = ?, specimen_location = ?,
+               collection_date_low = ?, collection_date_high = ?, collected_date = ?,
+               volume_value = ?, volume_unit = ?, condition_code = ?,
+               created_by = ?, updated_by = ?",
+                [
+                    $uuid, $formid, $poseq,
+                    trim($ids[$s] ?? '') ?: null,
+                    trim($accs[$s] ?? '') ?: null,
+                    trim($types[$s] ?? '') ?: null,
+                    trim($sites[$s] ?? '') ?: null,
+                    $dateLow, $dateHigh, $collected,
+                    (strlen($volValues[$s] ?? '') ? (float)$volValues[$s] : null),
+                    ($volUnits[$s] ?? 'mL') ?: 'mL',
+                    trim($conds[$s] ?? '') ?: null,
+                    ($_SESSION['authUserID'] ?? null),
+                    ($_SESSION['authUserID'] ?? null),
+                ]
+            );
+        }
+
         sqlCommitTrans();
 
         $poseq = $procedure_order_seq['increment'];
@@ -715,7 +783,7 @@ if (!empty($row['lab_id'])) {
             let ptvarname = 'form_proc_type[' + formseq + ']';
 
             let title = <?php echo xlj("Find Procedure Order"); ?>;
-// This replaces the previous search for an easier/faster order picker tool.
+            // This replaces the previous search for an easier/faster order picker tool.
             dlgopen('../../orders/find_order_popup.php' +
                 '?labid=' + encodeURIComponent(f.form_lab_id.value) +
                 '&order=' + encodeURIComponent(f[ptvarname].value) +
@@ -853,6 +921,14 @@ if (!empty($row['lab_id'])) {
             });
             remapSelectors('.reasonCodeContainer', function (node) {
                 node.id = "reason_code_" + lineCount;
+            });
+
+            // Map specimen panel ids/datasets to current line index
+            remapSelectors('[data-toggle-specimen]', function (node) {
+                node.dataset.toggleSpecimen = "specimen_code_" + lineCount;
+            });
+            remapSelectors('.specimenContainer', function (node) {
+                node.id = "specimen_code_" + lineCount;
             });
 
             // now we need to add our events
@@ -1045,6 +1121,31 @@ if (!empty($row['lab_id'])) {
                 })
                 return false;
             });
+
+            // Toggle the specimen panel
+            $(document).on('click', '.specimen-code-btn', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-toggle-specimen');
+                $('#' + id).collapse('toggle');
+            });
+            // Add specimen row
+            $(document).on('click', '.add-specimen-row', function (e) {
+                e.preventDefault();
+                const line = this.getAttribute('data-specimen-line');
+                const tbody = document.getElementById('specimen_rows_' + line);
+                const tpl = document.getElementById('specimen_row_template_' + line);
+                if (!tbody || !tpl) return;
+                const node = tpl.content.cloneNode(true);
+                tbody.appendChild(node);
+                // (re)init date pickers on the new inputs
+                initCalendars();
+            });
+            // Remove specimen row
+            $(document).on('click', '.remove-specimen-row', function (e) {
+                e.preventDefault();
+                $(this).closest('tr').remove();
+            });
+
             <?php if ($row['date_transmitted'] ?? '') { ?>
             $("#summary").collapse("toggle");
             <?php } ?>
@@ -1328,84 +1429,6 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <!--------------------USCDI v5 Specimen Collections--------------------------->
-                        <div class="form-group form-row">
-                            <label for="form_specimen_type" class="col-form-label col-md-2"><?php echo xlt('Specimen Type'); ?></label>
-                            <div class="col-md-2">
-                                <?php
-                                // Generate dropdown from list_options for specimen types
-                                generate_form_field(array(
-                                    'data_type' => 1,
-                                    'field_id' => 'specimen_type',
-                                    'list_id' => 'specimen_type'
-                                ), $row['specimen_type'] ?? '');
-                                ?>
-                            </div>
-
-                            <label for="form_specimen_location" class="col-form-label col-md-2"><?php echo xlt('Collection Site'); ?></label>
-                            <div class="col-md-2">
-                                <?php
-                                // Generate dropdown from list_options for specimen collection sites
-                                generate_form_field(array(
-                                    'data_type' => 1,
-                                    'field_id' => 'specimen_location',
-                                    'list_id' => 'specimen_location'
-                                ), $row['specimen_location'] ?? '');
-                                ?>
-                            </div>
-
-                            <label for="form_specimen_volume" class="col-form-label col-md-2"><?php echo xlt('Volume (mL)'); ?></label>
-                            <div class="col-md-2">
-                                <input type="number"
-                                    step="0.1"
-                                    min="0"
-                                    class="form-control"
-                                    name="form_specimen_volume"
-                                    id="form_specimen_volume"
-                                    value="<?php echo attr($row['specimen_volume'] ?? ''); ?>"
-                                    placeholder="<?php echo xla('Volume in mL'); ?>"
-                                    title="<?php echo xla('Specimen volume in milliliters'); ?>" />
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-
-                        <div class="form-group form-row">
-                            <label for="form_date_collected" class="col-form-label col-md-2">
-                                <?php echo xlt('Collection Start'); ?> <span class="text-danger">*</span>
-                            </label>
-                            <div class="col-md-2">
-                                <input class='datetimepicker form-control'
-                                    type='text'
-                                    name='form_date_collected'
-                                    id='form_date_collected'
-                                    value="<?php echo attr(substr($row['date_collected'] ?? '', 0, 16)); ?>"
-                                    title="<?php echo xla('Date and time that specimen collection started'); ?>" />
-                            </div>
-
-                            <label for="form_date_collected_end" class="col-form-label col-md-2"><?php echo xlt('Collection End'); ?></label>
-                            <div class="col-md-2">
-                                <input class='datetimepicker form-control'
-                                    type='text'
-                                    name='form_date_collected_end'
-                                    id='form_date_collected_end'
-                                    value="<?php echo attr(substr($row['date_collected_end'] ?? '', 0, 16)); ?>"
-                                    title="<?php echo xla('Date and time that specimen collection ended (leave blank if single collection)'); ?>" />
-                            </div>
-
-                            <label for="form_specimen_condition" class="col-form-label col-md-2"><?php echo xlt('Condition'); ?></label>
-                            <div class="col-md-2">
-                                <?php
-                                // Generate dropdown from list_options for specimen condition
-                                generate_form_field(array(
-                                    'data_type' => 1,
-                                    'field_id' => 'specimen_condition',
-                                    'list_id' => 'specimen_condition'
-                                ), $row['specimen_condition'] ?? '');
-                                ?>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-
                         <div class="form-group form-row">
                             <label for="form_specimen_fasting" class="col-form-label col-md-2"><?php echo xlt('Fasting'); ?></label>
                             <div class="col-md-2">
@@ -1574,7 +1597,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         //
                         // If any procedures have already been saved for this form, then a top-level table row is
                         // created for each of them, and includes the relevant questions and any existing answers.
-                        // Otherwise a single empty table row is created for entering the first or only procedure.
+                        // Otherwise, a single empty table row is created for entering the first or only procedure.
                         //
                         // If a new procedure is selected or changed, the questions for it are (re)generated from
                         // the dialog window from which the procedure is selected, via JavaScript.  The sel_proc_type
@@ -1586,9 +1609,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         // The $i counter that you see below is to resolve the need for unique names for form fields
                         // that may occur for each of the multiple procedure requests within the same order.
                         // procedure_order_seq serves a similar need for uniqueness at the database level.
-
                         ?>
-
                         <?php
                         $i = -1;
                         // we need to generate our template here
@@ -1651,12 +1672,20 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
+                                        <!-- Action button for reason panel -->
                                         <button class="btn btn-secondary reason-code-btn mt-2 float-right"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i></button>
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i>
+                                        </button>
+                                        <button class="btn btn-secondary specimen-code-btn mt-2 mr-2 float-right"
+                                            title="<?php echo xla('Click here to add one or more specimens for this test'); ?>"
+                                            data-toggle-specimen="specimen_code_<?php echo attr($i); ?>">
+                                            <i class="fa fa-flask"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
+                                <?php include "templates/procedure_specimen_row.php" ?>
                                 </tbody>
                             </table>
                         </template>
@@ -1742,10 +1771,17 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <td>
                                         <button class="btn btn-secondary reason-code-btn mt-2 float-right"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i></button>
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i>
+                                        </button>
+                                        <button class="btn btn-secondary specimen-code-btn mt-2 mr-2 float-right"
+                                            title="<?php echo xla('Click here to add one or more specimens for this test'); ?>"
+                                            data-toggle-specimen="specimen_code_<?php echo attr($i); ?>">
+                                            <i class="fa fa-flask"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
+                                <?php include "templates/procedure_specimen_row.php" ?>
                                 </tbody>
                             </table>
                             <?php
