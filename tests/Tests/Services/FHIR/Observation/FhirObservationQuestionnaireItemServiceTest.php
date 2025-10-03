@@ -446,7 +446,7 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
     public function testSupportsCategory(): void
     {
         // TODO: @adunsulag do we want to hard-code these categories or pull them from a list service?
-        $categories = FhirObservationObservationFormService::SUPPORTED_CATEGORIES;
+        $categories = FhirObservationQuestionnaireItemService::US_CORE_CODESYSTEM_CATEGORY;
         foreach ($categories as $category) {
             $this->assertTrue($this->fhirService->supportsCategory($category), "service should support the category of " . $category);
         }

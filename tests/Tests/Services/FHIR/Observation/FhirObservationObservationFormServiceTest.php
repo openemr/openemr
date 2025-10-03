@@ -388,7 +388,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
         // Verify US Core Screening Assessment profile is set in meta
         $profiles = $observation->getMeta()->getProfile();
-        $profileValues = array_map(fn($uri): FHIRCanonical => $uri, $profiles);
+        $profileValues = array_map(fn($uri): string => $uri->getValue(), $profiles);
         $this->assertContains(FhirObservationObservationFormService::USCGI_PROFILE_URI, $profileValues);
     }
 

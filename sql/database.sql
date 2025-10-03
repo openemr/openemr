@@ -14251,6 +14251,7 @@ CREATE TABLE `form_history_sdoh`
     `pregnancy_edd`                   date                         DEFAULT NULL,
     `pregnancy_gravida`               smallint(6)                  DEFAULT NULL,
     `pregnancy_para`                  smallint(6)                  DEFAULT NULL,
+    `pregnancy_intent`                VARCHAR(32)                  DEFAULT NULL COMMENT 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)',
     `postpartum_status`               varchar(20)                  DEFAULT NULL,
     `postpartum_end`                  date                         DEFAULT NULL,
     `goals`                           text,

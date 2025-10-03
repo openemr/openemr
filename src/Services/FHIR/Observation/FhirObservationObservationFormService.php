@@ -13,6 +13,7 @@ namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -83,10 +84,16 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
     }
 
+    private function createProfile(string $profileUri): FHIRCanonical
+    {
+        $profile = new FHIRCanonical();
+        $profile->setValue($profileUri);
+        return $profile;
+    }
     protected function setObservationProfile(FHIRMeta $meta, FHIRObservation $observation, array $dataRecord): void
     {
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
-            $meta->addProfile($profile);
+            $meta->addProfile($this->createProfile($profile));
         }
 
         if ($observation->getCategory() !== null) {
@@ -96,14 +103,14 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
                     if ($coding->getCode() !== null && in_array($coding->getCode()->getValue(), self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
                         // this observation has a category in the US Core observation category code system, so we add the screening/assessment profile
                         foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
-                            $meta->addProfile($profile);
+                            $meta->addProfile($this->createProfile($profile));
                         }
                         break;
                     }
                     if ($coding->getCode() !== null && in_array($coding->getCode()->getValue(), self::US_CORE_CODESYSTEM_CATEGORY)) {
                         // this observation has a category in the US Core category code system, so we add the screening/assessment profile
                         foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
-                            $meta->addProfile($profile);
+                            $meta->addProfile($this->createProfile($profile));
                         }
                         break;
                     }
