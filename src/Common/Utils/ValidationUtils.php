@@ -16,19 +16,15 @@ namespace OpenEMR\Common\Utils;
 
 class ValidationUtils
 {
-    public static function isValidEmail($email)
+    /**
+     * Returns true if the provided email is a valid email.
+     *
+     * @param string $email the email string to check
+     * @return bool
+     */
+    public static function isValidEmail(string $email): bool
     {
-        // FILTER_FLAG_EMAIL_UNICODE allows for unicode characters in the local (part before the @) of the email
-        if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE)) {
-            // TODO: OpenEMR has used this validator regex for 11+ years... leaving this line in case we need to revert
-            // on January 30th 2023 added the ability to support SMTP label addresses such as myname+label@gmail.com
-            // Fixes #6159 (openemr/openemr/issues/6159)
-
-//        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
+        return false !== filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE);
     }
 
     /**
@@ -36,61 +32,40 @@ class ValidationUtils
      * If type is provided, then the validation makes sure it is valid for that specific
      * type, otherwise it just makes sure it is valid for any type
      *
+     * @todo Implement Luhn algorithm (mod-10 checksum) for proper validation (see library/js/vendors/validate/validate_extend.js)
+     * @todo Update IIN patterns to modern standards (e.g., Mastercard now starts with 2221-2720, not just 51-55)
+     * @todo Consider adding support for additional card types (Maestro, UnionPay, etc.)
+     * @todo Validate card number length per card type specifications
+     *
      * @param string $cc_num credit card number
-     * @param string $type [optional] (American, Dinners, Discover, Master, Visa)
+     * @param string $type [optional] (American, Diners, Discover, Master, Visa)
      * @return bool
      */
-    public static function isValidCreditCard($cc_num, $type = "")
+    public static function isValidCreditCard(string $cc_num, string $type = ""): bool
     {
-        if ($type == "American") {
-            $denum = "American Express";
-        } elseif ($type == "Dinners") {
-            $denum = "Diner's Club";
-        } elseif ($type == "Discover") {
-            $denum = "Discover";
-        } elseif ($type == "Master") {
-            $denum = "Master Card";
-        } elseif ($type == "Visa") {
-            $denum = "Visa";
+        if ($type === "Dinners") {
+            $type = "Diners";  // typos never die, they just rest for a spell.
+        }
+        $patterns = [
+            "American" => "/^([34|37]{2})([0-9]{13})$/", // American Express
+            "Diners" => "/^([30|36|38]{2})([0-9]{12})$/", // Diner's Club
+            "Discover" => "/^([6011]{4})([0-9]{12})$/", // Discover Card
+            "Master" => "/^([51|52|53|54|55]{2})([0-9]{14})$/", // Mastercard
+            "Visa" => "/^([4]{1})([0-9]{12,15})$/", // Visa
+        ];
+
+        // If type is specified, check only that type
+        if ($type !== "") {
+            return isset($patterns[$type]) && preg_match($patterns[$type], $cc_num);
         }
 
-        $verified = false;
-
-        if ($type == "American" || $type == "") {
-            $pattern = "/^([34|37]{2})([0-9]{13})$/"; // American Express
+        // If no type specified, check all types
+        foreach ($patterns as $pattern) {
             if (preg_match($pattern, $cc_num)) {
-                $verified = true;
+                return true;
             }
         }
 
-        if ($type == "Dinners" || $type == "") {
-            $pattern = "/^([30|36|38]{2})([0-9]{12})$/"; // Diner's Club
-            if (preg_match($pattern, $cc_num)) {
-                $verified = true;
-            }
-        }
-
-        if ($type == "Discover" || $type == "") {
-            $pattern = "/^([6011]{4})([0-9]{12})$/"; // Discover Card
-            if (preg_match($pattern, $cc_num)) {
-                $verified = true;
-            }
-        }
-
-        if ($type == "Master" || $type == "") {
-            $pattern = "/^([51|52|53|54|55]{2})([0-9]{14})$/"; // Mastercard
-            if (preg_match($pattern, $cc_num)) {
-                $verified = true;
-            }
-        }
-
-        if ($type == "Visa" || $type == "") {
-            $pattern = "/^([4]{1})([0-9]{12,15})$/"; // Visa
-            if (preg_match($pattern, $cc_num)) {
-                $verified = true;
-            }
-        }
-
-        return $verified;
+        return false;
     }
 }
