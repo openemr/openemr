@@ -6,7 +6,7 @@
 
 {% block head %}
     {{ parent() }}
-    {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
+    {{ setupHeader(['i18next', 'i18formatting', 'datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
     <link rel="stylesheet" href="{{ webroot }}/interface/forms/observation/observation.css?v={{ assetVersion|attr_url }}" type="text/css"/>
 {% endblock %}
 
