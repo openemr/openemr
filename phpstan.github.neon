@@ -16276,10 +16276,6 @@ parameters:
     identifier: return.missing
     count: 1
     path: portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php
-  - message: '#^Function create_function not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_studlycaps.php
   - message: '#^Method parseCSV\:\:_check_count\(\) should return special but return statement is missing\.$#'
     identifier: return.missing
     count: 1
