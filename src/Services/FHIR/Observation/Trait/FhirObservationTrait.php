@@ -346,7 +346,7 @@ trait FhirObservationTrait
      */
     protected function setObservationIssued(FHIRObservation $observation, array $dataRecord): void
     {
-        $issuedDate = $dataRecord['date_issued'] ?? $dateRecord['last_updated_time'] ?? $dataRecord['date'] ?? null;
+        $issuedDate = $dataRecord['date_issued'] ?? $dataRecord['last_updated_time'] ?? $dataRecord['date'] ?? null;
         if (!empty($issuedDate)) {
             $issuedDateTime = new FHIRDateTime();
             $dateIssued = UtilsService::getLocalDateAsUTC($issuedDate);
