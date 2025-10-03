@@ -295,15 +295,6 @@ trait FhirObservationTrait
             $screeningCategory->addCoding($screeningCoding);
             $observation->addCategory($screeningCategory);
         }
-
-        // Required survey category slice (mustSupport, min 1..1)
-        $surveyCategory = new FHIRCodeableConcept();
-        $surveyCoding = new FHIRCoding();
-        $surveyCoding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION));
-        $surveyCoding->setCode(new FhirCode($dataRecord['category_code'] ?? 'survey'));
-        $surveyCoding->setDisplay($dataRecord['category_display'] ?? 'Survey');
-        $surveyCategory->addCoding($surveyCoding);
-        $observation->addCategory($surveyCategory);
     }
 
     /**
