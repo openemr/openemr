@@ -75,7 +75,7 @@ class RouteConfig implements RouteConfigInterface
      *
      * @param string $pattern Regular expression pattern
      */
-    public function addForbiddenPattern(string $pattern): void
+    public function addForbiddenPath(string $pattern): void
     {
         $this->forbiddenPatterns[] = $pattern;
     }
@@ -85,7 +85,7 @@ class RouteConfig implements RouteConfigInterface
      *
      * @param string $pattern Regular expression pattern
      */
-    public function addAdminPattern(string $pattern): void
+    public function addAdminPath(string $pattern): void
     {
         $this->adminPatterns[] = $pattern;
     }
@@ -109,10 +109,12 @@ class RouteConfig implements RouteConfigInterface
      */
     private function matchesAnyPattern(array $patterns, string $route): bool
     {
-        return array_any(
-            $patterns,
-            fn(string $pattern): bool => (bool) preg_match($pattern, $route)
-        );
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $route)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -183,13 +185,13 @@ class RouteConfig implements RouteConfigInterface
 
         if (isset($config['forbidden']) && is_array($config['forbidden'])) {
             foreach ($config['forbidden'] as $pattern) {
-                $this->addForbiddenPattern($pattern);
+                $this->addForbiddenPath($pattern);
             }
         }
 
         if (isset($config['admin']) && is_array($config['admin'])) {
             foreach ($config['admin'] as $pattern) {
-                $this->addAdminPattern($pattern);
+                $this->addAdminPath($pattern);
             }
         }
 

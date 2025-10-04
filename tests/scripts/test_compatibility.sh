@@ -20,11 +20,18 @@ BASE_URL="${1:-http://localhost/openemr}"
 REPORT_DIR="$(dirname "${0}")/../../reports"
 REPORT_FILE="${REPORT_DIR}/compatibility-test-report-$(date +%Y%m%d-%H%M%S).txt"
 
-# Colors for output using tput
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-NC=$(tput sgr0) # No Color
+# Colors for output using tput (with fallback for non-interactive environments)
+if command -v tput >/dev/null 2>&1 && [ -n "$TERM" ]; then
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    NC=$(tput sgr0) # No Color
+else
+    RED=""
+    GREEN=""
+    YELLOW=""
+    NC=""
+fi
 
 # Create report directory
 mkdir -p "${REPORT_DIR}"
