@@ -50,6 +50,11 @@ class FhirObservationQuestionnaireItemService extends FhirServiceBase implements
         ];
     }
 
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);

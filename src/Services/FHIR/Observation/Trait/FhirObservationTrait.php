@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\Observation\Trait;
 
+use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -27,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -120,6 +122,8 @@ trait FhirObservationTrait
 
         // Set Value[x] or DataAbsentReason (constraint us-core-2)
         $this->setObservationValue($observation, $dataRecord);
+
+        $this->setObservationComponents($observation, $dataRecord);
 
         // Set HasMember (mustSupport) for panel observations
         $this->setObservationHasMember($observation, $dataRecord);
@@ -308,20 +312,22 @@ trait FhirObservationTrait
             throw new \InvalidArgumentException("Code is required for observation");
         }
 
-        $code = new FHIRCodeableConcept();
-        $coding = new FHIRCoding();
         $codeDescription = $this->getCodeTypesService()->lookup_code_description($dataRecord['code']);
         $codeDescription = !empty($codeDescription) ? $codeDescription : ($dataRecord['description'] ?? '');
         // Parse system and code from format like "LOINC:72133-2"
         $codeParts = $this->getCodeTypesService()->parseCode($dataRecord['code']);
-        $codeType = $codeParts['code_type'] ?? FhirCodeSystemConstants::LOINC;
-        $system = $this->getCodeSystem($codeType);
-        $coding->setSystem($system);
-        $coding->setCode(new FHIRCode($codeParts['code']));
-
-        $coding->setDisplay(trim($codeDescription));
-        $code->addCoding($coding);
-        $observation->setCode($code);
+        if (!empty($codeParts['code_type'])) {
+            $system = $this->getCodeTypesService()->getSystemForCodeType($codeParts['code_type']);
+        } else {
+            $system = FhirCodeSystemConstants::LOINC;
+        }
+        $observation->setCode(UtilsService::createCodeableConcept([
+            $codeParts['code'] => [
+                'code' => $codeParts['code'],
+                'description' => trim($codeDescription),
+                'system' => $system
+            ]
+        ]));
     }
 
     /**
@@ -378,6 +384,59 @@ trait FhirObservationTrait
 
                 $observation->setEffectivePeriod($period);
             }
+        }
+    }
+
+    protected function setObservationComponents(FHIRObservation $observation, array $dataRecord): void
+    {
+        if (empty($dataRecord['components']) || !is_array($dataRecord['components'])) {
+            return;
+        }
+        foreach ($dataRecord['components'] as $component) {
+            if (empty($component['code'])) {
+                continue; // skip invalid component
+            }
+            $comp = new FHIRObservationComponent();
+            $code = $this->getCodeTypesService()->parseCode($component['code']);
+            // Set component code (required)
+            $comp->setCode(UtilsService::createCodeableConcept([
+                $code['code'] => [
+                    'code' => $code['code'],
+                    'description' => $component['description'] ?? '',
+                    'code_type' => $code['code_type'] ?? 'LOINC'
+                ]
+            ]));
+
+            // for now we only support valueCodeableConcept and valueQuantity for components
+            // if the value is null we set dataAbsentReason
+            if (empty($component['value'])) {
+                $comp->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+            } else if (is_numeric($component['value'])) {
+                $valueQuantity = new FHIRQuantity();
+                // must be an integer or decimal
+                $valueQuantity->setValue(floatval($component['value']));
+
+                if (!empty($component['value_unit'])) {
+                    $valueQuantity->setUnit($component['value_unit']);
+                    // Apply UCUM constraint (us-core-3) for standard units
+                    if ($this->shouldUseUCUM($component['value_unit'])) {
+                        $valueQuantity->setSystem(new FHIRUri(FhirCodeSystemConstants::UNITS_OF_MEASURE));
+                        $valueQuantity->setCode($component['value_unit']);
+                    }
+                }
+                $comp->setValueQuantity($valueQuantity);
+            } else if (!empty($component['value_code_description']) && str_contains($component['value'], ':')) {
+                $parsedCode = $this->getCodeTypesService()->parseCode($component['value']);
+                $code = $parsedCode['code'];
+                $comp->setValueCodeableConcept(UtilsService::createCodeableConcept([
+                    $component['value'] => [
+                        'code' => $code,
+                        'description' => trim($component['value_code_description'] ?? ''),
+                        'code_type' => $parsedCode['code_type']
+                    ]
+                ]));
+            }
+            $observation->addComponent($comp);
         }
     }
 
@@ -556,6 +615,32 @@ trait FhirObservationTrait
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('uuid', ServiceField::TYPE_UUID)]);
+    }
+
+
+    protected function getUuidMappings($uuid)
+    {
+        $mappedRecords = UuidMapping::getMappedRecordsForTableUUID($uuid);
+        $codeMappings = [];
+        if (!empty($mappedRecords)) {
+            foreach ($mappedRecords as $record) {
+                $resourcePath = $record['resource_path'] ?? '';
+                $code = $this->getCodeFromResourcePath($resourcePath);
+                if (empty($code)) {
+                    // TODO: @adunsulag handle this exception
+                    continue;
+                }
+                $codeMappings[$code] = $record['uuid'];
+            }
+        }
+        return $codeMappings;
+    }
+
+    protected function getCodeFromResourcePath($resourcePath)
+    {
+        $query_vars = [];
+        parse_str($resourcePath, $query_vars);
+        return $query_vars['code'] ?? null;
     }
 }
