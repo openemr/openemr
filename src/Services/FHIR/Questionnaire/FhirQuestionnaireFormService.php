@@ -40,13 +40,26 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
      */
     use FhirServiceBaseEmptyTrait;
 
-    private QuestionnaireService $service;
+    private ?QuestionnaireService $service;
 
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
         $this->service = new QuestionnaireService();
+    }
+
+    public function getQuestionnaireService(): QuestionnaireService
+    {
+        if (!isset($this->service)) {
+            $this->service = new QuestionnaireService();
+        }
+        return $this->service;
+    }
+
+    public function setQuestionnaireService(QuestionnaireService $service): void
+    {
+        $this->service = $service;
     }
 
     /**

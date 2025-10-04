@@ -25,7 +25,9 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -35,9 +37,10 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirObservationVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
+    use VersionedProfileTrait;
 
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -45,10 +48,39 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     const VITALS_DEFAULT_OBSERVATION_STATUS = "final";
 
     const VITALS_PANEL_LOINC_CODE = '85353-1';
+
+    const USCDI_URI_BASE_PATH = 'http://hl7.org/fhir/us/core/StructureDefinition/';
+    const USCDI_PROFILE_HEART_RATE_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/heartrate';
+    const USCDI_PROFILE_HEART_RATE = self::USCDI_URI_BASE_PATH . 'us-core-heart-rate';
+    const USCDI_PROFILE_OXYGEN_SATURATION = self::USCDI_URI_BASE_PATH . 'us-core-pulse-oximetry';
+
+    const USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/bp';
+    const USCDI_PROFILE_BLOOD_PRESSURE = self::USCDI_URI_BASE_PATH . 'us-core-blood-pressure';
+    const USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE = self::USCDI_URI_BASE_PATH . 'us-core-average-blood-pressure';
+    const USCDI_PROFILE_RESPIRATORY_RATE = self::USCDI_URI_BASE_PATH . 'us-core-respiratory-rate';
+    const USCDI_PROFILE_RESPIRATORY_RATE_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/resprate';
+    const USCDI_PROFILE_BODY_TEMPERATURE = self::USCDI_URI_BASE_PATH . 'us-core-body-temperature';
+    const USCDI_PROFILE_BODY_TEMPERATURE_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/bodytemp';
+    const USCDI_PROFILE_BODY_HEIGHT = self::USCDI_URI_BASE_PATH . 'us-core-body-height';
+    const USCDI_PROFILE_BODY_HEIGHT_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/bodyheight';
+    const USCDI_PROFILE_BODY_WEIGHT = self::USCDI_URI_BASE_PATH . 'us-core-body-weight';
+    const USCDI_PROFILE_BODY_WEIGHT_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/bodyweight';
+    const USCDI_PROFILE_BMI = self::USCDI_URI_BASE_PATH . 'us-core-bmi';
+    const USCDI_PROFILE_PEDIATRIC_BMI = self::USCDI_URI_BASE_PATH . 'pediatric-bmi-for-age';
+    const USCDI_PROFILE_HEAD_CIRCUMFERENCE = self::USCDI_URI_BASE_PATH . 'us-core-head-circumference';
+    const USCDI_PROFILE_PULSE_OXIMETRY = self::USCDI_URI_BASE_PATH . 'us-core-pulse-oximetry';
+
+    // any vital signs that do not conform to a specific US-Core profile (which includes the vital-signs panel for example)
+    const USCDI_PROFILE_VITAL_SIGNS_V3_1_1 = 'http://hl7.org/fhir/R4/observation-vitalsigns';
+    const USCDI_PROFILE_VITAL_SIGNS = self::USCDI_URI_BASE_PATH . 'us-core-vital-signs';
+
+    const USCDI_PROFILE_HEAD_OCCIPITAL_FRONTAL_CIRCUMFERENCE = self::USCDI_URI_BASE_PATH . 'head-occipital-frontal-circumference-percentile';
+    const USCDI_PROFILE_PEDIATRIC_WEIGHT_FOR_HEIGHT = self::USCDI_URI_BASE_PATH . 'pediatric-weight-for-height';
+
     /**
      * @var VitalsService
      */
-    private $service;
+    private VitalsService $service;
 
     const CATEGORY = "vital-signs";
 
@@ -61,6 +93,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Vital signs, weight, height, head circumference, oxygen saturation and BMI panel'
             ,'column' => ''
             ,'in_vitals_panel' => false
+            ,'profiles' => [
+                self::USCDI_PROFILE_VITAL_SIGNS_V3_1_1 => ['', self::PROFILE_VERSIONS_V1]
+                , self::USCDI_PROFILE_VITAL_SIGNS => self::PROFILE_VERSIONS_V2
+            ]
         ],
         '9279-1' => [
             'fullcode' => 'LOINC:9279-1'
@@ -68,6 +104,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Respiratory Rate'
             ,'column' => ['respiration', 'respiration_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_RESPIRATORY_RATE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_RESPIRATORY_RATE => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'8867-4' => [
             'fullcode' => 'LOINC:8867-4'
@@ -75,6 +115,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Heart rate'
             ,'column' => ['pulse', 'pulse_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_HEART_RATE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_HEART_RATE => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'2708-6' => [
             'fullcode' => 'LOINC:2708-6'
@@ -82,6 +126,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Oxygen saturation in Arterial blood'
             ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         ,'59408-5' => [
             'fullcode' => 'LOINC:59408-5',
@@ -89,6 +136,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Oxygen saturation in Arterial blood by Pulse oximetry',
             'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit'],
             'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         ,'3151-8' => [
             'fullcode' => 'LOINC:3151-8'
@@ -96,6 +146,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Inhaled oxygen flow rate',
             'column' => ['oxygen_flow_rate', 'oxygen_flow_rate_unit'],
             'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         ,'8310-5' => [
             'fullcode' => 'LOINC:8310-5',
@@ -103,6 +156,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Body Temperature',
             'column' => ['temperature', 'temperature_unit'],
             'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BODY_TEMPERATURE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BODY_TEMPERATURE => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'8327-9' => [
             'fullcode' => 'LOINC:8327-9',
@@ -110,6 +167,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Temperature Location',
             'column' => ['temp_method'],
             'in_vitals_panel' => true
+            // TODO: @adunsulag later versions of US Core allow this method to be bundled as a component in the Body Temperature observation
+            // which makes sense but then what do we do with prior versions that were treated as a separate observation?
+            ,'profiles' => [
+                self::USCDI_PROFILE_BODY_TEMPERATURE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BODY_TEMPERATURE => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'8302-2' => [
             'fullcode' => 'LOINC:8302-2',
@@ -117,6 +180,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Body height',
             'column' => ['height', 'height_unit'],
             'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BODY_HEIGHT_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BODY_HEIGHT => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'9843-4' => [
             'fullcode' => 'LOINC:9843-4'
@@ -124,6 +191,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Head Occipital-frontal circumference'
             ,'column' => ['head_circ', 'head_circ_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_HEAD_CIRCUMFERENCE => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         ,'29463-7' => [
             'fullcode' => 'LOINC:29463-7'
@@ -131,6 +201,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Body weight'
             ,'column' => ['weight', 'weight_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BODY_WEIGHT_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BODY_WEIGHT => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'39156-5' => [
             'fullcode' => 'LOINC:39156-5'
@@ -138,6 +212,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Body mass index (BMI) [Ratio]'
             ,'column' =>  ['BMI', 'BMI_status', 'BMI_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BMI => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         ,'85354-9' => [
             'fullcode' => 'LOINC:85354-9'
@@ -146,6 +223,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit', 'bpd', 'bpd_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'8480-6' => [
             'fullcode' => 'LOINC:8480-6'
@@ -154,6 +235,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
         ]
         ,'8462-4' => [
             'fullcode' => 'LOINC:8462-4'
@@ -162,6 +247,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bpd', 'bpd_unit']
             ,'in_vitals_panel' => true
+            ,'profiles' => [
+                self::USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 => self::PROFILE_VERSIONS_V1
+                , self::USCDI_PROFILE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
         ]
 
 
@@ -178,6 +267,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Head Occipital-frontal circumference Percentile'
             ,'column' => ['ped_head_circ', 'ped_head_circ_unit']
             ,'in_vitals_panel' => false
+            ,'profiles' => [
+                self::USCDI_PROFILE_HEAD_OCCIPITAL_FRONTAL_CIRCUMFERENCE => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         // 2-20yr @see https://www.cdc.gov/growthcharts/html_charts/bmiagerev.htm
         ,'59576-9' => [
@@ -186,6 +278,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Body mass index (BMI) [Percentile] Per age and sex'
             ,'column' => ['ped_bmi', 'ped_bmi_unit']
             ,'in_vitals_panel' => false
+            ,'profiles' => [
+                self::USCDI_PROFILE_PEDIATRIC_BMI => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         // @see https://www.cdc.gov/growthcharts/html_charts/wtstat.htm
         // grab min(height) and find where weight <= 50
@@ -198,6 +293,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Weight-for-length Per age and sex'
             ,'column' => ['ped_weight_height', 'ped_weight_height_unit']
             ,'in_vitals_panel' => false
+            ,'profiles' => [
+                self::USCDI_PROFILE_PEDIATRIC_WEIGHT_FOR_HEIGHT => self::PROFILE_VERSIONS_ALL
+            ]
         ],
         '3150-0' => [
             'fullcode' => 'LOINC:3150-0'
@@ -205,6 +303,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Inhaled Oxygen Saturation'
             ,'column' => ['inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit']
             ,'in_vitals_panel' => false
+            ,'profiles' => [
+                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
+            ]
         ]
         // need pediatric weight for height observations...
     ];
@@ -284,9 +385,14 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 }
                 foreach ($code->getValues() as $value) {
                     $code = $value->getCode();
-                    $observationCodesToReturn[$code] = $code;
+                    if ($this->supportsCode($code)) {
+                        $observationCodesToReturn[$code] = $code;
+                    }
                 }
                 unset($openEMRSearchParameters['code']);
+                if (empty($observationCodesToReturn)) {
+                    return $processingResult; // nothing to return if we don't support any of the codes
+                }
             }
 
 
@@ -399,12 +505,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
-        } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $observation->setMeta($meta);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -461,6 +561,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         if (isset($basic_codes[$code])) {
             $this->populateBasicQuantityObservation($basic_codes[$code], $observation, $dataRecord);
         }
+        $lookUp = self::COLUMN_MAPPINGS[$code] ?? [];
+        $profiles = $lookUp['profiles'] ?? [];
         // more complicated codes
         match ($code) {
             // vital-signs panel
@@ -486,6 +588,22 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             '59408-5' => $this->populatePulseOximetryObservation($observation, $dataRecord),
             default => $observation,
         };
+
+        if (!empty($dataRecord['euuid'])) {
+            $observation->setEncounter(UtilsService::createRelativeReference("Encounter", $dataRecord['euuid']));
+        }
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        // go through and populate our profiles now.
+        foreach ($profiles as $baseProfile => $versions) {
+            foreach ($this->getProfileForVersions($baseProfile, $versions) as $profile) {
+                $meta->addProfile($profile);
+            }
+        }
+        $observation->setMeta($meta);
         return $observation;
     }
 
@@ -705,5 +823,19 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getProfileURIs(): array
+    {
+        $profiles = [];
+        foreach (self::COLUMN_MAPPINGS as $mapping) {
+            $mappingProfiles = $mapping['profiles'] ?? [];
+            foreach ($mappingProfiles as $baseProfile => $versions) {
+                foreach ($this->getProfileForVersions($baseProfile, $versions) as $profile) {
+                    $profiles[$profile] = $profile;
+                }
+            }
+        }
+        return array_values($profiles);
     }
 }

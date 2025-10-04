@@ -411,7 +411,7 @@ window.observationForm = {
             datetimepickerTranslated('.datepicker', {
                 timepicker: true,
                 showSecond: false,
-                formatInput: false,
+                formatInput: true,
             });
             // setup cancel buttons
             $("#observation_form .btn-cancel").on('click', function() {

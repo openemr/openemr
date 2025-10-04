@@ -114,17 +114,7 @@ $interventions_text = HistorySdohService::interventionsToText($interventions_arr
 ]);
 
 // Domain → list_id mapping (keep in sync with form)
-$map = [
-    'food_insecurity'           => 'sdoh_food_insecurity_risk',
-    'housing_instability'       => 'sdoh_housing_worry',
-    'transportation_insecurity' => 'sdoh_transportation_barrier',
-    'utilities_insecurity'      => 'sdoh_utilities_shutoff',
-    'interpersonal_safety'      => 'sdoh_ipv_yesno',
-    'financial_strain'          => 'sdoh_financial_strain',
-    'social_isolation'          => 'sdoh_social_isolation_freq',
-    'childcare_needs'           => 'sdoh_childcare_needs',
-    'digital_access'            => 'sdoh_digital_access',
-];
+$map = HistorySdohService::getListMapForDomains();
 
 // Convenience values for header meta
 $assessment_date = $info['assessment_date'] ?? $info['sdoh_assessment_date'] ?? '';

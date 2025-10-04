@@ -20,6 +20,21 @@ trait MappedServiceCodeTrait
 {
     use MappedServiceTrait;
 
+    public function getServiceListForCategory(TokenSearchField $field)
+    {
+        $serviceList = [];
+        foreach ($this->getMappedServices() as $service) {
+            $categoryCodes = $field->getValues();
+            foreach ($categoryCodes as $categoryCode) {
+                if ($service->supportsCategory($categoryCode->getCode())) {
+                    $serviceList[] = $service;
+                    break;
+                }
+            }
+        }
+        return $serviceList;
+    }
+
     public function getServiceListForCode(TokenSearchField $field)
     {
         // TODO: @adunsulag if we want to aggregate multiple code parameters we will need to handle selecting a subset of codes

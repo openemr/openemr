@@ -684,11 +684,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 #EndIf
 
 -- now we hide the old values
-#IfNotRow3D list_options list_id observation_value_types option_id physical_exam_performed activity 0
+#IfNotRow3D list_options list_id Observation_Types option_id physical_exam_performed activity 0
 UPDATE `list_options` SET `activity`=0 WHERE `list_id`='Observation_Types' AND `option_id`='physical_exam_performed';
 #EndIf
 
-#IfNotRow3D list_options list_id observation_value_types option_id procedure_diagnostic activity 0
+#IfNotRow3D list_options list_id Observation_Types option_id procedure_diagnostic activity 0
 UPDATE `list_options` SET `activity`=0 WHERE `list_id`='Observation_Types' AND `option_id`='procedure_diagnostic';
 #EndIf
 
@@ -988,7 +988,7 @@ ALTER TABLE `form_care_plan` ADD COLUMN `plan_status` VARCHAR(32) DEFAULT NULL C
 #EndIf
 
 #IfNotIndex form_care_plan idx_status_date
-ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`status`, `date`, `end_date`);
+ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`plan_status`, `date`, `date_end`);
 #EndIf
 
 -- Care plan status list aligned to FHIR R4 CarePlan.status (titles are user-facing)
@@ -1022,6 +1022,30 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2025-10-01', 'icd10orderfiles.zip', '781ce6e72697181f1ef0d4230921e902');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
+#EndIf
+
+#IfMissingColumn questionnaire_repository category
+ALTER TABLE `questionnaire_repository` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
+#EndIf
+
+-- observation values can be codes as well so we need to populate a description field
+#IfMissingColumn form_observation ob_value_code_description
+ALTER TABLE `form_observation` ADD COLUMN `ob_value_code_description` VARCHAR(255) DEFAULT NULL;
+#EndIf
+
+#IfNotRow list_options list_id pregnancy_intent
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','pregnancy_intent','Pregnancy Intent Over Next Year',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1166.22',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
+       ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
+#EndIf
+
+#IfMissingColumn form_history_sdoh pregnancy_intent
+ALTER TABLE `form_history_sdoh` ADD COLUMN `pregnancy_intent` VARCHAR(32) DEFAULT NULL COMMENT 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)';
 #EndIf
 
 #IfNotRow2D list_options list_id personal_relationship option_id FTH

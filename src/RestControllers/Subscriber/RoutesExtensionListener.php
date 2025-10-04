@@ -9,14 +9,17 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use OpenEMR\RestControllers\Finder\PortalRouteFinder;
 use OpenEMR\RestControllers\Finder\StandardRouteFinder;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\Utils\SearchRequestNormalizer;
+use OpenEMR\Services\FHIR\UtilsService;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Throwable;
 
 class RoutesExtensionListener implements EventSubscriberInterface
 {
@@ -67,13 +70,22 @@ class RoutesExtensionListener implements EventSubscriberInterface
 
     private function processFhirRequest(HttpRestRequest $request, OEHttpKernel $kernel): ?ResponseInterface
     {
-        $finder = new FhirRouteFinder($kernel);
-        $routes = $finder->find($request);
-        $serviceLocator = new FhirServiceLocator($routes);
-        // TODO: @adunsulag I don't like this, we really need a true service container for dependency injection...
-        // is there a way we can move this up higher into the ArgumentResolver? up the request processing stack?
-        $request->attributes->set('_serviceLocator', $serviceLocator);
-        return $this->dispatch($kernel, $routes, $request);
+        try {
+            $finder = new FhirRouteFinder($kernel);
+            $routes = $finder->find($request);
+            $serviceLocator = new FhirServiceLocator($routes);
+            // TODO: @adunsulag I don't like this, we really need a true service container for dependency injection...
+            // is there a way we can move this up higher into the ArgumentResolver? up the request processing stack?
+            $request->attributes->set('_serviceLocator', $serviceLocator);
+            return $this->dispatch($kernel, $routes, $request);
+        } catch (Throwable $e) {
+            // TODO: @adunsulag should we return an OperationOutcome here instead of throwing the exception?
+            // or should OperationOutcome be handled in the ExceptionHandlerListener class?  However, that class would need to be aware of FHIR...
+            // stubbing this out for now.
+//            $opOutcome = UtilsService::createOperationOutcomeResource()
+//            return new Response();
+            throw $e;
+        }
     }
 
     private function processStandardRequest(HttpRestRequest $request, OEHttpKernel $kernel): ?ResponseInterface
