@@ -58,11 +58,7 @@ class CqmClient extends HttpClient
                 Utils::copyToString($this->request('GET', '/health')->getBody()),
                 true
             );
-        } catch (ConnectException $exception) {
-            return [
-                'uptime' => 0
-            ];
-        } catch (ServerException $exception) {
+        } catch (ConnectException | ServerException $exception) {
             return [
                 'uptime' => 0
             ];
@@ -115,9 +111,7 @@ class CqmClient extends HttpClient
                 ),
                 true
             );
-        } catch (ConnectException $exception) {
-            return [$exception->getMessage()];
-        } catch (ServerException $exception) {
+        } catch (ConnectException | ServerException $exception) {
             return [$exception->getMessage()];
         }
     }
