@@ -27,6 +27,10 @@ class Router
     public function __construct(string $baseDir, ?RouteConfigInterface $config = null)
     {
         $this->baseDir = realpath($baseDir);
+        // Ensure baseDir is valid
+        if ($this->baseDir === false || $this->baseDir === '') {
+            throw new \RuntimeException('Invalid base directory provided to Router');
+        }
         $this->config = $config ?? new RouteConfig();
     }
 
@@ -65,7 +69,10 @@ class Router
     {
         // Skip trailing slash redirect for .php files
         if ($this->route !== '' && !str_ends_with($this->route, '/') && pathinfo($this->route, PATHINFO_EXTENSION) !== 'php') {
-            header('Location: ' . $this->route . '/', true, 301);
+            // Ensure proper relative redirect with query string preservation
+            $queryString = $_SERVER['QUERY_STRING'] ?? '';
+            $redirectUrl = $this->route . '/' . ($queryString ? '?' . $queryString : '');
+            header('Location: ' . $redirectUrl, true, 301);
             exit;
         }
     }
@@ -94,7 +101,7 @@ class Router
         $targetFile = realpath($this->baseDir . '/' . $this->route);
 
         // Path traversal prevention
-        if ($targetFile === false || strpos($targetFile, $this->baseDir) !== 0) {
+        if ($targetFile === false || !str_starts_with($targetFile, $this->baseDir . DIRECTORY_SEPARATOR)) {
             return null;
         }
 

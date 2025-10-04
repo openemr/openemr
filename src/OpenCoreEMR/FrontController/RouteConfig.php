@@ -54,6 +54,7 @@ class RouteConfig implements RouteConfigInterface
         $this->forbiddenPatterns = [
             '#^portal/patient/fwk/libs/#',  // Portal library files
             '#^sites/[^/]+/documents/#',     // Direct document access
+            '#\.inc\.php$#',                 // Include files
         ];
 
         // Admin-only paths - require elevated privileges

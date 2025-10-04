@@ -40,6 +40,7 @@ class SecurityTest extends TestCase
 
     private static function loadVulnerableIncFiles(): void
     {
+        // Walk up to repository root to scan production .inc.php files
         $basePath = dirname(__DIR__, 2);
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($basePath)
@@ -185,7 +186,7 @@ class SecurityTest extends TestCase
     /**
      * Test that front controller can be disabled via feature flag
      *
-     * This tests the PHP-level OPENEMR__ENABLE_FRONT_CONTROLLER environment variable,
+     * This tests the PHP-level OPENEMR_ENABLE_FRONT_CONTROLLER environment variable,
      * not .htaccess behavior. When disabled, the front controller should fall back
      * to pass-through mode.
      */
@@ -193,7 +194,7 @@ class SecurityTest extends TestCase
     {
         // This test requires the ability to control the environment variable
         // In a real test environment, you would:
-        // 1. Disable OPENEMR__ENABLE_FRONT_CONTROLLER
+        // 1. Disable OPENEMR_ENABLE_FRONT_CONTROLLER
         // 2. Make a request
         // 3. Verify behavior matches pass-through mode
         // 4. Re-enable for other tests

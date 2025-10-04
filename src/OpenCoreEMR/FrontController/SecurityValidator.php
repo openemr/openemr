@@ -28,11 +28,11 @@ class SecurityValidator
     }
 
     /**
-     * Check if route is an .inc.php file
+     * Check if route is an .inc or .inc.php file
      */
     public static function isIncludeFile(string $route): bool
     {
-        return (bool) preg_match('/\.inc\.php$/i', $route);
+        return (bool) preg_match('/\.inc(?:\.php)?$/i', $route);
     }
 
     /**
@@ -48,6 +48,6 @@ class SecurityValidator
      */
     public static function getDebugMessage(string $defaultMessage, string $debugMessage): string
     {
-        return getenv('OPENEMR__FC_LOG_LEVEL') === 'debug' ? $debugMessage : $defaultMessage;
+        return getenv('OPENEMR_FC_LOG_LEVEL') === 'debug' ? $debugMessage : $defaultMessage;
     }
 }

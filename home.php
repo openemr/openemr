@@ -27,7 +27,7 @@ $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
 // Check feature flag - when disabled, provide transparent pass-through
-if ((getenv('OPENEMR__ENABLE_FRONT_CONTROLLER') ?: '0') !== '1') {
+if ((getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') ?: '0') !== '1') {
     // Extract target route from query parameter
     $route = $_GET['_ROUTE'] ?? 'index.php';
 
@@ -40,8 +40,8 @@ if ((getenv('OPENEMR__ENABLE_FRONT_CONTROLLER') ?: '0') !== '1') {
     // Resolve and validate target file
     $targetFile = __DIR__ . '/' . ltrim($route, '/');
 
-    // Block .inc.php files even when front controller is disabled
-    if (preg_match('/\.inc\.php$/i', $route)) {
+    // Block .inc and .inc.php files even when front controller is disabled
+    if (preg_match('/\.inc(?:\.php)?$/i', $route)) {
         http_response_code(403);
         exit('Access Denied: Include files cannot be accessed directly');
     }

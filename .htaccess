@@ -2,7 +2,6 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
 
     # Deny forbidden paths
     RewriteCond %{REQUEST_URI} ^/portal/patient/fwk/libs/
@@ -58,8 +57,11 @@
     RewriteCond %{REQUEST_URI} ^/swagger/
     RewriteRule ^ - [L]
 
-    # Block .inc.php files (must be before physical file check)
+    # Block .inc and .inc.php files (must be before physical file check)
     RewriteCond %{REQUEST_URI} \.inc\.php$
+    RewriteRule ^ - [F,L]
+
+    RewriteCond %{REQUEST_URI} \.inc$
     RewriteRule ^ - [F,L]
 
     # Pass through physical files and directories
