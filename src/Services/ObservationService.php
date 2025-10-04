@@ -251,7 +251,7 @@ class ObservationService extends BaseService
             $record['ob_status_display'] = $this->getStatusDisplayName($record['ob_status']);
         }
         if (!empty($record['sub_observations']) && is_array($record['sub_observations'])) {
-            $record['sub_observations'] = array_map(fn($rec): array => $this->createResultRecordFromDatabaseResult($rec), $record['sub_observations']);
+            $record['sub_observations'] = array_map($this->createResultRecordFromDatabaseResult(...), $record['sub_observations']);
         }
         $record['ob_reason_status_display'] = $this->getReasonStatusDisplay($record['ob_reason_status']);
         return $record;
@@ -689,7 +689,7 @@ class ObservationService extends BaseService
         $sql .= " ORDER BY date DESC, id DESC";
 
         $mainObservations = QueryUtils::fetchRecords($sql, $params);
-        $mainObservations = array_map(fn($rec): array => $this->createResultRecordFromDatabaseResult($rec), $mainObservations ?? []);
+        $mainObservations = array_map($this->createResultRecordFromDatabaseResult(...), $mainObservations ?? []);
 
         // For each main observation, get its sub-observations
         foreach ($mainObservations as &$observation) {

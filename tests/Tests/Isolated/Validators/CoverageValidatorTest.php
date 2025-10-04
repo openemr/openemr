@@ -402,9 +402,7 @@ class CoverageValidatorStub extends CoverageValidator
                         }
                     }
                 );
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
             }
         );
 
@@ -412,9 +410,7 @@ class CoverageValidatorStub extends CoverageValidator
         $this->validator->context(
             self::DATABASE_SWAP_CONTEXT,
             function ($context): void {
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
                 $context->required("pid", "Patient ID")->numeric();
                 $context->required("type", "Coverage Type")->inArray(array('primary', 'secondary', 'tertiary'));
             }

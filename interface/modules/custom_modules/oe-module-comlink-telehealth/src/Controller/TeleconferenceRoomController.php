@@ -422,7 +422,7 @@ class TeleconferenceRoomController
             }
             $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
             if (empty($session)) {
-                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+                throw new InvalidArgumentException("session was not found for pc_eid of {$pc_eid}");
             }
             // check to make sure the session user is the same as the logged in user
             $verifiedUser = null;

@@ -88,9 +88,7 @@ class CreateReleaseChangelogCommand extends Command
                     $uniqueCategories[$category] = $category;
                 }
                 if (!empty($issue['labels'])) {
-                    $filteredLabels = array_filter($issue['labels'], function ($label) {
-                        return $label['name'] == 'developers';
-                    });
+                    $filteredLabels = array_filter($issue['labels'], fn($label): bool => $label['name'] == 'developers');
                     $isDevelopment = !empty($filteredLabels);
                 }
 
@@ -98,12 +96,8 @@ class CreateReleaseChangelogCommand extends Command
                     , 'url' => $issue['html_url'], 'isDevelopment' => $isDevelopment];
             }, $issues);
 
-            $developerIssues = array_filter($categorizedIssues, function ($issue) {
-                return $issue['isDevelopment'];
-            });
-            $standardIssues = array_filter($categorizedIssues, function ($issue) {
-                return !$issue['isDevelopment'];
-            });
+            $developerIssues = array_filter($categorizedIssues, fn($issue): bool => $issue['isDevelopment']);
+            $standardIssues = array_filter($categorizedIssues, fn($issue): bool => !$issue['isDevelopment']);
 
             $this->printIssues($standardIssues, $uniqueCategories);
             echo "### OpenEMR Developer Changes\n\n";
@@ -255,9 +249,7 @@ class CreateReleaseChangelogCommand extends Command
     }
     private function filterIssuesByCategory(&$issues, $category)
     {
-        return array_filter($issues, function ($issue) use ($category) {
-            return $issue['category'] == $category;
-        });
+        return array_filter($issues, fn($issue): bool => $issue['category'] == $category);
     }
 
     private function printIssues(&$issues, $uniqueCategories)
@@ -276,9 +268,7 @@ class CreateReleaseChangelogCommand extends Command
 
     private function filterOtherIsssues(&$issues, $categories)
     {
-        return array_filter($issues, function ($issue) use ($categories) {
-            return !in_array($issue['category'], $categories);
-        });
+        return array_filter($issues, fn($issue): bool => !in_array($issue['category'], $categories));
     }
 
     private function printIssuesForCategory($issues, $categoryLabel)
@@ -378,9 +368,7 @@ class CreateReleaseChangelogCommand extends Command
             return [];
         }
         // sort the issues
-        usort($issues, function ($a, $b) {
-            return strcmp($a['title'], $b['title']);
-        });
+        usort($issues, fn($a, $b): int => strcmp($a['title'], $b['title']));
         return $issues;
     }
 }

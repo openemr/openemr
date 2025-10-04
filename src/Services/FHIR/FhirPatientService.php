@@ -562,9 +562,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
             $data['city'] = (string)$activeAddress->getCity() ?? null;

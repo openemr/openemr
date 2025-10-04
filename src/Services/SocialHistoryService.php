@@ -174,9 +174,7 @@ class SocialHistoryService extends BaseService
 
         if (!empty($record)) {
             $arraySqlBind = array_merge($arraySqlBind, array_values($record));
-            $sql .= ", " . implode(", ", array_map(function ($key) {
-                return "`$key` = ?";
-            }, array_keys($record)));
+            $sql .= ", " . implode(", ", array_map(fn($key): string => "`$key` = ?", array_keys($record)));
         }
         $insertId = QueryUtils::sqlInsert($sql, $arraySqlBind);
         // now put everything back.

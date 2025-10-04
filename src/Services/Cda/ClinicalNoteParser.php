@@ -262,9 +262,7 @@ class ClinicalNoteParser
         if (!$dom->loadXML($textXML)) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            return "Error loading XML: " . implode("; ", array_map(function ($err) {
-                    return trim($err->message);
-            }, $errors));
+            return "Error loading XML: " . implode("; ", array_map(fn($err): string => trim($err->message), $errors));
         }
         $xpath = new DOMXPath($dom);
         // Look up the default namespace and register it (if needed).

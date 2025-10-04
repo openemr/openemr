@@ -83,11 +83,6 @@ class HCFAInfo
     {
         $first_value = $first->getPosition();
         $second_value = $second->getPosition();
-
-        if ($first_value == $second_value) {
-            return 0;
-        }
-
-        return $first_value < $second_value ? -1 : 1;
+        return $first_value <=> $second_value;
     }
 }

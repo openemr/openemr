@@ -42,7 +42,7 @@ class TeleHealthFrontendSettingsController
         $assetPath = $this->assetPath;
         // strip off the assets, and public folder to get to the base of our module directory
         // assetPath is a url path but dirname still operates fine on both / and \ characters so we are fine here.
-        $modulePath = dirname(dirname($assetPath)) . "/"; // make sure to end with a path
+        $modulePath = dirname($assetPath, 2) . "/"; // make sure to end with a path
         $data = [
             'settings' => [
                 'translations' => $this->getTranslationSettings()

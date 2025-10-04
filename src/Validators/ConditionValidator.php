@@ -33,9 +33,7 @@ class ConditionValidator extends BaseValidator
                 $context->optional('diagnosis')->lengthBetween(2, 255);
                 $context->optional('enddate')->datetime('Y-m-d');
                 $context->required("puuid", "Patient UUID")->callback(
-                    function ($value) {
-                        return $this->validateId("uuid", "patient_data", $value, true);
-                    }
+                    fn($value) => $this->validateId("uuid", "patient_data", $value, true)
                 );
             }
         );
@@ -53,9 +51,7 @@ class ConditionValidator extends BaseValidator
                     }
                 );
                 // additional muuid validation
-                $context->required("uuid", "Condition UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "lists", $value, true);
-                })->uuid();
+                $context->required("uuid", "Condition UUID")->callback(fn($value) => $this->validateId("uuid", "lists", $value, true))->uuid();
             }
         );
     }
