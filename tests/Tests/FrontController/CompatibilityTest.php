@@ -289,8 +289,8 @@ class CompatibilityTest extends TestCase
         ];
 
         $reportPath = __DIR__ . '/../../reports/compatibility-test-report.json';
-        @mkdir(dirname($reportPath), 0755, true);
-        file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT));
+        mkdir(dirname($reportPath), 0755, true);
+        file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT) . "\n");
 
         $this->assertFileExists($reportPath, 'Compatibility report should be generated');
     }

@@ -48,6 +48,6 @@ class SecurityValidator
      */
     public static function getDebugMessage(string $defaultMessage, string $debugMessage): string
     {
-        return getenv('OPENEMR_FC_LOG_LEVEL') === 'debug' ? $debugMessage : $defaultMessage;
+        return getenv('OPENEMR__FC_LOG_LEVEL') === 'debug' ? $debugMessage : $defaultMessage;
     }
 }

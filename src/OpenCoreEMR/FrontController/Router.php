@@ -22,9 +22,9 @@ class Router
     private string $baseDir;
     private string $route;
     private string $siteId;
-    private RouteConfig $config;
+    private RouteConfigInterface $config;
 
-    public function __construct(string $baseDir, ?RouteConfig $config = null)
+    public function __construct(string $baseDir, ?RouteConfigInterface $config = null)
     {
         $this->baseDir = realpath($baseDir);
         $this->config = $config ?? new RouteConfig();
@@ -38,9 +38,7 @@ class Router
         $route = $_GET['_ROUTE'] ?? '';
 
         // Remove query string
-        if (($pos = strpos($route, '?')) !== false) {
-            $route = substr($route, 0, $pos);
-        }
+        $route = strtok($route, '?');
 
         $this->route = $route;
         return $route;
@@ -52,11 +50,7 @@ class Router
     public function determineSiteId(): string
     {
         // explicit site parameter or session-based detection.
-        if (!empty($_GET['site'])) {
-            $this->siteId = $_GET['site'];
-        } else {
-            $this->siteId = 'default';
-        }
+        $this->siteId = $_GET['site'] ?? 'default';
 
         $_GET['site'] = $this->siteId;
         return $this->siteId;
@@ -69,8 +63,8 @@ class Router
      */
     public function handleTrailingSlash(): void
     {
-        // Add trailing slash if missing (and route is not empty)
-        if ($this->route !== '' && substr($this->route, -1) !== '/') {
+        // Skip trailing slash redirect for .php files
+        if ($this->route !== '' && !str_ends_with($this->route, '/') && pathinfo($this->route, PATHINFO_EXTENSION) !== 'php') {
             header('Location: ' . $this->route . '/', true, 301);
             exit;
         }
@@ -81,13 +75,7 @@ class Router
      */
     public function isForbiddenPath(): bool
     {
-        // Check if route is deprecated (likely bugs - should return 404)
-        if ($this->config->isDeprecated($this->route)) {
-            return true;
-        }
-
-        // Check if route matches forbidden patterns
-        return $this->config->isForbidden($this->route);
+        return $this->config->isDeprecated($this->route) || $this->config->isForbidden($this->route);
     }
 
     /**
@@ -111,7 +99,7 @@ class Router
         }
 
         // Verify file exists
-        if (!file_exists($targetFile) || !is_file($targetFile)) {
+        if (!is_file($targetFile)) {
             return null;
         }
 

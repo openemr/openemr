@@ -49,6 +49,34 @@ if ! command -v ab &> /dev/null; then
     exit 1
 fi
 
+# Function to evaluate overhead performance
+# $1: overhead percentage
+evaluate_overhead() {
+    local overhead="$1"
+
+    if (( $(bc -l <<< "$overhead < 5") )); then
+        {
+            printf "%s✓ EXCELLENT: Overhead < 5%%%s\n" "$GREEN" "$NC"
+            echo "  Front controller has negligible performance impact"
+        } | tee -a "$REPORT_FILE"
+    elif (( $(bc -l <<< "$overhead < 10") )); then
+        {
+            printf "%s✓ GOOD: Overhead < 10%%%s\n" "$GREEN" "$NC"
+            echo "  Front controller has acceptable performance impact"
+        } | tee -a "$REPORT_FILE"
+    elif (( $(bc -l <<< "$overhead < 20") )); then
+        {
+            printf "%s⚠ ACCEPTABLE: Overhead < 20%%%s\n" "$YELLOW" "$NC"
+            echo "  Front controller adds some overhead, consider optimization"
+        } | tee -a "$REPORT_FILE"
+    else
+        {
+            printf "%s✗ HIGH OVERHEAD: > 20%%%s\n" "$RED" "$NC"
+            echo "  Front controller adds significant overhead, optimization needed"
+        } | tee -a "$REPORT_FILE"
+    fi
+}
+
 # Function to run performance test
 run_performance_test() {
     local test_name="$1"
@@ -64,17 +92,23 @@ run_performance_test() {
     } | tee -a "$REPORT_FILE"
 
     # Run Apache Bench test
-    ab_output=$(ab -n "$ITERATIONS" -c 10 -q "$url" 2>&1 || true)
+    if ! ab_output=$(ab -n "$ITERATIONS" -c 10 -q "$url" 2>&1); then
+        {
+            printf "%sERROR: Apache Bench failed for %s%s\n" "$RED" "$url" "$NC"
+            echo "Output: $ab_output"
+        } | tee -a "$REPORT_FILE"
+        return 1
+    fi
 
-    # Extract key metrics using awk
-    requests_per_sec=$(awk '/Requests per second/ {print $4}' <<< "$ab_output")
-    time_per_request=$(awk '/Time per request.*mean\)/ {print $4; exit}' <<< "$ab_output")
-    failed_requests=$(awk '/Failed requests/ {print $3}' <<< "$ab_output")
+    # Extract key metrics using awk with safe defaults
+    requests_per_sec=$(awk '/Requests per second/ {print $4}' <<< "$ab_output" || echo "0")
+    time_per_request=$(awk '/Time per request.*mean\)/ {print $4; exit}' <<< "$ab_output" || echo "0")
+    failed_requests=$(awk '/Failed requests/ {print $3}' <<< "$ab_output" || echo "0")
 
-    # Extract percentiles using awk
-    p50=$(awk '/50%/ {print $2}' <<< "$ab_output")
-    p95=$(awk '/95%/ {print $2}' <<< "$ab_output")
-    p99=$(awk '/99%/ {print $2}' <<< "$ab_output")
+    # Extract percentiles using awk with safe defaults
+    p50=$(awk '/50%/ {print $2}' <<< "$ab_output" || echo "0")
+    p95=$(awk '/95%/ {print $2}' <<< "$ab_output" || echo "0")
+    p99=$(awk '/99%/ {print $2}' <<< "$ab_output" || echo "0")
 
     # Display results
     {
@@ -189,38 +223,25 @@ api_rps=$(cut -d'|' -f1 <<< "$api_result")
 } | tee -a "$REPORT_FILE"
 
 # Calculate overhead
-if [[ -n "$baseline_time" && -n "$fc_time" ]]; then
-    overhead=$(awk "BEGIN {printf \"%.2f\", ($fc_time - $baseline_time) / $baseline_time * 100}")
-
-    {
-        echo "Front Controller Overhead:"
-        echo "  Baseline (direct): ${baseline_time}ms"
-        echo "  Front controller: ${fc_time}ms"
-        echo "  Overhead: ${overhead}%"
-        echo
-    } | tee -a "$REPORT_FILE"
-
-    # Performance verdict
-    if (( $(echo "$overhead < 5" | bc -l) )); then
+if [[ -n "$baseline_time" && -n "$fc_time" && "$baseline_time" != "0" ]]; then
+    # Validate numeric values
+    if ! [[ "$baseline_time" =~ ^[0-9]+\.?[0-9]*$ ]] || ! [[ "$fc_time" =~ ^[0-9]+\.?[0-9]*$ ]]; then
         {
-            printf "%s✓ EXCELLENT: Overhead < 5%%%s\n" "$GREEN" "$NC"
-            echo "  Front controller has negligible performance impact"
-        } | tee -a "$REPORT_FILE"
-    elif (( $(echo "$overhead < 10" | bc -l) )); then
-        {
-            printf "%s✓ GOOD: Overhead < 10%%%s\n" "$GREEN" "$NC"
-            echo "  Front controller has acceptable performance impact"
-        } | tee -a "$REPORT_FILE"
-    elif (( $(echo "$overhead < 20" | bc -l) )); then
-        {
-            printf "%s⚠ ACCEPTABLE: Overhead < 20%%%s\n" "$YELLOW" "$NC"
-            echo "  Front controller adds some overhead, consider optimization"
+            printf "%sWARNING: Invalid numeric values, skipping overhead calculation%s\n" "$YELLOW" "$NC"
         } | tee -a "$REPORT_FILE"
     else
+        overhead=$(awk "BEGIN {printf \"%.2f\", ($fc_time - $baseline_time) / $baseline_time * 100}")
+
         {
-            printf "%s✗ HIGH OVERHEAD: > 20%%%s\n" "$RED" "$NC"
-            echo "  Front controller adds significant overhead, optimization needed"
+            echo "Front Controller Overhead:"
+            echo "  Baseline (direct): ${baseline_time}ms"
+            echo "  Front controller: ${fc_time}ms"
+            echo "  Overhead: ${overhead}%"
+            echo
         } | tee -a "$REPORT_FILE"
+
+        # Performance verdict using bc for portable comparison
+        evaluate_overhead "$overhead"
     fi
 fi
 
@@ -249,14 +270,21 @@ echo | tee -a "$REPORT_FILE"
 
 # Resource Usage (if available)
 if command -v ps &> /dev/null; then
-    php_procs=$(ps aux | grep php | grep -v grep | wc -l)
+    php_procs=$(ps aux | grep -c '[p]hp' || echo "0")
     {
         echo "Current Resource Usage:"
         echo "  Active PHP processes: $php_procs"
     } | tee -a "$REPORT_FILE"
 
+    # Portable CPU usage detection
     if command -v top &> /dev/null; then
-        cpu_usage=$(grep "CPU usage" <<< "$(top -l 1)" | awk '{print $3}' || echo "N/A")
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS
+            cpu_usage=$(top -l 1 | grep "CPU usage" | awk '{print $3}' 2>/dev/null || echo "N/A")
+        else
+            # Linux
+            cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' 2>/dev/null || echo "N/A")
+        fi
         echo "  CPU usage: $cpu_usage" | tee -a "$REPORT_FILE"
     fi
     echo | tee -a "$REPORT_FILE"
@@ -270,8 +298,8 @@ fi
     echo
 } | tee -a "$REPORT_FILE"
 
-if [[ -n "$overhead" ]]; then
-    if (( $(echo "$overhead < 10" | bc -l) )); then
+if [[ -n "$overhead" ]] && [[ "$overhead" =~ ^[0-9]+\.?[0-9]*$ ]]; then
+    if (( $(bc -l <<< "$overhead < 10") )); then
         {
             echo "✓ Performance is acceptable for production use"
             echo "✓ Front controller adds minimal overhead"
@@ -286,6 +314,10 @@ if [[ -n "$overhead" ]]; then
             echo "  - Consider CDN for static assets"
         } | tee -a "$REPORT_FILE"
     fi
+else
+    {
+        echo "ℹ Unable to calculate overhead - ensure valid baseline measurements"
+    } | tee -a "$REPORT_FILE"
 fi
 
 {

@@ -25,7 +25,7 @@ Front controller (`home.php`) provides:
 
 ## Architecture
 
-```
+```text
 User Request
     ↓
 Web Server (Apache/Nginx)
@@ -39,7 +39,7 @@ home.php Front Controller Entry Point
     ├── CLI Detection (exit if CLI)
     ├── Load .env variables
     ├── Feature Flag Check (exit if disabled)
-    ├── Early Extension Hook (custom/front_controller_early.php)
+    ├── Dispatch 'front_controller.early' Event (EventDispatcher)
     ├── Multisite Selection (domain or ?site parameter)
     └── Delegate to Router
         ↓
@@ -53,10 +53,11 @@ Router (src/OpenCoreEMR/FrontController/Router.php)
     │   ├── Block .inc.php files (403)
     │   ├── Prevent path traversal (404)
     │   └── Validate file type (404)
-    ├── Late Extension Hook (custom/front_controller_late.php)
     └── Include Target File
         ↓
 Target PHP File (handles auth/sessions/logic unchanged)
+    ↓
+Dispatch 'front_controller.late' Event (EventDispatcher)
 ```
 
 ### Extensible Configuration System
@@ -127,10 +128,10 @@ Routes bypass global controller:
 
 ## Extension Hooks
 
-Optional custom logic via `/custom/` directory:
+Extension via Symfony EventDispatcher system. Modules can listen to front controller events.
 
-### Early Hook (`custom/front_controller_early.php`)
-Runs after feature flag check, before routing.
+### Early Hook (`front_controller.early` event)
+Dispatched after feature flag check, before routing.
 
 **Use cases**:
 - Request logging and telemetry
@@ -141,42 +142,47 @@ Runs after feature flag check, before routing.
 **Example - Request Logging**:
 ```php
 <?php
-// Log all requests
-error_log("Front Controller: " . ($_GET['_ROUTE'] ?? 'index'));
-
-// Custom telemetry
-if (function_exists('send_telemetry')) {
-    send_telemetry($_SERVER['REQUEST_URI']);
-}
+// In your custom module
+$GLOBALS['kernel']->getEventDispatcher()->addListener(
+    'front_controller.early',
+    function (\Symfony\Component\EventDispatcher\GenericEvent $event) {
+        error_log("Front Controller: " . ($_GET['_ROUTE'] ?? 'index'));
+    }
+);
 ```
 
 **Example - Rate Limiting**:
 ```php
 <?php
-// Rate limiting (100 requests per minute per IP)
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$key = "rate_limit_$ip";
-$limit = 100;
-$window = 60;
+// In your custom module
+$GLOBALS['kernel']->getEventDispatcher()->addListener(
+    'front_controller.early',
+    function (\Symfony\Component\EventDispatcher\GenericEvent $event) {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $key = "rate_limit_$ip";
+        $limit = 100;
+        $window = 60;
 
-if (!isset($_SESSION[$key])) {
-    $_SESSION[$key] = ['count' => 0, 'start' => time()];
-}
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = ['count' => 0, 'start' => time()];
+        }
 
-$data = $_SESSION[$key];
-if (time() - $data['start'] > $window) {
-    $_SESSION[$key] = ['count' => 1, 'start' => time()];
-} elseif ($data['count'] >= $limit) {
-    http_response_code(429);
-    header('Retry-After: ' . ($window - (time() - $data['start'])));
-    exit('Rate limit exceeded');
-} else {
-    $_SESSION[$key]['count']++;
-}
+        $data = $_SESSION[$key];
+        if (time() - $data['start'] > $window) {
+            $_SESSION[$key] = ['count' => 1, 'start' => time()];
+        } elseif ($data['count'] >= $limit) {
+            http_response_code(429);
+            header('Retry-After: ' . ($window - (time() - $data['start'])));
+            exit('Rate limit exceeded');
+        } else {
+            $_SESSION[$key]['count']++;
+        }
+    }
+);
 ```
 
-### Late Hook (`custom/front_controller_late.php`)
-Runs after validation, before executing target file.
+### Late Hook (`front_controller.late` event)
+Dispatched after content is loaded, at end of request lifecycle.
 
 **Use cases**:
 - Error handling setup
@@ -187,19 +193,23 @@ Runs after validation, before executing target file.
 **Example**:
 ```php
 <?php
-// Add custom security header
-header('X-Custom-Security: enabled');
+// In your custom module
+$GLOBALS['kernel']->getEventDispatcher()->addListener(
+    'front_controller.late',
+    function (\Symfony\Component\EventDispatcher\GenericEvent $event) {
+        // Add custom security header
+        header('X-Custom-Security: enabled');
 
-// Monitor performance
-$GLOBALS['fc_start_time'] = microtime(true);
-
-register_shutdown_function(function() {
-    $duration = microtime(true) - $GLOBALS['fc_start_time'];
-    error_log("Request duration: {$duration}s");
-});
+        // Log performance metrics
+        if (isset($GLOBALS['fc_start_time'])) {
+            $duration = microtime(true) - $GLOBALS['fc_start_time'];
+            error_log("Request duration: {$duration}s");
+        }
+    }
+);
 ```
 
-**Note**: Hook files are optional. If not present, front controller works normally.
+**Note**: See [module development guide](https://github.com/adunsulag/oe-module-custom-skeleton) for creating custom modules with event listeners.
 
 ## Quick Start
 
@@ -309,15 +319,14 @@ This removes all front controller files and creates backups.
 
 ## Files Implemented
 
-**Core** (8 files):
-- `home.php` - Main front controller entry point
+**Core** (7 files):
+- `home.php` - Main front controller entry point with Symfony EventDispatcher integration
 - `src/OpenCoreEMR/FrontController/Router.php` - Routing engine with security validation
 - `src/OpenCoreEMR/FrontController/RouteConfig.php` - Extensible routing configuration
 - `security-check.php` - PHP-level .inc.php blocking (auto-prepended)
 - `.htaccess` - Apache routing and security rules
 - `nginx-front-controller.conf` - Nginx configuration
 - `.env.example` - Feature flag configuration template
-- `custom/.gitkeep` - Extension hooks directory
 
 **Tests** (6 files):
 - `tests/Tests/FrontController/SecurityTest.php` - PHPUnit security suite (CI integrated)
@@ -469,7 +478,7 @@ A: `/portal/patient/fwk/libs/*` and `/sites/*/documents/*` return 404.
 A: Router sets `$_SERVER['REQUIRE_ADMIN']` flag. Target file validates.
 
 **Q: Can I add custom logic?**
-A: Yes. Create `/custom/front_controller_early.php` or `/custom/front_controller_late.php`.
+A: Yes. Create a custom module and listen to `front_controller.early` or `front_controller.late` events. See [module development guide](https://github.com/adunsulag/oe-module-custom-skeleton).
 
 **Q: Does it work with Herd/Nginx?**
 A: Yes. Uses `.user.ini` auto-prepend for PHP-level security.

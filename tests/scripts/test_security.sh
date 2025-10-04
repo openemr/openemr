@@ -230,13 +230,13 @@ printf "Testing: Front controller responds when enabled... " | tee -a "$REPORT_F
 
 response=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/home.php?_ROUTE=index.php")
 
-if [[ "$response" != "404" ]]; then
+if [[ "$response" = "200" || "$response" = "302" ]]; then
     printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$response" | tee -a "$REPORT_FILE"
     PASSED_TESTS=$((PASSED_TESTS + 1))
     echo "  ✓ Front controller is active" | tee -a "$REPORT_FILE"
 else
-    printf "%sINFO%s (HTTP 404)\n" "$YELLOW" "$NC" | tee -a "$REPORT_FILE"
-    echo "  ℹ Front controller is disabled (OPENEMR_ENABLE_FRONT_CONTROLLER not set)" | tee -a "$REPORT_FILE"
+    printf "%sINFO%s (HTTP %s)\n" "$YELLOW" "$NC" "$response" | tee -a "$REPORT_FILE"
+    echo "  ℹ Front controller may be disabled or error occurred (OPENEMR__ENABLE_FRONT_CONTROLLER not set)" | tee -a "$REPORT_FILE"
 fi
 echo | tee -a "$REPORT_FILE"
 

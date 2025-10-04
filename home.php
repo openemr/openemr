@@ -17,6 +17,7 @@
 
 use OpenCoreEMR\FrontController\Router;
 use OpenCoreEMR\FrontController\SecurityValidator;
+use OpenEMR\Events\FrontController\FrontControllerEvent;
 use Dotenv\Dotenv;
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -26,7 +27,7 @@ $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
 // Check feature flag - when disabled, provide transparent pass-through
-if (!getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') || getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') !== '1') {
+if ((getenv('OPENEMR__ENABLE_FRONT_CONTROLLER') ?: '0') !== '1') {
     // Extract target route from query parameter
     $route = $_GET['_ROUTE'] ?? 'index.php';
 
@@ -70,12 +71,12 @@ if (!getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') || getenv('OPENEMR_ENABLE_FRONT_C
 }
 
 // Early extension point via event system
-// Modules can listen to 'front_controller.early' event for early initialization
+// Modules can listen to FrontControllerEvent::EVENT_EARLY for early initialization
 // See https://github.com/adunsulag/oe-module-custom-skeleton for module development
-$GLOBALS['kernel']->getEventDispatcher()->dispatch(
-    new \Symfony\Component\EventDispatcher\GenericEvent(),
-    'front_controller.early'
-);
+if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
+    $event = new FrontControllerEvent($_GET['_ROUTE'] ?? '', $_GET['site'] ?? 'default');
+    $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, FrontControllerEvent::EVENT_EARLY);
+}
 
 // Initialize router
 $router = new Router(__DIR__);
@@ -120,12 +121,35 @@ if ($targetFile === null) {
     exit('Not Found');
 }
 
-// Route to target file
-require $targetFile;
+// Route to target file with error handling and shutdown function registration
+// Register shutdown function to dispatch late event even if target file exits early
+register_shutdown_function(function () use ($route, $router) {
+    if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
+        $error = error_get_last();
+        $context = [
+            'completed_normally' => $error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR]),
+            'error' => $error,
+        ];
+        $event = new FrontControllerEvent($route, $router->getSiteId(), $context);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, FrontControllerEvent::EVENT_LATE);
+    }
+});
 
-// Late extension point via event system (after content is loaded)
-// Modules can listen to 'front_controller.late' event for post-processing
-$GLOBALS['kernel']->getEventDispatcher()->dispatch(
-    new \Symfony\Component\EventDispatcher\GenericEvent(),
-    'front_controller.late'
-);
+try {
+    require $targetFile;
+} catch (\Throwable $e) {
+    // Log exception and dispatch late event with error context
+    error_log("Front Controller: Exception in target file $targetFile: " . $e->getMessage());
+
+    if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
+        $context = [
+            'completed_normally' => false,
+            'exception' => $e,
+        ];
+        $event = new FrontControllerEvent($route, $router->getSiteId(), $context);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, FrontControllerEvent::EVENT_LATE);
+    }
+
+    // Re-throw to preserve normal error handling
+    throw $e;
+}

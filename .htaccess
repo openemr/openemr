@@ -74,13 +74,7 @@
     # - If enabled: Routes through front controller with security checks
     # - If disabled: Acts as transparent pass-through to target file
     # This approach simplifies deployment - no Apache environment variable configuration required
+    RewriteCond %{REQUEST_URI} !^/home\.php$
     RewriteCond %{REQUEST_URI} \.php$
     RewriteRule ^(.*)$ home.php?_ROUTE=$1 [QSA,L]
-</IfModule>
-
-# Security headers
-<IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-XSS-Protection "1; mode=block"
-    Header set X-Frame-Options "SAMEORIGIN"
 </IfModule>

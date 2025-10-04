@@ -17,7 +17,7 @@
 
 namespace OpenCoreEMR\FrontController;
 
-class RouteConfig
+class RouteConfig implements RouteConfigInterface
 {
     /**
      * Forbidden path patterns that should return 404.
@@ -100,6 +100,21 @@ class RouteConfig
     }
 
     /**
+     * Check if route matches any pattern in the given array.
+     *
+     * @param array $patterns Array of regex patterns to check
+     * @param string $route The route to check
+     * @return bool True if route matches any pattern
+     */
+    private function matchesAnyPattern(array $patterns, string $route): bool
+    {
+        return array_any(
+            $patterns,
+            fn(string $pattern): bool => (bool) preg_match($pattern, $route)
+        );
+    }
+
+    /**
      * Check if route matches any forbidden pattern.
      *
      * @param string $route The route to check
@@ -107,12 +122,7 @@ class RouteConfig
      */
     public function isForbidden(string $route): bool
     {
-        foreach ($this->forbiddenPatterns as $pattern) {
-            if (preg_match($pattern, $route)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->matchesAnyPattern($this->forbiddenPatterns, $route);
     }
 
     /**
@@ -123,12 +133,7 @@ class RouteConfig
      */
     public function requiresAdmin(string $route): bool
     {
-        foreach ($this->adminPatterns as $pattern) {
-            if (preg_match($pattern, $route)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->matchesAnyPattern($this->adminPatterns, $route);
     }
 
     /**
@@ -139,12 +144,7 @@ class RouteConfig
      */
     public function isDeprecated(string $route): bool
     {
-        foreach ($this->deprecatedPaths as $pattern) {
-            if (preg_match($pattern, $route)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->matchesAnyPattern($this->deprecatedPaths, $route);
     }
 
     /**
@@ -166,7 +166,19 @@ class RouteConfig
             return false;
         }
 
-        $config = require $configPath;
+        // Validate file extension to prevent arbitrary code execution
+        $ext = strtolower(pathinfo($configPath, PATHINFO_EXTENSION));
+        if ($ext !== 'php') {
+            return false;
+        }
+
+        // Validate realpath to prevent path traversal
+        $realPath = realpath($configPath);
+        if ($realPath === false) {
+            return false;
+        }
+
+        $config = require $realPath;
 
         if (isset($config['forbidden']) && is_array($config['forbidden'])) {
             foreach ($config['forbidden'] as $pattern) {

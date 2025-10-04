@@ -40,7 +40,7 @@ class SecurityTest extends TestCase
 
     private static function loadVulnerableIncFiles(): void
     {
-        $basePath = dirname(dirname(__DIR__));
+        $basePath = dirname(__DIR__, 2);
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($basePath)
         );
@@ -174,24 +174,28 @@ class SecurityTest extends TestCase
             $response = self::$client->head('/' . $file);
             $httpCode = $response->getStatusCode();
 
-            $this->assertContains(
+            $this->assertEquals(
+                200,
                 $httpCode,
-                [200, 302],
-                "Legitimate file '{$file}' should be accessible, got {$httpCode}"
+                "Legitimate file '{$file}' should be accessible (200 OK), got {$httpCode}"
             );
         }
     }
 
     /**
      * Test that front controller can be disabled via feature flag
+     *
+     * This tests the PHP-level OPENEMR__ENABLE_FRONT_CONTROLLER environment variable,
+     * not .htaccess behavior. When disabled, the front controller should fall back
+     * to pass-through mode.
      */
     public function testFrontControllerCanBeDisabled(): void
     {
         // This test requires the ability to control the environment variable
         // In a real test environment, you would:
-        // 1. Disable OPENEMR_ENABLE_FRONT_CONTROLLER
+        // 1. Disable OPENEMR__ENABLE_FRONT_CONTROLLER
         // 2. Make a request
-        // 3. Verify it returns 404 (front controller disabled)
+        // 3. Verify behavior matches pass-through mode
         // 4. Re-enable for other tests
 
         $this->markTestSkipped(
@@ -241,8 +245,8 @@ class SecurityTest extends TestCase
         ];
 
         $reportPath = __DIR__ . '/../../reports/security-test-report.json';
-        @mkdir(dirname($reportPath), 0755, true);
-        file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT));
+        mkdir(dirname($reportPath), 0755, true);
+        file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT) . "\n");
 
         $this->assertFileExists($reportPath, 'Security report should be generated');
     }
