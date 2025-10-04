@@ -147,9 +147,7 @@ class TeleHealthCalendarController
         $categories = $this->calendarEventCategoryRepository->getEventCategories();
         $categoryIds = array_keys($categories);
         $providers = $this->teleHealthProviderRepository->getEnabledProviders();
-        $providerIds = array_map(function ($provider) {
-            return intval($provider->getDbRecordId());
-        }, $providers);
+        $providerIds = array_map(fn($provider): int => intval($provider->getDbRecordId()), $providers);
 
         $jsAppointmentEventNames = [
             'appointmentSetEvent' => AppointmentJavascriptEventNames::APPOINTMENT_PATIENT_SET_EVENT

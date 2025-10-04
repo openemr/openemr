@@ -198,9 +198,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return $val->getValue();
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val) => $val->getValue(), $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['postal_code'] = !empty($activeAddress->getPostalCode()) ? $activeAddress->getPostalCode()->getValue() : null;
             $data['city'] = !empty($activeAddress->getCity()) ? $activeAddress->getCity()->getValue() : null;

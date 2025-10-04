@@ -59,9 +59,7 @@ class BladeRenderEngine implements IRenderEngine
         $GLOBALS ['laravel_paths'] ['storage'] = self::$COMPILE_PATH;
 
         // attach a handler to the 'View::loader' event so we can tweak the file paths to fit with Phreeze
-        Laravel\Event::listen(Laravel\View::loader, function ($bundle, $view) {
-            return BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php';
-        });
+        Laravel\Event::listen(Laravel\View::loader, fn($bundle, $view): string => BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php');
     }
 
     /**

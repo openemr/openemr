@@ -17,9 +17,7 @@ use Laminas\Db\TableGateway\TableGateway;
 return array(
     'controllers' => array(
         'factories' => [
-            CcrController::class => function (ContainerInterface $container, $requestedName) {
-                return new CcrController($container->get(CcrTable::class), $container->get(DocumentsController::class));
-            }
+            CcrController::class => fn(ContainerInterface $container, $requestedName): \Ccr\Controller\CcrController => new CcrController($container->get(CcrTable::class), $container->get(DocumentsController::class))
         ],
     ),
 
@@ -57,9 +55,7 @@ return array(
     'service_manager' => [
         'factories' => [
             // TODO: it is odd that this has to be available to the service manager to be dynamically instantiated... but its in the controller namespace.
-            ModuleconfigController::class => function (ContainerInterface $container, $requestedName) {
-                return new ModuleconfigController();
-            }
+            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Ccr\Controller\ModuleconfigController => new ModuleconfigController()
             ,CcrTable::class =>  function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get(Adapter::class);
                 $resultSetPrototype = new ResultSet();

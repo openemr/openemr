@@ -216,9 +216,7 @@ class PortalPatientReportController
                 ];
             }
         }
-        $encounters = array_map(function ($encounterId) use ($encountersByEncounter) {
-            return $encountersByEncounter[$encounterId];
-        }, $encountersByDate);
+        $encounters = array_map(fn($encounterId): array => $encountersByEncounter[$encounterId], $encountersByDate);
         return $encounters;
     }
 }

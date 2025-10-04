@@ -47,9 +47,7 @@ if (empty($formid)) {
 $clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
 $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
 $getDefaultValue = function ($items) {
-    $selectedItem = array_filter($items, function ($val) {
-        return $val['selected'];
-    });
+    $selectedItem = array_filter($items, fn($val) => $val['selected']);
     if (empty($selectedItem)) {
         return ''; // default to an empty value if there is no default option
     } else {

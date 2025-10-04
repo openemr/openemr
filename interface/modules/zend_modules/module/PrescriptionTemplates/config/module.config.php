@@ -31,12 +31,8 @@ return array(
 
     'controllers' => array(
         'factories' => [
-            HtmlTemplatesController::class => function (ContainerInterface $container, $requestedName) {
-                return new HtmlTemplatesController();
-            },
-            PdfTemplatesController::class => function (ContainerInterface $container, $requestedName) {
-                return new PdfTemplatesController($container);
-            }
+            HtmlTemplatesController::class => fn(ContainerInterface $container, $requestedName): \PrescriptionTemplates\Controller\HtmlTemplatesController => new HtmlTemplatesController(),
+            PdfTemplatesController::class => fn(ContainerInterface $container, $requestedName): \PrescriptionTemplates\Controller\PdfTemplatesController => new PdfTemplatesController($container)
         ]
     ),
     'router' => array(

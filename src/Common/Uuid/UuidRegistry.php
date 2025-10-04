@@ -326,24 +326,18 @@ class UuidRegistry
         $dbUUIDs = [];
 
         if (!$this->disable_tracker) {
-            $sqlColumns = array_map(function ($u) {
-                return '`uuid` = ?';
-            }, $uuids);
+            $sqlColumns = array_map(fn($u): string => '`uuid` = ?', $uuids);
             $sqlWhere = implode(" OR ", $sqlColumns);
             $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `uuid_registry` WHERE " . $sqlWhere, $uuids);
         }
         if (empty($dbUUIDs)) {
             if (!empty($this->table_name)) {
-                $sqlColumns = array_map(function ($u) {
-                    return '`uuid` = ?';
-                }, $uuids);
+                $sqlColumns = array_map(fn($u): string => '`uuid` = ?', $uuids);
                 $sqlWhere = implode(" OR ", $sqlColumns);
                 // If using $this->table_name, then ensure uuid is unique in that table
                 $dbUUIDs =  QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE " . $sqlWhere, $uuids);
             } elseif ($this->document_drive === 1) {
-                $sqlColumns = array_map(function ($u) {
-                    return '`drive_uuid` = ?';
-                }, $uuids);
+                $sqlColumns = array_map(fn($u): string => '`drive_uuid` = ?', $uuids);
                 $sqlWhere = implode(" OR ", $sqlColumns);
                 // If using for document labeling on drive, then ensure drive_uuid is unique in documents table
                 $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `drive_uuid` as `uuid` FROM `documents` WHERE " . $sqlWhere, $uuids);
@@ -405,18 +399,10 @@ class UuidRegistry
         $counter = 0;
 
         // Collect groups that are missing a uuid
-        $columns = array_map(function ($col) {
-            return "`$col`";
-        }, $this->table_vertical);
-        $columnsQtwo = array_map(function ($col) {
-            return "`q2`.`$col`";
-        }, $this->table_vertical);
-        $columnsOn = array_map(function ($col) {
-            return "`q1`.`$col` = `q2`.`$col`";
-        }, $this->table_vertical);
-        $columnsWhere = array_map(function ($col) {
-            return "(`q1`.`$col` IS NULL OR `q1`.`$col` = '')";
-        }, $this->table_vertical);
+        $columns = array_map(fn($col): string => "`$col`", $this->table_vertical);
+        $columnsQtwo = array_map(fn($col): string => "`q2`.`$col`", $this->table_vertical);
+        $columnsOn = array_map(fn($col): string => "`q1`.`$col` = `q2`.`$col`", $this->table_vertical);
+        $columnsWhere = array_map(fn($col): string => "(`q1`.`$col` IS NULL OR `q1`.`$col` = '')", $this->table_vertical);
         $query = "SELECT " . implode(",", $columnsQtwo) . "
         FROM
           (SELECT " . implode(",", $columns) . "
@@ -436,13 +422,9 @@ class UuidRegistry
             $batchUUids = $this->getUnusedUuidBatch($number);
             $this->insertUuidsIntoRegistry($batchUUids);
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
-                implode(" AND ", array_map(function ($col) {
-                    return "`$col` = ? ";
-                }, $this->table_vertical));
+                implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
             while ($row = sqlFetchArray($groupsWithoutUuid)) {
-                $mappedValues = array_map(function ($col) use ($row) {
-                    return $row[$col];
-                }, $this->table_vertical);
+                $mappedValues = array_map(fn($col) => $row[$col], $this->table_vertical);
                 $bindValues = array_merge([$batchUUids[$counter]], $mappedValues);
                 sqlStatementNoLog($sqlUpdate, $bindValues, true);
                 $counter++;
@@ -465,15 +447,9 @@ class UuidRegistry
         $counter = 0;
 
         // Collect groups that are missing a uuid
-        $columns = array_map(function ($col) {
-            return "`$col`";
-        }, $this->table_vertical);
-        $columnsQtwo = array_map(function ($col) {
-            return "`q2`.`$col`";
-        }, array_merge(['uuid'], $this->table_vertical));
-        $columnsOn = array_map(function ($col) {
-            return "`q1`.`$col` = `q2`.`$col`";
-        }, $this->table_vertical);
+        $columns = array_map(fn($col): string => "`$col`", $this->table_vertical);
+        $columnsQtwo = array_map(fn($col): string => "`q2`.`$col`", array_merge(['uuid'], $this->table_vertical));
+        $columnsOn = array_map(fn($col): string => "`q1`.`$col` = `q2`.`$col`", $this->table_vertical);
         $query = "SELECT " . implode(",", $columnsQtwo) . "
         FROM
           (SELECT " . implode(",", $columns) . "
@@ -491,13 +467,9 @@ class UuidRegistry
         // populate the groups with the already existent uuids
         if ($number > 0) {
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
-                implode(" AND ", array_map(function ($col) {
-                    return "`$col` = ? ";
-                }, $this->table_vertical));
+                implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
             while ($row = sqlFetchArray($groupsWithoutUuid)) {
-                $mappedValues = array_map(function ($col) use ($row) {
-                    return $row[$col];
-                }, array_merge(['uuid'], $this->table_vertical));
+                $mappedValues = array_map(fn($col) => $row[$col], array_merge(['uuid'], $this->table_vertical));
                 sqlStatementNoLog($sqlUpdate, $mappedValues, true);
                 $counter++;
             }

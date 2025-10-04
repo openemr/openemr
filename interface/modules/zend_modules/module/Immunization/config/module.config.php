@@ -14,9 +14,7 @@ use Immunization\Model\Immunization;
 return array(
     'controllers' => array(
         'factories' => [
-            ImmunizationController::class => function (ContainerInterface $container, $requestedName) {
-                return new ImmunizationController($container->get(ImmunizationTable::class));
-            }
+            ImmunizationController::class => fn(ContainerInterface $container, $requestedName): \Immunization\Controller\ImmunizationController => new ImmunizationController($container->get(ImmunizationTable::class))
         ],
     ),
 

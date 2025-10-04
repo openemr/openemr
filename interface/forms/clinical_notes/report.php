@@ -28,9 +28,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id): void
     $count = 0;
     $clinicalNotesService = new ClinicalNotesService();
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($id, $pid, $encounter) ?? [];
-    $data = array_filter($records, function ($val) {
-        return $val['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE;
-    });
+    $data = array_filter($records, fn($val): bool => $val['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE);
 
     $viewArgs = [
         'notes' => $data

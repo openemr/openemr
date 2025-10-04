@@ -84,7 +84,7 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form'): void
         $ub04id = json_encode($ub04id);
         $isAuthorized = true;
         ob_start();
-        require(dirname(__file__) . "/ub04_form.php");
+        require(__DIR__ . "/ub04_form.php");
         $htmlin = ob_get_clean();
         $isAuthorized = false;
         ub04Dispose('download', $htmlin, "ub04_download.pdf", $action);
