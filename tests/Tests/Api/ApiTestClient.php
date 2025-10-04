@@ -63,6 +63,9 @@ class ApiTestClient
         'patient/Procedure.read',
         'patient/Provenance.read',
 
+        'user/user.read',
+        'user/user.write',
+
         'user/allergy.read',
         'user/allergy.write',
         'user/AllergyIntolerance.read',
