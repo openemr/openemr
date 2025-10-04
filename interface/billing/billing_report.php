@@ -950,6 +950,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                         $mmo_empty_mod = false;
                         $mmo_num_charges = 0;
+                        $encount = 0;
 
                         foreach ($ret as $iter) {
                         // We include encounters here that have never been billed. However
@@ -989,7 +990,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n\n";
-                                        $encount = $encount ?? null;
                                         ++$encount;
                                     }
                                 }
@@ -1041,7 +1041,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = ((($encount ?? null) & 1) ? "var(--light)" : "var(--gray300)");
+                                $bgcolor = (($encount & 1) ? "var(--light)" : "var(--gray300)");
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;

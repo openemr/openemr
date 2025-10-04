@@ -533,6 +533,8 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                         /**************************************************************/
                         //
+                        $grandtotal1 = 0;
+                        $grandtotal2 = 0;
                         $res = sqlStatement($query, $sqlBindArray);
                         while ($row = sqlFetchArray($res)) {
                             $trans_id = $row['trans_id'];
@@ -704,10 +706,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $doctotal1   += $amount1;
                             $doctotal2   += $amount2;
 
-                            $grandtotal1 = $grandtotal1 ?? null;
                             $grandtotal1 += $amount1;
-
-                            $grandtotal2 = $grandtotal2 ?? null;
                             $grandtotal2 += $amount2;
                         }
                         ?>
@@ -732,7 +731,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Grand Totals') ?>
                 </td>
                 <td>
-                        <?php echo text(FormatMoney::getBucks($grandtotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($grandtotal1)) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td>
