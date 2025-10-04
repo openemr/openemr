@@ -354,10 +354,7 @@ class ServerScopeListEntity
             "api:fhir" => xl("Permission to use the OpenEMR FHIR api"),
             "api:port" => xl("Permission to use the OpenEMR apis from inside the patient portal"),
         ];
-        if (isset($requiredSmart[$scope])) {
-            return $requiredSmart[$scope];
-        }
-        return "";
+        return $requiredSmart[$scope] ?? "";
     }
 
     /**

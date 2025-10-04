@@ -366,11 +366,8 @@ class ApplicationTable extends AbstractTableGateway
             'mm/dd/yyyy' => 'm/d/Y',
             'dd/mm/yyyy' => 'd/m/Y',
         ];
-        if (isset($map[$format])) {
-            return $map[$format];
-        }
 
-        return $format;
+        return $map[$format] ?? $format;
     }
 
     /*

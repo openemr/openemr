@@ -463,10 +463,7 @@ class FormVitals extends ORDataObject
 
     public function get_details_for_column($column)
     {
-        if (isset($this->_vitals_details[$column])) {
-            return $this->_vitals_details[$column];
-        }
-        return null;
+        return $this->_vitals_details[$column] ?? null;
     }
 
     public function set_details_for_column($column, FormVitalDetails $details)

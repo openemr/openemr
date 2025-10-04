@@ -219,10 +219,7 @@ class UuidRegistry
      */
     public static function getUuidTableDefinitionForTable($table_name)
     {
-        if (isset(self::UUID_TABLE_DEFINITIONS[$table_name])) {
-            return self::UUID_TABLE_DEFINITIONS[$table_name];
-        }
-        return [];
+        return self::UUID_TABLE_DEFINITIONS[$table_name] ?? [];
     }
 
     /**

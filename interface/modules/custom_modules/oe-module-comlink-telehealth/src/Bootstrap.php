@@ -413,9 +413,6 @@ class Bootstrap
 
     private function getService($className)
     {
-        if (isset($this->serviceRegistry[$className])) {
-            return $this->serviceRegistry[$className];
-        }
-        return null;
+        return $this->serviceRegistry[$className] ?? null;
     }
 }
