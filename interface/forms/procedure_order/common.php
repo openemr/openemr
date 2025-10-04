@@ -209,11 +209,6 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "provider_id = ?, " .
         "lab_id = ?, " .
         "date_collected = ?, " .
-        "date_collected_end = ?, " .
-        "specimen_type = ?, " .
-        "specimen_location = ?, " .
-        "specimen_volume = ?, " .
-        "specimen_condition = ?, " .
         "order_priority = ?, " .
         "order_status = ?, " .
         "billing_type = ?, " .
@@ -236,11 +231,6 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         (int)$_POST['form_provider_id'],
         $ppid,
         QuotedOrNull($_POST['form_date_collected']),
-        QuotedOrNull($_POST['form_date_collected_end']),
-        trim($_POST['form_specimen_type'] ?? ''),
-        trim($_POST['form_specimen_location'] ?? ''),
-        $_POST['form_specimen_volume'] ?? null,
-        trim($_POST['form_specimen_condition'] ?? ''),
         $_POST['form_order_priority'],
         $_POST['form_order_status'],
         $_POST['form_billing_type'],
@@ -292,14 +282,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     }
     // Remove any existing procedures and their answers for this order and
     // replace them from the form.
-    sqlStatement(
-        "DELETE FROM procedure_answers WHERE procedure_order_id = ?",
-        array($formid)
-    );
-    sqlStatement(
-        "DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
-        array($formid)
-    );
+    sqlStatement("DELETE FROM procedure_answers WHERE procedure_order_id = ?", [$formid]);
+    sqlStatement("DELETE FROM procedure_order_code WHERE procedure_order_id = ?", [$formid]);
 
     for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
         $ptid = (int)$_POST['form_proc_type'][$i];
@@ -316,24 +300,25 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $query_insert = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
                 $ptid = sqlInsert(
                     $query_insert,
-                    array(
-                        $_POST['form_proc_type_desc'][$i], $_POST['form_lab_id'], $_POST['form_proc_code'][$i], 'ord', 1, $_POST['procedure_type_names'])
+                    [$_POST['form_proc_type_desc'][$i], $_POST['form_lab_id'], $_POST['form_proc_code'][$i], 'ord', 1, $_POST['procedure_type_names']]
                 );
                 $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
-                sqlQuery($query_update_pt, array($ptid, $ptid));
+                sqlQuery($query_update_pt, [$ptid, $ptid]);
             }
         }
 
         $prefix = "ans$i" . "_";
 
         sqlBeginTrans();
-        $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
+        $procedure_order_seq = sqlQuery(
+            "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ",
+            [$formid]
+        );
         $reason_code = trim($_POST['form_proc_reason_code'][$i] ?? '');
         $reason_description = trim($_POST['form_proc_reason_description'][$i] ?? '');
         $reason_date_low = trim($_POST['form_proc_reason_date_low'][$i] ?? '');
         $reason_date_high = trim($_POST['form_proc_reason_date_high'][$i] ?? '');
         $reason_status = trim($_POST['form_proc_reason_status'][$i] ?? '');
-
         if (empty($reason_code)) {
             $reason_description = null;
             $reason_date_low = null;
@@ -348,22 +333,29 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             $reason_date_high = null;
         }
 
-        $poseq = sqlInsert(
-            "INSERT INTO procedure_order_code SET " .
-            "procedure_order_id = ?, " .
-            "diagnoses = ?, " .
-            "procedure_order_title = ?, " .
-            "transport = ?, " .
-            "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
-            "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
-            "procedure_type = ?, " .
-            "reason_code = ?, " .
-            "reason_description = ?, " .
-            "reason_date_low = ?, " .
-            "reason_date_high = ?, " .
-            "reason_status = ?, " .
-            "procedure_order_seq = ? ",
-            array(
+        // Compute the next order-line sequence for THIS order
+        $order_seq = (int)sqlQuery(
+            "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS seq FROM procedure_order_code WHERE procedure_order_id = ?",
+            [$formid]
+        )['seq'];
+
+        // Insert the order line with the SAME sequence
+        sqlInsert(
+            "INSERT INTO procedure_order_code SET
+               procedure_order_id = ?,
+               diagnoses = ?,
+               procedure_order_title = ?,
+               transport = ?,
+               procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?),
+               procedure_name = (SELECT name          FROM procedure_type WHERE procedure_type_id = ?),
+               procedure_type = ?,
+               reason_code = ?,
+               reason_description = ?,
+               reason_date_low = ?,
+               reason_date_high = ?,
+               reason_status = ?,
+               procedure_order_seq = ?",
+            [
                 $formid,
                 trim($_POST['form_proc_type_diag'][$i]),
                 trim($_POST['form_proc_order_title'][$i]),
@@ -373,80 +365,114 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 trim($_POST['form_procedure_type'][$i] ?: $_POST['procedure_type_names'] ?? ''),
                 $reason_code,
                 $reason_description,
-                $reason_date_low,
-                $reason_date_high,
+                $reason_date_low ?: null,
+                $reason_date_high ?: null,
                 $reason_status,
-                $procedure_order_seq['increment']
-            )
-        );
-        // Wipe and reinsert specimens for this order line
-        sqlStatement(
-            "DELETE FROM procedure_specimen WHERE procedure_order_id = ? AND procedure_order_seq = ?",
-            [$formid, $poseq]
+                $order_seq,
+            ]
         );
 
-        // Pull arrays for this line index $i
+        // If you prefer per-line cleanup instead, do this instead:
+        sqlStatement("DELETE FROM procedure_specimen WHERE procedure_order_id = ? AND procedure_order_seq = ?", [$formid, $order_seq]);
+        //sqlStatement("DELETE FROM procedure_specimen WHERE procedure_order_id = ?", [$formid]);
+
         $ids = $_POST['form_proc_specimen_identifier'][$i] ?? [];
         $accs = $_POST['form_proc_accession_identifier'][$i] ?? [];
-        $types = $_POST['form_proc_specimen_type'][$i] ?? []; // display (from list)
-        $sites = $_POST['form_proc_specimen_location'][$i] ?? []; // display (from list)
+        $typeCodes = $_POST['form_proc_specimen_type_code'][$i] ?? [];
+        $types = $_POST['form_proc_specimen_type'][$i] ?? [];
+        $methodCodes = $_POST['form_proc_collection_method_code'][$i] ?? [];
+        $methods = $_POST['form_proc_collection_method'][$i] ?? [];
+        $siteCodes = $_POST['form_proc_specimen_location_code'][$i] ?? [];
+        $sites = $_POST['form_proc_specimen_location'][$i] ?? [];
         $lowDates = $_POST['form_proc_specimen_date_low'][$i] ?? [];
         $highDates = $_POST['form_proc_specimen_date_high'][$i] ?? [];
+        $collecteds = $_POST['form_proc_specimen_collected'][$i] ?? [];
         $volValues = $_POST['form_proc_specimen_volume_value'][$i] ?? [];
         $volUnits = $_POST['form_proc_specimen_volume_unit'][$i] ?? [];
-        $conds = $_POST['form_proc_specimen_condition'][$i] ?? [];
-
+        $condCodes = $_POST['form_proc_specimen_condition_code'][$i] ?? [];
+        $condTxts = $_POST['form_proc_specimen_condition'][$i] ?? [];
+        $comments = $_POST['form_proc_specimen_comments'][$i] ?? [];
         $rows = max(
             count($ids),
             count($accs),
             count($types),
+            count($typeCodes),
+            count($siteCodes),
             count($sites),
+            count($methodCodes),
+            count($methods),
             count($lowDates),
             count($highDates),
+            count($collecteds),
             count($volValues),
-            count($conds)
+            count($volUnits),
+            count($condCodes),
+            count($condTxts),
+            count($comments)
         );
 
         for ($s = 0; $s < $rows; $s++) {
-            // Skip entirely empty rows
-            $any = trim($ids[$s] ?? '') . trim($accs[$s] ?? '') . trim($types[$s] ?? '') .
-                trim($sites[$s] ?? '') . trim($lowDates[$s] ?? '') . trim($highDates[$s] ?? '') .
-                trim($volValues[$s] ?? '') . trim($conds[$s] ?? '');
+            // Skip blank lines - check if ANY field has data
+            $any = trim(($ids[$s] ?? '')) . trim(($accs[$s] ?? '')) . trim(($types[$s] ?? '')) .
+                trim(($sites[$s] ?? '')) . trim(($lowDates[$s] ?? '')) . trim(($highDates[$s] ?? '')) .
+                trim(($volValues[$s] ?? '')) . trim(($condCodes[$s] ?? '')) . trim(($condTxts[$s] ?? '')) . trim(($comments[$s] ?? ''));
             if ($any === '') {
                 continue;
             }
 
+            // binary(16)
             $uuid = (new UuidRegistry(['table_name' => 'procedure_specimen']))->createUuid();
-
-            // Normalize nulls for DATETIME
-            $dateLow = QuotedOrNull($lowDates[$s] ?? null);
-            $dateHigh = QuotedOrNull($highDates[$s] ?? null);
-            $collected = null; // optional instant; if you want: $collected = $dateLow && !$dateHigh ? $dateLow : null;
-
+            $dateLow = ($lowDates[$s] ?? '') ?: null;
+            $dateHigh = ($highDates[$s] ?? '') ?: null;
+            $collected = ($collecteds[$s] ?? '') ?: null;
+            $vol = strlen($volValues[$s] ?? '') ? (float)$volValues[$s] : null;
+            $unit = ($volUnits[$s] ?? 'mL') ?: 'mL';
             sqlStatement(
                 "INSERT INTO procedure_specimen SET
-               uuid = ?, procedure_order_id = ?, procedure_order_seq = ?,
-               specimen_identifier = ?, accession_identifier = ?,
-               specimen_type = ?, specimen_location = ?,
-               collection_date_low = ?, collection_date_high = ?, collected_date = ?,
-               volume_value = ?, volume_unit = ?, condition_code = ?,
-               created_by = ?, updated_by = ?",
+                 uuid = ?,
+                 procedure_order_id = ?,
+                 procedure_order_seq = ?,
+                 specimen_identifier = ?,
+                 accession_identifier = ?,
+                 specimen_type_code = ?,
+                 specimen_type = ?,
+                 collection_method_code = ?,
+                 collection_method = ?,
+                 specimen_location_code = ?,
+                 specimen_location = ?,
+                 collected_date = ?,
+                 collection_date_low = ?,
+                 collection_date_high = ?,
+                 volume_value = ?,
+                 volume_unit = ?,
+                 condition_code = ?,
+                 comments = ?,
+                 created_by = ?,
+                 updated_by = ?",
                 [
-                    $uuid, $formid, $poseq,
+                    $uuid,
+                    $formid,
+                    $order_seq,
                     trim($ids[$s] ?? '') ?: null,
                     trim($accs[$s] ?? '') ?: null,
+                    trim($typeCodes[$s] ?? '') ?: null,
                     trim($types[$s] ?? '') ?: null,
+                    trim($methodCodes[$s] ?? '') ?: null,
+                    trim($methods[$s] ?? '') ?: null,
+                    trim($siteCodes[$s] ?? '') ?: null,
                     trim($sites[$s] ?? '') ?: null,
-                    $dateLow, $dateHigh, $collected,
-                    (strlen($volValues[$s] ?? '') ? (float)$volValues[$s] : null),
-                    ($volUnits[$s] ?? 'mL') ?: 'mL',
-                    trim($conds[$s] ?? '') ?: null,
+                    $collected,
+                    $dateLow,
+                    $dateHigh,
+                    $vol,
+                    $unit,
+                    trim($condCodes[$s] ?? '') ?: null,
+                    trim($comments[$s] ?? '') ?: null,
                     ($_SESSION['authUserID'] ?? null),
                     ($_SESSION['authUserID'] ?? null),
                 ]
             );
         }
-
         sqlCommitTrans();
 
         $poseq = $procedure_order_seq['increment'];
@@ -476,11 +502,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             if (!isset($data) || $data === '') {
                 continue;
             }
-
             if (!is_array($data)) {
                 $data = array($data);
             }
-
             foreach ($data as $datum) {
                 // Note this will auto-assign the seq value.
                 sqlBeginTrans();
@@ -734,6 +758,43 @@ if (!empty($row['lab_id'])) {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;
             }
+            // Auto-open specimen panels that already have at least one row
+            $('.specimenContainer').each(function () {
+                if ($(this).find('tbody tr').length > 0 &&
+                    $(this).find('tbody tr input,tbody tr select').filter(function () {
+                        return $(this).val();
+                    }).length > 0) {
+                    $(this).collapse('show');
+                }
+            });
+        });
+
+        $(document).on('change', 'select[name^="form_proc_specimen_type"]', function () {
+            const $row = $(this).closest('tr');
+            const selectedOption = $(this).find('option:selected');
+            const code = selectedOption.data('code') || selectedOption.val();
+            $row.find('input[name^="form_proc_specimen_type_code"]').val(code);
+        });
+
+        $(document).on('change', 'select[name^="form_proc_collection_method"]', function () {
+            const $row = $(this).closest('tr');
+            const selectedOption = $(this).find('option:selected');
+            const code = selectedOption.data('code') || selectedOption.val();
+            $row.find('input[name^="form_proc_collection_method_code"]').val(code);
+        });
+
+        $(document).on('change', 'select[name^="form_proc_specimen_location"]', function () {
+            const $row = $(this).closest('tr');
+            const selectedOption = $(this).find('option:selected');
+            const code = selectedOption.data('code') || selectedOption.val();
+            $row.find('input[name^="form_proc_specimen_location_code"]').val(code);
+        });
+
+        $(document).on('change', 'select[name^="form_proc_specimen_condition"]', function () {
+            const $row = $(this).closest('tr');
+            const selectedOption = $(this).find('option:selected');
+            const code = selectedOption.data('code') || selectedOption.val();
+            $row.find('input[name^="form_proc_specimen_condition_code"]').val(code);
         });
 
         function processSubmit(od) { // not used yet
@@ -1288,7 +1349,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 <body class="body_top" onsubmit="doWait(event)">
     <div class="container-fluid">
         <div class="page-header text-center">
-            <h3><?php echo text(implode(" ", $title)); ?></h3>
+            <h4><?php echo text(implode(" ", $title)); ?></h4>
         </div>
         <?php
 
@@ -1332,7 +1393,20 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
         if (empty($oparr)) {
             $oparr[] = array('procedure_name' => '');
         }
+
+        // Build specimen map: [procedure_order_seq] => array(rows)
+        $specimen_by_seq = [];
+        if (!empty($formid)) {
+            $spq = sqlStatement(
+                "SELECT * FROM procedure_specimen WHERE procedure_order_id = ? ORDER BY procedure_order_seq, procedure_specimen_id",
+                [$formid]
+            );
+            while ($sp = sqlFetchArray($spq)) {
+                $specimen_by_seq[(int)$sp['procedure_order_seq']][] = $sp;
+            }
+        }
         ?>
+
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -1389,9 +1463,9 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
-                                    <option value="required" <?php echo $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
-                                    <option value="signed" <?php echo $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
+                                    <option value="not_required" <?php $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
                                 </select>
                             </div>
                             <label for="form_billing_type"
@@ -1684,6 +1758,23 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </button>
                                     </td>
                                 </tr>
+                                <?php
+                                $specimens = [];
+                                $sp = sqlStatement(
+                                    "SELECT *
+                                             FROM procedure_specimen
+                                            WHERE procedure_order_id = ? AND procedure_order_seq = ?
+                                            ORDER BY procedure_specimen_id",
+                                    [$formid, $oprow['procedure_order_seq']]
+                                );
+                                while ($r = sqlFetchArray($sp)) {
+                                    // convert uuid bytes to string if your template needs to display it
+                                    if (!empty($r['uuid'])) {
+                                        $r['uuid_str'] = \OpenEMR\Common\Uuid\UuidRegistry::bytesToUuid($r['uuid']);
+                                    }
+                                    $specimens[] = $r;
+                                }
+                                ?>
                                 <?php include "templates/procedure_reason_row.php" ?>
                                 <?php include "templates/procedure_specimen_row.php" ?>
                                 </tbody>
@@ -1780,8 +1871,11 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </button>
                                     </td>
                                 </tr>
-                                <?php include "templates/procedure_reason_row.php" ?>
-                                <?php include "templates/procedure_specimen_row.php" ?>
+
+                                <?php include "templates/procedure_reason_row.php"; ?>
+                                <?php
+                                //$specimens = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
+                                include "templates/procedure_specimen_row.php"; ?>
                                 </tbody>
                             </table>
                             <?php
