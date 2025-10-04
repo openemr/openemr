@@ -19,7 +19,7 @@
                 <input type="hidden" name="form_id" value="{{ formId|attr }}" />
 
                 {# AI Generated: Hidden field for QuestionnaireResponse FHIR ID #}
-                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="{{ observation.questionnaire_response_id }}" />
+                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="{{ observation.questionnaire_response_id|attr }}" />
 
                 {# Return to List Button #}
                 {% if isEdit %}
@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label class="form-label">{{ "Date"|xlt }}:</label>
                                         <input type="text" name="date" class="form-control datepicker"
-                                               value="{{ observation.date|default('now')|oeFormatDateTime }}"
+                                               value="{{ observation.date|default('now')|oeFormatDateTime|attr }}"
                                                required>
                                     </div>
                                 </div>
@@ -123,7 +123,7 @@
                                                     <span class="response-id">{{ linkedQuestionnaireResponse.response_id|text }}</span>
                                                 </p>
                                                 <p class="text-muted mb-3">
-                                                    <strong>{{ "Date"|xlt }}:</strong> {{ linkedQuestionnaireResponse.date|oeFormatDateTime }}
+                                                    <strong>{{ "Date"|xlt }}:</strong> {{ linkedQuestionnaireResponse.date|oeFormatDateTime|attr }}
                                                     <span class="ml-3"><strong>{{ "Status"|xlt }}:</strong> {{ linkedQuestionnaireResponse.status|text }}</span>
                                                 </p>
                                             </div>

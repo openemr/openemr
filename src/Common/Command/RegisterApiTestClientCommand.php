@@ -1,12 +1,7 @@
 <?php
 
 /**
- * CreateReleaseChangelogCommand Is a helper utility to create a human readable changelog for a release
- * based on the milestone name.  It relies on the naming convention of prefixing each issue with the category
- * feat: for feature, bug: for bug, refactor: for changes, and chore: for chores.  If no category is specified
- * it will default to bug.  It will also look for the label developers and if it is present it will categorize the
- * issue as a developer issue.  That way regular users can see feature changes separated out from developer specific issues
- * such as api, code refactoring, etc.
+ * RegisterApiTestClientCommand.php - Utility class to help test api clients by registering a test client with the OpenEMR API
  *
  * @package openemr
  * @link      http://www.open-emr.org
@@ -61,23 +56,15 @@ class RegisterApiTestClientCommand extends Command
         try {
             $clientRepository = new ClientRepository();
             $clientId = $clientRepository->generateClientId();
-//            $serverScope = new ServerScopeListEntity();
-//            $fhirScopes = $serverScope->fhirResourceScopesV2();
-//            $fhirScopes = array_filter($fhirScopes, function ($scope) {
-//                return str_starts_with($scope, 'user/');
-//            });
-//            $scopes = array_merge($fhirScopes, $serverScope->getOpenIDConnectScopes());
             $scopeRepository = new ScopeRepository();
             $scopeList = new ServerScopeListEntity();
             $scopes = array_unique(array_merge($scopeList->getAllSupportedScopesList()));
-//            $scopes = array_merge($scopeRepository->oidcScopes(), $scopeRepository->fhirScopes());
             $info = [
                 'client_role' => 'user',
                 'client_name' => 'OpenEMR API Test Client ' . date("Y-m-d H:i:s"),
                 'client_secret' => $clientRepository->generateClientSecret(),
                 'registration_access_token' => $clientRepository->generateRegistrationAccessToken(),
                 'registration_client_uri_path' => $clientRepository->generateRegistrationClientUriPath(),
-//                'contacts' => ['example@open-emr.org'],
                 'contacts' => 'example@open-emr.org',
                 'redirect_uris' => [$redirectUri],
                 'grant_types' => 'authorization_code|password|client_credentials',

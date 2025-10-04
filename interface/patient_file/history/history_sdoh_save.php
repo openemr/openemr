@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\SDOH\HistorySdohService;
+use OpenEMR\Common\Logging\SystemLogger;
 
 $pid = (int)$_SESSION['pid'];
 
@@ -33,7 +34,7 @@ if (empty($pid)) {
 
 $instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
 $declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
-$logger = new \OpenEMR\Common\Logging\SystemLogger();
+$logger = new SystemLogger();
 
 // --- Functional sub-observations -> JSON (disability_scale)
 $dscale = $_POST['dscale'] ?? [];
