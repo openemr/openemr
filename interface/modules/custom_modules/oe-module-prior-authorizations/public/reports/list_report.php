@@ -30,7 +30,7 @@ $total_used_units = 0;
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?php echo xlt("List Exising Prior Auths Report"); ?></title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <?php Header::setupHeader(['common', 'opener', 'chart']) ?>
     <script>
         // opens the demographic and encounter screens in a new window
         function openNewTopWindow(newpid) {
