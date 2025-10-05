@@ -51,7 +51,7 @@ run_test() {
     local expected_code="${3}"
     local description="${4}"
 
-    TOTAL_TESTS=$((TOTAL_TESTS + 1))
+    TOTAL_TESTS=$(( TOTAL_TESTS + 1 ))
     printf "Testing: %s... " "$test_name" | tee -a "$REPORT_FILE"
 
     # Make HTTP request and get status code
@@ -59,11 +59,11 @@ run_test() {
 
     if [[ "$http_code" = "$expected_code" ]]; then
         printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$http_code" | tee -a "$REPORT_FILE"
-        PASSED_TESTS=$((PASSED_TESTS + 1))
+        PASSED_TESTS=$(( PASSED_TESTS + 1 ))
         echo "  ✓ $description" | tee -a "$REPORT_FILE"
     else
         printf "%sFAIL%s (Expected %s, got %s)\n" "$RED" "$NC" "$expected_code" "$http_code" | tee -a "$REPORT_FILE"
-        FAILED_TESTS=$((FAILED_TESTS + 1))
+        FAILED_TESTS=$(( FAILED_TESTS + 1 ))
         {
             echo "  ✗ $description"
             echo "  URL: $url"
@@ -204,7 +204,7 @@ run_test \
     echo
 } | tee -a "$REPORT_FILE"
 
-TOTAL_TESTS=$((TOTAL_TESTS + 1))
+TOTAL_TESTS=$(( TOTAL_TESTS + 1 ))
 printf "Testing: Security headers... " | tee -a "$REPORT_FILE"
 
 headers=$(curl -s -I "$BASE_URL/index.php")
@@ -213,11 +213,11 @@ if echo "$headers" | grep -q "X-Content-Type-Options" && \
    echo "$headers" | grep -q "X-XSS-Protection" && \
    echo "$headers" | grep -q "X-Frame-Options"; then
     printf "%sPASS%s\n" "$GREEN" "$NC" | tee -a "$REPORT_FILE"
-    PASSED_TESTS=$((PASSED_TESTS + 1))
+    PASSED_TESTS=$(( PASSED_TESTS + 1 ))
     echo "  ✓ All required security headers present" | tee -a "$REPORT_FILE"
 else
     printf "%sFAIL%s\n" "$RED" "$NC" | tee -a "$REPORT_FILE"
-    FAILED_TESTS=$((FAILED_TESTS + 1))
+    FAILED_TESTS=$(( FAILED_TESTS + 1 ))
     echo "  ✗ Missing required security headers" | tee -a "$REPORT_FILE"
 fi
 echo | tee -a "$REPORT_FILE"
@@ -230,14 +230,14 @@ echo | tee -a "$REPORT_FILE"
     echo
 } | tee -a "$REPORT_FILE"
 
-TOTAL_TESTS=$((TOTAL_TESTS + 1))
+TOTAL_TESTS=$(( TOTAL_TESTS + 1 ))
 printf "Testing: Front controller responds when enabled... " | tee -a "$REPORT_FILE"
 
 response=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/home.php?_ROUTE=index.php")
 
 if [[ "$response" = "200" || "$response" = "302" ]]; then
     printf "%sPASS%s (HTTP %s)\n" "$GREEN" "$NC" "$response" | tee -a "$REPORT_FILE"
-    PASSED_TESTS=$((PASSED_TESTS + 1))
+    PASSED_TESTS=$(( PASSED_TESTS + 1 ))
     echo "  ✓ Front controller is active" | tee -a "$REPORT_FILE"
 else
     printf "%sINFO%s (HTTP %s)\n" "$YELLOW" "$NC" "$response" | tee -a "$REPORT_FILE"

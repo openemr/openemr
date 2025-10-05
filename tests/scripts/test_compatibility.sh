@@ -53,7 +53,7 @@ run_test() {
     local expected_codes="${3}"
     local description="${4}"
 
-    TOTAL_TESTS=$((TOTAL_TESTS + 1))
+    TOTAL_TESTS=$(( TOTAL_TESTS + 1 ))
 
     printf "Testing: %s... " "${test_name}" | tee -a "${REPORT_FILE}"
 
@@ -63,11 +63,11 @@ run_test() {
     # Check if code matches any of the expected codes
     if [[ "${expected_codes}" = *"${http_code}"* ]]; then
         printf "%sPASS%s (HTTP %s)\n" "${GREEN}" "${NC}" "${http_code}" | tee -a "${REPORT_FILE}"
-        PASSED_TESTS=$((PASSED_TESTS + 1))
+        PASSED_TESTS=$(( PASSED_TESTS + 1 ))
         echo "  ✓ ${description}" | tee -a "${REPORT_FILE}"
     else
         printf "%sFAIL%s (Expected [%s], got %s)\n" "${RED}" "${NC}" "${expected_codes}" "${http_code}" | tee -a "${REPORT_FILE}"
-        FAILED_TESTS=$((FAILED_TESTS + 1))
+        FAILED_TESTS=$(( FAILED_TESTS + 1 ))
         echo "  ✗ ${description}" | tee -a "${REPORT_FILE}"
         echo "  URL: ${url}" | tee -a "${REPORT_FILE}"
     fi
@@ -220,7 +220,7 @@ run_test \
     echo
 } | tee -a "${REPORT_FILE}"
 
-TOTAL_TESTS=$((TOTAL_TESTS + 1))
+TOTAL_TESTS=$(( TOTAL_TESTS + 1 ))
 printf "Testing: POST request handling... " | tee -a "${REPORT_FILE}"
 
 http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
@@ -229,11 +229,11 @@ http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
 
 if [[ "${http_code}" = "404" || "${http_code}" = "403" ]]; then
     printf "%sFAIL%s (HTTP %s)\n" "${RED}" "${NC}" "${http_code}" | tee -a "${REPORT_FILE}"
-    FAILED_TESTS=$((FAILED_TESTS + 1))
+    FAILED_TESTS=$(( FAILED_TESTS + 1 ))
     echo "  ✗ POST requests are being blocked" | tee -a "${REPORT_FILE}"
 else
     printf "%sPASS%s (HTTP %s)\n" "${GREEN}" "${NC}" "${http_code}" | tee -a "${REPORT_FILE}"
-    PASSED_TESTS=$((PASSED_TESTS + 1))
+    PASSED_TESTS=$(( PASSED_TESTS + 1 ))
     echo "  ✓ POST requests are processed correctly" | tee -a "${REPORT_FILE}"
 fi
 echo | tee -a "${REPORT_FILE}"
