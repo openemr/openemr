@@ -206,15 +206,15 @@ if (!empty($_REQUEST['go'])) { ?>
                 <div class="col-sm-12">
                     <?php
                     // Check to see if the user has Admin rights, and if so, allow access to See All.
-                    $showall = isset($_GET['show_all']) ? $_GET['show_all'] : "";
+                    $showall = $_GET['show_all'] ?? "";
                     if ($showall == "yes") {
                         $show_all = $showall;
                     } else {
                         $show_all = "no";
                     }
                     // Collect active variable and applicable html code for links
-                    $form_active = (isset($_REQUEST['form_active']) ? $_REQUEST['form_active'] : false);
-                    $form_inactive = (isset($_REQUEST['form_inactive']) ? $_REQUEST['form_inactive'] : false);
+                    $form_active = ($_REQUEST['form_active'] ?? false);
+                    $form_inactive = ($_REQUEST['form_inactive'] ?? false);
                     if ($form_active) {
                         $active = '1';
                         $activity_string_html = 'form_active=1';
@@ -226,7 +226,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         $activity_string_html = '';
                     }
                     //collect the task setting
-                    $task = isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
+                    $task = $_REQUEST['task'] ?? "";
                     if (AclMain::aclCheckCore('admin', 'super')) {
                         if ($show_all == 'yes') {
                             $showall = "yes";
@@ -386,7 +386,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     $sort = ["users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status"];
                     $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
                     $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
-                    $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+                    $begin = $_REQUEST['begin'] ?? 0;
 
                     if ($task == "addnew" or $task == "edit") {
                         // Display the Messages page layout.

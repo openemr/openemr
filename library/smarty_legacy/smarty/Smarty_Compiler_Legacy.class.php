@@ -452,8 +452,8 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         }
 
         $tag_command = $match[1];
-        $tag_modifier = isset($match[2]) ? $match[2] : null;
-        $tag_args = isset($match[3]) ? $match[3] : null;
+        $tag_modifier = $match[2] ?? null;
+        $tag_args = $match[3] ?? null;
 
         if (preg_match('~^' . $this->_num_const_regexp . '|' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '$~', $tag_command)) {
             /* tag name is a variable or object */
@@ -1232,9 +1232,9 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         $attrs = $this->_parse_attrs($tag_args);
 
         if ($start) {
-            $buffer = isset($attrs['name']) ? $attrs['name'] : "'default'";
-            $assign = isset($attrs['assign']) ? $attrs['assign'] : null;
-            $append = isset($attrs['append']) ? $attrs['append'] : null;
+            $buffer = $attrs['name'] ?? "'default'";
+            $assign = $attrs['assign'] ?? null;
+            $append = $attrs['append'] ?? null;
 
             $output = "<?php ob_start(); ?>";
             $this->_capture_stack[] = [$buffer, $assign, $append];
@@ -1813,7 +1813,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     } else {
                         $_var_parts = explode('.', $_index);
                         $_var_section = $_var_parts[0];
-                        $_var_section_prop = isset($_var_parts[1]) ? $_var_parts[1] : 'index';
+                        $_var_section_prop = $_var_parts[1] ?? 'index';
                         $_output .= "[\$this->_sections['$_var_section']['$_var_section_prop']]";
                     }
                 } else if (substr($_index, 0, 1) == '.') {
@@ -1874,7 +1874,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     {
         $parts = explode('|', $conf_var_expr, 2);
         $var_ref = $parts[0];
-        $modifiers = isset($parts[1]) ? $parts[1] : '';
+        $modifiers = $parts[1] ?? '';
 
         $var_name = substr($var_ref, 1, -1);
 
@@ -1895,7 +1895,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     {
         $parts = explode('|', $section_prop_expr, 2);
         $var_ref = $parts[0];
-        $modifiers = isset($parts[1]) ? $parts[1] : '';
+        $modifiers = $parts[1] ?? '';
 
         preg_match('!%(\w+)\.(\w+)%!', $var_ref, $match);
         $section_name = $match[1];

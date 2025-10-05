@@ -94,7 +94,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['cc_type'] = $r->transactionResponse->accountType;
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
-        $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+        $invoice = $_POST['invValues'] ?? '';
     } catch (\Exception $ex) {
         return $ex->getMessage();
     }
@@ -150,9 +150,9 @@ if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
     $form_source = trim($_POST['form_source']);
-    $upay = isset($_POST['form_upay']) ? $_POST['form_upay'] : '';
-    $cc = isset($_POST['extra_values']) ? $_POST['extra_values'] : '';
-    $amts = isset($_POST['inv_values']) ? $_POST['inv_values'] : '';
+    $upay = $_POST['form_upay'] ?? '';
+    $cc = $_POST['extra_values'] ?? '';
+    $amts = $_POST['inv_values'] ?? '';
     $s = SaveAudit($form_pid, $amts, $cc);
     if ($s) {
         echo 'failed';
@@ -164,9 +164,9 @@ if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
     $form_source = trim($_POST['form_source']);
-    $upay = isset($_POST['form_upay']) ? $_POST['form_upay'] : '';
-    $cc = isset($_POST['extra_values']) ? $_POST['extra_values'] : '';
-    $amts = isset($_POST['inv_values']) ? $_POST['inv_values'] : '';
+    $upay = $_POST['form_upay'] ?? '';
+    $cc = $_POST['extra_values'] ?? '';
+    $amts = $_POST['inv_values'] ?? '';
     $s = CloseAudit($form_pid, $amts, $cc);
     if ($s) {
         echo 'failed';
@@ -223,7 +223,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['narrative'] = "Payment authorized.";
         $audit['table_action'] = "update";
         $audit['table_args'] = $amts;
-        $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
+        $audit['action_user'] = $_SESSION['authUserID'] ?? "0";
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
         $cryptoGen = new CryptoGen();
         $audit['checksum'] = $cryptoGen->encryptStandard($cc);

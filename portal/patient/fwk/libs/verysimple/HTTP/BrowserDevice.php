@@ -86,8 +86,8 @@ class BrowserDevice
         $this->SupportsJS = true;
         $this->SupportsCSS = true;
 
-        $this->UserAgent = isset($_SERVER ['HTTP_USER_AGENT']) ? $_SERVER ['HTTP_USER_AGENT'] : "";
-        $wap = isset($_SERVER ['HTTP_X_WAP_PROFILE']) ? $_SERVER ['HTTP_X_WAP_PROFILE'] : "";
+        $this->UserAgent = $_SERVER ['HTTP_USER_AGENT'] ?? "";
+        $wap = $_SERVER ['HTTP_X_WAP_PROFILE'] ?? "";
 
         if (! $this->UserAgent) {
             $this->IsConsole = true;

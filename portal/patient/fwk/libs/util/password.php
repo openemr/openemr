@@ -168,7 +168,7 @@ if (! function_exists('password_needs_rehash')) {
 
         switch ($algo) {
             case PASSWORD_BCRYPT:
-                $cost = isset($options ['cost']) ? $options ['cost'] : 10;
+                $cost = $options ['cost'] ?? 10;
                 if ($cost != $info ['options'] ['cost']) {
                     return true;
                 }

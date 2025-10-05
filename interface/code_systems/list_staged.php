@@ -41,7 +41,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$db = isset($_GET['db']) ? $_GET['db'] : '0';
+$db = $_GET['db'] ?? '0';
 $mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower(check_file_dir_name($db));
 $file_checksum = "";
 

@@ -129,10 +129,10 @@ function edih_997_errdata($obj997)
             $diag['err'][$idx]['subtype'] = 'f' . $subtype;
             $diag['err'][$idx]['substn'] = $substn;
             //
-            $diag['err'][$idx]['ik3segid'] = (isset($sar[1])) ?  $sar[1] : '';
-            $diag['err'][$idx]['ik3segpos'] = (isset($sar[2])) ?  $sar[2] : '';
-            $diag['err'][$idx]['ik3loop'] = (isset($sar[3])) ?  $sar[3] : '';
-            $diag['err'][$idx]['ik3code'] = (isset($sar[4])) ?  $sar[4] : '';
+            $diag['err'][$idx]['ik3segid'] = $sar[1] ?? '';
+            $diag['err'][$idx]['ik3segpos'] = $sar[2] ?? '';
+            $diag['err'][$idx]['ik3loop'] = $sar[3] ?? '';
+            $diag['err'][$idx]['ik3code'] = $sar[4] ?? '';
             //
             continue;
         }
@@ -141,15 +141,15 @@ function edih_997_errdata($obj997)
             $sar = explode($de, $seg);
             if (isset($sar[1]) && strpos($sar[1], 'TRIG')) {
                 // CTX*SITUATIONAL TRIGGER*
-                $diag['err'][$idx]['ctxid'] = (isset($sar[2])) ?  $sar[2] : '';
-                $diag['err'][$idx]['ctxpos'] = (isset($sar[3])) ?  $sar[3] : '';
-                $diag['err'][$idx]['ctxloop'] = (isset($sar[4])) ?  $sar[4] : '';
-                $diag['err'][$idx]['ctxelem'] = (isset($sar[5])) ?  $sar[5] : '';
+                $diag['err'][$idx]['ctxid'] = $sar[2] ?? '';
+                $diag['err'][$idx]['ctxpos'] = $sar[3] ?? '';
+                $diag['err'][$idx]['ctxloop'] = $sar[4] ?? '';
+                $diag['err'][$idx]['ctxelem'] = $sar[5] ?? '';
                 // $sar[6] Reference in Segment
                 // Data Element Reference Number : Data Element Reference Number Composite
             } else {
                 // business unit identifier
-                $diag['err'][$idx]['ctxacct'] =  (isset($sar[2])) ?  $sar[2] : '';
+                $diag['err'][$idx]['ctxacct'] =  $sar[2] ?? '';
             }
 
             //
@@ -158,10 +158,10 @@ function edih_997_errdata($obj997)
 
         if (strncmp($seg, 'AK4' . $de, 4) == 0 || strncmp($seg, 'IK4' . $de, 4) == 0) {
             $sar = explode($de, $seg);
-            $diag['err'][$idx]['ik401'] = (isset($sar[1])) ?  $sar[1] : '';
-            $diag['err'][$idx]['ik402'] = (isset($sar[2])) ?  $sar[2] : '';
-            $diag['err'][$idx]['ik403'] = (isset($sar[3])) ?  $sar[3] : '';
-            $diag['err'][$idx]['ik404'] = (isset($sar[4])) ?  $sar[4] : '';
+            $diag['err'][$idx]['ik401'] = $sar[1] ?? '';
+            $diag['err'][$idx]['ik402'] = $sar[2] ?? '';
+            $diag['err'][$idx]['ik403'] = $sar[3] ?? '';
+            $diag['err'][$idx]['ik404'] = $sar[4] ?? '';
             //
             continue;
         }
@@ -169,11 +169,11 @@ function edih_997_errdata($obj997)
         if (strncmp($seg, 'AK5' . $de, 4) == 0 || strncmp($seg, 'IK5' . $de, 4) == 0) {
             if ($iserr) {
                 $sar = explode($de, $seg);
-                $diag['err'][$idx]['ik501'] = (isset($sar[1])) ?  $sar[1] : '';
-                $diag['err'][$idx]['ik502'] = (isset($sar[2])) ?  $sar[2] : '';
-                $diag['err'][$idx]['ik503'] = (isset($sar[3])) ?  $sar[3] : '';
-                $diag['err'][$idx]['ik504'] = (isset($sar[4])) ?  $sar[4] : '';
-                $diag['err'][$idx]['ik505'] = (isset($sar[5])) ?  $sar[5] : '';
+                $diag['err'][$idx]['ik501'] = $sar[1] ?? '';
+                $diag['err'][$idx]['ik502'] = $sar[2] ?? '';
+                $diag['err'][$idx]['ik503'] = $sar[3] ?? '';
+                $diag['err'][$idx]['ik504'] = $sar[4] ?? '';
+                $diag['err'][$idx]['ik505'] = $sar[5] ?? '';
                 //
                 $iserr = false;
             }
@@ -193,15 +193,15 @@ function edih_997_errdata($obj997)
             $diag['summary']['fg_id'] = $fg_id;
             //
             $sar = explode($de, $seg);
-            $diag['summary']['ak901'] = (isset($sar[1])) ?  $sar[1] : ''; // AK901 A=Accepted R=Rejected.
-            $diag['summary']['ak902'] = (isset($sar[2])) ?  $sar[2] : ''; // AK902  number of transaction sets
-            $diag['summary']['ak903'] = (isset($sar[3])) ?  $sar[3] : ''; // AK903  number of transaction sets received by the translator.
-            $diag['summary']['ak904'] = (isset($sar[4])) ?  $sar[4] : ''; // AK904  number of transaction sets accepted by the translator.
-            $diag['summary']['ak905'] = (isset($sar[5])) ?  $sar[5] : ''; // codes
-            $diag['summary']['ak906'] = (isset($sar[6])) ?  $sar[6] : '';
-            $diag['summary']['ak907'] = (isset($sar[7])) ?  $sar[7] : '';
-            $diag['summary']['ak908'] = (isset($sar[8])) ?  $sar[8] : '';
-            $diag['summary']['ak909'] = (isset($sar[9])) ?  $sar[9] : '';
+            $diag['summary']['ak901'] = $sar[1] ?? ''; // AK901 A=Accepted R=Rejected.
+            $diag['summary']['ak902'] = $sar[2] ?? ''; // AK902  number of transaction sets
+            $diag['summary']['ak903'] = $sar[3] ?? ''; // AK903  number of transaction sets received by the translator.
+            $diag['summary']['ak904'] = $sar[4] ?? ''; // AK904  number of transaction sets accepted by the translator.
+            $diag['summary']['ak905'] = $sar[5] ?? ''; // codes
+            $diag['summary']['ak906'] = $sar[6] ?? '';
+            $diag['summary']['ak907'] = $sar[7] ?? '';
+            $diag['summary']['ak908'] = $sar[8] ?? '';
+            $diag['summary']['ak909'] = $sar[9] ?? '';
             //
             continue;
         }
@@ -269,9 +269,9 @@ function edih_997_err_report($err_array)
     foreach ($err_array['err'] as $k => $v) {
         //
         $ct = $k + 1;
-        $icn = (isset($sub_icn)) ? $sub_icn : '';
-        $stn = (isset($v['substn'])) ? $v['substn'] : '';
-        $rtp = (isset($v['subtype'])) ? $v['subtype'] : '';
+        $icn = $sub_icn ?? '';
+        $stn = $v['substn'] ?? '';
+        $rtp = $v['subtype'] ?? '';
         //
         $str_html .= "<p class='err997'>" . PHP_EOL;
         $str_html .= "Error " . text($ct) . " ";

@@ -238,10 +238,10 @@ class QueryUtils
      */
     public static function selectHelper($sqlUpToFromStatement, $map)
     {
-        $where = isset($map["where"]) ? $map["where"] : null;
+        $where = $map["where"] ?? null;
         $data  = isset($map["data"]) && is_array($map['data']) ? $map["data"]  : [];
-        $join  = isset($map["join"])  ? $map["join"]  : null;
-        $order = isset($map["order"]) ? $map["order"] : null;
+        $join  = $map["join"] ?? null;
+        $order = $map["order"] ?? null;
         $limit = isset($map["limit"]) ? intval($map["limit"]) : null;
 
         $sql = $sqlUpToFromStatement;

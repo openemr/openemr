@@ -40,7 +40,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
         $this->_cqmPopulation = new CqmPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Calculate measurement period
         $tempDateArray = explode("-", ($dateTarget ?? ''));
         $tempYear = $tempDateArray[0];

@@ -249,11 +249,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($row)) {
             if (!empty($disability_code)) {
                 $parts = explode(':', $disability_code, 2);
-                $disability_code = isset($parts[1]) ? $parts[1] : $disability_code;
+                $disability_code = $parts[1] ?? $disability_code;
             }
             if (!empty($pregnancy_code)) {
                 $parts = explode(':', $pregnancy_code, 2);
-                $pregnancy_code = isset($parts[1]) ? $parts[1] : $pregnancy_code;
+                $pregnancy_code = $parts[1] ?? $pregnancy_code;
             }
         }
 

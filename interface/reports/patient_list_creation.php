@@ -216,7 +216,7 @@ for ($iter = 0; $row = sqlFetchArray($encarr_from_db); $iter++) {
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 $patient_id = trim($_POST["patient_id"] ?? '');
-$provider_id = isset($_POST['form_provider']) ? $_POST['form_provider'] : '';
+$provider_id = $_POST['form_provider'] ?? '';
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
 $sql_gender = $_POST["gender"] ?? '';
@@ -595,7 +595,7 @@ if (!empty($_POST['form_refresh'])) {
             }
         }
     }
-    $srch_option_pointer = isset($search_options[$srch_option]["copy"]) ? $search_options[$srch_option]["copy"] : $srch_option;
+    $srch_option_pointer = $search_options[$srch_option]["copy"] ?? $srch_option;
 
     switch ($srch_option_pointer) {
         case "diagnosis_check":
@@ -1028,7 +1028,7 @@ if (!empty($_POST['form_refresh'])) {
                 }
 
                 if (!$csv) { // Display column as HTML
-                    $width = isset($search_options[$srch_option]["cols"][$report_col]["width"]) ? $search_options[$srch_option]["cols"][$report_col]["width"] : '';
+                    $width = $search_options[$srch_option]["cols"][$report_col]["width"] ?? '';
                     if ($width != 'nowrap') {
                         echo '<td>';
                     } else {

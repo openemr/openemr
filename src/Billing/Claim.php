@@ -375,7 +375,7 @@ class Claim
                     }
                 }
 
-                $msp = isset($value['msp']) ? $value['msp'] : null; // record the reason for adjustment
+                $msp = $value['msp'] ?? null; // record the reason for adjustment
             }
 
             if ($ptresp < 0) {

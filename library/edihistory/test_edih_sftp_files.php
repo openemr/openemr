@@ -315,7 +315,7 @@ if (!$exitcd) {
         $wrk =  explode(':', $sftp_host['remote_host']);
         $sftp_host['remote_host'] = $wrk[0];
         if (!isset($sftp_host['port'])) {
-            $sftp_host['port'] = (isset($wrk[1]) ? $wrk[1] : '22');
+            $sftp_host['port'] = ($wrk[1] ?? '22');
         }
 
         $cn = new \phpseclib3\Net\SFTP($sftp_host['remote_host'], $sftp_host['port']);

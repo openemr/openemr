@@ -26,10 +26,10 @@ if (!empty($_REQUEST)) {
     }
 }
 
-$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] : 0;
+$fstart = $_REQUEST['fstart'] ?? 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
-$message = isset($_GET['message']) ? $_GET['message'] : "";
-$from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
+$message = $_GET['message'] ?? "";
+$from_page = $_REQUEST['from_page'] ?? "";
 
 ?>
 <!DOCTYPE html>
@@ -245,15 +245,15 @@ if ($popup) {
 } elseif ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='" . attr($from_page) . "' />\n";
-    $report_id = isset($_REQUEST['report_id']) ? $_REQUEST['report_id'] : 0;
+    $report_id = $_REQUEST['report_id'] ?? 0;
     echo "<input type='hidden' name='report_id' value='" . attr($report_id) . "' />\n";
-    $itemized_test_id = isset($_REQUEST['itemized_test_id']) ? $_REQUEST['itemized_test_id'] : 0;
+    $itemized_test_id = $_REQUEST['itemized_test_id'] ?? 0;
     echo "<input type='hidden' name='itemized_test_id' value='" . attr($itemized_test_id) . "' />\n";
-    $numerator_label = isset($_REQUEST['numerator_label']) ? $_REQUEST['numerator_label'] : '';
+    $numerator_label = $_REQUEST['numerator_label'] ?? '';
     echo "<input type='hidden' name='numerator_label' value='" . attr($numerator_label) . "' />\n";
-    $pass_id = isset($_REQUEST['pass_id']) ? $_REQUEST['pass_id'] : "all";
+    $pass_id = $_REQUEST['pass_id'] ?? "all";
     echo "<input type='hidden' name='pass_id' value='" . attr($pass_id) . "' />\n";
-    $print_patients = isset($_REQUEST['print_patients']) ? $_REQUEST['print_patients'] : 0;
+    $print_patients = $_REQUEST['print_patients'] ?? 0;
     echo "<input type='hidden' name='print_patients' value='" . attr($print_patients) . "' />\n";
 
   // Collect patient listing from cdr report

@@ -1436,7 +1436,7 @@ class C_Document extends Controller
             $ep = ['assigned_to' => $_SESSION['authUser']];
         }
 
-        $encounter_provider = isset($ep['assigned_to']) ? $ep['assigned_to'] : $_SESSION['authUser'];
+        $encounter_provider = $ep['assigned_to'] ?? $_SESSION['authUser'];
         $noteid = addPnote($_SESSION['pid'], 'New Image Report received ' . $narration, 0, 1, 'Image Results', $encounter_provider, '', 'New', '');
         setGpRelation(1, $doc_id, 6, $noteid);
     }

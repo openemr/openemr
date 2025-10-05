@@ -105,7 +105,7 @@ function execute_background_service_calls(): void
    */
     global $service_name;
 
-    $single_service = isset($_REQUEST['background_service']) ? $_REQUEST['background_service'] : '';
+    $single_service = $_REQUEST['background_service'] ?? '';
     $force = (isset($_REQUEST['background_force']) && $_REQUEST['background_force']);
 
     $sql = 'SELECT * FROM background_services WHERE ' . ($force ? '1' : 'execute_interval > 0');

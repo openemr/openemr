@@ -189,7 +189,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         //
         // collect the option toggle if using the 'immunizations' list
         if ($list_id == 'immunizations') {
-            $ok_map_cvx_codes = isset($_POST['ok_map_cvx_codes']) ? $_POST['ok_map_cvx_codes'] : 0;
+            $ok_map_cvx_codes = $_POST['ok_map_cvx_codes'] ?? 0;
         }
 
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
@@ -626,7 +626,7 @@ function writeFSLine($category, $option, $codes): void
  */
 function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title = '')
 {
-    $value = isset($data_array[$name]) ? $data_array[$name] : '';
+    $value = $data_array[$name] ?? '';
     $s = "  <td";
     if ($title) {
         $s .= " title='" . attr($title) . "'";
@@ -655,7 +655,7 @@ function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
 
 function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = '')
 {
-    $value = isset($data_array[$name]) ? $data_array[$name] : '';
+    $value = $data_array[$name] ?? '';
     $s = "  <td title='" . attr($title) . "'>";
     $s .= "<select name='opt[" . attr($opt_line_no) . "][" . attr($name) . "]' class='optin'>";
     foreach ($option_array as $key => $desc) {

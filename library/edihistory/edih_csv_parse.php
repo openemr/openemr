@@ -154,7 +154,7 @@ function edih_835_csv_data($obj835)
             if ($n1pr) {
                 foreach ($n1pr as $n1) {
                     $sar = explode($de, $n1);
-                    $payer = (isset($sar[2])) ? $sar[2]  : '';
+                    $payer = $sar[2] ?? '';
                 }
 
                 if ($payer) {
@@ -180,8 +180,8 @@ function edih_835_csv_data($obj835)
                         if (strncmp($seg, 'CLP' . $de, 4) === 0) {
                             $sar = explode($de, $seg);
                             //
-                            $ret_ar[$icn]['claim'][$cdx]['CLM01'] = (isset($sar[1])) ? $sar[1] : '';
-                            $ret_ar[$icn]['claim'][$cdx]['Status'] = (isset($sar[2])) ? $sar[2] : '';
+                            $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[1] ?? '';
+                            $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[2] ?? '';
                             $ret_ar[$icn]['claim'][$cdx]['Pmt'] = (isset($sar[4])) ? sprintf("%01.02f", $sar[4]) : '';
                             $ret_ar[$icn]['claim'][$cdx]['PtResp'] = ( isset($sar[5]) ) ? sprintf("%01.02f", $sar[5]) : '';
                             $ret_ar[$icn]['claim'][$cdx]['ClaimID'] = ( isset($sar[7]) ) ? trim($sar[7]) : '';
@@ -820,7 +820,7 @@ function edih_278_csv_data($obj278)
                     $hl = $sar[1];
                     $hlpc = $sar[2];                            // parent code
                     $hllc = $sar[3];
-                    $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+                    $hlcc = $sar[4] ?? '';    // child code
                     if ($sar[3] == '20') {                      // level code
                         $loopid = '2000A';                      // info source (payer)
                     } elseif ($sar[3] == '21') {
@@ -910,11 +910,11 @@ function edih_278_csv_data($obj278)
                     $sar = explode($de, $seg);
                     if ($rqst == 'Req') {
                         if (isset($sar[1]) && $sar[1] == '1') {
-                            $ret_ar[$icn]['claim'][$cdx]['Trace'] = (isset($sar[2])) ? $sar[2] : '';
+                            $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2] ?? '';
                         }
                     } else {
                         if (isset($sar[1]) && $sar[1] == '2') {
-                            $ret_ar[$icn]['claim'][$cdx]['Trace'] = (isset($sar[2])) ? $sar[2] : '';
+                            $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2] ?? '';
                         }
                     }
                 }
@@ -1307,7 +1307,7 @@ function edih_271_csv_data($obj270)
                     $ret_ar[$icn]['claim'][$cdx]['Trace'] = '';
                     if ($isrsp || $ft == 'f271') {
                         $ret_ar[$icn]['claim'][$cdx]['Status'] = 'A';    // 271
-                        $ret_ar[$icn]['claim'][$cdx]['BHT03'] = (isset($sar[3])) ? $sar[3] : '';  //bht03 = $sar[3];
+                        $ret_ar[$icn]['claim'][$cdx]['BHT03'] = $sar[3] ?? '';  //bht03 = $sar[3];
                     } else {
                         $ret_ar[$icn]['claim'][$cdx]['InsBnft'] = '';    // 270
                         $ret_ar[$icn]['claim'][$cdx]['BHT03'] = sprintf("%s%04d", $isaicn, $stn);
@@ -1325,7 +1325,7 @@ function edih_271_csv_data($obj270)
                     $hl = $sar[1];
                     $hlpc = $sar[2];                            // parent code
                     $hllc = $sar[3];
-                    $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+                    $hlcc = $sar[4] ?? '';    // child code
                     if ($sar[3] == '20') {                      // level code
                         $loopid = '2000A';                      // info source (payer)
                     } elseif ($sar[3] == '21') {
@@ -1410,7 +1410,7 @@ function edih_271_csv_data($obj270)
 
                 // for 271 eligibility response
                 if (strncmp($seg, 'EB' . $de, 3) === 0) {
-                    $status = ( isset($status) ) ? $status : '';
+                    $status = $status ?? '';
                     //
                     if (strpos($ret_ar[$icn]['claim'][$cdx]['Status'], 'tive')) {
                         continue;

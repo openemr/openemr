@@ -63,7 +63,7 @@ class PatientDataTable
 
         $obj    = new ApplicationTable();
         $sql    = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ?  OR pubpid = ?";
-        $params = [$parameters['fname'],$parameters['lname'],$parameters['DOB'],isset($parameters['pubpid']) ? $parameters['pubpid'] : ''];
+        $params = [$parameters['fname'],$parameters['lname'],$parameters['DOB'],$parameters['pubpid'] ?? ''];
         $rowset = $obj->zQuery($sql, $params);
 
 

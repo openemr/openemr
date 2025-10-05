@@ -261,7 +261,7 @@ class edih_835_codes
                 }
             }
         } elseif (array_key_exists($e, $this->code835)) {
-            $val = (isset($this->code835[$e][$code]) ) ? $this->code835[$e][$code] : "$e code $code unknown";
+            $val = $this->code835[$e][$code] ?? "$e code $code unknown";
         } else {
             $val = "$e codes not available ($code)";
         }

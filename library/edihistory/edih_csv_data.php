@@ -71,13 +71,13 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 //
                 $dt_str = "";
                 //
-                $dte = (isset($csvfile['Date'])) ? $csvfile['Date'] : '';
-                $fn1 = (isset($csvfile['FileName'])) ? $csvfile['FileName'] : '';
-                $ctl = (isset($csvfile['Control'])) ? $csvfile['Control'] : '';
-                $clmct = (isset($csvfile['Claim_ct'])) ? $csvfile['Claim_ct'] : '';
-                $trc = (isset($csvfile['Trace'])) ? $csvfile['Trace'] : '';
-                $typ = (isset($csvfile['RspType'])) ? $csvfile['RspType'] : '';
-                $rej = (isset($csvfile['RejCt'])) ? $csvfile['RejCt'] : '';
+                $dte = $csvfile['Date'] ?? '';
+                $fn1 = $csvfile['FileName'] ?? '';
+                $ctl = $csvfile['Control'] ?? '';
+                $clmct = $csvfile['Claim_ct'] ?? '';
+                $trc = $csvfile['Trace'] ?? '';
+                $typ = $csvfile['RspType'] ?? '';
+                $rej = $csvfile['RejCt'] ?? '';
                 //
                 $dt_str .= ($fn1) ? "<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&fmt=seg&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . text($fn1) . "</a>&nbsp;" : "";
                 $dt_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";
@@ -131,15 +131,15 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $dd_str = "";
                 $oe = ( $errct % 2 ) ? 'codd' : 'ceven';
                 //
-                $ptn = (isset($claim['PtName'])) ? $claim['PtName'] : '';
-                $fn1 = (isset($claim['FileName'])) ? $claim['FileName'] : '';
-                $ctl = (isset($claim['Control'])) ? $claim['Control'] : '';
-                $pid = (isset($claim['CLM01'])) ? $claim['CLM01'] : '';
-                $sts = (isset($claim['Status'])) ? $claim['Status'] : '';
-                $err = (isset($claim['err_seg'])) ? $claim['err_seg'] : '';
-                $trc = (isset($claim['Trace'])) ? $claim['Trace'] : '';
-                $bht03 = (isset($claim['BHT03'])) ? $claim['BHT03'] : '';
-                $pay = (isset($claim['Payer'])) ? $claim['Payer'] : '';
+                $ptn = $claim['PtName'] ?? '';
+                $fn1 = $claim['FileName'] ?? '';
+                $ctl = $claim['Control'] ?? '';
+                $pid = $claim['CLM01'] ?? '';
+                $sts = $claim['Status'] ?? '';
+                $err = $claim['err_seg'] ?? '';
+                $trc = $claim['Trace'] ?? '';
+                $bht03 = $claim['BHT03'] ?? '';
+                $pay = $claim['Payer'] ?? '';
                 $typ = (isset($csvfile['RspType'])) ? $claim['RspType'] : '';
                 $auth = (isset($csvfile['Auth'])) ? $claim['Auth'] : '';
                 //
@@ -148,10 +148,10 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 //
                 $clm = (isset($csvfile['ClaimID'])) ? $claim['ClaimID'] : $ins;
                 //
-                $dte = (isset($claim['SvcDate'])) ? $claim['SvcDate'] : '';
-                $dte = (isset($claim['ReqDate'])) ? $claim['ReqDate'] : $dte;
-                $dte = (isset($claim['RspDate'])) ? $claim['RspDate'] : $dte;
-                $dte = (isset($claim['FileDate'])) ? $claim['FileDate'] : $dte;
+                $dte = $claim['SvcDate'] ?? '';
+                $dte = $claim['ReqDate'] ?? $dte;
+                $dte = $claim['RspDate'] ?? $dte;
+                $dte = $claim['FileDate'] ?? $dte;
 
                 $dd_str .= ($ptn) ? text($ptn) . "&nbsp; " : "";
                 $dd_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";

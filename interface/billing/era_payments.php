@@ -34,11 +34,11 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     exit;
 }
 
-$hidden_type_code = isset($_POST['hidden_type_code']) ? $_POST['hidden_type_code'] : '';
-$check_date = isset($_POST['check_date']) ? $_POST['check_date'] : '';
-$post_to_date = isset($_POST['post_to_date']) ? $_POST['post_to_date'] : '';
-$deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
-$type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
+$hidden_type_code = $_POST['hidden_type_code'] ?? '';
+$check_date = $_POST['check_date'] ?? '';
+$post_to_date = $_POST['post_to_date'] ?? '';
+$deposit_date = $_POST['deposit_date'] ?? '';
+$type_code = $_POST['type_code'] ?? '';
 
 //===============================================================================
 // This is called back by ParseERA::parseERA() if we are processing X12 835's.

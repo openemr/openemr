@@ -97,6 +97,6 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
 
     public function offsetGet($offset): mixed
     {
-        return isset($this->_patients[$offset]) ? $this->_patients[$offset] : null;
+        return $this->_patients[$offset] ?? null;
     }
 }

@@ -92,7 +92,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $this->_amcPopulation = new AmcPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Parse measurement period, which is stored as array in $dateTarget ('dateBegin' and 'dateTarget').
         $this->_beginMeasurement = $dateTarget['dateBegin'] ?? '';
         $this->_endMeasurement = $dateTarget['dateTarget'] ?? '';
