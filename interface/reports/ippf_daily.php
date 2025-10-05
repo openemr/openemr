@@ -38,7 +38,7 @@ $facilityService = new FacilityService();
 
 $from_date     = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility = $_POST['form_facility'] ?? '';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
 $report_title = xl('Clinic Daily Record');

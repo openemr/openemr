@@ -80,9 +80,9 @@ if ($_POST) {
     $sendTo = $_POST['sendTo'];
 
   // for incase of data error, this allows the previously entered data to re-populate the boxes
-    $this_message['message'] = (isset($_POST['message']) ? $_POST['message'] : '');
-    $this_message['priority'] = (isset($_POST['priority']) ? $_POST['priority'] : '');
-    $this_message['dueDate'] = (isset($_POST['dueDate']) ? $_POST['dueDate'] : '');
+    $this_message['message'] = ($_POST['message'] ?? '');
+    $this_message['priority'] = ($_POST['priority'] ?? '');
+    $this_message['dueDate'] = ($_POST['dueDate'] ?? '');
 
 
 // --------------------------------------------------------------------------------------------------------------------------
@@ -146,10 +146,10 @@ if ($_POST) {
 
 // get current patient, first check if this is a forwarded message, if it is use the original pid
 if (isset($this_message['pid'])) {
-    $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
+    $patientID = ($this_message['pid'] ?? 0);
     $reminder_title = xl("Forward this Reminder");
 } else {
-    $patientID = (isset($pid) ? $pid : 0);
+    $patientID = ($pid ?? 0);
     $reminder_title = xl("Send a Reminder");
 }
 ?>

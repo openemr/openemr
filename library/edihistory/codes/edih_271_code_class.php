@@ -2428,7 +2428,7 @@ class edih_271_codes
                 }
             }
         } elseif (array_key_exists($e, $this->code271)) {
-            $val = (isset($this->code271[$e][$code]) ) ? $this->code271[$e][$code] : "$elem code $code unknown ";
+            $val = $this->code271[$e][$code] ?? "$elem code $code unknown ";
         } else {
             $val = "$e codes not available ($code) ";
         }

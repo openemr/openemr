@@ -368,8 +368,8 @@ class parseCSV
         // walk specific depth finding posssible delimiter characters
         for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
-            $nch = (isset($data [$i + 1])) ? $data [$i + 1] : false;
-            $pch = (isset($data [$i - 1])) ? $data [$i - 1] : false;
+            $nch = $data [$i + 1] ?? false;
+            $pch = $data [$i - 1] ?? false;
 
             // open and closing quotes
             if ($ch == $enclosure) {
@@ -477,8 +477,8 @@ class parseCSV
         // walk through each character
         for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
-            $nch = (isset($data [$i + 1])) ? $data [$i + 1] : false;
-            $pch = (isset($data [$i - 1])) ? $data [$i - 1] : false;
+            $nch = $data [$i + 1] ?? false;
+            $pch = $data [$i - 1] ?? false;
 
             // open/close quotes, and inline quotes
             if ($ch == $this->enclosure) {
@@ -596,7 +596,7 @@ class parseCSV
 
             ($this->sort_reverse) ? krsort($rows, $sort_type) : ksort($rows, $sort_type);
             if ($this->offset !== null || $this->limit !== null) {
-                $rows = array_slice($rows, ($this->offset === null ? 0 : $this->offset), $this->limit, true);
+                $rows = array_slice($rows, ($this->offset ?? 0), $this->limit, true);
             }
         }
 

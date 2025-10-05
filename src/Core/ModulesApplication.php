@@ -48,7 +48,7 @@ class ModulesApplication
         // Prepare the service manager
         // We customize this and skip using the static Laminas\Mvc\Application::init in order to inject the
         // Symfony Kernel's EventListener that way we can bridge the two frameworks.
-        $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : [];
+        $smConfig = $configuration['service_manager'] ?? [];
         $smConfig = new ServiceManagerConfig($smConfig);
 
         $serviceManager = new ServiceManager();
@@ -60,9 +60,9 @@ class ModulesApplication
         $serviceManager->get('ModuleManager')->loadModules();
 
         // Prepare list of listeners to bootstrap
-        $listenersFromAppConfig = isset($configuration['listeners']) ? $configuration['listeners'] : [];
+        $listenersFromAppConfig = $configuration['listeners'] ?? [];
         $config = $serviceManager->get('config');
-        $listenersFromConfigService = isset($config['listeners']) ? $config['listeners'] : [];
+        $listenersFromConfigService = $config['listeners'] ?? [];
 
         $listeners = array_unique(array_merge($listenersFromConfigService, $listenersFromAppConfig));
 

@@ -1249,7 +1249,7 @@ protected function _parsejpg($file)
 		$colspace = 'DeviceCMYK';
 	else
 		$colspace = 'DeviceGray';
-	$bpc = isset($a['bits']) ? $a['bits'] : 8;
+	$bpc = $a['bits'] ?? 8;
 	$data = file_get_contents($file);
 	return ['w'=>$a[0], 'h'=>$a[1], 'cs'=>$colspace, 'bpc'=>$bpc, 'f'=>'DCTDecode', 'data'=>$data];
 }

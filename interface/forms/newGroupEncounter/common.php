@@ -27,7 +27,7 @@ use OpenEMR\Services\FacilityService;
 $facilityService = new FacilityService();
 
 if ($viewmode) {
-    $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
+    $id = $_REQUEST['id'] ?? '';
     $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", [$id]);
     $encounter = $result['encounter'];
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {

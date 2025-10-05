@@ -40,8 +40,8 @@ $facilityService = new FacilityService();
 
 $from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d'); // From date filter
 $to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
-$selectedFacility = isset($_POST['form_facility']) ? $_POST['form_facility'] : "";  // facility filter
-$selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "";  // provider filter
+$selectedFacility = $_POST['form_facility'] ?? "";  // facility filter
+$selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 ?>
 
 <html>

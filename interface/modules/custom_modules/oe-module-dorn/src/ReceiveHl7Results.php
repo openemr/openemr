@@ -491,7 +491,7 @@ class ReceiveHl7Results
                     $tmp = explode($d2, $a[29]);
                     $in_parent_obrkey = isset($tmp[1]) ? str_replace($d5, $d2, $tmp[1]) : '';
                     $tmp = explode($d2, $a[26]);
-                    $in_parent_obxkey = (isset($tmp[0]) ? str_replace($d5, $d2, $tmp[0]) : '') . $d1 . (isset($tmp[1]) ? $tmp[1] : '');
+                    $in_parent_obxkey = (isset($tmp[0]) ? str_replace($d5, $d2, $tmp[0]) : '') . $d1 . ($tmp[1] ?? '');
 
                     // Look for the parent report.
                     foreach ($amain as $arr) {

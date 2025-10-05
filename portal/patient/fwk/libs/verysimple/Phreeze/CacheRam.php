@@ -21,7 +21,7 @@ class CacheRam implements ICache
     private $ram =  [];
     public function Get($key, $flags = null)
     {
-        return isset($this->ram [$key]) ? $this->ram [$key] : null;
+        return $this->ram [$key] ?? null;
     }
     public function GetKeys()
     {

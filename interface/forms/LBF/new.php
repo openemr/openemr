@@ -98,7 +98,7 @@ $from_lbf_edit = $patient_portal ? 1 : $from_lbf_edit;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 $formid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $portalid = isset($_GET['portalid']) ? (int)$_GET['portalid'] : 0;
 // know LBF origin

@@ -14,9 +14,9 @@
 
 require_once("../globals.php");
 
-$id = (isset($_GET['id']) ? $_GET['id'] : '') + 0;
-$order = (isset($_GET['order']) ? $_GET['order'] : '') + 0;
-$labid = (isset($_GET['labid']) ? $_GET['labid'] : '') + 0;
+$id = ($_GET['id'] ?? '') + 0;
+$order = ($_GET['order'] ?? '') + 0;
+$labid = ($_GET['labid'] ?? '') + 0;
 
 $render = '';
 

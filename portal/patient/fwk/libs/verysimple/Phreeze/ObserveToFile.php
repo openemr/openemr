@@ -96,10 +96,10 @@ class ObserveToFile implements IObserver
         for ($x = count($tb); $x > 0; $x--) {
             $stack = $tb [$x - 1];
             $s_file = isset($stack ['file']) ? basename($stack ['file']) : "[?]";
-            $s_line = isset($stack ['line']) ? $stack ['line'] : "[?]";
-            $s_function = isset($stack ['function']) ? $stack ['function'] : "";
-            $s_class = isset($stack ['class']) ? $stack ['class'] : "";
-            $s_type = isset($stack ['type']) ? $stack ['type'] : "";
+            $s_line = $stack ['line'] ?? "[?]";
+            $s_function = $stack ['function'] ?? "";
+            $s_class = $stack ['class'] ?? "";
+            $s_type = $stack ['type'] ?? "";
 
             $msg .= $delim . "$calling_function" . ($show_lines ? " ($s_file Line $s_line)" : "");
             $calling_function = $s_class . $s_type . $s_function;

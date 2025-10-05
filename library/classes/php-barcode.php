@@ -49,7 +49,7 @@ class Barcode
 
         if (is_array($datas)) {
             foreach (['code' => '', 'crc' => true, 'rect' => false] as $v => $def) {
-                $$v = isset($datas[$v]) ? $datas[$v] : $def;
+                $$v = $datas[$v] ?? $def;
             }
         } else {
             $code = $datas;

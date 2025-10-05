@@ -44,7 +44,7 @@ class UserSettingsService
       ORDER BY setting_user DESC", [$user, $defaultUser, $label]);
 
         // If no entries exist, then return NULL.
-        return (isset($res['setting_value']) ? $res['setting_value'] : null);
+        return ($res['setting_value'] ?? null);
     }
 
     /**

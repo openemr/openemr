@@ -10,10 +10,10 @@
  */
 
     // Get pararameters that are passed in through $_GET or set to the default value
-    $text = (isset($_GET["text"]) ? $_GET["text"] : "0");
-    $size = (isset($_GET["size"]) ? $_GET["size"] : "20");
-    $orientation = (isset($_GET["orientation"]) ? $_GET["orientation"] : "horizontal");
-    $code_type = (isset($_GET["codetype"]) ? $_GET["codetype"] : "code128");
+    $text = ($_GET["text"] ?? "0");
+    $size = ($_GET["size"] ?? "20");
+    $orientation = ($_GET["orientation"] ?? "horizontal");
+    $code_type = ($_GET["codetype"] ?? "code128");
     $code_string = "";
 
     // Translate the $text into barcode the correct $code_type

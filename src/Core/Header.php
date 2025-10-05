@@ -217,11 +217,11 @@ class Header
         $foundAssets = [];
         $excludedCount = 0;
         foreach ($map as $k => $opts) {
-            $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
-            $allowNoLoad = (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
-            $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
-            $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
-            $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
+            $autoload = $opts['autoload'] ?? false;
+            $allowNoLoad = $opts['allowNoLoad'] ?? false;
+            $alreadyBuilt = $opts['alreadyBuilt'] ?? false;
+            $loadInFile = $opts['loadInFile'] ?? false;
+            $rtl = $opts['rtl'] ?? false;
 
             if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
                 if ($allowNoLoad === true) {
@@ -281,9 +281,9 @@ class Header
      */
     private static function buildAsset($opts = [], $alreadyBuilt = false)
     {
-        $script = (isset($opts['script'])) ? $opts['script'] : false;
-        $link = (isset($opts['link'])) ? $opts['link'] : false;
-        $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
+        $script = $opts['script'] ?? false;
+        $link = $opts['link'] ?? false;
+        $path = $opts['basePath'] ?? '';
 
         $basePath = self::parsePlaceholders($path);
 

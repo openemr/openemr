@@ -27,7 +27,7 @@ $limit = '';
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
     $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
 }
-$searchTerm = isset($_GET['sSearch']) ? $_GET['sSearch'] : '';
+$searchTerm = $_GET['sSearch'] ?? '';
 
 // What we are picking from: codes, fields, lists or groups
 $what = $_GET['what'];

@@ -34,8 +34,8 @@ $from_date     = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_f
 $to_date       = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_by       = $_POST['form_by'] ?? null;     // this is a scalar
 $form_show     = $_POST['form_show'] ?? null;   // this is an array
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
-$form_sexes    = isset($_POST['form_sexes']) ? $_POST['form_sexes'] : '3';
+$form_facility = $_POST['form_facility'] ?? '';
+$form_sexes    = $_POST['form_sexes'] ?? '3';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
 if (empty($form_by)) {

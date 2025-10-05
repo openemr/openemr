@@ -952,7 +952,7 @@ function csv_processed_files_list($type)
         }
     }
 
-    $csv_col = (isset($csv_col)) ? $csv_col : 1;
+    $csv_col = $csv_col ?? 1;
     $csv_file = $param['files_csv'];
     //if ($tp == 'dpr') {
         //$csv_file = $param['claims_csv'];
@@ -1486,7 +1486,7 @@ function csv_assoc_array($file_type, $csv_type)
     $param = csv_parameters($file_type);
     $fcsv = (strpos($csv_type, 'aim')) ? 'claims_csv' : 'files_csv';
     //
-    $fp = (isset($param[$fcsv])) ? $param[$fcsv] : '';
+    $fp = $param[$fcsv] ?? '';
     if (!is_file($fp)) {
         csv_edihist_log('csv_assoc_array; invalid csv file ' . basename($fp));
         return $csv_ar;
@@ -1572,7 +1572,7 @@ function edih_csv_write($csv_data)
     //
     foreach ($csv_data as $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
-        $ft = ( isset($isa['type']) ) ? $isa['type'] : '';
+        $ft = $isa['type'] ?? '';
         if (!$ft) {
             csv_edihist_log('edih_csv_write(): invalid file type');
             continue;
@@ -1785,7 +1785,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
     } else {
         $params = csv_parameters($ft);
         //$fp = isset($params['claims_csv']) ? __DIR__.$params['claims_csv'] : false;
-        $fp = isset($params['claims_csv']) ? $params['claims_csv'] : false;
+        $fp = $params['claims_csv'] ?? false;
         $h_ar = csv_table_header($ft, 'claim');
         $hct = count($h_ar);
         if (!$fp) {
@@ -1796,8 +1796,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
 
     //
     $enct = csv_pid_enctr_parse(strval($clm01));
-    $p = (isset($enct['pid'])) ? $enct['pid'] : '';
-    $e = (isset($enct['enctr'])) ? $enct['enctr'] : '';
+    $p = $enct['pid'] ?? '';
+    $e = $enct['enctr'] ?? '';
     if ($p && $e) {
         $pe = $p . '-' . $e;
         $srchtype = '';

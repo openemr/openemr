@@ -113,7 +113,7 @@ class GenericRouter implements IRouter
             $this->matchedRoute =  [
                     "key" => $this->routeMap [$uri],
                     "route" => $this->routeMap [$uri] ["route"],
-                    "params" => isset($this->routeMap [$uri] ["params"]) ? $this->routeMap [$uri] ["params"] :  []
+                    "params" => $this->routeMap [$uri] ["params"] ?? []
             ];
 
             return  [
@@ -158,7 +158,7 @@ class GenericRouter implements IRouter
                 $this->matchedRoute =  [
                         "key" => $unalteredKey,
                         "route" => $value ["route"],
-                        "params" => isset($value ["params"]) ? $value ["params"] :  []
+                        "params" => $value ["params"] ?? []
                 ];
 
                 // expects mapped values to be in the form: Controller.Model

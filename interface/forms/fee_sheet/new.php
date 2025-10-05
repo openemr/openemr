@@ -100,7 +100,7 @@ function echoServiceLines(): void
         }
         $modifier = $li['hidden']['mod'];
         $billed   = $li['hidden']['billed'];
-        $ndc_info = isset($li['ndc_info']) ? $li['ndc_info'] : '';
+        $ndc_info = $li['ndc_info'] ?? '';
         $pricelevel = $li['pricelevel'];
         $justify  = $li['justify'];
 
@@ -1661,7 +1661,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     } elseif ($GLOBALS['default_rendering_provider'] == '1') {
                                         $default_rid = $fs->provider_id;
                                     } else {
-                                        $default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
+                                        $default_rid = $_SESSION['authUserID'] ?? $fs->provider_id;
                                     }
                                     echo $fs->genProviderSelect(
                                         'ProviderID',

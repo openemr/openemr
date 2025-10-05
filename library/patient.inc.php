@@ -1239,7 +1239,7 @@ function updateEmployerData($pid, $new, $create = false)
     if ($create) {
         $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";
         foreach ($colnames as $key) {
-            $value = isset($new[$key]) ? $new[$key] : '';
+            $value = $new[$key] ?? '';
             $set .= ", `$key` = '" . add_escape_custom($value) . "'";
         }
 

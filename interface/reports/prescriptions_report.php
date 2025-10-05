@@ -39,7 +39,7 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
 $form_patient_id = trim($_POST['form_patient_id'] ?? '');
 $form_drug_name  = trim($_POST['form_drug_name'] ?? '');
 $form_lot_number = trim($_POST['form_lot_number'] ?? '');
-$form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility   = $_POST['form_facility'] ?? '';
 ?>
 <html>
 <head>

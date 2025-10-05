@@ -64,10 +64,10 @@ $provider  = $_POST['form_provider'] ?? null;
 $facility  = $_POST['form_facility'] ?? null;  #(CHEMED) facility filter
 $form_orderby = (!empty($_POST['form_orderby']) && getComparisonOrder($_POST['form_orderby'])) ?  $_POST['form_orderby'] : 'date';
 if (!empty($_POST["form_patient"])) {
-    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+    $form_patient = $_POST['form_patient'] ?? '';
 }
 
-$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+$form_pid = $_POST['form_pid'] ?? '';
 if (empty($form_patient)) {
     $form_pid = '';
 }

@@ -418,7 +418,7 @@ class PatientController extends AppBasePortalController
             $audit['narrative'] = "Changes reviewed and commited to demographics.";
             $audit['table_action'] = "update";
             $audit['table_args'] = $ja;
-            $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
+            $audit['action_user'] = $_SESSION['authUserID'] ?? "0";
             $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
             // returns false for new audit

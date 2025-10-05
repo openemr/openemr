@@ -512,7 +512,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][0]",
-            (isset($avalue[$option_id][0]) ? $avalue[$option_id][0] : ''),
+            ($avalue[$option_id][0] ?? ''),
             $outtype,
             3,
             2,
@@ -521,7 +521,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
         );
 
         if ($outtype == 2) {
-            $tmp = isset($avalue[$option_id][1]) ? $avalue[$option_id][1] : '0';
+            $tmp = $avalue[$option_id][1] ?? '0';
             $restype = ($tmp == '1') ? xl('Normal') : (($tmp == '2') ? xl('Abnormal') : xl('N/A'));
             $s .= "<td>" . text($restype) . "&nbsp;</td>";
         } else {
@@ -542,7 +542,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
         }
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][2]",
-            (isset($avalue[$option_id][2]) ? $avalue[$option_id][2] : ''),
+            ($avalue[$option_id][2] ?? ''),
             $outtype,
             10,
             30,
@@ -551,7 +551,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
         );
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][3]",
-            (isset($avalue[$option_id][3]) ? $avalue[$option_id][3] : ''),
+            ($avalue[$option_id][3] ?? ''),
             $outtype,
             $fldlength,
             $maxlength,
@@ -2406,9 +2406,9 @@ function generate_display_field($frow, $currvalue)
     global $ISSUE_TYPES, $facilityService;
 
     $data_type  = $frow['data_type'];
-    $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
+    $field_id   = $frow['field_id'] ?? null;
     $list_id    = $frow['list_id'];
-    $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
+    $backup_list = $frow['list_backup_id'] ?? null;
     $show_unchecked_arr = [];
     getLayoutProperties($frow['form_id'] ?? null, $show_unchecked_arr, 'grp_unchecked', "1");
     $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) == "0" ? false : true;
@@ -2911,7 +2911,7 @@ function generate_plaintext_field($frow, $currvalue)
     global $ISSUE_TYPES;
 
     $data_type = $frow['data_type'];
-    $field_id  = isset($frow['field_id']) ? $frow['field_id'] : null;
+    $field_id  = $frow['field_id'] ?? null;
     $list_id   = $frow['list_id'];
     $backup_list = $frow['backup_list'] ?? null;
     $edit_options = $frow['edit_options'] ?? null;
@@ -3762,7 +3762,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
 
         // This loops once per group within a given layout.
         while ($frow = sqlFetchArray($fres)) {
-            $this_group = isset($frow['group_id']) ? $frow['group_id'] : "" ;
+            $this_group = $frow['group_id'] ?? "" ;
 
             if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
                 continue;
@@ -4675,7 +4675,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $indicatorTag = "style='display: none'";
     }
 
-    $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
+    $indicatorTag = $indicatorTag ?? "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
         attr_js($label . "_ps_expand") . ")'><span class='text font-weight-bold'>";
     echo text($title) . "</span>";

@@ -202,7 +202,7 @@ function edih_271_transaction_html($obj271, $bht03)
             //
             if (strncmp('N3' . $de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
-                $addr = (isset($sar[1])) ? $sar[1] : "";
+                $addr = $sar[1] ?? "";
                 $addr .= (isset($sar[2])) ? " {$sar[2]}" : "";
                 if ($loopid == '2100C') {
                     $sbr_nm1_html .= "<tr><td>&gt;</td><td colspan=3>" . text($addr) . "</td></tr>" . PHP_EOL;
@@ -297,9 +297,9 @@ function edih_271_transaction_html($obj271, $bht03)
                 //
                 $sar = explode($de, $seg);
                 $var = '';
-                $dtp01 = (isset($sar[1])) ? $sar[1] : '';
-                $dtp02 = (isset($sar[2])) ? $sar[2] : '';
-                $dtp03 = (isset($sar[3])) ? $sar[3] : '';
+                $dtp01 = $sar[1] ?? '';
+                $dtp02 = $sar[2] ?? '';
+                $dtp03 = $sar[3] ?? '';
                 //
                 $idtype = ($dtp01) ? $cd271->get_271_code('DTP', $dtp01) : "";
                 if ($dtp02 == 'D8' && $dtp03) {

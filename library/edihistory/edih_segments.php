@@ -89,7 +89,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
         $erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
-        $erseg = (isset($er['err'])) ? $er['err'] : [];
+        $erseg = $er['err'] ?? [];
     } else {
         $erstn = '';
         $erseg = [];
@@ -206,7 +206,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
         //
         if (strncmp('NM1' . $de, $seg, 4) === 0) {
             $sar = explode($de, $seg);
-            $nm101 = ( isset($sar[1]) ) ? $sar[1] : '';
+            $nm101 = $sar[1] ?? '';
             if ($loopid == 'Begin' || strcmp(substr($loopid, 0, 4), '2320') < 0) {
                 if ($nm101 == '41') {
                     $loopid = '1000A';
@@ -364,7 +364,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
         $erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
-        $erseg = (isset($er['err'])) ? $er['err'] : [];
+        $erseg = $er['err'] ?? [];
     } else {
         $erstn = '';
         $erseg = [];
@@ -395,8 +395,8 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
             $loopid = 'Header';
             $hasst = true;
             $stsegct = 1;
-            $sttp = (isset($seg[1])) ? $seg[1] : '';
-            $stn = (isset($seg[2])) ? $seg[2] : '';
+            $sttp = $seg[1] ?? '';
+            $stn = $seg[2] ?? '';
             $str_html .= "<tr><td class='btloop'>" . text($loopid) . "</td><td class='btnum'>" . text($key) . "</td><td class='btseg'>" . text($seg) . "</td></tr>" . PHP_EOL;
             continue;
         }
@@ -853,7 +853,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
         $erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
-        $erseg = (isset($er['err'])) ? $er['err'] : [];
+        $erseg = $er['err'] ?? [];
     } else {
         $erstn = '';
         $erseg = [];
@@ -898,7 +898,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
             $hl = $sar[1];
             $hlpc = $sar[2];                            // parent code
             $hllc = $sar[3];
-            $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+            $hlcc = $sar[4] ?? '';    // child code
             if ($sar[3] == '20') {                      // level code
                 $loopid = '2000A';                      // info source (payer)
                 $title = 'Info Source';
