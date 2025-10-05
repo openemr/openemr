@@ -36,7 +36,7 @@ class SavantRenderEngine implements IRenderEngine
         ));
 
         // normalize the path
-        if (substr($templatePath, - 1) != '/' && substr($templatePath, - 1) != '\\') {
+        if (!str_ends_with($templatePath, '/') && !str_ends_with($templatePath, '\\')) {
             $templatePath .= "/";
         }
 
@@ -59,7 +59,7 @@ class SavantRenderEngine implements IRenderEngine
     public function display($template)
     {
         // strip off .tpl from the end for backwards compatibility with older apps
-        if (substr($template, - 4) == '.tpl') {
+        if (str_ends_with($template, '.tpl')) {
             $template = substr($template, 0, - 4);
         }
 

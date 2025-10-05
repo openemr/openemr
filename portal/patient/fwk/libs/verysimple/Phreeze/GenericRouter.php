@@ -199,7 +199,7 @@ class GenericRouter implements IRouter
             }
 
             // strip trailing slash
-            while (substr($this->uri, - 1) == '/') {
+            while (str_ends_with($this->uri, '/')) {
                 $this->uri = substr($this->uri, 0, - 1);
             }
         }

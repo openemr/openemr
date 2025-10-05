@@ -2716,7 +2716,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, array($patient_id));
     } else {
         // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-        if ((substr($data, -2) == '**') && (($compSql == "=") || ($compSql == "!="))) {
+        if ((str_ends_with($data, '**')) && (($compSql == "=") || ($compSql == "!="))) {
             $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
             $data = substr_replace($data, '', -2);
         } else {
@@ -2838,7 +2838,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
     }
 
     // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-    if ((substr($result_data, -2) == '**') && (($compSql == "=") || ($compSql == "!="))) {
+    if ((str_ends_with($result_data, '**')) && (($compSql == "=") || ($compSql == "!="))) {
         $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
         $result_data = substr_replace($result_data, '', -2);
     } else {
@@ -2965,7 +2965,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
 
         // Modify $code for both 'CUSTOM' and diagnosis searches
         // Note: Diagnosis is always 'LIKE' and should not have '**'
-        if (substr($code, -2) == '**') {
+        if (str_ends_with($code, '**')) {
             $sqloper = " LIKE CONCAT('%',?,'%') ";
             $code = substr_replace($code, '', -2);
         } else {
@@ -3000,7 +3000,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
         //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
 
         // Check for '**'
-        if (substr($value, -2) == '**') {
+        if (str_ends_with($value, '**')) {
             $sqloper = " LIKE CONCAT('%',?,'%') ";
             $value = substr_replace($value, '', -2);
         } else {

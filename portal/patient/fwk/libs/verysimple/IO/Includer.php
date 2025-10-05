@@ -76,7 +76,7 @@ class Includer
 
             try {
                 // append a directory separater if necessary
-                if ($path && substr($path, - 1) != "/") {
+                if ($path && !str_ends_with($path, "/")) {
                     $path .= "/";
                 }
 

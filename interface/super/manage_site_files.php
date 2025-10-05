@@ -39,7 +39,7 @@ if (!empty($_POST['bn_save'])) {
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
         $form_dest_filename = strtolower(basename($form_dest_filename));
-        if (substr($form_dest_filename, -4) != '.pdf') {
+        if (!str_ends_with($form_dest_filename, '.pdf')) {
             die(xlt('Filename must end with ".pdf"'));
         }
 

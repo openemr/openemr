@@ -727,7 +727,7 @@ class Savant3
             $dir = trim($dir);
 
             // add trailing separators as needed
-            if (strpos($dir, '://') && substr($dir, - 1) != '/') {
+            if (strpos($dir, '://') && !str_ends_with($dir, '/')) {
                 // stream
                 $dir .= '/';
             } elseif (substr($dir, - 1) != DIRECTORY_SEPARATOR) {

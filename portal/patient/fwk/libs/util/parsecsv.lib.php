@@ -695,7 +695,7 @@ class parseCSV
                 $data = iconv($this->input_encoding, $this->output_encoding, $data);
             }
 
-            if (substr($data, - 1) != "\n") {
+            if (!str_ends_with($data, "\n")) {
                 $data .= "\n";
             }
 
@@ -853,7 +853,7 @@ class parseCSV
         if ($value !== null && $value != '') {
             $delimiter = preg_quote($this->delimiter, '/');
             $enclosure = preg_quote($this->enclosure, '/');
-            if (preg_match("/" . $delimiter . "|" . $enclosure . "|\n|\r/i", $value) || ($value [0] == ' ' || substr($value, - 1) == ' ')) {
+            if (preg_match("/" . $delimiter . "|" . $enclosure . "|\n|\r/i", $value) || ($value [0] == ' ' || str_ends_with($value, ' '))) {
                 $value = str_replace($this->enclosure, $this->enclosure . $this->enclosure, $value);
                 $value = $this->enclosure . $value . $this->enclosure;
             }

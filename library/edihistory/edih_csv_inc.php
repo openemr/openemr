@@ -808,7 +808,7 @@ function csv_table_select_list($outtp = 'json')
             continue;
         }
 
-        if (substr($csvf, -1) == '~') {
+        if (str_ends_with($csvf, '~')) {
             continue;
         }
 

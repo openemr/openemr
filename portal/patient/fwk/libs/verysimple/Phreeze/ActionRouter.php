@@ -85,8 +85,8 @@ class ActionRouter implements IRouter
         $url = sprintf($format, $controller, $method, $qs);
 
         // strip off trailing delimiters from the url
-        $url = (substr($url, - 5) == "&amp;") ? substr($url, 0, strlen($url) - 5) : $url;
-        $url = (substr($url, - 1) == "&" || substr($url, - 1) == "?") ? substr($url, 0, strlen($url) - 1) : $url;
+        $url = (str_ends_with($url, "&amp;")) ? substr($url, 0, strlen($url) - 5) : $url;
+        $url = (str_ends_with($url, "&") || str_ends_with($url, "?")) ? substr($url, 0, strlen($url) - 1) : $url;
 
         $api_check = explode("/api/", RequestUtil::GetCurrentUrl());
         if ($this->stripApi && count($api_check) > 1) {

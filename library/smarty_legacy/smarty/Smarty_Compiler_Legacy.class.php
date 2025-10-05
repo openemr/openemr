@@ -379,7 +379,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         $compiled_content = str_replace($tag_guard, '<?', $compiled_content);
 
         // remove \n from the end of the file, if any
-        if (strlen($compiled_content) && (substr($compiled_content, -1) == "\n") ) {
+        if (strlen($compiled_content) && (str_ends_with($compiled_content, "\n")) ) {
             $compiled_content = substr($compiled_content, 0, -1);
         }
 
@@ -440,7 +440,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     function _compile_tag($template_tag)
     {
         /* Matched comment. */
-        if (substr($template_tag, 0, 1) == '*' && substr($template_tag, -1) == '*')
+        if (substr($template_tag, 0, 1) == '*' && str_ends_with($template_tag, '*'))
             return '';
 
         /* Split tag into two three parts: command, command modifiers and the arguments. */

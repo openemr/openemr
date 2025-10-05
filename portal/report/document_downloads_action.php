@@ -101,7 +101,7 @@ unlink($tmp . "/" . $pid . '.zip');
 
 function recursive_remove_directory($directory, $empty = false)
 {
-    if (substr($directory, -1) == '/') {
+    if (str_ends_with($directory, '/')) {
         $directory = substr($directory, 0, -1);
     }
 
