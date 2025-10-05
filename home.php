@@ -22,6 +22,11 @@ use Dotenv\Dotenv;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Set security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 1; mode=block');
+
 // Load .env variables using Dotenv library
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
@@ -48,6 +53,12 @@ if ((getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') ?: '0') !== '1') {
 
     // Verify file exists
     if (!file_exists($targetFile) || !is_file($targetFile)) {
+        http_response_code(404);
+        exit('Not Found');
+    }
+
+    // Only route .php files (mirroring Router.php logic)
+    if (pathinfo($targetFile, PATHINFO_EXTENSION) !== 'php') {
         http_response_code(404);
         exit('Not Found');
     }
