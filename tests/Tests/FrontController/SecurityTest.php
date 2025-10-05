@@ -246,7 +246,10 @@ class SecurityTest extends TestCase
         ];
 
         $reportPath = __DIR__ . '/../../reports/security-test-report.json';
-        mkdir(dirname($reportPath), 0755, true);
+        $reportDir = dirname($reportPath);
+        if (!is_dir($reportDir)) {
+            mkdir($reportDir, 0755, true);
+        }
         file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT) . "\n");
 
         $this->assertFileExists($reportPath, 'Security report should be generated');
