@@ -640,10 +640,6 @@ parameters:
     identifier: property.notFound
     count: 2
     path: gacl/profiler.inc.php
-  - message: '#^Function each not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: gacl/profiler.inc.php
   - message: '#^Variable \$config might not be defined\.$#'
     identifier: variable.undefined
     count: 1
