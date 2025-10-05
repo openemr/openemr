@@ -99,7 +99,7 @@ function smarty_function_html_checkboxes($params, &$smarty)
         return ''; /* raise error here? */
 
     settype($selected, 'array');
-    $_html_result = array();
+    $_html_result = [];
 
     if (isset($options)) {
 

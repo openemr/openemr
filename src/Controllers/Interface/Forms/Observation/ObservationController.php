@@ -595,7 +595,7 @@ class ObservationController
 
         $result = $this->observationService->search(['form_id' => $id, 'pid' => $pid, 'encounter' => $encounter]);
         $observations = $result->getData();
-        $formattedObs = array_map(fn($observation): array => $this->formatObservationForDisplay($observation), $observations);
+        $formattedObs = array_map($this->formatObservationForDisplay(...), $observations);
         return $this->twig->render($this->getTemplatePath("observation_report.html.twig"), ['observations' => $formattedObs]);
     }
 
@@ -628,7 +628,7 @@ class ObservationController
             'ob_reason_code' => $observation['ob_reason_code'] ?? '',
             'ob_reason_status' => $observation['ob_reason_status'] ?? '',
             'ob_reason_text' => $observation['ob_reason_text'] ?? '',
-            'subObservations' => array_map(fn($observation): array => $this->formatObservationForDisplay($observation), $observation['sub_observations'] ?? [])
+            'subObservations' => array_map($this->formatObservationForDisplay(...), $observation['sub_observations'] ?? [])
         ];
     }
 

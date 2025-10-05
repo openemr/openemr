@@ -24,10 +24,10 @@ class EncounterRestController
     /**
      * White list of patient search fields
      */
-    private const SUPPORTED_SEARCH_FIELDS = array(
+    private const SUPPORTED_SEARCH_FIELDS = [
         "pid",
         "provider_id"
-    );
+    ];
 
     public function __construct(private SessionInterface $session)
     {
@@ -107,10 +107,10 @@ class EncounterRestController
         $serviceResult = $this->encounterService->insertVital($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
             $serviceResult,
-            array(
+            [
                 'vid' => $serviceResult[0],
                 'fid' => $serviceResult[1]
-            ),
+            ],
             201
         );
     }
@@ -125,7 +125,7 @@ class EncounterRestController
         }
 
         $serviceResult = $this->encounterService->updateVital($pid, $eid, $vid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array('vid' => $vid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['vid' => $vid], 200);
     }
 
     public function getVitals($pid, $eid)
@@ -164,10 +164,10 @@ class EncounterRestController
         $serviceResult = $this->encounterService->insertSoapNote($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
             $serviceResult,
-            array(
+            [
                 'sid' => $serviceResult[0],
                 'fid' => $serviceResult[1]
-            ),
+            ],
             201
         );
     }
@@ -182,6 +182,6 @@ class EncounterRestController
         }
 
         $serviceResult = $this->encounterService->updateSoapNote($pid, $eid, $sid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array('sid' => $sid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['sid' => $sid], 200);
     }
 }

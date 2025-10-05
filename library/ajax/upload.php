@@ -80,7 +80,7 @@ if ($isPortal ?? false) {
         $note['from'] = 'portal-user';
         $note['message_status'] = 'New';
         $note['title'] = 'New Document';
-        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array($category_id))['id'] ?: 3;
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", [$category_id])['id'] ?: 3;
         foreach ($files["file"] as $file) {
             $name = $file['name'];
             $type = $file['type'];
@@ -132,11 +132,11 @@ function dicom_history_action($action, $doc_id, $json_data = ''): bool|string
 {
     if ($action == 'save') {
         $json_data = base64_encode($json_data);
-        return json_encode(sqlQuery("UPDATE documents SET document_data = ? WHERE id = ?", array($json_data, $doc_id)));
+        return json_encode(sqlQuery("UPDATE documents SET document_data = ? WHERE id = ?", [$json_data, $doc_id]));
     }
 
     if ($action == 'fetch') {
-        $qrtn = sqlQuery("Select document_data FROM documents WHERE id = ?", array($doc_id));
+        $qrtn = sqlQuery("Select document_data FROM documents WHERE id = ?", [$doc_id]);
         return base64_decode($qrtn['document_data']);
     }
 
@@ -145,7 +145,7 @@ function dicom_history_action($action, $doc_id, $json_data = ''): bool|string
 
 function getMultiple()
 {
-    $_FILE = array();
+    $_FILE = [];
     foreach ($_FILES as $name => $file) {
         foreach ($file as $property => $keys) {
             foreach ($keys as $key => $value) {

@@ -3536,10 +3536,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: interface/billing/sl_receipts_report.php
-  - message: '#^Variable \$grandtotal2 might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/billing/sl_receipts_report.php
   - message: '#^Variable \$patient_name might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -13784,30 +13780,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalAppointments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalDueAmount might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalNewRegisterPatient might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalPaidAmount might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalPayments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalVisits might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14851,10 +14823,6 @@ parameters:
   - message: '#^Constant SASL_PLAIN_EXIM_MODE not found\.$#'
     identifier: constant.notFound
     count: 1
-    path: library/classes/smtp/smtp.php
-  - message: '#^Function ereg_replace not found\.$#'
-    identifier: function.notFound
-    count: 4
     path: library/classes/smtp/smtp.php
   - message: '#^Method smtp_class\:\:GetLine\(\) invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
@@ -16452,10 +16420,6 @@ parameters:
     identifier: variable.undefined
     count: 4
     path: portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php
-  - message: '#^Function eregi not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/HTTP/FormValidator.php
   - message: '#^Method HttpRequest\:\:FilePost\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
     count: 1

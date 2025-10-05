@@ -12,7 +12,7 @@ class C_InsuranceCompany extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->icompanies = array();
+        $this->icompanies = [];
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
@@ -66,9 +66,7 @@ class C_InsuranceCompany extends Controller
                 ];
                 $iCompanies[] = $company;
             }
-            usort($iCompanies, function ($a, $b) {
-                return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
-            });
+            usort($iCompanies, fn($a, $b): int => strcasecmp($a['name'] ?? '', $b['name'] ?? ''));
         }
         $templateVars = [
             'CURRENT_ACTION' => $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&"

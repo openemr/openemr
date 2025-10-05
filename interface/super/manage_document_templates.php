@@ -101,7 +101,7 @@ if (!empty($_POST['bn_upload'])) {
         $path_parts = pathinfo($form_dest_filename);
         $extension = strtolower($path_parts['extension'] ?? '');
 
-        if (!in_array($extension, array('odt', 'txt', 'docx', 'zip'))) {
+        if (!in_array($extension, ['odt', 'txt', 'docx', 'zip'])) {
             die(text($extension) . ' ' . xlt('filetype is not accepted'));
         }
 
@@ -217,7 +217,7 @@ if (!empty($_POST['bn_upload'])) {
                             $dh = false;
                         }
                         if ($dh) {
-                            $templateslist = array();
+                            $templateslist = [];
                             while (false !== ($sfname = readdir($dh))) {
                                 if (substr($sfname, 0, 1) == '.') {
                                     continue;

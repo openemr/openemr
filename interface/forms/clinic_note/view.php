@@ -21,7 +21,7 @@ require_once("$srcdir/forms.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$row = array();
+$row = [];
 
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -97,13 +97,13 @@ if (!empty($_POST['bn_save'])) {
          followup_timing = ?
          WHERE id = ?";
 
-        sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
+        sqlStatement($query, [$_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid]);
     } else { // If adding a new form...
         $query = "INSERT INTO form_clinic_note ( " .
          "history, examination, plan, followup_required, followup_timing
          ) VALUES ( ?, ?, ?, ?, ? )";
 
-        $newid = sqlInsert($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing));
+        $newid = sqlInsert($query, [$_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing]);
         addForm($encounter, "Clinic Note", $newid, "clinic_note", $pid, $userauthorized);
     }
 
@@ -115,7 +115,7 @@ if (!empty($_POST['bn_save'])) {
 
 if ($formid) {
     $row = sqlQuery("SELECT * FROM form_clinic_note WHERE " .
-    "id = ? AND activity = '1'", array($formid)) ;
+    "id = ? AND activity = '1'", [$formid]) ;
 }
 ?>
 <html>

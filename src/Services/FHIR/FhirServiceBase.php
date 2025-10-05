@@ -36,7 +36,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
      */
-    protected $resourceSearchParameters = array();
+    protected $resourceSearchParameters = [];
 
     /**
      * Url to the base fhir api location
@@ -114,7 +114,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return FHIRDomainResource the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    abstract public function parseOpenEMRRecord($dataRecord = array(), $encode = false);
+    abstract public function parseOpenEMRRecord($dataRecord = [], $encode = false);
 
     /**
      * Parses a FHIR Resource, returning the equivalent OpenEMR record.

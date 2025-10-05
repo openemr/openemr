@@ -19,8 +19,8 @@ use Laminas\Db\ResultSet\ResultSet;
 use Installer\Model\InstModule;
 use Laminas\Db\Adapter\Adapter;
 
-return array(
-    'controllers' => array(
+return [
+    'controllers' => [
         'factories' => [
             Installer\Controller\InstallerController::class => function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get(Adapter::class);
@@ -31,7 +31,7 @@ return array(
                 return new Installer\Controller\InstallerController($InstModuleTable);
             },
         ]
-    ),
+    ],
     'service_manager' => [
         'factories' => [
             Installer\Model\InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
@@ -43,36 +43,36 @@ return array(
             },
         ]
     ],
-    'router' => array(
-        'routes' => array(
-            'Installer' => array(
+    'router' => [
+        'routes' => [
+            'Installer' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/Installer[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => Installer\Controller\InstallerController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
 
-        ),
-    ),
-    'view_manager' => array(
-        'template_map' => array(
+        ],
+    ],
+    'view_manager' => [
+        'template_map' => [
              'site/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        ),
-        'template_path_stack' => array(
+        ],
+        'template_path_stack' => [
             'installer' => __DIR__ . '/../view',
-        ),
+        ],
         'layout' => 'site/layout',
-    ),
-    'moduleconfig' => array(
+    ],
+    'moduleconfig' => [
 
-    ),
+    ],
 
-);
+];

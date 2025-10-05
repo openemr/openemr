@@ -54,5 +54,8 @@ jobs:
     - name: Create Rector cache directory
       run: mkdir -p /tmp/rector
 
+    - name: Rector List Rules
+      run: vendor/bin/rector list-rules
+
     - name: Rector Dry Run
       run: vendor/bin/rector process --dry-run

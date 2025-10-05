@@ -149,11 +149,11 @@ function loadPayerInfo($pid, $date = '')
 
         $crow = sqlQuery(
             "SELECT * FROM insurance_companies WHERE id = ?",
-            array($drow['provider'])
+            [$drow['provider']]
         );
 
         $orow = new InsuranceCompany($drow['provider']);
-        $payers[$key] = array();
+        $payers[$key] = [];
         $payers[$key]['data']    = $drow;
         $payers[$key]['company'] = $crow;
         $payers[$key]['object']  = $orow;
@@ -196,7 +196,7 @@ function gen_hl7_order($orderid, &$out)
         "f.form_id = po.procedure_order_id AND " .
         "pd.pid = f.pid AND " .
         "u.id = po.provider_id",
-        array($orderid)
+        [$orderid]
     );
     if (empty($porow)) {
         return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
@@ -210,7 +210,7 @@ function gen_hl7_order($orderid, &$out)
         "pc.procedure_order_id = ? AND " .
         "pc.do_not_send = 0 " .
         "ORDER BY pc.procedure_order_seq",
-        array($orderid)
+        [$orderid]
     );
 
     $padOrderId = trim($porow['send_fac_id']) . "-" . trim(str_pad((string)$orderid, 4, "0", STR_PAD_LEFT));
@@ -262,7 +262,7 @@ function gen_hl7_order($orderid, &$out)
 
     // NTE segment(s).
     $msql = sqlStatement("SELECT drug FROM prescriptions WHERE active=1 AND patient_id=?", [$porow['pid']]);
-    $drugs = array();
+    $drugs = [];
     while ($mres = sqlFetchArray($msql)) {
         $drugs[] = trim($mres['drug']);
     }
@@ -415,7 +415,7 @@ function gen_hl7_order($orderid, &$out)
                     continue;
                 }
 
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 if ($codetype !== 'ICD10') {
                     continue;
                 }
@@ -444,7 +444,7 @@ function gen_hl7_order($orderid, &$out)
             "a.procedure_order_id = ? AND " .
             "a.procedure_order_seq = ? " .
             "ORDER BY q.seq, a.answer_seq",
-            array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq'])
+            [$porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']]
         );
         $setid2 = 0;
         while ($qrow = sqlFetchArray($qres)) {
@@ -490,7 +490,7 @@ function send_hl7_order($ppid, $out)
     $d0 = "\r";
 
     $pprow = sqlQuery("SELECT * FROM procedure_providers " .
-    "WHERE ppid = ?", array($ppid));
+    "WHERE ppid = ?", [$ppid]);
     if (empty($pprow)) {
         return xl('Procedure provider') . " $ppid " . xl('not found');
     }

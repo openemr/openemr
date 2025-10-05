@@ -64,7 +64,7 @@ class C_PatientFinder extends Controller
         $pos = strpos($search_string, ',');
 
         // get result set into array and pass to array
-        $result_array = array();
+        $result_array = [];
 
         if ($pos === false) {
             //no comma just last name

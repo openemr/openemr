@@ -111,9 +111,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         if (!isset($this->uuidUserAccountFactory)) {
             // If the factory is not set, we can initialize it here.
             // This is a placeholder for the actual factory logic.
-            $this->uuidUserAccountFactory = function ($userUuid) {
-                return new UuidUserAccount($userUuid);
-            };
+            $this->uuidUserAccountFactory = (fn($userUuid): \OpenEMR\Common\Auth\UuidUserAccount => new UuidUserAccount($userUuid));
         }
         return $this->uuidUserAccountFactory;
     }

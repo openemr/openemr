@@ -46,7 +46,7 @@ class Savant3_Error
      * @var array
      *
      */
-    public $info = array ();
+    public $info =  [];
 
     /**
      *
@@ -82,7 +82,7 @@ class Savant3_Error
      *          property.
      *
      */
-    public function __construct($conf = array())
+    public function __construct($conf = [])
     {
         // set public properties
         foreach ($conf as $key => $val) {

@@ -84,7 +84,7 @@ class SectionEvent extends Event
         if ($position == null || !is_int($position)) {
             $this->cards[] = $card;
         } else {
-            array_splice($this->cards, $position, 0, array($card));
+            array_splice($this->cards, $position, 0, [$card]);
         }
     }
 

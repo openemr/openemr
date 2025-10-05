@@ -17,7 +17,7 @@ require_once("$srcdir/dated_reminder_functions.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$dateRanges = array();
+$dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
 // eg. $dateRanges['4_week'] = '4 Weeks From Now';
 $dateRanges['1_day'] =  xl('1 Day From Now');
@@ -47,7 +47,7 @@ $dateRanges['2_year'] = xl('2 Years From Now');
 // --- need to add a check to ensure the post is being sent from the correct location ???
 
 // default values for $this_message
-$this_message = array('message' => '','message_priority' => 3,'dueDate' => '');
+$this_message = ['message' => '','message_priority' => 3,'dueDate' => ''];
 $forwarding = false;
 
 // default values for Max words to input in a reminder
@@ -106,7 +106,7 @@ if ($_POST) {
         $patID = $_POST['PatientID'];
         if (isset($_POST['sendSeperately']) and $_POST['sendSeperately']) {
             foreach ($sendTo as $st) {
-                $ReminderSent = sendReminder(array($st), $fromID, $message, $dueDate, $patID, $priority);
+                $ReminderSent = sendReminder([$st], $fromID, $message, $dueDate, $patID, $priority);
             }
         } else {
       // -------- Send the reminder
@@ -346,7 +346,7 @@ if (isset($this_message['pid'])) {
                                 <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php //
-                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
+                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($_SESSION['authUserID'])]);
                                     for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
                                         echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                                     }
@@ -451,10 +451,10 @@ if (isset($this_message['pid'])) {
                     </div>
                     <div class="card-body p-0">
                         <?php
-                        $_GET['sentBy'] = array($_SESSION['authUserID']);
+                        $_GET['sentBy'] = [$_SESSION['authUserID']];
                         $_GET['sd'] = oeFormatShortDate();
                         $TempRemindersArray = logRemindersArray();
-                        $remindersArray = array();
+                        $remindersArray = [];
                         foreach ($TempRemindersArray as $RA) {
                             $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
                             $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));

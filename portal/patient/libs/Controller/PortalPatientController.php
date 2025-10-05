@@ -114,11 +114,9 @@ class PortalPatientController extends AppBasePortalController
             $appsql = new ApplicationTable();
             $edata = $appsql->getPortalAudit($ppid, 'review');
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
-            $newv = array();
+            $newv = [];
             foreach ($changed as $key => $val) {
-                $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", function ($match) {
-                    return strtoupper($match[2]);
-                }, strtolower($key))))] = $val;
+                $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower($key))))] = $val;
             }
 
             $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
@@ -232,7 +230,7 @@ class PortalPatientController extends AppBasePortalController
         $ja = $p->GetArray();
         $ja['note'] = $p->Note;
         try {
-            $audit = array ();
+            $audit =  [];
             // date("Y-m-d H:i:s");
             $audit['patient_id'] = $ja['pid'];
             $audit['activity'] = "profile";

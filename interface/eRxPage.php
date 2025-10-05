@@ -162,14 +162,14 @@ class eRxPage
      */
     public function checkForMissingExtensions()
     {
-        $extensions = array(
+        $extensions = [
             'XML',
             'SOAP',
             'cURL',
             'OpenSSL',
-        );
+        ];
 
-        $messages = array();
+        $messages = [];
 
         foreach ($extensions as $extension) {
             if (!extension_loaded(strtolower($extension))) {
@@ -200,11 +200,11 @@ class eRxPage
         $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getStaffElements($authUserId, $destination));
         $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getPatientElements($patientId, $this->getPrescriptionCount(), $this->getPrescriptionIds()));
 
-        return array(
+        return [
             'demographics' => $XMLBuilder->getDemographicsCheckMessages(),
             'empty' => $XMLBuilder->getFieldEmptyMessages(),
             'warning' => $XMLBuilder->getWarningMessages(),
-        );
+        ];
     }
 
     /**
@@ -259,7 +259,7 @@ class eRxPage
             $errorMessages = explode('Error', $errorMessage[1]);
             array_shift($errorMessages);
         } else {
-            $errorMessages = array();
+            $errorMessages = [];
         }
 
         if (strpos($result, 'RxEntry.aspx')) {

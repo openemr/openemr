@@ -39,7 +39,7 @@ class JsonWebKeyParser
         $refreshTokenData = null;
         $refreshToken = $this->decrypt($rawToken);
         $refreshTokenData = \json_decode($refreshToken, true);
-        $result = array(
+        $result = [
             'active' => true,
             'status' => 'active',
             'scope' => $refreshTokenData['scopes'],
@@ -47,7 +47,7 @@ class JsonWebKeyParser
             'sub' => $refreshTokenData['user_id'],
             'jti' => $refreshTokenData['refresh_token_id'],
             'client_id' => $refreshTokenData['client_id'] ?? '' // should always be there since we use it in the renewal
-        );
+        ];
         if ($refreshTokenData['expire_time'] < \time()) {
             $result['active'] = false;
             $result['status'] = 'expired';
@@ -69,7 +69,7 @@ class JsonWebKeyParser
         // Attempt to parse the JWT
         $token = $configuration->parser()->parse($rawToken);
         // defaults
-        $result = array(
+        $result = [
             'active' => true,
             'status' => 'active',
             'scope' => implode(" ", $token->claims()->get('scopes')),
@@ -77,7 +77,7 @@ class JsonWebKeyParser
             'sub' => $token->claims()->get('sub'), // user_id
             'jti' => $token->claims()->get('jti'),
             'aud' => $token->claims()->get('aud')
-        );
+        ];
 
         // Attempt to validate the JWT
         $validator = $configuration->validator();

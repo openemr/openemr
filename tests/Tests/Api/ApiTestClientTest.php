@@ -67,7 +67,7 @@ class ApiTestClientTest extends TestCase
     public function testApiAuthInvalidArgs(): void
     {
         try {
-            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("foo" => "bar"));
+            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, ["foo" => "bar"]);
             $this->assertFalse(true, "expected InvalidArgumentException");
         } catch (\InvalidArgumentException $e) {
             $this->assertTrue(true);
@@ -76,7 +76,7 @@ class ApiTestClientTest extends TestCase
         $this->client->cleanupClient();
 
         try {
-            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("username" => "bar"));
+            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, ["username" => "bar"]);
             $this->assertFalse(true, "expected InvalidArgumentException");
         } catch (\InvalidArgumentException $e) {
             $this->assertTrue(true);
@@ -106,7 +106,7 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(
             ApiTestClient::OPENEMR_AUTH_ENDPOINT,
-            array("username" => "bar", "password" => "boo")
+            ["username" => "bar", "password" => "boo"]
         );
         $this->assertEquals(400, $actualValue->getStatusCode());
         $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);

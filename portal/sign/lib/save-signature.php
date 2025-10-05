@@ -69,15 +69,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ip = $_SERVER['REMOTE_ADDR'];
     $status = 'filed';
     $lastmod = date('Y-m-d H:i:s');
-    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array($req_pid, $user));
+    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", [$req_pid, $user]);
     $c = sqlFetchArray($r);
     $isit = $c['x'] * 1;
     if ($isit) {
         $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-        $rcnt = sqlStatement($qstr, array($req_pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $req_pid, $user));
+        $rcnt = sqlStatement($qstr, [$req_pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $req_pid, $user]);
     } else {
         $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-        sqlStatement($qstr, array($req_pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output));
+        sqlStatement($qstr, [$req_pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output]);
     }
 
     echo json_encode('Done', JSON_THROW_ON_ERROR);

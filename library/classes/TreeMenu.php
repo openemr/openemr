@@ -115,7 +115,7 @@ class HTML_TreeMenu
     function createFromStructure($params)
     {
         if (!isset($params['nodeOptions'])) {
-            $params['nodeOptions'] = array();
+            $params['nodeOptions'] = [];
         }
 
         switch (@$params['type']) {
@@ -136,8 +136,8 @@ class HTML_TreeMenu
                 $curNode[0] = &$treeMenu;   // we need the current node as the reference to the
 
                 foreach ($nodes as $aNode) {
-                    $events = array();
-                    $data = array();
+                    $events = [];
+                    $data = [];
 
                     // In an XML, all the attributes are saved in an array, but since they might be
                     // used as the parameters, we simply extract them here if we handle an XML-structure
@@ -355,7 +355,7 @@ class HTML_TreeNode
     *                       for the 'onexpand', 'oncollapse' and 'ontoggle' events which will be fired
     *                       whenever a node is collapsed and/or expanded.
     */
-    function __construct($options = array(), $events = array())
+    function __construct($options = [], $events = [])
     {
         $this->text          = '';
         $this->link          = '';
@@ -470,7 +470,7 @@ class HTML_TreeMenu_Presentation
     *                the presentation class can be specified
     *                here.
     */
-    function printMenu($options = array())
+    function printMenu($options = [])
     {
         foreach ($options as $option => $value) {
             $this->$option = $value;
@@ -552,7 +552,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     * @param array  $options   Array of options
     * @param bool   $isDynamic Whether the tree is dynamic or not
     */
-    function __construct(&$structure, $options = array(), $isDynamic = true)
+    function __construct(&$structure, $options = [], $isDynamic = true)
     {
         parent::__construct($structure);
         $this->isDynamic = $isDynamic;
@@ -649,7 +649,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
                 "\t %s.setEvent('%s', '%s');\n",
                 $return,
                 $event,
-                str_replace(array("\r", "\n", "'"), array('\r', '\n', "\'"), $handler)
+                str_replace(["\r", "\n", "'"], ['\r', '\n', "\'"], $handler)
             );
         }
 
@@ -720,7 +720,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     *                           o linkTarget Target for the links. Defaults to "_self"
     *                           o submitText Text for the submit button. Defaults to "Go"
     */
-    function __construct($structure, $options = array())
+    function __construct($structure, $options = [])
     {
         parent::__construct($structure);
 

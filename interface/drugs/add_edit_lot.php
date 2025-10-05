@@ -43,7 +43,7 @@ function checkWarehouseUsed($warehouse_id)
     global $drug_id;
     $row = sqlQuery("SELECT count(*) AS count FROM drug_inventory WHERE " .
     "drug_id = ? AND on_hand != 0 AND " .
-    "destroy_date IS NULL AND warehouse_id = ?", array($drug_id,$warehouse_id));
+    "destroy_date IS NULL AND warehouse_id = ?", [$drug_id,$warehouse_id]);
     return $row['count'];
 }
 
@@ -67,7 +67,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 {
     global $drug_id, $is_user_restricted;
 
-    $drow = sqlQuery("SELECT allow_multiple FROM drugs WHERE drug_id = ?", array($drug_id));
+    $drow = sqlQuery("SELECT allow_multiple FROM drugs WHERE drug_id = ?", [$drug_id]);
     $allow_multiple = $drow['allow_multiple'];
 
     $lres = sqlStatement("SELECT * FROM list_options " .
@@ -338,7 +338,7 @@ td {
 <?php
 if ($lot_id) {
     $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = ? " .
-    "AND inventory_id = ?", array($drug_id,$lot_id));
+    "AND inventory_id = ?", [$drug_id,$lot_id]);
 }
 
 // If we are saving, then save and close the window.
@@ -352,10 +352,10 @@ if (!empty($_POST['form_save'])) {
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     // $form_source_lot = $_POST['form_source_lot'] + 0;
 
-    list($form_source_lot, $form_source_facility) = explode('|', $_POST['form_source_lot']);
+    [$form_source_lot, $form_source_facility] = explode('|', $_POST['form_source_lot']);
     $form_source_lot = intval($form_source_lot);
 
-    list($form_warehouse_id) = explode('|', $_POST['form_warehouse_id']);
+    [$form_warehouse_id] = explode('|', $_POST['form_warehouse_id']);
 
     $form_expiration   = $_POST['form_expiration'] ?? '';
     $form_lot_number   = $_POST['form_lot_number'] ?? '';
@@ -401,7 +401,7 @@ if (!empty($_POST['form_save'])) {
         $srow = sqlQuery(
             "SELECT lot_number, expiration, manufacturer, vendor_id, on_hand " .
             "FROM drug_inventory WHERE drug_id = ? AND inventory_id = ?",
-            array($drug_id, $form_source_lot)
+            [$drug_id, $form_source_lot]
         );
         if (empty($form_lot_number)) {
             $form_lot_number = $srow['lot_number'  ];
@@ -427,7 +427,7 @@ if (!empty($_POST['form_save'])) {
                 "SELECT * FROM drug_inventory WHERE " .
                 "drug_id = ? AND warehouse_id = ? AND lot_number = ? AND destroy_date IS NULL AND on_hand != 0 " .
                 "ORDER BY inventory_id DESC LIMIT 1",
-                array($drug_id, $form_warehouse_id, $form_lot_number)
+                [$drug_id, $form_warehouse_id, $form_lot_number]
             );
             if (!empty($erow['inventory_id'])) {
                 // Yes a matching lot exists, use it and its values.
@@ -460,7 +460,7 @@ if (!empty($_POST['form_save'])) {
                         "warehouse_id = ?, " .
                         "on_hand = on_hand + ? "  .
                         "WHERE drug_id = ? AND inventory_id = ?",
-                        array(
+                        [
                             $form_lot_number,
                             $form_manufacturer,
                             (empty($form_expiration) ? "NULL" : $form_expiration),
@@ -469,12 +469,12 @@ if (!empty($_POST['form_save'])) {
                             $form_quantity,
                             $drug_id,
                             $lot_id
-                        )
+                        ]
                     );
                 }
             } else {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
-                "AND inventory_id = ?", array($drug_id,$lot_id));
+                "AND inventory_id = ?", [$drug_id,$lot_id]);
             }
         } else { // Destination lot will be created.
             if ($form_quantity < 0) {
@@ -490,7 +490,7 @@ if (!empty($_POST['form_save'])) {
                     "AND $exptest " .
                     "AND on_hand != 0 " .
                     "AND destroy_date IS NULL",
-                    array($form_lot_number, $drug_id, $form_warehouse_id)
+                    [$form_lot_number, $drug_id, $form_warehouse_id]
                 );
                 if ($crow['count']) {
                     $info_msg = xl('Transaction failed, duplicate lot');
@@ -508,7 +508,7 @@ if (!empty($_POST['form_save'])) {
                         "?, " .
                         "? "  .
                         ")",
-                        array(
+                        [
                             $drug_id,
                             $form_lot_number,
                             $form_manufacturer,
@@ -516,7 +516,7 @@ if (!empty($_POST['form_save'])) {
                             $form_vendor_id,
                             $form_warehouse_id,
                             $form_quantity
-                        )
+                        ]
                     );
                 }
             }
@@ -545,7 +545,7 @@ if (!empty($_POST['form_save'])) {
                 "?, " .
                 "?, " .
                 "? )",
-                array(
+                [
                     $drug_id,
                     $lot_id,
                     $_SESSION['authUser'],
@@ -556,7 +556,7 @@ if (!empty($_POST['form_save'])) {
                     0,
                     $form_notes,
                     $form_trans_type
-                )
+                ]
             );
 
             // If this is a transfer then reduce source QOH.
@@ -565,7 +565,7 @@ if (!empty($_POST['form_save'])) {
                     "UPDATE drug_inventory SET " .
                     "on_hand = on_hand - ? " .
                     "WHERE inventory_id = ?",
-                    array($form_quantity,$form_source_lot)
+                    [$form_quantity,$form_source_lot]
                 );
             }
         }
@@ -606,14 +606,14 @@ $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
    <select name='form_trans_type' class='form-control' onchange='trans_type_changed()'>
 <?php
 foreach (
-    array(
+    [
     '2' => xl('Purchase/Receipt'),
     '3' => xl('Return'),
     '4' => xl('Transfer'),
     '5' => xl('Adjustment'),
     '7' => xl('Consumption'),
     '0' => xl('Edit Only'),
-    ) as $key => $value
+    ] as $key => $value
 ) {
     echo "<option value='" . attr($key) . "'";
     if (
@@ -627,9 +627,9 @@ foreach (
     ) {
         echo " disabled";
     } else if (
-        $lot_id  && in_array($key, array('2', '4'     )) ||
+        $lot_id  && in_array($key, ['2', '4'     ]) ||
         // $lot_id  && in_array($key, array('2')) ||
-        !$lot_id && in_array($key, array('0', '3', '5', '7'))
+        !$lot_id && in_array($key, ['0', '3', '5', '7'])
     ) {
         echo " disabled";
     } else {
@@ -682,7 +682,7 @@ $lres = sqlStatement(
     "WHERE di.drug_id = ? AND di.inventory_id != ? AND " .
     "di.on_hand > 0 AND di.destroy_date IS NULL " .
     "ORDER BY di.lot_number, lo.title, di.inventory_id",
-    array ($drug_id,$lot_id)
+    [$drug_id,$lot_id]
 );
 while ($lrow = sqlFetchArray($lres)) {
     // TBD: For transfer to an existing lot do we want to force the same lot number?
@@ -710,9 +710,9 @@ while ($lrow = sqlFetchArray($lres)) {
 <?php
 // Address book entries for vendors.
 generate_form_field(
-    array('data_type' => 14, 'field_id' => 'vendor_id',
+    ['data_type' => 14, 'field_id' => 'vendor_id',
     'list_id' => '', 'edit_options' => 'V',
-    'description' => xl('Address book entry for the vendor')),
+    'description' => xl('Address book entry for the vendor')],
     $row['vendor_id']
 );
 ?>

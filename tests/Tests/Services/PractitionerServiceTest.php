@@ -151,7 +151,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->practitionerService->getAll(array("npi" => "0123456789"));
+        $actualResult = $this->practitionerService->getAll(["npi" => "0123456789"]);
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 

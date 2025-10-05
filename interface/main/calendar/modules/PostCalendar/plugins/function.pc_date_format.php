@@ -41,7 +41,7 @@ function smarty_function_pc_date_format($args): void
     }
 
     if (isset($date)) {
-        list($y,$m,$d) = explode('-', $date);
+        [$y, $m, $d] = explode('-', $date);
         echo strftime($format, smarty_make_timestamp($date));
     } else {
         echo strftime($format, time());

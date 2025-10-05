@@ -82,7 +82,7 @@ class ApiTestClient
      * @return the authorization response
      *
      */
-    public function setAuthToken($authURL, $credentials = array(), $client = 'private')
+    public function setAuthToken($authURL, $credentials = [], $client = 'private')
     {
         if (!empty($credentials) && !array_key_exists("client_id", $credentials)) {
             if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
@@ -337,7 +337,7 @@ class ApiTestClient
      * @param $params - Array of search parameters. Defaults to empty array.
      * @return $getResponse - HTTP response
      */
-    public function get($url, $params = array())
+    public function get($url, $params = [])
     {
         $getResponse = $this->client->get($url, [
             "headers" => $this->headers,

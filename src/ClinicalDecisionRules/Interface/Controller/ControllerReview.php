@@ -148,6 +148,6 @@ class ControllerReview extends BaseController
         $newValue = '';
         sqlStatement("INSERT INTO `clinical_rules_log` " .
             "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
-            "VALUES (NOW(),?,?,?,?,?)", array($patientId,$userId,$clinicalRuleLog['category'], $updatedValue,$newValue));
+            "VALUES (NOW(),?,?,?,?,?)", [$patientId,$userId,$clinicalRuleLog['category'], $updatedValue,$newValue]);
     }
 }

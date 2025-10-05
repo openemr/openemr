@@ -178,7 +178,7 @@ function era_callback_check(&$out): void
                 $bgcolor = '#ffdddd';
             }
 
-            $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+            $rs = sqlQ("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
 
             if (sqlNumRows($rs) > 0) {
                 $bgcolor = '#ff0000';
@@ -248,17 +248,17 @@ function era_callback(&$out): void
         $last_code = '';
         $invoice_total = 0.00;
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
 
         // Get details, if we have them, for the invoice.
         $inverror = true;
-        $codes = array();
+        $codes = [];
         if ($pid && $encounter) {
             // Get invoice data into $arrow or $ferow.
             $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
             "FROM form_encounter AS e, patient_data AS p WHERE " .
             "e.pid = ? AND e.encounter = ? AND " .
-            "p.pid = e.pid", array($pid, $encounter));
+            "p.pid = e.pid", [$pid, $encounter]);
             if (empty($ferow)) {
                   $pid = $encounter = 0;
                   $invnumber = $out['our_claim_id'];
@@ -634,7 +634,7 @@ function era_callback(&$out): void
             if ($out['crossover'] == 1) {//Automatic forward case.So need not again bill from the billing manager screen.
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = ?,last_level_billed=? WHERE " .
-                "pid = ? AND encounter = ?", array($level_done, $level_done, $pid, $encounter));
+                "pid = ? AND encounter = ?", [$level_done, $level_done, $pid, $encounter]);
                 writeMessageLine(
                     $bgcolor,
                     'infdetail',
@@ -643,7 +643,7 @@ function era_callback(&$out): void
             } else {
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = ? WHERE " .
-                "pid = ? AND encounter = ?", array($level_done, $pid, $encounter));
+                "pid = ? AND encounter = ?", [$level_done, $pid, $encounter]);
             }
 
             // Check for secondary insurance.
@@ -782,12 +782,12 @@ if (!empty($_GET['original']) && $_GET['original'] == 'original') {
           $StringPrint = 'No';
         if (is_countable($InsertionId)) {
             foreach ($InsertionId as $key => $value) {
-                $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
+                $rs = sqlQ("select pay_total from ar_session where session_id=?", [$value]);
                 $row = sqlFetchArray($rs);
                 $pay_total = $row['pay_total'];
                 $rs = sqlQ(
                     "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
-                    array($value)
+                    [$value]
                 );
                 $row = sqlFetchArray($rs);
                 $pay_amount = $row['sum_pay_amount'];

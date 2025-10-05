@@ -95,7 +95,7 @@ if ($mode == 'new') {
     );
 } elseif ($mode == 'update') {
     $id = $_POST["id"];
-    $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", array($id));
+    $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", [$id]);
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         die(xlt("You are not authorized to see this encounter."));
     }
@@ -103,7 +103,7 @@ if ($mode == 'new') {
     $encounter = $result['encounter'];
     // See view.php to allow or disallow updates of the encounter date.
     $datepart = "";
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     if (AclMain::aclCheckCore('encounters', 'date_a')) {
         $datepart = "date = ?, ";
         $sqlBindArray[] = $date;
@@ -159,7 +159,7 @@ if (is_array($_POST['issues'])) {
 }*/
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe " .
-    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array($group_id));
+    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", [$group_id]);
 ?>
 <html>
 <body>

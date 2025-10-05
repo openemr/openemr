@@ -35,11 +35,7 @@ class ClinicalNoteParser
             '18748-4' => 'imaging_narrative',
             '81222-2' => 'consultation_note',
         ];
-
-        if (isset($options[$code])) {
-            return $options[$code];
-        }
-        return null;
+        return $options[$code] ?? null;
     }
 
     /**
@@ -186,7 +182,7 @@ class ClinicalNoteParser
     {
         $contentLines = [];
         foreach ($item->childNodes as $child) {
-            $child->textContent = str_replace(array("\n\n\n\n", "\n\n", "\r\r", "\r\r\r\r"), "\n", $child->textContent);
+            $child->textContent = str_replace(["\n\n\n\n", "\n\n", "\r\r", "\r\r\r\r"], "\n", $child->textContent);
             $text = trim($child->textContent);
             if ($text) {
                 $contentLines[] = $text;
@@ -262,9 +258,7 @@ class ClinicalNoteParser
         if (!$dom->loadXML($textXML)) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            return "Error loading XML: " . implode("; ", array_map(function ($err) {
-                    return trim($err->message);
-            }, $errors));
+            return "Error loading XML: " . implode("; ", array_map(fn($err): string => trim($err->message), $errors));
         }
         $xpath = new DOMXPath($dom);
         // Look up the default namespace and register it (if needed).

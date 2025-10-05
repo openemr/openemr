@@ -146,7 +146,7 @@ class PatientTrackerService extends BaseService
     {
         #Check to see if there is an encounter in the patient_tracker table.
         $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `apptdate` = ? AND encounter > 0 " .
-            "AND `eid` = ? AND `pid` = ?", array($apptdate, $eid, $pid));
+            "AND `eid` = ? AND `pid` = ?", [$apptdate, $eid, $pid]);
         if (empty($enc_yn['encounter']) || $enc_yn === false) {
             return (0);
         }
@@ -170,7 +170,7 @@ class PatientTrackerService extends BaseService
     public function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status = '', $room = '', $enc_id = '')
     {
         #First ensure the eid is not a recurrent appointment. If it is, then do not do anything and return false.
-        $pc_appt =  sqlQuery("SELECT `pc_recurrtype` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", array($eid));
+        $pc_appt =  sqlQuery("SELECT `pc_recurrtype` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", [$eid]);
         if ($pc_appt['pc_recurrtype'] != 0) {
             return false;
         }
@@ -188,7 +188,7 @@ class PatientTrackerService extends BaseService
             "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
             "AND patient_tracker.lastseq = patient_tracker_element.seq " .
             "WHERE `apptdate` = ? AND `appttime` = ? " .
-            "AND `eid` = ? AND `pid` = ?", array($apptdate,$appttime,$eid,$pid));
+            "AND `eid` = ? AND `pid` = ?", [$apptdate,$appttime,$eid,$pid]);
 
         if (empty($tracker)) {
             #Add a new tracker.
@@ -196,7 +196,7 @@ class PatientTrackerService extends BaseService
                 "INSERT INTO `patient_tracker` " .
                 "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
                 "VALUES (?,?,?,?,?,?,?,'1')",
-                array($datetime,$apptdate,$appttime,$eid,$pid,$user,$enc_id)
+                [$datetime,$apptdate,$appttime,$eid,$pid,$user,$enc_id]
             );
             #If there is a status or a room, then add a tracker item.
             if (!empty($status) || !empty($room)) {
@@ -204,7 +204,7 @@ class PatientTrackerService extends BaseService
                     "INSERT INTO `patient_tracker_element` " .
                     "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                     "VALUES (?,?,?,?,?,'1')",
-                    array($tracker_id,$datetime,$user,$status,$room)
+                    [$tracker_id,$datetime,$user,$status,$room]
                 );
             }
             $tracker = [
@@ -234,20 +234,20 @@ class PatientTrackerService extends BaseService
                 #Update lastseq in tracker.
                 sqlStatement(
                     "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?",
-                    array(($tracker['lastseq'] + 1),$tracker_id)
+                    [($tracker['lastseq'] + 1),$tracker_id]
                 );
                 #Add a tracker item.
                 sqlStatement(
                     "INSERT INTO `patient_tracker_element` " .
                     "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                     "VALUES (?,?,?,?,?,?)",
-                    array($tracker_id,$datetime,$user,$status,$room,($tracker['lastseq'] + 1))
+                    [$tracker_id,$datetime,$user,$status,$room,($tracker['lastseq'] + 1)]
                 );
             }
 
             if (!empty($enc_id)) {
                 #enc_id (encounter number) is not blank, so update this in tracker.
-                sqlStatement("UPDATE `patient_tracker` SET `encounter` = ? WHERE `id` = ?", array($enc_id,$tracker_id));
+                sqlStatement("UPDATE `patient_tracker` SET `encounter` = ? WHERE `id` = ?", [$enc_id,$tracker_id]);
             }
             $tracker['lastseq'] += 1;
             $tracker['element'] = [
@@ -261,13 +261,13 @@ class PatientTrackerService extends BaseService
         }
 
         #Ensure the entry in calendar appt entry has been updated.
-        $pc_appt =  sqlQuery("SELECT `pc_apptstatus`, `pc_room` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", array($eid));
+        $pc_appt =  sqlQuery("SELECT `pc_apptstatus`, `pc_room` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", [$eid]);
         if ($status != $pc_appt['pc_apptstatus']) {
-            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", array($status,$eid));
+            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", [$status,$eid]);
         }
 
         if ($room != $pc_appt['pc_room']) {
-            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_room` = ? WHERE `pc_eid` = ?", array($room,$eid));
+            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_room` = ? WHERE `pc_eid` = ?", [$room,$eid]);
         }
 
         $GLOBALS['kernel']->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $tracker), ServiceSaveEvent::EVENT_POST_SAVE);
@@ -284,14 +284,14 @@ class PatientTrackerService extends BaseService
      */
     public static function collectApptStatusSettings($option)
     {
-        $color_settings = array();
+        $color_settings = [];
         $row = sqlQuery("SELECT notes FROM list_options WHERE " .
-            "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
+            "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
         if (empty($row['notes'])) {
             return $option;
         }
 
-        list($color_settings['color'], $color_settings['time_alert']) = explode("|", $row['notes']);
+        [$color_settings['color'], $color_settings['time_alert']] = explode("|", $row['notes']);
         return $color_settings;
     }
 
@@ -303,7 +303,7 @@ class PatientTrackerService extends BaseService
      */
     public static function collect_Tracker_Elements($trackerid)
     {
-        $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", array($trackerid));
+        $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", [$trackerid]);
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $returnval[$iter] = $row;
         }
@@ -326,7 +326,7 @@ class PatientTrackerService extends BaseService
             "WHERE  list_options.list_id = 'apptstat' " .
             "AND list_options.toggle_setting_1 = '1' AND list_options.activity = 1 " .
             "AND patient_tracker_element.pt_tracker_id = ?",
-            array($trackerid)
+            [$trackerid]
         );
         if (empty($tracker['start_datetime'])) {
             return false;
@@ -350,7 +350,7 @@ class PatientTrackerService extends BaseService
             "WHERE  list_options.list_id = 'apptstat' " .
             "AND list_options.toggle_setting_2 = '1' AND list_options.activity = 1 " .
             "AND patient_tracker_element.pt_tracker_id = ?",
-            array($trackerid)
+            [$trackerid]
         );
         if (empty($tracker['start_datetime'])) {
             return false;
@@ -361,7 +361,7 @@ class PatientTrackerService extends BaseService
 
     public static function getApptStatus($appointments)
     {
-        $astat = array();
+        $astat = [];
         $astat['count_all'] = count($appointments);
         //group the appointment by status
         foreach ($appointments as $appointment) {

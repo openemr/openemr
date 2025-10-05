@@ -28,7 +28,7 @@ function notifyAdmin($pid, $provider): void
 
     $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
     $title = xlt("New Patient");
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$provider]);
 
     if (empty($user['username'])) {
         $user['username'] = "portal-user";
@@ -343,8 +343,8 @@ function validEmail($email)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
-    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", array($pid));
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($newpd['providerID']));
+    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
 
     // ensure pid exists
     if (empty($newpd)) {

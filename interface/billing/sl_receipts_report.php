@@ -375,9 +375,9 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $form_doctor = $_SESSION['authUserID'];
                         }
 
-                        $arows = array();
+                        $arows = [];
 
-                        $ids_to_skip = array();
+                        $ids_to_skip = [];
                         $irow = 0;
 
                         // Get copays.  These will be ignored if a CPT code was specified.
@@ -401,7 +401,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $query .= " AND u.id = '$form_doctor'";
                             }
                             *************************************************************/
-                            $sqlBindArray = array();
+                            $sqlBindArray = [];
                             $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.modifier, " .
                             "fe.date, fe.id AS trans_id, fe.provider_id AS docid, fe.invoice_refno " .
                             "FROM billing AS b " .
@@ -441,7 +441,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                     $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
                                     "pid = ? AND encounter = ? AND " .
                                     "code_type = ? AND code LIKE ? AND " .
-                                    "activity = 1", array($patient_id,$encounter_id,$form_dx_codetype,$form_dx_code));
+                                    "activity = 1", [$patient_id,$encounter_id,$form_dx_codetype,$form_dx_code]);
                                     if (empty($tmp['count'])) {
                                         $ids_to_skip[$trans_id] = 1;
                                         continue;
@@ -457,7 +457,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                     $encounter_id,
                                     ++$irow
                                 );
-                                $arows[$key] = array();
+                                $arows[$key] = [];
                                 $arows[$key]['transdate'] = $thedate;
                                 $arows[$key]['amount'] = $row['fee'];
                                 $arows[$key]['docid'] = $row['docid'];
@@ -493,7 +493,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         // If a doctor was specified.
                         if ($form_doctor) $query .= " AND u.id = '$form_doctor'";
                         ***************************************************************/
-                        $sqlBindArray = array();
+                        $sqlBindArray = [];
                         $query = "SELECT a.pid, a.encounter, a.post_time, a.code, a.modifier, a.pay_amount, " .
                         "fe.date, fe.id AS trans_id, fe.provider_id AS docid, fe.invoice_refno, s.deposit_date, s.payer_id, " .
                         "b.provider_id, concat(p.lname, ' ', p.fname) as 'pat_fulname' " .
@@ -533,6 +533,8 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                         /**************************************************************/
                         //
+                        $grandtotal1 = 0;
+                        $grandtotal2 = 0;
                         $res = sqlStatement($query, $sqlBindArray);
                         while ($row = sqlFetchArray($res)) {
                             $trans_id = $row['trans_id'];
@@ -569,7 +571,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
                                 "pid = ? AND encounter = ? AND " .
                                 "code_type = ? AND code LIKE ? AND " .
-                                "activity = 1", array($patient_id,$encounter_id,$form_dx_codetype,$form_dx_code));
+                                "activity = 1", [$patient_id,$encounter_id,$form_dx_codetype,$form_dx_code]);
                                 if (empty($tmp['count'])) {
                                     $ids_to_skip[$trans_id] = 1;
                                     continue;
@@ -586,7 +588,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $encounter_id,
                                 ++$irow
                             );
-                            $arows[$key] = array();
+                            $arows[$key] = [];
                             $arows[$key]['transdate'] = $thedate;
                             $arows[$key]['amount'] = 0 - $row['pay_amount'];
                             $arows[$key]['docid'] = $docid;
@@ -609,7 +611,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $insconame = '';
                             if ($form_proc_codefull  && $row['project_id']) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE " .
-                                "id = ?", array($row['project_id']));
+                                "id = ?", [$row['project_id']]);
                                 $insconame = $tmp['name'];
                             }
 
@@ -647,7 +649,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $doctotal2 = 0;
 
                                 $docid = $row['docid'];
-                                $tmp = sqlQuery("SELECT lname, fname FROM users WHERE id = ?", array($docid));
+                                $tmp = sqlQuery("SELECT lname, fname FROM users WHERE id = ?", [$docid]);
                                 $docname = empty($tmp) ? xl('Unknown') : $tmp['fname'] . ' ' . $tmp['lname'];
 
                                 $docnameleft = $docname;
@@ -671,10 +673,10 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 <?php
                                 if ($form_proc_code && $form_proc_codetype) {
                                         echo "  <td class='detail' align='right'>";
-                                        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+                                        [$patient_id, $encounter_id] = explode(".", $row['invnumber']);
                                         $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
                                             "pid = ? AND encounter = ? AND " .
-                                            "code_type = ? AND code = ? AND activity = 1", array($patient_id,$encounter_id,$form_proc_codetype,$form_proc_code));
+                                            "code_type = ? AND code = ? AND activity = 1", [$patient_id,$encounter_id,$form_proc_codetype,$form_proc_code]);
                                         echo text(FormatMoney::getBucks($tmp['sum']));
                                         echo "  </td>\n";
                                 }
@@ -704,10 +706,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $doctotal1   += $amount1;
                             $doctotal2   += $amount2;
 
-                            $grandtotal1 = $grandtotal1 ?? null;
                             $grandtotal1 += $amount1;
-
-                            $grandtotal2 = $grandtotal2 ?? null;
                             $grandtotal2 += $amount2;
                         }
                         ?>
@@ -732,7 +731,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Grand Totals') ?>
                 </td>
                 <td>
-                        <?php echo text(FormatMoney::getBucks($grandtotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($grandtotal1)) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td>

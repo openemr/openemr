@@ -42,7 +42,7 @@ function _contraception_billing_check($code_type, $code, $provider): void
     // are flagged as Initial Consult.
     $sql = "SELECT related_code FROM codes WHERE " .
         "code_type = ? AND code = ? AND cyp_factor != 0 LIMIT 1";
-    $codesrow = sqlQuery($sql, array($code_types[$code_type]['id'], $code));
+    $codesrow = sqlQuery($sql, [$code_types[$code_type]['id'], $code]);
 
     if (!empty($codesrow['related_code'])) {
         $relcodes = explode(';', $codesrow['related_code']);
@@ -50,14 +50,14 @@ function _contraception_billing_check($code_type, $code, $provider): void
             if ($relstring === '') {
                 continue;
             }
-            list($reltype, $relcode) = explode(':', $relstring);
+            [$reltype, $relcode] = explode(':', $relstring);
             if ($reltype !== 'IPPFCM') {
                 continue;
             }
             $tmprow = sqlQuery(
                 "SELECT cyp_factor FROM codes WHERE " .
                 "code_type = '32' AND code = ? LIMIT 1",
-                array($relcode)
+                [$relcode]
             );
             $cyp = 0 + $tmprow['cyp_factor'];
             if ($cyp > $contraception_billing_cyp) {

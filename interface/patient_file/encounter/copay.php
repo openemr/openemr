@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 function getInsuranceCompanies($pid)
 {
     $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? " .
-    "ORDER BY type ASC, date DESC", array($pid));
+    "ORDER BY type ASC, date DESC", [$pid]);
     $prevtype = '';
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         if (strcmp($row['type'], $prevtype) == 0) {

@@ -181,13 +181,13 @@ use OpenEMR\Common\Acl\AclMain;
             },
             ordering: false,
             <?php // Bring in the translations ?>
-            <?php $translationsDatatablesOverride = array('lengthMenu' => (xla('Display') . ' _MENU_  ' . xla('records per page')),
+            <?php $translationsDatatablesOverride = ['lengthMenu' => (xla('Display') . ' _MENU_  ' . xla('records per page')),
                                                           'zeroRecords' => (xla('Nothing found - sorry')),
                                                           'info' => (xla('Showing page') . ' _PAGE_ ' . xla('of') . ' _PAGES_'),
                                                           'infoEmpty' => (xla('No records available')),
                                                           'infoFiltered' => ('(' . xla('filtered from') . ' _MAX_ ' . xla('total records') . ')'),
                                                           'infoPostFix' => (''),
-                                                          'url' => ('')); ?>
+                                                          'url' => ('')]; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
 

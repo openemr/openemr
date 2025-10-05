@@ -13,7 +13,7 @@ class XmlWriterOemr
 {
     var $xml;
     var $indent;
-    var $stack = array();
+    var $stack = [];
     function __construct($indent = '  ')
     {
         $this->indent = $indent;
@@ -25,7 +25,7 @@ class XmlWriterOemr
             $this->xml .= $this->indent;
         }
     }
-    function push($element, $attributes = array())
+    function push($element, $attributes = [])
     {
         $this->_indent();
         $this->xml .= '<' . $element;
@@ -36,7 +36,7 @@ class XmlWriterOemr
         $this->xml .= ">\n";
         $this->stack[] = htmlspecialchars($element);
     }
-    function element($element, $content, $attributes = array())
+    function element($element, $content, $attributes = [])
     {
         $this->_indent();
         $this->xml .= '<' . $element;
@@ -46,7 +46,7 @@ class XmlWriterOemr
 
         $this->xml .= '>' . htmlspecialchars($content) . '</' . htmlspecialchars($element) . '>' . "\n";
     }
-    function emptyelement($element, $attributes = array())
+    function emptyelement($element, $attributes = [])
     {
         $this->_indent();
         $this->xml .= '<' . htmlspecialchars($element);

@@ -78,13 +78,13 @@ class ApplicationTable
     {
         $return = false;
         $result = false;
-        $audit = array (
+        $audit =  [
                     $patientid,
                     $activity,
                     $auditflg,
                     $status,
                     $action
-            );
+            ];
         try {
             $sql = "Select * From onsite_portal_activity As pa Where  pa.patient_id = ? And  pa.activity = ? And  pa.require_audit = ? " .
                                     "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
@@ -141,7 +141,7 @@ class ApplicationTable
     {
         $return = false;
         $result = false;
-        $audit = array ();
+        $audit =  [];
         if (!$type) {
             $type = 'insert';
         }

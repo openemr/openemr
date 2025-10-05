@@ -21,7 +21,7 @@ class PatientRestControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->patientData = array(
+        $this->patientData = [
             "pubpid" => "test-fixture-doe",
             "title" => "Mr.",
             "fname" => "John",
@@ -40,7 +40,7 @@ class PatientRestControllerTest extends TestCase
             "sex" => "Male",
             "status" => "single",
             "drivers_license" => "102245737"
-        );
+        ];
 
         $this->fixtureManager = new FixtureManager();
         $this->patientController = new PatientRestController();
@@ -148,7 +148,7 @@ class PatientRestControllerTest extends TestCase
         $restRequest->server = $this->createMock(ServerBag::class);
         $restRequest->server->method('get')->with('REDIRECT_URL')->willReturn('http://localhost/');
         $restRequest->query = new InputBag();
-        $response = $this->patientController->getAll($restRequest, array("postal_code" => "90210"), new SearchQueryConfig());
+        $response = $this->patientController->getAll($restRequest, ["postal_code" => "90210"], new SearchQueryConfig());
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $searchResult = json_decode($response->getBody(), true);

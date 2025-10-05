@@ -39,15 +39,15 @@ class MapperController extends AbstractActionController
         $folders    = $this->getMapperTable()->getDocuments();
         $ccda_saved = $this->getMapperTable()->getMappedFields(1);
 
-        $index      = new ViewModel(array(
-            'menu'                      => array('system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'),
+        $index      = new ViewModel([
+            'menu'                      => ['system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'],
             'sections'                  => $index,
             'system_based_forms'        => $forms,
             'layout_based_forms'        => $lbfforms,
             'database_tables'           => $table_list,
         'saved'         => $ccda_saved,
             'folders'                   => $folders,
-        ));
+        ]);
         return $index;
     }
 
@@ -105,16 +105,16 @@ class MapperController extends AbstractActionController
                         $form_type  = 3;
                     }
 
-                    $insert_id = $this->getMapperTable()->insertMaster(array(trim($component_name), trim($section_name), trim($form_dir), trim($form_type), trim($form_table), '1'));
+                    $insert_id = $this->getMapperTable()->insertMaster([trim($component_name), trim($section_name), trim($form_dir), trim($form_type), trim($form_table), '1']);
                     if ($sub_id) {
-                        $this->getMapperTable()->insertChild(array($insert_id,trim($sub_id)));
+                        $this->getMapperTable()->insertChild([$insert_id,trim($sub_id)]);
                     }
                 }
             }
         }
 
-        $this->getMapperTable()->updateExistingMappedFields(array($existing_id,1));
-        return $this->redirect()->toRoute('mapper', array('action' => 'index'));
+        $this->getMapperTable()->updateExistingMappedFields([$existing_id,1]);
+        return $this->redirect()->toRoute('mapper', ['action' => 'index']);
     }
 
     /**

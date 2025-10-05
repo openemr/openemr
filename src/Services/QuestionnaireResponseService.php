@@ -316,9 +316,7 @@ class QuestionnaireResponseService extends BaseService
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(function ($uuid) {
-                    return "?";
-            }, $uuidResults)) . ") ORDER BY qr.create_time DESC ";
+            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(fn($uuid): string => "?", $uuidResults)) . ") ORDER BY qr.create_time DESC ";
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = new ProcessingResult();
             foreach ($statementResults as $record) {
@@ -494,7 +492,7 @@ class QuestionnaireResponseService extends BaseService
         $dataValues = $updatedPreSaveEvent->getSaveData();
 
         if ($update_flag) {
-            $bind = array(
+            $bind = [
                 $dataValues['audit_user_id']
             , $dataValues['version']
             , $dataValues['last_updated']
@@ -505,11 +503,11 @@ class QuestionnaireResponseService extends BaseService
             , $dataValues['tscore']
             , $dataValues['error']
             , $dataValues['id']
-            );
+            ];
             $result = sqlQuery($sql_update, $bind);
             $id = $id['id'];
         } else {
-            $bind = array(
+            $bind = [
                 $dataValues['uuid'],
                 $dataValues['response_id'],
                 $dataValues['questionnaire_foreign_id'],
@@ -523,7 +521,7 @@ class QuestionnaireResponseService extends BaseService
                 $dataValues['questionnaire'],
                 $dataValues['questionnaire_response'],
                 $dataValues['form_response']
-            );
+            ];
             $id = sqlInsert($sql_insert, $bind) ?: 0;
             $dataValues['id'] = $id;
         }
@@ -742,10 +740,10 @@ class QuestionnaireResponseService extends BaseService
     public function getQuestionnaireResourceIdAndVersion($name, $q_id = null, $uuid = null): array
     {
         $sql = "Select `id`, `uuid`, response_id, `version` From `questionnaire_response` Where ((`questionnaire_name` IS NOT NULL And `questionnaire_name` = ?) Or (`response_id` IS NOT NULL And `response_id` = ?))";
-        $bind = array($name, $q_id);
+        $bind = [$name, $q_id];
         if (!empty($uuid)) {
             $sql = "Select `id`, `uuid`, response_id, `version` From `questionnaire_response` Where `uuid` = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'] ?? null)) {
@@ -764,10 +762,10 @@ class QuestionnaireResponseService extends BaseService
         $id = $id ?: 0;
         if (!empty($uuid)) {
             $sql = "Select * From `questionnaire_response` Where `uuid` = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         } else {
             $sql = "Select * From `questionnaire_response` Where (`id` = ?) Or (`response_id` IS NOT NULL And `response_id` = ?)";
-            $bind = array($id, $qr_id);
+            $bind = [$id, $qr_id];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {
@@ -787,7 +785,7 @@ class QuestionnaireResponseService extends BaseService
     public function fetchQuestionnaireResponse($record_id = null, $qr_id = null): array
     {
         $sql = "Select * From `questionnaire_response` Where `id` = ? Or `response_id` = ?";
-        $resource = sqlQuery($sql, array($record_id, $qr_id));
+        $resource = sqlQuery($sql, [$record_id, $qr_id]);
 
         return $resource ?: [];
     }

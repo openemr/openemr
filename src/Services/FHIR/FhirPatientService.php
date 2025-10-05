@@ -162,7 +162,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPatient
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $patientResource = new FHIRPatient();
 
@@ -214,10 +214,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
         if (!empty($narrativeText)) {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $patientResource->setText($text);
         }
     }
@@ -523,7 +523,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        $data = array();
+        $data = [];
         $data['uuid'] = (string)$fhirResource->getId() ?? null;
 
         if (!empty($fhirResource->getName())) {
@@ -562,9 +562,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
             $data['city'] = (string)$activeAddress->getCity() ?? null;

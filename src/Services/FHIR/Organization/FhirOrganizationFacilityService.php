@@ -162,7 +162,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $organizationResource = new FHIROrganization();
 
@@ -179,10 +179,10 @@ class FhirOrganizationFacilityService extends FhirServiceBase
 
         $narrativeText = trim($dataRecord['name'] ?? "");
         if (!empty($narrativeText)) {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $organizationResource->setText($text);
         }
 
@@ -250,7 +250,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
         }
 
-        $data = array();
+        $data = [];
 
         $data['uuid'] = (string)$fhirResource->getId() ?? null;
         // convert the strings to a
@@ -271,9 +271,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
             $data['city'] = (string)$activeAddress->getCity() ?? null;

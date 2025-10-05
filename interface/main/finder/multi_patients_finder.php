@@ -28,7 +28,7 @@ if (isset($_GET['patients'])) {
 
     $patients = rtrim($_GET['patients'], ";");
     $patients = explode(';', $patients);
-    $results = array();
+    $results = [];
     foreach ($patients as $patient) {
         $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;

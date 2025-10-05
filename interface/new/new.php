@@ -24,7 +24,7 @@ if ($GLOBALS['full_new_patient_form']) {
 function getLayoutUOR($form_id, $field_id)
 {
     $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-    "form_id = ? AND field_id = ? LIMIT 1", array($form_id, $field_id));
+    "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
     return 0 + $crow['uor'];
 }
 

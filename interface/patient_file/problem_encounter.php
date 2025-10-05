@@ -56,7 +56,7 @@ if (!empty($_POST['form_save'])) {
     $numsets = count($matches[1]);
 
     $query = "DELETE FROM issue_encounter WHERE pid = ?";
-    sqlQuery($query, array($form_pid));
+    sqlQuery($query, [$form_pid]);
     for ($i = 0; $i < $numsets; ++$i) {
         $list_id   = $matches[1][$i];
         $encounter = $matches[2][$i];
@@ -65,7 +65,7 @@ if (!empty($_POST['form_save'])) {
             ") VALUES ( " .
             " ?, ?, ?" .
             ")";
-        sqlQuery($query, array($form_pid, $list_id, $encounter));
+        sqlQuery($query, [$form_pid, $list_id, $encounter]);
     }
 
     echo "<html><body>"
@@ -84,14 +84,14 @@ if (!empty($_POST['form_save'])) {
 
 // get problems
 $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-"ORDER BY type, date", array($pid));
+"ORDER BY type, date", [$pid]);
 
 // get encounters
 $eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
-"ORDER BY date DESC", array($pid));
+"ORDER BY date DESC", [$pid]);
 
 // get problem/encounter relations
-$peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
+$peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", [$pid]);
 ?>
 <!DOCTYPE html>
 <html>

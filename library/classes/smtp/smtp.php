@@ -25,7 +25,7 @@ class smtp_class
 	var $html_debug=0;
 	var $esmtp=1;
 	var $esmtp_host="";
-	var $esmtp_extensions=array();
+	var $esmtp_extensions=[];
 	var $maximum_piped_recipients=100;
 	var $exclude_address="";
 	var $getmxrr="GetMXRR";
@@ -151,7 +151,7 @@ class smtp_class
 
 	Function VerifyResultLines($code,&$responses)
 	{
-		$responses=array();
+		$responses=[];
 		Unset($this->result_code);
 		while(strlen($line=$this->GetLine($this->connection)))
 		{
@@ -201,7 +201,7 @@ class smtp_class
 		}
 		for(;$this->pending_recipients;$this->pending_recipients--)
 		{
-			if($this->VerifyResultLines(array("250","251"),$responses)<=0)
+			if($this->VerifyResultLines(["250","251"],$responses)<=0)
 				return(0);
 		}
 		return(1);
@@ -291,7 +291,7 @@ class smtp_class
 				$this->error="Could not send the AUTH command";
 				return(0);
 			}
-			if(!$this->VerifyResultLines(array("235","334"),$responses))
+			if(!$this->VerifyResultLines(["235","334"],$responses))
 				return(0);
 			switch($this->result_code)
 			{
@@ -321,7 +321,7 @@ class smtp_class
 							$this->error="Could not send the authentication step message";
 							return(0);
 						}
-						if(!$this->VerifyResultLines(array("235","334"),$responses))
+						if(!$this->VerifyResultLines(["235","334"],$responses))
 							return(0);
 						switch($this->result_code)
 						{
@@ -358,13 +358,13 @@ class smtp_class
 		$this->disconnected_error=0;
 		$this->error=$error="";
 		$this->esmtp_host="";
-		$this->esmtp_extensions=array();
-		$hosts=array();
+		$this->esmtp_extensions=[];
+		$hosts=[];
 		if($this->direct_delivery)
 		{
 			if(strlen($domain)==0)
 				return(1);
-			$hosts=$weights=$mxhosts=array();
+			$hosts=$weights=$mxhosts=[];
 			$getmxrr=$this->getmxrr;
 			if(function_exists($getmxrr)
 			&& $getmxrr($domain,$hosts,$weights))
@@ -510,17 +510,17 @@ class smtp_class
 				else
 				{
 					if(strlen($this->authentication_mechanism))
-						$mechanisms=array($this->authentication_mechanism);
+						$mechanisms=[$this->authentication_mechanism];
 					else
 					{
-						$mechanisms=array();
+						$mechanisms=[];
 						for($authentication=$this->Tokenize($this->esmtp_extensions["AUTH"]," ");strlen($authentication);$authentication=$this->Tokenize(" "))
 							$mechanisms[]=$authentication;
 					}
-					$credentials=array(
+					$credentials=[
 						"user"=>$this->user,
 						"password"=>$this->password
-					);
+					];
 					if(strlen($this->realm))
 						$credentials["realm"]=$this->realm;
 					if(strlen($this->workstation))
@@ -533,11 +533,11 @@ class smtp_class
 						 * Author:  Russell Robinson, 25 May 2003, http://www.tectite.com/
 						 * Purpose: Try various AUTH PLAIN authentication methods.
 						 */
-						$mechanisms=array("PLAIN");
-						$credentials=array(
+						$mechanisms=["PLAIN"];
+						$credentials=[
 							"user"=>$this->user,
 							"password"=>$this->password
-						);
+						];
 						if(strlen($this->realm))
 						{
 							/*
@@ -684,7 +684,7 @@ class smtp_class
 		}
 		else
 		{
-			if($this->VerifyResultLines(array("250","251"),$responses)<=0)
+			if($this->VerifyResultLines(["250","251"],$responses)<=0)
 				return(0);
 		}
 		$this->state="RecipientSet";
@@ -716,9 +716,9 @@ class smtp_class
 	{
 		if($preg
 		&& function_exists("preg_replace"))
-			$output=preg_replace(array("/\n\n|\r\r/","/(^|[^\r])\n/","/\r([^\n]|\$)/D","/(^|\n)\\./"),array("\r\n\r\n","\\1\r\n","\r\n\\1","\\1.."),$data);
+			$output=preg_replace(["/\n\n|\r\r/","/(^|[^\r])\n/","/\r([^\n]|\$)/D","/(^|\n)\\./"],["\r\n\r\n","\\1\r\n","\r\n\\1","\\1.."],$data);
 		else
-			$output=ereg_replace("(^|\n)\\.","\\1..",ereg_replace("\r([^\n]|\$)","\r\n\\1",ereg_replace("(^|[^\r])\n","\\1\r\n",ereg_replace("\n\n|\r\r","\r\n\r\n",$data))));
+			$output=preg_replace("#(^|\n)\\.#m","\\1..",preg_replace("#\r([^\n]|\$)#m","\r\n\\1",preg_replace("#(^|[^\r])\n#m","\\1\r\n",preg_replace("#\n\n|\r\r#m","\r\n\r\n",$data))));
 	}
 
 	Function SendData($data)

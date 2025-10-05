@@ -63,7 +63,7 @@ $query = "select  *,form_encounter.date as encounter_date
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $data = sqlQuery($query, array($_REQUEST['encounter'], $_REQUEST['pid']));
+    $data = sqlQuery($query, [$_REQUEST['encounter'], $_REQUEST['pid']]);
     $data['ODMPDD'] = $data['ODPDMeasured'];
     $data['OSMPDD'] = $data['OSPDMeasured'];
     $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
@@ -74,10 +74,10 @@ $query = "select  *,form_encounter.date as encounter_date
     $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
 
     $query      = "SELECT * FROM users where id = ?";
-    $prov_data  = sqlQuery($query, array($data['provider_id']));
+    $prov_data  = sqlQuery($query, [$data['provider_id']]);
 
     $query      = "SELECT * FROM patient_data where pid=?";
-    $pat_data   = sqlQuery($query, array($data['pid']));
+    $pat_data   = sqlQuery($query, [$data['pid']]);
 
     $practice_data = $facilityService->getPrimaryBusinessEntity();
 
@@ -87,7 +87,7 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
     $table_name = "form_eye_mag_dispense";
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
-    $fields = array();
+    $fields = [];
 
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
@@ -115,12 +115,12 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
     exit;
 } elseif ($_REQUEST['mode'] ?? '' == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
-    sqlStatement($query, array($_REQUEST['delete_id']));
+    sqlStatement($query, [$_REQUEST['delete_id']]);
     echo xlt('Prescription successfully removed.');
     exit;
 } elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
-    sqlStatement($query, array($_REQUEST['RXTYPE'], $_REQUEST['id']));
+    sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id']]);
     exit;
 }
 
@@ -153,7 +153,7 @@ if ($_REQUEST['REFTYPE']) {
     if ($REFTYPE == "W") {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
-        $wear = sqlStatement($query, array($encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']));
+        $wear = sqlStatement($query, [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']]);
         $wearing = sqlFetchArray($wear);
         $ODSPH = $wearing['ODSPH'];
         $ODAXIS = $wearing['ODAXIS'];
@@ -253,7 +253,7 @@ if ($_REQUEST['REFTYPE']) {
     $table_name      = "form_eye_mag_dispense";
     $query           = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
-    $fields          = array();
+    $fields          = [];
 
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
@@ -284,7 +284,7 @@ if ($_REQUEST['REFTYPE']) {
 
 if ($_REQUEST['dispensed'] ?? '') {
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
-    $dispensed = sqlStatement($query, array($_REQUEST['pid']));
+    $dispensed = sqlStatement($query, [$_REQUEST['pid']]);
     ?><html>
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
@@ -1135,7 +1135,7 @@ if ($REFTYPE == "CTL") {
                                                                                                         value="<?php echo attr($BPDN); ?>">
                                     </td>
                                     <td colspan="2">   <?php
-                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px'));
+                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px']);
                                     ?>
                                     </td>
                                 </tr>

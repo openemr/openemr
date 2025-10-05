@@ -21,7 +21,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
-require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
+require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 require_once("$srcdir/appointments.inc.php");
@@ -44,7 +44,7 @@ if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
 
 $facilityService = new FacilityService();
 
-$staged_docs = array();
+$staged_docs = [];
 $archive_name = '';
 
 // For those who care that this is the patient report.
@@ -139,10 +139,10 @@ function report_basename($pid)
     $ptd = getPatientData($pid, "fname,lname");
     // escape names for pesky periods hyphen etc.
     $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $esc = str_replace(['.', ',', ' '], '', $esc);
     $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
 
-    return array('base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']);
+    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
 }
 
 function zip_content($source, $destination, $content = '', $create = true)
@@ -279,8 +279,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                             <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
                             <br />
                             <?php
-                            $form_id_arr = array();
-                            $form_dir_arr = array();
+                            $form_id_arr = [];
+                            $form_dir_arr = [];
                             $last_key = '';
                             //ksort($ar);
                             foreach ($ar as $key_search => $val_search) {
@@ -330,14 +330,14 @@ function zip_content($source, $destination, $content = '', $create = true)
             $reportRenderer = new FormReportRenderer();
 
             // include ALL form's report.php files
-            $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", array($pid));
+            $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", [$pid]);
             while ($result = sqlFetchArray($inclookupres)) {
                 // include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
                 $formdir = $result['formdir'];
             }
 
             if ($PDF_OUTPUT) {
-                $tmp_files_remove = array();
+                $tmp_files_remove = [];
             }
 
             // For each form field from patient_report.php...
@@ -434,7 +434,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         echo "<div class='text billing'>";
                         print "<h4>" . xlt('Billing Information') . ":</h4>";
                         if (!empty($ar['newpatient']) && count($ar['newpatient']) > 0) {
-                            $billings = array();
+                            $billings = [];
                             echo "<div class='table-responsive'><table class='table'>";
                             echo "<tr><td class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
                             $total = 0.00;
@@ -483,16 +483,16 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code " .
                                 " where i1.patient_id = ? and i1.added_erroneously = 0 " .
                                 " order by administered_date desc";
-                            $result = sqlStatement($sql, array($pid));
+                            $result = sqlStatement($sql, [$pid]);
                             while ($row = sqlFetchArray($result)) {
                                 // Figure out which name to use (ie. from cvx list or from the custom list)
                                 if ($GLOBALS['use_custom_immun_list']) {
-                                    $vaccine_display = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+                                    $vaccine_display = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
                                 } else {
                                     if (!empty($row['code_text_short'])) {
                                         $vaccine_display = xlt($row['code_text_short']);
                                     } else {
-                                        $vaccine_display = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+                                        $vaccine_display = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
                                     }
                                 }
 
@@ -514,7 +514,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         print "<h4>" . xlt('Patient Communication sent') . ":</h4>";
                         $sql = "SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
                         // echo $sql;
-                        $result = sqlStatement($sql, array($pid));
+                        $result = sqlStatement($sql, [$pid]);
                         while ($row = sqlFetchArray($result)) {
                             echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br />Text:<br /> " . text($row['msg_txt']) . "<br />\n";
                         }
@@ -645,7 +645,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                         $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
                                         $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                                         $pdf->writeHTML($err);
-                                        $staged_docs[] = array('path' => $d->url, 'fname' => $fname);
+                                        $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
                                     } finally {
                                         unlink($from_file_tmp_name);
                                         // Make sure whatever follows is on a new page. Maybe!
@@ -715,7 +715,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             "lists.udi_data, medications.drug_dosage_instructions FROM lists LEFT JOIN " .
                             "( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions " .
                             "FROM lists_medication ) medications ON medications.list_id = id " .
-                            "WHERE id = ?", array($rowid));
+                            "WHERE id = ?", [$rowid]);
                         $diagnosis = $irow['diagnosis'];
                         if ($prevIssueType != $irow['type']) {
                             // output a header for each Issue Type we encounter
@@ -754,11 +754,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                         // Supplemental data for GCAC or Contraception issues.
                         if ($irow['type'] == 'ippf_gcac') {
                             echo "   <div class='table-responsive'><table class='table'>\n";
-                            display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", array($rowid)));
+                            display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$rowid]));
                             echo "   </table></div>\n";
                         } elseif ($irow['type'] == 'contraceptive') {
                             echo "   <div class='table-responsive'><table class='table'>\n";
-                            display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", array($rowid)));
+                            display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$rowid]));
                             echo "   </table></div>\n";
                         }
 
@@ -829,7 +829,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     "b.code_type = ct.ct_key AND " .
                                     "ct.ct_diag = 0 " .
                                     "ORDER BY b.date",
-                                    array($pid, $form_encounter)
+                                    [$pid, $form_encounter]
                                 );
                                 while ($brow = sqlFetchArray($bres)) {
                                     echo "<div class='font-weight-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
@@ -911,7 +911,7 @@ function zip_content($source, $destination, $content = '', $create = true)
             echo "<html><head>\n";
             Header::setupHeader();
             echo "</head><body>\n";
-            $result = cms_portal_call(array(
+            $result = cms_portal_call([
                 'action' => 'putmessage',
                 'user' => $ptdata['cmsportal_login'],
                 'title' => xl('Your Clinical Report'),
@@ -919,7 +919,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 'filename' => 'report.pdf',
                 'mimetype' => 'application/pdf',
                 'contents' => base64_encode($contents)
-            ));
+            ]);
             if ($result['errmsg']) {
                 die(text($result['errmsg']));
             }

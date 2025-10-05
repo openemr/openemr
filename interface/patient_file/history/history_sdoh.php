@@ -266,9 +266,7 @@ $self = basename($_SERVER['PHP_SELF']);
                             <?php
                             $yesNoList = 'sdoh_ipv_yesno';
                             $scale = json_decode($info['disability_scale'] ?? '[]', true) ?: [];
-                            $get = function ($key) use ($scale) {
-                                return $scale[$key]['code'] ?? '';
-                            };
+                            $get = (fn($key): mixed => $scale[$key]['code'] ?? '');
                             function fn_row($fieldKey, $label, $yesNoList, $get): void
                             {
                                 echo "<div class='form-row align-items-end mb-2'>";

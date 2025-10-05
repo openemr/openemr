@@ -59,14 +59,14 @@ class GaclAdminApi extends GaclApi {
 	 * @param ADORecordSet ADODB recordset.
 	 */
 	function get_paging_data($rs) {
-                return array(
+                return [
                                 'prevpage' => $rs->absolutepage() - 1,
                                 'currentpage' => $rs->absolutepage(),
                                 'nextpage' => $rs->absolutepage() + 1,
                                 'atfirstpage' => $rs->atfirstpage(),
                                 'atlastpage' => $rs->atlastpage(),
                                 'lastpageno' => $rs->lastpageno()
-                        );
+                        ];
 	}
 
 }

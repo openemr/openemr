@@ -47,11 +47,11 @@ class DBTable
     {
         $this->Schema = $schema;
         $this->Name = $row ["Tables_in_" . $this->Schema->Name];
-        $this->Columns = array ();
-        $this->PrimaryKeys = array ();
-        $this->ForeignKeys = array ();
-        $this->Constraints = array ();
-        $this->Sets = array ();
+        $this->Columns =  [];
+        $this->PrimaryKeys =  [];
+        $this->ForeignKeys =  [];
+        $this->Constraints =  [];
+        $this->Sets =  [];
 
         $this->LoadColumns();
         $this->DiscoverColumnPrefix();

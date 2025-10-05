@@ -158,7 +158,7 @@ class DataDriverSQLite implements IDataDriver
 
         $rs = $this->Query($connection, "SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence' ORDER BY name");
 
-        $tables = array ();
+        $tables =  [];
 
         while ($row = $this->Fetch($connection, $rs)) {
             $tables [] = $row ['name'];

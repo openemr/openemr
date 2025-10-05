@@ -249,9 +249,7 @@ class VitalsService extends BaseService
                 return MeasurementUtils::fhToCelsius($val);
             }
         };
-        $identity = function ($val) {
-            return $val;
-        };
+        $identity = (fn($val) => $val);
 
         $convertArrayValue = function ($index, $converter, $unit, &$array): void {
             $array[$index] = $converter($array[$index]);
@@ -372,9 +370,7 @@ class VitalsService extends BaseService
         // set up save columns and binds
         $keys = array_keys($vitalsData);
         $values = array_values($vitalsData);
-        $fields = array_map(function ($val) {
-            return '`' . $val . '` = ?';
-        }, $keys);
+        $fields = array_map(fn($val): string => '`' . $val . '` = ?', $keys);
         $sqlSet = implode(",", $fields);
         // update or insert query
         $sql = $sqlOperation . self::TABLE_VITALS . " SET " . $sqlSet;
@@ -494,9 +490,7 @@ class VitalsService extends BaseService
         unset($vitalDetails['id']);
         $keys = array_keys($vitalDetails);
         $values = array_values($vitalDetails);
-        $fields = array_map(function ($val) {
-            return '`' . $val . '` = ?';
-        }, $keys);
+        $fields = array_map(fn($val): string => '`' . $val . '` = ?', $keys);
         $sqlSet = implode(",", $fields);
 
         $sql = $sqlOperation . FormVitalDetails::TABLE_NAME . " SET " . $sqlSet;
