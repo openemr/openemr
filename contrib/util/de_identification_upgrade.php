@@ -102,7 +102,7 @@ function upgradeFromSqlFile_de($filename): void
 
         $query .= $line;
 
-        if (substr($query, -1) == '$') {
+        if (str_ends_with($query, '$')) {
             $query = rtrim($query, '$');
             if ($proc == 0) {
                 $proc = 1;
@@ -120,7 +120,7 @@ function upgradeFromSqlFile_de($filename): void
             }
         }
 
-        if (substr($query, -1) == ';' and $proc == 0) {
+        if (str_ends_with($query, ';') and $proc == 0) {
             $query = rtrim($query, ';');
             echo text($query) . "<br />\n";  //executes sql statements
             if (!sqlStatement($query)) {

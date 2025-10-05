@@ -382,7 +382,7 @@ class CcrTable extends AbstractTableGateway
         $patient_data_fields = '';
         $patient_data_values = array();
         foreach ($data as $key => $val) {
-            if (substr($key, -4) == '-sel') {
+            if (str_ends_with($key, '-sel')) {
                 if (is_array($val)) {
                     for ($i = 0; $i < count($val); $i++) {
                         if ($val[$i] == 'insert') {

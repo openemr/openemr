@@ -1567,7 +1567,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $m3_arr = explode('||', $data['med3check'] ?? '');
 
         foreach ($data as $key => $val) {
-            if (substr($key, -4) == '-sel') {
+            if (str_ends_with($key, '-sel')) {
                 if (is_array($val)) {
                     for ($i = 0, $iMax = count($val); $i < $iMax; $i++) {
                         if ($val[$i] == 'insert') {

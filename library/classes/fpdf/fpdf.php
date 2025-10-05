@@ -109,7 +109,7 @@ function __construct($orientation='P', $unit='mm', $size='A4')
 	if(defined('FPDF_FONTPATH'))
 	{
 		$this->fontpath = FPDF_FONTPATH;
-		if(substr($this->fontpath,-1)!='/' && substr($this->fontpath,-1)!='\\')
+		if(!str_ends_with($this->fontpath, '/') && !str_ends_with($this->fontpath, '\\'))
 			$this->fontpath .= '/';
 	}
 	elseif(is_dir(__DIR__.'/font'))
@@ -1577,7 +1577,7 @@ protected function _putfonts()
 		$font = file_get_contents($this->fontpath.$file,true);
 		if(!$font)
 			$this->Error('Font file not found: '.$file);
-		$compressed = (substr($file,-2)=='.z');
+		$compressed = (str_ends_with($file, '.z'));
 		if(!$compressed && isset($info['length2']))
 			$font = substr($font,6,$info['length1']).substr($font,6+$info['length1']+6,$info['length2']);
 		$this->_put('<</Length '.strlen($font));

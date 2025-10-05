@@ -624,7 +624,7 @@ function pnGetBaseURI()
 
     if (
         (empty($path)) ||
-        (substr($path, -1, 1) == '/')
+        (str_ends_with($path, '/'))
     ) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO

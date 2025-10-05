@@ -892,7 +892,7 @@ class EDI270
                 $name = $matches[1];
                 $content = trim($matches[2]);
                 // Check if the field is an array (i.e., name ends with "[]")
-                if (substr($name, -2) === '[]') {
+                if (str_ends_with($name, '[]')) {
                     $name = substr($name, 0, -2);
                     if (!isset($mimeData[$name])) {
                         $mimeData[$name] = [];

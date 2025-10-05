@@ -727,7 +727,7 @@ class SQLUpgradeService implements ISQLUpgradeService
 
             $query .= $line;
 
-            if (substr(trim($query), -1) == ';') {
+            if (str_ends_with(trim($query), ';')) {
                 if ($trim) {
                     $query = rtrim($query, ';');
                 } else {
