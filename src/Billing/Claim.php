@@ -1328,7 +1328,82 @@ class Claim
 
     public function priorAuth()
     {
-        return $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
+        // Prefer explicitly entered prior auth from misc billing options
+        $explicit = $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
+        if ($explicit !== '') {
+            return $explicit;
+        }
+
+        // If the custom prior auth table exists, try to match by CPT for this encounter's service date
+        if ($this->priorAuthTableExists()) {
+            $svcDate = substr($this->encounter['date'] ?? '', 0, 10);
+            foreach ($this->procs as $prow) {
+                $code = $prow['code'] ?? '';
+                if ($code === '') {
+                    continue;
+                }
+                $auth = $this->priorAuthFromModuleForCpt($this->pid, $svcDate, $code);
+                if ($auth !== '') {
+                    return $this->x12Clean($auth);
+                }
+            }
+        }
+
+        return '';
+    }
+
+    // Return prior authorization for a specific procedure line when available.
+    public function priorAuthForProckey($prockey)
+    {
+        $explicit = $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
+        if ($explicit !== '') {
+            return $explicit;
+        }
+        if (!$this->priorAuthTableExists()) {
+            return '';
+        }
+        $svcDate = substr($this->encounter['date'] ?? '', 0, 10);
+        $code = $this->cptCode($prockey);
+        if ($code === '') {
+            return '';
+        }
+        return $this->x12Clean($this->priorAuthFromModuleForCpt($this->pid, $svcDate, $code));
+    }
+
+    // Check existence of custom prior authorization table.
+    private function priorAuthTableExists(): bool
+    {
+        static $exists = null;
+        if ($exists !== null) {
+            return $exists;
+        }
+        $row = sqlQuery(
+            "SELECT 1 AS present FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ? LIMIT 1",
+            array('module_prior_authorizations')
+        );
+        $exists = !empty($row['present']);
+        return $exists;
+    }
+
+    // Fetch an authorization number for pid/date/CPT. Supports single or comma-separated CPTs in the table.
+    private function priorAuthFromModuleForCpt($pid, $serviceDateYmd, $cpt): string
+    {
+        if (empty($pid) || empty($serviceDateYmd) || empty($cpt)) {
+            return '';
+        }
+        $sql = "SELECT auth_num\n                  FROM module_prior_authorizations\n                 WHERE pid = ?\n                   AND (start_date IS NULL OR start_date <= ?)\n                   AND (end_date IS NULL OR end_date >= ?)\n                   AND (cpt = ? OR cpt LIKE ? OR cpt LIKE ? OR cpt LIKE ?)\n                 ORDER BY id DESC\n                 LIMIT 1";
+        $params = array(
+            $pid,
+            $serviceDateYmd,
+            $serviceDateYmd,
+            $cpt,
+            $cpt . ',%',     // at start
+            '%,' . $cpt,     // at end
+            '%,' . $cpt . ',%' // middle
+        );
+        $row = sqlQuery($sql, $params);
+
+        return $row['auth_num'] ?? '';
     }
 
     public function isRelatedEmployment()
