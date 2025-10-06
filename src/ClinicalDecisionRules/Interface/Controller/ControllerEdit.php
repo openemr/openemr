@@ -190,7 +190,7 @@ class ControllerEdit extends BaseController
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
-            $columns[] = array("code" => $row['option_id'], "lbl" => xl_list_label($row['title']));
+            $columns[] = ["code" => $row['option_id'], "lbl" => xl_list_label($row['title'])];
         }
 
         $this->emit_json($columns);
@@ -200,7 +200,7 @@ class ControllerEdit extends BaseController
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
-            $columns[] = array("code" => $row['option_id'], "lbl" => xl_list_label($row['title']));
+            $columns[] = ["code" => $row['option_id'], "lbl" => xl_list_label($row['title'])];
         }
 
         $this->emit_json($columns);
@@ -208,7 +208,7 @@ class ControllerEdit extends BaseController
 
     function _action_columns()
     {
-        $columns = array();
+        $columns = [];
         $table = Common::get('table');
         $stmts = sqlStatement("SHOW COLUMNS FROM " . escape_table_name($table));
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {

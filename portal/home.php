@@ -103,7 +103,7 @@ $apptLimit = 10;
 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
 $past_appts = fetchXPastAppts($pid, 10);
 
-$appointments = $past_appointments = array();
+$appointments = $past_appointments = [];
 if ($appts) {
     $stringCM = '(' . xl('Comments field entry present') . ')';
     $stringR = '(' . xl('Recurring appointment') . ')';
@@ -180,13 +180,13 @@ if ($past_appts) {
         $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
-$current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", array($pid, 'portal_theme'))['setting_value'] ?? '';
+$current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", [$pid, 'portal_theme'])['setting_value'] ?? '';
 function collectStyles(): array
 {
     global $webserver_root;
     $theme_dir = "$webserver_root/public/themes";
     $dh = opendir($theme_dir);
-    $styleArray = array();
+    $styleArray = [];
     while (false !== ($tfname = readdir($dh))) {
         if (
             $tfname == 'style_blue.css' ||
@@ -325,8 +325,8 @@ $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_dat
     LEFT JOIN users AS u ON u.id = im.administered_by_id
     LEFT JOIN facility AS f ON f.id = u.facility_id
     WHERE im.patient_id=?";
-$result = sqlStatement($query, array($pid));
-$immunRecords = array();
+$result = sqlStatement($query, [$pid]);
+$immunRecords = [];
 while ($row = sqlFetchArray($result)) {
     $immunRecords[] = $row;
 }

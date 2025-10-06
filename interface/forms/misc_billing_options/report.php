@@ -61,7 +61,7 @@ function misc_billing_options_report($pid, $encounter, $cols, $id): void
 
             if ($key === 'provider_id') {
                 $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE " .
-                         "id = ? ", array($value));
+                         "id = ? ", [$value]);
                 $value = $trow['fname'] . ' ' . $trow['lname'];
                 $key = 'Box 17 Provider';
             }

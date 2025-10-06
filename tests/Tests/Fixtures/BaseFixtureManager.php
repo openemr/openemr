@@ -102,7 +102,7 @@ abstract class BaseFixtureManager
 
         foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
-            $sqlBinds = array();
+            $sqlBinds = [];
 
             foreach ($fixture as $field => $fieldValue) {
                 if (is_array($fieldValue) && $this->isForeignReference($fieldValue)) {

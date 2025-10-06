@@ -65,7 +65,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // When automatically including lists used in selected layouts, these lists are not included.
-$excluded_lists = array(
+$excluded_lists = [
     'allergy_issue_list',
     'boolean',
     'education_level',
@@ -77,7 +77,7 @@ $excluded_lists = array(
     'sex',
     'Sexual_Orientation',
     'yesno',
-);
+];
 
 $BTN_TEXT_CREATE = xl('Create Backup');
 $BTN_TEXT_EXPORT = xl('Export Configuration');
@@ -190,7 +190,7 @@ if ($form_step == 102.1) {
         foreach ($_POST['form_sel_lists'] as $listid) {
             $res = sqlStatement(
                 "SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title",
-                array($listid)
+                [$listid]
             );
             while ($row = sqlFetchArray($res)) {
                 $xtitle = xl_list_label($row['title']);
@@ -255,7 +255,7 @@ if ($form_step == 102.2) {
                 "JOIN layout_group_properties AS p ON p.grp_form_id = l.form_id AND " .
                 "p.grp_group_id = l.group_id AND p.grp_activity = 1 " .
                 "WHERE l.form_id = ? ORDER BY l.group_id, l.seq, l.title",
-                array($layoutid)
+                [$layoutid]
             );
             while ($row = sqlFetchArray($res)) {
                 $xtitle = xl_layout_label($row['title']);
@@ -335,7 +335,7 @@ if ($form_step == 402) {
         while (true) {
             $res = sqlStatementNoLog(
                 "SELECT * FROM `log` WHERE `date` <= ? AND `id` > ? ORDER BY `id` LIMIT 50000",
-                array("$end_date 23:59:59", $lastid)
+                ["$end_date 23:59:59", $lastid]
             );
             if (!sqlNumRows($res)) {
                 break;
@@ -446,7 +446,7 @@ function export_submit(step) {
 <?php
 $cmd = '';
 // $cmdarr exists because some commands may be too long for a single exec.
-$cmdarr = array();
+$cmdarr = [];
 $mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
 $mysql_dump_cmd = $mysql_cmd . 'dump';
 $mysql_ssl = '';
@@ -553,7 +553,7 @@ if ($form_step == 3) {
 
     // Select the files and directories to archive.  Basically everything
     // except site-specific data for other sites.
-    $file_list = array();
+    $file_list = [];
     $dh = opendir($webserver_root);
     if (!$dh) {
         die("Cannot read directory '" . text($webserver_root) . "'.");
@@ -592,7 +592,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     echo brCustomPlaceholder(text($form_status));
     $cur_dir = getcwd();
     chdir($BACKUP_DIR);
-    $file_list = array('.');
+    $file_list = ['.'];
     if (!create_tar_archive($TAR_FILE_PATH, '', $file_list)) {
         die(xlt("Error: Unable to create downloadable archive"));
     }
@@ -751,7 +751,7 @@ if ($form_step == 102) {
                  " --no-create-info --skip-comments $mysql_ssl";
 
         // Individual lists.
-        $form_sel_lists = is_array($_POST['form_sel_lists'] ?? '') ? $_POST['form_sel_lists'] : array();
+        $form_sel_lists = is_array($_POST['form_sel_lists'] ?? '') ? $_POST['form_sel_lists'] : [];
         if (!empty($_POST['form_cb_addlists']) && is_array($_POST['form_sel_layouts'] ?? '')) {
             // Include all lists referenced by the exported layouts.
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
@@ -760,7 +760,7 @@ if ($form_step == 102) {
                     "JOIN list_options AS i ON i.list_id = 'lists' AND i.option_id = a.list_id AND " .
                     "i.activity = 1 AND i.option_value = 0 " .
                     "WHERE a.form_id = ? AND a.list_id != '' AND a.uor > 0",
-                    array($layoutid)
+                    [$layoutid]
                 );
                 while ($tmprow = sqlFetchArray($tmpres)) {
                     if (!in_array($tmprow['list_id'], $form_sel_lists) && !in_array($tmprow['list_id'], $excluded_lists)) {
@@ -1040,7 +1040,7 @@ if ($form_step == 405) {
             "LEFT JOIN log_comment_encrypt AS lce ON lce.log_id = log.id " .
             "LEFT JOIN api_log AS al ON al.log_id = log.id " .
             "WHERE log.date <= ?",
-            array("$end_date 23:59:59")
+            ["$end_date 23:59:59"]
         );
         sqlStatement("OPTIMIZE TABLE log");
     } else {

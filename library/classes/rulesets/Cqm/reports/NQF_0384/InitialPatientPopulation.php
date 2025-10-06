@@ -37,7 +37,7 @@ class NQF_0384_InitialPatientPopulation implements CqmFilterIF
                           "WHERE opc.pc_catname = 'Office Visit' " .
                           "AND fe.pid = ? " .
                           "AND fe.date BETWEEN ? AND ? ";
-        $check_cancer = sqlQuery($cancerCheckQry, array($patient->id, $beginDate, $endDate));
+        $check_cancer = sqlQuery($cancerCheckQry, [$patient->id, $beginDate, $endDate]);
         if ($check_cancer['cnt'] > 0) {
             return true;
         } else {
@@ -49,7 +49,7 @@ class NQF_0384_InitialPatientPopulation implements CqmFilterIF
                                 "AND (fe.date BETWEEN ? AND ?) " .
                                 "AND fe.pid = ? " .
                                 "AND prc.procedure_code = '77427' ";
-            $check_radiotheraphy = sqlQuery($radiotheraphyQry, array( $beginDate, $endDate, $patient->id));
+            $check_radiotheraphy = sqlQuery($radiotheraphyQry, [ $beginDate, $endDate, $patient->id]);
             if ($check_radiotheraphy['cnt'] > 0) {
                 return true;
             } else {

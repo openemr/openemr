@@ -59,7 +59,7 @@ $auth_coding = AclMain::aclCheckCore('encounters', 'coding');
 $auth_relaxed = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med = AclMain::aclCheckCore('patients', 'med');
 $auth_demo = AclMain::aclCheckCore('patients', 'demo');
-$glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'));
+$glog_view_write = AclMain::aclCheckCore("groups", "glog", false, ['view', 'write']);
 
 $tmp = getPatientData($pid, "squad");
 if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
@@ -69,7 +69,7 @@ if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad']))
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .
-  "where id = ?", array($_SESSION['authUserID']));
+  "where id = ?", [$_SESSION['authUserID']]);
 $billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing'])) {
     $billing_view = empty($_GET['billing']) ? 0 : 1;
@@ -92,7 +92,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
     if (!empty($documents) && count($documents) > 0) {
         foreach ($documents as $documentrow) {
             if ($auth_med) {
-                $irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", array($documentrow['list_id']));
+                $irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", [$documentrow['list_id']]);
                 if ($irow) {
                     $tcode = $irow['type'];
                     if ($ISSUE_TYPES[$tcode]) {
@@ -106,7 +106,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 
             // Get the notes for this document and display as title for the link.
             $queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
-            $noteResultSet = sqlStatement($queryString, array($documentrow['id']));
+            $noteResultSet = sqlStatement($queryString, [$documentrow['id']]);
             $note = '';
             while ($row = sqlFetchArray($noteResultSet)) {
                 $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . $row['note'] . "\n";
@@ -146,7 +146,7 @@ function showDocument(&$drow): void
         $irow = sqlQuery("SELECT type, title, begdate " .
         "FROM lists WHERE " .
         "id = ? " .
-        "LIMIT 1", array($drow['list_id']));
+        "LIMIT 1", [$drow['list_id']]);
         if ($irow) {
               $tcode = $irow['type'];
             if ($ISSUE_TYPES[$tcode]) {
@@ -252,7 +252,7 @@ window.onload = function() {
         <?php
         if ($issue) {
             echo xlt('Past Encounters for') . ' ';
-            $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", array($issue));
+            $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", [$issue]);
             echo text($tmp['title']);
         } else {
             //There isn't documents for therapy group yet
@@ -300,7 +300,7 @@ window.onload = function() {
         <?php echo xlt('Results per page'); ?>:
         <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
-            $pagesizes = array(5, 10, 15, 20, 25, 50, 0);
+            $pagesizes = [5, 10, 15, 20, 25, 50, 0];
             for ($idx = 0, $idxMax = count($pagesizes); $idx < $idxMax; $idx++) {
                 echo "<option value='" . attr($pagesizes[$idx]) . "'";
                 if ($pagesize == $pagesizes[$idx]) {
@@ -389,7 +389,7 @@ window.onload = function() {
             if (!$billing_view) {
             // Query the documents for this patient.  If this list is issue-specific
             // then also limit the query to documents that are linked to the issue.
-                $queryarr = array($pid);
+                $queryarr = [$pid];
                 $query = "SELECT d.id, d.type, d.url, d.name as document_name, d.docdate, d.list_id, d.encounter_id, c.name " .
                 "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
                 "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
@@ -404,7 +404,7 @@ window.onload = function() {
 
             $numRes = 0;
 
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             if ($attendant_type == 'pid') {
                 $from = "FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
@@ -501,7 +501,7 @@ window.onload = function() {
 
                     // Fetch all forms for this encounter, if the user is authorized to see
                     // this encounter's notes and this is the clinical view.
-                    $encarr = array();
+                    $encarr = [];
                     $encounter_rows = 1;
                 if (
                     !$billing_view && $auth_sensitivity && $authPostCalendarCategory &&
@@ -540,7 +540,7 @@ window.onload = function() {
                                                 "issue_encounter.pid = ? AND " .
                                                 "issue_encounter.encounter = ? AND " .
                                                 "lists.id = issue_encounter.list_id " .
-                                                "ORDER BY lists.type, lists.begdate", array($pid,$result4['encounter']));
+                                                "ORDER BY lists.type, lists.begdate", [$pid,$result4['encounter']]);
                             for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
                                 if ($i > 0) {
                                     echo "<br />";
@@ -661,15 +661,15 @@ window.onload = function() {
                     $coded = "";
                     $arid = 0;
                 if ($thisauth && $auth_sensitivity && $authPostCalendarCategory) {
-                    $binfo = array('', '', '', '', '');
+                    $binfo = ['', '', '', '', ''];
                     if ($subresult2 = BillingUtilities::getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee")) {
                         // Get A/R info, if available, for this encounter.
-                        $arinvoice = array();
+                        $arinvoice = [];
                         $arlinkbeg = "";
                         $arlinkend = "";
                         if ($billing_view) {
                                 $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                            "pid = ? AND encounter = ?", array($pid, $result4['encounter']));
+                                            "pid = ? AND encounter = ?", [$pid, $result4['encounter']]);
                                 $arid = (int) $tmp['id'];
                             if ($arid) {
                                 $arinvoice = InvoiceSummary::arGetInvoiceSummary($pid, $result4['encounter'], true);
@@ -686,11 +686,11 @@ window.onload = function() {
                         "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
                         "WHERE s.pid = ? AND s.encounter = ? " .
                         "ORDER BY s.sale_id";
-                        $sres = sqlStatement($query, array($pid,$result4['encounter']));
+                        $sres = sqlStatement($query, [$pid,$result4['encounter']]);
                         while ($srow = sqlFetchArray($sres)) {
-                            $subresult2[] = array('code_type' => 'PROD',
+                            $subresult2[] = ['code_type' => 'PROD',
                             'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
-                            'code_text' => $srow['name'], 'fee' => $srow['fee']);
+                            'code_text' => $srow['name'], 'fee' => $srow['fee']];
                         }
 
                         // This creates 5 columns of billing information:
@@ -822,7 +822,7 @@ window.onload = function() {
                 }
 
                 if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) {
-                    $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
+                    $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", [$result4['pc_catid']]);
                     echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
                 }
 

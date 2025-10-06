@@ -77,7 +77,7 @@ class HttpRestParsedRoute
         $routePieces = explode(" ", $routeDefinition);
         $routeDefinitionMethod = $routePieces[0];
         $pattern = $this->getRouteMatchExpression($routePieces[1]);
-        $matches = array();
+        $matches = [];
         if ($requestMethod === $routeDefinitionMethod && preg_match($pattern, $requestRoute, $matches)) {
             $this->isValid = true;
             array_shift($matches); // drop request method

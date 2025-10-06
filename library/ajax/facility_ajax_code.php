@@ -26,7 +26,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
 if ($_GET['mode'] === 'get_pos') {
     // put here for encounter facility changes sjp
     $fid = $_GET['facility_id'] ? (int)$_GET['facility_id'] : exit('0');
-    $pos = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", array($fid));
+    $pos = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$fid]);
 
     echo json_encode(((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code']);
     exit();
@@ -40,12 +40,12 @@ if ($_GET['mode'] === 'get_user_data') {
     $pos = ((int)$fac['pos_code'] < 10) ? ("0" . $fac['pos_code']) : $fac['pos_code'];
     $isBilling = $fac['billing_location'];
 
-    echo json_encode(array($fid, $pos, $isBilling));
+    echo json_encode([$fid, $pos, $isBilling]);
     exit();
 }
 $pid = $_POST['pid'];
 $facility = $_POST['facility'];
 $date = $_POST['date'];
-$q = sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", array($pid, $date, $facility));
+$q = sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", [$pid, $date, $facility]);
 $row = sqlFetchArray($q);
 billing_facility('billing_facility', $row['pc_billing_location']);

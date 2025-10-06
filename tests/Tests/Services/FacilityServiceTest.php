@@ -150,7 +150,7 @@ class FacilityServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->facilityService->getAll(array("facility_npi" => "0123456789"));
+        $actualResult = $this->facilityService->getAll(["facility_npi" => "0123456789"]);
         $this->assertNotNull($actualResult);
         $this->assertEquals(2, count($actualResult->getData()));
 

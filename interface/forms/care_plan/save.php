@@ -49,7 +49,7 @@ $reasonDateHigh   = $_POST['reasonDateHigh']   ?? [];
 if ($id) {
     sqlStatement(
         "DELETE FROM `form_care_plan` WHERE id=? AND pid=? AND encounter=?",
-        array($id, $_SESSION["pid"], $_SESSION["encounter"])
+        [$id, $_SESSION["pid"], $_SESSION["encounter"]]
     );
     $newid = $id;
 } else {

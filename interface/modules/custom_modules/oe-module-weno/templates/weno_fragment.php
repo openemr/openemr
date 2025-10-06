@@ -65,7 +65,7 @@ $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy
 $res = sqlStatement(
     "SELECT DISTINCT wp.ncpdp_safe, wp.business_name, wp.address_line_1, wp.city, wp.state FROM weno_assigned_pharmacy wap INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe OR wap.alternate_ncpdp = wp.ncpdp_safe;"
 );
-$pharmacies = array();
+$pharmacies = [];
 foreach ($res as $row) {
     $pharmacies[] = $row;
 }
@@ -85,7 +85,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     if (is_countable($match) && count($match) > 1) {
         $external_id = $match[0];
     }
-    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $provider_id));
+    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", [$external_id, $provider_id]);
     if ($provider) {
         return $provider['fname'] . " " . $provider['lname'];
     } else {
@@ -93,7 +93,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     }
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$_SESSION['authUserID'] ?? 0]);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -101,7 +101,7 @@ while ($row = sqlFetchArray($list)) {
 }
 
 // get weno drugs for patient
-$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", array($pid));
+$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", [$pid]);
 
 ?>
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>

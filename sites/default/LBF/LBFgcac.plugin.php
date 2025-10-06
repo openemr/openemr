@@ -297,7 +297,7 @@ function LBFgcac_default_in_ab_proc()
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype !== 'IPPF') {
                 continue;
             }

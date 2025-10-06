@@ -23,7 +23,7 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
         $countrow = sqlQuery(
             "SELECT count(*) AS count FROM users_facility WHERE " .
             "tablename = 'users' AND table_id = ?",
-            array($uID)
+            [$uID]
         );
     }
     if (!$restrict || empty($countrow['count'])) {
@@ -40,10 +40,10 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
             "WHERE f.id = u.facility_id OR f.id IN " .
             "(SELECT DISTINCT uf.facility_id FROM users_facility AS uf WHERE uf.tablename = 'users' AND uf.table_id = u.id) " .
             "ORDER BY f.$orderby",
-            array($uID)
+            [$uID]
         );
     }
-    $returnVal = array();
+    $returnVal = [];
     while ($row = sqlFetchArray($rez)) {
         $returnVal[] = $row;
     }
@@ -56,9 +56,9 @@ function getUserFacWH($uID, $fID)
     $res = sqlStatement(
         "SELECT warehouse_id FROM users_facility WHERE tablename = ? " .
         "AND table_id = ? AND facility_id = ?",
-        array('users', $uID, $fID)
+        ['users', $uID, $fID]
     );
-    $returnVal = array();
+    $returnVal = [];
     while ($row = sqlFetchArray($res)) {
         if ($row['warehouse_id'] === '') {
             continue;

@@ -147,10 +147,10 @@ class EncounterService extends BaseService
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
-    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '', $options = array())
+    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = [])
     {
         $limit = $options['limit'] ?? null;
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $processingResult = new ProcessingResult();
 
         // Validating and Converting _id to UUID byte
@@ -444,7 +444,7 @@ class EncounterService extends BaseService
         $facilityService = new FacilityService();
         $facilityresult = $facilityService->getById($data["facility_id"]);
         $facility = $facilityresult['name'];
-        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($encounter));
+        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$encounter]);
         if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
             return "You are not authorized to see this encounter.";
         }
@@ -496,13 +496,13 @@ class EncounterService extends BaseService
 
         $soapResults = sqlInsert(
             $soapSql,
-            array(
+            [
                 $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"]
-            )
+            ]
         );
 
         if (!$soapResults) {
@@ -520,14 +520,14 @@ class EncounterService extends BaseService
 
         $formResults = sqlInsert(
             $formSql,
-            array(
+            [
                 $eid,
                 $soapResults,
                 $pid
-            )
+            ]
         );
 
-        return array($soapResults, $formResults);
+        return [$soapResults, $formResults];
     }
 
     public function updateSoapNote($pid, $eid, $sid, $data)
@@ -544,14 +544,14 @@ class EncounterService extends BaseService
 
         return sqlStatement(
             $sql,
-            array(
+            [
                 $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"],
                 $sid
-            )
+            ]
         );
     }
 
@@ -608,9 +608,9 @@ class EncounterService extends BaseService
         $sql .= "  WHERE fo.encounter = ?";
         $sql .= "    AND fs.pid = ?";
 
-        $statementResults = sqlStatement($sql, array($eid, $pid));
+        $statementResults = sqlStatement($sql, [$eid, $pid]);
 
-        $results = array();
+        $results = [];
         while ($row = sqlFetchArray($statementResults)) {
             array_push($results, $row);
         }
@@ -627,7 +627,7 @@ class EncounterService extends BaseService
         $sql .= "    AND fs.id = ?";
         $sql .= "    AND fs.pid = ?";
 
-        return sqlQuery($sql, array($eid, $sid, $pid));
+        return sqlQuery($sql, [$eid, $sid, $pid]);
     }
 
     public function validateSoapNote($soapNote)

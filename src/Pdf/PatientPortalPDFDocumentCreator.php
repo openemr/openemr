@@ -39,7 +39,7 @@ class PatientPortalPDFDocumentCreator
 
         // purify html
         $config = HTMLPurifier_Config::createDefault();
-        $config->set('URI.AllowedSchemes', array('data' => true, 'http' => true, 'https' => true));
+        $config->set('URI.AllowedSchemes', ['data' => true, 'http' => true, 'https' => true]);
         $purify = new \HTMLPurifier($config);
         $htmlIn = $purify->purify($htmlIn);
         // need to create custom stylesheet for templates

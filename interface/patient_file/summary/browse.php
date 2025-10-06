@@ -186,7 +186,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']), $result3['subscriber_state']);
+    echo generate_display_field(['data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']], $result3['subscriber_state']);
     ?>
 </span></td>
 </tr>
@@ -199,7 +199,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']), $result3['subscriber_country']);
+    echo generate_display_field(['data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']], $result3['subscriber_country']);
     ?>
 </span></td>
 </tr>
@@ -255,7 +255,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
       //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(array('data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']), $result3['subscriber_employer_state']);
+        echo generate_display_field(['data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']], $result3['subscriber_employer_state']);
         ?>
 </span></td>
 </tr>
@@ -264,7 +264,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
        //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(array('data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']), $result3['subscriber_employer_country']);
+        echo generate_display_field(['data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']], $result3['subscriber_employer_country']);
         ?>
 </span></td>
 </tr>
@@ -273,7 +273,7 @@ function auto_populate_employer_address(){
 
 <tr>
 <td><span class='text'><?php echo xlt('Subscriber Sex'); ?>:</span></td>
-<td><span class='text'><?php echo generate_display_field(array('data_type' => '1','list_id' => 'sex'), $result3['subscriber_sex']); ?></span></td>
+<td><span class='text'><?php echo generate_display_field(['data_type' => '1','list_id' => 'sex'], $result3['subscriber_sex']); ?></span></td>
 </tr>
 </table>
 

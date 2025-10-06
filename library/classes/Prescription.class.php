@@ -162,10 +162,10 @@ class Prescription extends ORDataObject
         $this->interval_array = $this->load_drug_attributes('drug_interval');
         $this->unit_array = $this->load_drug_attributes('drug_units');
 
-        $this->substitute_array = array("",xl("substitution allowed"),
-            xl("do not substitute"));
+        $this->substitute_array = ["",xl("substitution allowed"),
+            xl("do not substitute")];
 
-        $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
+        $this->medication_array = [0 => xl('No'), 1 => xl('Yes')];
 
         if (is_numeric($id)) {
             $this->id = $id;
@@ -269,7 +269,7 @@ class Prescription extends ORDataObject
 
     private function load_drug_attributes($id)
     {
-        $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", array($id));
+        $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", [$id]);
         while ($row = sqlFetchArray($res)) {
             if ($row['title'] == '') {
                 $arr[$row['option_id']] = ' ';
@@ -830,11 +830,11 @@ class Prescription extends ORDataObject
         $order_by = "active DESC, date_modified DESC, date_added DESC"
     ) {
 
-        $prescriptions = array();
+        $prescriptions = [];
         $p = new Prescription();
         $sql = "SELECT id FROM " . escape_table_name($p->_table) . " WHERE patient_id = ? " .
                 "ORDER BY " . add_escape_custom($order_by);
-        $results = sqlQ($sql, array($patient_id));
+        $results = sqlQ($sql, [$patient_id]);
         while ($row = sqlFetchArray($results)) {
             $prescriptions[] = new Prescription($row['id']);
         }

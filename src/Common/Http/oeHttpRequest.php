@@ -141,7 +141,7 @@ class oeHttpRequest extends oeHttp
 
     public function usingBaseUri($baseUri)
     {
-        $baseUri = substr($baseUri, -1) === '/' ? $baseUri : $baseUri . '/';
+        $baseUri = str_ends_with($baseUri, '/') ? $baseUri : $baseUri . '/';
         return $this->tap($this, fn($request): array => $this->options = array_merge($this->options, [
             'base_uri' => $baseUri,
         ]));

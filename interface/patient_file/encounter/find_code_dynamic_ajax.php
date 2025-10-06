@@ -53,76 +53,76 @@ if ($what == 'codes') {
     }
 }
 
-$form_encounter_layout = array(
-  array('field_id'     => 'date',
+$form_encounter_layout = [
+  ['field_id'     => 'date',
         'title'        => xl('Visit Date'),
         'uor'          => '1',
         'data_type'    => '4',               // Text-date
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'facility_id',
+       ],
+  ['field_id'     => 'facility_id',
         'title'        => xl('Service Facility'),
         'uor'          => '1',
         'data_type'    => '35',              // Facilities
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'pc_catid',
+       ],
+  ['field_id'     => 'pc_catid',
         'title'        => xl('Visit Category'),
         'uor'          => '1',
         'data_type'    => '18',              // Visit Category
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'reason',
+       ],
+  ['field_id'     => 'reason',
         'title'        => xl('Reason for Visit'),
         'uor'          => '1',
         'data_type'    => '2',               // Text
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'onset_date',
+       ],
+  ['field_id'     => 'onset_date',
         'title'        => xl('Date of Onset'),
         'uor'          => '1',
         'data_type'    => '4',               // Text-date
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'referral_source',
+       ],
+  ['field_id'     => 'referral_source',
         'title'        => xl('Referral Source'),
         'uor'          => '1',
         'data_type'    => '1',               // List
         'list_id'      => 'refsource',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'shift',
+       ],
+  ['field_id'     => 'shift',
         'title'        => xl('Shift'),
         'uor'          => '1',
         'data_type'    => '1',               // List
         'list_id'      => 'shift',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'billing_facility',
+       ],
+  ['field_id'     => 'billing_facility',
         'title'        => xl('Billing Facility'),
         'uor'          => '1',
         'data_type'    => '35',              // Facilities
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'voucher_number',
+       ],
+  ['field_id'     => 'voucher_number',
         'title'        => xl('Voucher Number'),
         'uor'          => '1',
         'data_type'    => '2',               // Text
         'list_id'      => '',
         'edit_options' => '',
-       ),
-);
+       ],
+];
 
 function feSearchSort($search = '', $column = 0, $reverse = false)
 {
     global $form_encounter_layout;
-    $arr = array();
+    $arr = [];
     foreach ($form_encounter_layout as $feitem) {
         if (
             $search && stripos($feitem['field_id'], $search) === false &&
@@ -174,10 +174,10 @@ if (isset($_GET['iSortCol_0'])) {
             if ($what == 'codes') {
                 if ($iSortCol == 0) {
                   // $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
-                    $ordermode = array('code', 'description');
+                    $ordermode = ['code', 'description'];
                 } else {
                   // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
-                    $ordermode = array('description', 'code');
+                    $ordermode = ['description', 'code'];
                 }
             } elseif ($what == 'fields') {
                 if ($source == 'V') {
@@ -279,18 +279,18 @@ if ($what == 'fields' && $source == 'V') {
 
 // Build the output data array.
 //
-$out = array(
+$out = [
   "sEcho"                => intval($_GET['sEcho']),
   "iTotalRecords"        => ($iTotal) ? $iTotal : 0,
   "iTotalHasMoreRecords" => false,
   "iSearchEmptyError"    => false,
   "iTotalDisplayRecords" => ($iFilteredTotal) ? $iFilteredTotal : 0,
-  "aaData"               => array()
-);
+  "aaData"               => []
+];
 
 if ($what == 'fields' && $source == 'V') {
     foreach ($fe_array as $feitem) {
-        $arow = array('DT_RowId' => genFieldIdString($feitem));
+        $arow = ['DT_RowId' => genFieldIdString($feitem)];
         $arow[] = $feitem['field_id'];
         $arow[] = $feitem['title'];
         $out['aaData'][] = $arow;
@@ -336,12 +336,12 @@ if ($what == 'fields' && $source == 'V') {
             if (stripos($codetype, 'VALUESET') !== false) {
                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
             }
-            $arow = array('DT_RowId' => genFieldIdString(array(
+            $arow = ['DT_RowId' => genFieldIdString([
                 'code' => $row['code'],
                 'description' => $row['code_text'],
                 'codetype' => $dynCodeType,
                 'modifier' => $row['modifier'],
-            )));
+            ])];
             $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
             $arow[] = $row['code_text'];
             $arow[] = $row['modifier'];
@@ -363,7 +363,7 @@ if ($what == 'fields' && $source == 'V') {
     $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-        $arow = array('DT_RowId' => genFieldIdString($row));
+        $arow = ['DT_RowId' => genFieldIdString($row)];
         if ($what == 'fields') {
             $arow[] = $row['field_id'];
             $arow[] = $row['title'];

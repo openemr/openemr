@@ -640,10 +640,6 @@ parameters:
     identifier: property.notFound
     count: 2
     path: gacl/profiler.inc.php
-  - message: '#^Function each not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: gacl/profiler.inc.php
   - message: '#^Variable \$config might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3535,10 +3531,6 @@ parameters:
   - message: '#^Variable \$doctotal2 might not be defined\.$#'
     identifier: variable.undefined
     count: 3
-    path: interface/billing/sl_receipts_report.php
-  - message: '#^Variable \$grandtotal2 might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
     path: interface/billing/sl_receipts_report.php
   - message: '#^Variable \$patient_name might not be defined\.$#'
     identifier: variable.undefined
@@ -13783,30 +13775,6 @@ parameters:
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalAppointments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalDueAmount might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalNewRegisterPatient might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalPaidAmount might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalPayments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalVisits might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
     path: interface/reports/daily_summary_report.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined

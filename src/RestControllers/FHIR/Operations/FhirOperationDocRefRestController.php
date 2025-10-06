@@ -52,7 +52,7 @@ class FhirOperationDocRefRestController
     {
         try {
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
-            $bundleEntries = array();
+            $bundleEntries = [];
             foreach ($processingResult->getData() as $searchResult) {
                 // we actually need to truncate off the operation
                 $bundleEntry = [

@@ -62,7 +62,7 @@ abstract class ClinicalType
 
     public function getListOptions()
     {
-        return array();
+        return [];
     }
 
     private function getListOptionById($id)
@@ -71,7 +71,7 @@ abstract class ClinicalType
                  "FROM `list_options` " .
                  "WHERE list_id = ? " .
                  "AND option_id = ? AND activity = 1";
-        $results = sqlStatement($query, array( $this->getListId(), $id ));
+        $results = sqlStatement($query, [ $this->getListId(), $id ]);
         $arr = sqlFetchArray($results);
         return $arr;
     }

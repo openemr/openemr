@@ -61,8 +61,8 @@ class Tree
     function load_tree()
     {
         $root = $this->_root;
-        $tree = array();
-        $tree_tmp = array();
+        $tree = [];
+        $tree_tmp = [];
 
         //get the left and right value of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE id=?";
@@ -72,25 +72,25 @@ class Tree
         }
 
         $result = $this->_db->Execute($sql, [$root]) or die("Error: " . text($this->_db->ErrorMsg()));
-        $row = array();
+        $row = [];
 
         if ($result && !$result->EOF) {
             $row = $result->fields;
         } else {
-            $this->tree = array();
+            $this->tree = [];
         }
 
         // start with an empty right stack
-        $right = array();
+        $right = [];
 
         // now, retrieve all descendants of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN ? AND ? ORDER BY parent,name ASC;";
         $result = $this->_db->Execute($sql, [$row['lft'], $row['rght']]);
-        $this->_id_name = array();
+        $this->_id_name = [];
 
 
         while ($result && !$result->EOF) {
-            $ar = array();
+            $ar = [];
             $row = $result->fields;
 
             //create a lookup table of id to name for every node that will end up in this tree, this is used
@@ -333,7 +333,7 @@ class Tree
         if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id];
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -354,7 +354,7 @@ function array_merge_2(&$array, &$array_i): void
         // If the value itself is an array, the process repeats recursively:
         if (is_array($v)) {
             if (!isset($array[$k])) {
-                $array[$k] = array();
+                $array[$k] = [];
             }
 
             array_merge_2($array[$k], $v);
@@ -366,7 +366,7 @@ function array_merge_2(&$array, &$array_i): void
             } else {
                 if (isset($array) && !is_array($array)) {
                     $temp = $array;
-                    $array = array();
+                    $array = [];
                     $array[0] = $temp;
                 }
 
@@ -380,7 +380,7 @@ function array_merge_2(&$array, &$array_i): void
 function array_merge_n()
 {
     // Initialization of the resulting array:
-    $array = array();
+    $array = [];
 
     // Arrays to be merged (function's arguments):
     $arrays = func_get_args();

@@ -38,12 +38,12 @@ if (!isset($_REQUEST['language_id'])) {
 }
 
 $lang_id = $_REQUEST['language_id'];
-$resLanguage = sqlStatement("select * from lang_languages where  lang_id = ?", array($lang_id));
+$resLanguage = sqlStatement("select * from lang_languages where  lang_id = ?", [$lang_id]);
 $rowLanguage = sqlFetchArray($resLanguage);
 $lang_description = $rowLanguage['lang_description'];
 
 $handle = utf8_fopen_read($_FILES["language_file"]["tmp_name"]);
-$file_contents = array();
+$file_contents = [];
 if ($handle) {
     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
         $file_contents[] = $data;

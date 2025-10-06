@@ -15,10 +15,10 @@ namespace OpenEMR\ZendModules\PatientFlowBoard;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 use OpenEMR\ZendModules\PatientFlowBoard\Listener\PatientFlowBoardEventsSubscriber;
 
-return array(
-    'service_manager' => array(
-        'factories' => array(
+return [
+    'service_manager' => [
+        'factories' => [
             PatientFlowBoardEventsSubscriber::class => InvokableFactory::class
-        )
-    )
-);
+        ]
+    ]
+];

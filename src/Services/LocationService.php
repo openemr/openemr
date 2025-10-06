@@ -55,9 +55,9 @@ class LocationService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         // TODO: @adunsulag we need to add the contact,contact_address,address records to this Location service which requires uuids in the tables
         $sql = 'SELECT location.*, uuid_mapping.uuid FROM

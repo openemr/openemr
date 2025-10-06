@@ -70,7 +70,7 @@ class InsuranceService extends BaseService
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
-        return sqlQuery($sql, array($id, $type));
+        return sqlQuery($sql, [$id, $type]);
     }
 
     public function search($search, $isAndCondition = true)
@@ -123,7 +123,7 @@ class InsuranceService extends BaseService
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
         $sql = "SELECT * FROM insurance_data WHERE uuid=? ";
 
-        $sqlResult = sqlQuery($sql, array($uuidBytes));
+        $sqlResult = sqlQuery($sql, [$uuidBytes]);
         if ($sqlResult) {
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
             $processingResult->addData($sqlResult);
@@ -139,7 +139,7 @@ class InsuranceService extends BaseService
      * @param $isAndCondition
      * @return ProcessingResult|true
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
 
         // Validating and Converting Patient UUID to PID
@@ -186,11 +186,11 @@ class InsuranceService extends BaseService
             $uuidBytes = UuidRegistry::uuidToBytes($search['id']);
             $search['id'] = $this->getIdByUuid($uuidBytes, self::COVERAGE_TABLE, "id");
         }
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sql = "SELECT * FROM insurance_data ";
         if (!empty($search)) {
             $sql .= ' WHERE ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);
@@ -271,7 +271,7 @@ class InsuranceService extends BaseService
 
         $results = sqlStatement(
             $sql,
-            array(
+            [
                 $data["provider"],
                 $data["plan_name"],
                 $data["policy_number"],
@@ -302,7 +302,7 @@ class InsuranceService extends BaseService
                 $data["policy_type"],
                 $data['type'],
                 $uuid
-            )
+            ]
         );
         if ($results) {
             $serviceSavePostEvent = new ServiceSaveEvent($this, $data);
@@ -361,7 +361,7 @@ class InsuranceService extends BaseService
 
         $insuranceDataId = sqlInsert(
             $sql,
-            array(
+            [
                 $data['uuid'],
                 $data['type'],
                 $data["provider"],
@@ -392,7 +392,7 @@ class InsuranceService extends BaseService
                 $data["subscriber_sex"] ?? '',
                 $data["accept_assignment"] ?? '',
                 $data["policy_type"] ?? ''
-            )
+            ]
         );
         // I prefer exceptions... but we will try to match other service handler formats for consistency
         $processingResult = new ProcessingResult();

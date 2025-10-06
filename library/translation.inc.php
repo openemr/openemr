@@ -26,14 +26,14 @@ if (!(function_exists('xl'))) {
         // TRANSLATE
         // first, clean lines
         // convert new lines to spaces and remove windows end of lines
-        $patterns = array ('/\n/','/\r/');
-        $replace = array (' ','');
+        $patterns =  ['/\n/','/\r/'];
+        $replace =  [' ',''];
         $constant = preg_replace($patterns, $replace, $constant ?? '');
         // second, attempt translation
         $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
         "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
         "lang_id=? AND constant_name = ? LIMIT 1";
-        $res = sqlStatementNoLog($sql, array($lang_id,$constant));
+        $res = sqlStatementNoLog($sql, [$lang_id,$constant]);
         $row = SqlFetchArray($res);
         $string = $row['definition'] ?? '';
         if ($string == '') {
@@ -41,13 +41,13 @@ if (!(function_exists('xl'))) {
         }
         // remove dangerous characters and remove comments
         if (!empty($GLOBALS['translate_no_safe_apostrophe'])) {
-            $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
-            $replace = array (' ','','');
+            $patterns =  ['/\n/','/\r/','/\{\{.*\}\}/'];
+            $replace =  [' ','',''];
             $string = preg_replace($patterns, $replace, $string);
         } else {
             // convert apostrophes and quotes to safe apostrophe
-            $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-            $replace = array (' ','','`','`','');
+            $patterns =  ['/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/'];
+            $replace =  [' ','','`','`',''];
             $string = preg_replace($patterns, $replace, $string);
         }
 
@@ -218,7 +218,7 @@ function getLanguageTitle($val)
     }
 
  // get language title
-    $res = sqlStatement("select lang_description from lang_languages where lang_id =?", array($lang_id));
+    $res = sqlStatement("select lang_description from lang_languages where lang_id =?", [$lang_id]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result[$iter] = $row;
     };
@@ -240,7 +240,7 @@ function getLanguageDir($lang_id)
     // validate language id
     $lang_id = empty($lang_id) ? 1 : $lang_id;
     // get language code
-    $row = sqlQuery('SELECT * FROM lang_languages WHERE lang_id = ?', array($lang_id));
+    $row = sqlQuery('SELECT * FROM lang_languages WHERE lang_id = ?', [$lang_id]);
 
     return !empty($row['lang_is_rtl']) ? 'rtl' : 'ltr';
 }

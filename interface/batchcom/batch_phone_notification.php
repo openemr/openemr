@@ -74,7 +74,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
     }
 
     //Set up the parameters for the call
-    $data = array(
+    $data = [
                 "firstName" => $prow['fname'],
                 "lastName" => $prow['lname'],
                 "phone" => $prow['phone_home'],
@@ -86,7 +86,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
                 "type" => "appointment",
                 "timeZone" => date('P'),
                 "callerId" => $fac_phone_map[$prow['pc_facility']]
-           );
+           ];
 
     //Make the call
     $response = $client->sendRequest("appointment", "POST", $data);
@@ -130,7 +130,7 @@ function cron_updateentry($type, $pid, $pc_eid): void
 
     $query .= " where pc_pid=? and pc_eid=? ";
     //echo "<br />".$query;
-    $db_sql = (sqlStatement($query, array($pid, $pc_eid)));
+    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -160,8 +160,8 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 		order by
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
 
-    $db_patient = (sqlStatement($query, array($check_date)));
-    $patient_array = array();
+    $db_patient = (sqlStatement($query, [$check_date]));
+    $patient_array = [];
     $cnt = 0;
     while ($prow = sqlFetchArray($db_patient)) {
         $patient_array[$cnt] = $prow;
@@ -183,7 +183,7 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): voi
 
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `message`, `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
     $sql_loginsert .= "(NULL , ?, ?, ?, 'Phone', ?, ?, ?, ?, ?, ?, ?)";
-    $db_loginsert = ( sqlStatement($sql_loginsert, array($prow['pid'], $prow['pc_eid'], $message, $patient_info, $phone_gateway, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], date('Y-m-d H:i:s'))));
+    $db_loginsert = ( sqlStatement($sql_loginsert, [$prow['pid'], $prow['pc_eid'], $message, $patient_info, $phone_gateway, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], date('Y-m-d H:i:s')]));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -218,8 +218,8 @@ function cron_getFacilitiesMap()
     //get the facility_name-message map from Globals
     $message_map = $GLOBALS['phone_appt_message'];
     //create a new array to store facility_id to message map
-    $facility_msg_map = array();
-    $facility_phone_map = array();
+    $facility_msg_map = [];
+    $facility_phone_map = [];
     //get facilities from the database
 
     $facilities = $facilityService->getAllFacility();
@@ -228,10 +228,10 @@ function cron_getFacilitiesMap()
         $facility_phone_map[$prow['id']] = $prow['phone'];
     }
 
-    $facility_map = array(
+    $facility_map = [
         'msg_map' => $facility_msg_map,
         'phone_map' => $facility_phone_map
-    );
+    ];
 
     return $facility_map;
 }

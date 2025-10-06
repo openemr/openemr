@@ -33,13 +33,13 @@
 function postcalendar_pntables()
 {
     // Initialise table array
-    $pntable = array();
+    $pntable = [];
     $prefix = pnConfigGetVar('prefix');
     //$prefix = 'Rogue';
 
     $pc_events = $prefix . '_postcalendar_events';
     $pntable['postcalendar_events'] = $pc_events;
-    $pntable['postcalendar_events_column'] = array(
+    $pntable['postcalendar_events_column'] = [
         'eid'           => 'pc_eid',
         'catid'         => 'pc_catid',
         'lid'           => 'pc_lid',
@@ -69,13 +69,13 @@ function postcalendar_pntables()
         'eventstatus'   => 'pc_eventstatus',
         'sharing'       => 'pc_sharing',
         'language'      => 'pc_language'
-        );
+        ];
 
     // @since version 3.1
     // new category table
     $pc_categories = $prefix . '_postcalendar_categories';
     $pntable['postcalendar_categories'] = $pc_categories;
-    $pntable['postcalendar_categories_column'] = array(
+    $pntable['postcalendar_categories_column'] = [
         'catid'         => 'pc_catid',
         'catname'       => 'pc_catname',
         'catcolor'      => 'pc_catcolor',
@@ -85,6 +85,6 @@ function postcalendar_pntables()
         'recurrfreq'    =>  'pc_recurrfreq',
         'duration'      =>  'pc_duration',
         'limit'         =>  'pc_dailylimit'
-        );
+        ];
     return $pntable;
 }

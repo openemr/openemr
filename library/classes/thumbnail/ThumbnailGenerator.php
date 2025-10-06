@@ -25,7 +25,7 @@
  */
 class ThumbnailGenerator
 {
-    public static $types_support = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif');
+    public static $types_support = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
     private $thumb_obj = null;
     private $couch_obj = null;
 
@@ -68,7 +68,7 @@ class ThumbnailGenerator
     public function generate_all()
     {
 
-        $feedback = array('sum_success' => 0, 'sum_failed' => 0, 'success' => array(), 'failed' => array());
+        $feedback = ['sum_success' => 0, 'sum_failed' => 0, 'success' => [], 'failed' => []];
 
         $sql = "SELECT id, url, couch_docid, storagemethod, path_depth FROM documents
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";
@@ -95,7 +95,7 @@ class ThumbnailGenerator
             }
 
             $sql = "UPDATE documents SET thumb_url = ? WHERE id = ?";
-            $update = sqlStatement($sql, array($new_file, $row['id']));
+            $update = sqlStatement($sql, [$new_file, $row['id']]);
             if ($update) {
                 $feedback['sum_success']++;
                 $feedback['success'][] = $row['url'];
@@ -126,7 +126,7 @@ class ThumbnailGenerator
         // NOTE that $from_filename and basename($url) are the same thing
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
+        $from_pathname_array = [];
         for ($i = 0; $i < $path_depth; $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }

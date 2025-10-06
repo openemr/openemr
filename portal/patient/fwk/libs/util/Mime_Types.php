@@ -65,7 +65,7 @@ class Mime_Types
      * @var array
      * @access private
      */
-    var $mime_types = array (
+    var $mime_types =  [
             'txt' => 'text/plain',
             'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
@@ -73,7 +73,7 @@ class Mime_Types
             'pdf' => 'application/pdf',
             'doc' => 'application/msword',
             'htm' => 'text/html'
-    );
+    ];
 
     /**
      * Path to file command - empty string disables the use of the file command
@@ -92,10 +92,10 @@ class Mime_Types
      *
      * @var array
      */
-    var $file_options = array (
+    var $file_options =  [
             'b' => null,
             'i' => null
-    );
+    ];
 
     /**
      * Constructor
@@ -152,10 +152,10 @@ class Mime_Types
         $mime_types = $this->mime_types;
         asort($mime_types);
         foreach ($mime_types as $ext => $type) {
-            $ext_type = array (
+            $ext_type =  [
                     $ext,
                     $type
-            );
+            ];
             if (isset($method)) {
                 $res = $callback [0]->$method($this, $ext_type, $param);
             } else {
@@ -209,7 +209,7 @@ class Mime_Types
                 $pattern = '[a-z0-9.+_-]';
                 if (preg_match('!((' . $pattern . '+)/' . $pattern . '+)!', $result, $match)) {
                     if (
-                        in_array($match [2], array (
+                        in_array($match [2], [
                             'application',
                             'audio',
                             'image',
@@ -219,7 +219,7 @@ class Mime_Types
                             'video',
                             'chemical',
                             'model'
-                        )) || (substr($match [2], 0, 2) == 'x-')
+                        ]) || (substr($match [2], 0, 2) == 'x-')
                     ) {
                         $type = $match [1];
                     }
@@ -440,7 +440,7 @@ class Mime_Types
     function remove_type($type = null)
     {
         if (! isset($type)) {
-            $this->mime_types = array ();
+            $this->mime_types =  [];
             return;
         }
 
@@ -449,20 +449,20 @@ class Mime_Types
             return;
         }
 
-        $type_info = array (
+        $type_info =  [
                 'last_match' => false,
                 'wildcard' => false,
                 'type' => $type
-        );
+        ];
         if (substr($type, $slash_pos) == '/*') {
             $type_info ['wildcard'] = true;
             $type_info ['type'] = substr($type, 0, $slash_pos);
         }
 
-        $this->scan(array (
+        $this->scan([
                 &$this,
                 '_remove_type_callback'
-        ), $type_info);
+        ], $type_info);
     }
 
     /**
@@ -522,7 +522,7 @@ class Mime_Types
     {
         // temporarily we'll put match to false
         $matched = false;
-        list ( $ext, $type ) = $ext_type;
+        [$ext, $type] = $ext_type;
         if ($type_info ['wildcard']) {
             if (substr($type, 0, strpos($type, '/')) == $type_info ['type']) {
                 $matched = true;

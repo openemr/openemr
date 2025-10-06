@@ -49,7 +49,7 @@ if (isset($mode)) {
 
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
-    $billing_html = array();
+    $billing_html = [];
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
             $html = "<tr>";

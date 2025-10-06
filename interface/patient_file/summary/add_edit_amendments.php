@@ -50,7 +50,7 @@ if (isset($_POST['mode'])) {
 			amendment_desc = ?,
 			created_by = ?,
 			created_time = ?";
-        $sqlBindArray = array(
+        $sqlBindArray = [
             DateToYYYYMMDD($_POST['amendment_date']),
             $_POST['form_amendment_by'],
             $_POST['form_amendment_status'],
@@ -58,7 +58,7 @@ if (isset($_POST['mode'])) {
             $_POST['desc'],
             $currentUser,
             $created_time
-        );
+        ];
 
         $amendment_id = sqlInsert($query, $sqlBindArray);
     } else {
@@ -76,7 +76,7 @@ if (isset($_POST['mode'])) {
 			modified_by = ?,
 			modified_time = ?
 			WHERE amendment_id = ?";
-        $sqlBindArray = array(
+        $sqlBindArray = [
             DateToYYYYMMDD($_POST['amendment_date']),
             $_POST['form_amendment_by'],
             $_POST['form_amendment_status'],
@@ -84,7 +84,7 @@ if (isset($_POST['mode'])) {
             $currentUser,
             $created_time,
             $_POST['amendment_id']
-        );
+        ];
         sqlStatement($query, $sqlBindArray);
     }
 
@@ -95,13 +95,13 @@ if (isset($_POST['mode'])) {
 		amendment_status = ?,
 		created_by = ?,
 		created_time = ?";
-    $sqlBindArray = array(
+    $sqlBindArray = [
         $amendment_id,
         $_POST['note'],
         $_POST["form_amendment_status"],
         $currentUser,
         $created_time
-    );
+    ];
     sqlStatement($query, $sqlBindArray);
     header("Location:add_edit_amendments.php?id=" . urlencode($amendment_id));
     exit;
@@ -110,19 +110,19 @@ if (isset($_POST['mode'])) {
 $amendment_id = $amendment_id ?? ($_REQUEST['id'] ?? '');
 if (!empty($amendment_id)) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
-    $resultSet = sqlQuery($query, array($amendment_id));
+    $resultSet = sqlQuery($query, [$amendment_id]);
     $amendment_date = $resultSet['amendment_date'];
     $amendment_status = $resultSet['amendment_status'];
     $amendment_by = $resultSet['amendment_by'];
     $amendment_desc = $resultSet['amendment_desc'];
 
     $query = "SELECT * FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE amendment_id = ? ";
-    $resultSet = sqlStatement($query, array($amendment_id));
+    $resultSet = sqlStatement($query, [$amendment_id]);
 }
 
 $onlyRead = ( $editAccess || ($addAccess && empty($amendment_id)) ) ? 0 : 1;
 $onlyRead = ( $onlyRead || (!empty($amendment_status)) ) ? 1 : 0;
-$customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
+$customAttributes = ( $onlyRead ) ? ["disabled" => "true"] : null;
 ?>
 
 <html>
@@ -255,7 +255,7 @@ $(function () {
                         $userName = $row['lname'] . ", " . $row['fname'];
                         echo "<td>" . text(oeFormatShortDate($created_date)) . "</td>";
                         echo "<td>" . text($userName) . "</td>";
-                        echo "<td>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']) : '') . "</td>";
+                        echo "<td>" . ( ( $row['amendment_status'] ) ? generate_display_field(['data_type' => '1','list_id' => 'amendment_status'], $row['amendment_status']) : '') . "</td>";
                         echo "<td>" . text($row['amendment_note']) . "</td>";
                         echo "<tr>";
                     }

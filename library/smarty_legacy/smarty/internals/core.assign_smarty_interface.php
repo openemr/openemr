@@ -20,13 +20,13 @@ function smarty_core_assign_smarty_interface($params, &$smarty): void
             return;
         }
 
-        $_globals_map = array('g'  => 'HTTP_GET_VARS',
+        $_globals_map = ['g'  => 'HTTP_GET_VARS',
                              'p'  => 'HTTP_POST_VARS',
                              'c'  => 'HTTP_COOKIE_VARS',
                              's'  => 'HTTP_SERVER_VARS',
-                             'e'  => 'HTTP_ENV_VARS');
+                             'e'  => 'HTTP_ENV_VARS'];
 
-        $_smarty_vars_request  = array();
+        $_smarty_vars_request  = [];
 
         foreach (preg_split('!!', strtolower($smarty->request_vars_order)) as $_c) {
             if (isset($_globals_map[$_c])) {

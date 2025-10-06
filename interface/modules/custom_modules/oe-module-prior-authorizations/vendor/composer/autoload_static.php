@@ -6,23 +6,23 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
 {
-    public static $prefixLengthsPsr4 = array (
+    public static $prefixLengthsPsr4 =  [
         'J' =>
-        array (
+         [
             'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => 43,
-        ),
-    );
+        ],
+    ];
 
-    public static $prefixDirsPsr4 = array (
+    public static $prefixDirsPsr4 =  [
         'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' =>
-        array (
+         [
             0 => __DIR__ . '/../..' . '/src',
-        ),
-    );
+        ],
+    ];
 
-    public static $classMap = array (
+    public static $classMap =  [
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-    );
+    ];
 
     public static function getInitializer(ClassLoader $loader)
     {

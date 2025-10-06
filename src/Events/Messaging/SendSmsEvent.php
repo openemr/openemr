@@ -56,7 +56,7 @@ class SendSmsEvent extends Event
     public function fetchPatientPhone($id): bool|array|string
     {
         $query = "SELECT phone_cell FROM patient_data WHERE pid = ?";
-        return sqlQuery($query, array($id))['phone_cell'] ?? '';
+        return sqlQuery($query, [$id])['phone_cell'] ?? '';
     }
 
     /**

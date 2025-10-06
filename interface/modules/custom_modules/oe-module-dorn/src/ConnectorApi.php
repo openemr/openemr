@@ -211,7 +211,7 @@ class ConnectorApi
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Customer/v1/GetPrimaryInfoByNpi";
         if ($npi) {
-            $params = array('npi' => $npi);
+            $params = ['npi' => $npi];
             $url = $url . '?' . http_build_query($params);
         }
 
@@ -224,7 +224,7 @@ class ConnectorApi
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Customer/v1/SearchPrimaryInfo";
         if ($npi) {
-            $params = array('npi' => $npi);
+            $params = ['npi' => $npi];
             $url = $url . '?' . http_build_query($params);
         }
 

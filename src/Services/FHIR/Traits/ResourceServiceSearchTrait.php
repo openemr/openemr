@@ -48,7 +48,7 @@ trait ResourceServiceSearchTrait
      */
     protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null): array
     {
-        $oeSearchParameters = array();
+        $oeSearchParameters = [];
 
         $specialColumns = ['_sort' => '', '_count' => '', '_offset' => ''];
         $hasSort = false;

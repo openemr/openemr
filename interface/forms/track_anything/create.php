@@ -43,7 +43,7 @@ if ($dbaction == 'add') {
     if ($the_name != null) {
         $insertspell  = "INSERT INTO form_track_anything_type ";
         $insertspell .= "(name, description, position, parent, active) VALUES (?,?,?,?,?)";
-        $save_into_db = sqlInsert($insertspell, array($the_name, $the_descr, $the_pos, $the_parent,1));
+        $save_into_db = sqlInsert($insertspell, [$the_name, $the_descr, $the_pos, $the_parent,1]);
     } else {
         if ($the_type == 'add') {
             echo "<br /><span class='failure'>\n";
@@ -76,7 +76,7 @@ if ($dbaction == 'edit') {
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET name = ?, description = ?, position = ? ";
         $updatespell .= "WHERE track_anything_type_id = ? ";
-        sqlStatement($updatespell, array($the_name, $the_descr, $the_pos, $the_item));
+        sqlStatement($updatespell, [$the_name, $the_descr, $the_pos, $the_item]);
     } else {
         echo "<br /><span class='failure'>\n";
         echo xlt('Editing failed') . ". ";
@@ -92,7 +92,7 @@ if ($dbaction == 'delete' && AclMain::aclCheckCore('admin', 'super')) {
         $the_item   = $_POST['itemid'];
         $deletespell  = "DELETE FROM form_track_anything_type ";
         $deletespell .= "WHERE track_anything_type_id = ? ";
-        sqlStatement($deletespell, array($the_item));
+        sqlStatement($deletespell, [$the_item]);
 }
 
 // end edit -----------------------------
@@ -145,7 +145,7 @@ if ($the_item) {
         echo "<table class='add'><tr><td>";
         $spell  = "SELECT name FROM form_track_anything_type ";
         $spell .= "WHERE track_anything_type_id = ?";
-        $myrow = sqlQuery($spell, array($the_item));
+        $myrow = sqlQuery($spell, [$the_item]);
         echo "<br />&nbsp;&nbsp;";
         echo xlt('Add item to track')  . " <b>" . text($myrow['name']) . "</b><br />&nbsp;\n";
         echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
@@ -178,7 +178,7 @@ if ($the_item) {
         echo "<table class='edit'><tr><td>";
         $spell  = "SELECT name, description, position FROM form_track_anything_type ";
         $spell .= "WHERE track_anything_type_id = ?";
-        $myrow = sqlQuery($spell, array($the_item));
+        $myrow = sqlQuery($spell, [$the_item]);
         $the_name   = $myrow['name'];
         $the_descr  = $myrow['description'];
         $the_pos    = $myrow['position'];
@@ -211,7 +211,7 @@ if ($the_item) {
         echo "<table class='del'><tr><td>\n";
         $spell  = "SELECT name FROM form_track_anything_type ";
         $spell .= "WHERE track_anything_type_id = ?";
-        $myrow = sqlQuery($spell, array($the_item));
+        $myrow = sqlQuery($spell, [$the_item]);
         $the_name   = $myrow['name'];
 
         echo "<br />&nbsp;&nbsp;<span class='failure'>\n";
@@ -233,7 +233,7 @@ if ($the_item) {
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET active = '0' ";
         $updatespell .= "WHERE track_anything_type_id = ? ";
-        sqlStatement($updatespell, array($the_item));
+        sqlStatement($updatespell, [$the_item]);
     }
 
     if ($activate) {
@@ -241,7 +241,7 @@ if ($the_item) {
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET active = '1' ";
         $updatespell .= "WHERE track_anything_type_id = ? ";
-        sqlStatement($updatespell, array($the_item));
+        sqlStatement($updatespell, [$the_item]);
     }
 } //end user clicked button
 
@@ -303,7 +303,7 @@ while ($myrow = sqlFetchArray($result)) {
     $spell2  = "SELECT * FROM form_track_anything_type ";
     $spell2 .= "WHERE parent = ? ";
     $spell2 .= "ORDER BY position ASC, active DESC, name ASC";
-    $result2 = sqlStatement($spell2, array($type_id));
+    $result2 = sqlStatement($spell2, [$type_id]);
     while ($myrow2 = sqlFetchArray($result2)) {
         $item_id        = $myrow2['track_anything_type_id'];
         $item_name      = $myrow2['name'];

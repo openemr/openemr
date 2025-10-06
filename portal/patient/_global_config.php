@@ -158,7 +158,7 @@ class GlobalConfig
     */
     function GetAction()
     {
-        list($controller,$method) = $this->GetRouter()->GetRoute();
+        [$controller, $method] = $this->GetRouter()->GetRoute();
         return $controller . '.' . $method;
     }
 

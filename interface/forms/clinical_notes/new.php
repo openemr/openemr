@@ -38,7 +38,7 @@ $clinicalNotesService = new ClinicalNotesService();
 $alertMessage = '';
 if (empty($formid)) {
     $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'clinical_notes' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
-    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
+    $formid = sqlQuery($sql, [$_SESSION["pid"], $_SESSION["encounter"]])['form_id'] ?? 0;
     if (!empty($formid)) {
         $alertMessage = xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.");
     }
@@ -98,7 +98,7 @@ $viewArgs = [
         'heading_title' => xl('Clinical Notes Form'),
         'include_patient_name' => false,
         'expandable' => true,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
