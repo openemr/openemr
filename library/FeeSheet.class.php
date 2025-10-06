@@ -140,7 +140,7 @@ class FeeSheet
 
         // Get some information about the patient.
         $patientrow = getPatientData($this->pid, "DOB, sex, pricelevel");
-        $this->patient_age = $this->getAge($patientrow['DOB'], $this->visit_date);
+        $this->patient_age = static::getAge($patientrow['DOB'], $this->visit_date);
         $this->patient_male = strtoupper(substr($patientrow['sex'], 0, 1)) == 'M' ? 1 : 0;
         $this->patient_pricelevel = $patientrow['pricelevel'];
     }
@@ -660,7 +660,7 @@ class FeeSheet
             // "Basic Units" is the quantity from the product template and is the number of
             // inventory items in the package that the template represents.
             // Units seen by the user should be inventory units divided by template quantity.
-            $units /= $this->getBasicUnits($drug_id, $selector);
+            $units /= static::getBasicUnits($drug_id, $selector);
         }
 
         $drow = sqlQuery("SELECT name, related_code FROM drugs WHERE drug_id = ?", [$drug_id]);
@@ -831,7 +831,7 @@ class FeeSheet
                 $sale_id     = empty($iter['sale_id']) ? 0 : intval($iter['sale_id']); // present only if already saved
                 $units     = empty($iter['units']) ? 1 : intval($iter['units']);
                 $selector  = empty($iter['selector']) ? '' : $iter['selector'];
-                $inv_units = $units * $this->getBasicUnits($drug_id, $selector);
+                $inv_units = $units * static::getBasicUnits($drug_id, $selector);
                 $warehouse_id = empty($iter['warehouse']) ? '' : $iter['warehouse'];
 
                         // Deleting always works.
@@ -1200,7 +1200,7 @@ class FeeSheet
 
                 // $units is the user view, multipliers of Basic Units.
                 // Need to compute inventory units for the save logic below.
-                $inv_units = $units * $this->getBasicUnits($drug_id, $selector);
+                $inv_units = $units * static::getBasicUnits($drug_id, $selector);
 
                 // If the item is already in the database...
                 if ($sale_id) {
@@ -1422,7 +1422,7 @@ class FeeSheet
         // generally useful.  It provides the ability to mark an encounter as billed
         // directly from the Fee Sheet, if there are no charges.
         if ($mark_as_closed) {
-            $this->closeVisit($this->pid, $this->encounter);
+            static::closeVisit($this->pid, $this->encounter);
         }
     }
 

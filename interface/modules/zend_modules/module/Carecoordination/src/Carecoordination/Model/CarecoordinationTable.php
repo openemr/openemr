@@ -1140,7 +1140,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function import($document_id)
     {
         $this->resetData();
-        $xml_content = $this->getDocument($document_id);
+        $xml_content = static::getDocument($document_id);
         $this->importCore($xml_content, $document_id);
         $audit_master_approval_status = 1;
         $documentationOf = $this->documentData['field_name_value_array']['documentationOf'][1]['assignedPerson'];
