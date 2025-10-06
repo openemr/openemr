@@ -3,13 +3,13 @@ name: Deploy OpenEMR to EC2
 on:
   push:
     branches:
-      - main
-      - master
+      - production
   workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
   EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+  DEPLOY_PATH: /var/www/html
 
 jobs:
   deploy:
@@ -17,54 +17,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: calendar, ctype, curl, fileinfo, gd, iconv, intl, json, ldap, mbstring, mysqli, openssl, pdo, pdo_mysql, phar, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
-          tools: composer:v2
-
-      - name: Install Composer dependencies
-        run: |
-          composer install --no-dev --optimize-autoloader
-          composer dump-autoload -o
-
-      - name: Install NPM dependencies
-        run: npm install
-
-      - name: Build frontend assets
-        run: npm run build
-
-      - name: Create deployment archive
-        run: |
-          tar -czf openemr-deploy.tar.gz \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='node_modules' \
-            --exclude='docker' \
-            --exclude='ci' \
-            --exclude='tests' \
-            .
-
-      - name: Upload to S3 (temporary storage)
-        run: |
-          aws s3 cp openemr-deploy.tar.gz s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/openemr-deploy-${{ github.sha }}.tar.gz
 
       - name: Deploy to EC2 via SSM
         run: |
@@ -73,18 +31,27 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "set -e",
-              "cd /var/www/html",
+              "echo \"Starting deployment...\"",
+              "cd ${{ env.DEPLOY_PATH }}",
+              "echo \"Stopping Apache...\"",
               "sudo systemctl stop apache2 || true",
-              "sudo rm -rf /tmp/openemr-deploy",
-              "mkdir -p /tmp/openemr-deploy",
-              "aws s3 cp s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/openemr-deploy-${{ github.sha }}.tar.gz /tmp/openemr-deploy.tar.gz",
-              "cd /tmp/openemr-deploy",
-              "tar -xzf /tmp/openemr-deploy.tar.gz",
-              "sudo rsync -av --delete --exclude=\"sites/default\" /tmp/openemr-deploy/ /var/www/html/",
-              "sudo chown -R www-data:www-data /var/www/html",
-              "sudo chmod -R 755 /var/www/html",
+              "echo \"Pulling latest changes from production branch...\"",
+              "git fetch origin",
+              "git checkout production",
+              "git pull origin production",
+              "echo \"Installing Composer dependencies...\"",
+              "composer install --no-dev --optimize-autoloader",
+              "composer dump-autoload -o",
+              "echo \"Installing NPM dependencies...\"",
+              "npm install",
+              "echo \"Building frontend assets...\"",
+              "npm run build",
+              "echo \"Setting permissions...\"",
+              "sudo chown -R www-data:www-data ${{ env.DEPLOY_PATH }}",
+              "sudo chmod -R 755 ${{ env.DEPLOY_PATH }}",
+              "echo \"Starting Apache...\"",
               "sudo systemctl start apache2",
-              "rm -rf /tmp/openemr-deploy /tmp/openemr-deploy.tar.gz"
+              "echo \"Deployment completed successfully!\""
             ]' \
             --region "${{ env.AWS_REGION }}" \
             --query 'Command.CommandId' \
@@ -99,8 +66,9 @@ jobs:
             --instance-id "${{ env.EC2_INSTANCE_ID }}" \
             --region "${{ env.AWS_REGION }}"
 
-      - name: Get deployment status
+      - name: Get deployment output
         run: |
+          echo "Deployment output:"
           aws ssm get-command-invocation \
             --command-id "${{ env.COMMAND_ID }}" \
             --instance-id "${{ env.EC2_INSTANCE_ID }}" \
@@ -108,10 +76,16 @@ jobs:
             --query 'StandardOutputContent' \
             --output text
 
-      - name: Cleanup S3 archive
-        if: always()
+      - name: Check for deployment errors
+        if: failure()
         run: |
-          aws s3 rm s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/openemr-deploy-${{ github.sha }}.tar.gz || true
+          echo "Deployment errors:"
+          aws ssm get-command-invocation \
+            --command-id "${{ env.COMMAND_ID }}" \
+            --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query 'StandardErrorContent' \
+            --output text
 
       - name: Connect via SSM (manual step info)
         if: failure()
