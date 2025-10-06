@@ -22,7 +22,7 @@ class C_Pharmacy extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->pharmacies = array();
+        $this->pharmacies = [];
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&");
@@ -37,11 +37,9 @@ class C_Pharmacy extends Controller
         return $this->list_action();
     }
 
-    function edit_action($id = "", $patient_id = "", $p_obj = null)
+    function edit_action($id = "", $patient_id = "")
     {
-        if ($p_obj != null && get_class($p_obj) == "pharmacy") {
-            $this->pharmacies[0] = $p_obj;
-        } elseif (empty($this->pharmacies[0]) || !is_object($this->pharmacies[0]) || get_class($this->pharmacies[0]) != "pharmacy") {
+        if (!(($this->pharmacies[0] ?? null) instanceof Pharmacy)) {
             $this->pharmacies[0] = new Pharmacy($id);
         }
 

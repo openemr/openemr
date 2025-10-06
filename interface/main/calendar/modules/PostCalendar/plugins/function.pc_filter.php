@@ -67,7 +67,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $pcTemplate = 'default';
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
     //================================================================
     //  build the username filter pulldown
@@ -138,10 +138,10 @@ function smarty_function_pc_filter($args, &$smarty): void
     }
 
     $submit = "<input type=\"submit\" valign=\"middle\" name=\"submit\" value=\"$label\" class=\"$class\" />";
-    $orderArray = array('user' => $useroptions, 'category' => $catoptions, 'topic' => $topoptions, 'jump' => $submit);
+    $orderArray = ['user' => $useroptions, 'category' => $catoptions, 'topic' => $topoptions, 'jump' => $submit];
 
     if (isset($order)) {
-        $newOrder = array();
+        $newOrder = [];
         $order = explode(',', $order);
         foreach ($order as $tmp_order) {
             array_push($newOrder, $orderArray[$tmp_order]);

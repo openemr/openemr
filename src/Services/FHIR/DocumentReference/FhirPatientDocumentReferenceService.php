@@ -103,7 +103,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         return $this->service->search($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $docReference = new FHIRDocumentReference();
         $fhirMeta = new FHIRMeta();

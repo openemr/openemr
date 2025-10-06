@@ -119,7 +119,7 @@
                     {% endblock %}
 
                     {% block csrf %}
-                        <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw('oauth2')|raw }}" />
+                        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
                     {% endblock %}
 
                     {% block form_controls %}

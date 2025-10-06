@@ -29,7 +29,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 
 $params = [];
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
-    $return_arr = array();
+    $return_arr = [];
     $term = filter_input(INPUT_GET, "term");
     $val = $term . '%';
     $params[] = $val;
@@ -56,7 +56,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $weno_zipcode = $_GET['weno_zipcode'] ?? false ?: '';
     $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
     $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
-    $weno_test_pharmacies = $_GET['test_pharmacy'] ?? '' == 'true' ? 'True' : '';
+    $weno_test_pharmacies = ($_GET['test_pharmacy'] ?? '') == 'true' ? 'True' : '';
 
 
     // mail order is special case.
@@ -103,10 +103,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         if (strlen($row['ncpdp_safe']) < 8) {
-            $return_arr[] = array(
+            $return_arr[] = [
                 "name" => $row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'] . ", " . $row['state'],
                 "ncpdp" => $row['ncpdp_safe']
-            );
+            ];
         }
     }
     echo json_encode($return_arr);
@@ -166,10 +166,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         if (strlen($row['ncpdp_safe']) < 8) {
-            $return_arr[] = array(
+            $return_arr[] = [
                 "name" => $row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'] . ", " . $row['state'],
                 "ncpdp" => $row['ncpdp_safe']
-            );
+            ];
         }
     }
     echo json_encode($return_arr);

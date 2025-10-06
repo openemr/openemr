@@ -141,7 +141,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
      * @param bool $encode
      * @return OpenEMRFhirQuestionnaireResponse
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): OpenEMRFhirQuestionnaireResponse
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): OpenEMRFhirQuestionnaireResponse
     {
         // US Core 8.0 requires the following fields
         // identifier 0..1

@@ -19,7 +19,7 @@ require_once("$srcdir/api.inc.php");
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION["authUser"]));
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
 
 /* name of this form */
 $form_name = "note";

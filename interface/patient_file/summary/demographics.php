@@ -130,9 +130,9 @@ if ($GLOBALS['enable_cdr']) {
 }
 //Check to see is only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {
-    $insurance_array = array('primary');
+    $insurance_array = ['primary'];
 } else {
-    $insurance_array = array('primary', 'secondary', 'tertiary');
+    $insurance_array = ['primary', 'secondary', 'tertiary'];
 }
 
 function getHiddenDashboardCards(): array
@@ -165,12 +165,12 @@ function print_as_money($money)
 // get an array from Photos category
 function pic_array($pid, $picture_directory)
 {
-    $pics = array();
+    $pics = [];
     $sql_query = "select documents.id from documents join categories_to_documents " .
         "on documents.id = categories_to_documents.document_id " .
         "join categories on categories.id = categories_to_documents.category_id " .
         "where categories.name like ? and documents.foreign_id = ? and documents.deleted = 0";
-    if ($query = sqlStatement($sql_query, array($picture_directory, $pid))) {
+    if ($query = sqlStatement($sql_query, [$picture_directory, $pid])) {
         while ($results = sqlFetchArray($query)) {
             array_push($pics, $results['id']);
         }
@@ -192,7 +192,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT " . escape_limit($limit), array($pid, $doc_catg));
+            ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
     }
     while ($result = sqlFetchArray($query)) {
         $results[] = $result['id'];
@@ -315,7 +315,7 @@ function image_widget($doc_id, $doc_catg): void
     $image_file_name = $docobj->get_name();
     $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
     $extension = substr($image_file_name, strrpos($image_file_name, "."));
-    $viewable_types = array('.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP');
+    $viewable_types = ['.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP'];
     if (in_array($extension, $viewable_types)) { // extension matches list
         $to_url = "<td> <a href = '$web_root" .
             "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
@@ -364,18 +364,18 @@ if (!empty($result3['provider'])) {   // Use provider in case there is an ins re
     $insco_name = getInsuranceProvider($result3['provider']);
 }
 
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'page_id' => 'core.mrd',
     'heading_title' => xl('Medical Record Dashboard'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array('demographics_xpd'), //all file names need suffix _xpd
+    'expandable_files' => ['demographics_xpd'], //all file names need suffix _xpd
     'action' => "", //conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "", //only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "medical_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 <!DOCTYPE html>
@@ -533,7 +533,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             var msg_updation = '';
             <?php
             if ($GLOBALS['erx_enable']) {
-                $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
+                $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", [$pid]);
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
             top.restoreSession();
             let reloadRequired = false;
@@ -914,7 +914,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
             //Encounter details are stored to javacript as array.
                 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
+                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
                 if (sqlNumRows($result4) > 0) {
                     while ($rowresult4 = sqlFetchArray($result4)) { ?>
             EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
@@ -931,7 +931,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
-                $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
+                $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
             encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter); ?> +'&pid=' + <?php echo js_url($pid); ?>;
             parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
             top.restoreSession();
@@ -975,7 +975,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
       <?php
       // This is for layout font size override.
-        $grparr = array();
+        $grparr = [];
         getLayoutProperties('DEM', $grparr, 'grp_size');
         if (!empty($grparr['']['grp_size'])) {
             $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
@@ -1084,9 +1084,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                  */
                 function filterActiveIssues(array $i): array
                 {
-                    return array_filter($i, function ($_i) {
-                        return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now')));
-                    });
+                    return array_filter($i, fn($_i): bool => ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now'))));
                 }
 
                 // ALLERGY CARD
@@ -1166,10 +1164,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         $rxArr = [];
                         while ($row = sqlFetchArray($res)) {
-                            $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-                            $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-                            $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-                            $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                            $row['unit'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_units'], $row['unit']);
+                            $row['form'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_form'], $row['form']);
+                            $row['route'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_route'], $row['route']);
+                            $row['interval'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_interval'], $row['interval']);
                             $rxArr[] = $row;
                         }
                         $id = "current_prescriptions_ps_expand";
@@ -1406,7 +1404,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             JOIN procedure_order ON  procedure_report.procedure_order_id = procedure_order.procedure_order_id
                             WHERE procedure_order.patient_id = ?
                             ORDER BY procedure_report.date_collected DESC";
-                        $existLabdata = sqlQuery($spruch, array($pid));
+                        $existLabdata = sqlQuery($spruch, [$pid]);
                         $widgetAuth = ($existLabdata) ? true : false;
 
                         $id = "labdata_ps_expand";
@@ -1431,7 +1429,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('vital_sign'), CardRenderEvent::EVENT_HANDLE);
                         // vitals expand collapse widget
                         // check to see if any vitals exist
-                        $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
+                        $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", [$pid]);
                         $widgetAuth = ($existVitals) ? true : false;
 
                         $id = "vitals_ps_expand";
@@ -1591,7 +1589,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         if ($myrow2) {
                             $parentId = $myrow2['id'];
                             $query = "SELECT id, name FROM categories WHERE parent=?";
-                            $resNew1 = sqlStatement($query, array($parentId));
+                            $resNew1 = sqlStatement($query, [$parentId]);
                             while ($myrows3 = sqlFetchArray($resNew1)) {
                                 $categoryId = $myrows3['id'];
                                 $nameDoc = $myrows3['name'];
@@ -1602,7 +1600,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     AND documents.foreign_id=?
                                     AND documents.deleted = 0
                                     ORDER BY documents.date DESC";
-                                $resNew2 = sqlStatement($query, array($categoryId, $pid));
+                                $resNew2 = sqlStatement($query, [$categoryId, $pid]);
                                 $limitCounter = 0; // limit to one entry per category
                                 while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
                                     $dateTimeDoc = $myrows4['date'];
@@ -1675,7 +1673,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayAppts = true;
                         $current_date2 = date('Y-m-d');
-                        $events = array();
+                        $events = [];
                         $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
                         $apptNum2 = ($apptNum != 0) ? abs($apptNum) : 10;
 
@@ -1755,7 +1753,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $count = 0;
                         $toggleSet = true;
                         $priorDate = "";
-                        $therapyGroupCategories = array();
+                        $therapyGroupCategories = [];
                         $query = sqlStatement("SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1");
                         while ($result = sqlFetchArray($query)) {
                             $therapyGroupCategories[] = $result['pc_catid'];
@@ -1796,7 +1794,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             }
@@ -1902,7 +1900,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $row['etitle'] = $petitle;
 
-                            $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;
@@ -1946,7 +1944,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $track_is_registered = $tmp['count'];
                     if ($track_is_registered) {
                         $spruch = "SELECT id FROM forms WHERE pid = ? AND formdir = ?";
-                        $existTracks = sqlQuery($spruch, array($pid, "track_anything"));
+                        $existTracks = sqlQuery($spruch, [$pid, "track_anything"]);
                         $id = "track_anything_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('track_anything'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', [

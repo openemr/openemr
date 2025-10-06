@@ -203,7 +203,7 @@ if ($_POST['form_refresh']) {
     "WHERE $where " .
     "ORDER BY d.name, i.drug_id, i.destroy_date, i.lot_number";
 
-    $res = sqlStatement($query, array($form_from_date, $form_to_date));
+    $res = sqlStatement($query, [$form_from_date, $form_to_date]);
     $prevRow = '';
     while ($row = sqlFetchArray($res)) {
         $row = processData($row);

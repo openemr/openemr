@@ -68,7 +68,7 @@ class InstallerController extends AbstractActionController
         $this->scanAndRegisterCustomModules();
         //get the list of installed and new modules
         $result = $this->getInstallerTable()->allModules();
-        $allModules = array();
+        $allModules = [];
         foreach ($result as $dataArray) {
             $mod = new InstModule();
             $mod->exchangeArray($dataArray);
@@ -77,14 +77,14 @@ class InstallerController extends AbstractActionController
             $allModules[] = $mod;
         }
 
-        return new ViewModel(array(
+        return new ViewModel([
             'InstallersExisting' => $allModules,
             'InstallersAll' => $allModules,
             'listenerObject' => $this->listenerObject,
             'dependencyObject' => $this->getInstallerTable(),
             // TODO: @adunsulag there should be a way to pull this from application.config.php but so far the answer eludes me.
             'coreModules' => ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard']
-        ));
+        ]);
     }
 
     /**
@@ -96,7 +96,7 @@ class InstallerController extends AbstractActionController
         $customDir = $GLOBALS['customModDir'];
         $zendModDir = $GLOBALS['zendModDir'];
         $coreModules = ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard'];
-        $allModules = array();
+        $allModules = [];
 
         $result = $this->getInstallerTable()->allModules();
         foreach ($result as $dataArray) {
@@ -109,7 +109,7 @@ class InstallerController extends AbstractActionController
 
         $dir_path = $GLOBALS['srcdir'] . "/../$baseModuleDir$customDir/";
         $dp = opendir($dir_path);
-        $inDirCustom = array();
+        $inDirCustom = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
             if ($file_name != "." && $file_name != ".." && $file_name != "Application" && is_dir($dir_path . $file_name)) {
                 $inDirCustom[$i] = $file_name;
@@ -118,7 +118,7 @@ class InstallerController extends AbstractActionController
         /* Laminas directory Unregistered scan */
         $dir_path = $GLOBALS['srcdir'] . "/../$baseModuleDir$zendModDir/module";
         $dp = opendir($dir_path);
-        $inDirLaminas = array();
+        $inDirLaminas = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
             if ($file_name != "." && $file_name != ".." && (!in_array($file_name, $coreModules)) && is_dir($dir_path . "/" . $file_name)) {
                 $inDirLaminas[$i] = $file_name;
@@ -402,9 +402,9 @@ class InstallerController extends AbstractActionController
                 }
             }
 
-            $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("Saved Successfully"));
+            $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Saved Successfully")];
         } else {
-            $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("No Hooks enabled for this Module"));
+            $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("No Hooks enabled for this Module")];
         }
 
         $arr = new JsonModel($return);
@@ -421,7 +421,7 @@ class InstallerController extends AbstractActionController
 
         /** Configuration Details */
         $result = $this->getInstallerTable()->getConfigSettings($modId);
-        $configuration = array();
+        $configuration = [];
         foreach ($result as $tmp) {
             $configuration[$tmp['field_name']] = $tmp;
         }
@@ -455,7 +455,7 @@ class InstallerController extends AbstractActionController
         }
 
         $obj = $this->getInstallerTable()->getObject($moduleDirectory, 'Controller');
-        $aclArray = array();
+        $aclArray = [];
         if ($obj) {
             $aclArray = $obj->getAclConfig();
         }
@@ -466,7 +466,7 @@ class InstallerController extends AbstractActionController
         /** Setup Config Details */
         $setup = $this->getInstallerTable()->getSetupObject($moduleDirectory);
 
-        return new ViewModel(array(
+        return new ViewModel([
             'mod_id' => $modId,
             'TabSettings' => $this->getInstallerTable()->getTabSettings($modId),
             'ACL' => $this->getInstallerTable()->getSettings('ACL', $modId),
@@ -483,7 +483,7 @@ class InstallerController extends AbstractActionController
             'settings' => $configForm,
             'listenerObject' => $this->listenerObject,
             'setup' => $setup,
-        ));
+        ]);
     }
 
     /**
@@ -502,8 +502,8 @@ class InstallerController extends AbstractActionController
             }
         }
 
-        $data = array();
-        $returnArr = array('modeId' => $moduleId);
+        $data = [];
+        $returnArr = ['modeId' => $moduleId];
         $return = new JsonModel($returnArr);
         return $return;
     }
@@ -515,7 +515,7 @@ class InstallerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $this->getInstallerTable()->DeleteAcl($request->getPost());
-        $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully"));
+        $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
         $arr = new JsonModel($return);
         return $arr;
     }
@@ -527,7 +527,7 @@ class InstallerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $this->getInstallerTable()->DeleteHooks($request->getPost());
-        $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully"));
+        $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
         $arr = new JsonModel($return);
         return $arr;
     }
@@ -583,7 +583,7 @@ class InstallerController extends AbstractActionController
         }
 
         while (false !== ($sfname = readdir($dh))) {
-            if (substr($sfname, 0, 1) == '.') {
+            if (str_starts_with($sfname, '.')) {
                 continue;
             }
 
@@ -594,7 +594,7 @@ class InstallerController extends AbstractActionController
         }
         $arrayKeys = array_keys($versions);
         usort($arrayKeys, 'version_compare');
-        $sortVersions = array();
+        $sortVersions = [];
         foreach ($arrayKeys as $key) {
             $sortVersions[$key] = $versions[$key];
         }
@@ -703,7 +703,7 @@ class InstallerController extends AbstractActionController
             $modUri = "custom_modules/";
         }
         if ($this->getInstallerTable()->installSQL($modId, $modType, $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . $modUri . $dirModule)) {
-            $values = array($registryEntry->mod_nick_name, $registryEntry->mod_enc_menu);
+            $values = [$registryEntry->mod_nick_name, $registryEntry->mod_enc_menu];
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $registryEntry->acl_version;
             $this->getInstallerTable()->updateRegistered($modId, '', $values);
@@ -734,7 +734,7 @@ class InstallerController extends AbstractActionController
 
         $versions = $this->getFilesForUpgrade($Module->modDirectory, $sqlInstallLocation);
 
-        $values = array($Module->mod_nick_name, $Module->mod_enc_menu);
+        $values = [$Module->mod_nick_name, $Module->mod_enc_menu];
         $div = [];
         $outputToBrowser = '';
         foreach ($versions as $version => $filename) {
@@ -799,7 +799,7 @@ class InstallerController extends AbstractActionController
             include_once($modDir . "/acl/acl_setup.php");
             $div[] = ob_get_contents();
             ob_end_clean();
-            $values = array($Module->mod_nick_name, $Module->mod_enc_menu);
+            $values = [$Module->mod_nick_name, $Module->mod_enc_menu];
             $values[2] = $Module->sql_version;
             $values[3] = $this->getModuleVersionFromFile($modId);
             $this->getInstallerTable()->updateRegistered($modId, '', $values);
@@ -879,7 +879,7 @@ class InstallerController extends AbstractActionController
         }
 
         if ($sqlInstalled) {
-            $values = array($mod_nick_name, $mod_enc_menu);
+            $values = [$mod_nick_name, $mod_enc_menu];
             $values[2] = $this->getModuleVersionFromFile($modId);
             $this->getInstallerTable()->updateRegistered($modId, '', $values);
             $status = $this->listenerObject->z_xlt("Success");
@@ -926,7 +926,7 @@ class InstallerController extends AbstractActionController
             ob_end_clean();
 
             if (strlen($version) > 0) {
-                $values = array($Module->mod_nick_name, $Module->mod_enc_menu);
+                $values = [$Module->mod_nick_name, $Module->mod_enc_menu];
                 $values[2] = $Module->sql_version;
                 $values[3] = $this->getModuleVersionFromFile($modId);
                 $this->getInstallerTable()->updateRegistered($modId, '', $values);

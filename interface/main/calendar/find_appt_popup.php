@@ -30,7 +30,7 @@ use OpenEMR\Core\Header;
 
 <?php
  // check access controls
-if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
+if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
     exit;
 }
@@ -95,7 +95,7 @@ $slotsecs = $GLOBALS['calendar_interval'] * 60;
 
 $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
     if ($srow['pc_duration']) {
         $catslots = ceil($srow['pc_duration'] / $slotsecs);
     }
@@ -160,9 +160,9 @@ if ($_REQUEST['providerid']) {
     //   bit 2 = reserved
     // So, values may range from 0 to 7.
     //
-    $slots = array_pad(array(), $slotcount, 0);
+    $slots = array_pad([], $slotcount, 0);
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     // Note there is no need to sort the query results.
     $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
@@ -176,7 +176,7 @@ if ($_REQUEST['providerid']) {
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
     // phyaura whimmel facility filtering
-    if ($_REQUEST['facility'] ?? '' > 0) {
+    if (($_REQUEST['facility'] ?? '') > 0) {
             $facility = $_REQUEST['facility'];
             $query .= " AND pc_facility = ?";
             array_push($sqlBindArray, $facility);

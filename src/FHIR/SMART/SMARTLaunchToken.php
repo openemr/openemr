@@ -135,6 +135,11 @@ class SMARTLaunchToken
         return $launchParams;
     }
 
+    /**
+     * @param $serialized
+     * @return self
+     * @throws \JsonException
+     */
     public static function deserializeToken($serialized): self
     {
         $token = new self();
@@ -142,6 +147,11 @@ class SMARTLaunchToken
         return $token;
     }
 
+    /**
+     * @param $serialized
+     * @return void
+     * @throws \JsonException
+     */
     public function deserialize($serialized)
     {
         $cryptoGen = new CryptoGen();

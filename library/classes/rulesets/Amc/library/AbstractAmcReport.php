@@ -41,7 +41,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_amcPopulation;
 
-    protected $_resultsArray = array();
+    protected $_resultsArray = [];
 
     protected $_rowRule;
     protected $_ruleId;
@@ -75,7 +75,7 @@ abstract class AbstractAmcReport implements RsReportIF
         // require all .php files in the report's sub-folder
         // TODO: This really needs to be moved to using our namespace autoloader... no point in doing a file stat check
         // for every single rule we have, over and over again every time the rule is instantiated.
-        $className = get_class($this);
+        $className = $this::class;
         foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
@@ -92,7 +92,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $this->_amcPopulation = new AmcPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Parse measurement period, which is stored as array in $dateTarget ('dateBegin' and 'dateTarget').
         $this->_beginMeasurement = $dateTarget['dateBegin'] ?? '';
         $this->_endMeasurement = $dateTarget['dateTarget'] ?? '';
@@ -104,7 +104,7 @@ abstract class AbstractAmcReport implements RsReportIF
             $this->_aggregator = new AMCItemSkipTracker();
         }
         $this->logger = new SystemLogger();
-        $this->logger->debug(get_class($this) . "->__construct() finished", ['patients' => $patientIdArray]);
+        $this->logger->debug($this::class . "->__construct() finished", ['patients' => $patientIdArray]);
 
         $this->_billingFacilityId = $options['billing_facility_id'] ?? null;
         $this->_providerId = $options['provider_id'] ?? null;
@@ -132,7 +132,7 @@ abstract class AbstractAmcReport implements RsReportIF
     public function execute()
     {
 
-        $this->logger->debug(get_class($this) . "->execute() starting function");
+        $this->logger->debug($this::class . "->execute() starting function");
 
         // If itemization is turned on, then iterate the rule id iterator
         //
@@ -162,7 +162,7 @@ abstract class AbstractAmcReport implements RsReportIF
             $object_to_count = "patients";
         }
 
-        $this->logger->debug(get_class($this) . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
+        $this->logger->debug($this::class . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
 
         $numeratorObjects = 0;
         $denominatorObjects = 0;
@@ -172,7 +172,7 @@ abstract class AbstractAmcReport implements RsReportIF
             // not sure how we account for individual reporting here.
             $denominatorObjects = $this->_manualLabNumber;
             $this->logger->debug(
-                get_class($this) . "->execute() manual labs processed",
+                $this::class . "->execute() manual labs processed",
                 ['numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -189,7 +189,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
         $this->_resultsArray[] = &$result;
-        $this->logger->debug(get_class($this) . "->execute() leaving rule");
+        $this->logger->debug($this::class . "->execute() leaving rule");
     }
 
     private function executeForPatients($numerator, $denominator, &$numeratorObjects, &$denominatorObjects)
@@ -236,7 +236,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 $denominatorResultItemDetails
             );
             $this->logger->debug(
-                get_class($this) . "->execute() patient processed",
+                $this::class . "->execute() patient processed",
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -300,7 +300,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 }
             }
             $this->logger->debug(
-                get_class($this) . "->execute() patient processed",
+                $this::class . "->execute() patient processed",
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -309,8 +309,8 @@ abstract class AbstractAmcReport implements RsReportIF
     private function collectObjects($patient, $object_label, $begin, $end)
     {
 
-        $results = array();
-        $sqlBindArray = array();
+        $results = [];
+        $sqlBindArray = [];
 
         switch ($object_label) {
             case "transitions-in":
@@ -466,7 +466,7 @@ abstract class AbstractAmcReport implements RsReportIF
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             $fres = sqlStatement(
                 "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
-                array($row['id'])
+                [$row['id']]
             );
             while ($frow = sqlFetchArray($fres)) {
                 $row[$frow['field_id']] = $frow['field_value'];

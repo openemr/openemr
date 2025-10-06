@@ -56,18 +56,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: admin.php
-  - message: '#^Variable \$attributes might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: apis/dispatch.php
-  - message: '#^Variable \$clientId might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: apis/dispatch.php
-  - message: '#^Variable \$userId might not be defined\.$#'
-    identifier: variable.undefined
-    count: 4
-    path: apis/dispatch.php
   - message: '#^Variable \$pid might not be defined\.$#'
     identifier: variable.undefined
     count: 4
@@ -651,10 +639,6 @@ parameters:
   - message: '#^Access to an undefined property Profiler\:\:\$trace_enabled\.$#'
     identifier: property.notFound
     count: 2
-    path: gacl/profiler.inc.php
-  - message: '#^Function each not found\.$#'
-    identifier: function.notFound
-    count: 1
     path: gacl/profiler.inc.php
   - message: '#^Variable \$config might not be defined\.$#'
     identifier: variable.undefined
@@ -3512,10 +3496,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$date on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/billing/sl_eob_process.php
   - message: '#^Variable \$STMT_PRINT_CMD might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3547,10 +3527,6 @@ parameters:
   - message: '#^Variable \$doctotal2 might not be defined\.$#'
     identifier: variable.undefined
     count: 3
-    path: interface/billing/sl_receipts_report.php
-  - message: '#^Variable \$grandtotal2 might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
     path: interface/billing/sl_receipts_report.php
   - message: '#^Variable \$patient_name might not be defined\.$#'
     identifier: variable.undefined
@@ -5939,66 +5915,6 @@ parameters:
   - message: '#^Variable \$zones might not be defined\.$#'
     identifier: variable.undefined
     count: 1
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_dates might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_SCODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_SCOSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_CCODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_CCOSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_PHODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_PHOSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_ARODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_AROSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_MRODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_MROSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_CRODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_CROSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_CTLODVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/forms/eye_mag/php/eye_mag_functions.php
-  - message: '#^Variable \$va_CTLOSVA might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Result of function display_VisualAcuities \(void\) is used\.$#'
     identifier: function.void
@@ -11912,10 +11828,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-  - message: '#^Variable \$date_zone in empty\(\) always exists and is always falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
   - message: '#^Variable \$details in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
     count: 1
@@ -13860,30 +13772,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalAppointments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalDueAmount might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalNewRegisterPatient might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalPaidAmount might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalPayments might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
-  - message: '#^Variable \$totalVisits might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/reports/daily_summary_report.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -14927,10 +14815,6 @@ parameters:
   - message: '#^Constant SASL_PLAIN_EXIM_MODE not found\.$#'
     identifier: constant.notFound
     count: 1
-    path: library/classes/smtp/smtp.php
-  - message: '#^Function ereg_replace not found\.$#'
-    identifier: function.notFound
-    count: 4
     path: library/classes/smtp/smtp.php
   - message: '#^Method smtp_class\:\:GetLine\(\) invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
@@ -16088,14 +15972,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: modules/sms_email_reminder/sms_tmb4.php
-  - message: '#^Variable \$gbl might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: oauth2/provider/jwk.php
-  - message: '#^Variable \$oauthjwk might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: oauth2/provider/jwk.php
   - message: '#^Class OpenEMR\\Common\\Auth\\AuthHash constructor invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
@@ -16360,10 +16236,6 @@ parameters:
     identifier: return.missing
     count: 1
     path: portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php
-  - message: '#^Function create_function not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_studlycaps.php
   - message: '#^Method parseCSV\:\:_check_count\(\) should return special but return statement is missing\.$#'
     identifier: return.missing
     count: 1
@@ -16540,10 +16412,6 @@ parameters:
     identifier: variable.undefined
     count: 4
     path: portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php
-  - message: '#^Function eregi not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/HTTP/FormValidator.php
   - message: '#^Method HttpRequest\:\:FilePost\(\) should return string but return statement is missing\.$#'
     identifier: return.missing
     count: 1
@@ -16656,10 +16524,6 @@ parameters:
     identifier: requireOnce.fileNotFound
     count: 1
     path: portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php
-  - message: '#^Access to an undefined property CriteriaFilter\:\:\$PropertyNames\.$#'
-    identifier: property.notFound
-    count: 2
-    path: portal/patient/fwk/libs/verysimple/Phreeze/CriteriaFilter.php
   - message: '#^Path in include_once\(\) "verysimple/DB/DataDriver/MySQL\.php" is not a file or it does not exist\.$#'
     identifier: includeOnce.fileNotFound
     count: 1
@@ -17154,7 +17018,7 @@ parameters:
     path: portal/report/portal_patient_report.php
   - message: '#^Variable \$OE_SITES_BASE might not be defined\.$#'
     identifier: variable.undefined
-    count: 4
+    count: 3
     path: setup.php
   - message: '#^Variable \$config in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
@@ -17364,18 +17228,10 @@ parameters:
     identifier: empty.variable
     count: 1
     path: src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php
-  - message: '#^Variable \$launchToken in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Common/Auth/OpenIDConnect/Grant/CustomAuthCodeGrant.php
   - message: '#^Variable \$client in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 1
     path: src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php
-  - message: '#^Class OpenEMR\\Common\\Auth\\OpenIDConnect\\SMARTSessionTokenContextBuilder constructor invoked with 2 parameters, 0\-1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php
   - message: '#^Static method League\\OAuth2\\Server\\Exception\\UniqueTokenIdentifierConstraintViolationException\:\:create\(\) invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
@@ -17392,14 +17248,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 2
     path: src/Common/Auth/OpenIDConnect/Repositories/RefreshTokenRepository.php
-  - message: '#^Variable \$scopesByResource on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php
-  - message: '#^Variable \$userIdBinary in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 2
-    path: src/Common/Auth/UuidUserAccount.php
   - message: '#^Variable \$issues might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17444,22 +17292,10 @@ parameters:
     identifier: empty.variable
     count: 1
     path: src/Common/Http/HttpRestParsedRoute.php
-  - message: '#^Variable \$_GET on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/Common/Http/HttpRestRequest.php
-  - message: '#^Variable \$requestUri on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/Common/Http/HttpRestRequest.php
   - message: '#^Variable \$test in isset\(\) always exists and is not nullable\.$#'
     identifier: isset.variable
     count: 1
     path: src/Common/Layouts/LayoutsUtils.php
-  - message: '#^Variable \$logLevel in empty\(\) is never defined\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/Common/Logging/SystemLogger.php
   - message: '#^Access to an undefined property OpenEMR\\Common\\ORDataObject\\ContactAddress\:\:\$use\.$#'
     identifier: property.notFound
     count: 1
@@ -17640,42 +17476,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Pharmacy/Services/ImportPharmacies.php
-  - message: '#^Variable \$clientName on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$oauthLogin on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$offline_access_date on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 2
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$offline_requested on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$requestScopes in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$result might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$scopeString on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$scopes on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Constructor of class OpenEMR\\RestControllers\\FHIR\\FhirDocumentRestController has an unused parameter \$request\.$#'
-    identifier: constructor.unusedParameter
-    count: 1
-    path: src/RestControllers/FHIR/FhirDocumentRestController.php
   - message: '#^Access to an undefined property OpenEMR\\RestControllers\\FHIR\\FhirImmunizationRestController\:\:\$fhirValidate\.$#'
     identifier: property.notFound
     count: 1
@@ -17700,10 +17500,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php
-  - message: '#^Method OpenEMR\\RestControllers\\SMART\\SMARTAuthorizationController\:\:patientSelect\(\) should return string\|false but return statement is missing\.$#'
-    identifier: return.missing
-    count: 1
-    path: src/RestControllers/SMART/SMARTAuthorizationController.php
   - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
     identifier: staticMethod.notFound
     count: 1

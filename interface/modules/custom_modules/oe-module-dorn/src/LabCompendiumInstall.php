@@ -65,13 +65,13 @@ class LabCompendiumInstall
         $sql = "INSERT INTO procedure_type (name, lab_id, procedure_type, description)
         VALUES (?, ?, ?, ?)";
 
-        $sqlArr = array($compendium->labName, $lab_id, 'grp', 'DORN:' . $compendium->labName . ' Orders');
+        $sqlArr = [$compendium->labName, $lab_id, 'grp', 'DORN:' . $compendium->labName . ' Orders'];
         $id = sqlInsert($sql, $sqlArr);
 
         $sql = "INSERT INTO procedure_type (parent,name, lab_id, procedure_type, description)
                 VALUES (?, ?, ?, ?, ?)";
 
-        $sqlArr = array($id, $compendium->labName, $lab_id, 'grp', 'Ordering Tests');
+        $sqlArr = [$id, $compendium->labName, $lab_id, 'grp', 'Ordering Tests'];
         $id = sqlInsert($sql, $sqlArr);
 
         return $id;
@@ -94,7 +94,7 @@ class LabCompendiumInstall
             $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code)
             VALUES (?, ?, ?, ?, ?, ?)";
 
-            $sqlArr = array($parentId, $item->name ?? '', $lab_id ?? '', 'ord', $item->code ?? '', $item->loinc ?? '');
+            $sqlArr = [$parentId, $item->name ?? '', $lab_id ?? '', 'ord', $item->code ?? '', $item->loinc ?? ''];
             $id = sqlInsert($sql, $sqlArr);
         }
 
@@ -112,7 +112,7 @@ class LabCompendiumInstall
     {
         $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code)
         VALUES (?, ?, ?, ?, ?, ?)";
-        $sqlArr = array($parentId, $component->name ?? '', $lab_id ?? '', 'res', $component->code ?? '', $component->loinc ?? '');
+        $sqlArr = [$parentId, $component->name ?? '', $lab_id ?? '', 'res', $component->code ?? '', $component->loinc ?? ''];
         $id = sqlInsert($sql, $sqlArr);
     }
 
@@ -129,18 +129,18 @@ class LabCompendiumInstall
         // check for existing record
         $qrow = sqlQuery(
             "SELECT * FROM procedure_questions WHERE lab_id = ? AND procedure_code = ? AND question_code = ?",
-            array(
+            [
                 $lab_id,
                 $pcode,
                 $qcode
-            )
+            ]
         );
 
         // new record
         if (empty($qrow ['procedure_code'])) {
             sqlStatement(
                 "INSERT INTO procedure_questions SET seq = ?, lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?",
-                array(
+                [
                     $aoeCount,
                     $lab_id,
                     $pcode,
@@ -152,12 +152,12 @@ class LabCompendiumInstall
                     $activity,
                     $options,
                     $maxSize
-                )
+                ]
             );
         } else { // update record
             sqlStatement(
                 "UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?  WHERE lab_id = ? AND procedure_code = ? AND question_code = ?",
-                array(
+                [
                     $aoeCount,
                     $question,
                     $fldtype,
@@ -169,7 +169,7 @@ class LabCompendiumInstall
                     $lab_id,
                     $pcode,
                     $qcode,
-                )
+                ]
             );
         }
     }
@@ -197,21 +197,18 @@ class LabCompendiumInstall
         List of Check boxes = M
         Radio buttons or drop-list, depending on the number of choices. = anything else (maybe S) for a single select
         */
-        switch ($questionType) {
-            case 'Free Text':
-                return 'T';
-            case 'List':
-                return 'S';
-            case 'Multi-Select List':
-                return 'M';
-        }
-        return 'T';
+        return match ($questionType) {
+            'Free Text' => 'T',
+            'List' => 'S',
+            'Multi-Select List' => 'M',
+            default => 'T',
+        };
     }
 
     public static function uninstall($lab_id)
     {
-        sqlStatement("DELETE FROM procedure_type WHERE lab_id = ? AND (procedure_type = 'det' OR procedure_type = 'res') ", array($lab_id));
+        sqlStatement("DELETE FROM procedure_type WHERE lab_id = ? AND (procedure_type = 'det' OR procedure_type = 'res') ", [$lab_id]);
         // Mark everything else for the indicated lab as inactive.
-        sqlStatement("UPDATE procedure_type SET activity = 0, related_code = '' WHERE lab_id = ? AND procedure_type != 'grp' ", array($lab_id));
+        sqlStatement("UPDATE procedure_type SET activity = 0, related_code = '' WHERE lab_id = ? AND procedure_type != 'grp' ", [$lab_id]);
     }
 }

@@ -9,7 +9,6 @@ parameters:
   tmpDir: tmp-phpstan
   paths:
   - Documentation
-  - _rest_config.php
   - _rest_routes.inc.php
   - acl_upgrade.php
   - admin.php

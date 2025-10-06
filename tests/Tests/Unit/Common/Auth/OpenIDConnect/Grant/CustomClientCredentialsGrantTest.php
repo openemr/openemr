@@ -16,6 +16,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use League\OAuth2\Server\CryptKey;
@@ -32,6 +33,7 @@ use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomClientCredentialsGrantTest extends TestCase
 {
@@ -57,7 +59,7 @@ class CustomClientCredentialsGrantTest extends TestCase
 
 
         $ttl = new \DateInterval('PT300S');
-        $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
@@ -108,7 +110,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessToken = new AccessTokenEntity();
 
         $ttl = new \DateInterval('PT300S');
-        $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
@@ -146,7 +148,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessToken = new AccessTokenEntity();
 
         $ttl = new \DateInterval('PT300S');
-        $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
@@ -173,8 +175,8 @@ class CustomClientCredentialsGrantTest extends TestCase
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
-            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
-            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
+            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
+            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 

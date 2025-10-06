@@ -422,7 +422,7 @@ class TeleconferenceRoomController
             }
             $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
             if (empty($session)) {
-                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+                throw new InvalidArgumentException("session was not found for pc_eid of {$pc_eid}");
             }
             // check to make sure the session user is the same as the logged in user
             $verifiedUser = null;
@@ -667,7 +667,7 @@ class TeleconferenceRoomController
                 // throw error
                 throw new InvalidArgumentException("Cannot update appointment status in a patient context");
             }
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to update appointment status");
             }
 
@@ -954,7 +954,7 @@ class TeleconferenceRoomController
         $sql = "UPDATE openemr_postcalendar_events SET pc_aid =? WHERE pc_eid =? ";
         QueryUtils::sqlStatementThrowException($sql, [$userId, $appt['pc_eid']]);
 
-        if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+        if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
             throw new AccessDeniedException("patients", "appt", "No access to change appointments");
         }
 
@@ -996,7 +996,7 @@ class TeleconferenceRoomController
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "apt", "User does not have access to update current appointment information");
             }
             // grab the appointment and make sure the current user has access to the calendar

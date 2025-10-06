@@ -71,7 +71,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCoverage
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $coverageResource = new FHIRCoverage();
         $meta = new FHIRMeta();

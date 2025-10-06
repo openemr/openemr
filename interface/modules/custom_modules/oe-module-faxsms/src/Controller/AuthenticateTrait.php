@@ -125,7 +125,7 @@ trait AuthenticateTrait
                 }
             } catch (ApiException $e) {
                 if ($e->getCode() === 429) {
-                    $delay = $baseDelay * pow(2, $attempt); // Exponential backoff
+                    $delay = $baseDelay * 2 ** $attempt; // Exponential backoff
                     sleep($delay);
                     continue;
                 }

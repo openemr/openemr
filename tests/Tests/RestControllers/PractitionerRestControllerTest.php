@@ -2,9 +2,13 @@
 
 namespace OpenEMR\Tests\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\PractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ServerBag;
 
 /**
  * @package   OpenEMR
@@ -26,7 +30,7 @@ class PractitionerRestControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->practitionerData = array(
+        $this->practitionerData = [
             "id" => "test-fixture-789456",
             "uuid" => "90cde167-7b9b-4ed1-bd55-533925cb2605",
             "title" => "Mrs.",
@@ -61,7 +65,7 @@ class PractitionerRestControllerTest extends TestCase
             "physician_title" => "Attending physician",
             "physician_code" => "SNOMED-CT =>405279007",
             "username" => "kperez"
-        );
+        ];
 
         $this->fixtureManager = new PractitionerFixtureManager();
         $this->practitionerController = new PractitionerRestController();
@@ -75,8 +79,9 @@ class PractitionerRestControllerTest extends TestCase
     public function testPostInvalidData(): void
     {
         unset($this->practitionerData["fname"]);
-        $actualResult = $this->practitionerController->post($this->practitionerData);
-        $this->assertEquals(400, http_response_code());
+        $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
@@ -84,8 +89,9 @@ class PractitionerRestControllerTest extends TestCase
 
     public function testPost(): void
     {
-        $actualResult = $this->practitionerController->post($this->practitionerData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(2, count($actualResult["data"]));
@@ -97,15 +103,17 @@ class PractitionerRestControllerTest extends TestCase
 
     public function testPutInvalidData(): void
     {
-        $actualResult = $this->practitionerController->post($this->practitionerData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $actualUuid = $actualResult["data"]["uuid"];
         $this->practitionerData["uuid"] = $actualUuid;
 
-        $actualResult = $this->practitionerController->patch("not-a-id", $this->practitionerData);
-        $this->assertEquals(400, http_response_code());
+        $response = $this->practitionerController->patch("not-a-id", $this->practitionerData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
@@ -113,15 +121,17 @@ class PractitionerRestControllerTest extends TestCase
 
     public function testPut(): void
     {
-        $actualResult = $this->practitionerController->post($this->practitionerData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $practitionerUuid = $actualResult["data"]["uuid"];
         $this->practitionerData["email"] = "help@pennfirm.com";
-        $actualResult = $this->practitionerController->patch($practitionerUuid, $this->practitionerData);
+        $response = $this->practitionerController->patch($practitionerUuid, $this->practitionerData, $this->createMock(HttpRestRequest::class));
 
-        $this->assertEquals(200, http_response_code());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertNotNull($actualResult["data"]);
@@ -133,8 +143,9 @@ class PractitionerRestControllerTest extends TestCase
 
     public function testGetOneInvalidUuid(): void
     {
-        $actualResult = $this->practitionerController->getOne("not-a-uuid");
-        $this->assertEquals(400, http_response_code());
+        $response = $this->practitionerController->getOne("not-a-uuid", $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals([], $actualResult["data"]);
@@ -143,20 +154,29 @@ class PractitionerRestControllerTest extends TestCase
     public function testGetOne(): void
     {
         // create a record
-        $postResult = $this->practitionerController->post($this->practitionerData);
+        $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $postResult = json_decode($response->getBody(), true);
         $postedUuid = $postResult["data"]["uuid"];
 
         // confirm the id matches what was requested
-        $actualResult = $this->practitionerController->getOne($postedUuid);
+        $response = $this->practitionerController->getOne($postedUuid, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
     public function testGetAll(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
-        $searchResult = $this->practitionerController->getAll(array("npi" => "0123456789"));
+        $restRequest = $this->createMock(HttpRestRequest::class);
+        $restRequest->server = $this->createMock(ServerBag::class);
+        $restRequest->server->method('get')->with('REDIRECT_URL')->willReturn('http://localhost/');
+        $restRequest->query = new InputBag();
+        $response = $this->practitionerController->getAll($restRequest, ["npi" => "0123456789"]);
 
-        $this->assertEquals(200, http_response_code());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $searchResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($searchResult["validationErrors"]));
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));

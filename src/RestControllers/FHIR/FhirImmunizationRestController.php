@@ -18,8 +18,6 @@ use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
-require_once(__DIR__ . '/../../../_rest_config.php');
-
 /**
  * Supports REST interactions with the FHIR immunization resource
  */
@@ -57,7 +55,7 @@ class FhirImmunizationRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirImmunizationService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

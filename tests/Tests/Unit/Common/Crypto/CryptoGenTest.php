@@ -1477,7 +1477,7 @@ final class CryptoGenTest extends TestCase
         // comprehensively test every pair of encryptionVersion and minimumVersion
         $min = min(array_map(fn($v) => $v->value, KeyVersion::cases()));
         $max = max(array_map(fn($v) => $v->value, KeyVersion::cases()));
-        $versions = array_map(fn($i) => KeyVersion::from($i), range($min, $max));
+        $versions = array_map(KeyVersion::from(...), range($min, $max));
 
         foreach ($versions as $minValue => $minimumVersion) {
             foreach ($versions as $encryptionValue => $encryptionVersion) {

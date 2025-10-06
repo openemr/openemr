@@ -96,7 +96,7 @@ class DataPage implements Iterator
         $arr = null;
 
         if ($asSimpleObject) {
-            $arr = array ();
+            $arr =  [];
             foreach ($this->Rows as $row) {
                 $arr [] = $row->ToObject($options);
             }

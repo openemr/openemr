@@ -23,7 +23,7 @@ if (! function_exists('password_hash')) {
      *
      * @return s string|false The hashed password, or false on error.
      */
-    function password_hash($password, $algo, $options = array())
+    function password_hash($password, $algo, $options = [])
     {
         if (! function_exists('crypt')) {
             trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
@@ -128,15 +128,15 @@ if (! function_exists('password_get_info')) {
      */
     function password_get_info($hash)
     {
-        $return = array (
+        $return =  [
                 'algo' => 0,
                 'algoName' => 'unknown',
-                'options' => array ()
-        );
-        if (substr($hash, 0, 4) == '$2y$' && strlen($hash) == 60) {
+                'options' =>  []
+        ];
+        if (str_starts_with($hash, '$2y$') && strlen($hash) == 60) {
             $return ['algo'] = PASSWORD_BCRYPT;
             $return ['algoName'] = 'bcrypt';
-            list ( $cost ) = sscanf($hash, "$2y$%d$");
+            [$cost] = sscanf($hash, "$2y$%d$");
             $return ['options'] ['cost'] = $cost;
         }
 
@@ -159,7 +159,7 @@ if (! function_exists('password_needs_rehash')) {
      *
      * @return boolean True if the password needs to be rehashed.
      */
-    function password_needs_rehash($hash, $algo, array $options = array())
+    function password_needs_rehash($hash, $algo, array $options = [])
     {
         $info = password_get_info($hash);
         if ($info ['algo'] != $algo) {
@@ -168,7 +168,7 @@ if (! function_exists('password_needs_rehash')) {
 
         switch ($algo) {
             case PASSWORD_BCRYPT:
-                $cost = isset($options ['cost']) ? $options ['cost'] : 10;
+                $cost = $options ['cost'] ?? 10;
                 if ($cost != $info ['options'] ['cost']) {
                     return true;
                 }

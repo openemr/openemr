@@ -136,12 +136,12 @@ if (isset($_POST['new_login_session_management'])) {
 // Begin code to support U2F and APP Based TOTP logic.
 ///////////////////////////////////////////////////////////////////////
     $errormsg = '';
-    $regs = array();          // for mapping device handles to their names
-    $registrations = array(); // the array of stored registration objects
+    $regs = [];          // for mapping device handles to their names
+    $registrations = []; // the array of stored registration objects
     $res1 = sqlStatement(
         "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
         "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-        array($_SESSION['authUserID'])
+        [$_SESSION['authUserID']]
     );
 
     $registrationAttempt = false;
@@ -180,7 +180,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 $res1 = sqlQuery(
                     "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
-                    array($_SESSION['authUserID'])
+                    [$_SESSION['authUserID']]
                 );
                 $registrationSecret = false;
                 if (!empty($res1['var1'])) {
@@ -195,7 +195,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Second, try the password hash, which was setup during install and is temporary
                     $passwordResults = privQuery(
                         "SELECT password FROM users_secure WHERE username = ?",
-                        array($_POST["authUser"])
+                        [$_POST["authUser"]]
                     );
                     if (!empty($passwordResults["password"])) {
                         $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
@@ -205,7 +205,7 @@ if (isset($_POST['new_login_session_management'])) {
                             $secretEncrypt = $cryptoGen->encryptStandard($secret);
                             privStatement(
                                 "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
-                                array($secretEncrypt, $userid)
+                                [$secretEncrypt, $userid]
                             );
                         }
                     }
@@ -220,7 +220,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     privStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        array($_SESSION['authUserID'])
+                        [$_SESSION['authUserID']]
                     );
                 } else {
                     $errormsg = xl("The code you entered was not valid");
@@ -228,7 +228,7 @@ if (isset($_POST['new_login_session_management'])) {
                 }
             } elseif ($isU2F) { // Otherwise use U2F METHOD
                 // We have key data, check if it matches what was registered.
-                $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
+                $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", [$userid]);
                 try {
                     $registration = $u2f->doAuthenticate(
                         json_decode($tmprow['login_work_area']), // these are the original challenge requests
@@ -242,7 +242,7 @@ if (isset($_POST['new_login_session_management'])) {
                         sqlStatement(
                             "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
                             "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
-                            array(json_encode($registration), $userid, $regs[$strhandle])
+                            [json_encode($registration), $userid, $regs[$strhandle]]
                         );
                     } else {
                         error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
@@ -250,7 +250,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     sqlStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        array($_SESSION['authUserID'])
+                        [$_SESSION['authUserID']]
                     );
                 } catch (u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
@@ -312,7 +312,7 @@ if (isset($_POST['new_login_session_management'])) {
                 // Persist the challenge also in the database because the browser is untrusted.
                 sqlStatement(
                     "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
-                    array($requests, $userid)
+                    [$requests, $userid]
                 );
 
                 echo '<div class="container">';
@@ -401,7 +401,7 @@ if ($GLOBALS['login_into_facility']) {
     $_SESSION['facilityId'] = $facility_id;
     if ($GLOBALS['set_facility_cookie']) {
         // set cookie with facility for the calender screens
-        setcookie("pc_facility", $_SESSION['facilityId'], time() + (3600 * 365), $GLOBALS['webroot']);
+        setcookie("pc_facility", $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
     }
 }
 

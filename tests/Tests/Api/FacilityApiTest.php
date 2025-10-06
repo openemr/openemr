@@ -6,6 +6,7 @@ use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Symfony\Component\HttpFoundation\Response;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -44,8 +45,8 @@ class FacilityApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFixtures();
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+//        $this->testClient->cleanupRevokeAuth();
+//        $this->testClient->cleanupClient();
     }
 
     #[Test]
@@ -66,7 +67,7 @@ class FacilityApiTest extends TestCase
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
 
-        $this->assertEquals(201, $actualResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
@@ -157,7 +158,7 @@ class FacilityApiTest extends TestCase
     {
         $this->fixtureManager->installFacilityFixtures();
 
-        $actualResponse = $this->testClient->get(self::FACILITY_API_ENDPOINT, array("facility_npi" => "0123456789"));
+        $actualResponse = $this->testClient->get(self::FACILITY_API_ENDPOINT, ["facility_npi" => "0123456789"]);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);

@@ -12,8 +12,11 @@
 
 namespace OpenEMR\RestControllers;
 
+use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DocumentRestController
 {
@@ -41,17 +44,20 @@ class DocumentRestController
         $results = $this->documentService->getFile($pid, $did);
 
         if (!empty($results)) {
-            header('Content-Description: File Transfer');
-            header("Content-Type: " . $results['mimetype']);
-            header('Content-Disposition: attachment; filename=' . $results['filename']);
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            header('Pragma: public');
-            header('Content-Length: ' . strlen($results['file']));
-            echo $results['file'];
-            exit;
+            $response = new BinaryFileResponse($results['file'], Response::HTTP_OK, [], true);
+            $response->setContentDisposition('attachment', $results['filename']);
+            // we no longer use pre-check and post-check headers as they are not needed and microsoft even discourages
+            // their use at this point.
+            $response->setCache([
+                'must_revalidate' => true
+            ]);
+            // this used to be Expires: 0 but that is not recommended anymore, we set it to be 1 hour ago so that
+            // the browser will not cache the file.
+            $response->setExpires(new \DateTimeImmutable("-1 HOUR"));
+            return $response;
         } else {
-            http_response_code(400);
+            // TODO: @adunsulag we should return a 404 here if the file does not exist... but prior behavior was to return a 400
+            return new Response(null, Response::HTTP_BAD_REQUEST);
         }
     }
 }

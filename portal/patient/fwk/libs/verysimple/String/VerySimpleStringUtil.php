@@ -50,21 +50,21 @@ class VerySimpleStringUtil
      */
     static function InitStaticVars()
     {
-        self::$HTML_ENTITIES_TABLE = array ();
+        self::$HTML_ENTITIES_TABLE =  [];
         foreach (get_html_translation_table(HTML_ENTITIES, ENT_QUOTES) as $char => $entity) {
             self::$HTML_ENTITIES_TABLE [$entity] = '&#' . ord($char) . ';';
         }
 
-        self::$SMART_QUOTE_CHARS = array (
+        self::$SMART_QUOTE_CHARS =  [
                 "�" => "\"",
                 chr(145) => "'",
                 chr(146) => "'",
                 chr(147) => "\"",
                 chr(148) => "\"",
                 chr(151) => "-"
-        );
+        ];
 
-        self::$CONTROL_CODE_CHARS = array (
+        self::$CONTROL_CODE_CHARS =  [
                 chr(0) => "&#0;",
                 chr(1) => "&#1;",
                 chr(2) => "&#2;",
@@ -92,9 +92,9 @@ class VerySimpleStringUtil
                 chr(29) => "&#29;",
                 chr(30) => "&#30;",
                 chr(31) => "&#31;"
-        );
+        ];
 
-        self::$INVALID_CODE_CHARS = array (
+        self::$INVALID_CODE_CHARS =  [
                 chr(128) => '&#8364;',
                 chr(130) => '&#8218;',
                 chr(131) => '&#402;',
@@ -122,15 +122,15 @@ class VerySimpleStringUtil
                 chr(156) => '&#339;',
                 chr(158) => '&#382;',
                 chr(159) => '&#376;'
-        );
+        ];
 
-        self::$XML_SPECIAL_CHARS = array (
+        self::$XML_SPECIAL_CHARS =  [
                 "&" => "&amp;",
                 "<" => "&lt;",
                 ">" => "&gt;",
                 "\"" => "&quot;",
                 "'" => "&apos;"
-        );
+        ];
     }
 
     /**
@@ -358,7 +358,7 @@ class VerySimpleStringUtil
                 $encoded = htmlentities(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
 
                 // @hack if htmlentities didn't encode it, then we need to do a charset conversion
-                if ($encoded != '' && substr($encoded, 0, 1) != '&') {
+                if ($encoded != '' && !str_starts_with($encoded, '&')) {
                     $encoded = mb_convert_encoding($encoded, 'HTML-ENTITIES', self::$DEFAULT_CHARACTER_SET);
                 }
 
@@ -415,7 +415,7 @@ class VerySimpleStringUtil
      */
     static function unicode_string_to_array($string)
     {
-        $array = array ();
+        $array =  [];
         $strlen = mb_strlen($string);
         while ($strlen) {
             $array [] = mb_substr($string, 0, 1, "UTF-8");

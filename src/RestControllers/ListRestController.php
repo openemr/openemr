@@ -54,7 +54,7 @@ class ListRestController
         }
 
         $serviceResult = $this->listService->insert($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, ['id' => $serviceResult], 201);
     }
 
     public function put($pid, $list_id, $list_type, $data)
@@ -71,7 +71,7 @@ class ListRestController
 
 
         $serviceResult = $this->listService->update($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $list_id), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ['id' => $list_id], 200);
     }
 
     public function delete($pid, $list_id, $list_type)

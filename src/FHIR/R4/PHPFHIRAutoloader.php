@@ -31,7 +31,7 @@ class PHPFHIRAutoloader
     const ROOT_DIR = __DIR__;
 
     /** @var array */
-    private static $_classMap = array (
+    private static $_classMap =  [
     'OpenEMR\\FHIR\\R4\\PHPFHIRParserMap' => 'OpenEMR/FHIR/R4/PHPFHIRParserMap.php',
     'OpenEMR\\FHIR\\R4\\PHPFHIRHelper' => 'OpenEMR/FHIR/R4/PHPFHIRHelper.php',
     'OpenEMR\\FHIR\\R4\\FHIRElement\\FHIRDate' => 'OpenEMR/FHIR/R4/FHIRElement/FHIRDate.php',
@@ -925,7 +925,7 @@ class PHPFHIRAutoloader
     'OpenEMR\\FHIR\\R4\\FHIRResource\\FHIRVisionPrescription\\FHIRVisionPrescriptionPrism' => 'OpenEMR/FHIR/R4/FHIRResource/FHIRVisionPrescription/FHIRVisionPrescriptionPrism.php',
     'OpenEMR\\FHIR\\R4\\FHIRElement\\FHIRVisionBase' => 'OpenEMR/FHIR/R4/FHIRElement/FHIRVisionBase.php',
     'OpenEMR\\FHIR\\R4\\FHIRElement\\FHIRVisionEyes' => 'OpenEMR/FHIR/R4/FHIRElement/FHIRVisionEyes.php',
-    );
+    ];
 
     /** @var bool */
     private static $_registered = false;
@@ -939,7 +939,7 @@ class PHPFHIRAutoloader
         if (self::$_registered) {
             return self::$_registered;
         }
-        return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
+        return self::$_registered = spl_autoload_register([self::class, 'loadClass'], true);
     }
 
     /**
@@ -948,7 +948,7 @@ class PHPFHIRAutoloader
     public static function unregister()
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister(array(__CLASS__, 'loadClass'))) {
+            if (spl_autoload_unregister([self::class, 'loadClass'])) {
                 self::$_registered = false;
                 return true;
             }

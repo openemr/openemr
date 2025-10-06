@@ -31,7 +31,7 @@ function getErxSoapPath()
 
 function getErxCredentials()
 {
-    $cred = array();
+    $cred = [];
     $cred[] = $GLOBALS['erx_account_partner_name'];
     $cred[] = $GLOBALS['erx_account_name'];
     $cryptoGen = new CryptoGen();
@@ -76,7 +76,7 @@ function trimData($str, $length)
 function stringToNumeric($str)
 {
     if (is_numeric($str)) {
-        return array($str,"");
+        return [$str,""];
     } else {
         for ($i = 0; $i < strlen($str); $i++) {
             $x = substr($str, $i, 1);
@@ -87,7 +87,7 @@ function stringToNumeric($str)
             }
         }
 
-        return array($num,$txt);
+        return [$num,$txt];
     }
 
     $str = substr($str, 0, ($length - 1));
@@ -132,7 +132,7 @@ function credentials($doc, $r): void
 function user_role($doc, $r): void
 {
     global $msg;
-    $userRole = sqlQuery("select * from users where username=?", array($_SESSION['authUser']));
+    $userRole = sqlQuery("select * from users where username=?", [$_SESSION['authUser']]);
     if (!$userRole['newcrop_user_role']) {
         echo xlt('Unauthorized access to ePrescription');
         die;
@@ -168,7 +168,7 @@ function user_role($doc, $r): void
 function destination($doc, $r, ?string $page = null, $pid = null): void
 {
     global $msg,$page;
-    $userRole = sqlQuery("select * from users where username=?", array($_SESSION['authUser']));
+    $userRole = sqlQuery("select * from users where username=?", [$_SESSION['authUser']]);
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
     if (!$page) {
         $page = 'compose';
@@ -284,7 +284,7 @@ function account($doc, $r): void
 function location($doc, $r): void
 {
     global $msg;
-    $userRole = sqlQuery("SELECT * FROM users AS u LEFT JOIN facility AS f ON f.id=u.facility_id WHERE u.username=?", array($_SESSION['authUser']));
+    $userRole = sqlQuery("SELECT * FROM users AS u LEFT JOIN facility AS f ON f.id=u.facility_id WHERE u.username=?", [$_SESSION['authUser']]);
     $b = $doc->createElement("Location");
     $b->setAttribute('ID', $userRole['id']);
     $userRole['name'] = stripSpecialCharacterFacility($userRole['name']);
@@ -382,7 +382,7 @@ function location($doc, $r): void
 function LicensedPrescriber($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", array($_SESSION['authUserID']));
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
     $b = $doc->createElement("LicensedPrescriber");
     $b->setAttribute('ID', $user_details['npi']);
     $LicensedPrescriberName = $doc->createElement("LicensedPrescriberName");
@@ -438,7 +438,7 @@ function LicensedPrescriber($doc, $r): void
 function Staff($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", array($_SESSION['authUserID']));
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
     $b = $doc->createElement("Staff");
     $b->setAttribute('ID', $user_details['username']);
     $StaffName = $doc->createElement("StaffName");
@@ -472,7 +472,7 @@ function Staff($doc, $r): void
 function SupervisingDoctor($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", array($_SESSION['authUserID']));
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
     $b = $doc->createElement("SupervisingDoctor");
     $b->setAttribute('ID', $user_details['npi']);
     $LicensedPrescriberName = $doc->createElement("LicensedPrescriberName");
@@ -528,7 +528,7 @@ function SupervisingDoctor($doc, $r): void
 function MidlevelPrescriber($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", array($_SESSION['authUserID']));
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
     $b = $doc->createElement("MidlevelPrescriber");
     $b->setAttribute('ID', $user_details['npi']);
     $LicensedPrescriberName = $doc->createElement("LicensedPrescriberName");
@@ -587,7 +587,7 @@ function MidlevelPrescriber($doc, $r): void
 function Patient($doc, $r, $pid)
 {
     global $msg,$warning_msg,$dem_check;
-    $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", array($pid));
+    $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", [$pid]);
     $b = $doc->createElement("Patient");
     $b->setAttribute('ID', $patient_data['pid']);
     $PatientName = $doc->createElement("PatientName");
@@ -732,7 +732,7 @@ function OutsidePrescription($doc, $r, $pid, $prescid): void
             LEFT JOIN list_options AS l2 ON l2.list_id = 'drug_route'    AND l2.option_id = p.route    AND l2.activity = 1
             LEFT JOIN list_options AS l3 ON l3.list_id = 'drug_interval' AND l3.option_id = p.interval AND l3.activity = 1
             LEFT JOIN list_options AS l4 ON l4.list_id = 'drug_units'    AND l4.option_id = p.unit     AND l4.activity = 1
-            WHERE p.drug <> '' and p.id = ?", array($prescid));
+            WHERE p.drug <> '' and p.id = ?", [$prescid]);
         $b = $doc->createElement("OutsidePrescription");
             $externalId = $doc->createElement("externalId");
             $externalId->appendChild(
@@ -792,8 +792,8 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     }
 
     $res_med = sqlStatement("select * from lists where type='medication' and pid=? and title<>''
-	and erx_uploaded='0' $active order by enddate limit 0," . escape_limit($med_limit), array($pid));
-    $uploaded_med_arr = "";
+	and erx_uploaded='0' $active order by enddate limit 0," . escape_limit($med_limit), [$pid]);
+    $uploaded_med_arr = [];
     while ($row_med = sqlFetchArray($res_med)) {
         $uploaded_med_arr[] = $row_med['id'];
         $b = $doc->createElement("OutsidePrescription");
@@ -848,10 +848,10 @@ function PatientFreeformAllergy($doc, $r, $pid)
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
-	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')", array($pid));
-    $allergyId = array();
+	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')", [$pid]);
+    $allergyId = [];
     while ($row = sqlFetchArray($res)) {
-        $val = array();
+        $val = [];
         $val['id'] = $row['id'];
         $val['title1'] = $row['title1'];
         $val['title2'] = $row['title2'];
@@ -906,7 +906,7 @@ function PatientFreeformHealthplans($doc, $r, $pid): void
             ORDER BY `id`.`date` DESC
         ) AS `ins`
         GROUP BY `ins`.`type`;',
-        array($pid)
+        [$pid]
     );
 
     while ($row = sqlFetchArray($resource)) {
@@ -942,7 +942,7 @@ function checkError($xml)
 {
     $ch = curl_init($xml);
 
-    $data = array('RxInput' => $xml);
+    $data = ['RxInput' => $xml];
 
     curl_setopt($ch, CURLOPT_URL, getErxPath());
     curl_setopt($ch, CURLOPT_POST, 1);

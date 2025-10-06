@@ -184,7 +184,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     $where = "";
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     if ($form_start_date) {
         $where .= " AND e.date >= ?";
@@ -212,20 +212,20 @@ if (!empty($_POST['form_refresh'])) {
         $invnumber = $row['pid'] . "." . $row['encounter'];
         $inv_duedate = '';
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-        "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+        "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
         $inv_amount = $arow['amount'];
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
           "pid = ? AND encounter = ? AND " .
-          "activity = 1 AND code_type != 'COPAY'", array($patient_id, $encounter_id));
+          "activity = 1 AND code_type != 'COPAY'", [$patient_id, $encounter_id]);
         $inv_amount += $arow['amount'];
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
           "pid = ? AND encounter = ? AND " .
-          "activity = 1 AND code_type = 'COPAY'", array($patient_id, $encounter_id));
+          "activity = 1 AND code_type = 'COPAY'", [$patient_id, $encounter_id]);
         $inv_paid = 0 - $arow['amount'];
         $arow = sqlQuery(
             "SELECT SUM(pay_amount) AS pay, sum(adj_amount) AS adj " .
             "FROM ar_activity WHERE pid = ? AND encounter = ? AND deleted IS NULL",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
         $inv_paid   += floatval($arow['pay']);
         $inv_amount -= floatval($arow['adj']);

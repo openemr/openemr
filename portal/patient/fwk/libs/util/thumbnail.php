@@ -25,23 +25,19 @@
  */
 class thumbnail
 {
-    var $allowableTypes = array (
+    var $allowableTypes =  [
             IMAGETYPE_GIF,
             IMAGETYPE_JPEG,
             IMAGETYPE_PNG
-    );
+    ];
     public function imageCreateFromFile($filename, $imageType)
     {
-        switch ($imageType) {
-            case IMAGETYPE_GIF:
-                return imagecreatefromgif($filename);
-            case IMAGETYPE_JPEG:
-                return imagecreatefromjpeg($filename);
-            case IMAGETYPE_PNG:
-                return imagecreatefrompng($filename);
-            default:
-                return false;
-        }
+        return match ($imageType) {
+            IMAGETYPE_GIF => imagecreatefromgif($filename),
+            IMAGETYPE_JPEG => imagecreatefromjpeg($filename),
+            IMAGETYPE_PNG => imagecreatefrompng($filename),
+            default => false,
+        };
     }
 
     /**
@@ -81,17 +77,11 @@ class thumbnail
             $extension = strtolower($pathinfo ['extension']);
         }
 
-        switch ($extension) {
-            case 'gif':
-                $function = 'imagegif';
-                break;
-            case 'png':
-                $function = 'imagepng';
-                break;
-            default:
-                $function = 'imagejpeg';
-                break;
-        }
+        $function = match ($extension) {
+            'gif' => 'imagegif',
+            'png' => 'imagepng',
+            default => 'imagejpeg',
+        };
 
         // load the image and return false if didn't work
         $source = $this->imageCreateFromFile($sourceFilename, $size [2]);

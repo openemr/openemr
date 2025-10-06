@@ -44,9 +44,14 @@ class FhirProvenanceRestController
     public function __construct(HttpRestRequest $request)
     {
         $this->fhirService = new FhirResourcesService();
-        $this->serviceLocator = new FhirServiceLocator($request->getRestConfig());
+        // TODO: @adunsulag should we actually force this to be a method of HttpRestRequest? Since my plan is to possibly refactor this, I'm not sure if this is the best place for it.
+        $serviceLocator = $request->attributes->get('_serviceLocator');
+        if (!$serviceLocator instanceof FhirServiceLocator) {
+            throw new \InvalidArgumentException('FhirServiceLocator must be set in the request attributes');
+        }
+        $this->serviceLocator = $serviceLocator;
         $this->provenanceService = new FhirProvenanceService();
-        $this->provenanceService->setServiceLocator($this->serviceLocator);
+        $this->provenanceService->setServiceLocator($serviceLocator);
     }
 
     /**
@@ -69,7 +74,7 @@ class FhirProvenanceRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->provenanceService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

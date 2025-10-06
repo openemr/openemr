@@ -596,7 +596,7 @@ $ResultSearchSub = sqlStatement(
 <body class="body_top" onload="OnloadAction()">
     <div class="container-fluid">
         <?php
-        if ($_REQUEST['ParentPage'] ?? '' == 'new_payment') {
+        if (($_REQUEST['ParentPage'] ?? '') == 'new_payment') {
             ?>
             <div class="row">
                 <div class="col-12">

@@ -16,6 +16,7 @@ use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 
 /**
@@ -80,7 +81,7 @@ abstract class AppDispatch
             // route it if direct call
             if (method_exists($this, $action)) {
                 $this->setResponse(
-                    call_user_func(array($this, $action), array())
+                    call_user_func([$this, $action], [])
                 );
             } else {
                 $this->setHeader("HTTP/1.0 404 Not Found");
@@ -89,7 +90,7 @@ abstract class AppDispatch
         } else {
             // Not an internal route so pass on to current service index action.
             $this->setResponse(
-                call_user_func(array($this, self::ACTION_DEFAULT), array())
+                call_user_func([$this, self::ACTION_DEFAULT], [])
             );
         }
     }
@@ -395,7 +396,7 @@ abstract class AppDispatch
             $smsMessage = $this->getRequest('smsmessage');
             $smsHours = $this->getRequest('smshours');
             $jwt = $this->getRequest('jwt');
-            $setup = array(
+            $setup = [
                 'username' => "$username",
                 'extension' => "$ext",
                 'account' => $account,
@@ -411,7 +412,7 @@ abstract class AppDispatch
                 'smsHours' => $smsHours,
                 'smsMessage' => $smsMessage,
                 'jwt' => $jwt ?? '',
-            );
+            ];
         }
 
         $vendor = self::getModuleVendor();
@@ -434,7 +435,7 @@ abstract class AppDispatch
         }
         $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
             VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
-        sqlStatement($sql, array('', $this->authUser, $vendor, $content, $this->authUser, $vendor, $content));
+        sqlStatement($sql, ['', $this->authUser, $vendor, $content, $this->authUser, $vendor, $content]);
 
         return xlt('Save Success');
     }
@@ -476,10 +477,10 @@ abstract class AppDispatch
         if (!($GLOBALS['oerestrict_users'] ?? null)) {
             $this->authUser = 0;
         }
-        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
 
         if (empty($credentials)) {
-            $credentials = array(
+            $credentials = [
                 'sender_name' => $GLOBALS['patient_reminder_sender_name'],
                 'sender_email' => $GLOBALS['patient_reminder_sender_email'],
                 'notification_email' => $GLOBALS['practice_return_email_path'],
@@ -491,7 +492,7 @@ abstract class AppDispatch
                 'smtp_security' => $GLOBALS['SMTP_SECURE'],
                 'notification_hours' => $GLOBALS['EMAIL_NOTIFICATION_HOUR'],
                 'email_message' => $GLOBALS['EMAIL_MESSAGE'] ?? '',
-            );
+            ];
             if (empty($credentials['email_message'] ?? '')) {
                 $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
             }
@@ -520,7 +521,7 @@ abstract class AppDispatch
         sqlStatement(
             "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
-            array($this->authUser, $vendor, $encrypted)
+            [$this->authUser, $vendor, $encrypted]
         );
     }
 
@@ -545,10 +546,10 @@ abstract class AppDispatch
             $this->authUser = (int)$this->getSession('editingUser');
         }
 
-        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
 
         if (empty($credentials)) {
-            return array(
+            return [
                 'username' => '',
                 'extension' => '',
                 'password' => '',
@@ -564,7 +565,7 @@ abstract class AppDispatch
                 'smsHours' => "50",
                 'smsMessage' => "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.",
                 'jwt' => '',
-            );
+            ];
         } else {
             $credentials = $credentials['credentials'];
         }
@@ -584,7 +585,7 @@ abstract class AppDispatch
     {
         $id = $_SESSION['authUserID'] ?? 1;
         $query = "SELECT fname, lname, fax, facility, username FROM users WHERE id = ?";
-        $result = sqlQuery($query, array($id));
+        $result = sqlQuery($query, [$id]);
 
         return $result;
     }
@@ -596,11 +597,7 @@ abstract class AppDispatch
      */
     public function validEmail($email): bool
     {
-        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
+        return ValidationUtils::isValidEmail($email);
     }
 
     /**
@@ -695,9 +692,9 @@ abstract class AppDispatch
                 "WHERE UPPER(notification_log.type) = UPPER(?) " .
                 "AND notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ? " .
                 "ORDER BY notification_log.dSentDateTime DESC";
-            $res = sqlStatement($query, array($type, $fromDate, $toDate));
+            $res = sqlStatement($query, [$type, $fromDate, $toDate]);
 
-            $row = array();
+            $row = [];
             $cnt = 0;
             while ($nrow = sqlFetchArray($res)) {
                 $row[] = $nrow;

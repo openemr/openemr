@@ -113,7 +113,7 @@ class BillingReport
                     ];
                     $query_part .= ' AND ' . escape_identifier($elements[0], $criteriaItemsWhitelist, true) . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
 
-                    if (substr($criteria_value, 0, 12) === 'billing.user' && ($daysheet)) {
+                    if (str_starts_with($criteria_value, 'billing.user') && ($daysheet)) {
                         $query_part_day .=  ' AND ' . 'ar_activity.post_user' . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
                     }
                 }
@@ -146,7 +146,7 @@ class BillingReport
             "WHERE 1=1 $query_part  " . " $auth " . " $billstring " .
             "ORDER BY form_encounter.provider_id, form_encounter.encounter, form_encounter.pid, billing.code_type, billing.code ASC";
         //echo $sql;
-        $res = sqlStatement($sql, array($code_type));
+        $res = sqlStatement($sql, [$code_type]);
         $all = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
@@ -179,7 +179,7 @@ class BillingReport
             "WHERE 1=1 $query_part  " . " $auth " . " $billstring " .
             "ORDER BY form_encounter.encounter, form_encounter.pid, billing.code_type, billing.code ASC";
         //echo $sql;
-        $res = sqlStatement($sql, array($code_type));
+        $res = sqlStatement($sql, [$code_type]);
         $all = false;
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
@@ -202,7 +202,7 @@ class BillingReport
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
-        $array = array();
+        $array = [];
         $sql = "select distinct $cols " .
             "from form_encounter, billing, patient_data, claims, insurance_data where " .
             "billing.encounter = form_encounter.encounter and " .
@@ -215,7 +215,7 @@ class BillingReport
             "billing.code_type like ? and " .
             "billing.activity = 1 " .
             "order by billing.pid, billing.date ASC";
-        $res = sqlStatement($sql, array($code_type));
+        $res = sqlStatement($sql, [$code_type]);
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             array_push($array, $row["id"]);
         }
@@ -262,7 +262,7 @@ class BillingReport
     //Parses the database value and prepares for display.
     public static function buildArrayForReport($Query)
     {
-        $array_data = array();
+        $array_data = [];
         $res = sqlStatement($Query);
         while ($row = sqlFetchArray($res)) {
             $array_data[$row['id']] = attr($row['name']);

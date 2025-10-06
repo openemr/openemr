@@ -21,7 +21,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = ""): void
 {
     global $userauthorized;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     if ($provider_id != "") {
         $where = "AND id = ?";
         array_push($sqlBindArray, $provider_id);

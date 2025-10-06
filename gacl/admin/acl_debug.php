@@ -46,21 +46,9 @@ switch ($getAction) {
 
 		if (is_object($rs)) {
 			while ($row = $rs->FetchRow()) {
-				list(
-					$id,
-					$allow,
-					$return_value,
-					$note,
-					$updated_date,
-					$aco_section_value,
-					$aco_value,
-					$aro_section_value,
-					$aro_value,
-					$axo_section_value,
-					$axo_value
-				) = $row;
+				[$id, $allow, $return_value, $note, $updated_date, $aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value] = $row;
 
-				$acls[] = array(
+				$acls[] = [
 					'id' => $id,
 					'allow' => $allow,
 					'return_value' => $return_value,
@@ -75,7 +63,7 @@ switch ($getAction) {
 
 					'axo_section_value' => $axo_section_value,
 					'axo_value' => $axo_value,
-				);
+				];
 			}
 		}
 

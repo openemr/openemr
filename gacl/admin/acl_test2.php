@@ -49,16 +49,7 @@ $total_rows = count($rows);
 $total_acl_check_time = 0;
 
 foreach ($rows as $row) {
-    list(	$aco_section_value,
-			$aco_section_name,
-			$aco_value,
-			$aco_name,
-
-			$aro_section_value,
-			$aro_section_name,
-			$aro_value,
-			$aro_name
-		) = $row;
+    [$aco_section_value, $aco_section_name, $aco_value, $aco_name, $aro_section_value, $aro_section_name, $aro_value, $aro_name] = $row;
 
 	$acl_check_begin_time = $profiler->getMicroTime();
 	$acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value);
@@ -76,7 +67,7 @@ foreach ($rows as $row) {
 		$display_aco_name = "";
 	}
 
-	$acls[] = array(
+	$acls[] = [
 						'aco_section_value' => $aco_section_value,
 						'aco_section_name' => $aco_section_name,
 						'aco_value' => $aco_value,
@@ -92,7 +83,7 @@ foreach ($rows as $row) {
 						'acl_check_time' => number_format($acl_check_time, 2),
 
 						'display_aco_name' => $display_aco_name,
-					);
+					];
 
 	$tmp_aco_section_name = $aco_section_name;
 	$tmp_aco_name = $aco_name;

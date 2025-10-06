@@ -60,13 +60,13 @@ if (!$form_batch && !$pid && !$form_review) {
 
 function oresRawData($name, $index)
 {
-    $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
+    $s = $_POST[$name][$index] ?? '';
     return trim($s);
 }
 
 function oresData($name, $index)
 {
-    $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
+    $s = $_POST[$name][$index] ?? '';
     return add_escape_custom(trim($s));
 }
 
@@ -83,7 +83,7 @@ $current_report_id = 0;
 
 if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
-        list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
+        [$order_id, $order_seq, $report_id, $result_id] = explode(':', $line_value);
 
 // Not using xl() here because this is for debugging only.
         if (empty($order_id)) {
@@ -388,7 +388,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 </tr>
 
                 <?php
-                $sqlBindArray = array();
+                $sqlBindArray = [];
 
                 $selects =
                     "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
@@ -441,7 +441,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 $lino = 0;
                 $extra_html = '';
                 $lastrcn = '';
-                $facilities = array();
+                $facilities = [];
 
                 while ($row = sqlFetchArray($res)) {
                     $order_type_id = empty($row['order_type_id']) ? 0 : ($row['order_type_id'] + 0);
@@ -465,7 +465,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         }
                     }
 
-                    $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
+                    $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", [$order_id]));
                     // skip the procedure that has been deleted from the encounter form
                     if ($query_test['deleted'] == 1) {
                         continue;

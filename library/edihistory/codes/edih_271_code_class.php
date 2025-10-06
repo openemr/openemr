@@ -27,7 +27,7 @@ class edih_271_codes
 {
 //
 //public $code271 = array();
-    private $code271 = array();
+    private $code271 = [];
     private $ds = '';
     private $dr = '';
 // the key_match array is a concept of matching code lists to
@@ -44,7 +44,7 @@ class edih_271_codes
         $this->ds = $component_separator;
         $this->dr = $repetition_separator;
         //
-        $this->code271['BHT02'] = array(
+        $this->code271['BHT02'] = [
         '13' => 'Request',
         '08' => 'Status',
         '06' => 'Confirmation',
@@ -53,10 +53,10 @@ class edih_271_codes
         '18' => 'Reissue',
         '01' => 'Cancellation',
         '36' => 'Auth (Reply)'
-        );
+        ];
 
         // transaction type code
-        $this->code271['BHT06'] = array(
+        $this->code271['BHT06'] = [
         '18' => 'Response - no further updates',
         '19' => 'Response - further updates to follow',
         '31' => 'Subrogation Demand',
@@ -67,10 +67,10 @@ class edih_271_codes
         'RT' => 'Spend Down',
         'RU' => 'Medical Services Reservation',
         'TH' => 'Receipt Acknowledgment'
-        );
+        ];
 
         // AAA reject reason code
-        $this->code271['AAA03'] = array(
+        $this->code271['AAA03'] = [
         '04' => 'Authorized quantity exceeded',
         '15' => 'Required application data missing',
         '33' => 'Input Errors',
@@ -124,12 +124,12 @@ class edih_271_codes
         'E8' => 'Requires medical review.',
         'IA' => 'Invalid authorization number format.',
         'MA' => 'Missing authorization number.'
-        );
+        ];
 
 
 
         // follow-up action code
-        $this->code271['AAA04'] = array(
+        $this->code271['AAA04'] = [
         'C' => 'Please correct and resubmit',
         'N' => 'Resubmission not allowed',
         'P' => 'Please resubmit original transaction',
@@ -138,10 +138,10 @@ class edih_271_codes
         'W' => 'Please wait 30 days and resubmit',
         'X' => 'Please wait 10 days and resubmit',  // 'Y'=>'Do not resubmit; We will hold your request and respond again shortly'
         'Y' => 'Do not resubmit; We will respond again shortly'
-        );
+        ];
 
         // provider PRV codes
-        $this->code271['PRV'] = array(
+        $this->code271['PRV'] = [
         'AD' => 'Admitting',
         'AT' => 'Attending',
         'BI' => 'Billing',
@@ -159,11 +159,11 @@ class edih_271_codes
         'SB' => 'Sunmitting',
         'SK' => 'Skilled Nursing Facility',
         'SU' => 'Supervising'
-        );
+        ];
 
 
         // REF codes
-        $this->code271['REF'] = array(
+        $this->code271['REF'] = [
         "18" => "Plan Number",
         "1A" => "Blue Cross Provider Number",
         "1B" => "Blue Shield Provider Number",
@@ -225,11 +225,11 @@ class edih_271_codes
         "XZ" => "Prescription Number",
         "Y4" => "Agency Claim Number",
         "ZH" => "Carrier Assigned Reference Number"
-        );
+        ];
 
 
         // DTP date qualifiers
-        $this->code271['DTP'] = array(
+        $this->code271['DTP'] = [
         'ABC' => 'Estimated Date of Birth',
         'AAH' => 'Event',
         '007' => 'Effective',
@@ -270,12 +270,12 @@ class edih_271_codes
         '598' => 'Rejected',
         '636' => 'Date of last update',
         '771' => 'Status',
-        );
+        ];
 
 
         // entity identifier code  --code source 237
         // NM101 STC01-3 N101
-        $this->code271['NM101'] = array(
+        $this->code271['NM101'] = [
         '03' => 'Dependent',
         '13' => 'Contracted Service Provider',
         '17' => 'Consultant\'s Office',
@@ -386,12 +386,12 @@ class edih_271_codes
         'X3' => 'Utilization Management Organization',
         'X4' => 'Spouse',
         'Y2' => 'Managed Care Organization'
-        );
+        ];
 
 
         // entity ID type code
         // NM108  N101
-        $this->code271['NM108'] = array(
+        $this->code271['NM108'] = [
         "AD" => "BCBS Assoc Plan Code",
         "24" => "Employer ID Number (EIN)",
         "34" => "Social Security No",
@@ -413,10 +413,10 @@ class edih_271_codes
         "SV" => "Service Provider Number",
         "XV" => "CMS Plan ID",
         "XX" => "CMS National ID"
-        );
+        ];
 
         // entity relationship code
-        $this->code271['NM110'] = array(
+        $this->code271['NM110'] = [
         '01' => 'Parent',
         '02' => 'Child',
         '27' => 'Domestic Partner',
@@ -424,28 +424,28 @@ class edih_271_codes
         '48' => 'Employee',
         '65' => 'Other',
         '72' => 'Unknown'
-        );
+        ];
 
         //  contact number identifier
-        $this->code271['PER03'] = array(
+        $this->code271['PER03'] = [
         'ED' => 'EDI Access Number',
         'EM' => 'Electronic Mail',
         'EX' => 'Telephone Extension',
         'FX' => 'Facsimile',
         'TE' => 'Telephone',
         'UR' => 'URL'
-        );
+        ];
 
         //  contact type identifier
-        $this->code271['PER01'] = array(
+        $this->code271['PER01'] = [
         'CX' => 'Cliams Office',
         'BL' => 'Technical Dept',
         'IC' => 'Information Contact',
-        );
+        ];
 
         // MPI  qualifiers Military Service
         // the MPI03 Service affiliation qualifiers have 'SB' prepended
-        $this->code271['MPI'] = array(
+        $this->code271['MPI'] = [
         'A' => 'Partial',
         'C' => 'Current',
         'L' => 'Latest',
@@ -542,10 +542,10 @@ class edih_271_codes
         'T1' => 'Technical Sergeant',
         'V1' => 'Vice Admiral',
         'W1' => 'Warrant Officer'
-        );
+        ];
 
         // eligibility or benifit information code
-        $this->code271['EB01'] = array(
+        $this->code271['EB01'] = [
         '1' => 'Active Coverage',
         '2' => 'Active-Full Risk Capitation',
         '3' => 'Active-Services Capitated',           //  '4'=>'Active - Services Capitated to Primary Care Physician',
@@ -581,10 +581,10 @@ class edih_271_codes
         'Y' => 'Spend Down',
         'CB' => 'Coverage Basis',
         'MC' => 'Managed Care Coordinator'
-        );
+        ];
 
         // coverage level code
-        $this->code271['EB02'] = array(
+        $this->code271['EB02'] = [
         'CHD' => 'Children Only',
         'DEP' => 'Dependents Only',
         'E1D' => 'Employee and One Dependent',
@@ -603,11 +603,11 @@ class edih_271_codes
         'SPC' => 'Spouse and Children',
         'SPO' => 'Spouse Only',
         'TWO' => 'Two Party'
-        );
+        ];
 
         // Health Care Services Type Codes
         // ASC X12 External Code Source 958  LAST UPDATED 3/1/2016
-        $this->code271['EB03'] = array(
+        $this->code271['EB03'] = [
         "1" => "Medical Care",
         "2" => "Surgical",
         "3" => "Consultation",
@@ -815,10 +815,10 @@ class edih_271_codes
         "TC" => "Transitional Care",
         "TN" => "Transitional Nursery Care",
         "UC" => "Urgent Care"
-        );
+        ];
 
         // insurance type codes
-        $this->code271['EB04'] = array(
+        $this->code271['EB04'] = [
         'D' => 'Disability',
         //'12'=>'Medicare Secondary Working Aged Beneficiary or Spouse with Employer Group Health Plan',
         //'13'=>'Medicare Secondary End-Stage Renal Disease Beneficiary in the 12 month coordination period with an employer\'s group health plan',
@@ -873,10 +873,10 @@ class edih_271_codes
         'TF' => '(TEFRA)',
         'WC' => 'Workers Compensation',
         'WU' => 'Wrap Up Policy'
-        );
+        ];
 
         // time period qualifier
-        $this->code271['EB06'] = array(
+        $this->code271['EB06'] = [
         '1' => 'Month',
         '2' => 'Year',
         '6' => 'Hour',
@@ -900,10 +900,10 @@ class edih_271_codes
         'D' => 'Daily Time Units',
         'H' => 'Hourly Time Units',
         'O' => 'Other Time Units'
-        );
+        ];
 
         // quantity type qualifier
-        $this->code271['EB09'] = array(
+        $this->code271['EB09'] = [
         '8H' => 'Minimum',
         '99' => 'Quantity Used',
         'CA' => 'Covered-Actual',
@@ -922,25 +922,25 @@ class edih_271_codes
         'S8' => 'Age, Low Value',
         'VS' => 'Visits',
         'YY' => 'Years'
-        );
+        ];
 
         // authorization required code
-        $this->code271['EB11'] = array(
+        $this->code271['EB11'] = [
         'N' => 'Pre-Auth: No',
         'U' => 'Pre-Auth: Unknown',
         'Y' => 'Pre-Auth: Yes'
-        );
+        ];
 
         // in-network status
-        $this->code271['EB12'] = array(
+        $this->code271['EB12'] = [
         'N' => 'In Network: No',
         'U' => 'In Network: Unknown',
         'W' => 'In Network: N/A',
         'Y' => 'In Network: Yes'
-        );
+        ];
 
         // product/service id qualifier
-        $this->code271['EB13'] = array(
+        $this->code271['EB13'] = [
         'AD' => 'Am Dental Assoc Codes',
         'ER' => 'Jurisdiction Specific',
         'CJ' => 'CPT Codes',
@@ -954,10 +954,10 @@ class edih_271_codes
         'UI' => 'U.P.C. Consumer Pkg Code (1-5-5)',
         'WK' => 'Advanced Billing Concepts (ABC) Codes',
         'ZZ' => 'Mutually Defined'
-        );
+        ];
 
         // quantity qualifier - unit or basis copde
-        $this->code271['HSD01'] = array(
+        $this->code271['HSD01'] = [
         'DY' => 'Days',
         'FL' => 'Units',
         'HS' => 'Hours',
@@ -967,10 +967,10 @@ class edih_271_codes
         'MO' => 'Months',
         'WK' => 'Week',
         'YR' => 'Years'
-        );
+        ];
 
         // delivery frequency code
-        $this->code271['HSD07'] = array(
+        $this->code271['HSD07'] = [
         '1' => '1st Week of Month',
         '2' => '2nd Week of Month',
         '3' => '3rd Week of Month',
@@ -1015,10 +1015,10 @@ class edih_271_codes
         'SX' => 'Wed and Thur',
         'SY' => 'Mon, Wed and Thur',
         'SZ' => 'Tue, Thur and Fri',
-        );
+        ];
 
         // Ship/Delivery Pattern Time Code
-        $this->code271['HSD08'] = array(
+        $this->code271['HSD08'] = [
         'A' => '1st Shift (9-5)',
         'B' => '2nd Shift',
         'C' => '3rd Shift',
@@ -1028,10 +1028,10 @@ class edih_271_codes
         'G' => 'Any Shift',
         'Y' => 'None/Cancel/Override',
         'Z' => 'Mutually Defined'
-        );
+        ];
 
         // Nature of Injury Codes
-        $this->code271['IIIGR'] = array(
+        $this->code271['IIIGR'] = [
         '1' => ' No Physical Injury',
         '01' => ' No Physical Injury',
         '2' => ' Amputation',
@@ -1091,11 +1091,11 @@ class edih_271_codes
         '80' => ' All Other Cumulative Injury, NOC',
         '90' => ' Multiple Physical Injuries Only',
         '91' => ' Multiple Injuries Including Both Physical & Psychological'
-        );
+        ];
 
 
         // place of service  --code source 237
-        $this->code271['POS'] = array(
+        $this->code271['POS'] = [
         '01' => 'Pharmacy',
         '02' => 'Unassigned',
         '03' => 'School',
@@ -1141,10 +1141,10 @@ class edih_271_codes
         '72' => 'Rural Health Clinic',
         '81' => 'Independent Laboratory',
         '99' => 'Other Place of Service'
-        );
+        ];
 
         // insurance relationship code
-        $this->code271['INS02'] = array(
+        $this->code271['INS02'] = [
         '18' => 'self',
         '01' => 'spouse',
         '19' => 'child',
@@ -1154,17 +1154,17 @@ class edih_271_codes
         '40' => 'Cadaver Donor',
         '53' => 'Life Partner',
         'G8' => 'Other Relationship'
-        );
+        ];
 
         // 278 authorization Health Care Services Review
-        $this->code271['UM01'] = array(
+        $this->code271['UM01'] = [
         'AR' => 'Admission review',
         'HS' => 'Health Services Review',
         'IN' => 'Individual',
         'SC' => 'Specialty Care review'
-        );
+        ];
 
-        $this->code271['UM02'] = array(
+        $this->code271['UM02'] = [
         '1' => 'Appeal--Immediate',
         '2' => 'Appeal--Standard',
         '3' => 'Cancel',
@@ -1173,24 +1173,24 @@ class edih_271_codes
         'N' => 'Reconsideration',
         'R' => 'Renewal',
         'S' => 'Revised'
-        );
+        ];
 
         // related causes code
-        $this->code271['UM05'] = array(
+        $this->code271['UM05'] = [
         'AA' => 'Auto Accident',
         'AP' => 'Another Party responsible',
         'EM' => 'Employment'
-        );
+        ];
 
         // level of service code
-        $this->code271['UM06'] = array(
+        $this->code271['UM06'] = [
         '03' => 'Emergency',
         'E' => 'Elective',
         'U' => 'Urgent'
-        );
+        ];
 
         // current patient condition code
-        $this->code271['UM07'] = array(
+        $this->code271['UM07'] = [
         '1' => 'Acute',
         '2' => 'Stable',
         '3' => 'Chronic',
@@ -1204,10 +1204,10 @@ class edih_271_codes
         'F' => 'Fair',
         'G' => 'Good',
         'P' => 'Poor'
-        );
+        ];
 
         // prognosis code
-        $this->code271['UM08'] = array(
+        $this->code271['UM08'] = [
         '1' => 'Poor',
         '2' => 'Guarded',
         '3' => 'Fair',
@@ -1216,10 +1216,10 @@ class edih_271_codes
         '6' => 'Excellent',
         '7' => 'Less than 6 Months to Live',
         '8' => 'Terminal'
-        );
+        ];
 
         // delay reason code
-        $this->code271['UM10'] = array(
+        $this->code271['UM10'] = [
         '1' => 'Proof of Eligibility Unknown',
         '2' => 'Litigation',
         '3' => 'Authorization Delays',
@@ -1231,10 +1231,10 @@ class edih_271_codes
         '15' => 'Natural Disaster',
         '16' => 'Lack of Information',
         '17' => 'No Response to Initial Request'
-        );
+        ];
 
         // certification action code
-        $this->code271['HCR01'] = array(
+        $this->code271['HCR01'] = [
         'A1' => 'Certified in total',
         'A2' => 'Certified - partial',
         'A3' => 'Not Certified',
@@ -1243,10 +1243,10 @@ class edih_271_codes
         'C' => 'Cancelled',
         'CT' => 'Contact Payer',
         'NA' => 'No Action Required'
-        );
+        ];
 
         // health care decision reason code
-        $this->code271['HCR03'] = array(
+        $this->code271['HCR03'] = [
         '1' => 'Price Authorization Expired',
         '2' => 'Price authorization no longer required',
         '3' => 'Product not on the price authorization',
@@ -1300,19 +1300,19 @@ class edih_271_codes
         '27' => 'Patient in Health Insurance Exchange premium payment grace period -- first month.',
         '28' => 'Patient in Health Insurance Exchange premium payment grace period -- second month.',
         '29' => 'Patient in Health Insurance Exchange premium payment grace period -- third month.',
-        );
+        ];
 
         // yes/no condition code
-        $this->code271['HCR04'] = array(
+        $this->code271['HCR04'] = [
         'N' => 'No',
         'U' => 'Unknown',
         'W' => 'Not Applicable',
         'Y' => 'Yes'
-        );
+        ];
 
 
         // code source identifier code
-        $this->code271['HI01'] = array(
+        $this->code271['HI01'] = [
         'ABF' => 'ICD-10-CM Diagnosis',
         'ABJ' => 'ICD-10-CM Admitting Diagnosis',
         'ABK' => 'ICD-10-CM Principal Diagnosis',
@@ -1323,10 +1323,10 @@ class edih_271_codes
         'DR' => 'Diagnosis Related Group (DRG)',
         'PR' => 'ICD-9-CM Patient Reason for Visit',
         'LOI' => 'LOINC codes'
-        );
+        ];
 
         // code source identifier
-        $this->code271['SV101'] = array(
+        $this->code271['SV101'] = [
         'AD' => 'Am Dental Assoc Codes.',
         'CJ' => 'CPT Codes',
         'DX' => '(ICD-9-CM) Diagnosis',
@@ -1347,19 +1347,19 @@ class edih_271_codes
         'UP' => 'UCC--12',
         'WK' => 'Advanced Billing Concepts (ABC) Codes',
         'ZZ' => 'Mutually Defined'
-        );
+        ];
 
 
         // code source identifier
-        $this->code271['SV103'] = array(
+        $this->code271['SV103'] = [
         'DA' => 'Days',
         'F2' => 'International Unit',
         'MJ' => 'Minutes',
         'UN' => 'Unit'
-        );
+        ];
 
         // nursing home level of care
-        $this->code271['SV120'] = array(
+        $this->code271['SV120'] = [
         '1' => 'Skilled Nursing Facility (SNF)',
         '2' => 'Intermediate Care Facility (ICF)',
         '3' => 'Intermediate Care Facility - Mentally Retarded (ICF-MR)',
@@ -1368,21 +1368,21 @@ class edih_271_codes
         '6' => 'Special Skilled Nursing Facility (SNF)',
         '7' => 'Nursing Facility (NF)',
         '8' => 'Hospice'
-        );
+        ];
 
 
         // admission type code
-        $this->code271['CL101'] = array(
+        $this->code271['CL101'] = [
         '1' => 'Emergency',
         '2' => 'Urgent',
         '3' => 'Elective',
         '4' => 'Newborn',
         '5' => 'Trauma',
         '9' => 'Information not available'
-        );
+        ];
 
         // admission source type code
-        $this->code271['CL102'] = array(
+        $this->code271['CL102'] = [
         '1' => 'Physician Referral',
         '2' => 'Clinic Referral',
         '3' => 'HMO Referral',
@@ -1396,7 +1396,7 @@ class edih_271_codes
         '11' => 'Transfer from a Critical Access Hospital',
         'E' => 'Transfer from Ambulatory Surgical Center',
         'F' => 'Transfer from Hospice and is Under a Hospice Plan of Care or Enrolled in Hospice Program'
-        );
+        ];
 
         // release of information indicator code
         // -- which segment?
@@ -1409,7 +1409,7 @@ class edih_271_codes
 
 
         // patient status code
-        $this->code271['CL103'] = array(
+        $this->code271['CL103'] = [
         '1' => 'Discharged to Home or Self-Care (Routine Discharge)',
         '2' => 'Discharged/Transferred to Another Short-Term General Hospital',
         '3' => 'Discharged/Transferred to an SNF',
@@ -1448,19 +1448,19 @@ class edih_271_codes
         '93' => 'Discharged/transferred to a psychiatric distinct part unit of a hospital with a planned acute care hospital inpatient readmission',
         '94' => 'Discharged/transferred to a critical access hospital (CAH) with a planned acute care hospital inpatient readmission',
         '95' => 'Discharged/transferred to another type of health care institution not defined elsewhere in this code list with a planned acute care hospital inpatient readmission'
-        );
+        ];
 
         // ambulance transport code
-        $this->code271['CR103'] = array(
+        $this->code271['CR103'] = [
         'I' => 'Initial Trip',
         'R' => 'Return Trip',
         'T' => 'Transfer Trip',
         'X' => 'Round Trip'
-        );
+        ];
 
 
         // spinal subluxation level code
-        $this->code271['CR203'] = array(
+        $this->code271['CR203'] = [
         'C1' => 'Cervical 1',
         'C2' => 'Cervical 2',
         'C3' => 'Cervical 3',
@@ -1489,31 +1489,31 @@ class edih_271_codes
         'T10' => 'Thoracic 10',
         'T11' => 'Thoracic 11',
         'T12' => 'Thoracic 12'
-        );
+        ];
 
         // oxygen type code
-        $this->code271['CR503'] = array(
+        $this->code271['CR503'] = [
         'A' => 'Concentrator',
         'B' => 'Liquid Stationary',
         'C' => 'Gaseous Stationary',
         'D' => 'Liquid Portable',
         'E' => 'Gaseous Portable',
         'O' => 'Other'
-        );
+        ];
 
 
         // oxygen delivery type code
-        $this->code271['CR517'] = array(
+        $this->code271['CR517'] = [
         'A' => 'Nasal Cannula',
         'B' => 'Oxygen Conserving Device',
         'C' => 'Oxygen Conserving Device with Oxygen Pulse System',
         'D' => 'Oxygen Conserving Device with Reservoir System',
         'E' => 'Transtracheal Catheter'
-        );
+        ];
 
 
         // certification type code
-        $this->code271['CR608'] = array(
+        $this->code271['CR608'] = [
         '1' => 'Appeal-Immediate',
         '2' => 'Appeal-Standard',
         '3' => 'Cancel',
@@ -1523,12 +1523,12 @@ class edih_271_codes
         'I' => 'Initial',
         'R' => 'Renewal',
         'S' => 'Revised'
-        );
+        ];
 
 
 
         // paperwork type code
-        $this->code271['PWK01'] = array(
+        $this->code271['PWK01'] = [
         '3' => ' Report Justifying Treatment Beyond Utilization Guidelines',
         '4' => ' Drugs Administered',
         '5' => ' Treatment Diagnosis',
@@ -1595,27 +1595,27 @@ class edih_271_codes
         'SG' => 'Symptoms Document',
         'V5' => 'Death Notification',
         'XP' => 'Photographs'
-        );
+        ];
 
         // paperwork delivery code
-        $this->code271['PWK02'] = array(
+        $this->code271['PWK02'] = [
         'BM' => 'By Mail',
         'EL' => 'Electronically Only',
         'EM' => 'E-Mail',
         'FX' => 'By Fax',
         'VO' => 'Voice'
-        );
+        ];
 
 
         // certification type code
-        $this->code271['CRC01'] = array(
+        $this->code271['CRC01'] = [
         '07' => 'Ambulance Certification',
         '08' => 'Chiropractic Certification',
         '09' => 'Durable Medical Equipment Certification'
-        );
+        ];
 
         //
-        $this->code271['CRC03'] = array(
+        $this->code271['CRC03'] = [
         '1' => 'Patient was admitted to a hospital',
         '2' => 'Patient was bed confined before the ambulance service',
         '3' => 'Patient was bed confined after the ambulance service',
@@ -1668,11 +1668,11 @@ class edih_271_codes
         'IH' => 'Independent at Home',
         'LB' => 'Legally Blind',
         'SL' => 'Speech Limitations'
-        );
+        ];
 
         // Claim Status Category Codes
         // ASC X12 External Code Source 507  LAST UPDATED 7/1/2015
-        $this->code271['HCCSCC'] = array(
+        $this->code271['HCCSCC'] = [
         'A0' => 'Acknowledgement/Forwarded-The claim/encounter has been forwarded to another entity.',
         'A1' => 'Acknowledgement/Receipt-The claim/encounter has been received.',
         'A2' => 'Acknowledgement/Acceptance into adjudication system-The claim/encounter has been accepted into the adjudication system.',
@@ -1723,12 +1723,12 @@ class edih_271_codes
         'E4' => 'Trading partner agreement specific requirement not met: Data correction required.',
         // Searches
         'D0' => 'Data Search Unsuccessful - The payer is unable to return status on the requested claim(s) based on the submitted search criteria.',
-        );
+        ];
 
 
         // Health Care Claim Status Codes
         // ASC X12 External Code Source 508  LAST UPDATED 3/1/2016
-        $this->code271['HCCSC'] = array(
+        $this->code271['HCCSC'] = [
         "0" => "Cannot provide further status electronically.",
         "1" => "For more detailed information, see remittance advice.",
         "2" => "More detailed information in letter.",
@@ -2385,7 +2385,7 @@ class edih_271_codes
         "770" => "Duplicate of a claim processed or in process as a crossover/coordination of benefits claim.",
         "771" => "Claim submitted prematurely. Please resubmit after crossover/payer to payer COB allotted waiting period.",
         "772" => "The greatest level of diagnosis code specificity is required.",
-        );
+        ];
 
 
         //
@@ -2394,11 +2394,6 @@ class edih_271_codes
 // end code271  array
 //
     // edih_271_codes
-    public function classname()
-    {
-        return get_class($this);
-    }
-    //
     public function get_271_code($elem, $code)
     {
         //
@@ -2428,7 +2423,7 @@ class edih_271_codes
                 }
             }
         } elseif (array_key_exists($e, $this->code271)) {
-            $val = (isset($this->code271[$e][$code]) ) ? $this->code271[$e][$code] : "$elem code $code unknown ";
+            $val = $this->code271[$e][$code] ?? "$elem code $code unknown ";
         } else {
             $val = "$e codes not available ($code) ";
         }

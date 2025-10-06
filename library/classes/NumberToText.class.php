@@ -5,13 +5,13 @@
 /** Serialized Array of big names, thousand, million, etc
 * @package NumberToText */
 
-define("N2T_BIG", serialize(array('thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion')));
+define("N2T_BIG", serialize(['thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion']));
 /** Serialized Array of medium names, twenty, thirty, etc
 * @package NumberToText */
-define("N2T_MEDIUM", serialize(array(2 => 'twenty', 3 => 'thirty', 4 => 'forty', 5 => 'fifty', 6 => 'sixty', 7 => 'seventy', 8 => 'eighty', 9 => 'ninety')));
+define("N2T_MEDIUM", serialize([2 => 'twenty', 3 => 'thirty', 4 => 'forty', 5 => 'fifty', 6 => 'sixty', 7 => 'seventy', 8 => 'eighty', 9 => 'ninety']));
 /** Serialized Array of small names, zero, one, etc.. up to eighteen, nineteen
 * @package NumberToText */
-define("N2T_SMALL", serialize(array('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen')));
+define("N2T_SMALL", serialize(['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']));
 /** Word for "dollars"
 * @package NumberToText */
 define("N2T_DOLLARS", "dollars");
@@ -87,7 +87,7 @@ class NumberToText
 
         //$negative = ($number < 0); // check for negative
         //$number = abs($number); // make sure we have a +ve number
-        if (substr($number, 0, 1) == "-") {
+        if (str_starts_with($number, "-")) {
             $negative = true;
             $number = substr($number, 1); // abs()
         } else {
@@ -234,7 +234,7 @@ class NumberToText
 
     function getmicrotime()
     {
-        list($usec, $sec) = explode(" ", microtime());
+        [$usec, $sec] = explode(" ", microtime());
         return ((float)$usec + (float)$sec);
     }
 }

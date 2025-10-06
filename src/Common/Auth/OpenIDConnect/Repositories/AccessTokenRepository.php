@@ -21,9 +21,14 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @var SMARTSessionTokenContextBuilder
      */
@@ -36,9 +41,14 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     private $contextForNewTokens;
 
-    public function __construct()
+    private SessionInterface $session;
+
+    private OEGlobalsBag $globalsBag;
+
+    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session)
     {
-        $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);
+        $this->globalsBag = $globalsBag;
+        $this->session = $session;
         $this->contextForNewTokens = null;
     }
 
@@ -82,7 +92,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function revokeAccessToken($tokenId)
     {
-        (new SystemLogger())->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
+        $this->getSystemLogger()->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
         // Some logic to revoke the refresh token in a database
         $sql = "UPDATE api_token SET revoked = 1 WHERE token = ?";
         QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);
@@ -118,6 +128,10 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         }
         $accessToken->setUserIdentifier($userIdentifier);
 
+        $this->getSystemLogger()->debug("AccessTokenRepository->getNewToken() creating new access token", [
+            'clientId' => $clientEntity->getIdentifier(),
+            'userIdentifier' => $userIdentifier
+        ]);
         return $accessToken;
     }
 
@@ -130,7 +144,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     /**
      * Retrieves a token record for given database token id.
-     * @param $id The database identifier for the token (see table api_token.id
+     * @param string $id The database identifier for the token (see table api_token.id
      * @return array|null
      */
     public function getTokenById($id)
@@ -156,6 +170,14 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
     }
 
+    private function getBuilderForAccessToken(): SMARTSessionTokenContextBuilder
+    {
+        if (empty($this->builder)) {
+            $this->builder = new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session);
+        }
+        return $this->builder;
+    }
+
     /**
      * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
      * context saved in the repositoryor will build a new context from the passed in scopes.
@@ -165,9 +187,9 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     private function getContextForNewAccessTokens($scopes)
     {
         if (!empty($this->contextForNewTokens)) {
-            $context = $this->builder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
+            $context = $this->getBuilderForAccessToken()->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
         } else {
-            $context = $this->builder->getContextForScopes($scopes) ?? [];
+            $context = $this->getBuilderForAccessToken()->getContextForScopes($scopes) ?? [];
         }
         return $context;
     }

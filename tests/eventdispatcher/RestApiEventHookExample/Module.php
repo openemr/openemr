@@ -19,17 +19,17 @@ class Module
 {
     public function getAutoloaderConfig()
     {
-        return array(
-            'Llaminas\Loader\ClassMapAutoloader' => array(
+        return [
+            'Llaminas\Loader\ClassMapAutoloader' => [
                 __DIR__ . '/autoload_classmap.php',
-            ),
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            ],
+            'Laminas\Loader\StandardAutoloader' => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()
@@ -71,14 +71,12 @@ class Module
     public function addRestAPIRouteToMap($m)
     {
         $extend_route_map = [
-                        "GET /api/some_route" => function () {
+                        "GET /api/some_route" => fn(): array =>
                             //RestConfig::authorization_check("some_section", "users");
-                            return ["1","2","3"];
-                        },
-                        "GET /api/some_route/:rid" => function ($rid) {
+                            ["1","2","3"],
+                        "GET /api/some_route/:rid" => fn($rid): array =>
                             //RestConfig::authorization_check("some_section", "users");
-                            return [$rid];
-                        }
+                            [$rid]
                       ];
 
         $extend_fhir_route_map = [];

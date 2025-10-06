@@ -13,6 +13,7 @@
 namespace OpenEMR\Tests\Unit\Common\Http;
 
 use OpenEMR\Common\Http\HttpRestParsedRoute;
+use OpenEMR\Common\Logging\SystemLogger;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -25,6 +26,14 @@ class HttpRestParsedRouteTest extends TestCase
 
         $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
         $this->assertEquals("Patient", $parsedRoute->getResource());
+    }
+
+    public function testIsValidResourceWithGroupExportOperation(): void
+    {
+        $request = '/fhir/Group/99999999-511f-4f6d-bc97-b65a78cf1996/$export';
+        $definition = 'GET /fhir/Group/:id/$export';
+        $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
+        $this->assertTrue($parsedRoute->isValid(), "route should match definition for Group export operation");
     }
 
     public function testGetResourceWithOperation(): void
@@ -60,6 +69,7 @@ class HttpRestParsedRouteTest extends TestCase
 
         $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
         $this->assertEquals("Binary", $parsedRoute->getResource());
+        $this->assertEquals('15', $parsedRoute->getInstanceIdentifier(), "instance identifier should be 15");
     }
 
     public function testIsOperation(): void
@@ -140,5 +150,6 @@ class HttpRestParsedRouteTest extends TestCase
         $params = $parsedRoute->getRouteParams();
         $this->assertNotEmpty($params, "Params should be populated");
         $this->assertEquals('unique-id:with:colons', $params[0]);
+        $this->assertEquals('unique-id:with:colons', $parsedRoute->getInstanceIdentifier(), "instance identifier should be unique-id:with:colons");
     }
 }

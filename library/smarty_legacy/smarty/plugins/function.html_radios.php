@@ -103,7 +103,7 @@ function smarty_function_html_radios($params, &$smarty)
     if (!isset($options) && !isset($values))
         return ''; /* raise error here? */
 
-    $_html_result = array();
+    $_html_result = [];
 
     if (isset($options)) {
 
@@ -113,7 +113,7 @@ function smarty_function_html_radios($params, &$smarty)
     } else {
 
         foreach ($values as $_i=>$_key) {
-            $_val = isset($output[$_i]) ? $output[$_i] : '';
+            $_val = $output[$_i] ?? '';
             $_html_result[] = smarty_function_html_radios_output($name, $_key, $_val, $selected, $extra, $separator, $labels, $label_ids);
         }
 

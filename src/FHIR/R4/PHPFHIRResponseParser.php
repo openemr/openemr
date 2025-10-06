@@ -66,19 +66,14 @@ class PHPFHIRResponseParser
             throw $this->_createNonStringArgumentException($input);
         }
 
-        switch (substr($input, 0, 1)) {
-            case '<':
-                return $this->_parseXML($input);
-
-            case '{':
-                return $this->_parseJson($input);
-
-            default:
-                throw new \RuntimeException(sprintf(
-                    '%s::parse - Unable to determine response type, expected JSON or XML.',
-                    get_class($this)
-                ));
-        }
+        return match (substr($input, 0, 1)) {
+            '<' => $this->_parseXML($input),
+            '{' => $this->_parseJson($input),
+            default => throw new \RuntimeException(sprintf(
+                '%s::parse - Unable to determine response type, expected JSON or XML.',
+                $this::class
+            )),
+        };
     }
 
     /**
@@ -96,7 +91,7 @@ class PHPFHIRResponseParser
 
         throw new \DomainException(sprintf(
             '%s::parse - Error encountered while decoding json input.  Error code: %s',
-            get_class($this),
+            $this::class,
             $lastError
         ));
     }

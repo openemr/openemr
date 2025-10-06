@@ -48,11 +48,9 @@ class oeHttpRequest extends oeHttp
 
     public function usingHeaders($headers)
     {
-        return $this->tap($this, function ($request) use ($headers) {
-            return $this->options = array_merge_recursive($this->options, [
-                'headers' => $headers
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, [
+            'headers' => $headers
+        ]));
     }
 
     protected function tap($value, $callback)
@@ -63,9 +61,7 @@ class oeHttpRequest extends oeHttp
 
     public function setOptions($options)
     {
-        return $this->tap($this, function ($request) use ($options) {
-            return $this->options = array_merge_recursive($this->options, $options);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, $options));
     }
 
     public static function newArgs(...$args): oeHttpRequest
@@ -138,21 +134,17 @@ class oeHttpRequest extends oeHttp
 
     public function setParams($params)
     {
-        return $this->tap($this, function ($request) use ($params) {
-            return $this->options = array_merge_recursive($this->options, [
-                'query' => $params,
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, [
+            'query' => $params,
+        ]));
     }
 
     public function usingBaseUri($baseUri)
     {
-        $baseUri = substr($baseUri, -1) === '/' ? $baseUri : $baseUri . '/';
-        return $this->tap($this, function ($request) use ($baseUri) {
-            return $this->options = array_merge($this->options, [
-                'base_uri' => $baseUri,
-            ]);
-        });
+        $baseUri = str_ends_with($baseUri, '/') ? $baseUri : $baseUri . '/';
+        return $this->tap($this, fn($request): array => $this->options = array_merge($this->options, [
+            'base_uri' => $baseUri,
+        ]));
     }
 
     public function get($url, $queryParams = []): oeHttpResponse

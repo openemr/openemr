@@ -72,7 +72,7 @@ $parent_enc_id = $_POST['parent_enc_id'] ?? null;
 $encounter_provider = $_POST['provider_id'] ?? null;
 $referring_provider_id = $_POST['referring_provider_id'] ?? null;
 //save therapy group if exist in external_id column
-$external_id = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
+$external_id = $_POST['form_gid'] ?? '';
 $ordering_provider_id = $_POST['ordering_provider_id'] ?? null;
 
 $discharge_disposition = $_POST['discharge_disposition'] ?? null;
@@ -159,7 +159,7 @@ if ($mode == 'new') {
 } elseif ($mode == 'update') {
     $id = $_POST["id"];
     // Get encounter UUID
-    $encResult = sqlQuery("SELECT uuid FROM form_encounter WHERE id = ?", array($id));
+    $encResult = sqlQuery("SELECT uuid FROM form_encounter WHERE id = ?", [$id]);
     if (empty($encResult)) {
         die("Encounter not found");
     }
@@ -183,7 +183,7 @@ $patientIssueService = new PatientIssuesService();
 $patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? []);
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
+    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
 ?>
 <html>
 <body>

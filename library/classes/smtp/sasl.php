@@ -115,15 +115,15 @@ class sasl_client_class
 	/* Private variables */
 
 	var $driver;
-	var $drivers=array(
-		"Digest"   => array("digest_sasl_client_class",   "digest_sasl_client.php"   ),
-		"CRAM-MD5" => array("cram_md5_sasl_client_class", "cram_md5_sasl_client.php" ),
-		"LOGIN"    => array("login_sasl_client_class",    "login_sasl_client.php"    ),
-		"NTLM"     => array("ntlm_sasl_client_class",     "ntlm_sasl_client.php"     ),
-		"PLAIN"    => array("plain_sasl_client_class",    "plain_sasl_client.php"    ),
-		"Basic"    => array("basic_sasl_client_class",    "basic_sasl_client.php"    )
-	);
-	var $credentials=array();
+	var $drivers=[
+		"Digest"   => ["digest_sasl_client_class",   "digest_sasl_client.php"   ],
+		"CRAM-MD5" => ["cram_md5_sasl_client_class", "cram_md5_sasl_client.php" ],
+		"LOGIN"    => ["login_sasl_client_class",    "login_sasl_client.php"    ],
+		"NTLM"     => ["ntlm_sasl_client_class",     "ntlm_sasl_client.php"     ],
+		"PLAIN"    => ["plain_sasl_client_class",    "plain_sasl_client.php"    ],
+		"Basic"    => ["basic_sasl_client_class",    "basic_sasl_client.php"    ]
+	];
+	var $credentials=[];
 
 	/* Public functions */
 

@@ -123,7 +123,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             //
             if (strncmp('HL' . $de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
-                $elem03 = ( isset($sar[3]) ) ? $sar[3] : "";
+                $elem03 = $sar[3] ?? "";
                 if ($elem03 == '20') {                     // level code
                     $loopid = '2000A';                      // info source (payer)
                     $cls = "src";
@@ -162,7 +162,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             if (strncmp('NM1' . $de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $nm101 = ( isset($sar[1]) ) ? $sar[1] : '';
+                $nm101 = $sar[1] ?? '';
                 $descr = ($nm101) ? $cd27x->get_271_code('NM101', $nm101) : "";
                 //
                 $name = (isset($sar[3]) && $sar[3] ) ? $sar[3] : "";
@@ -205,15 +205,15 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             if (strncmp('PER' . $de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $elem01 = (isset($sar[1])) ? $sar[1] : '';
-                $elem02 = (isset($sar[2])) ? $sar[2] : '';
+                $elem01 = $sar[1] ?? '';
+                $elem02 = $sar[2] ?? '';
                 $elem03 = (isset($sar[3])) ? $cd27x->get_271_code('PER03', $sar[3]) : "";
-                $elem04 = (isset($sar[4])) ? $sar[4] : '';
+                $elem04 = $sar[4] ?? '';
                 $elem05 = (isset($sar[5])) ? $cd27x->get_271_code('PER03', $sar[5]) : "";
-                $elem06 = (isset($sar[6])) ? $sar[6] : '';
+                $elem06 = $sar[6] ?? '';
                 $elem07 = (isset($sar[7])) ? $cd27x->get_271_code('PER03', $sar[7]) : "";
-                $elem08 = (isset($sar[8])) ? $sar[8] : '';
-                $elem09 = (isset($sar[9])) ? $sar[9] : '';
+                $elem08 = $sar[8] ?? '';
+                $elem09 = $sar[9] ?? '';
                 //
                 if ($loopid == '2100A') {
                     $src_html .= "<tr class='" . attr($cls) . "'><td colspan=2>" . text($elem02) . "</td><td colspan=2 title='" . attr($elem03 . " " . $elem05 . " " . $elem07) . "'>" . text($elem04 . " " . $elem06 . " " . $elem08) . "</td></tr>" . PHP_EOL;
@@ -230,9 +230,9 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 $sar = explode($de, $seg);
                 //
                 $elem01 = ( isset($sar[1]) && $sar[1] == "1" ) ? "Transaction Ref" : "Trace";
-                $elem02 = ( isset($sar[2]) ) ? $sar[2] : '';
-                $elem03 = ( isset($sar[3]) ) ? $sar[3] : '';
-                $elem04 = ( isset($sar[4]) ) ? $sar[4] : '';
+                $elem02 = $sar[2] ?? '';
+                $elem03 = $sar[3] ?? '';
+                $elem04 = $sar[4] ?? '';
                 //
                 if ($loopid == '2100B') {
                     $rcv_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>" . text($elem01) . "</em> " . text($elem02) . "</td></tr>" . PHP_EOL;
@@ -400,7 +400,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 //
                 //
                 $elem01 = (isset($sar[1])) ? $cd27x->get_271_code('REF', $sar[1]) : '';
-                $elem02 = (isset($sar[2])) ? $sar[2] : '';
+                $elem02 = $sar[2] ?? '';
                 $elem03 = (isset($sar[3])) ? $sar[2] : '';
                 //
                 if ($loopid == '2200B') {
@@ -424,8 +424,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 $var = '';
                 //
                 $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('DTP', $sar[1]) : "";
-                $elem02 = (isset($sar[2])) ? $sar[2] : '';
-                $elem03 = (isset($sar[3])) ? $sar[3] : '';
+                $elem02 = $sar[2] ?? '';
+                $elem03 = $sar[3] ?? '';
                 //
                 $idtype = ($elem01) ? $cd27x->get_271_code('DTP', $elem01) : "";
                 if ($elem02 == 'D8' && $elem03) {
@@ -546,7 +546,7 @@ function edih_277_html($filename, $bht03 = '')
 
     if ($fn) {
         $obj277 = csv_check_x12_obj($fn, 'f277');
-        if ($obj277 && 'edih_x12_file' == get_class($obj277)) {
+        if ($obj277 && 'edih_x12_file' == $obj277::class) {
             if ($bht03) {
                 // particular transaction
                 $html_str .= edih_277_transaction_html($obj277, $bht03);

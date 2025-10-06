@@ -40,12 +40,12 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
     global $attendant_type;
 
     $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
-    $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, array($tableName)) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
+    $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, [$tableName]) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if ($key == "csrf_token_form") {
             continue;
         }
-        if (strpos($key, "openemr_net_cpt") === 0) {
+        if (str_starts_with($key, "openemr_net_cpt")) {
             //code to auto add cpt code
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);
@@ -60,7 +60,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
                 BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
         } else {
-            $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
+            $sql .= " " . escape_sql_column_name($key, [$tableName]) . " = ?,";
             $sqlBindingArray[] = $value;
         }
     }
@@ -78,7 +78,7 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
         if ($key == "csrf_token_form") {
             continue;
         }
-        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
+        $sql .= " " . escape_sql_column_name($key, [$tableName]) . " = ?,";
         $sqlBindingArray[] = $value;
     }
 
@@ -106,7 +106,7 @@ function formJump($address = ''): void
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), array($tableName)) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity)) ;
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,$GLOBALS['pid'],$activity]) ;
 }
 
 function formDisappear($tableName, $id)

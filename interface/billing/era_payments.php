@@ -34,11 +34,11 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     exit;
 }
 
-$hidden_type_code = isset($_POST['hidden_type_code']) ? $_POST['hidden_type_code'] : '';
-$check_date = isset($_POST['check_date']) ? $_POST['check_date'] : '';
-$post_to_date = isset($_POST['post_to_date']) ? $_POST['post_to_date'] : '';
-$deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
-$type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
+$hidden_type_code = $_POST['hidden_type_code'] ?? '';
+$check_date = $_POST['check_date'] ?? '';
+$post_to_date = $_POST['post_to_date'] ?? '';
+$deposit_date = $_POST['deposit_date'] ?? '';
+$type_code = $_POST['type_code'] ?? '';
 
 //===============================================================================
 // This is called back by ParseERA::parseERA() if we are processing X12 835's.
@@ -53,7 +53,7 @@ function era_callback(&$out): void
     ++$eracount;
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
     '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+    [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
     if ($pid && $encounter) {
         if ($where) {
             $where .= ' OR ';
@@ -206,23 +206,23 @@ if (!empty($_FILES['form_erafile']['size'])) {
     //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
     //argument, containing one or more elements, the name of the current file is the first element, if there are linked
     // files they should be listed thereafter, please add _xpd suffix to the file name
-    $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
+    $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

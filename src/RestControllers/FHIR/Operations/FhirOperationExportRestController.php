@@ -7,6 +7,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
@@ -82,13 +83,20 @@ class FhirOperationExportRestController
 
     private FhirExportJobService $fhirExportJobService;
 
+    private FhirServiceLocator $fhirServiceLocator;
 
-    public function __construct(HttpRestRequest $request)
+
+    public function __construct(HttpRestRequest $request, OEGlobalsBag $globalsBag)
     {
         $this->request = $request;
         $this->logger = new SystemLogger();
         $this->fhirExportJobService = new FhirExportJobService();
-        $this->isExportDisabled = !($this->request->getRestConfig()::areSystemScopesEnabled());
+        $this->isExportDisabled = $globalsBag->getInt('rest_system_scopes_api', 0) === 0;
+        $serviceLocator = $request->attributes->get('_serviceLocator');
+        if (!$serviceLocator instanceof FhirServiceLocator) {
+            throw new \InvalidArgumentException('FhirServiceLocator must be set in the request attributes');
+        }
+        $this->fhirServiceLocator = $serviceLocator;
     }
 
     /**
@@ -118,7 +126,7 @@ class FhirOperationExportRestController
         $groupId = $exportParams['groupId'] ?? null;
         $resources = !empty($type) ? explode(",", $type) : [];
 
-        $this->logger->debug("FhirExportRestController->processExport() Patient export call made", [
+        $this->logger->debug(self::class . " Patient export call made", [
             '_outputFormat' => $outputFormat,
             '_since' => $since,
             '_type' => $type,
@@ -156,7 +164,7 @@ class FhirOperationExportRestController
             $completedJob = $this->processResourceExportForJob($job);
             $response = $response->withAddedHeader("Content-Location", $completedJob->getStatusReportURL());
         } catch (AccessDeniedException $exception) {
-            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
+            $response = $this->createResponseForCode(StatusCode::UNAUTHORIZED);
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage());
             $response->getBody()->write(json_encode($operationOutcome));
         } catch (InvalidExportHeaderException $header) {
@@ -478,13 +486,17 @@ class FhirOperationExportRestController
 
     /**
      * Checks if the passed in resource is valid and can be exported as part of this request.
-     * @param $resource The name of the resource to check
+     * @param $resource string The name of the resource to check
      * @param $exportType string The export operation type that is being requested.
+     * @throws AccessDeniedException if the resource is not valid or the user does not have access to it.
      * @return bool true if the resource can be exported, false otherwise.
      */
     private function isValidResource($resource, $exportType)
     {
-        $this->request->getRestConfig()::scope_check('system', $resource, 'read');
+        $scope = 'system/' . $resource . '.read';
+        if (!$this->request->requestHasScope($scope)) {
+            throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
+        }
         $resourceRegistry = $this->getExportServiceRegistry();
         $service = $resourceRegistry[$resource] ?? null;
         if (isset($service)) {
@@ -509,7 +521,7 @@ class FhirOperationExportRestController
      * @param array $resources
      * @return array
      */
-    private function getResourcesForRequest($resources = array())
+    private function getResourcesForRequest($resources = [])
     {
         // TODO: if we start adding a bunch more FHIR resources and need to filter for just the patient compartment we could do that here
         $approvedResources = [];
@@ -540,6 +552,7 @@ class FhirOperationExportRestController
 
     /**
      * Checks if the current user agent has access to the resource.
+     * TODO: @adunsulag we need to write tests cases for these methods.
      * @param $resource The resource being checked
      * @return bool true if the user agent has access, false otherwise
      */
@@ -547,7 +560,7 @@ class FhirOperationExportRestController
     {
 
         $permission = 'system/' . $resource . '.read';
-        $hasAccess = \in_array($permission, $this->request->getAccessTokenScopes());
+        $hasAccess = $this->request->requestHasScope($permission);
         $this->logger->debug(
             "FhirExportRestController->hasAccessToResource() Checking resource access",
             ['permission' => $permission, 'hasAccess' => $hasAccess]
@@ -564,12 +577,11 @@ class FhirOperationExportRestController
         if (!empty($this->resourceRegistry)) {
             return $this->resourceRegistry;
         }
-        $restConfig = $this->request->getRestConfig();
-        $serviceLocator = new FhirExportServiceLocator($restConfig);
+        $serviceLocator = new FhirExportServiceLocator($this->fhirServiceLocator);
         $this->resourceRegistry = $serviceLocator->findExportServices();
         // TODO: @adunsulag is there a better way to handle this... because Provenance uses its own service locator and we need the rest config...
         if (isset($this->resourceRegistry['Provenance'])) {
-            $this->resourceRegistry['Provenance']->setServiceLocator(new FhirServiceLocator($restConfig));
+            $this->resourceRegistry['Provenance']->setServiceLocator($this->fhirServiceLocator);
         }
         return $this->resourceRegistry;
     }

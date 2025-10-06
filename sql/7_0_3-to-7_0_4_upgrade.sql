@@ -853,7 +853,6 @@ ALTER TABLE form_history_sdoh
 -- Lists & Options (grouped; parent first, then options)
 -- =========================
 
-/* -------- Vital Signs Answers -------- */
 #IfNotRow2D list_options list_id lists option_id vital_signs_answers
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
@@ -864,7 +863,6 @@ VALUES ('vital_signs_answers','LA28397-0','Often true',10,'LOINC:LA28397-0',1),
        ('vital_signs_answers','LA28399-6','Never true',30,'LOINC:LA28399-6',1);
 #EndIf
 
-/* -------- Disability Status -------- */
 #IfNotRow2D list_options list_id lists option_id disability_status
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','disability_status','Disability Status',0,1,0,'',1)
@@ -877,7 +875,6 @@ VALUES ('disability_status','im_safe','I''m Safe.',10,'LOINC:LA29242-7',1),
        ('disability_status','im_in_crisis','I''m in crisis.',40,'LOINC:LA29245-0',1);
 #EndIf
 
-/* -------- SDOH Problems (optional catalog) -------- */
 #IfNotRow2D list_options list_id lists option_id sdoh_problems
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
@@ -895,7 +892,6 @@ VALUES ('sdoh_problems','160903007','Lives alone',10,'SNOMED:160903007',1),
        ('sdoh_problems','266944006','Lives in poverty',100,'SNOMED:266944006',1);
 #EndIf
 
-/* -------- SDOH Interventions (optional catalog) -------- */
 #IfNotRow2D list_options list_id lists option_id sdoh_interventions
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
@@ -914,7 +910,6 @@ VALUES ('sdoh_interventions','467681000124101','Referral to food assistance prog
        ('sdoh_interventions','assist_transport','Assistance with transportation',110,'SNOMED:467721000124107',1);
 #EndIf
 
-/* -------- Tribal Affiliations -------- */
 #IfNotRow2D list_options list_id lists option_id tribal_affiliations
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
@@ -934,7 +929,6 @@ VALUES ('tribal_affiliations','coquille','Coquille Indian Tribe',10,'65',1),
        ('tribal_affiliations','other_specify','Other (specify)',120,'000',1);
 #EndIf
 
-/* -------- ODH IndustryODH (optional; used if you capture industry) -------- */
 #IfNotRow2D list_options list_id IndustryODH option_id 541110
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','IndustryODH','ODH Industry',0,0,0,'NAICS-based industry codes from ODH',1);
@@ -958,7 +952,6 @@ VALUES ('IndustryODH','541110','Offices of Lawyers',10,'541110.008099',1),
        ('IndustryODH','UNKNOWN','Unknown',160,'UNKNOWN',1);
 #EndIf
 
-/* -------- ODH OccupationODH -------- */
 #IfNotRow2D list_options list_id OccupationODH option_id 23-1011.00
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','OccupationODH','ODH Occupation',0,0,0,'O*NET-SOC based occupation codes from ODH',1);
@@ -1030,3 +1023,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
 #EndIf
+
+#IfNotRow2D list_options list_id personal_relationship option_id FTH
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','FTH','Father','FTH','76');
+#EndIf
+
+UPDATE `layout_options` SET `list_id` = 'OccupationODH', `list_backup_id` = 'Occupation' WHERE `form_id` = 'DEM' AND `field_id` = 'occupation' AND `group_id` = '4';
+UPDATE `layout_options` SET `list_id` = 'IndustryODH', `list_backup_id` = 'Industry' WHERE `form_id` = 'DEM' AND `field_id` = 'industry' AND `group_id` = '4';

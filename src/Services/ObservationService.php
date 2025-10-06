@@ -228,7 +228,7 @@ class ObservationService extends BaseService
                 WHERE pid = ? AND encounter = ? AND parent_observation_id IS NULL
                 ORDER BY date DESC, id DESC";
 
-        $mainObservations = QueryUtils::fetchRecords($sql, array($pid, $encounter));
+        $mainObservations = QueryUtils::fetchRecords($sql, [$pid, $encounter]);
 
         // For each main observation, get its sub-observations
         foreach ($mainObservations as &$observation) {
@@ -251,7 +251,7 @@ class ObservationService extends BaseService
             $record['ob_status_display'] = $this->getStatusDisplayName($record['ob_status']);
         }
         if (!empty($record['sub_observations']) && is_array($record['sub_observations'])) {
-            $record['sub_observations'] = array_map(fn($rec): array => $this->createResultRecordFromDatabaseResult($rec), $record['sub_observations']);
+            $record['sub_observations'] = array_map($this->createResultRecordFromDatabaseResult(...), $record['sub_observations']);
         }
         $record['ob_reason_status_display'] = $this->getReasonStatusDisplay($record['ob_reason_status']);
         return $record;
@@ -394,7 +394,7 @@ class ObservationService extends BaseService
         // we don't delete the records, we just set the activity to be 0
         QueryUtils::sqlStatementThrowException(
             "UPDATE `form_observation` SET `activity`=0 WHERE (id =? OR parent_observation_id = ?) AND pid = ? AND encounter = ?",
-            array($id, $id, $pid, $encounter)
+            [$id, $id, $pid, $encounter]
         );
     }
 
@@ -451,7 +451,7 @@ class ObservationService extends BaseService
                 $userauthorized
             );
         }
-        $sqlBindArray = array(
+        $sqlBindArray = [
             $observationData['form_id'],
             $observationData['uuid'],
             $pid,
@@ -475,7 +475,7 @@ class ObservationService extends BaseService
             $observationData['parent_observation_id'] ?? null,
             $observationData['category'] ?? null,
             $observationData['questionnaire_response_id'] ?? null
-        );
+        ];
 
         if (!empty($observationData['id'])) {
             $sql = "UPDATE `form_observation` SET $sets WHERE id = ? AND pid = ? AND encounter = ?";
@@ -645,7 +645,7 @@ class ObservationService extends BaseService
         $sql = "SELECT * FROM `form_observation`
                 WHERE pid = ? AND encounter = ? AND parent_observation_id IS NULL";
 
-        $params = array($pid, $encounter);
+        $params = [$pid, $encounter];
 
         if (!empty($searchCriteria['form_id'])) {
             $sql .= " AND form_id = ? ";
@@ -689,7 +689,7 @@ class ObservationService extends BaseService
         $sql .= " ORDER BY date DESC, id DESC";
 
         $mainObservations = QueryUtils::fetchRecords($sql, $params);
-        $mainObservations = array_map(fn($rec): array => $this->createResultRecordFromDatabaseResult($rec), $mainObservations ?? []);
+        $mainObservations = array_map($this->createResultRecordFromDatabaseResult(...), $mainObservations ?? []);
 
         // For each main observation, get its sub-observations
         foreach ($mainObservations as &$observation) {

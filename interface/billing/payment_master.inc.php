@@ -27,7 +27,7 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
     if ($empty_name) {
         $s .= "<option value=''>" . xlt($empty_name) . "</option>";
     }
-    $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+    $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
     $got_selected = false;
     while ($lrow = sqlFetchArray($lres)) {
         $s .= "<option   id='option_" . attr($lrow['option_id']) . "'" . " value='" . attr($lrow['option_id']) . "'";
@@ -68,13 +68,13 @@ $Description = '';
 $TypeCode = '';
 $UndistributedAmount = 0;
 if ($payment_id > 0) {
-    $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", array($payment_id));
+    $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$payment_id]);
     $row = sqlFetchArray($rs);
     $pay_total = $row['pay_total'];
     $global_amount = $row['global_amount'];
     $rs = sqlStatement(
         "SELECT sum(pay_amount) sum_pay_amount FROM ar_activity WHERE session_id = ? AND deleted IS NULL",
-        array($payment_id)
+        [$payment_id]
     );
     $row = sqlFetchArray($rs);
     $pay_amount = $row['sum_pay_amount'];
@@ -83,7 +83,7 @@ if ($payment_id > 0) {
     $res = sqlStatement("SELECT check_date ,reference ,insurance_companies.name,
         payer_id,pay_total,payment_type,post_to_date,patient_id ,
         adjustment_code,description,deposit_date,payment_method
-        FROM ar_session left join insurance_companies on ar_session.payer_id=insurance_companies.id where ar_session.session_id =?", array($payment_id));
+        FROM ar_session left join insurance_companies on ar_session.payer_id=insurance_companies.id where ar_session.session_id =?", [$payment_id]);
     $row = sqlFetchArray($res);
     $InsuranceCompanyName = $row['name'];
     $InsuranceCompanyId = $row['payer_id'];
@@ -99,7 +99,7 @@ if ($payment_id > 0) {
     $Description = $row['description'];
     if ($row['payment_type'] == 'insurance' || $row['payer_id'] * 1 > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
-            where insurance_companies.id =?", array($InsuranceCompanyId));
+            where insurance_companies.id =?", [$InsuranceCompanyId]);
         $row = sqlFetchArray($res);
         $div_after_save = $row['name'] ?? '';
         $TypeCode = $InsuranceCompanyId;
@@ -108,7 +108,7 @@ if ($payment_id > 0) {
         }
     } elseif ($row['payment_type'] == 'patient' || $row['patient_id'] * 1 > 0) {
         $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-            where pid =?", array($PatientId));
+            where pid =?", [$PatientId]);
         $row = sqlFetchArray($res);
         $fname = $row['fname'];
         $lname = $row['lname'];

@@ -97,7 +97,7 @@ $this_bill_date = date('Y-m-d H:i:s');
 $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
 // Adjustments from the ar_activity table.
-$aAdjusts = array();
+$aAdjusts = [];
 
 // Holds possible javascript error messages.
 $alertmsg = '';
@@ -115,7 +115,7 @@ function getListTitle($list, $option)
 {
     $row = sqlQuery(
         "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($list, $option)
+        [$list, $option]
     );
     if (empty($row['title'])) {
         return $option;
@@ -127,7 +127,7 @@ function generate_layout_display_field($formid, $fieldid, $currvalue)
 {
     $frow = sqlQuery(
         "SELECT * FROM layout_options WHERE form_id = ? AND field_id = ? LIMIT 1",
-        array($formid, $fieldid)
+        [$formid, $fieldid]
     );
     if (empty($frow)) {
         return $currvalue;
@@ -141,7 +141,7 @@ function load_adjustments($patient_id, $encounter_id): void
 {
     global $aAdjusts;
     // Create array aAdjusts from ar_activity rows for $encounter_id.
-    $aAdjusts = array();
+    $aAdjusts = [];
     $ares = sqlStatement(
         "SELECT " .
         "a.payer_type, a.adj_amount, a.memo, a.code_type, a.code, a.post_time, a.post_date, " .
@@ -153,7 +153,7 @@ function load_adjustments($patient_id, $encounter_id): void
         "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
         "( a.adj_amount != 0 OR a.pay_amount = 0 ) " .
         "ORDER BY s.check_date, a.sequence_no",
-        array($patient_id, $encounter_id)
+        [$patient_id, $encounter_id]
     );
     while ($arow = sqlFetchArray($ares)) {
         if (empty($arow['memotitle'])) {
@@ -204,18 +204,18 @@ function load_taxes($patient_id, $encounter): void
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $form_num_type_columns, $form_num_method_columns, $form_num_ref_columns, $form_num_amount_columns;
 
-    $aTaxNames = array();
-    $aInvTaxes = array();
+    $aTaxNames = [];
+    $aInvTaxes = [];
     foreach ($taxes as $taxid => $taxarr) {
         $aTaxNames[$taxid] = $taxarr[0];
-        $aInvTaxes[$taxid] = array();
+        $aInvTaxes[$taxid] = [];
     }
 
     $taxres = sqlStatement(
         "SELECT code, fee, ndc_info FROM billing WHERE " .
         "pid = ? AND encounter = ? AND code_type = 'TAX' AND activity = 1 " .
         "ORDER BY id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($taxrow = sqlFetchArray($taxres)) {
         $aInvTaxes[$taxrow['code']][$taxrow['ndc_info']] = $taxrow['fee'];
@@ -305,7 +305,7 @@ function ippfReceiptDetailLine(
     global $details, $TAXES_AFTER_ADJUSTMENT;
 
     // Use $lineid to match up (and delete) entries in $aInvTaxes with the line.
-    $aTaxes = array();
+    $aTaxes = [];
     $totlinetax = pull_tax($lineid, $aTaxes);
     // $aTaxes now contains the total of each tax type for this line item, and those matched
     // amounts are removed from $aInvTaxes.
@@ -319,7 +319,7 @@ function ippfReceiptDetailLine(
         $isadjust = true;
         $adjust = 0 - $charge;
         $charge = 0;
-        list($payer, $code_type, $code) = explode('|', $code);
+        [$payer, $code_type, $code] = explode('|', $code);
         $memo = $description;
         $description = $GLOBALS['simplified_demographics'] ? '' : "$payer ";
         $description .= $code ? xl('Item Adjustment') : xl('Invoice Adjustment');
@@ -355,7 +355,7 @@ function ippfReceiptDetailLine(
     if (!$details) {
         return;
     }
-    if (empty($postdate) || substr($postdate, 0, 4) == '0000') {
+    if (empty($postdate) || str_starts_with($postdate, '0000')) {
         $postdate = $billtime;
     }
     echo " <tr>\n";
@@ -426,7 +426,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && substr($billtime, 0, 4) != '0000') {
+    if (!empty($billtime) && !str_starts_with($billtime, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
             text(oeFormatShortDate($billtime)) . attr(substr($billtime, 10)) . "'";
     }
@@ -447,28 +447,28 @@ function invoiceChecksum($pid, $encounter)
         "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed, user, bill_date" .
         "))) AS checksum FROM billing WHERE " .
         "pid = ? AND encounter = ? AND activity = 1",
-        array($pid, $encounter)
+        [$pid, $encounter]
     );
     $row2 = sqlQuery(
         "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
         "sale_id, inventory_id, prescription_id, quantity, fee, sale_date, billed, bill_date" .
         "))) AS checksum FROM drug_sales WHERE " .
         "pid = ? AND encounter = ?",
-        array($pid, $encounter)
+        [$pid, $encounter]
     );
     $row3 = sqlQuery(
         "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
         "sequence_no, code, modifier, payer_type, post_time, post_user, memo, pay_amount, adj_amount, post_date" .
         "))) AS checksum FROM ar_activity WHERE " .
         "pid = ? AND encounter = ?",
-        array($pid, $encounter)
+        [$pid, $encounter]
     );
     $row4 = sqlQuery(
         "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
         "id, date, reason, facility_id, provider_id, supervisor_id, invoice_refno" .
         "))) AS checksum FROM form_encounter WHERE " .
         "pid = ? AND encounter = ?",
-        array($pid, $encounter)
+        [$pid, $encounter]
     );
     return (0 + $row1['checksum']) ^ (0 + $row2['checksum']) ^ (0 + $row3['checksum']) ^ (0 + $row4['checksum']);
 }
@@ -492,13 +492,13 @@ function generate_receipt($patient_id, $encounter = 0): void
         $ferow = sqlQuery(
             "SELECT id, date, encounter, facility_id, invoice_refno " .
             "FROM form_encounter WHERE pid = ? AND encounter = ?",
-            array($patient_id, $encounter)
+            [$patient_id, $encounter]
         );
     } else {
         $ferow = sqlQuery(
             "SELECT id, date, encounter, facility_id, invoice_refno " .
             "FROM form_encounter WHERE pid = ? ORDER BY id DESC LIMIT 1",
-            array($patient_id)
+            [$patient_id]
         );
     }
     if (empty($ferow)) {
@@ -664,19 +664,19 @@ function generate_receipt($patient_id, $encounter = 0): void
         "SELECT SUM(fee) AS amount FROM billing WHERE " .
         "pid = ? AND encounter = ? AND activity = 1 AND " .
         "code_type != 'COPAY'",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     $head_charges = $row['amount'];
     $row = sqlQuery(
         "SELECT SUM(fee) AS amount FROM drug_sales WHERE pid = ? AND encounter = ?",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     $head_charges += $row['amount'];
     $row = sqlQuery(
         "SELECT SUM(pay_amount) AS payments, " .
         "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
         "pid = ? AND encounter = ? AND deleted IS NULL",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     $head_adjustments = $row['adjustments'];
     $head_payments = $row['payments'];
@@ -684,7 +684,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "SELECT SUM(fee) AS amount FROM billing WHERE " .
         "pid = ? AND encounter = ? AND activity = 1 AND " .
         "code_type = 'COPAY'",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     $head_payments -= $row['amount'];
     $head_endbal = $head_begbal + $head_charges - $head_adjustments - $head_payments;
@@ -780,7 +780,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // Create array aAdjusts from ar_activity rows for $encounter.
     load_adjustments($patient_id, $encounter);
 
-    $aTotals = array(0, 0, 0, 0, 0);
+    $aTotals = [0, 0, 0, 0, 0];
     for ($i = 0; $i < count($aTaxNames); ++$i) {
         $aTotals[5 + $i] = 0;
     }
@@ -794,7 +794,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "LEFT JOIN list_options AS lo ON lo.list_id = 'chargecats' and lo.option_id = s.chargecat AND lo.activity = 1 " .
         "WHERE s.pid = ? AND s.encounter = ? " .
         "ORDER BY s.sale_id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         $billtime = $inrow['billed'] ? $inrow['bill_date'] : '';
@@ -824,7 +824,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "WHERE b.pid = ? AND b.encounter = ? AND " .
         "b.code_type != 'COPAY' AND b.code_type != 'TAX' AND b.activity = 1 " .
         "ORDER BY b.id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         // Write the line item if it allows fees or is not a diagnosis.
@@ -960,7 +960,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "pid = ? AND encounter = ? AND " .
         "code_type = 'COPAY' AND activity = 1 AND fee != 0 " .
         "ORDER BY id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         $payments -= formatMoneyNumber($inrow['fee']);
@@ -978,7 +978,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
         "a.pay_amount != 0 " .
         "ORDER BY s.check_date, a.sequence_no",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
@@ -1116,7 +1116,7 @@ function write_form_headers(): void
 
     $ferow = sqlQuery(
         "SELECT date FROM form_encounter WHERE pid = ? AND encounter = ?",
-        array($patient_id, $encounter_id)
+        [$patient_id, $encounter_id]
     );
     $encounter_date = substr($ferow['date'], 0, 10);
     ?>
@@ -1261,7 +1261,7 @@ function write_form_line_ippf(
         $units = 1;
     }
     $price = formatMoneyNumber($amount / $units, 2); // should be even cents, but...
-    if (substr($price, -2) === '00') {
+    if (str_ends_with($price, '00')) {
         $price = formatMoneyNumber($price);
     }
 
@@ -1323,7 +1323,7 @@ function write_form_line_ippf(
 
     // Match up (and delete) entries in $aInvTaxes with the line.
     $lineid = $code_type == 'PROD' ? "P:$id" : "S:$id";
-    $aTaxes = array();
+    $aTaxes = [];
     pull_tax($lineid, $aTaxes); // fills in $aTaxes
 
     if (!$TAXES_AFTER_ADJUSTMENT) {
@@ -1353,7 +1353,7 @@ function write_form_line_ippf(
             '',
             '',
             '',
-            $billtime ? array('disabled' => 'disabled') : null
+            $billtime ? ['disabled' => 'disabled'] : null
         );
         echo "</td>\n";
     }
@@ -1369,7 +1369,7 @@ function write_form_line_ippf(
             '',
             'billingChanged()',
             '',
-            $billtime ? array('disabled' => 'disabled') : null
+            $billtime ? ['disabled' => 'disabled'] : null
         );
         echo "</td>\n";
         echo "  <td class='text' align='right' nowrap>";
@@ -1451,21 +1451,21 @@ function markTaxes($taxrates): void
 
 // Create the taxes array.  Key is tax id, value is
 // (description, rate, indicator).  Indicator seems to be unused.
-$taxes = array();
+$taxes = [];
 $pres = sqlStatement(
     "SELECT option_id, title, option_value " .
     "FROM list_options WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq, title, option_id"
 );
 while ($prow = sqlFetchArray($pres)) {
-    $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
+    $taxes[$prow['option_id']] = [$prow['title'], $prow['option_value'], 0];
 }
 
 // Array of HTML for the 4 or 5 cells of an input payment row.
 // "%d" will be replaced by a payment line number on the client side.
 //
-$aCellHTML = array();
+$aCellHTML = [];
 $aCellHTML[] = "<span id='paytitle_%d'>" . text(xl('New Payment')) . "</span>";
-$aCellHTML[] = strtr(generate_select_list('payment[%d][method]', 'paymethod', '', '', ''), array("\n" => ""));
+$aCellHTML[] = strtr(generate_select_list('payment[%d][method]', 'paymethod', '', '', ''), ["\n" => ""]);
 $aCellHTML[] = "<input type='text' name='payment[%d][refno]' size='10' />";
 $aCellHTML[] = "<input type='text' name='payment[%d][amount]' size='6' style='text-align:right' onkeyup='setComputedValues()' />";
 
@@ -1476,7 +1476,7 @@ if (!empty($_POST['form_save'])) {
     $patient_id = (int) $_POST['form_pid'];
     $encounter_id = (int) $_POST['form_encounter'];
 } else {
-    foreach (array('regen', 'enc', 'void', 'voidall') as $key) {
+    foreach (['regen', 'enc', 'void', 'voidall'] as $key) {
         if (!empty($_GET[$key])) {
             $encounter_id = (int) $_GET[$key];
             break;
@@ -1514,7 +1514,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     $tmprow = sqlQuery(
         "SELECT invoice_refno FROM form_encounter WHERE " .
         "pid = ? AND encounter = ?",
-        array($patient_id, $encounter_id)
+        [$patient_id, $encounter_id]
     );
     $current_irnumber = $tmprow['invoice_refno'];
 
@@ -1535,7 +1535,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         "UPDATE billing SET activity = 0 WHERE " .
         "pid = ? AND encounter = ? AND " .
         "code_type = 'TAX' AND billed = 0 AND activity = 1",
-        array($patient_id, $encounter_id)
+        [$patient_id, $encounter_id]
     );
 
     $form_amount = $_POST['form_totalpay'];
@@ -1600,7 +1600,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                 $sequence_no = sqlQuery(
                     "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
                     "pid = ? AND encounter = ?",
-                    array($patient_id, $encounter_id)
+                    [$patient_id, $encounter_id]
                 );
                 $query = "INSERT INTO ar_activity ( " .
                     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, " .
@@ -1608,7 +1608,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     ") VALUES ( " .
                     "?, ?, ?, ?, ?, '', '0', ?, ?, ?, '0', ?, ? " .
                     ")";
-                sqlStatement($query, array(
+                sqlStatement($query, [
                     $patient_id,
                     $encounter_id,
                     $sequence_no['increment'],
@@ -1619,7 +1619,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     $postdate,
                     $memo,
                     $adjust
-                ));
+                ]);
                 sqlCommitTrans();
             }
         }
@@ -1628,10 +1628,10 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             // Update charge category for this line item.
             if ($code_type == 'PROD') {
                 $query = "UPDATE drug_sales SET chargecat = ? WHERE sale_id = ?";
-                sqlQuery($query, array($chargecat, $id));
+                sqlQuery($query, [$chargecat, $id]);
             } else {
                 $query = "UPDATE billing SET chargecat = ? WHERE id = ?";
-                sqlQuery($query, array($chargecat, $id));
+                sqlQuery($query, [$chargecat, $id]);
             }
         }
     }
@@ -1639,10 +1639,10 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     // Flag the encounter as billed.
     $query = "UPDATE billing SET billed = 1, bill_date = ? WHERE " .
         "pid = ? AND encounter = ? AND activity = 1 AND billed = 0";
-    sqlQuery($query, array($this_bill_date, $patient_id, $encounter_id));
+    sqlQuery($query, [$this_bill_date, $patient_id, $encounter_id]);
     $query = "update drug_sales SET billed = 1, bill_date = ? WHERE " .
         "pid = ? AND encounter = ? AND billed = 0";
-    sqlQuery($query, array($this_bill_date, $patient_id, $encounter_id));
+    sqlQuery($query, [$this_bill_date, $patient_id, $encounter_id]);
 
     // Post discount.
     if ($_POST['form_discount'] != 0) {
@@ -1656,7 +1656,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $sequence_no = sqlQuery(
             "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
             "pid = ? AND encounter = ?",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
         $query = "INSERT INTO ar_activity ( " .
             "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
@@ -1664,7 +1664,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             ") VALUES ( " .
             "?, ?, ?, '', '', '0', ?, ?, ?, '0', ?, ? " .
             ")";
-        sqlStatement($query, array(
+        sqlStatement($query, [
             $patient_id,
             $encounter_id,
             $sequence_no['increment'],
@@ -1673,7 +1673,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             $postdate,
             $memo,
             $amount
-        ));
+        ]);
         sqlCommitTrans();
     }
 
@@ -1718,7 +1718,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         if ($invoice_refno) {
             sqlStatement(
                 "UPDATE form_encounter SET invoice_refno = ? WHERE pid = ? AND encounter = ?",
-                array($invoice_refno, $patient_id, $encounter_id)
+                [$invoice_refno, $patient_id, $encounter_id]
             );
         }
     }
@@ -1787,11 +1787,11 @@ if (!$encounter_id) {
     $query = "SELECT encounter FROM billing WHERE " .
         "pid = ? AND activity = 1 AND billed = 0 AND code_type != 'TAX' " .
         "ORDER BY encounter DESC LIMIT 1";
-    $brow = sqlQuery($query, array($patient_id));
+    $brow = sqlQuery($query, [$patient_id]);
     $query = "SELECT encounter FROM drug_sales WHERE " .
         "pid = ? AND billed = 0 " .
         "ORDER BY encounter DESC LIMIT 1";
-    $drow = sqlQuery($query, array($patient_id));
+    $drow = sqlQuery($query, [$patient_id]);
     if (!empty($brow['encounter'])) {
         if (!empty($drow['encounter'])) {
             $encounter_id = min(intval($brow['encounter']), intval($drow['encounter']));
@@ -1822,7 +1822,7 @@ if (!$current_checksum) {
 }
 
 // Get the valid practitioners, including those not active.
-$arr_users = array();
+$arr_users = [];
 $ures = sqlStatement(
     "SELECT id, username FROM users WHERE " .
     "( authorized = 1 OR info LIKE '%provider%' ) AND username != ''"
@@ -2277,17 +2277,17 @@ while ($urow = sqlFetchArray($ures)) {
 </script>
 <?php
     // TBD: Not sure this will be used here.
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Patient Checkout'),
         'include_patient_name' => true,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -2322,7 +2322,7 @@ $gcac_service_provided = false;
 $encounter_date = '';
 
 // This to save copays from the billing table.
-$aCopays = array();
+$aCopays = [];
 
 $lino = 0;
 
@@ -2330,7 +2330,7 @@ $query = "SELECT id, date, code_type, code, modifier, code_text, " .
     "provider_id, payer_id, units, fee, encounter, billed, bill_date, chargecat " .
     "FROM billing WHERE pid = ? AND encounter = ? AND activity = 1 AND " .
     "code_type != 'TAX' ORDER BY id ASC";
-$bres = sqlStatement($query, array($patient_id, $encounter_id));
+$bres = sqlStatement($query, [$patient_id, $encounter_id]);
 
 $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, s.quantity, " .
     "s.encounter, s.drug_id, s.billed, s.bill_date, s.selector, s.chargecat, d.name, r.provider_id " .
@@ -2339,7 +2339,7 @@ $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, s.quantity, "
     "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
     "WHERE s.pid = ? AND s.encounter = ? " .
     "ORDER BY s.sale_id ASC";
-$dres = sqlStatement($query, array($patient_id, $encounter_id));
+$dres = sqlStatement($query, [$patient_id, $encounter_id]);
 
 // Process billing table items.  Note this includes co-pays.
 // Items that are not allowed to have a fee are skipped.
@@ -2365,7 +2365,7 @@ while ($brow = sqlFetchArray($bres)) {
     if (!empty($code_types[$code_type]['fee'])) {
         $query = "SELECT taxrates, related_code FROM codes WHERE code_type = ? AND " .
             "code = ? AND ";
-        $binds = array($code_types[$code_type]['id'], $brow['code']);
+        $binds = [$code_types[$code_type]['id'], $brow['code']];
         if ($brow['modifier']) {
             $query .= "modifier = ?";
             $binds[] = $brow['modifier'];
@@ -2402,7 +2402,7 @@ while ($brow = sqlFetchArray($bres)) {
             if ($codestring === '') {
                 continue;
             }
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype !== 'IPPF2') {
                 continue;
             }
@@ -2442,7 +2442,7 @@ while ($drow = sqlFetchArray($dres)) {
     // Accumulate taxes for this product.
     $tmp = sqlQuery(
         "SELECT taxrates FROM drug_templates WHERE drug_id = ? ORDER BY selector LIMIT 1",
-        array($drow['drug_id'])
+        [$drow['drug_id']]
     );
     $taxrates = $tmp['taxrates'];
     markTaxes($taxrates);
@@ -2562,7 +2562,7 @@ $ares = sqlStatement(
     "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
     "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND a.pay_amount != 0 " .
     "ORDER BY s.check_date, a.sequence_no",
-    array($patient_id, $encounter_id)
+    [$patient_id, $encounter_id]
 );
 while ($arow = sqlFetchArray($ares)) {
     $memo = $arow['memo'];
@@ -2617,7 +2617,7 @@ if ($encounter_id) {
     $erow = sqlQuery(
         "SELECT provider_id FROM form_encounter WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1",
-        array($patient_id, $encounter_id)
+        [$patient_id, $encounter_id]
     );
     $inv_provider = $erow['provider_id'] + 0;
 }
@@ -2676,7 +2676,7 @@ echo " </tr>\n";
 $tmprow = sqlQuery(
     "SELECT invoice_refno FROM form_encounter WHERE " .
     "pid = ? AND encounter = ?",
-    array($patient_id, $encounter_id)
+    [$patient_id, $encounter_id]
 );
 $current_irnumber = $tmprow['invoice_refno'];
 
@@ -2817,14 +2817,14 @@ if ($gcac_related_visit && !$gcac_service_provided) {
             "SELECT COUNT(*) AS count FROM transactions " .
             "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
             "refer_date = ? AND pid = ?",
-            array($inv_date, $patient_id)
+            [$inv_date, $patient_id]
         );
         if (empty($grow['count'])) { // if there is no referral
             $grow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM forms " .
                 "WHERE pid = ? AND encounter = ? AND " .
                 "deleted = 0 AND formdir = 'LBFgcac'",
-                array($patient_id, $encounter_id)
+                [$patient_id, $encounter_id]
             );
             if (empty($grow['count'])) { // if there is no gcac form
                 echo " alert(" . xlj('This visit will need a GCAC form, referral or procedure service.') . ");\n";
@@ -2843,7 +2843,7 @@ if ($GLOBALS['ippf_specific']) {
 
     $csrow = sqlQuery(
         "SELECT field_value FROM shared_attributes WHERE pid = ? AND encounter = ? AND field_id = 'cgen_MethAdopt'",
-        array($patient_id, $encounter_id)
+        [$patient_id, $encounter_id]
     );
     $csmethod = empty($csrow['field_value']) ? '' : $csrow['field_value'];
 

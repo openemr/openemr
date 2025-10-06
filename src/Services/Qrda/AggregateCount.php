@@ -73,9 +73,7 @@ class AggregateCount
         // Ruby:
         // return if population_groups.find {|pg| pg.populations.collect(&:id).compact.sort == entry_populations.collect(&:id).compact.sort }
         $population_group = null;
-        $idMapper = function ($item) {
-            return $item->id;
-        };
+        $idMapper = (fn($item) => $item->id);
         foreach ($this->population_groups as $pg) {
             $diff = array_diff(array_map($idMapper, $pg->populations), array_map($idMapper, $entry_populations));
             if (count($diff) === 0) {

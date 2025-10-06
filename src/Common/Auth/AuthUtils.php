@@ -345,7 +345,8 @@ class AuthUtils
         }
 
         // Check to ensure user is in a group (and collect the group name)
-        $authGroup = UserService::getAuthGroupForUser($username);
+        $userService = new UserService();
+        $authGroup = $userService->getAuthGroupForUser($username);
         if (empty($authGroup)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
@@ -684,7 +685,7 @@ class AuthUtils
                     return false;
                 }
                 // Collect the new user id from the users table
-                privStatement($insert_sql, array());
+                privStatement($insert_sql, []);
                 $getUserID = "SELECT `id`" .
                     " FROM `users`" .
                     " WHERE BINARY `username` = ?";
@@ -765,7 +766,7 @@ class AuthUtils
                 die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
             }
 
-            $updateParams = array();
+            $updateParams = [];
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `login_fail_counter` = 0";
@@ -1065,7 +1066,7 @@ class AuthUtils
     {
         if ($GLOBALS['secure_password']) {
             $features = 0;
-            $reg_security = array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
+            $reg_security = ["/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/"];
             foreach ($reg_security as $expr) {
                 if (preg_match($expr, $pwd)) {
                     $features++;
@@ -1494,7 +1495,8 @@ class AuthUtils
         }
 
         // Ensure that the user is in an auth group
-        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        $userService = new UserService();
+        $authGroup = $userService->getAuthGroupForUser($user['username']);
         if (empty($authGroup)) {
             EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' does not belong to a group ");
             return false;

@@ -53,7 +53,7 @@ class BillingExport
 
     function fixPhone($phone)
     {
-        $tmparr = array();
+        $tmparr = [];
         if (preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $phone, $tmparr)) {
             return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
         }
@@ -63,7 +63,7 @@ class BillingExport
 
     function fixSSN($ssn)
     {
-        $tmparr = array();
+        $tmparr = [];
         if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)/", $ssn, $tmparr)) {
             return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
         }
@@ -143,7 +143,7 @@ class BillingExport
         "LEFT OUTER JOIN employer_data AS e ON e.pid = ? " .
         "WHERE p.pid = ? " .
         "LIMIT 1";
-        $prow = sqlQuery($query, array($patient_id, $patient_id));
+        $prow = sqlQuery($query, [$patient_id, $patient_id]);
 
         // Patient line.
         fwrite($this->tmpfh, 'PT' .
@@ -178,7 +178,7 @@ class BillingExport
           "LEFT OUTER JOIN facility AS f ON f.name = e.facility " .
           "WHERE e.pid = ? AND e.encounter = ? " .
           "LIMIT 1";
-        $erow = sqlQuery($query, array($patient_id, $patient_id, $encounter));
+        $erow = sqlQuery($query, [$patient_id, $patient_id, $encounter]);
 
         // Performing Provider line.
         fwrite($this->tmpfh, 'PP' .
@@ -210,7 +210,7 @@ class BillingExport
           "AND n.insurance_company_id = c.id " .
           "WHERE d.pid = ? AND d.provider != '' " .
           "ORDER BY d.type ASC, d.date DESC";
-        $ires = sqlStatement($query, array($erow['id'], $patient_id));
+        $ires = sqlStatement($query, [$erow['id'], $patient_id]);
 
         $prev_type = '?';
         while ($irow = sqlFetchArray($ires)) {
@@ -251,7 +251,7 @@ class BillingExport
         "WHERE pid = ? AND encounter = ? " .
         "AND activity = 1 AND code_type = 'CPT4' " .
         "ORDER BY id";
-        $bres = sqlStatement($query, array($patient_id, $encounter));
+        $bres = sqlStatement($query, [$patient_id, $encounter]);
 
         while ($brow = sqlFetchArray($bres)) {
               fwrite($this->tmpfh, 'PR' .

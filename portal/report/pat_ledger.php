@@ -38,7 +38,7 @@ $orow = 0;
 
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
-    $all = array();
+    $all = [];
     if (!$pat) {
         return ($all);
     }
@@ -53,7 +53,7 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
         "WHERE " .
         "ar_session.created_time >= ? AND ar_session.created_time <= ? " .
         "AND ar_session.patient_id=?";
-    $result = sqlStatement($sql, array($from_dt, $to_dt, $pat));
+    $result = sqlStatement($sql, [$from_dt, $to_dt, $pat]);
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
         $all[$iter] = $row;
@@ -70,7 +70,7 @@ function User_Id_Look($thisField)
     }
 
     $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
+    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
     $rrow = sqlFetchArray($rlist);
     if ($rrow) {
         $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
@@ -92,7 +92,7 @@ function List_Look($thisData, $thisList)
     }
 
     $fres = sqlStatement("SELECT title FROM list_options WHERE list_id=? " .
-        "AND option_id=?", array($thisList, $thisData));
+        "AND option_id=?", [$thisList, $thisData]);
     if ($fres) {
         $rret = sqlFetchArray($fres);
         $dispValue = xl_list_label($rret['title']);
@@ -108,7 +108,7 @@ function List_Look($thisData, $thisList)
 
 function GetAllCredits($enc = '', $pat = '')
 {
-    $all = array();
+    $all = [];
     if (!$enc || !$pat) {
         return ($all);
     }
@@ -118,7 +118,7 @@ function GetAllCredits($enc = '', $pat = '')
         "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
         "ins.id WHERE deleted IS NULL AND encounter = ? AND pid = ? " .
         "ORDER BY sequence_no";
-    $result = sqlStatement($sql, array($enc, $pat));
+    $result = sqlStatement($sql, [$enc, $pat]);
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
         $all[$iter] = $row;
@@ -288,13 +288,13 @@ if (!isset($_REQUEST['form_refresh'])) {
     $_REQUEST['form_refresh'] = '';
 }
 
-if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
+if (str_starts_with($GLOBALS['ledger_begin_date'], 'Y')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'M') {
+} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'M')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'D') {
+} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'D')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
@@ -414,8 +414,8 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
         $from_date = $form_from_date . ' 00:00:00';
         $to_date = $form_to_date . ' 23:59:59';
         if ($_REQUEST['form_refresh']) {
-            $rows = array();
-            $sqlBindArray = array();
+            $rows = [];
+            $sqlBindArray = [];
             $query = "select b.code_type, b.code, b.code_text, b.pid, b.provider_id, " .
             "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, " .
             "ins.name, " .
@@ -431,7 +431,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
             $query .= "AND activity > 0 ORDER BY fe.date, fe.id ";
             $res = sqlStatement($query, $sqlBindArray);
 
-            $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($pid));
+            $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", [$pid]);
             $pat_dob = $patient['DOB'];
             $pat_name = $patient['fname'] . ' ' . $patient['lname'];
             ?>
@@ -490,7 +490,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 $orow = 0;
                 $prev_encounter_id = -1;
                 $hdr_printed = false;
-                $prev_row = array();
+                $prev_row = [];
                 while ($erow = sqlFetchArray($res)) {
                     $print = '';
                     $csv = '';

@@ -85,7 +85,7 @@ if (isset($_POST["mode"])) {
         $QueryString = "Select * from  ar_session where  ";
         $And = '';
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         if ($PaymentDate == 'date_val') {
             $PaymentDateString = ' check_date ';
@@ -342,17 +342,17 @@ if (isset($_POST["mode"])) {
 }
 </style>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
 'heading_title' => xl('Payments'),
 'include_patient_name' => false,// use only in appropriate pages
 'expandable' => true,
-'expandable_files' => array("search_payments_xpd", "new_payment_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+'expandable_files' => ["search_payments_xpd", "new_payment_xpd", "era_payments_xpd"],//all file names need suffix _xpd
 'action' => "",//conceal, reveal, search, reset, link or back
 'action_title' => "",
 'action_href' => "",//only for actions - reset, link or back
 'show_help_icon' => false,
 'help_file_name' => ""
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>

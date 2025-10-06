@@ -49,7 +49,7 @@ class TimeUnit
 
     private static function map()
     {
-        $map = array(
+        $map = [
             'minute' => new TimeUnit('minute', xl('Minutes')),
             'hour' => new TimeUnit('hour', xl('Hours')),
             'day' => new TimeUnit('day', xl('Days')),
@@ -57,7 +57,7 @@ class TimeUnit
             'month' => new TimeUnit('month', xl('Months')),
             'year' => new TimeUnit('year', xl('Years')),
             'flu_season' => new TimeUnit('flu_season', xl('Flu season'))
-        );
+        ];
         return $map;
     }
 }

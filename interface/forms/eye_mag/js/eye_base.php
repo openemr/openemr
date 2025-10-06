@@ -3426,7 +3426,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
-                                            $result = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $result = sqlStatement($query, ["Eye_defaults_$providerID"]);
 
                                             $list = sqlFetchArray($result);
                                             $SEQ = $list['seq'] ?? '';
@@ -3440,7 +3440,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
-                                                $add_fields = array();
+                                                $add_fields = [];
                                                 $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
@@ -3457,14 +3457,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
 
-                                                sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                sqlStatement($query, ["Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq]);
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES " . $parameters;
                                                 sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
@@ -3475,7 +3475,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             }
                                             function startsWith($str, $needle)
                                             {
-                                                return substr($str, 0, strlen($needle)) === $needle;
+                                                return str_starts_with($str, $needle);
                                             }
                                             ?>
                                             submit_form("eye_mag");

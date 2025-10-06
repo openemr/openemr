@@ -5,7 +5,34 @@
 declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
+use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
+use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
+use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
+use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
+use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
+use Rector\Php56\Rector\FuncCall\PowToExpRector;
+use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
+use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
+use Rector\Php70\Rector\FuncCall\RandomFunctionRector;
+use Rector\Php70\Rector\If_\IfToSpaceshipRector;
+use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
+use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
+use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
+use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
+use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
+use Rector\Php71\Rector\List_\ListToArrayDestructRector;
+use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
+use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
+use Rector\Php72\Rector\While_\WhileEachToForeachRector;
+use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php73\Rector\FuncCall\SetCookieRector;
+use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
+use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
+use Rector\Php80\Rector\Identical\StrEndsWithRector;
+use Rector\Php80\Rector\Identical\StrStartsWithRector;
+use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -28,18 +55,48 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])
-    // uncomment to reach your current PHP version
-    // ->withPhpSets()
-    ->withPhpVersion(PhpVersion::PHP_82)
-    ->withTypeCoverageLevel(5)
-    ->withDeadCodeLevel(5)
-    ->withCodeQualityLevel(5)
     ->withCache(
         // ensure file system caching is used instead of in-memory
         cacheClass: FileCacheStorage::class,
         // specify a path that works locally as well as on CI job runners
         cacheDirectory: '/tmp/rector'
     )
+    ->withCodeQualityLevel(5)
+    ->withDeadCodeLevel(5)
+    // FIXME rector should pick the php version from composer.json
+    // but that doesn't seem to be working, so hard-coding for now.
+    ->withPhpVersion(PhpVersion::PHP_82)
+    ->withRules([
+        // add rules one at a time until we can replace them with a named ruleset
+        ArrayKeyExistsOnPropertyRector::class, // one of the withPhpSets rules
+        ArrayKeyFirstLastRector::class, // one of the withPhpSets rules
+        AssignArrayToStringRector::class, // one of the withPhpSets rules
+        BinaryOpBetweenNumberAndStringRector::class, // one of the withPhpSets rules
+        ChangeSwitchToMatchRector::class, // one of the withPhpSets rules
+        ClassConstantToSelfClassRector::class, // one of the withPhpSets rules
+        ClassOnObjectRector::class, // one of the withPhpSets rules
+        ClosureToArrowFunctionRector::class, // one of the withPhpSets rules
+        ConsistentImplodeRector::class, // one of the withPhpSets rules
+        CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
+        DirNameFileConstantToDirConstantRector::class, // one of the withPhpSets rules
+        EregToPregMatchRector::class, // one of the withPhpSets rules
+        IfIssetToCoalescingRector::class, // one of the withPhpSets rules
+        IfToSpaceshipRector::class, // one of the withPhpSets rules
+        ListToArrayDestructRector::class, // one of the withPhpSets rules
+        LongArrayToShortArrayRector::class, // one of the withPhpSets rules
+        MultiDirnameRector::class, // one of the withPhpSets rules
+        MultiExceptionCatchRector::class, // one of the withPhpSets rules
+        PowToExpRector::class, // one of the withPhpSets rules
+        RandomFunctionRector::class, // one of the withPhpSets rules
+        ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
+        SetCookieRector::class, // one of the withPhpSets rules
+        StrEndsWithRector::class, // one of the withPhpSets rules
+        StrStartsWithRector::class, // one of the withPhpSets rules
+        TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
+        ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
+        WhileEachToForeachRector::class, // one of the withPhpSets rules
+    ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'
-    ]);
+    ])
+    ->withTypeCoverageLevel(5);
