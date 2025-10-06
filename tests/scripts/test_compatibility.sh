@@ -36,9 +36,11 @@ fi
 # Create report directory
 mkdir -p "${REPORT_DIR}"
 
+# Generate report header
+current_date=$(date)
 {
     echo "Compatibility Test Report"
-    echo "Date: $(date)"
+    echo "Date: ${current_date}"
     echo "URL: ${BASE_URL}"
     echo
 } | tee "${REPORT_FILE}"

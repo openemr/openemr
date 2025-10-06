@@ -39,9 +39,11 @@ fi
 # Create report directory
 mkdir -p "${REPORT_DIR}"
 
+# Generate report header
+current_date=$(date)
 {
     echo "Performance Test Report"
-    echo "Date: $(date)"
+    echo "Date: ${current_date}"
     echo "URL: ${BASE_URL}"
     echo "Iterations: ${ITERATIONS}"
     echo
@@ -263,17 +265,19 @@ fi
 echo | tee -a "${REPORT_FILE}"
 
 # Throughput comparison
-{
-    echo "Throughput Comparison:"
-    echo "  Baseline: ${baseline_rps} req/sec"
-    echo "  Front controller: ${fc_rps} req/sec"
-    echo "  Login page: ${login_rps} req/sec"
-    if [[ -n "${static_rps}" ]]; then
-        echo "  Static assets: ${static_rps} req/sec"
-    fi
-    echo "  REST API: ${api_rps} req/sec"
-    echo
-} | tee -a "${REPORT_FILE}"
+# Build output without conditionals in pipe (addresses SC2312)
+throughput_output="Throughput Comparison:
+  Baseline: ${baseline_rps} req/sec
+  Front controller: ${fc_rps} req/sec
+  Login page: ${login_rps} req/sec"
+if [[ -n "${static_rps}" ]]; then
+    throughput_output="${throughput_output}
+  Static assets: ${static_rps} req/sec"
+fi
+throughput_output="${throughput_output}
+  REST API: ${api_rps} req/sec
+"
+echo "${throughput_output}" | tee -a "${REPORT_FILE}"
 
 # Latency Analysis
 {
@@ -294,12 +298,16 @@ if command -v pgrep &> /dev/null; then
 
     # Portable CPU usage detection
     if command -v top &> /dev/null; then
-        if [[ "$(uname)" == "Darwin" ]]; then
-            # macOS
-            cpu_usage=$(top -l 1 | grep "CPU usage" | awk '{print $3}' 2>/dev/null || echo "N/A")
+        # Detect OS outside of command substitution (addresses SC2312)
+        current_os=$(uname)
+        if [[ "${current_os}" == "Darwin" ]]; then
+            # macOS - extract CPU usage separately to avoid masking errors
+            top_output=$(top -l 1 2>/dev/null || echo "")
+            cpu_usage=$(grep "CPU usage" <<< "${top_output}" | awk '{print $3}' 2>/dev/null || echo "N/A")
         else
-            # Linux
-            cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' 2>/dev/null || echo "N/A")
+            # Linux - extract CPU usage separately to avoid masking errors
+            top_output=$(top -bn1 2>/dev/null || echo "")
+            cpu_usage=$(grep "Cpu(s)" <<< "${top_output}" | awk '{print $2}' 2>/dev/null || echo "N/A")
         fi
         echo "  CPU usage: ${cpu_usage}" | tee -a "${REPORT_FILE}"
     fi
