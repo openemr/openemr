@@ -49,7 +49,7 @@ class MenuItems extends \ArrayObject
 
     public function offsetSet($key, $value): void
     {
-        $this->validateEntry($value);
+        static::validateEntry($value);
 
         parent::offsetSet($key, $value);
     }
