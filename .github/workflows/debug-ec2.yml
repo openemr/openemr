@@ -1,0 +1,85 @@
+name: Debug EC2 Environment
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+
+jobs:
+  debug:
+    name: Check EC2 Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check EC2 Environment
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "echo \"=== System Information ===\"",
+              "uname -a",
+              "echo",
+              "echo \"=== Checking if directory exists ===\"",
+              "ls -la /var/www/html || echo \"Directory does not exist\"",
+              "echo",
+              "echo \"=== Checking Git ===\"",
+              "which git && git --version || echo \"Git not installed\"",
+              "echo",
+              "echo \"=== Checking PHP ===\"",
+              "which php && php -v || echo \"PHP not installed\"",
+              "echo",
+              "echo \"=== Checking Composer ===\"",
+              "which composer && composer --version || echo \"Composer not installed\"",
+              "echo",
+              "echo \"=== Checking Node.js ===\"",
+              "which node && node --version || echo \"Node.js not installed\"",
+              "echo",
+              "echo \"=== Checking NPM ===\"",
+              "which npm && npm --version || echo \"NPM not installed\"",
+              "echo",
+              "echo \"=== Checking Apache ===\"",
+              "sudo systemctl status apache2 --no-pager || echo \"Apache not installed/running\"",
+              "echo",
+              "echo \"=== Checking current user ===\"",
+              "whoami",
+              "echo",
+              "echo \"=== Checking directory permissions ===\"",
+              "ls -ld /var/www/html || true",
+              "echo",
+              "echo \"=== Checking if Git repo exists ===\"",
+              "cd /var/www/html && git remote -v || echo \"Not a git repository\""
+            ]' \
+            --region "${{ env.AWS_REGION }}" \
+            --query 'Command.CommandId' \
+            --output text)
+          
+          echo "Command ID: $COMMAND_ID"
+          echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
+          
+          sleep 5
+          
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" || true
+
+      - name: Show Results
+        if: always()
+        run: |
+          echo "=== Environment Check Results ==="
+          aws ssm get-command-invocation \
+            --command-id "${{ env.COMMAND_ID }}" \
+            --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query 'StandardOutputContent' \
+            --output text
