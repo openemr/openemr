@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Services\FHIR\Observation;
 use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -34,6 +35,8 @@ use PHPUnit\Framework\TestCase;
  */
 class FhirObservationPatientServiceTest extends TestCase
 {
+    use SystemLoggerAwareTrait;
+
     private FhirObservationPatientService $fhirService;
     private PatientService $patientService;
     private UserService $userService;
@@ -172,7 +175,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     [$this->testPatientData['pid']]
                 );
             } catch (\Exception $e) {
-                error_log("Failed to cleanup test patient: " . $e->getMessage());
+                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
 
@@ -183,7 +186,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     [$this->testUserData['id']]
                 );
             } catch (\Exception $e) {
-                error_log("Failed to cleanup test user: " . $e->getMessage());
+                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test user: " . $e->getMessage());
             }
         }
     }
@@ -284,194 +287,6 @@ class FhirObservationPatientServiceTest extends TestCase
         // AI GENERATED CODE - END
     }
 
-    /**
-     * Test occupation observation generation and validation
-     * Validates against: https://hl7.org/fhir/us/core/STU8/StructureDefinition-us-core-observation-occupation.html
-     */
-    public function testOccupationObservationValidation(): void
-    {
-        // AI GENERATED CODE - START: Test occupation observation
-        // Update patient with occupation and industry data
-        $this->updatePatientData([
-            'occupation' => 'test_occupation',
-            'industry' => 'test_industry'
-        ]);
-
-        // Retrieve observations using the FHIR service
-        $searchResult = $this->fhirService->getAll(['patient' => $this->testPatientData['uuid']]);
-        $this->assertTrue($searchResult->isValid(), "Search result should be valid");
-
-        $observations = $searchResult->getData();
-        $this->assertNotEmpty($observations, "Should have returned occupation observations");
-
-        // Find the occupation observation
-        $occupationObs = null;
-        foreach ($observations as $obs) {
-            if ($obs instanceof FHIRObservation) {
-                $coding = $obs->getCode()->getCoding();
-                if (!empty($coding) && $coding[0]->getCode() === '11341-5') {
-                    $occupationObs = $obs;
-                    break;
-                }
-            }
-        }
-
-        $this->assertNotNull($occupationObs, "Should have found occupation observation");
-
-        // Validate US Core Occupation profile compliance
-        $profiles = $occupationObs->getMeta()->getProfile();
-        $hasOccupationProfile = false;
-        foreach ($profiles as $profile) {
-            if (str_contains($profile->getValue(), 'us-core-observation-occupation')) {
-                $hasOccupationProfile = true;
-                break;
-            }
-        }
-        $this->assertTrue($hasOccupationProfile, "Observation should have US Core occupation profile");
-
-        // Validate required elements for occupation profile
-        $this->assertNotEmpty($occupationObs->getStatus(), "Status is required");
-        $this->assertNotEmpty($occupationObs->getCode(), "Code is required");
-        $this->assertNotEmpty($occupationObs->getSubject(), "Subject is required");
-        $this->assertNotEmpty($occupationObs->getEffectiveDateTime(), "Effective date is required");
-
-        // Validate code is correct LOINC for occupation history
-        $coding = $occupationObs->getCode()->getCoding()[0];
-        $this->assertEquals('11341-5', $coding->getCode(), "Should use LOINC 11341-5 for occupation history");
-        $this->assertEquals('http://loinc.org', $coding->getSystem(), "Should use LOINC system");
-
-        // Validate category is social-history
-        $categories = $occupationObs->getCategory();
-        $this->assertNotEmpty($categories, "Category should be present");
-        $socialHistoryFound = false;
-        foreach ($categories as $category) {
-            $categoryCoding = $category->getCoding();
-            foreach ($categoryCoding as $coding) {
-                if ($coding->getCode()->getValue() === 'social-history') {
-                    $socialHistoryFound = true;
-                    break 2;
-                }
-            }
-        }
-        $this->assertTrue($socialHistoryFound, "Should have social-history category");
-
-        // Validate value is present as CodeableConcept
-        $valueCC = $occupationObs->getValueCodeableConcept();
-        $this->assertNotEmpty($valueCC, "Should have valueCodeableConcept for occupation");
-        $this->assertNotEmpty($valueCC->getCoding(), "ValueCodeableConcept should have coding");
-
-        // Validate components for occupation and industry
-        $components = $occupationObs->getComponent();
-        $this->assertNotEmpty($components, "Should have components for occupation and industry");
-
-        // Look for industry component
-        $industryComponentFound = false;
-        foreach ($components as $component) {
-            $componentCode = $component->getCode();
-            if (!empty($componentCode->getCoding())) {
-                $coding = $componentCode->getCoding()[0];
-                if ($coding->getCode() === '86188-0') {
-                    $industryComponentFound = true;
-                    // Validate industry component has value
-                    $compValueCC = $component->getValueCodeableConcept();
-                    $this->assertNotEmpty($compValueCC, "Industry component should have valueCodeableConcept");
-                    break;
-                }
-            }
-        }
-        $this->assertTrue($industryComponentFound, "Should have industry component with LOINC 86188-0");
-        // AI GENERATED CODE - END
-    }
-
-    /**
-     * Test that multiple field values from a single patient generate multiple observations
-     */
-    public function testMultipleFieldsGenerateMultipleObservations(): void
-    {
-        // AI GENERATED CODE - START: Test multiple observations from single patient
-        // Update patient with both occupation and sexual orientation data
-        $this->updatePatientData([
-            'occupation' => 'test_occupation',
-            'industry' => 'test_industry',
-            'sexual_orientation' => 'test_heterosexual'
-        ]);
-
-        // Retrieve observations using the FHIR service
-        $searchResult = $this->fhirService->getAll(['patient' => $this->testPatientData['uuid']]);
-        $this->assertTrue($searchResult->isValid(), "Search result should be valid");
-
-        $observations = $searchResult->getData();
-        $this->assertNotEmpty($observations, "Should have returned multiple observations");
-
-        // We should have observations for both occupation and sexual orientation
-        $expectedMinObservations = 2; // occupation and sexual_orientation
-        $this->assertGreaterThanOrEqual(
-            $expectedMinObservations,
-            count($observations),
-            "Should have at least {$expectedMinObservations} observations for the populated fields"
-        );
-
-        // Verify we have the specific observations we expect
-        $observationCodes = [];
-        foreach ($observations as $obs) {
-            if ($obs instanceof FHIRObservation) {
-                $coding = $obs->getCode()->getCoding();
-                if (!empty($coding)) {
-                    $observationCodes[] = $coding[0]->getCode();
-                }
-            }
-        }
-
-        // Should include occupation and sexual orientation codes
-        $this->assertContains('11341-5', $observationCodes, "Should have occupation observation");
-        $this->assertContains('76690-7', $observationCodes, "Should have sexual orientation observation");
-        // AI GENERATED CODE - END
-    }
-
-    /**
-     * Test observation metadata and references
-     */
-    public function testObservationMetadataAndReferences(): void
-    {
-        // AI GENERATED CODE - START: Test observation metadata
-        $this->updatePatientData([
-            'occupation' => 'test_occupation',
-            'sexual_orientation' => 'test_heterosexual'
-        ]);
-
-        $searchResult = $this->fhirService->getAll(['patient' => $this->testPatientData['uuid']]);
-
-        $observations = $searchResult->getData();
-        $this->assertNotEmpty($observations, "Should have observations");
-
-        foreach ($observations as $obs) {
-            if ($obs instanceof FHIRObservation) {
-                // Validate metadata
-                $meta = $obs->getMeta();
-                $this->assertNotEmpty($meta, "Meta should be present");
-                $this->assertNotEmpty($meta->getProfile(), "Profile should be specified");
-
-                // Validate patient reference
-                $subject = $obs->getSubject();
-                $this->assertNotEmpty($subject, "Subject should be present");
-                $this->assertNotEmpty($subject->getReference(), "Subject reference should be present");
-                $this->assertStringContainsString('Patient/', $subject->getReference()->getValue(), "Subject should reference Patient resource");
-                $this->assertStringContainsString($this->testPatientData['uuid'], $subject->getReference()->getValue(), "Subject should reference test patient");
-
-                // Validate effective date
-                $effectiveDateTime = $obs->getEffectiveDateTime();
-                $this->assertNotEmpty($effectiveDateTime, "Effective date should be present");
-                $this->assertNotEmpty($effectiveDateTime->getValue(), "Effective date value should be present");
-
-                // Validate status
-                $status = $obs->getStatus();
-                $this->assertNotEmpty($status, "Status should be present");
-                $this->assertEquals('final', $status->getValue(), "Status should be final for patient data observations");
-            }
-        }
-        // AI GENERATED CODE - END
-    }
-
     private function getMappedUuidRecord(string $resource, string $category, string $code): ?string
     {
         $mappings = UuidMapping::getMappingForUUID($this->testPatientData['uuid']);
@@ -517,44 +332,6 @@ class FhirObservationPatientServiceTest extends TestCase
         $this->assertEquals('final', $observation->getStatus()->getValue(), "Status should be final");
         $this->assertEquals('76690-7', $observation->getCode()->getCoding()[0]->getCode(), "Code should be correct");
         $this->assertStringContainsString($this->testPatientData['uuid'], $observation->getSubject()->getReference()->getValue(), "Subject should reference test patient");
-
-        // Create test data record for occupation with components
-        $occupationRecord = [
-            'uuid' => $this->getMappedUuidRecord('Observation', 'social-history', '11341-5'),
-            'code' => 'LOINC:11341-5',
-            'description' => 'Occupation',
-            'ob_type' => 'social-history',
-            'ob_status' => 'final',
-            'puuid' => $this->testPatientData['uuid'],
-            'user_uuid' => $this->testUserData['uuid'] ?? 'test-user-uuid',
-            'date' => date('Y-m-d H:i:s'),
-            'last_updated_time' => date('Y-m-d H:i:s'),
-            'profiles' => [FhirObservationPatientService::USCDI_PROFILE_OCCUPATION_URI],
-            'value' => 'SNOMED-CT:223366009',
-            'value_code_description' => 'Test Software Developer',
-            'components' => [
-                [
-                    'code' => 'LOINC:86188-0',
-                    'description' => 'History of Occupation industry',
-                    'value' => 'NAICS:541511',
-                    'value_code_description' => 'Test Software Development Industry'
-                ]
-            ]
-        ];
-
-        // Test parseOpenEMRRecord method for occupation
-        $occupationObs = $this->fhirService->parseOpenEMRRecord($occupationRecord);
-        $this->assertInstanceOf(FHIRObservation::class, $occupationObs, "Should return FHIRObservation instance for occupation");
-
-        // Validate occupation observation
-        $this->assertEquals('11341-5', $occupationObs->getCode()->getCoding()[0]->getCode(), "Occupation code should be correct");
-        $this->assertNotEmpty($occupationObs->getComponent(), "Should have components");
-
-        // Validate industry component
-        $components = $occupationObs->getComponent();
-        $industryComponent = $components[0];
-        $this->assertEquals('86188-0', $industryComponent->getCode()->getCoding()[0]->getCode(), "Industry component code should be correct");
-        $this->assertNotEmpty($industryComponent->getValueCodeableConcept(), "Industry component should have valueCodeableConcept");
         // AI GENERATED CODE - END
     }
 
@@ -725,7 +502,6 @@ class FhirObservationPatientServiceTest extends TestCase
         // AI GENERATED CODE - START: Test code filtering
         // Update patient with both types of data
         $this->updatePatientData([
-            'occupation' => 'test_occupation',
             'sexual_orientation' => 'test_heterosexual'
         ]);
 
@@ -756,16 +532,7 @@ class FhirObservationPatientServiceTest extends TestCase
         $this->assertTrue($searchResult->isValid(), "Search with occupation code filter should be valid");
 
         $observations = $searchResult->getData();
-        $this->assertNotEmpty($observations, "Should return observations for occupation code");
-
-        // Verify all returned observations have the specified code
-        foreach ($observations as $obs) {
-            if ($obs instanceof FHIRObservation) {
-                $coding = $obs->getCode()->getCoding();
-                $this->assertNotEmpty($coding, "Observation should have coding");
-                $this->assertEquals('11341-5', $coding[0]->getCode(), "Should only return occupation observations");
-            }
-        }
         // AI GENERATED CODE - END
+        $this->assertEmpty($observations, "Should NOT return observations for occupation code");
     }
 }

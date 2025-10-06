@@ -247,6 +247,7 @@ if (
     }
 
     $newhistorydata = [];
+    $newPatientData = [];
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -283,6 +284,7 @@ if (
                 $new = [$field_id => $value];
                 updateEmployerData($pid, $new);
             } else {
+                $newPatientData[$field_id] = $value;
                 $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
                 sqlStatement(
                     "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
@@ -337,6 +339,16 @@ if (
     // Save any history data that was collected above.
     if (!empty($newhistorydata)) {
         updateHistoryData($pid, $newhistorydata);
+    }
+    // until more testing can be done to understand impact of sequential field saving (which demographics_save and new_comprehensive_save don't do),
+    // we will handle the employer_data saving this way for now.
+    if (!empty($newPatientData)) {
+        if (!$GLOBALS['omit_employers']) {
+            updateEmployerData($pid, [
+                'occupation' => $newPatientData['occupation']
+                ,'industry' => $newPatientData['industry']
+            ]);
+        }
     }
 
     if ($portalid) {

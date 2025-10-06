@@ -504,10 +504,10 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         );
 
         // Clean up test patient
-        if (!empty($this->testPatientData['pubpid'])) {
+        if (!empty($this->testPatientData['pid'])) {
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM patient_data WHERE pubpid = ?",
-                [$this->testPatientData['pubpid']]
+                "DELETE FROM patient_data WHERE pid = ?",
+                [$this->testPatientData['pid']]
             );
         }
     }

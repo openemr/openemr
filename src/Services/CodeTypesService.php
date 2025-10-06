@@ -69,6 +69,8 @@ class CodeTypesService
         '2.16.840.1.113883.6.13' => 'CDT',
         '2.16.840.1.113883.18.2' => 'AdministrativeSex',
         '2.16.840.1.113883.5.1' => 'AdministrativeGender',
+        '2.16.840.1.114222.4.11.7900' => 'IndustryODH',
+        '2.16.840.1.114222.4.11.7901' => 'OccupationODH',
         self::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY => 'HealthCareProviderTaxonomy'
     ];
     /**

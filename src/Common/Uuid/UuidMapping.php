@@ -34,7 +34,7 @@ class UuidMapping
         // note the SDOH form also has social-history data, so we need to map those codes as well, even though it would seem to be a duplicate of the next entry
         ['resource' => 'Observation', 'table' => 'form_history_sdoh', 'codes' => FhirObservationHistorySdohService::COLUMN_MAPPINGS, 'category' => FhirObservationHistorySdohService::CATEGORY_SOCIAL_HISTORY],
         ['resource' => 'Observation', 'table' => 'history_data', 'codes' => FhirObservationSocialHistoryService::COLUMN_MAPPINGS, 'category' => FhirObservationSocialHistoryService::CATEGORY],
-        ['resource' => 'Observation', 'table' => 'patient_data', 'codes' => FhirObservationPatientService::COLUMN_MAPPINGS, 'category' => FhirObservationSocialHistoryService::CATEGORY],
+        ['resource' => 'Observation', 'table' => 'patient_data', 'codes' => FhirObservationPatientService::COLUMN_MAPPINGS, 'category' => FhirObservationPatientService::CATEGORY_SOCIAL_HISTORY],
         ['resource' => 'Group', 'table' => 'users']
     ];
 

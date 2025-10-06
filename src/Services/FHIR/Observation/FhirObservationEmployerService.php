@@ -1,7 +1,7 @@
 <?php
 
 /*
- * FhirObservationPatientService.php
+ * FhirObservationEmploymentService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -11,15 +11,13 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -30,28 +28,38 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirObservationPatientService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+class FhirObservationEmployerService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirObservationTrait;
 
     const CATEGORY_SOCIAL_HISTORY = 'social-history';
 
-    const SEXUAL_ORIENTATION_LOINC_CODE = '76690-7';
+    const OCCUPATION_LOINC_CODE = '11341-5';
+    const OCCUPATION_INDUSTRY_LOINC_CODE = '86188-0';
 
-    const USCDI_PROFILE_SEXUAL_ORIENTATION_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-sexual-orientation';
+    const USCDI_PROFILE_OCCUPATION_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-occupation';
 
     const COLUMN_MAPPINGS = [
-        self::SEXUAL_ORIENTATION_LOINC_CODE => [
-            'fullcode' => 'LOINC:' . self::SEXUAL_ORIENTATION_LOINC_CODE
-            ,'code' => self::SEXUAL_ORIENTATION_LOINC_CODE
-            ,'description' => 'Sexual Orientation'
-            ,'column' => 'sexual_orientation'
-            ,'list_id' => 'sexual_orientation'
+        self::OCCUPATION_LOINC_CODE => [
+            'fullcode' => 'LOINC:' . self::OCCUPATION_LOINC_CODE
+            ,'code' => self::OCCUPATION_LOINC_CODE
+            ,'description' => 'Occupation'
+            ,'column' => 'occupation'
+            ,'list_id' => 'OccupationODH'
             ,'category' => self::CATEGORY_SOCIAL_HISTORY
             ,'screening_category_code' => null
             ,'screening_category_display' => null
             ,'profiles' => [
-                self::USCDI_PROFILE_SEXUAL_ORIENTATION_URI => self::PROFILE_VERSIONS_V2
+                self::USCDI_PROFILE_OCCUPATION_URI => self::PROFILE_VERSIONS_V2
+            ]
+            ,'components' => [
+                self::OCCUPATION_INDUSTRY_LOINC_CODE => [
+                    'fullcode' => 'LOINC:' . self::OCCUPATION_INDUSTRY_LOINC_CODE
+                    ,'code' => self::OCCUPATION_INDUSTRY_LOINC_CODE
+                    ,'description' => 'History of Occupation industry'
+                    ,'column' => 'industry'
+                    ,'list_id' => 'IndustryODH'
+                ]
             ]
         ],
     ];
@@ -59,6 +67,8 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
     private array $listOptionsByListId = [];
 
     private ?ListService $listService = null;
+
+    private ?EmployerService $employerService = null;
 
     public function supportsCode(string $code): bool
     {
@@ -87,11 +97,6 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
         ];
     }
 
-    public function getPatientContextSearchField(): FhirSearchParameterDefinition
-    {
-        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('uuid', ServiceField::TYPE_UUID)]);
-    }
-
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
@@ -110,13 +115,29 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
         $this->listService = $service;
     }
 
-    protected function getListOptionsByListId()
+    public function getEmployerService(): EmployerService
+    {
+        if (!isset($this->employerService)) {
+            $this->employerService = new EmployerService();
+        }
+        return $this->employerService;
+    }
+
+    public function setEmployerService(EmployerService $service): void
+    {
+        $this->employerService = $service;
+    }
+
+    protected function getListOptionsByListId(): array
     {
         // need to grab all the list options for the lists we care about so we can populate the observations
         if (empty($this->listOptionsByListId)) {
             $listService = $this->getListService();
             $listOptions = $listService->getListOptionsForLists([
-                'sexual_orientation'
+                'OccupationODH'
+                ,'Occupation'
+                ,'IndustryODH'
+                ,'Industry'
             ]);
             foreach ($listOptions as $record) {
                 $listId = $record['list_id'];
@@ -124,6 +145,16 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                     $this->listOptionsByListId[$listId] = [];
                 }
                 $this->listOptionsByListId[$listId][$record['option_id']] = $record;
+            }
+            foreach (['IndustryODH', 'Industry'] as $listId) {
+                foreach ($this->listOptionsByListId[$listId] as $index => $record) {
+                    $this->listOptionsByListId[$listId][$index]['codes'] = '2.16.840.1.114222.4.11.7900' . ':' . $record['codes'];
+                }
+            }
+            foreach (['OccupationODH', 'Occupation'] as $listId) {
+                foreach ($this->listOptionsByListId[$listId] as $index => $record) {
+                    $this->listOptionsByListId[$listId][$index]['codes'] = '2.16.840.1.114222.4.11.7901' . ':' . $record['codes'];
+                }
             }
         }
         return $this->listOptionsByListId;
@@ -134,11 +165,22 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
      */
     protected function getCodeSystem(string $prefix): string
     {
+        // special handling for codes that have a dot in them, we can assume these are Industry or Occupation codes
+        if (str_contains($prefix, '.')) {
+            if (str_contains(FhirCodeSystemConstants::INDUSTRY_NAICS_DETAIL_ODH, $prefix)) {
+                // special case for industry codes
+                return FhirCodeSystemConstants::INDUSTRY_NAICS_DETAIL_ODH;
+            } else if (str_contains(FhirCodeSystemConstants::OCCUPATION_ODH, $prefix)) {
+                // special case for occupation codes
+                return FhirCodeSystemConstants::OCCUPATION_ODH;
+            }
+        }
+
         $system = $this->getCodeTypesService()->getSystemForCodeType($prefix);
         return $system ?? FhirCodeSystemConstants::LOINC;
     }
 
-    protected function getListOption(string $listId, string $optionId)
+    protected function getListOption(string $listId, string $optionId): ?array
     {
         $listOptionsByListId = $this->getListOptionsByListId();
         if (isset($listOptionsByListId[$listId][$optionId])) {
@@ -187,41 +229,28 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                 $observationCodesToReturn = array_keys(self::COLUMN_MAPPINGS);
                 $observationCodesToReturn = array_combine($observationCodesToReturn, $observationCodesToReturn);
             }
-            // TODO: @adunsulag we can optimize this by using a compound search parameter that will ONLY return records
-            // that have one of the codes we want.  This will require a new search parameter type that can handle
-            // multiple token values with an OR relationship.
-            // only return social history where tobacco is populated
-            $observationFields = new CompositeSearchField('observation-fields', [], false);
-            foreach (self::COLUMN_MAPPINGS as $code => $mapping) {
-                if (in_array($code, $observationCodesToReturn)) {
-                    $field = new TokenSearchField($mapping['column'], new TokenSearchValue(false));
-                    $field->setModifier(SearchModifier::MISSING);
-                    $observationFields->addChild($field);
-                }
-                if (isset($mapping['components']) && is_array($mapping['components'])) {
-                    foreach ($mapping['components'] as $componentMapping) {
-                        $field = new TokenSearchField($componentMapping['column'], new TokenSearchValue(false));
-                        $field->setModifier(SearchModifier::MISSING);
-                        $observationFields->addChild($field);
-                    }
-                }
-            }
-            // only add this if we have something to search on
-            if (!empty($observationFields->getChildren())) {
-                $openEMRSearchParameters[$observationFields->getName()] = $observationFields;
-            }
+
+            // we only search for records that have something in occupation OR industry
+            $occupationIndustry = new CompositeSearchField('occupation-industry', [], false);
+            $occupationField = new TokenSearchField('occupation', [new TokenSearchValue(false)]);
+            $occupationField->setModifier(SearchModifier::MISSING);
+            $occupationIndustry->addChild($occupationField);
+            $industryField = new TokenSearchField('industry', [new TokenSearchValue(false)]);
+            $industryField->setModifier(SearchModifier::MISSING);
+            $occupationIndustry->addChild($industryField);
+            $openEMRSearchParameters[$occupationIndustry->getName()] = $occupationIndustry;
 
             // generally this will return one record (patient reference), but if there is no patient reference
             // it will return ALL patient records in order to grab the specific observations that are mapped in
             // the patient_data table
-            $patientService = new PatientService();
-            $result = $patientService->search($openEMRSearchParameters, true);
+            $service = $this->getEmployerService();
+            $result = $service->search($openEMRSearchParameters);
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
             foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
-                $this->parsePatientDataIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
+                $this->parseEmployerDataIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
             }
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -230,17 +259,12 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
         return $processingResult;
     }
 
-    private function parsePatientDataIntoObservationRecords(ProcessingResult $processingResult, array $record, array $observationCodesToReturn)
+    private function parseEmployerDataIntoObservationRecords(ProcessingResult $processingResult, array $record, array $observationCodesToReturn): void
     {
-        $uuidMappings = $this->getUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
         foreach ($observationCodesToReturn as $code) {
             $mapping = self::COLUMN_MAPPINGS[$code] ?? null;
             if (!isset($mapping)) {
-                continue;
-            }
-            if (!isset($uuidMappings[$code])) {
-                $this->getSystemLogger()->errorLogCaller("No UUID mapping for patient_data record ", ['uuid' => $record['uuid'], 'code' => $code]);
                 continue;
             }
 
@@ -251,13 +275,13 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
             }
             $profiles = array_merge(...$profiles);
 
+            // for employer data if the value is empty we use a data absent reason, which is handled by FhirObservationTrait
             $value = $record[$mapping['column']] ?? null;
+            $valueDescription = null;
             if (!empty($value) && !empty($mapping['list_id'])) {
                 $optionRecord = $this->getListOption($mapping['list_id'], $value);
                 $value = $optionRecord['codes'] ?? $value;
                 $valueDescription = $optionRecord['title'] ?? '';
-            } else {
-                continue; // we only support coded values at this time
             }
 
             $observation = [
@@ -266,8 +290,8 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                 ,"ob_type" => self::CATEGORY_SOCIAL_HISTORY
                 ,"ob_status" => 'final' // we always set this to final as there's no in-between state
                 ,"puuid" => $record['uuid']
-                ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
-                ,"user_uuid" => 'provider_uuid'
+                ,"uuid" => $record['uuid']
+                ,"user_uuid" => 'user_uuid'
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $profiles
@@ -282,7 +306,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                         $componentValue = $optionRecord['codes'] ?? $componentValue;
                         $componentValueDescription = $optionRecord['title'] ?? '';
                     } else {
-                        continue; // we only support coded values at this time
+                        continue; // we only support coded values at this time, so we omit if there's no value
                     }
                     $observation['components'][] = [
                         'code' => $componentMapping['fullcode']
@@ -296,7 +320,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
         }
     }
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return self::PROFILE_VERSIONS_V2;
     }
@@ -304,7 +328,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
     public function getProfileURIs(): array
     {
         $profileSets = [
-            $this->getProfileForVersions(self::USCDI_PROFILE_SEXUAL_ORIENTATION_URI, $this->getSupportedVersions())
+            $this->getProfileForVersions(self::USCDI_PROFILE_OCCUPATION_URI, $this->getSupportedVersions())
         ];
         return array_merge(...$profileSets);
     }

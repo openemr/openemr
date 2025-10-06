@@ -224,7 +224,7 @@ trait FhirObservationTrait
                 case 'CodeableConcept':
                     $parsedCode = $this->getCodeTypesService()->parseCode($value);
                     $code = $parsedCode['code'];
-                    $system = $this->getCodeTypesService()->getSystemForCodeType($parsedCode['code_type']);
+                    $system = $this->getCodeSystem($parsedCode['code_type']);
                     $valueCC = new FHIRCodeableConcept();
                     $valueCoding = new FHIRCoding();
                     $valueCoding->setSystem(new FHIRUri($system));
@@ -317,7 +317,7 @@ trait FhirObservationTrait
         // Parse system and code from format like "LOINC:72133-2"
         $codeParts = $this->getCodeTypesService()->parseCode($dataRecord['code']);
         if (!empty($codeParts['code_type'])) {
-            $system = $this->getCodeTypesService()->getSystemForCodeType($codeParts['code_type']);
+            $system = $this->getCodeSystem($codeParts['code_type']);
         } else {
             $system = FhirCodeSystemConstants::LOINC;
         }
@@ -398,12 +398,13 @@ trait FhirObservationTrait
             }
             $comp = new FHIRObservationComponent();
             $code = $this->getCodeTypesService()->parseCode($component['code']);
+            $system = $this->getCodeSystem($code['code_type'] ?? 'LOINC');
             // Set component code (required)
             $comp->setCode(UtilsService::createCodeableConcept([
                 $code['code'] => [
                     'code' => $code['code'],
                     'description' => $component['description'] ?? '',
-                    'code_type' => $code['code_type'] ?? 'LOINC'
+                    'system' => $system
                 ]
             ]));
 
@@ -429,10 +430,10 @@ trait FhirObservationTrait
                 $parsedCode = $this->getCodeTypesService()->parseCode($component['value']);
                 $code = $parsedCode['code'];
                 $comp->setValueCodeableConcept(UtilsService::createCodeableConcept([
-                    $component['value'] => [
+                    $code => [
                         'code' => $code,
                         'description' => trim($component['value_code_description'] ?? ''),
-                        'code_type' => $parsedCode['code_type']
+                        'system' => $this->getCodeSystem($parsedCode['code_type'])
                     ]
                 ]));
             }
@@ -558,10 +559,10 @@ trait FhirObservationTrait
     /**
      * Get code system URL from prefix
      */
-    protected function getCodeSystem($prefix): FHIRUri
+    protected function getCodeSystem(string $prefix): string
     {
         $system = $this->getCodeTypesService()->getSystemForCodeType($prefix);
-        return new FHIRUri($system ?? FhirCodeSystemConstants::LOINC);
+        return $system ?? FhirCodeSystemConstants::LOINC;
     }
 
     /**
@@ -615,7 +616,7 @@ trait FhirObservationTrait
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('uuid', ServiceField::TYPE_UUID)]);
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
 

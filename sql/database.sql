@@ -1571,6 +1571,7 @@ KEY `sent` (`sent`)
 DROP TABLE IF EXISTS `employer_data`;
 CREATE TABLE `employer_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes',
   `name` varchar(255) default NULL,
   `street` varchar(255) default NULL,
   `street_line_2` TINYTEXT,
@@ -1580,6 +1581,11 @@ CREATE TABLE `employer_data` (
   `country` varchar(255) default NULL,
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
+  `start_date` datetime DEFAULT NULL COMMENT 'Employment start date for patient',
+  `end_date` datetime DEFAULT NULL COMMENT 'Employment end date for patient',
+  `occupation` longtext DEFAULT NULL COMMENT 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH',
+  `industry` longtext DEFAULT NULL COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH',
+  `created_by` int DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the employer data',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
