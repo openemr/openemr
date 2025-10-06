@@ -301,13 +301,23 @@ if command -v pgrep &> /dev/null; then
         # Detect OS outside of command substitution (addresses SC2312)
         current_os=$(uname)
         if [[ "${current_os}" == "Darwin" ]]; then
-            # macOS - extract CPU usage separately to avoid masking errors
+            # macOS - extract CPU usage step-by-step to avoid masking errors
             top_output=$(top -l 1 2>/dev/null || echo "")
-            cpu_usage=$(grep "CPU usage" <<< "${top_output}" | awk '{print $3}' 2>/dev/null || echo "N/A")
+            grep_output=$(grep "CPU usage" <<< "${top_output}" 2>/dev/null || echo "")
+            if [[ -n "${grep_output}" ]]; then
+                cpu_usage=$(awk '{print $3}' <<< "${grep_output}" 2>/dev/null || echo "N/A")
+            else
+                cpu_usage="N/A"
+            fi
         else
-            # Linux - extract CPU usage separately to avoid masking errors
+            # Linux - extract CPU usage step-by-step to avoid masking errors
             top_output=$(top -bn1 2>/dev/null || echo "")
-            cpu_usage=$(grep "Cpu(s)" <<< "${top_output}" | awk '{print $2}' 2>/dev/null || echo "N/A")
+            grep_output=$(grep "Cpu(s)" <<< "${top_output}" 2>/dev/null || echo "")
+            if [[ -n "${grep_output}" ]]; then
+                cpu_usage=$(awk '{print $2}' <<< "${grep_output}" 2>/dev/null || echo "N/A")
+            else
+                cpu_usage="N/A"
+            fi
         fi
         echo "  CPU usage: ${cpu_usage}" | tee -a "${REPORT_FILE}"
     fi
