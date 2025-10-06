@@ -446,7 +446,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                  volume_value = ?,
                  volume_unit = ?,
                  condition_code = ?,
-                 `condition` = ?,
+                 specimen_condition = ?,
                  comments = ?,
                  created_by = ?,
                  updated_by = ?",
@@ -1768,7 +1768,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 while ($r = sqlFetchArray($sp)) {
                                     // convert uuid bytes to string if your template needs to display it
                                     if (!empty($r['uuid'])) {
-                                        $r['uuid_str'] = \OpenEMR\Common\Uuid\UuidRegistry::bytesToUuid($r['uuid']);
+                                        $r['uuid_str'] = UuidRegistry::uuidToString($r['uuid']);
                                     }
                                     $specimens[] = $r;
                                 }
@@ -1871,9 +1871,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 </tr>
 
                                 <?php include "templates/procedure_reason_row.php"; ?>
-                                <?php
-                                //$specimens = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
-                                include "templates/procedure_specimen_row.php"; ?>
+                                <?php  include "templates/procedure_specimen_row.php"; ?>
                                 </tbody>
                             </table>
                             <?php
