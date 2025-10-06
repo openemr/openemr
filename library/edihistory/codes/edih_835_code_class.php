@@ -227,11 +227,6 @@ class edih_835_codes
         $this->code835['RARC'] = BillingUtilities::REMITTANCE_ADVICE_REMARK_CODES;
     }
     // edih_835_codes
-    public function classname()
-    {
-        return $this::class;
-    }
-    //
     public function get_835_code($elem, $code)
     {
         //

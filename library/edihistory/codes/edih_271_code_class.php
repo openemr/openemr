@@ -2394,11 +2394,6 @@ class edih_271_codes
 // end code271  array
 //
     // edih_271_codes
-    public function classname()
-    {
-        return $this::class;
-    }
-    //
     public function get_271_code($elem, $code)
     {
         //
