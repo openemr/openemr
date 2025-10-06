@@ -1219,6 +1219,7 @@ CREATE TABLE `procedure_specimen` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `created_by` BIGINT(20) DEFAULT NULL,
     `updated_by` BIGINT(20) DEFAULT NULL,
+    `deleted` TINYINT(1) DEFAULT 0,
     PRIMARY KEY (`procedure_specimen_id`),
     UNIQUE KEY `uuid_unique` (`uuid`),
     KEY `idx_order_line` (`procedure_order_id`,`procedure_order_seq`),
