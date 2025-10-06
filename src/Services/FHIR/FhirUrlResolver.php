@@ -28,7 +28,7 @@ class FhirUrlResolver
     {
         // extracts everything but the resource/:id portion of a URL from the base url.
         // if the URI passed in does not match the base fhir URI we do nothing with it
-        if (strstr($url, $this->fhirBaseURL) === false) {
+        if (strstr($url, (string) $this->fhirBaseURL) === false) {
             return null;
         } else {
             // grab everything from our string onwards...

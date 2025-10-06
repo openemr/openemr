@@ -764,7 +764,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (strpos($url, self::$ApiIdentifier) !== false);
+        return (strpos($url, (string) self::$ApiIdentifier) !== false);
     }
 
     /**

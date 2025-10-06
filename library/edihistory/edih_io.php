@@ -419,7 +419,7 @@ function edih_disp_x12trans()
                 // this claim payment
                 $str_htm .= edih_835_html($fn, '', $clm01, $summary);
             }
-        } elseif (strpos('|f270|f271|f276|f277|f278', $ft)) {
+        } elseif (strpos('|f270|f271|f276|f277|f278', (string) $ft)) {
             if ($fmt == 'seg') {
                 if ($trace && $rsptype) {
                     // 270|276|278|837 claim or request segments

@@ -125,8 +125,8 @@ function feSearchSort($search = '', $column = 0, $reverse = false)
     $arr = [];
     foreach ($form_encounter_layout as $feitem) {
         if (
-            $search && stripos($feitem['field_id'], $search) === false &&
-            stripos($feitem['title'], $search) === false
+            $search && stripos($feitem['field_id'], (string) $search) === false &&
+            stripos($feitem['title'], (string) $search) === false
         ) {
             continue;
         }

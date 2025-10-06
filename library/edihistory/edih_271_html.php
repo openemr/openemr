@@ -366,7 +366,7 @@ function edih_271_transaction_html($obj271, $bht03)
                 $eb11 = (isset($sar[11]) && $sar[11]) ? $cd271->get_271_code('EB11', $sar[11]) : '';    // authorization required?
                 $eb12 = (isset($sar[12]) && $sar[12]) ? $cd271->get_271_code('EB12', $sar[12]) : '';    // in network?
                 $eb13 = "";
-                if (isset($sar[13]) && strpos($sar[13], $ds)) {                                     // composite procedure ID
+                if (isset($sar[13]) && strpos($sar[13], (string) $ds)) {                                     // composite procedure ID
                     $eb13ar = explode($ds, $sar[13]);
                     reset($eb13ar);
                     foreach ($eb13ar as $k => $v) {
@@ -382,7 +382,7 @@ function edih_271_transaction_html($obj271, $bht03)
 
                 $eb14 = "";
                 if (isset($sar[14])) {
-                    if (strpos($sar[14], $ds)) {                                        // composite diagnosis pointer
+                    if (strpos($sar[14], (string) $ds)) {                                        // composite diagnosis pointer
                         $eb14 = str_replace($ds, " | ", $sar[14]) ;
                     } else {
                         $eb14 = $sar[14];
@@ -409,11 +409,11 @@ function edih_271_transaction_html($obj271, $bht03)
                     $sbr_eb_html .= ($eb05) ? "<tr class=" . attr($cls) . "><td>&gt;</td><td colspan=3>" . text($eb05) . "</td></tr>" . PHP_EOL : "";
                 } elseif ($loopid == '2100D' || $loopid == '2110D') {
                     $loopid = '2110D';
-                    if (strpos('|A|B', $eb01) && !$eb02) {
+                    if (strpos('|A|B', (string) $eb01) && !$eb02) {
                         $dep_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($ebo7 . " " . $eb08) . "</td><td colspan=2>" . text($eb03 . " " . $eb04 . " " . $eb06) . "</td></tr>" . PHP_EOL;
-                    } elseif (strpos('|C|G|J|Y', $eb01)) {
+                    } elseif (strpos('|C|G|J|Y', (string) $eb01)) {
                         $dep_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb02) . "</td><td>" . text($eb07 . " " . $eb08) . "</td><td>" . text($eb11 . " " . $eb12) . "</td></tr>" . PHP_EOL;
-                    } elseif (strpos('|E|F|', $eb01)) {
+                    } elseif (strpos('|E|F|', (string) $eb01)) {
                         $dep_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb02) . "</td><td colspan=2>" . text($eb03 . " " . $eb04 . " " . $eb06) . "</td></tr>" . PHP_EOL;
                     } else {
                         $dep_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb02) . "</td><td colspan=3>" . text($eb07 . " " . $eb08 . " " . $eb03 . " " . $eb04 . " " . $eb06) . "</td></tr>" . PHP_EOL;

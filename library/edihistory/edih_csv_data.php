@@ -59,7 +59,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
         }
 
         //
-        $cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
+        $cls = (strpos('|f837|f270|f276|f278', (string) $ft)) ? 'sub' : 'rsp';
         //
         if (array_key_exists('file', $csvdata)) {
             //
@@ -67,7 +67,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
             foreach ($csvdata['file'] as $csvfile) {
                 //
                 $oe = ( $fidx % 2 == 1 ) ? 'fodd' : 'feven';
-                $cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
+                $cls = (strpos('|f837|f270|f276|f278', (string) $ft)) ? 'sub' : 'rsp';
                 //
                 $dt_str = "";
                 //
@@ -119,9 +119,9 @@ function edih_csv_process_html($data_ar, $err_only = false)
                         if (substr_count($claim['Status'], 'A1') || substr_count($claim['Status'], 'A2') || substr_count($claim['Status'], 'A5')) {
                             continue;
                         }
-                    } elseif (strpos('|f997|f999|f271', $ft) && $claim['Status'] == 'A') {
+                    } elseif (strpos('|f997|f999|f271', (string) $ft) && $claim['Status'] == 'A') {
                         continue;
-                    } elseif (strpos('|f837|f270|f276', $ft)) {
+                    } elseif (strpos('|f837|f270|f276', (string) $ft)) {
                         continue;
                     }
                 }
@@ -155,7 +155,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
 
                 $dd_str .= ($ptn) ? text($ptn) . "&nbsp; " : "";
                 $dd_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";
-                if (strpos('|f277|f276|f270|f271|f278', $ft)) {
+                if (strpos('|f277|f276|f270|f271|f278', (string) $ft)) {
                     $dd_str .= ($sts) ? " &nbsp;" . text($sts) : "";
                     $dd_str .= ($ins) ? " &nbsp;" . text($ins) : "";
                     $dd_str .= ($clm) ? " &nbsp;" . text($clm) : "";

@@ -979,10 +979,10 @@ class edih_x12_file
         // could test this against simple $segments = explode($dt, $f_str)
         while ($moresegs) {
             // extract each segment from the file text
-            $seg_end = strpos($f_str, $dt, $seg_pos);
+            $seg_end = strpos($f_str, (string) $dt, $seg_pos);
             $seg_text = substr($f_str, $seg_pos, $seg_end - $seg_pos);
             $seg_pos = $seg_end + 1;
-            $moresegs = strpos($f_str, $dt, $seg_pos);
+            $moresegs = strpos($f_str, (string) $dt, $seg_pos);
             $seg_ct++;
             // we trim in case there are line or carriage returns
             $ar_seg[$seg_ct] = trim($seg_text);
@@ -1067,7 +1067,7 @@ class edih_x12_file
             $tp = substr($tp, -2);
         }
 
-        if (!strpos('|HB|271|HS|270|HR|276|HI|278|HN|277|HP|835|FA|999|HC|837', $tp)) {
+        if (!strpos('|HB|271|HS|270|HR|276|HI|278|HN|277|HP|835|FA|999|HC|837', (string) $tp)) {
             $this->message[] = 'edih_x12_transaction: wrong edi type for transaction search ' . text($tp);
             return $ret_ar;
         }
@@ -1310,7 +1310,7 @@ class edih_x12_file
             $see_pos = 2;
             while ($seg_pos) {
                 $seg_pos = strpos($this->text, $segsrch, $seg_pos);
-                $see_pos = strpos($this->text, $dt, $seg_pos + 1);
+                $see_pos = strpos($this->text, (string) $dt, $seg_pos + 1);
                 if ($seg_pos) {
                     $segstr =  trim(substr($this->text, $seg_pos, $see_pos - $seg_pos), $dt);
                     if ($srch) {
@@ -1435,7 +1435,7 @@ class edih_x12_file
         }
 
         //
-        if ($trace && strpos('|HP|FA', $ft) === false) {
+        if ($trace && strpos('|HP|FA', (string) $ft) === false) {
             $this->message[] = 'edih_x12_slice() incorrect type [' . text($ft) . '] for trace';
             return $ret_ar;
         }
@@ -1458,7 +1458,7 @@ class edih_x12_file
                 }
 
                 $ieapos = strpos($f_str, $de . $icn . $dt, $isapos);
-                $ieapos = strpos($f_str, $dt, $ieapos) + 1;
+                $ieapos = strpos($f_str, (string) $dt, $ieapos) + 1;
                 $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $isapos + 2) + 1 : 0;
                 //
                 $srchstr = substr($f_str, $isapos, $ieapos - $isapos);
@@ -1472,11 +1472,11 @@ class edih_x12_file
                     $this->message[] = 'edih_x12_slice() did not find GS06 ' . text($gsn);
                     return $ret_ar;
                 } else {
-                    $gspos = strrpos(substr($srchstr, 0, $gspos), $dt) + 1;
+                    $gspos = strrpos(substr($srchstr, 0, $gspos), (string) $dt) + 1;
                 }
 
                 $gepos = strpos($srchstr, $dt . 'GE' . $dt, $gspos);
-                $gepos = strpos($srchstr, $dt, $gepos + 1) + 1;
+                $gepos = strpos($srchstr, (string) $dt, $gepos + 1) + 1;
                 $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $gspos + 2) + 1 : 0;
                 //
                 $srchstr = substr($srchstr, $gspos, $gepos - $gspos);
@@ -1498,7 +1498,7 @@ class edih_x12_file
                 }
 
                 $sepos = strpos($srchstr, $seg_se, $stpos);
-                $sepos = strpos($srchstr, $dt, $sepos + 1);
+                $sepos = strpos($srchstr, (string) $dt, $sepos + 1);
                 $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $stpos + 2) + 1 : 0;
                 //
                 $srchstr = substr($srchstr, $stpos, $sepos - $stpos);
@@ -1517,7 +1517,7 @@ class edih_x12_file
                 $seg_st = $dt . 'ST' . $de . $sttp . $de;
                 $stpos = strrpos($f_str, $seg_st, ($trpos - strlen($f_str)));
                 $sepos = strpos($f_str, $dt . 'SE' . $de, $stpos);
-                $sepos = strpos($f_str, $dt, $sepos + 1);
+                $sepos = strpos($f_str, (string) $dt, $sepos + 1);
                 //
                 $segidx =  ($prskeys) ? substr_count($f_str, $dt, 0, $st_pos + 2) + 1 : 0;
                 $srchstr = substr($f_str, $stpos + 1, $sepos - $stpos);

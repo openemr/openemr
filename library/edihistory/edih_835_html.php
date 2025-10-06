@@ -701,7 +701,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $svc01 = '';
                 if (isset($sar[1]) && $sar[1]) {
                     // construct a code source code modifier string
-                    if (strpos($sar[1], $ds)) {
+                    if (strpos($sar[1], (string) $ds)) {
                         $scda = explode($ds, $sar[1]);
                         reset($scda);
                         foreach ($scda as $key => $val) {
@@ -725,7 +725,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $svc06 = '';
                 if (isset($sar[6]) && $sar[6]) {
                     // construct a code source code modifier string
-                    if (strpos($sar[6], $ds)) {
+                    if (strpos($sar[6], (string) $ds)) {
                         $scda = explode($ds, $sar[6]);
                         reset($scda);
                         foreach ($scda as $key => $val) {
@@ -1348,9 +1348,9 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         // PLB 3, 5, 7, 9, 11, 13
                         // composite element 'code:reference'
                         if ($k == 0) {
-                            if ($p && strpos($p, $ds)) {
-                                $plb_rc = substr($p, 0, strpos($p, $ds));   // code
-                                $plb_tr = substr($p, strpos($p, $ds) + 1);    // reference (case #)?
+                            if ($p && strpos($p, (string) $ds)) {
+                                $plb_rc = substr($p, 0, strpos($p, (string) $ds));   // code
+                                $plb_tr = substr($p, strpos($p, (string) $ds) + 1);    // reference (case #)?
                             } else {
                                 $plb_rc = ($p) ? $p : "";
                                 $plb_tr = "";

@@ -417,7 +417,7 @@ function edih_835_accounting($segments, $delimiters)
                         break;
                     // PLB03 05 07 ...
                     case 1:
-                        if (strpos($plb, $ds)) {
+                        if (strpos($plb, (string) $ds)) {
                             $plb02 = explode($ds, $plb);
                             $out[$ck]['per'][$p]['adj'][$q]['code']  = $plb02[0];
                             $out[$ck]['per'][$p]['adj'][$q]['ref']  = $plb02[1];

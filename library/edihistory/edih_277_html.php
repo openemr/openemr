@@ -259,7 +259,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 $sar = explode($de, $seg);
                 //
                 if (isset($sar[1])) {
-                    if (strpos($sar[1], $ds)) {       // claim status category : claim status : entity identifier
+                    if (strpos($sar[1], (string) $ds)) {       // claim status category : claim status : entity identifier
                         $scda = explode($ds, $sar[1]);
                         $sc101 = ( isset($scda[0]) && $scda[0]) ? $cd27x->get_271_code('HCCSCC', $scda[0]) : "";
                         $sc102 = ( isset($scda[1]) && $scda[1]) ? $cd27x->get_271_code('HCCSC', $scda[1]) : "";
@@ -294,7 +294,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 //
                 $stc10 = "";
                 if (isset($sar[10]) && $sar[10]) {     // claim status category : claim status : entity identifier
-                    if (strpos($sar[10], $ds)) {
+                    if (strpos($sar[10], (string) $ds)) {
                         $scda = explode($ds, $sar[1]);
                         $sc201 = ( isset($scda[0]) && $scda[0]) ? $cd27x->get_271_code('HCCSCC', $scda[0]) : "";
                         $sc202 = ( isset($scda[1]) && $scda[1]) ? $cd27x->get_271_code('HCCSC', $scda[1]) : "";
@@ -308,7 +308,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 //
                 $stc11 = "";
                 if (isset($sar[11]) && $sar[11]) {     // claim status category : claim status : entity identifier
-                    if (strpos($sar[10], $ds)) {
+                    if (strpos($sar[10], (string) $ds)) {
                         $scda = explode($ds, $sar[1]);
                         $sc301 = ( isset($scda[0]) && $scda[0]) ? $cd27x->get_271_code('HCCSCC', $scda[0]) : "";
                         $sc302 = ( isset($scda[1]) && $scda[1]) ? $cd27x->get_271_code('HCCSC', $scda[1]) : "";
@@ -454,7 +454,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 $elem01 = '';                           // composite procedure code source:code:modifier:modifier
                 if (isset($sar[1]) && $sar[1]) {
                     // construct a code source code modifier string
-                    if (strpos($sar[1], $ds)) {
+                    if (strpos($sar[1], (string) $ds)) {
                         $scda = explode($ds, $sar[1]);
                         reset($scda);
                         foreach ($scda as $key => $val) {
