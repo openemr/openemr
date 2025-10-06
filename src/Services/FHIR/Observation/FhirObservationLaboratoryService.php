@@ -2,6 +2,7 @@
 
 /**
  * FhirObservationLaboratoryService.php
+ * USCDI v5 / US Core 8.0 Compliant Laboratory Observation Service
  *
  * @package openemr
  * @link      http://www.open-emr.org
@@ -15,23 +16,22 @@
 namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSpecimen;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenCollection;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
-use OpenEMR\Services\FHIR\Indicates;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
-use OpenEMR\Services\FHIR\OpenEMR;
-use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
@@ -45,38 +45,25 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 {
     use FhirServiceBaseEmptyTrait;
 
-    // we set this to be 'Final' which has the follow interpretation
-    // 'The observation is complete and there are no further actions needed.'
-    // @see http://hl7.org/fhir/R4/valueset-observation-status.html
     const DEFAULT_OBSERVATION_STATUS = "final";
-
     const CATEGORY = "laboratory";
-
-    // USCDI v5 / US Core 8.0 Extension URLs
-    const EXT_SPECIMEN_SOURCE_SITE = "http://hl7.org/fhir/StructureDefinition/specimen-source-site";
-    const EXT_SPECIMEN_COLLECTION_PERIOD = "http://hl7.org/fhir/StructureDefinition/specimen-collection-period";
-    const EXT_SPECIMEN_CONDITION = "http://hl7.org/fhir/StructureDefinition/specimen-condition";
-    const EXT_SPECIMEN_VOLUME = "http://hl7.org/fhir/StructureDefinition/specimen-volume";
 
     /**
      * @var ProcedureService
      */
     private $service;
 
-    private const COLUMN_MAPPINGS = [
-    ];
-
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
         $this->service = new ProcedureService($fhirApiURL);
-//        $this->service = new ObservationLabService();
     }
 
     public function getResourcePathForCode($code)
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
+
     public function getCodeFromResourcePath($resourcePath)
     {
         $query_vars = [];
@@ -117,29 +104,15 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
     }
 
-
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
-     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
         try {
-            // if we have a category let's remove it as its being passed from our upper layer and we don't want to map
-            // it to our procedure codes.
             unset($openEMRSearchParameters['category']);
-
-//            $result = $this->service->search($newSearchParams, true);
             $result = $this->service->search($openEMRSearchParameters, true);
-            $data = $result->getData() ?? [];
 
-            // need to transform these into something we can consume
             foreach ($result->getData() as $record) {
-                // each vital record becomes a 1 -> many record for our observations
                 $this->parseDataRecordsIntoObservationRecords($processingResult, $record);
             }
         } catch (SearchFieldException $exception) {
@@ -159,15 +132,12 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                     foreach ($report['results'] as $result) {
                         $result['patient'] = $patient;
                         $result['report_date'] = $report['date'];
-                        // Pass specimen data from procedure_order to results
-                        $result['specimen_type'] = $report['specimen_type'] ?? null;
-                        $result['specimen_location'] = $report['specimen_location'] ?? null;
-                        $result['specimen_volume'] = $report['specimen_volume'] ?? null;
-                        // Map date_collected to collection start and date_collected_end to collection end
-                        $result['specimen_collection_start'] = $report['date_collected'] ?? null;
-                        $result['specimen_collection_end'] = $report['date_collected_end'] ?? null;
-                        $result['specimen_condition'] = $report['specimen_condition'] ?? null;
-                        $result['specimen_identifier'] = $report['specimen_identifier'] ?? null;
+
+                        // Specimen data comes from report (linked to procedure_specimen table)
+                        if (!empty($report['specimen'])) {
+                            $result['specimen'] = $report['specimen'];
+                        }
+
                         $processingResult->addData($result);
                     }
                 }
@@ -185,8 +155,12 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $observation = new FHIRObservation();
+
+        // Meta with US Core Lab profile
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
+        $meta->addProfile(new FHIRUri(['value' => 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab']));
+
         if (!empty($dataRecord['report_date'])) {
             $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
         } else {
@@ -204,6 +178,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
 
+        // Category - laboratory (required)
         $obsConcept = new FHIRCodeableConcept();
         $obsCategoryCoding = new FhirCoding();
         $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
@@ -211,9 +186,9 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $obsConcept->addCoding($obsCategoryCoding);
         $observation->addCategory($obsConcept);
 
+        // Code - LOINC (required)
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
-        // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
         if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($dataRecord['text']);
@@ -227,6 +202,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $status = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
         $observation->setStatus($status);
 
+        // Reference range
         if (!empty($dataRecord['range_low']) && !empty($dataRecord['range_high'])) {
             $referenceRange = new FHIRObservationReferenceRange();
             if (isset($dataRecord['range_low'])) {
@@ -238,6 +214,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $observation->addReferenceRange($referenceRange);
         }
 
+        // Value
         if (!empty($dataRecord['result'])) {
             if (is_numeric($dataRecord['result'])) {
                 $quantity = new FHIRQuantity();
@@ -278,13 +255,13 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['patient']['uuid']));
         }
 
-        // USCDI v5 / US Core 8.0 Specimen Information
-        if (!empty($dataRecord['specimen_type'])) {
-            $specimen = $this->createSpecimenReference($dataRecord);
-            $observation->setSpecimen($specimen);
+        // USCDI v5 Specimen - reference independent Specimen resource
+        if (!empty($dataRecord['specimen']['uuid'])) {
+            $observation->setSpecimen(
+                UtilsService::createRelativeReference('Specimen', $dataRecord['specimen']['uuid'])
+            );
         }
-
-        // Add interpretation (Result Interpretation - USCDI v5)
+        // Interpretation (USCDI v5)
         if (!empty($dataRecord['result_abnormal'])) {
             $interpretation = UtilsService::createCodeableConcept([
                 $dataRecord['result_abnormal'] => [
@@ -298,133 +275,6 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return $observation;
     }
 
-    /**
-     * Creates a Specimen Reference with USCDI v5 extensions
-     *
-     * @param array $dataRecord The data record containing specimen information
-     * @return FHIRReference The specimen reference with extensions
-     */
-    private function createSpecimenReference(array $dataRecord): FHIRReference
-    {
-        $specimen = new FHIRReference();
-
-        // Set display text (specimen type)
-        if (!empty($dataRecord['specimen_type'])) {
-            $specimen->setDisplay($dataRecord['specimen_type']);
-        }
-
-        // Specimen Identifier (USCDI v5)
-        if (!empty($dataRecord['specimen_identifier'])) {
-            $identifier = new FHIRIdentifier();
-            $identifier->setValue($dataRecord['specimen_identifier']);
-            $identifier->setSystem('urn:oid:2.16.840.1.113883.4.349'); // Use appropriate system
-            $specimen->setIdentifier($identifier);
-        }
-
-        // Specimen Source Site / Location (USCDI v5)
-        if (!empty($dataRecord['specimen_location'])) {
-            $sourceSiteExt = new FHIRExtension();
-            $sourceSiteExt->setUrl(self::EXT_SPECIMEN_SOURCE_SITE);
-
-            $sourceSiteConcept = new FHIRCodeableConcept();
-            $sourceSiteCoding = new FHIRCoding();
-            $sourceSiteCoding->setDisplay($dataRecord['specimen_location']);
-            // Add SNOMED CT code if available in your data
-            if (!empty($dataRecord['specimen_location_code'])) {
-                $sourceSiteCoding->setCode($dataRecord['specimen_location_code']);
-                $sourceSiteCoding->setSystem(FhirCodeSystemConstants::SNOMED_CT);
-            }
-            $sourceSiteConcept->addCoding($sourceSiteCoding);
-            $sourceSiteExt->setValueCodeableConcept($sourceSiteConcept);
-
-            $specimen->addExtension($sourceSiteExt);
-        }
-
-        // Specimen Collection Period (USCDI v5)
-        if (!empty($dataRecord['specimen_collection_start']) || !empty($dataRecord['specimen_collection_end'])) {
-            $collectionPeriodExt = new FHIRExtension();
-            $collectionPeriodExt->setUrl(self::EXT_SPECIMEN_COLLECTION_PERIOD);
-
-            $period = new FHIRPeriod();
-            if (!empty($dataRecord['specimen_collection_start'])) {
-                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['specimen_collection_start']));
-            }
-            if (!empty($dataRecord['specimen_collection_end'])) {
-                $period->setEnd(UtilsService::getLocalDateAsUTC($dataRecord['specimen_collection_end']));
-            }
-            $collectionPeriodExt->setValuePeriod($period);
-
-            $specimen->addExtension($collectionPeriodExt);
-        }
-
-        // Specimen Volume (USCDI v5)
-        if (!empty($dataRecord['specimen_volume'])) {
-            $volumeExt = new FHIRExtension();
-            $volumeExt->setUrl(self::EXT_SPECIMEN_VOLUME);
-
-            $volumeQuantity = new FHIRQuantity();
-            $volumeQuantity->setValue(floatval($dataRecord['specimen_volume']));
-            $volumeQuantity->setUnit('mL');
-            $volumeQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
-            $volumeQuantity->setCode('mL');
-
-            $volumeExt->setValueQuantity($volumeQuantity);
-            $specimen->addExtension($volumeExt);
-        }
-
-        // Specimen Condition Acceptability (USCDI v5)
-        if (!empty($dataRecord['specimen_condition'])) {
-            $conditionExt = new FHIRExtension();
-            $conditionExt->setUrl(self::EXT_SPECIMEN_CONDITION);
-
-            $conditionConcept = new FHIRCodeableConcept();
-            $conditionCoding = new FHIRCoding();
-
-            // Map specimen condition to HL7 V2 Table 0493
-            // Common values: "acceptable", "hemolyzed", "lipemic", "contaminated"
-            $conditionCode = $this->mapSpecimenConditionToHL7($dataRecord['specimen_condition']);
-            $conditionCoding->setCode($conditionCode);
-            $conditionCoding->setDisplay($dataRecord['specimen_condition']);
-            $conditionCoding->setSystem('http://terminology.hl7.org/CodeSystem/v2-0493');
-
-            $conditionConcept->addCoding($conditionCoding);
-            $conditionExt->setValueCodeableConcept($conditionConcept);
-
-            $specimen->addExtension($conditionExt);
-        }
-
-        return $specimen;
-    }
-
-    /**
-     * Maps specimen condition text to HL7 V2 Table 0493 codes
-     *
-     * @param string $condition The specimen condition text
-     * @return string The HL7 code
-     */
-    private function mapSpecimenConditionToHL7(string $condition): string
-    {
-        $conditionLower = strtolower($condition);
-
-        $mappings = [
-            'acceptable' => 'ACT',
-            'hemolyzed' => 'HEM',
-            'lipemic' => 'LIP',
-            'contaminated' => 'CON',
-            'clotted' => 'CLO',
-            'insufficient' => 'INS',
-            'QNS' => 'QNS', // Quantity Not Sufficient
-        ];
-
-        foreach ($mappings as $key => $code) {
-            if (strpos($conditionLower, $key) !== false) {
-                return $code;
-            }
-        }
-
-        return 'ACT'; // Default to acceptable
-    }
-
     private function getValidStatus($status)
     {
         $statii = ['registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown'];
@@ -433,22 +283,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         }
         return "unknown";
     }
-    private function getDescriptionForCode($code)
-    {
-        $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
-        if (isset($codeMapping)) {
-            return $codeMapping['description'];
-        }
-        return "";
-    }
 
-    /**
-     * Creates the Provenance resource  for the equivalent FHIR Resource
-     *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
-     */
     public function createProvenanceResource($dataRecord, $encode = false)
     {
         if (!($dataRecord instanceof FHIRObservation)) {
@@ -457,7 +292,6 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
         if (!empty($dataRecord->getPerformer())) {
-            // grab the first one
             $performer = current($dataRecord->getPerformer());
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
