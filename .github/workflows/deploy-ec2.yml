@@ -30,30 +30,40 @@ jobs:
             --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
+              "#!/bin/bash",
               "set -e",
-              "echo \"Starting deployment...\"",
-              "cd ${{ env.DEPLOY_PATH }}",
-              "echo \"Stopping Apache...\"",
-              "sudo systemctl stop apache2 || true",
-              "echo \"Pulling latest changes from production branch...\"",
-              "git fetch origin",
-              "git checkout production",
-              "git pull origin production",
-              "echo \"Installing Composer dependencies...\"",
-              "composer install --no-dev --optimize-autoloader",
-              "composer dump-autoload -o",
-              "echo \"Installing NPM dependencies...\"",
-              "npm install",
-              "echo \"Building frontend assets...\"",
-              "npm run build",
-              "echo \"Setting permissions...\"",
+              "set -o pipefail",
+              "exec 2>&1",
+              "echo \"=== Starting deployment ===\"",
+              "echo \"Timestamp: $(date)\"",
+              "cd ${{ env.DEPLOY_PATH }} || { echo \"Failed to change to deploy directory\"; exit 1; }",
+              "echo \"=== Stopping Apache ===\"",
+              "sudo systemctl stop apache2 || echo \"Apache already stopped\"",
+              "echo \"=== Fetching latest changes ===\"",
+              "git fetch origin || { echo \"Git fetch failed\"; exit 1; }",
+              "echo \"=== Checking out production branch ===\"",
+              "git checkout production || { echo \"Git checkout failed\"; exit 1; }",
+              "echo \"=== Pulling latest changes ===\"",
+              "git pull origin production || { echo \"Git pull failed\"; exit 1; }",
+              "echo \"=== Installing Composer dependencies ===\"",
+              "composer install --no-dev --optimize-autoloader 2>&1 || { echo \"Composer install failed\"; exit 1; }",
+              "echo \"=== Generating autoload files ===\"",
+              "composer dump-autoload -o 2>&1 || { echo \"Composer dump-autoload failed\"; exit 1; }",
+              "echo \"=== Installing NPM dependencies ===\"",
+              "npm install 2>&1 || { echo \"NPM install failed\"; exit 1; }",
+              "echo \"=== Building frontend assets ===\"",
+              "npm run build 2>&1 || { echo \"NPM build failed\"; exit 1; }",
+              "echo \"=== Setting permissions ===\"",
               "sudo chown -R www-data:www-data ${{ env.DEPLOY_PATH }}",
               "sudo chmod -R 755 ${{ env.DEPLOY_PATH }}",
-              "echo \"Starting Apache...\"",
-              "sudo systemctl start apache2",
-              "echo \"Deployment completed successfully!\""
+              "echo \"=== Starting Apache ===\"",
+              "sudo systemctl start apache2 || { echo \"Apache start failed\"; exit 1; }",
+              "sudo systemctl status apache2 --no-pager || true",
+              "echo \"=== Deployment completed successfully! ===\"",
+              "echo \"Timestamp: $(date)\""
             ]' \
             --region "${{ env.AWS_REGION }}" \
+            --timeout-seconds 600 \
             --query 'Command.CommandId' \
             --output text)
           
@@ -64,31 +74,46 @@ jobs:
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
             --instance-id "${{ env.EC2_INSTANCE_ID }}" \
-            --region "${{ env.AWS_REGION }}"
+            --region "${{ env.AWS_REGION }}" || true
 
       - name: Get deployment output
+        if: always()
         run: |
-          echo "Deployment output:"
+          echo "=== Deployment Output ==="
           aws ssm get-command-invocation \
             --command-id "${{ env.COMMAND_ID }}" \
             --instance-id "${{ env.EC2_INSTANCE_ID }}" \
             --region "${{ env.AWS_REGION }}" \
             --query 'StandardOutputContent' \
-            --output text
+            --output text || echo "Could not retrieve output"
 
       - name: Check for deployment errors
-        if: failure()
+        if: always()
         run: |
-          echo "Deployment errors:"
+          echo "=== Deployment Errors ==="
           aws ssm get-command-invocation \
             --command-id "${{ env.COMMAND_ID }}" \
             --instance-id "${{ env.EC2_INSTANCE_ID }}" \
             --region "${{ env.AWS_REGION }}" \
             --query 'StandardErrorContent' \
-            --output text
+            --output text || echo "No errors"
+          
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "${{ env.COMMAND_ID }}" \
+            --instance-id "${{ env.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query 'Status' \
+            --output text)
+          
+          echo "Command Status: $STATUS"
+          
+          if [ "$STATUS" != "Success" ]; then
+            echo "Deployment failed with status: $STATUS"
+            exit 1
+          fi
 
       - name: Connect via SSM (manual step info)
         if: failure()
         run: |
-          echo "Deployment failed. To troubleshoot via SSM, run:"
+          echo "❌ Deployment failed. To troubleshoot via SSM, run:"
           echo "aws ssm start-session --target ${{ env.EC2_INSTANCE_ID }} --region ${{ env.AWS_REGION }}"
