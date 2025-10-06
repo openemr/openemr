@@ -176,13 +176,9 @@ class edih_x12_file
         return $ret_ar;
     }
 
-    /*
-     *  functions to return properties
+    /**
+     * functions to return properties
      */
-    public function classname()
-    {
-        return $this::class;
-    }
     public function edih_filepath()
     {
         return $this->filepath;
