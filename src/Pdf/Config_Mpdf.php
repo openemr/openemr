@@ -16,7 +16,7 @@ class Config_Mpdf
 {
     public static function getConfigMpdf()
     {
-        return array(
+        return [
             'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
             'mode' => $GLOBALS['pdf_language'],
             'format' => $GLOBALS['pdf_size'],
@@ -33,6 +33,6 @@ class Config_Mpdf
             'use_kwt' => true,
             'autoScriptToLang' => true,
             'keep_table_proportions' => true,
-        );
+        ];
     }
 }

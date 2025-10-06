@@ -20,12 +20,12 @@ class ValidationResponse
     {
         $this->Success = $success;
         $this->Message = $message;
-        $this->Errors = $errors ? $errors : array ();
+        $this->Errors = $errors ? $errors :  [];
         $this->PrimaryKeyValue = $primaryKey;
     }
     public $PrimaryKeyValue;
     public $Success = false;
-    public $Errors = array ();
+    public $Errors =  [];
     public $Message = "";
     public $Data;
 }

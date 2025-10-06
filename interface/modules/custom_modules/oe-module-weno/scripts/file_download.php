@@ -26,12 +26,12 @@ $pharmacyDownloadService = new DownloadWenoPharmacies();
 $pharmacyService = new PharmacyService();
 $wenoLog = new WenoLogService();
 
-$data = array(
+$data = [
     "UserEmail" => $weno_username,
     "MD5Password" => md5($weno_password),
     "ExcludeNonWenoTest" => "N",
     "Daily" => $_GET['daily'] ?? 'N'
-);
+];
 
 $logMessage = "User Initiated Daily Pharmacy Update";
 if ($data['Daily'] == 'N') {

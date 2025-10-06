@@ -22,7 +22,7 @@ function ros_report($pid, $encounter, $cols, $id): void
     $data = formFetch("form_ros", $id);
 
     if ($data) {
-        $cmap = array(
+        $cmap = [
                 "id" => '',
                 "pid" => '',
                 "user" => '',
@@ -84,7 +84,7 @@ function ros_report($pid, $encounter, $cols, $id): void
                 "fh_blood_problems" => "FH Blood Problems",
                 "hiv" => "HIV",
                 "hai_status" => "HAI Status",
-        );
+        ];
 
         print "<div id='form_ros_values'><table class='report_results'><tr>";
 

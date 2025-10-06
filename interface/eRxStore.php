@@ -65,7 +65,7 @@ class eRxStore
             'SELECT id, username, lname, fname, mname, title, federaldrugid, upin, state_license_number, npi, newcrop_user_role
 			FROM users
 			WHERE id = ?;',
-            array($id)
+            [$id]
         );
     }
 
@@ -81,7 +81,7 @@ class eRxStore
 			FROM users
 				LEFT JOIN facility ON facility.id = users.facility_id
 			WHERE users.id = ?;',
-            array($id)
+            [$id]
         );
     }
 
@@ -96,7 +96,7 @@ class eRxStore
             'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
 			FROM patient_data
 			WHERE pid = ?;',
-            array($patientId)
+            [$patientId]
         );
     }
 
@@ -107,7 +107,7 @@ class eRxStore
             FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id
             WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1'
             ORDER BY FORM_VITALS.date DESC",
-            array($patientId)
+            [$patientId]
         );
 
         $data = formFetch("form_vitals", $result['id']);
@@ -139,7 +139,7 @@ class eRxStore
 				ORDER BY `id`.`date` DESC
 			) AS `ins`
 			GROUP BY `ins`.`type`;',
-            array($patientId)
+            [$patientId]
         );
     }
 
@@ -158,7 +158,7 @@ class eRxStore
 					enddate is NULL
 					OR enddate = \'0000-00-00\'
 				);',
-            array($patientId)
+            [$patientId]
         );
     }
 
@@ -170,7 +170,7 @@ class eRxStore
             WHERE `type` = \'medical_problem\'
                 AND pid = ?
                 ;',
-            array($patientId)
+            [$patientId]
         );
     }
 
@@ -187,10 +187,10 @@ class eRxStore
 			FROM erx_ttl_touch
 			WHERE patient_id = ?
 				AND process = ?;',
-            array(
+            [
                 $patientId,
                 $process
-            )
+            ]
         );
         if ($return === false) {
             return false;
@@ -211,10 +211,10 @@ class eRxStore
 			SET patient_id = ?,
 				process = ?,
 				updated = NOW();',
-            array(
+            [
                 $patientId,
                 $process
-            )
+            ]
         );
     }
 
@@ -230,10 +230,10 @@ class eRxStore
 			SET active = ?
 			WHERE patient_id = ?
 				AND erx_source=\'1\'',
-            array(
+            [
                 ($active == 1 ? 1 : 0),
                 $patientId
-            )
+            ]
         );
     }
 
@@ -245,12 +245,12 @@ class eRxStore
 				active = ?
 			WHERE patient_id = ?
 				AND id = ?;',
-            array(
+            [
                 $upload,
                 $active,
                 $patientId,
                 $prescriptionId
-            )
+            ]
         );
     }
 
@@ -277,7 +277,7 @@ class eRxStore
 				AND l4.option_id = p.unit
 			WHERE p.drug <> \'\'
 				AND p.id = ?;',
-            array($prescriptionId)
+            [$prescriptionId]
         );
     }
 
@@ -298,11 +298,11 @@ class eRxStore
 					)
 			ORDER BY enddate
 			LIMIT 0, ?;',
-            array(
+            [
                 $patientId,
                 $uploadActive,
                 $limit
-            )
+            ]
         );
     }
 
@@ -317,11 +317,11 @@ class eRxStore
 				AND (? = 0
 					OR active = 1
 				) LIMIT 0, ?;',
-            array(
+            [
                 $patientId,
                 $uploadActive,
                 $limit,
-            )
+            ]
         );
     }
 
@@ -338,10 +338,10 @@ class eRxStore
 			FROM list_options
 			WHERE list_id = ? AND activity = 1
 				AND title = ?;',
-            array(
+            [
                 $listId,
                 $title
-            )
+            ]
         );
 
         if (is_array($return)) {
@@ -364,7 +364,7 @@ class eRxStore
 			WHERE list_id = ? AND activity = 1
 			ORDER BY ABS(option_id) DESC
 			LIMIT 1;',
-            array($listId)
+            [$listId]
         );
 
         if (is_array($return)) {
@@ -385,7 +385,7 @@ class eRxStore
             'SELECT id
 			FROM users
 			WHERE username = ?;',
-            array($name)
+            [$name]
         );
 
         return $return['id'];
@@ -404,12 +404,12 @@ class eRxStore
 				(list_id, option_id, title, seq)
 			VALUES
 				(?, ?, ?, ?);',
-            array(
+            [
                 $listId,
                 $optionId,
                 $title,
                 $optionId
-            )
+            ]
         );
     }
 
@@ -427,10 +427,10 @@ class eRxStore
 			WHERE prescriptionguid = ?
 				AND prescriptionguid IS NOT NULL
 				AND patient_id = ?;',
-            array(
+            [
                 $prescriptionGuid,
                 $patientId
-            )
+            ]
         );
     }
 
@@ -479,7 +479,7 @@ class eRxStore
 					?, ?, ?, ?, ?, ?, ?, ?,
 					?, ?, ?, ?, ?, ?, ?, ?
 				);',
-            array(
+            [
                 $encounter,
                 substr($prescriptionData['PrescriptionDate'], 0, 10),
                 $authUserId,
@@ -499,7 +499,7 @@ class eRxStore
                 $prescriptionData['rxcui'],
                 $prescriptionData['PrescriptionGuid'],
                 $prescriptionData['ExternalPatientID']
-            )
+            ]
         );
     }
 
@@ -537,7 +537,7 @@ class eRxStore
 				`rxnorm_drugcode` = ?
 			WHERE prescriptionguid = ?
 				AND patient_id = ?;',
-            array(
+            [
                 $authUserId,
                 $providerId,
                 $formOptionId,
@@ -555,7 +555,7 @@ class eRxStore
                 $prescriptionData['rxcui'],
                 $prescriptionData['PrescriptionGuid'],
                 $prescriptionData['ExternalPatientID']
-            )
+            ]
         );
     }
 
@@ -577,10 +577,10 @@ class eRxStore
 					enddate IS NULL
 					OR enddate = \'0000-00-00\'
 				);',
-            array(
+            [
                 $patientId,
                 $name
-            )
+            ]
         );
 
         if (is_array($return)) {
@@ -611,13 +611,13 @@ class eRxStore
 					NOW(), \'allergy\', \'1\', NOW(),
 					?, ?, ?, ?, ?
 				);',
-            array(
+            [
                 $name,
                 $allergyId,
                 $patientId,
                 $authUserId,
                 $outcome
-            )
+            ]
         );
 
         setListTouch($patientId, 'allergy');
@@ -639,12 +639,12 @@ class eRxStore
 				external_allergyid = ?
 			WHERE pid = ?
 				AND title = ?;',
-            array(
+            [
                 $outcome,
                 $externalId,
                 $patientId,
                 $name
-            )
+            ]
         );
     }
 
@@ -664,12 +664,12 @@ class eRxStore
 				AND erx_source = \'1\'
 				AND external_allergyid = ?
 				AND title = ?;',
-            array(
+            [
                 $outcome,
                 $patientId,
                 $externalId,
                 $name
-            )
+            ]
         );
     }
 
@@ -681,11 +681,11 @@ class eRxStore
 			WHERE type = \'allergy\'
 				AND pid = ?
 				AND id = ?;',
-            array(
+            [
                 $uploaded,
                 $patientId,
                 $allergyId
-            )
+            ]
         );
     }
 
@@ -706,7 +706,7 @@ class eRxStore
 					enddate IS NULL
 						OR enddate = \'0000-00-00\'
 				);',
-            array($patientId)
+            [$patientId]
         );
     }
 
@@ -723,10 +723,10 @@ class eRxStore
 			WHERE pid = ?
 				AND id = ?
 				AND type = \'allergy\';',
-            array(
+            [
                 $patientId,
                 $listId
-            )
+            ]
         );
     }
 
@@ -741,10 +741,10 @@ class eRxStore
             'UPDATE lists
 			SET erx_uploaded = ?
 			WHERE id = ?;',
-            array(
+            [
                 $erx,
                 $listId
-            )
+            ]
         );
     }
 
@@ -759,7 +759,7 @@ class eRxStore
             'SELECT soap_import_status
 			FROM patient_data
 			WHERE pid = ?;',
-            array($patientId)
+            [$patientId]
         );
         return $return['soap_import_status'];
     }
@@ -775,10 +775,10 @@ class eRxStore
             'UPDATE patient_data
 			SET soap_import_status = ?
 			WHERE pid = ?;',
-            array(
+            [
                 $status,
                 $patientId
-            )
+            ]
         );
     }
 }

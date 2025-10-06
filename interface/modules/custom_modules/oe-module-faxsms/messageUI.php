@@ -87,13 +87,13 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         });
 
         <?php
-        $param = array(
+        $param = [
             'is_universal' => 1,
             'modal_size' => 'modal-mlg',
             'modal_height' => 775,
             'modal_size_height' => 'full',
             'type' => 'email'
-        );
+        ];
         $GLOBALS['kernel']->getEventDispatcher()->dispatch(
             new SendNotificationEvent($pid ?? 0, $param),
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST

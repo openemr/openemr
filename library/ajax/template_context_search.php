@@ -45,11 +45,11 @@ createQuery;
 $search = $_GET['search'];
 $eSearch = "%" . $search . "%";
 $results = [];
-$r = sqlStatementNoLog($cq, array($eSearch));
+$r = sqlStatementNoLog($cq, [$eSearch]);
 
 while ($result = sqlFetchArray($r)) {
     $results[] = array_map('text', $result);
 }
 
-echo json_encode(array('results' => $results));
+echo json_encode(['results' => $results]);
 die();

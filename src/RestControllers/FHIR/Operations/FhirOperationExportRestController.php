@@ -521,7 +521,7 @@ class FhirOperationExportRestController
      * @param array $resources
      * @return array
      */
-    private function getResourcesForRequest($resources = array())
+    private function getResourcesForRequest($resources = [])
     {
         // TODO: if we start adding a bunch more FHIR resources and need to filter for just the patient compartment we could do that here
         $approvedResources = [];

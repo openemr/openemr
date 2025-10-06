@@ -198,8 +198,8 @@ class ApplicationTable extends AbstractTableGateway
                             WHERE
                                 garo.section_value = ? AND usr. id = ?";
 
-        $res_groups = $this->zQuery($sql_user_group, array('users', $user_id));
-        $groups = array();
+        $res_groups = $this->zQuery($sql_user_group, ['users', $user_id]);
+        $groups = [];
         foreach ($res_groups as $row) {
             array_push($groups, $row['group_id']);
         }
@@ -211,22 +211,22 @@ class ApplicationTable extends AbstractTableGateway
         $count_group_denied = 0;
         $count_group_allowed = 0;
 
-        $res_user_denied = $this->zQuery($sql_user_acl, array($section_identifier, $user_id, 0));
+        $res_user_denied = $this->zQuery($sql_user_acl, [$section_identifier, $user_id, 0]);
         foreach ($res_user_denied as $row) {
             $count_user_denied = $row['count'];
         }
 
-        $res_user_allowed = $this->zQuery($sql_user_acl, array($section_identifier, $user_id, 1));
+        $res_user_allowed = $this->zQuery($sql_user_acl, [$section_identifier, $user_id, 1]);
         foreach ($res_user_allowed as $row) {
             $count_user_allowed = $row['count'];
         }
 
-        $res_group_denied = $this->zQuery($sql_group_acl, array($section_identifier, $groups_str, 0));
+        $res_group_denied = $this->zQuery($sql_group_acl, [$section_identifier, $groups_str, 0]);
         foreach ($res_group_denied as $row) {
             $count_group_denied = $row['count'];
         }
 
-        $res_group_allowed = $this->zQuery($sql_group_acl, array($section_identifier, $groups_str, 1));
+        $res_group_allowed = $this->zQuery($sql_group_acl, [$section_identifier, $groups_str, 1]);
         foreach ($res_group_allowed as $row) {
             $count_group_allowed = $row['count'];
         }
@@ -297,17 +297,17 @@ class ApplicationTable extends AbstractTableGateway
                 OR DATE_FORMAT(DOB,'%d-%m-%Y') LIKE ?
                 OR DATE_FORMAT(DOB,'%Y-%m-%d') LIKE ?
                 ORDER BY fname ";
-            $result = $this->zQuery($sql, array(
+            $result = $this->zQuery($sql, [
                 $keyword,
                 $keyword,
                 $keyword,
                 $keyword,
                 $keyword,
                 $keyword
-            ));
+            ]);
             $rowCount = $result->count();
             $sql .= "LIMIT $limitStart, $limitEnd";
-            $result = $this->zQuery($sql, array(
+            $result = $this->zQuery($sql, [
                 $keyword,
                 $keyword,
                 $keyword,
@@ -315,7 +315,7 @@ class ApplicationTable extends AbstractTableGateway
                 $keyword,
                 $keyword,
 
-            ));
+            ]);
         } elseif (strtolower($searchType) == 'emrdirect') {
             $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
@@ -324,21 +324,21 @@ class ApplicationTable extends AbstractTableGateway
                 AND abook_type = 'emr_direct'
                 AND active = 1
                 ORDER BY fname ";
-            $result = $this->zQuery($sql, array(
+            $result = $this->zQuery($sql, [
                 $keyword,
                 $keyword,
                 $keyword,
-            ));
+            ]);
             $rowCount = $result->count();
             $sql .= "LIMIT $limitStart, $limitEnd";
-            $result = $this->zQuery($sql, array(
+            $result = $this->zQuery($sql, [
                 $keyword,
                 $keyword,
                 $keyword,
-            ));
+            ]);
         }
 
-        $arr = array();
+        $arr = [];
         if ($result) {
             foreach ($result as $row) {
                 $arr[] = $row;
@@ -366,11 +366,8 @@ class ApplicationTable extends AbstractTableGateway
             'mm/dd/yyyy' => 'm/d/Y',
             'dd/mm/yyyy' => 'd/m/Y',
         ];
-        if (isset($map[$format])) {
-            return $map[$format];
-        }
 
-        return $format;
+        return $map[$format] ?? $format;
     }
 
     /*

@@ -107,7 +107,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-            array($GLOBALS['pid'], $GLOBALS['encounter'])
+            [$GLOBALS['pid'], $GLOBALS['encounter']]
         );
         if (!empty($tmp['date'])) {
             $asof = substr($tmp['date'], 0, 10);
@@ -313,7 +313,7 @@ function generate_select_list(
 
         $got_selected_backup = false;
         if (!empty($backup_list)) {
-            $lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+            $lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
             while ($lrow_backup = sqlFetchArray($lres_backup)) {
                 $selectedValues = explode("|", $currvalue);
                 $optionValue = attr($lrow_backup['option_id']);
@@ -454,7 +454,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 
     $avalue = json_decode($currvalue, true);
     if (empty($avalue)) {
-        $avalue = array();
+        $avalue = [];
     }
     // $avalue[$option_id][0] : gestation
     // $avalue[$option_id][1] : radio button value
@@ -482,7 +482,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
     $lres = sqlStatement(
         "SELECT * FROM list_options WHERE " .
         "list_id = ? AND activity = 1 ORDER BY seq, title",
-        array($list_id)
+        [$list_id]
     );
 
     while ($lrow = sqlFetchArray($lres)) {
@@ -668,7 +668,7 @@ function generate_form_field($frow, $currvalue): void
             (($data_type == 43) ? "select-dropdown" : $smallform),
             $lbfchange,
             '',
-            ($disabled ? array('disabled' => 'disabled') : null),
+            ($disabled ? ['disabled' => 'disabled'] : null),
             false,
             $backup_list
         );
@@ -1037,7 +1037,7 @@ function generate_form_field($frow, $currvalue): void
             $cols = max(1, $frow['fld_length']);
             $avalue = explode('|', $currvalue);
             $lres = sqlStatement("SELECT * FROM list_options " .
-            "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+            "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
             echo "<table class='w-100' cellpadding='0' cellspacing='0' title='" . attr($description) . "'>";
             $tdpct = (int) (100 / $cols);
             for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -1072,7 +1072,7 @@ function generate_form_field($frow, $currvalue): void
         }
     } elseif ($data_type == 22) { // a set of labeled text input fields
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -1080,7 +1080,7 @@ function generate_form_field($frow, $currvalue): void
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -1112,7 +1112,7 @@ function generate_form_field($frow, $currvalue): void
         echo "</table>";
     } elseif ($data_type == 23) { // a set of exam results; 3 radio buttons and a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -1128,7 +1128,7 @@ function generate_form_field($frow, $currvalue): void
 
         $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table'>";
         echo "<tr><td class='font-weight-bold'>" . htmlspecialchars(xl('Exam or Test'), ENT_NOQUOTES) .
         "</td><td class='font-weight-bold'>" . htmlspecialchars(xl('N/A'), ENT_NOQUOTES) .
@@ -1178,7 +1178,7 @@ function generate_form_field($frow, $currvalue): void
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, array($GLOBALS['pid']));
+        $lres = sqlStatement($query, [$GLOBALS['pid']]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -1192,7 +1192,7 @@ function generate_form_field($frow, $currvalue): void
         }
     } elseif ($data_type == 25) { // a set of labeled checkboxes, each with a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -1208,7 +1208,7 @@ function generate_form_field($frow, $currvalue): void
 
         $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -1251,7 +1251,7 @@ function generate_form_field($frow, $currvalue): void
             'addtolistclass_' . $list_id . $smallform,
             $lbfchange,
             '',
-            ($disabled ? array('disabled' => 'disabled') : null),
+            ($disabled ? ['disabled' => 'disabled'] : null),
             false,
             $backup_list
         );
@@ -1281,7 +1281,7 @@ function generate_form_field($frow, $currvalue): void
         }
         //
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table w-100'>";
         $tdpct = (int) (100 / $cols);
         $got_selected = false;
@@ -1414,7 +1414,7 @@ function generate_form_field($frow, $currvalue): void
                 $smallform,
                 $onchange,
                 '',
-                ($disabled ? array('disabled' => 'disabled') : null)
+                ($disabled ? ['disabled' => 'disabled'] : null)
             );
             echo "</td>";
             echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . xlt('Status') . ":&nbsp;&nbsp;</td>";
@@ -1735,14 +1735,14 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             $lrow = sqlQuery(
                 "SELECT title FROM list_options " .
                 "WHERE list_id = ? AND option_id = ? AND activity = 1",
-                array($list_id,$currvalue)
+                [$list_id,$currvalue]
             );
             // For lists Race and Ethnicity if there is no matching value in the corresponding lists check ethrace list
             if (empty($lrow) && $data_type == 33) {
                 $lrow = sqlQuery(
                     "SELECT title FROM list_options " .
                     "WHERE list_id = ? AND option_id = ? AND activity = 1",
-                    array('ethrace', $currvalue)
+                    ['ethrace', $currvalue]
                 );
             }
 
@@ -1750,7 +1750,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             if ($lrow == 0 && !empty($backup_list)) {
                   // since primary list did not map, try to map to backup list
                   $lrow = sqlQuery("SELECT title FROM list_options " .
-                    "WHERE list_id = ? AND option_id = ?", array($backup_list,$currvalue));
+                    "WHERE list_id = ? AND option_id = ?", [$backup_list,$currvalue]);
                     $tmp = xl_list_label($lrow['title']);
             }
 
@@ -1811,7 +1811,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             $tmp = '';
             if ($currvalue) {
                 $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-                    "WHERE id = ?", array($currvalue));
+                    "WHERE id = ?", [$currvalue]);
                 $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
                 if (empty($tmp)) {
                     $tmp = "($currvalue)";
@@ -1876,7 +1876,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $tmp = '';
         if ($currvalue) {
             $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-            "WHERE id = ?", array($currvalue));
+            "WHERE id = ?", [$currvalue]);
             $uname = $urow['lname'];
             if ($urow['fname']) {
                 $uname .= ", " . $urow['fname'];
@@ -1943,7 +1943,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             $crow = sqlQuery(
                 "SELECT pc_catid, pc_catname " .
                 "FROM openemr_postcalendar_categories WHERE pc_catid = ?",
-                array($currvalue)
+                [$currvalue]
             );
             $tmp = xl_appt_category($crow['pc_catname']);
             if (empty($tmp)) {
@@ -1970,7 +1970,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             $cols = max(1, $fld_length);
             $avalue = explode('|', $currvalue);
             $lres = sqlStatement("SELECT * FROM list_options " .
-            "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+            "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
             echo "<table class='w-100' cellpadding='0' cellspacing='0'>";
             $tdpct = (int) (100 / $cols);
             for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -2002,7 +2002,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         }
     } elseif ($data_type == 22) { // a set of labeled text input fields
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -2010,7 +2010,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -2029,7 +2029,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         echo "</table>";
     } elseif ($data_type == 23) { // a set of exam results; 3 radio buttons and a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -2038,7 +2038,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
 
         $fldlength = empty($fld_length) ?  20 : $fld_length;
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table'>";
         echo "<tr><td><td class='font-weight-bold'>" .
         htmlspecialchars(xl('Exam or Test'), ENT_NOQUOTES) . "</td><td class='font-weight-bold'>" .
@@ -2077,7 +2077,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, array($GLOBALS['pid']));
+        $lres = sqlStatement($query, [$GLOBALS['pid']]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2091,7 +2091,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         }
     } elseif ($data_type == 25) { // a set of labeled checkboxes, each with a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -2100,7 +2100,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
 
         $fldlength = empty($fld_length) ?  20 : $fld_length;
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -2131,7 +2131,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
 
         $cols = max(1, ($frow['fld_length'] ?? null));
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         echo "<table class='w-100' cellpadding='0' cellspacing='0'>";
         $tdpct = (int) (100 / $cols);
         for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -2214,7 +2214,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             " class='under form-control'" .
             " value='$resnote' /></td></tr>";
             $fldlength = 30;
-            $smoking_status_title = generate_display_field(array('data_type' => '1','list_id' => $list_id), $reslist);
+            $smoking_status_title = generate_display_field(['data_type' => '1','list_id' => $list_id], $reslist);
             echo "<td><input type='text'" .
             " size='$fldlength'" .
             " class='under form-control'" .
@@ -2268,7 +2268,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 35) {
         $urow = sqlQuery(
             "SELECT id, name FROM facility WHERE id = ?",
-            array($currvalue)
+            [$currvalue]
         );
         echo empty($urow['id']) ? '&nbsp;' : text($urow['name']);
     } elseif ($data_type == 36) { //Multi-select. Supports backup lists.
@@ -2288,12 +2288,12 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         foreach ($values_array as $value) {
             if ($value) {
                 $lrow = sqlQuery("SELECT title FROM list_options " .
-                    "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
+                    "WHERE list_id = ? AND option_id = ? AND activity = 1", [$list_id,$value]);
                 $tmp = xl_list_label($lrow['title']);
                 if ($lrow == 0 && !empty($backup_list)) {
                         // since primary list did not map, try to map to backup list
                         $lrow = sqlQuery("SELECT title FROM list_options " .
-                            "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
+                            "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$currvalue]);
                         $tmp = xl_list_label($lrow['title']);
                 }
 
@@ -2341,10 +2341,10 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         foreach ($values_array as $value) {
             if ($value) {
                 if ($data_type == 44) {
-                    $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", array($value));
+                    $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", [$value]);
                 }
                 if ($data_type == 45) {
-                    $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
+                    $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", [$value]);
                 }
                 $tmp = $lrow['name'];
             }
@@ -2409,7 +2409,7 @@ function generate_display_field($frow, $currvalue)
     $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
     $list_id    = $frow['list_id'];
     $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
-    $show_unchecked_arr = array();
+    $show_unchecked_arr = [];
     getLayoutProperties($frow['form_id'] ?? null, $show_unchecked_arr, 'grp_unchecked', "1");
     $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) == "0" ? false : true;
 
@@ -2425,13 +2425,13 @@ function generate_display_field($frow, $currvalue)
         }
 
         $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
+        "WHERE list_id = ? AND option_id = ? AND activity = 1", [$list_id,$currvalue]);
           $s = htmlspecialchars(xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43,46
         if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
-              "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
+              "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$currvalue]);
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
         }
 
@@ -2477,7 +2477,7 @@ function generate_display_field($frow, $currvalue)
             $s = $obj->buildDisplayView($frow, $currvalue);
         } else {
             $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-                "WHERE id = ?", array($currvalue));
+                "WHERE id = ?", [$currvalue]);
             $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
         }
     } elseif ($data_type == 12) { // pharmacy list
@@ -2506,7 +2506,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 14) { // address book
         $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
-        "WHERE id = ?", array($currvalue));
+        "WHERE id = ?", [$currvalue]);
         //ViSolve: To display the Organization Name if it exist. Else it will display the user name.
         if (!empty($urow['organization'])) {
             $uname = $urow['organization'];
@@ -2538,7 +2538,7 @@ function generate_display_field($frow, $currvalue)
         $crow = sqlQuery(
             "SELECT pc_catid, pc_catname " .
             "FROM openemr_postcalendar_categories WHERE pc_catid = ?",
-            array($currvalue)
+            [$currvalue]
         );
         $s = htmlspecialchars($crow['pc_catname'], ENT_NOQUOTES);
     } elseif ($data_type == 21) { // a single checkbox or set of labeled checkboxes
@@ -2549,7 +2549,7 @@ function generate_display_field($frow, $currvalue)
             $cols = max(1, $frow['fld_length']);
             $avalue = explode('|', $currvalue);
             $lres = sqlStatement("SELECT * FROM list_options " .
-                "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+                "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
             $s .= "<table cellspacing='0' cellpadding='0'>";
             for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
                 $option_id = $lrow['option_id'];
@@ -2579,7 +2579,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 22) { // a set of labeled text input fields
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -2587,7 +2587,7 @@ function generate_display_field($frow, $currvalue)
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         $s .= "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -2604,7 +2604,7 @@ function generate_display_field($frow, $currvalue)
         $s .= "</table>";
     } elseif ($data_type == 23) { // a set of exam results; 3 radio buttons and a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -2612,7 +2612,7 @@ function generate_display_field($frow, $currvalue)
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         $s .= "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -2639,7 +2639,7 @@ function generate_display_field($frow, $currvalue)
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, array($GLOBALS['pid']));
+        $lres = sqlStatement($query, [$GLOBALS['pid']]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2653,7 +2653,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 25) { // a set of labeled checkboxes, each with a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -2661,7 +2661,7 @@ function generate_display_field($frow, $currvalue)
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         $s .= "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -2685,7 +2685,7 @@ function generate_display_field($frow, $currvalue)
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
         $lres = sqlStatement("SELECT * FROM list_options " .
-          "WHERE list_id = ? ORDER BY seq, title", array($list_id));
+          "WHERE list_id = ? ORDER BY seq, title", [$list_id]);
         $s .= "<table cellspacing='0' cellpadding='0'>";
         for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
             $option_id = $lrow['option_id'];
@@ -2781,7 +2781,7 @@ function generate_display_field($frow, $currvalue)
                     $code_desc = "( " . $smoke_codes[$reslist] . " )";
                 }
 
-                $s .= "<td class='text align-top'>" . generate_display_field(array('data_type' => '1','list_id' => $list_id), $reslist) . "&nbsp;" . text($code_desc) . "&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+                $s .= "<td class='text align-top'>" . generate_display_field(['data_type' => '1','list_id' => $list_id], $reslist) . "&nbsp;" . text($code_desc) . "&nbsp;&nbsp;&nbsp;&nbsp;</td>";
             }
 
             if (!empty($resnote)) {
@@ -2814,11 +2814,11 @@ function generate_display_field($frow, $currvalue)
         $i = 0;
         foreach ($values_array as $value) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
-            "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
+            "WHERE list_id = ? AND option_id = ? AND activity = 1", [$list_id,$value]);
             if ($lrow == 0 && !empty($backup_list)) {
                   //use back up list
                   $lrow = sqlQuery("SELECT title FROM list_options " .
-                    "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$value));
+                    "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$value]);
             }
 
             $title = $lrow['title'] ?? '';
@@ -2852,10 +2852,10 @@ function generate_display_field($frow, $currvalue)
         $i = 0;
         foreach ($values_array as $value) {
             if ($data_type == 44) {
-                $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", array($value));
+                $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", [$value]);
             }
             if ($data_type == 45) {
-                $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
+                $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", [$value]);
             }
             if ($i > 0) {
                   $s = $s . ", " . htmlspecialchars($lrow['name'], ENT_NOQUOTES);
@@ -2930,14 +2930,14 @@ function generate_plaintext_field($frow, $currvalue)
         $lrow = sqlQuery(
             "SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1",
-            array($list_id, $currvalue)
+            [$list_id, $currvalue]
         );
         $s = xl_list_label($lrow['title'] ?? '');
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43
         if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
-            "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list, $currvalue));
+            "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list, $currvalue]);
             $s = xl_list_label($lrow['title']);
         }
 
@@ -2973,7 +2973,7 @@ function generate_plaintext_field($frow, $currvalue)
             $s = $obj->buildPlaintextView($frow, $currvalue);
         } else {
             $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-                "WHERE id = ?", array($currvalue));
+                "WHERE id = ?", [$currvalue]);
             $s = ucwords($urow['fname'] . " " . $urow['lname']);
         }
     } elseif ($data_type == 12) { // pharmacy list
@@ -2988,7 +2988,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
     } elseif ($data_type == 14) { // address book
         $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-        "WHERE id = ?", array($currvalue));
+        "WHERE id = ?", [$currvalue]);
         $uname = $urow['lname'];
         if ($urow['fname']) {
             $uname .= ", " . $urow['fname'];
@@ -3012,7 +3012,7 @@ function generate_plaintext_field($frow, $currvalue)
         $crow = sqlQuery(
             "SELECT pc_catid, pc_catname " .
             "FROM openemr_postcalendar_categories WHERE pc_catid = ?",
-            array($currvalue)
+            [$currvalue]
         );
         $s = $crow['pc_catname'];
     } elseif ($data_type == 21) { // a set of labeled checkboxes
@@ -3021,7 +3021,7 @@ function generate_plaintext_field($frow, $currvalue)
         } else {
             $avalue = explode('|', $currvalue);
             $lres = sqlStatement("SELECT * FROM list_options " .
-            "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+            "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
             $count = 0;
             while ($lrow = sqlFetchArray($lres)) {
                 $option_id = $lrow['option_id'];
@@ -3035,7 +3035,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
     } elseif ($data_type == 22) { // a set of labeled text input fields
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -3043,7 +3043,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
             if (empty($avalue[$option_id])) {
@@ -3060,7 +3060,7 @@ function generate_plaintext_field($frow, $currvalue)
     } elseif ($data_type == 23) { // A set of exam results; 3 radio buttons and a text field.
         // This shows abnormal results only.
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -3068,7 +3068,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
             $restype = substr($avalue[$option_id], 0, 1);
@@ -3094,7 +3094,7 @@ function generate_plaintext_field($frow, $currvalue)
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, array($GLOBALS['pid']));
+        $lres = sqlStatement($query, [$GLOBALS['pid']]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -3108,7 +3108,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
     } elseif ($data_type == 25) { // a set of labeled checkboxes, each with a text field:
         $tmp = explode('|', $currvalue);
-        $avalue = array();
+        $avalue = [];
         foreach ($tmp as $value) {
             if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
                 $avalue[$matches[1]] = $matches[2];
@@ -3116,7 +3116,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
 
         $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
+        "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
             $restype = substr($avalue[$option_id], 0, 1);
@@ -3166,7 +3166,7 @@ function generate_plaintext_field($frow, $currvalue)
             }
         } elseif ($data_type == 32) { // Tobacco field has a listbox, text box, date field and 3 radio buttons.
             if (!empty($reslist)) {
-                $s .= generate_plaintext_field(array('data_type' => '1','list_id' => $list_id), $reslist);
+                $s .= generate_plaintext_field(['data_type' => '1','list_id' => $list_id], $reslist);
             }
 
             if (!empty($resnote)) {
@@ -3199,12 +3199,12 @@ function generate_plaintext_field($frow, $currvalue)
         $i = 0;
         foreach ($values_array as $value) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
-            "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
+            "WHERE list_id = ? AND option_id = ? AND activity = 1", [$list_id,$value]);
 
             if ($lrow == 0 && !empty($backup_list)) {
                   //use back up list
                   $lrow = sqlQuery("SELECT title FROM list_options " .
-                    "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$value));
+                    "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$value]);
             }
 
             if ($i > 0) {
@@ -3225,10 +3225,10 @@ function generate_plaintext_field($frow, $currvalue)
         $i = 0;
         foreach ($values_array as $value) {
             if ($data_type == 44) {
-                $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", array($value));
+                $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", [$value]);
             }
             if ($data_type == 45) {
-                $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
+                $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", [$value]);
             }
 
             if ($i > 0) {
@@ -3325,7 +3325,7 @@ function bs_disp_end_group(): void
 
 function getPatientDescription($pid)
 {
-    $prow = sqlQuery("SELECT lname, fname FROM patient_data WHERE pid = ?", array($pid));
+    $prow = sqlQuery("SELECT lname, fname FROM patient_data WHERE pid = ?", [$pid]);
     if ($prow) {
         return $prow['lname'] . ", " . $prow['fname'] . " ($pid)";
     }
@@ -3336,7 +3336,7 @@ function getPatientDescription($pid)
 function accumActionConditions(&$frow, &$condition_str): void
 {
     $field_id = $frow['field_id'];
-    $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions'], ['allowed_classes' => false]);
+    $conditions = empty($frow['conditions']) ? [] : unserialize($frow['conditions'], ['allowed_classes' => false]);
     $action = 'skip';
     foreach ($conditions as $key => $condition) {
         if ($key === 'action') {
@@ -3374,7 +3374,7 @@ function getCodeDescription($codestring, $defaulttype = 'ICD10')
     if ($codestring === '') {
         return '';
     }
-    list($ctype, $code) = explode(':', $codestring);
+    [$ctype, $code] = explode(':', $codestring);
     if (empty($code)) {
         $code = $ctype;
         $ctype = $defaulttype;
@@ -3402,9 +3402,9 @@ function isSkipped(&$frow, $currvalue)
     // TBD: Bad assumption?
     $field_id = $frow['field_id'];
     if (!is_array($sk_layout_items)) {
-        $sk_layout_items = array();
+        $sk_layout_items = [];
     }
-    $sk_layout_items[$field_id] = array('row' => $frow, 'value' => $currvalue);
+    $sk_layout_items[$field_id] = ['row' => $frow, 'value' => $currvalue];
 
     if (empty($frow['conditions'])) {
         return false;
@@ -3502,7 +3502,7 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
         " ORDER BY grp_group_id " .
-        ($limit ? "LIMIT " . escape_limit($limit) : ""), array($formtype));
+        ($limit ? "LIMIT " . escape_limit($limit) : ""), [$formtype]);
     while ($grow = sqlFetchArray($gres)) {
         // TBD: Remove this after grp_init_open column is implemented.
         if ($sel == '*' && !isset($grow['grp_init_open'])) {
@@ -3510,7 +3510,7 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
                 "SELECT form_id FROM layout_options " .
                 "WHERE form_id = ? AND group_id LIKE ? AND uor > 0 AND edit_options LIKE '%I%' " .
                 "LIMIT 1",
-                array($formtype, $grow['grp_group_id'] . '%')
+                [$formtype, $grow['grp_group_id'] . '%']
             );
             $grow['grp_init_open'] = !empty($tmprow['form_id']);
         }
@@ -3530,7 +3530,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
         "FROM layout_group_properties " .
         "WHERE grp_form_id LIKE ? AND grp_group_id = '' " .
         "ORDER BY grp_seq, grp_title, grp_form_id",
-        array("$formtype")
+        ["$formtype"]
     );
     while ($prow = sqlFetchArray($pres)) {
         $formtype = $prow['grp_form_id'];
@@ -3538,14 +3538,14 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
         $cell_count = 0;
         $item_count = 0;
 
-        $grparr = array();
+        $grparr = [];
         getLayoutProperties($formtype, $grparr, '*');
 
         $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
         $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 " .
-        "ORDER BY group_id, seq", array($formtype));
+        "ORDER BY group_id, seq", [$formtype]);
 
         while ($frow = sqlFetchArray($fres)) {
             $this_group = $frow['group_id'];
@@ -3684,7 +3684,7 @@ function display_layout_tabs($formtype, $result1, $result2 = ''): void
         "FROM layout_group_properties " .
         "WHERE grp_form_id LIKE ? AND grp_group_id = '' " .
         "ORDER BY grp_seq, grp_title, grp_form_id",
-        array("$formtype")
+        ["$formtype"]
     );
     $first = true;
     while ($prow = sqlFetchArray($pres)) {
@@ -3693,12 +3693,12 @@ function display_layout_tabs($formtype, $result1, $result2 = ''): void
         $cell_count = 0;
         $item_count = 0;
 
-        $grparr = array();
+        $grparr = [];
         getLayoutProperties($formtype, $grparr);
 
         $fres = sqlStatement("SELECT distinct group_id FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 " .
-            "ORDER BY group_id", array($formtype));
+            "ORDER BY group_id", [$formtype]);
 
         $prev_group = '';
         while ($frow = sqlFetchArray($fres)) {
@@ -3737,7 +3737,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
         "FROM layout_group_properties " .
         "WHERE grp_form_id LIKE ? AND grp_group_id = '' " .
         "ORDER BY grp_seq, grp_title, grp_form_id",
-        array("$formtype")
+        ["$formtype"]
     );
     $first = true;
 
@@ -3748,7 +3748,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
         $cell_count = 0;
         $item_count = 0;
 
-        $grparr = array();
+        $grparr = [];
         getLayoutProperties($formtype, $grparr, '*');
 
         $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
@@ -3756,7 +3756,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
         // By selecting distinct group_id from layout_options we avoid empty groups.
         $fres = sqlStatement("SELECT distinct group_id FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 " .
-            "ORDER BY group_id", array($formtype));
+            "ORDER BY group_id", [$formtype]);
 
         $prev_group = '';
 
@@ -3774,7 +3774,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 "SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
                 "ORDER BY seq",
-                array($formtype, $this_group)
+                [$formtype, $this_group]
             );
 
             if (substr($this_group, 0, 1) !== substr($prev_group, 0, 1)) {
@@ -3957,7 +3957,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
         "FROM layout_group_properties " .
         "WHERE grp_form_id LIKE ? AND grp_group_id = '' " .
         "ORDER BY grp_seq, grp_title, grp_form_id",
-        array("$formtype")
+        ["$formtype"]
     );
     $first = true;
     $condition_str = '';
@@ -3969,7 +3969,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
         $cell_count = 0;
         $item_count = 0;
 
-        $grparr = array();
+        $grparr = [];
         getLayoutProperties($formtype, $grparr, '*');
 
         $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
@@ -4007,7 +4007,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
         // By selecting distinct group_id from layout_options we avoid empty groups.
         $fres = sqlStatement("SELECT distinct group_id FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 " .
-            "ORDER BY group_id", array($formtype));
+            "ORDER BY group_id", [$formtype]);
 
         // This loops once per group within a given layout.
         while ($frow = sqlFetchArray($fres)) {
@@ -4023,7 +4023,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
 
             $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
-                "ORDER BY seq", array($formtype, $this_group));
+                "ORDER BY seq", [$formtype, $this_group]);
 
             $gs_this_levels = $this_group;
             // Compute $gs_i as the number of initial matching levels.
@@ -4330,7 +4330,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
         } elseif ($data_type == 37) {
             // $_POST["form_$field_id"] is an array of arrays of 3 text fields with companion
             // radio button set to be encoded as json.
-            $tmparr = array();
+            $tmparr = [];
             foreach ($_POST["form_$field_id"] as $key => $valarr) {
                 // Each $key here is a list item ID. $valarr has 3 text field values keyed on 0, 2 and 3.
                 $tmparr[$key][0] = $valarr['0'];
@@ -4401,14 +4401,14 @@ function generate_layout_validation($form_id): void
         "FROM layout_group_properties " .
         "WHERE grp_form_id LIKE ? AND grp_group_id = '' " .
         "ORDER BY grp_seq, grp_title, grp_form_id",
-        array("$form_id")
+        ["$form_id"]
     );
     while ($prow = sqlFetchArray($pres)) {
         $form_id = $prow['grp_form_id'];
 
         $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' " .
-        "ORDER BY group_id, seq", array($form_id));
+        "ORDER BY group_id, seq", [$form_id]);
 
         while ($frow = sqlFetchArray($fres)) {
             $data_type = $frow['data_type'];
@@ -4740,7 +4740,7 @@ function getListItemTitle($list, $option)
 function getLayoutTitle($list, $option)
 {
     $row = sqlQuery("SELECT grp_title FROM layout_group_properties " .
-    "WHERE grp_mapping = ? AND grp_form_id = ? ", array($list, $option));
+    "WHERE grp_mapping = ? AND grp_form_id = ? ", [$list, $option]);
 
     if (empty($row['grp_title'])) {
         return $option;
@@ -4750,7 +4750,7 @@ function getLayoutTitle($list, $option)
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
 function getSmokeCodes()
 {
-    $smoking_codes_arr = array();
+    $smoking_codes_arr = [];
     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
     while ($codes_row = sqlFetchArray($smoking_codes)) {
         $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];
@@ -4787,12 +4787,12 @@ function lbf_current_value($frow, $formid, $encounter)
         }
 
         // It is an error if the field does not exist, but don't crash.
-        $tmp = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($table) . " WHERE Field = ?", array($field_id));
+        $tmp = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($table) . " WHERE Field = ?", [$field_id]);
         if (empty($tmp)) {
             return '*?*';
         }
 
-        $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM " . escape_table_name($table) . " WHERE pid = ? $orderby", array($pid));
+        $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM " . escape_table_name($table) . " WHERE pid = ? $orderby", [$pid]);
         if (isset($pdrow)) {
             $currvalue = $pdrow['field_value'];
         }
@@ -4803,7 +4803,7 @@ function lbf_current_value($frow, $formid, $encounter)
             $sarow = sqlQuery(
                 "SELECT field_value FROM shared_attributes WHERE " .
                 "pid = ? AND encounter = ? AND field_id = ?",
-                array($pid, $encounter, $field_id)
+                [$pid, $encounter, $field_id]
             );
             if (!empty($sarow)) {
                 $currvalue = $sarow['field_value'];
@@ -4816,7 +4816,7 @@ function lbf_current_value($frow, $formid, $encounter)
                 "FROM forms AS f, shared_attributes AS sa WHERE " .
                 "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
                 "sa.pid = f.pid AND sa.encounter = f.encounter AND sa.field_id = ?",
-                array($formid, $formname, $field_id)
+                [$formid, $formname, $field_id]
             );
             if (!empty($sarow)) {
                 $currvalue = $sarow['field_value'];
@@ -4836,7 +4836,7 @@ function lbf_current_value($frow, $formid, $encounter)
             $ferow = sqlQuery(
                 "SELECT * FROM form_encounter WHERE " .
                 "pid = ? AND encounter = ?",
-                array($pid, $encounter)
+                [$pid, $encounter]
             );
             if (isset($ferow[$field_id])) {
                 $currvalue = $ferow[$field_id];
@@ -4848,7 +4848,7 @@ function lbf_current_value($frow, $formid, $encounter)
                 "FROM forms AS f, form_encounter AS fe WHERE " .
                 "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
                 "fe.pid = f.pid AND fe.encounter = f.encounter",
-                array($formid, $formname)
+                [$formid, $formname]
             );
             if (isset($ferow[$field_id])) {
                 $currvalue = $ferow[$field_id];
@@ -4859,7 +4859,7 @@ function lbf_current_value($frow, $formid, $encounter)
     } elseif ($formid) {
         // This is a normal form field.
         $ldrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
-        "form_id = ? AND field_id = ?", array($formid, $field_id));
+        "form_id = ? AND field_id = ?", [$formid, $field_id]);
         if (!empty($ldrow)) {
             $currvalue = $ldrow['field_value'];
         }

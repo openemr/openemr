@@ -72,14 +72,14 @@ switch ($_GET['action']) {
 			ORDER BY section_value,order_value,name';
 		$rs = $db->SelectLimit($query, $gacl_api->_max_search_return_items);
 
-		$options_objects = array();
+		$options_objects = [];
 		$total_rows = 0;
 
 		if (is_object($rs)) {
 			$total_rows = $rs->RecordCount();
 
 			while ($row = $rs->FetchRow()) {
-				list($section_value, $value, $name) = $row;
+				[$section_value, $value, $name] = $row;
 				$options_objects[attr($value)] = attr($name);
 			}
 		}

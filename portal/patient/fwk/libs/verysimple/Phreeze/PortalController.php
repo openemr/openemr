@@ -218,7 +218,7 @@ abstract class PortalController
         $token = $this->Context->Get('X-CSRFToken');
 
         if (! $token) {
-            $token = md5(rand(1111111111, 9999999999) . microtime());
+            $token = md5(random_int(1111111111, 9999999999) . microtime());
             $this->Context->Set('X-CSRFToken', $token);
         }
 
@@ -452,7 +452,7 @@ abstract class PortalController
         require_once("verysimple/String/VerySimpleStringUtil.php");
 
         if (! is_array($supressProps)) {
-            $supressProps = array ();
+            $supressProps =  [];
         }
 
             // never include these props
@@ -476,7 +476,7 @@ abstract class PortalController
 
         // get the fieldmap for this object type unless not specified
         if ($noMap) {
-            $fms = array ();
+            $fms =  [];
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
@@ -618,9 +618,9 @@ abstract class PortalController
 
         if (! is_object($obj)) {
             $vr->Success = false;
-            $vr->Errors = array (
+            $vr->Errors =  [
                     "Unknown" => "LoadFromForm does not appear to be implemented.  Unable to validate"
-            );
+            ];
             $vr->Message = "LoadFromForm does not appear to be implemented.  Unable to validate";
         } elseif ($obj->Validate()) {
             $vr->Success = true;
@@ -650,7 +650,7 @@ abstract class PortalController
         require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
         $vr->Success = false;
-        $vr->Errors = array ();
+        $vr->Errors =  [];
         $vr->Message = "SaveInline is not implemented by this controller";
         $this->RenderJSON($vr);
     }
@@ -667,7 +667,7 @@ abstract class PortalController
         }
 
         $counter = 0;
-        $props = array ();
+        $props =  [];
         foreach (get_class_vars($this->ModelName) as $var => $val) {
             $props [$counter++] = $var;
         }
@@ -793,10 +793,10 @@ abstract class PortalController
             $message = ! $cu || $cu->IsAnonymous() ? $not_authenticated_feedback : $permission_denied_feedback;
 
             if ($on_fail_action && $this->IsApiRequest() == false) {
-                $this->Redirect($on_fail_action, array (
+                $this->Redirect($on_fail_action, [
                         'feedback' => $message,
                         'warning' => $message
-                ));
+                ]);
             } else {
                 $ex = new AuthenticationException($message, 500);
                 $this->Crash("Permission Denied", 500, $ex);
@@ -876,7 +876,7 @@ abstract class PortalController
         } elseif ($useSimpleObject) {
             // we need to figure out what type
             if (is_array($var) || is_a($var, 'SplFixedArray')) {
-                $obj = array ();
+                $obj =  [];
                 foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
@@ -958,14 +958,14 @@ abstract class PortalController
             $mode = self::$DefaultRedirectMode;
         }
 
-        $params = is_array($params) ? $params : array ();
+        $params = is_array($params) ? $params :  [];
 
         if ($feedback != null) {
             $this->Context->Set("feedback", $feedback);
         }
 
         // support for deprecated Controller/Method format
-        list ( $controller, $method ) = explode(".", str_replace("/", ".", $action));
+        [$controller, $method] = explode(".", str_replace("/", ".", $action));
 
         $url = $this->GetRouter()->GetUrl($controller, $method, $params);
 

@@ -49,10 +49,10 @@ class QuestionnaireService extends BaseService
     public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null): array
     {
         $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?))";
-        $bind = array($name, $q_id);
+        $bind = [$name, $q_id];
         if (!empty($uuid)) {
             $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where `uuid` = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'] ?? null)) {
@@ -70,10 +70,10 @@ class QuestionnaireService extends BaseService
     public function fetchQuestionnaireResource($name, $q_id = null, $uuid = null)
     {
         $sql = "Select * From `questionnaire_repository` Where (`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)";
-        $bind = array($name, $q_id);
+        $bind = [$name, $q_id];
         if (!empty($uuid)) {
             $sql = "Select * From questionnaire_repository Where uuid = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {
@@ -147,7 +147,7 @@ class QuestionnaireService extends BaseService
         $q_display = $q_ob['code'][0]['display'] ?? null;
 
         $content = $this->jsonSerialize($fhir_ob);
-        $bind = array(
+        $bind = [
             $q_uuid,
             $q_id,
             $_SESSION['authUserID'],
@@ -162,14 +162,14 @@ class QuestionnaireService extends BaseService
             $q_display,
             $content,
             $lform
-        );
+        ];
 
         $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?)";
         $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ? WHERE `questionnaire_repository`.`id` = ?";
 
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;
-            $bind = array(
+            $bind = [
                 $_SESSION['authUserID'],
                 $version_update,
                 date("Y-m-d H:i:s"),
@@ -182,7 +182,7 @@ class QuestionnaireService extends BaseService
                 $content,
                 $lform,
                 $id['id']
-            );
+            ];
             sqlInsert($sql_update, $bind);
             $id = $id['id'];
         } else {
@@ -199,21 +199,21 @@ class QuestionnaireService extends BaseService
     public function fetchEncounterQuestionnaireForm($name): array
     {
         $sql = "Select `form_foreign_id` From `registry` Where `state` = 1 And `name` = ?";
-        $q_id = sqlQuery($sql, array($name))['form_foreign_id'];
+        $q_id = sqlQuery($sql, [$name])['form_foreign_id'];
 
         return $this->fetchQuestionnaireById($q_id) ?: [];
     }
 
     public function getQuestionnaireList($encounter_exist_delimit = false): array
     {
-        $response = array();
+        $response = [];
         $sql = "Select  `id`, `name`  From `questionnaire_repository` Where (`active` = ?)";
-        $bind = array(1);
+        $bind = [1];
         if ($encounter_exist_delimit) {
             $sql = "Select `id`, `name` From `questionnaire_repository`" .
                 " Where `id` NOT IN (SELECT `form_foreign_id` FROM `registry` Where `form_foreign_id` > 0 And `directory` = ?)" .
                 " And `active` = ?";
-            $bind = array('questionnaire_assessments', 1);
+            $bind = ['questionnaire_assessments', 1];
         }
         $r = sqlStatement($sql, $bind) ?: [];
         while ($row = sqlFetchArray($r)) {
@@ -234,10 +234,10 @@ class QuestionnaireService extends BaseService
     public function fetchQuestionnaireById($id, $uuid = null): array
     {
         $sql = "Select * From `questionnaire_repository` Where (`id` = ?) Or (`uuid` IS NOT NULL And `uuid` = ?)";
-        $bind = array($id, $uuid);
+        $bind = [$id, $uuid];
         if (!empty($uuid)) {
             $sql = "Select * From questionnaire_repository Where uuid = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {

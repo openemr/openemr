@@ -87,7 +87,7 @@ class BackgroundTaskManagerStub extends BackgroundTaskManager
         return $this->lastBinds;
     }
 
-    protected function fetchSingleValue($sqlStatement, $column, $binds = array())
+    protected function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $this->lastSql = $sqlStatement;
         $this->lastBinds = $binds;

@@ -27,54 +27,54 @@ use PrescriptionTemplates\Controller\HtmlTemplatesController;
 use PrescriptionTemplates\Controller\PdfTemplatesController;
 use Interop\Container\ContainerInterface;
 
-return array(
+return [
 
-    'controllers' => array(
+    'controllers' => [
         'factories' => [
             HtmlTemplatesController::class => fn(ContainerInterface $container, $requestedName): \PrescriptionTemplates\Controller\HtmlTemplatesController => new HtmlTemplatesController(),
             PdfTemplatesController::class => fn(ContainerInterface $container, $requestedName): \PrescriptionTemplates\Controller\PdfTemplatesController => new PdfTemplatesController($container)
         ]
-    ),
-    'router' => array(
-        'routes' => array(
-            'p_html_template' => array(
+    ],
+    'router' => [
+        'routes' => [
+            'p_html_template' => [
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/prescription-html-template[/:action][/:method]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'method'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => HtmlTemplatesController::class,
                         'action'     => 'default'
-                    ),
-                ),
-            ),
-            'p_pdf_template' => array(
+                    ],
+                ],
+            ],
+            'p_pdf_template' => [
 
                 'type'    => Segment::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/prescription-pdf-template[/:action][/:method]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'method'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => PdfTemplatesController::class,
                         'action'     => 'default'
-                    ),
-                ),
-            ),
-        ),
-    ),
-    'view_manager' => array(
-        'template_path_stack' => array(
+                    ],
+                ],
+            ],
+        ],
+    ],
+    'view_manager' => [
+        'template_path_stack' => [
             'PrescriptionTemplate' => __DIR__ . '/../view',
-        ),
-        'template_map' => array(
+        ],
+        'template_map' => [
             'PrescriptionTemplate/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        )
+        ]
 
-    ),
-);
+    ],
+];

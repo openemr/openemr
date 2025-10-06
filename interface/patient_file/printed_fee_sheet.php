@@ -103,8 +103,8 @@ if (empty($_GET['fill'])) {
 }
 
 // Show based on session array or single pid?
-$pid_list = array();
-$apptdate_list = array();
+$pid_list = [];
+$apptdate_list = [];
 
 
 if (!empty($_SESSION['pidList']) and $form_fill == 2) {
@@ -141,7 +141,7 @@ $padding = 0;
 // If $SBCODES is not provided, then manufacture it from the Fee Sheet.
 //
 if (empty($SBCODES)) {
-    $SBCODES = array();
+    $SBCODES = [];
     $last_category = '';
 
     // Create entries based on the fee_sheet_options table.
@@ -166,7 +166,7 @@ if (empty($SBCODES)) {
         $SBCODES[] = '*G|' . xl_list_label($prow['title']);
         $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
                 "WHERE superbill = ? AND active = 1 " .
-                "ORDER BY code_text", array($prow['option_id']));
+                "ORDER BY code_text", [$prow['option_id']]);
         while ($row = sqlFetchArray($res)) {
             $SBCODES[] = $row['code'] . '|' . $row['code_text'];
         }
@@ -345,7 +345,7 @@ $frow = $facilityService->getPrimaryBusinessEntity();
 
 // If primary is not set try to old method of guessing...for backward compatibility
 if (empty($frow)) {
-    $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
+    $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
 }
 
 // Still missing...
@@ -450,7 +450,7 @@ foreach ($pid_list as $pid) {
                         "LEFT JOIN users AS u ON u.username = f.user " .
                         "WHERE f.pid = ? AND f.encounter = ? AND f.formdir = 'newpatient' AND f.deleted = 0 " .
                         "ORDER BY f.id LIMIT 1";
-                $encdata = sqlQuery($query, array($pid, $encounter));
+                $encdata = sqlQuery($query, [$pid, $encounter]);
                 if (!empty($encdata['username'])) {
                     $html .= $encdata['fname'] . ' ' . $encdata['mname'] . ' ' . $encdata['lname'];
                 }
@@ -477,11 +477,11 @@ foreach ($pid_list as $pid) {
             if (empty($GLOBALS['ippf_specific'])) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
-                    foreach (array('primary', 'secondary', 'tertiary') as $instype) {
+                    foreach (['primary', 'secondary', 'tertiary'] as $instype) {
                         $query = "SELECT * FROM insurance_data WHERE " .
                                 "pid = ? AND type = ? " .
                                 "ORDER BY date DESC LIMIT 1";
-                        $row = sqlQuery($query, array($pid, $instype));
+                        $row = sqlQuery($query, [$pid, $instype]);
                         if (!empty($row['provider'])) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();

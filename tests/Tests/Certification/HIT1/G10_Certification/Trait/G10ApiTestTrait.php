@@ -101,7 +101,7 @@ trait G10ApiTestTrait
             throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
         }
     }
-    protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = array()): void
+    protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = []): void
     {
         foreach ($results as $result) {
             $failMessage = '';

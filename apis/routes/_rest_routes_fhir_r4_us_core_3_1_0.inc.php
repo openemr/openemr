@@ -63,7 +63,7 @@ use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
 //   to only see the data of the one patient)
-return array(
+return [
     /**
      *  @OA\Get(
      *      path="/fhir/AllergyIntolerance",
@@ -6241,4 +6241,4 @@ return array(
 
         return $return;
     },
-);
+];

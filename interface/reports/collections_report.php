@@ -175,7 +175,7 @@ $form_cb_with_debt = (!empty($_POST['form_cb_with_debt'])) ? true : false;
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
-$grand_total_agedbal = array();
+$grand_total_agedbal = [];
 for ($c = 0; $c < $form_age_cols; ++$c) {
     $grand_total_agedbal[$c] = 0;
 }
@@ -263,7 +263,7 @@ function endPatient($ptrow): void
     $grand_total_adjustments += $ptrow['adjustments'];
     $grand_total_paid        += $ptrow['paid'];
     for ($c = 0; $c < $form_age_cols; ++$c) {
-        $grand_total_agedbal[$c] += ($ptrow['agedbal'][$c] ?? null);
+        $grand_total_agedbal[$c] += ($ptrow['agedbal'][$c] ?? 0);
     }
 }
 
@@ -314,7 +314,7 @@ function endInsurance($insrow): void
 
 function getInsName($payerid)
 {
-    $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ? ", array($payerid));
+    $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ? ", [$payerid]);
     return $tmp['name'];
 }
 
@@ -551,7 +551,7 @@ if (!empty($_POST['form_csvexport'])) {
                         <td>
                            <select name='form_category' class='form-control'>
                         <?php
-                        foreach (array('Open' => xl('Open'),'Due Pt' => xl('Due Pt'),'Due Ins' => xl('Due Ins'),'Ins Summary' => xl('Ins Summary'),'Credits' => xl('Credits'),'All' => xl('All')) as $key => $value) {
+                        foreach (['Open' => xl('Open'),'Due Pt' => xl('Due Pt'),'Due Ins' => xl('Due Ins'),'Ins Summary' => xl('Ins Summary'),'Credits' => xl('Credits'),'All' => xl('All')] as $key => $value) {
                             echo "    <option value='" . attr($key) . "'";
                             if ($form_category == $key) {
                                 echo " selected";
@@ -591,7 +591,7 @@ if (!empty($_POST['form_csvexport'])) {
                         <td>
                            <select name='form_ageby' class='form-control'>
                         <?php
-                        foreach (array( 'Service Date' => xl('Service Date'), 'Last Activity Date' => xl('Last Activity Date')) as $key => $value) {
+                        foreach ([ 'Service Date' => xl('Service Date'), 'Last Activity Date' => xl('Last Activity Date')] as $key => $value) {
                             echo "    <option value='" . attr($key) . "'";
                             if (!empty($_POST['form_ageby']) && ($_POST['form_ageby'] == $value)) {
                                 echo " selected";
@@ -694,13 +694,13 @@ if (!empty($_POST['form_csvexport'])) {
 } // end not form_csvexport
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
-    $rows = array();
+    $rows = [];
     $where = "";
-    $sqlArray = array();
+    $sqlArray = [];
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
         $where = "( 1 = 2";
         foreach ($_POST['form_cb'] as $key => $value) {
-             list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key);
+             [$key_newval['pid'], $key_newval['encounter']] = explode(".", $key);
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
@@ -814,7 +814,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         // number $insposition (1-3).
         $last_level_closed = $erow['last_level_closed'];
         $duncount = $erow['stmt_count'];
-        $payerids = array();
+        $payerids = [];
         $insposition = 0;
         $insname = '';
         if (!$duncount) {
@@ -849,7 +849,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         // not waiting for insurance to pay.
         $isduept = ($duncount >= 0) ? " checked" : "";
 
-        $row = array();
+        $row = [];
         $row['id']        = $erow['id'];
         $row['pid']       = $patient_id;
         $row['encounter'] = $encounter_id;
@@ -956,14 +956,14 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
             $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
             "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
-            "ORDER BY date DESC LIMIT 1", array($patient_id, $instype, $svcdate));
+            "ORDER BY date DESC LIMIT 1", [$patient_id, $instype, $svcdate]);
             $row['policy'] = $insrow['policy_number'] ?? '';
         }
         if ($form_cb_group_number) {
             $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
             $insrow = sqlQuery("SELECT group_number FROM insurance_data WHERE " .
             "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
-            "ORDER BY date DESC LIMIT 1", array($patient_id, $instype, $svcdate));
+            "ORDER BY date DESC LIMIT 1", [$patient_id, $instype, $svcdate]);
             $row['groupnumber'] = $insrow['group_number'];
         }
 
@@ -1122,12 +1122,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         <?php
     } // end not export
 
-    $ptrow = array('insname' => '', 'pid' => 0);
+    $ptrow = ['insname' => '', 'pid' => 0];
     $orow = -1;
 
     foreach ($rows as $key => $row) {
-        list($insname, $unused , $ptname, $trash) = explode('|', $key);
-        list($pid, $encounter) = explode(".", $row['invnumber']);
+        [$insname, $unused, $ptname, $trash] = explode('|', $key);
+        [$pid, $encounter] = explode(".", $row['invnumber']);
         if (!empty($_POST['form_cb'])) {
             if (($_POST['form_cb'][$row['invnumber']] ?? '') == 'on') {
                 $encounters[] = $encounter;
@@ -1143,23 +1143,23 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         if ($is_ins_summary && $insname != $ptrow['insname']) {
             endInsurance($ptrow);
             $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
-            $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+            $ptrow = ['insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1];
             foreach ($row as $key => $value) {
                 $ptrow[$key] = $value;
             }
 
-            $ptrow['agedbal'] = array();
+            $ptrow['agedbal'] = [];
         } elseif (!$is_ins_summary && ($insname != $ptrow['insname'] || $pid != $ptrow['pid'])) {
             // For the report, this will write the patient totals.  For the
             // collections export this writes everything for the patient:
             endPatient($ptrow);
             $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
-            $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+            $ptrow = ['insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1];
             foreach ($row as $key => $value) {
                 $ptrow[$key] = $value;
             }
 
-            $ptrow['agedbal'] = array();
+            $ptrow['agedbal'] = [];
         } else {
             $ptrow['amount']      += $row['amount'];
             $ptrow['paid']        += $row['paid'];
@@ -1183,7 +1183,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $days = floor((time() - $agetime) / (60 * 60 * 24));
             $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
 
-            $ptrow['agedbal'][$agecolno] = $ptrow['agedbal'][$agecolno] ?? null;
+            $ptrow['agedbal'][$agecolno] ??= 0;
             $ptrow['agedbal'][$agecolno] += $balance;
         }
 
@@ -1317,7 +1317,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 foreach ($invlines as $key => $value) {
                     $ar_session_id = SLEOB::arGetSession($ins_id, 'Adj from collt report', date('YmdHis'), '', $balance);
                     SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', 0, date('YmdHis'), $value['code_type']);
-                    sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", array($insposition, $pid, $encounter));
+                    sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", [$insposition, $pid, $encounter]);
                 }
             }
 

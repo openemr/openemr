@@ -19,7 +19,7 @@
  */
 function edih_php_inivals()
 {
-    $ival = array();
+    $ival = [];
     $td = basename(sys_get_temp_dir());
     $ival['maxfsize'] = ini_get('upload_max_filesize');
     $ival['maxfuploads'] = ini_get('max_file_uploads');
@@ -748,7 +748,7 @@ function edih_disp_era_processed()
     if ($ckno) {
         $srchval = 'ePay - ' . $ckno;
         // reference like '%".$srchval."%'"
-        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", array($srchval));
+        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", [$srchval]);
         if (!empty($row)) {
             $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
             if ($row['global_amount'] === '0' || $row['global_amount'] === '0.00') {

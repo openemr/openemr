@@ -61,29 +61,29 @@ if (empty($formid)) {
     $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                           INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
                           `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
-                          `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($encounter));
+                          `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$encounter]);
     if (!empty($mboquery['id'])) {
         $formid = (int) $mboquery['id'];
     }
 }
-$obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
+$obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
 ?>
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Miscellaneous Billing Options for HCFA-1500'),
         'include_patient_name' => true,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array(""),//all file names need suffix _xpd
+        'expandable_files' => [""],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => true,
         'help_file_name' => "cms_1500_help.php"
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

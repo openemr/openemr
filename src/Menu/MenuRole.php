@@ -37,7 +37,7 @@ class MenuRole
         //   An empty menu_update_map array is created in MenuRole class
         //   constructor. Adding to this array will link special menu items
         //   to functions in the class.
-        $this->menu_update_map = array();
+        $this->menu_update_map = [];
     }
 
     /**
@@ -200,7 +200,7 @@ class MenuRole
 
             if (isset($srcEntry->children)) {
                 // Iterate through and check the child elements
-                $checked_children = array();
+                $checked_children = [];
                 $this->menuApplyRestrictions($srcEntry->children, $checked_children);
                 $srcEntry->children = $checked_children;
             }

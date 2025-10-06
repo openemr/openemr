@@ -30,7 +30,7 @@ use OpenEMR\Services\PatientAccessOnsiteService;
 
 function displayLogin($patient_id, $message, $emailFlag)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
     if ($emailFlag) {
         $message = xlt("Email was sent to following address") . ": " .
             text($patientData['email']) . "\n\n" .

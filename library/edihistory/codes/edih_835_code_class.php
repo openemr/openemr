@@ -44,7 +44,7 @@ class edih_835_codes
 {
 //
 //public $code835 = array();
-    private $code835 = array();
+    private $code835 = [];
     private $ds = '';
     private $dr = '';
 // the key_match array is a concept of matching code lists to
@@ -63,7 +63,7 @@ class edih_835_codes
         $this->dr = $repetition_separator;
         //
         // BPR Transaction Handling Code
-        $this->code835['BPR01'] = array(
+        $this->code835['BPR01'] = [
         "C" => "Pmt Accompanies RA",
         "D" => "Make Pmt Only",
         "H" => "Notification Only",
@@ -71,21 +71,21 @@ class edih_835_codes
         "P" => "Pre-notification of Future Transfers",
         "U" => "Split Pmt and RA",
         "X" => "Handling Party's Option To Split Pmt and RA",
-        );
+        ];
 
         // CAS segment
-        $this->code835['CAS_GROUP'] = array(
+        $this->code835['CAS_GROUP'] = [
         "CO" => "Contractual Obligations",
         "CR" => "Corrections and Reversals",
         "OA" => "Other Adjustments",
         "PI" => "Payor Initiated Reductions",
         "PR" => "Patient Responsibility"
-        );
+        ];
 
 
         // Claim Status
         // loop 2100", Claim Payment Information
-        $this->code835['CLAIM_STATUS'] = array (
+        $this->code835['CLAIM_STATUS'] =  [
         "1" => "Primary",
         "2" => "Secondary",
         "3" => "Tertiary",
@@ -102,11 +102,11 @@ class edih_835_codes
         "23" => "Not Our Claim, Frwd to Addtl Payer(s)",
         "25" => "Predetermination Pricing Only - No Payment",
         "27" => "Reviewed"
-        );
+        ];
 
         // Claim Transaction Code
         // loop 2100", Claim Payment Information
-        $this->code835['CLP06'] = array (
+        $this->code835['CLP06'] =  [
         "12" => "Preferred Provider Org (PPO)",
         "13" => "Point of Service",
         "14" => "Exclusive Provider Org (EPO)",
@@ -126,12 +126,12 @@ class edih_835_codes
         "VA" => "Veterans Affairs Program",
         "WC" => "Worker's Compensation",
         "ZZ" => "Mutually Defined",
-        );
+        ];
 
 
         // loop 2100 Claim Supplemantal Information
         // loop 2110 Service Supplemental Amount
-        $this->code835['AMT'] = array(
+        $this->code835['AMT'] = [
         "AU" => "Coverage Amount",
         "B6" => "Allowed - Actual",
         "CA" => "Covered - Actual Days",
@@ -156,12 +156,12 @@ class edih_835_codes
         "ZN" => "Fed Mcr or Mcd Pmt Mandate - Cat 4",
         "ZO" => "Fed Mcr or Mcd Pmt Mandate - Cat 5",
         "ZZ" => "Mutually Defined"
-        );
+        ];
 
 
 
         // Provider Level Adjustment Codes
-        $this->code835['PLB'] = array(
+        $this->code835['PLB'] = [
         "50" => "Late Charge",
         "51" => "Interest Penalty Charge",
         "72" => "Authorized Rtrn Refunds--Manual Inv",
@@ -216,7 +216,7 @@ class edih_835_codes
         "WO" => "Overpayment Recovery",
         "WU" => "Unspecified Recovery",
         "ZZ" => "Unknown"
-        );
+        ];
 
 
         // Claim Adjustment Reason Codes

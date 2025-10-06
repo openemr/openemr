@@ -175,11 +175,11 @@ function loadPayerInfo($pid, $date = '')
     if (empty($date)) {
         $date = date('Y-m-d');
     }
-    $payers = array();
+    $payers = [];
     $dres = sqlStatement(
         "SELECT * FROM insurance_data WHERE " .
         "pid = ? AND date <= ? ORDER BY type ASC, date DESC",
-        array($pid, $date)
+        [$pid, $date]
     );
     $prevtype = ''; // type is primary, secondary or tertiary
     while ($drow = sqlFetchArray($dres)) {
@@ -195,10 +195,10 @@ function loadPayerInfo($pid, $date = '')
         $ins = count($payers);
         $crow = sqlQuery(
             "SELECT * FROM insurance_companies WHERE id = ?",
-            array($drow['provider'])
+            [$drow['provider']]
         );
         $orow = new InsuranceCompany($drow['provider']);
-        $payers[$ins] = array();
+        $payers[$ins] = [];
         $payers[$ins]['data'] = $drow;
         $payers[$ins]['company'] = $crow;
         $payers[$ins]['object'] = $orow;
@@ -211,17 +211,17 @@ function loadGuarantorInfo($pid, $date = '')
     if (empty($date)) {
         $date = date('Y-m-d');
     }
-    $guarantors = array();
+    $guarantors = [];
     $gres = sqlStatement(
         "SELECT * FROM insurance_data WHERE " .
         "pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1",
-        array($pid, $date)
+        [$pid, $date]
     );
     $prevtype = ''; // type is primary, secondary or tertiary
     while ($drow = sqlFetchArray($gres)) {
         $gnt = count($guarantors);
 
-        $guarantors[$gnt] = array();
+        $guarantors[$gnt] = [];
         $guarantors[$gnt]['data'] = $drow;
     }
     return $guarantors;
@@ -317,7 +317,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         "f.form_id = po.procedure_order_id AND " .
         "pd.pid = f.pid AND " .
         "u.id = po.provider_id",
-        array($orderid)
+        [$orderid]
     );
     if (empty($porow)) {
         return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
@@ -331,7 +331,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         "pc.procedure_order_id = ? AND " .
         "pc.do_not_send = 0 " .
         "ORDER BY pc.procedure_order_seq",
-        array($orderid)
+        [$orderid]
     );
 
     $pdres = sqlStatement(
@@ -342,7 +342,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         "pc.procedure_order_id = ? AND " .
         "pc.do_not_send = 0 " .
         "ORDER BY pc.procedure_order_seq",
-        array($orderid)
+        [$orderid]
     );
 
     $vitals = sqlQuery(
@@ -581,7 +581,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         if ($codestring === '') {
             continue;
         }
-        list($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         $desc = lookup_code_descriptions($codestring);
         $out .= "DG1" .
         $d1 . ++$setid2;
@@ -601,7 +601,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
                 if ($codestring === '') {
                     continue;
                 }
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 $desc = lookup_code_descriptions($codestring);
                 $out .= "DG1" .
                 $d1 . ++$setid2;             // Set ID
@@ -682,7 +682,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
             "a.procedure_order_id = ? AND " .
             "a.procedure_order_seq = ? " .
             "ORDER BY q.seq, a.answer_seq",
-            array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq'])
+            [$porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']]
         );
 
         $setid2 = 0;
@@ -775,7 +775,7 @@ function send_hl7_order($ppid, $out)
     $d0 = "\r";
 
     $pprow = sqlQuery("SELECT * FROM procedure_providers " .
-        "WHERE ppid = ?", array($ppid));
+        "WHERE ppid = ?", [$ppid]);
     if (empty($pprow)) {
         return xl('Procedure provider') . " $ppid " . xl('not found');
     }

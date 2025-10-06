@@ -30,8 +30,8 @@ class GeneratorUB04Form_PDF extends AbstractGenerator implements GeneratorInterf
     use WritesToBillingLog;
 
     // These two are specific to UB04
-    protected $template = array();
-    protected $ub04id = array();
+    protected $template = [];
+    protected $ub04id = [];
     protected $batch;
 
     public function setup(array $context)

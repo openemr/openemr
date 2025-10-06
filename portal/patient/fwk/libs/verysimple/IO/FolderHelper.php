@@ -42,7 +42,7 @@ class FolderHelper
      */
     public function GetFiles($pattern = "")
     {
-        $files = array ();
+        $files =  [];
         $dh = opendir($this->Path);
 
         while ($fname = readdir($dh)) {

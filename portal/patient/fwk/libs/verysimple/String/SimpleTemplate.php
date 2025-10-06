@@ -68,7 +68,7 @@ class SimpleTemplate
         $html = str_replace("<p></p>", "<p>&nbsp;</p>", $html);
 
         // Wipes <br /> after block tags (for when the user includes some html in the text).
-        $wipebr = array (
+        $wipebr =  [
                 "table",
                 "tr",
                 "td",
@@ -76,7 +76,7 @@ class SimpleTemplate
                 "ul",
                 "ol",
                 "li"
-        );
+        ];
 
         for ($x = 0; $x < count($wipebr); $x++) {
             $tag = $wipebr [$x];
@@ -133,7 +133,7 @@ class SimpleTemplate
      */
     static function MergeSimple($template, $values, $ldelim = "{{", $rdelim = "}}")
     {
-        $replacements = array ();
+        $replacements =  [];
 
         foreach ($values as $key => $val) {
             $replacements [$ldelim . $key . $rdelim] = $val;

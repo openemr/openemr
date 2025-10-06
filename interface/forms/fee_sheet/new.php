@@ -955,26 +955,26 @@ $enrow = sqlQuery(
     "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
     "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
     "fe.id = f.form_id LIMIT 1",
-    array($pid, $encounter)
+    [$pid, $encounter]
 );
 $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
-$title = array(xl('Fee Sheet for'), text($name), text($date));
+$title = [xl('Fee Sheet for'), text($name), text($date)];
 $heading =  implode(" ", $title);
 ?>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl($heading),
     'include_patient_name' => false,// use only in appropriate pages
     'expandable' => true,
-    'expandable_files' => array("fee_sheet_new_xpd"),//all file names need suffix _xpd
+    'expandable_files' => ["fee_sheet_new_xpd"],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "fee_sheet_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -1073,7 +1073,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
                                 $res = sqlStatement("SELECT code_type, code, code_text, modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .
-                                "ORDER BY code_text", array($prow['option_id']));
+                                "ORDER BY code_text", [$prow['option_id']]);
                                 while ($row = sqlFetchArray($res)) {
                                     $ctkey = $fs->alphaCodeType($row['code_type']);
                                     if ($code_types[$ctkey]['nofs']) {
@@ -1140,7 +1140,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="text-center">
                                     <div class="form-group">
                                         <?php
-                                        $nofs_code_types = array();
+                                        $nofs_code_types = [];
                                         foreach ($code_types as $key => $value) {
                                             if (!empty($value['nofs'])) {
                                                 continue;
@@ -1332,7 +1332,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             continue;
                                         }
 
-                                        $fs->addServiceLineItem(array(
+                                        $fs->addServiceLineItem([
                                         'codetype'    => $iter['code_type'],
                                         'code'        => trim($iter['code']),
                                         'revenue_code'    => ($revenue_code ?? null),
@@ -1349,7 +1349,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         'justify'     => $justify,
                                         'provider_id' => $provider_id,
                                         'notecodes'   => $notecodes,
-                                        ));
+                                        ]);
                                     }
                                 }
 
@@ -1359,12 +1359,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         "SELECT pay_amount as PatientPay,session_id as id, date(post_time) as date " .
                                         "FROM ar_activity where deleted IS NULL AND pid = ? and encounter = ? and " .
                                         "payer_type = 0 and account_code = 'PCP'",
-                                        array($fs->pid, $fs->encounter)
+                                        [$fs->pid, $fs->encounter]
                                     ); //new fees screen copay gives account_code='PCP'
                                     while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
                                         $PatientPay = $rowMoneyGot['PatientPay'] * -1;
                                         $id = $rowMoneyGot['id'];
-                                        $fs->addServiceLineItem(array(
+                                        $fs->addServiceLineItem([
                                         'codetype'    => 'COPAY',
                                         'code'        => '',
                                         'modifier'    => '',
@@ -1374,7 +1374,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         'units'       => '',
                                         'fee'         => $PatientPay,
                                         'id'          => $id,
-                                        ));
+                                        ]);
                                     }
                                 }
 
@@ -1416,7 +1416,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                         }
                                         $fs->addServiceLineItem(
-                                            array(
+                                            [
                                                 'codetype'    => $iter['code_type'],
                                                 'code'        => trim($iter['code']),
                                                 'revenue_code'    => $revenue_code ?? null,
@@ -1430,7 +1430,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 'provider_id' => $iter['provid'],
                                                 'notecodes'   => $iter['notecodes'] ?? null,
                                                 'pricelevel'  => $iter['pricelevel'] ?? null,
-                                            )
+                                            ]
                                         );
                                     }
                                 }
@@ -1440,7 +1440,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $query = "SELECT ds.*, di.warehouse_id FROM drug_sales AS ds, drug_inventory AS di WHERE " .
                                     "ds.pid = ? AND ds.encounter = ?  AND di.inventory_id = ds.inventory_id " .
                                     "ORDER BY sale_id";
-                                    $sres = sqlStatement($query, array($fs->pid, $fs->encounter));
+                                    $sres = sqlStatement($query, [$fs->pid, $fs->encounter]);
                                     // $prod_lino = 0;
                                 while ($srow = sqlFetchArray($sres)) {
                                     // ++$prod_lino;
@@ -1476,7 +1476,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     }
 
                                     $fs->addProductLineItem(
-                                        array(
+                                        [
                                             'drug_id'      => $drug_id,
                                             'selector'     => $selector,
                                             'pricelevel'   => $pricelevel,
@@ -1487,7 +1487,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             'sale_id'      => $sale_id,
                                             'billed'       => $billed,
                                             'warehouse_id' => $warehouse_id,
-                                        ),
+                                        ],
                                         $convert_units
                                     );
                                 }
@@ -1519,7 +1519,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $rx    = !empty($iter['rx']); // preserve Rx if checked
                                         $warehouse_id = empty($iter['warehouse_id']) ? '' : $iter['warehouse_id'];
                                         $fs->addProductLineItem(
-                                            array(
+                                            [
                                                 'drug_id'      => $iter['drug_id'],
                                                 'selector'     => $iter['selector'],
                                                 'pricelevel'   => $iter['pricelevel'],
@@ -1527,7 +1527,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 'units'        => $units,
                                                 'fee'          => $fee,
                                                 'warehouse_id' => $warehouse_id,
-                                            ),
+                                            ],
                                             false
                                         );
                                     }
@@ -1543,12 +1543,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if ($codestring === '') {
                                             continue;
                                         }
-                                        list($newtype, $newcode) = explode('|', $codestring);
+                                        [$newtype, $newcode] = explode('|', $codestring);
                                         if ($newtype == 'MA') {
-                                            list($code, $modifier) = explode(":", $newcode);
+                                            [$code, $modifier] = explode(":", $newcode);
                                             $tmp = sqlQuery(
                                                 "SELECT sex FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
-                                                array($code_types[$newtype]['id'], $code)
+                                                [$code_types[$newtype]['id'], $code]
                                             );
                                             if ($tmp['sex'] == '1' && $fs->patient_male || $tmp['sex'] == '2' && !$fs->patient_male) {
                                                 $alertmsg = xl('Service is not compatible with the sex of this client.');
@@ -1567,32 +1567,32 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $newsel  = $arrcode[2];
                                             if ($newtype == 'COPAY') {
                                                 $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = ? " .
-                                                "AND type = 'primary' ORDER BY date DESC LIMIT 1", array($fs->pid));
+                                                "AND type = 'primary' ORDER BY date DESC LIMIT 1", [$fs->pid]);
                                                 $code = formatMoneyNumber($tmp['copay'] ?? 0);
-                                                $fs->addServiceLineItem(array(
+                                                $fs->addServiceLineItem([
                                                 'codetype'    => $newtype,
                                                 'code'        => $code,
                                                 'ndc_info'    => date('Y-m-d'),
                                                 'auth'        => '1',
                                                 'units'       => '1',
                                                 'fee'         => formatMoneyNumber(0 - $code),
-                                                ));
+                                                ]);
                                             } elseif ($newtype == 'PROD') {
                                                 $result = sqlQuery("SELECT dt.quantity, d.route " .
                                                 "FROM drug_templates AS dt, drugs AS d WHERE " .
                                                 "dt.drug_id = ? AND dt.selector = ? AND " .
-                                                "d.drug_id = dt.drug_id", array($newcode,$newsel));
+                                                "d.drug_id = dt.drug_id", [$newcode,$newsel]);
                                                 // $units = max(1, intval($result['quantity']));
                                                 $units = 1; // user units, not inventory units
                                                 // By default create a prescription if drug route is set.
                                                 $rx = !empty($result['route']);
                                                 $fs->addProductLineItem(
-                                                    array(
+                                                    [
                                                         'drug_id'      => $newcode,
                                                         'selector'     => $newsel,
                                                         'rx'           => $rx,
                                                         'units'        => $units,
-                                                    ),
+                                                    ],
                                                     false
                                                 );
                                             } else {
@@ -1612,23 +1612,23 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($newtype == 'HCPCS' && $ndc_applies) {
                                                     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                                                     "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-                                                    "ORDER BY date DESC LIMIT 1", array($newtype, $code));
+                                                    "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
                                                     if (!empty($tmp)) {
                                                         $ndc_info = $tmp['ndc_info'];
                                                     } else {
                                                         $tmp = sqlQuery("SELECT ndc_number FROM drugs WHERE " .
-                                                            "related_code = ? AND active = 1", array($newtype . ":" . $code));
+                                                            "related_code = ? AND active = 1", [$newtype . ":" . $code]);
                                                         if (!empty($tmp)) {
                                                             $ndc_info = $tmp['ndc_number'];
                                                         }
                                                     }
                                                 }
-                                                $fs->addServiceLineItem(array(
+                                                $fs->addServiceLineItem([
                                                      'codetype' => $newtype,
                                                      'code' => $code,
                                                      'modifier' => trim($modifier),
                                                      'ndc_info' => $ndc_info,
-                                                ));
+                                                ]);
                                             }
                                         }
                                     }
@@ -1681,7 +1681,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <label class='col-form-label col-2'><?php echo xlt('Supervising'); ?></label>
                                     <div class="col-10">
                                     <?php
-                                    $super_id = sqlQuery("Select supervisor_id From users Where id = ?", array($default_rid))['supervisor_id'];
+                                    $super_id = sqlQuery("Select supervisor_id From users Where id = ?", [$default_rid])['supervisor_id'];
                                     $select_id = !empty($fs->supervisor_id) ? $fs->supervisor_id : $super_id;
                                     echo $fs->genProviderSelect('SupervisorID', '-- ' . xl("N/A") . ' --', $select_id, $isBilled); ?>
                                     </div>

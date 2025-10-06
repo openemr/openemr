@@ -18,7 +18,7 @@ require_once("ICache.php");
  */
 class CacheRam implements ICache
 {
-    private $ram = array ();
+    private $ram =  [];
     public function Get($key, $flags = null)
     {
         return isset($this->ram [$key]) ? $this->ram [$key] : null;

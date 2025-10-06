@@ -194,9 +194,9 @@ class PractitionerRoleService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT *,
                 role.title as role,
@@ -225,8 +225,8 @@ class PractitionerRoleService extends BaseService
 
         if (!empty($search)) {
             $sql .= " AND ";
-            $whereClauses = array();
-            $wildcardFields = array('user_name');
+            $whereClauses = [];
+            $wildcardFields = ['user_name'];
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
                 if (in_array($fieldName, $wildcardFields)) {

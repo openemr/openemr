@@ -60,7 +60,7 @@ class Documents extends AbstractPlugin
 	    WHERE cat_doc.category_id = 1";
         $result = $obj->zQuery($query);
         $count  = 0;
-        $module = array();
+        $module = [];
         foreach ($result as $row) {
             $content = self::getDocument($row['id']);
             $module[$count]['doc_id']   = $row['id'];

@@ -73,7 +73,7 @@ function listChecksum($list_id)
             "list_id, option_id, title, seq, is_default, option_value, mapping, notes" .
             "))) AS checksum FROM list_options WHERE " .
             "list_id = ?",
-            array($list_id)
+            [$list_id]
         );
     }
     return (0 + $row['checksum']);
@@ -106,7 +106,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
             if (strlen($category) > 0 && strlen($option) > 0) {
                 sqlStatement("INSERT INTO fee_sheet_options ( " .
                     "fs_category, fs_option, fs_codes " .
-                    ") VALUES ( ?,?,? )", array($category, $option, $codes));
+                    ") VALUES ( ?,?,? )", [$category, $option, $codes]);
             }
         }
     } elseif ($list_id == 'code_types') {
@@ -137,7 +137,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     "INSERT INTO code_types ( " .
                     "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem, ct_drug " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    array(
+                    [
                         $ct_key,
                         $ct_id,
                         $ct_seq,
@@ -156,7 +156,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                         $ct_term,
                         $ct_problem,
                         $ct_drug
-                    )
+                    ]
                 );
             }
         }
@@ -170,7 +170,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
             if ((strlen($it_category) > 0) && (strlen($it_type) > 0)) {
                 sqlStatement("INSERT INTO issue_types (" .
                     "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, " .
-                    "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
+                    "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
                     trim($iter['active']),
                     $it_category,
                     trim($iter['ordering']),
@@ -181,7 +181,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     trim($iter['style']),
                     trim($iter['force_show']),
                     trim($iter['aco_spec']),
-                ));
+                ]);
             }
         }
     } else {
@@ -220,7 +220,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                 ) {
                     sqlStatement("UPDATE `immunizations` " .
                         "SET `cvx_code`= ? " .
-                        "WHERE `immunization_id`= ? ", array($value, $id));
+                        "WHERE `immunization_id`= ? ", [$value, $id]);
                 }
 
                 // Force List Based Form names to start with LBF.
@@ -254,7 +254,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                 }
 
                 // Delete the list item
-                sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id, $real_id));
+                sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $real_id]);
                 if (strlen($id) <= 0 && strlen(trim($iter['title'])) <= 0 && empty($id) && empty($iter['title'])) {
                     continue;
                 }
@@ -263,7 +263,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     "INSERT INTO list_options ( " .
                     "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    array(
+                    [
                         $list_id,
                         $id,
                         trim($iter['title']),
@@ -277,7 +277,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                         trim($iter['toggle_setting_2'] ?? 0),
                         trim($iter['activity'] ?? 0),
                         trim($iter['subtype'] ?? '')
-                    )
+                    ]
                 );
             }
         }
@@ -296,12 +296,12 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
 
     // determine the position of this new list
     $row = sqlQuery("SELECT max(seq) AS maxseq FROM list_options WHERE list_id= 'lists'");
-    $dup_cnt = sqlQuery("SELECT count(seq) as validate FROM list_options WHERE list_id= 'lists' AND option_id = ?", array($newlistID))['validate'];
+    $dup_cnt = sqlQuery("SELECT count(seq) as validate FROM list_options WHERE list_id= 'lists' AND option_id = ?", [$newlistID])['validate'];
     if ((int)$dup_cnt === 0) {
         // add the new list to the list-of-lists
         sqlStatement("INSERT INTO list_options ( " .
             "list_id, option_id, title, seq, is_default, option_value " .
-            ") VALUES ( 'lists', ?, ?, ?, '1', '0')", array($newlistID, $_POST['newlistname'], ($row['maxseq'] + 1)));
+            ") VALUES ( 'lists', ?, ?, ?, '1', '0')", [$newlistID, $_POST['newlistname'], ($row['maxseq'] + 1)]);
         $list_id = $newlistID;
     } else {
         // send error and continue.
@@ -316,9 +316,9 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     );
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == 'deletelist')) {
     // delete the lists options
-    sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
+    sqlStatement("DELETE FROM list_options WHERE list_id = ?", [$_POST['list_id']]);
     // delete the list from the master list-of-lists
-    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", array($_POST['list_id']));
+    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", [$_POST['list_id']]);
     EventAuditLogger::instance()->newEvent(
         "delete_list",
         $_SESSION['authUser'],
@@ -360,12 +360,12 @@ function getCodeDescriptions($codes)
         }
         $selector = $arrcode[2];
         if ($code_type == 'PROD') {
-            $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", array($code));
+            $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", [$code]);
             $desc = "$code:$selector " . $row['name'];
         } else {
             $row = sqlQuery("SELECT code_text FROM codes WHERE " .
                 "code_type = ? AND " .
-                "code = ? ORDER BY modifier LIMIT 1", array($code_types[$code_type]['id'], $code));
+                "code = ? ORDER BY modifier LIMIT 1", [$code_types[$code_type]['id'], $code]);
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
         }
         $desc = str_replace('~', ' ', $desc);
@@ -424,10 +424,10 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][activity]' class='optin'>";
         foreach (
-            array(
+            [
                 1 => xl('Replace'),
                 2 => xl('Append')
-            ) as $key => $desc
+            ] as $key => $desc
         ) {
             echo "<option value='" . attr($key) . "'";
             if ($key == $active) {
@@ -457,13 +457,13 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
         foreach (
-            array(
+            [
                 1 => xl('Charge adjustment'),
                 2 => xl('Coinsurance'),
                 3 => xl('Deductible'),
                 4 => xl('Other pt resp'),
                 5 => xl('Comment'),
-            ) as $key => $desc
+            ] as $key => $desc
         ) {
             echo "<option value='" . attr($key) . "'";
             if ($key == $value) {
@@ -495,11 +495,11 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
         foreach (
-            array(
+            [
                 1 => xl('Unassigned'),
                 2 => xl('Person'),
                 3 => xl('Company'),
-            ) as $key => $desc
+            ] as $key => $desc
         ) {
             echo "<option value='" . attr($key) . "'";
             if ($key == $value) {
@@ -522,7 +522,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     }
 
     if ($list_id == 'apptstat' || $list_id == 'groupstat') {
-        list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
+        [$apptstat_color, $apptstat_timealert] = explode("|", $notes);
         echo "  <td>";
         echo "<input type='text' class='jscolor' name='opt[" . attr($opt_line_no) . "][apptstat_color]' value='" .
             attr($apptstat_color) . "' size='6' maxlength='6' class='optin' />";
@@ -1168,7 +1168,7 @@ function writeITLine($it_array): void
                                     "FROM list_options AS lo " .
                                     "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
                                     "ORDER BY title, lo.seq",
-                                    array($lang_id)
+                                    [$lang_id]
                                 );
                             }
 
@@ -1413,7 +1413,7 @@ function writeITLine($it_array): void
                         writeCTLine($row);
                     }
                     for ($i = 0; $i < 3; ++$i) {
-                        writeCTLine(array());
+                        writeCTLine([]);
                     }
                 } elseif ($list_id == 'issue_types') {
                     $res = sqlStatement("SELECT count(*) as total_rows FROM issue_types ORDER BY category, ordering");
@@ -1425,13 +1425,13 @@ function writeITLine($it_array): void
                         writeITLine($row);
                     }
                     for ($i = 0; $i < 3; ++$i) {
-                        writeITLine(array());
+                        writeITLine([]);
                     }
                 } else {
                     $res = sqlStatement("SELECT count(*) as total_rows
                          FROM list_options AS lo
                          RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
-                         WHERE lo.list_id = ? AND lo.edit_options = 1", array($list_id));
+                         WHERE lo.list_id = ? AND lo.edit_options = 1", [$list_id]);
                     $total_rows = sqlFetchArray($res)["total_rows"];
 
 
@@ -1439,7 +1439,7 @@ function writeITLine($it_array): void
                          FROM list_options AS lo
                          RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
-                         ORDER BY seq,title " . $sql_limits, array($list_id));
+                         ORDER BY seq,title " . $sql_limits, [$list_id]);
 
                     while ($row = sqlFetchArray($res)) {
                         writeOptionLine(
