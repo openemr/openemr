@@ -1326,7 +1326,7 @@ class Claim
         return str_replace('-', '', substr($this->encounter['date'], 0, 10));
     }
 
-    public function priorAuth()
+    public function priorAuth() // AI generated code. Unknow which was used because the IDE auto selects
     {
         // Prefer explicitly entered prior auth from misc billing options
         $explicit = $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
@@ -1405,7 +1405,7 @@ class Claim
 
         return $row['auth_num'] ?? '';
     }
-
+    //end of AI generated code
     public function isRelatedEmployment()
     {
         return !empty($this->billing_options['employment_related']);
