@@ -489,7 +489,7 @@ function era_callback(&$out): void
                         $debug,
                         '',
                         $codetype,
-                        $date ?? null,
+                        $check_date,
                         $out['payer_claim_id']
                     );
                     $invoice_total -= $svc['paid'];
