@@ -1151,32 +1151,22 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
     ('specimen_condition', 'WET', 'Wet', 130, 0, 0, 'HL7V20493:WET', 'Wet specimen'),
     ('specimen_condition', 'DRY', 'Dry', 140, 0, 0, 'HL7V20493:DRY', 'Dry specimen'),
     ('specimen_condition', 'OTHER', 'Other', 150, 0, 0, 'HL7V20493:OTHER', 'Other condition'),
-    ('specimen_condition', 'acceptable', 'Acceptable', 160, 1, 0, 'Specimen is acceptable for testing');
-#EndIf
-
-#IfNotRow2D list_options list_id lists option_id specimen_reject_reason
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('lists', 'specimen_reject_reason', 'Specimen Rejection Reason', 1, 0, 0, '', 'Local codes for QA/specimen rejection tracking');
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('specimen_reject_reason', 'QNS', 'Quantity not sufficient', 10, 0, 0, 'LOCAL:QNS', 'Insufficient volume'),
-    ('specimen_reject_reason', 'HEMOLYZED', 'Hemolyzed', 20, 0, 0, 'LOCAL:HEM', 'Hemolysis detected'),
-    ('specimen_reject_reason', 'LIPEMIC', 'Lipemic', 30, 0, 0, 'LOCAL:LIP', 'Lipemia present'),
-    ('specimen_reject_reason', 'ICTERIC', 'Icteric', 35, 0, 0, 'LOCAL:ICT', 'Icterus/jaundice'),
-    ('specimen_reject_reason', 'CLOTTED', 'Clotted', 40, 0, 0, 'LOCAL:CLOT', 'Specimen clotted'),
-    ('specimen_reject_reason', 'CONTAM', 'Contaminated', 50, 0, 0, 'LOCAL:CON', 'Contamination detected'),
-    ('specimen_reject_reason', 'EXPIRED', 'Specimen expired', 60, 0, 0, 'LOCAL:EXP', 'Past stability time'),
-    ('specimen_reject_reason', 'MISLABELED', 'Mislabeled', 70, 0, 0, 'LOCAL:MISLAB', 'Labeling error'),
-    ('specimen_reject_reason', 'UNLABELED', 'Unlabeled', 80, 0, 0, 'LOCAL:NOLAB', 'No label present'),
-    ('specimen_reject_reason', 'DAMAGED', 'Container damaged', 90, 0, 0, 'LOCAL:DAM', 'Container leak/break'),
-    ('specimen_reject_reason', 'WRONGTEMP', 'Improper storage temperature', 100, 0, 0, 'LOCAL:TEMP', 'Temperature abuse'),
-    ('specimen_reject_reason', 'WRONGTUBE', 'Wrong collection container', 110, 0, 0, 'LOCAL:TUBE', 'Incorrect tube type');
+    ('specimen_condition', 'acceptable', 'Acceptable', 160, 1, 0, '','Specimen is acceptable for testing'),
+    ('specimen_condition', 'QNS', 'Quantity not sufficient', 170, 0, 0, 'LOCAL:QNS', 'Insufficient volume'),
+    ('specimen_condition', 'HEMOLYZED', 'Hemolyzed', 180, 0, 0, 'LOCAL:HEM', 'Hemolysis detected'),
+    ('specimen_condition', 'LIPEMIC', 'Lipemic', 190, 0, 0, 'LOCAL:LIP', 'Lipemia present'),
+    ('specimen_condition', 'ICTERIC', 'Icteric', 200, 0, 0, 'LOCAL:ICT', 'Icterus/jaundice'),
+    ('specimen_condition', 'EXPIRED', 'Specimen expired', 210, 0, 0, 'LOCAL:EXP', 'Past stability time'),
+    ('specimen_condition', 'MISLABELED', 'Mislabeled', 220, 0, 0, 'LOCAL:MISLAB', 'Labeling error'),
+    ('specimen_condition', 'UNLABELED', 'Unlabeled', 230, 0, 0, 'LOCAL:NOLAB', 'No label present'),
+    ('specimen_condition', 'DAMAGED', 'Container damaged', 240, 0, 0, 'LOCAL:DAM', 'Container leak/break'),
+    ('specimen_condition', 'WRONGTEMP', 'Improper storage temperature', 250, 0, 0, 'LOCAL:TEMP', 'Temperature abuse'),
+    ('specimen_condition', 'WRONGTUBE', 'Wrong collection container', 260, 0, 0, 'LOCAL:TUBE', 'Incorrect tube type');
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id specimen_collection_method
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
     ('lists', 'specimen_collection_method', 'Specimen Collection Method', 1, 0, 0, '', 'SNOMED-CT binding');
-
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
 -- Core/Common Methods
 ('specimen_collection_method', '129316008', 'Aspiration', 10, 0, 0, 'SNOMED-CT:129316008', 'Aspiration procedure'),
@@ -1223,7 +1213,7 @@ CREATE TABLE `procedure_specimen` (
     `volume_value` DECIMAL(10,3) DEFAULT NULL,
     `volume_unit` VARCHAR(32) DEFAULT 'mL',
     `condition_code` VARCHAR(32) DEFAULT NULL COMMENT 'HL7 v2 0493 (e.g., ACT, HEM)',
-    `condition` VARCHAR(64) DEFAULT NULL,
+    `specimen_condition` VARCHAR(64) DEFAULT NULL,
     `comments` TEXT,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
