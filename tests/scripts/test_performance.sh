@@ -14,6 +14,8 @@
 # Example: ./test_performance.sh http://localhost/openemr 100
 
 set -e
+# Ensure errexit is inherited in command substitutions (addresses SC2311)
+shopt -s inherit_errexit 2>/dev/null || true
 
 # Configuration
 BASE_URL="${1:-http://localhost/openemr}"
@@ -187,7 +189,7 @@ login_result=$(run_performance_test \
     "Anonymous page with ignoreAuth pattern")
 
 login_rps=$(cut -d'|' -f1 <<< "${login_result}")
-login_time=$(cut -d'|' -f2 <<< "${login_result}")
+_login_time=$(cut -d'|' -f2 <<< "${login_result}")
 
 # Test 4: Static Assets
 {
@@ -282,8 +284,9 @@ echo | tee -a "${REPORT_FILE}"
 } | tee -a "${REPORT_FILE}"
 
 # Resource Usage (if available)
-if command -v ps &> /dev/null; then
-    php_procs=$(ps aux | grep -c '[p]hp' || echo "0")
+if command -v pgrep &> /dev/null; then
+    # Use pgrep instead of ps|grep to avoid SC2009
+    php_procs=$(pgrep -c php 2>/dev/null || echo "0")
     {
         echo "Current Resource Usage:"
         echo "  Active PHP processes: ${php_procs}"

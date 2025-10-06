@@ -14,6 +14,8 @@
 # Example: ./test_compatibility.sh http://localhost/openemr
 
 set -e
+# Ensure errexit is inherited in command substitutions (addresses SC2311)
+shopt -s inherit_errexit 2>/dev/null || true
 
 # Configuration
 BASE_URL="${1:-http://localhost/openemr}"
