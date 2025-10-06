@@ -1038,7 +1038,7 @@ function edih_errseg_parse($err_seg, $id = false)
     // note: multiple IK3 segments are allowed in 997/999 x12
     //
     $ret_ar = [];
-    if (!$err_seg || strpos($err_seg, 'IK3') === false) {
+    if (!$err_seg || !str_contains($err_seg, 'IK3')) {
         csv_edihist_log('edih_errseg_parse: invalid argument');
         return $ret_ar;
     }
@@ -1832,7 +1832,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
             }
         } elseif ($srchtype == 'pid') {
             while (($data = fgetcsv($fh1, 1024, ',')) !== false) {
-                if (strpos($data[2], (string) $p) !== false) {
+                if (str_contains($data[2], (string) $p)) {
                     $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2], '-')) : '';
                     if (strcmp($te, $p) === 0) {
                         for ($i = 0; $i < $hct; $i++) {

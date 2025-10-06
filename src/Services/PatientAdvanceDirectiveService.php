@@ -258,24 +258,24 @@ class PatientAdvanceDirectiveService
         $category_lower = strtolower($category);
 
         // Check document name first
-        if (strpos($name_lower, 'living') !== false && strpos($name_lower, 'will') !== false) {
+        if (str_contains($name_lower, 'living') && str_contains($name_lower, 'will')) {
             return 'Living Will';
         }
-        if (strpos($name_lower, 'durable') !== false && strpos($name_lower, 'power') !== false) {
+        if (str_contains($name_lower, 'durable') && str_contains($name_lower, 'power')) {
             return 'Durable Power of Attorney';
         }
-        if (strpos($name_lower, 'dnr') !== false || strpos($name_lower, 'do not resuscitate') !== false) {
+        if (str_contains($name_lower, 'dnr') || str_contains($name_lower, 'do not resuscitate')) {
             return 'Do Not Resuscitate Order';
         }
 
         // Check category if name doesn't match
-        if (strpos($category_lower, 'living will') !== false) {
+        if (str_contains($category_lower, 'living will')) {
             return 'Living Will';
         }
-        if (strpos($category_lower, 'durable power of attorney') !== false) {
+        if (str_contains($category_lower, 'durable power of attorney')) {
             return 'Durable Power of Attorney';
         }
-        if (strpos($category_lower, 'do not resuscitate') !== false) {
+        if (str_contains($category_lower, 'do not resuscitate')) {
             return 'Do Not Resuscitate Order';
         }
 

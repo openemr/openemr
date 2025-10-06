@@ -45,7 +45,7 @@ class MaviqClient
 
         // if GET and vars, append them
         if ($method == "GET") {
-            $url .= (false === strpos($path, '?') ? "?" : "&") . $encoded;
+            $url .= (!str_contains($path, '?') ? "?" : "&") . $encoded;
         }
 
         // initialize a new curl object

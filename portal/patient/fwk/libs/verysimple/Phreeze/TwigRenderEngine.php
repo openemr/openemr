@@ -56,7 +56,7 @@ class TwigRenderEngine implements IRenderEngine
      */
     function display($template)
     {
-        if (strpos('.', $template) === false) {
+        if (!str_contains('.', $template)) {
             $template .= '.html';
         }
 
@@ -69,7 +69,7 @@ class TwigRenderEngine implements IRenderEngine
      */
     function fetch($template)
     {
-        if (strpos('.', $template) === false) {
+        if (!str_contains('.', $template)) {
             $template .= '.html';
         }
 

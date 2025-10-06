@@ -481,7 +481,7 @@ function SetFont($family, $style='', $size=0)
 	else
 		$family = strtolower($family);
 	$style = strtoupper($style);
-	if(strpos($style,'U')!==false)
+	if(str_contains($style,'U'))
 	{
 		$this->underline = true;
 		$style = str_replace('U','',$style);
@@ -614,13 +614,13 @@ function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link
 	{
 		$x = $this->x;
 		$y = $this->y;
-		if(strpos($border,'L')!==false)
+		if(str_contains($border,'L'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',$x*$k,($this->h-$y)*$k,$x*$k,($this->h-($y+$h))*$k);
-		if(strpos($border,'T')!==false)
+		if(str_contains($border,'T'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',$x*$k,($this->h-$y)*$k,($x+$w)*$k,($this->h-$y)*$k);
-		if(strpos($border,'R')!==false)
+		if(str_contains($border,'R'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',($x+$w)*$k,($this->h-$y)*$k,($x+$w)*$k,($this->h-($y+$h))*$k);
-		if(strpos($border,'B')!==false)
+		if(str_contains($border,'B'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',$x*$k,($this->h-($y+$h))*$k,($x+$w)*$k,($this->h-($y+$h))*$k);
 	}
 	if($txt!=='')
@@ -682,11 +682,11 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 		else
 		{
 			$b2 = '';
-			if(strpos($border,'L')!==false)
+			if(str_contains($border,'L'))
 				$b2 .= 'L';
-			if(strpos($border,'R')!==false)
+			if(str_contains($border,'R'))
 				$b2 .= 'R';
-			$b = (strpos($border,'T')!==false) ? $b2.'T' : $b2;
+			$b = (str_contains($border,'T')) ? $b2.'T' : $b2;
 		}
 	}
 	$sep = -1;
@@ -766,7 +766,7 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 		$this->ws = 0;
 		$this->_out('0 Tw');
 	}
-	if($border && strpos($border,'B')!==false)
+	if($border && str_contains($border,'B'))
 		$b .= 'B';
 	$this->Cell($w,$h,substr($s,$j,$i-$j),$b,2,$align,$fill);
 	$this->x = $this->lMargin;
@@ -1139,7 +1139,7 @@ protected function _endpage()
 protected function _loadfont($font)
 {
 	// Load a font definition file from the font directory
-	if(strpos($font,'/')!==false || strpos($font,"\\")!==false)
+	if(str_contains($font,'/') || str_contains($font,"\\"))
 		$this->Error('Incorrect font definition file name: '.$font);
 	include($this->fontpath.$font);
 	if(!isset($name))
@@ -1170,7 +1170,7 @@ protected function _httpencode($param, $value, $isUTF8)
 		return $param.'="'.$value.'"';
 	if(!$isUTF8)
 		$value = utf8_encode($value);
-	if(strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false)
+	if(str_contains($_SERVER['HTTP_USER_AGENT'],'MSIE'))
 		return $param.'="'.rawurlencode($value).'"';
 	else
 		return $param."*=UTF-8''".rawurlencode($value);
@@ -1212,7 +1212,7 @@ protected function _UTF8toUTF16($s)
 protected function _escape($s)
 {
 	// Escape special characters
-	if(strpos($s,'(')!==false || strpos($s,')')!==false || strpos($s,'\\')!==false || strpos($s,"\r")!==false)
+	if(str_contains($s,'(') || str_contains($s,')') || str_contains($s,'\\') || str_contains($s,"\r"))
 		return str_replace(['\\','(',')',"\r"], ['\\\\','\\(','\\)','\\r'], $s);
 	else
 		return $s;

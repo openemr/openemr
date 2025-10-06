@@ -92,7 +92,7 @@ function render_list_select(string $field, string $list_id, $current, string $pl
                 $cd = json_decode($codes, true) ?: [];
                 $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
-            } elseif (strpos($codes, ':') !== false) {
+            } elseif (str_contains($codes, ':')) {
                 [$system, $code] = explode(':', $codes, 2);
             }
         }

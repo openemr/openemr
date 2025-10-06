@@ -107,7 +107,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
         // get the file information
         $info = false;
 
-        if (strpos($file, '://') === false) {
+        if (!str_contains($file, '://')) {
             // no "://" in the file, so it's local
             $file = $this->imageDir . $file;
             $tmp = $this->documentRoot . $file;

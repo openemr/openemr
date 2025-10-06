@@ -163,7 +163,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $option['race']['code'] = '';
         $option['race_cat']['title'] = '';
         $option['race_cat']['code'] = '';
-        if (strpos($race, '|') !== false) {
+        if (str_contains($race, '|')) {
             $first = explode('|', $race);
             foreach ($first as $i => $title) {
                 $result = $appTable->zQuery($query, [$title]);
@@ -3925,13 +3925,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return '';
         }
         $s = strtolower($system);
-        if (strpos($s, 'loinc') !== false) {
+        if (str_contains($s, 'loinc')) {
             return 'LOINC';
         }
-        if (strpos($s, 'snomed') !== false) {
+        if (str_contains($s, 'snomed')) {
             return 'SNOMED CT';
         }
-        if (strpos($s, 'rxnorm') !== false) {
+        if (str_contains($s, 'rxnorm')) {
             return 'RXNORM';
         }
         return '';

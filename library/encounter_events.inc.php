@@ -330,7 +330,7 @@ function check_event_exist($eid)
         $origEventRow = sqlFetchArray($origEvent);
         return $origEventRow['pc_eid'];
     } else {
-        if (strpos($pc_recurrspec_array['exdate'], date('Ymd')) === false) {//;'20110228'
+        if (!str_contains($pc_recurrspec_array['exdate'], date('Ymd'))) {//;'20110228'
             return false;
         } else {//this happens in delete case
             return true;

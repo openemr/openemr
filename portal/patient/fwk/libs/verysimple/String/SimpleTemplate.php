@@ -40,7 +40,7 @@ class SimpleTemplate
     static function TextToHtml($txt)
     {
         // Kills double spaces and spaces inside tags.
-        while (! (strpos($txt, '  ') === false)) {
+        while (str_contains($txt, '  ')) {
             $txt = str_replace('  ', ' ', $txt);
         }
 
@@ -61,7 +61,7 @@ class SimpleTemplate
         // $txt = str_ireplace("<a href=http://","<a rel=\"noopener\" target=\"_blank\" href=http://",$txt);
 
         // Basic formatting
-        $eol = (strpos($txt, "\r") === false) ? "\n" : "\r\n";
+        $eol = (!str_contains($txt, "\r")) ? "\n" : "\r\n";
         $html = '<p>' . str_replace("$eol$eol", "</p><p>", $txt) . '</p>';
         $html = str_replace("$eol", "<br />\n", $html);
         $html = str_replace("</p>", "</p>\n\n", $html);

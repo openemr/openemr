@@ -670,7 +670,7 @@ if (!empty($_POST['newcodes'])) {
         }
 
         $arrcode = explode('|', $codestring);
-        if (strpos($arrcode[1], ':') !== false) {
+        if (str_contains($arrcode[1], ':')) {
             $tmp = explode(':', $arrcode[1]);
             $code = $tmp[0] ?? '';
             $modifier = $tmp[1] ?? '';
@@ -1596,7 +1596,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     false
                                                 );
                                             } else {
-                                                if (strpos($newcode, ':') !== false) {
+                                                if (str_contains($newcode, ':')) {
                                                     $tmp = explode(':', $arrcode[1]);
                                                     $code = $tmp[0] ?? '';
                                                     $modifier = $tmp[1] ?? '';

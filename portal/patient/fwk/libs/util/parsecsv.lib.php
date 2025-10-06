@@ -723,25 +723,25 @@ class parseCSV
     {
         if (! empty($row)) {
             if (! empty($conditions)) {
-                $conditions = (strpos($conditions, ' OR ') !== false) ? explode(' OR ', $conditions) :  [
+                $conditions = (str_contains($conditions, ' OR ')) ? explode(' OR ', $conditions) :  [
                         $conditions
                 ];
                 $or = '';
                 foreach ($conditions as $value) {
-                    if (strpos($value, ' AND ') !== false) {
+                    if (str_contains($value, ' AND ')) {
                         $value = explode(' AND ', $value);
                         $and = '';
                         foreach ($value as $v) {
                             $and .= $this->_validate_row_condition($row, $v);
                         }
 
-                        $or .= (strpos($and, '0') !== false) ? '0' : '1';
+                        $or .= (str_contains($and, '0')) ? '0' : '1';
                     } else {
                         $or .= $this->_validate_row_condition($row, $value);
                     }
                 }
 
-                return (strpos($or, '1') !== false) ? true : false;
+                return (str_contains($or, '1')) ? true : false;
             }
 
             return true;

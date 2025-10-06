@@ -640,7 +640,7 @@ class Barcode39
         $result = '';
         $intercharacter = '0';
 
-        if (strpos($code, '*') !== false) {
+        if (str_contains($code, '*')) {
             return('');
         }
 
@@ -686,7 +686,7 @@ class Barcode93
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%____*'; // _ => ($), (%), (/) et (+)
         $result = '';
 
-        if (strpos($code, '*') !== false) {
+        if (str_contains($code, '*')) {
             return('');
         }
 
@@ -783,7 +783,7 @@ class Barcode128
         // check each characters
         $len = strlen($code);
         for ($i = 0; $i < $len; $i++) {
-            if (strpos($tableB, (string) $code[$i]) === false) {
+            if (!str_contains($tableB, (string) $code[$i])) {
                 return("");
             }
         }

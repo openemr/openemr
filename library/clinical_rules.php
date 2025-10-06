@@ -2723,7 +2723,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             $compSql .= "? ";
         }
 
-        if ($whereTables == "" && strpos($table, 'form_') !== false) {
+        if ($whereTables == "" && str_contains($table, 'form_')) {
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
             $sql = sqlStatementCdrEngine(

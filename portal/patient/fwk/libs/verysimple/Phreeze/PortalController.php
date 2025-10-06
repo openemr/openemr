@@ -764,7 +764,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (strpos($url, (string) self::$ApiIdentifier) !== false);
+        return (str_contains($url, (string) self::$ApiIdentifier));
     }
 
     /**
@@ -896,7 +896,7 @@ abstract class PortalController
         try {
             $output = json_encode($obj);
         } catch (Exception $ex) {
-            if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
+            if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
                     $this->UTF8Encode($obj);

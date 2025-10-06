@@ -635,7 +635,7 @@ if ($fend > ($count ?? null)) {
                 "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
             while ($prow = sqlFetchArray($pres)) {
                 $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-                if (strpos(":$taxrates", (string) $prow['option_id']) !== false) {
+                if (str_contains(":$taxrates", (string) $prow['option_id'])) {
                     $taxline .= " checked";
                 }
 

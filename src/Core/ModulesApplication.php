@@ -202,7 +202,7 @@ class ModulesApplication
         $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
         // make sure we haven't left our root path ie interface folder
-        if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && strpos($realpath, ".php") !== false) {
+        if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && str_contains($realpath, ".php")) {
             return true;
         }
         return false;

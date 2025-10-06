@@ -503,13 +503,13 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
         $name_data_flag = false; //flag to see if we are going to use patient names in search result of clone others.
         $show_phone_flag = false; //if we do show patient names, flag to see if we show phone numbers too
         $pid_clause = ''; //if name search, will return a limited list of names to search for.
-        if (strpos($clone_search, "::") !== false) {
+        if (str_contains($clone_search, "::")) {
             $name_data_flag = true;
             $show_phone_flag = true;
             $split = preg_split('/\s*::\s*/', $clone_search);
             $clone_search = $split[1];
             $pid_clause = searchName($split[0]);
-        } elseif (strpos($clone_search, ":") !== false) {
+        } elseif (str_contains($clone_search, ":")) {
             $name_data_flag = true;
             $split = preg_split('/\s*:\s*/', $clone_search);
             $clone_search = $split[1];

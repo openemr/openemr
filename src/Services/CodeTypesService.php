@@ -171,7 +171,7 @@ class CodeTypesService
     {
         $parsedCode = $code;
         $parsedType = null;
-        if (is_string($code) && strpos($code, ":") !== false) {
+        if (is_string($code) && str_contains($code, ":")) {
             $parts = explode(":", $code);
             $parsedCode = $parts[1];
             $parsedType = $parts[0];
@@ -303,7 +303,7 @@ class CodeTypesService
                 $type = 'CPT4';
                 break;
             default:
-                if (strpos($type, '2.16.840.1.113883.') !== false) {
+                if (str_contains($type, '2.16.840.1.113883.')) {
                     $type = $this->getCodeSystemNameFromSystem($type);
                 }
         }
@@ -351,7 +351,7 @@ class CodeTypesService
 
         // use valueset table if code description not found.
         if (empty($currentCodeText)) {
-            if (strpos($codeType, '2.16.840.1.113883.') !== false) {
+            if (str_contains($codeType, '2.16.840.1.113883.')) {
                 $oid = trim($codeType);
                 $codeType = "";
             }

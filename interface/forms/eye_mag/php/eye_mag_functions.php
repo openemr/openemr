@@ -1710,7 +1710,7 @@ function build_PMSFH($pid)
                 $diags = explode(";", $row['diagnosis']);
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
-                    if (strpos($diag, ':') !== false) {
+                    if (str_contains($diag, ':')) {
                         [$codetype, $code] = explode(':', $diag);
                     }
                     $order   = ["\r\n", "\n","\r"];

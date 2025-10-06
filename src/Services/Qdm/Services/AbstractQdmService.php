@@ -60,7 +60,7 @@ abstract class AbstractQdmService
 
     public function validDateOrNull($date)
     {
-        if (empty($date) || strpos($date, '0000-00-00') !== false) {
+        if (empty($date) || str_contains($date, '0000-00-00')) {
             return null;
         }
         return new DateTime([

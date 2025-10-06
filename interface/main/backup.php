@@ -772,7 +772,7 @@ if ($form_step == 102) {
         if (!empty($form_sel_lists)) {
             foreach ($form_sel_lists as $listid) {
                 // skip if have backtic(s)
-                if (strpos($listid, '`') !== false) {
+                if (str_contains($listid, '`')) {
                     echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
                     continue;
                 }
@@ -811,7 +811,7 @@ if ($form_step == 102) {
             $do_demographics_repair = false;
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
                 // skip if have backtic(s)
-                if (strpos($layoutid, '`') !== false) {
+                if (str_contains($layoutid, '`')) {
                     echo xlt("Skipping illegal layout name") . ": " . text($layoutid) . "<br>";
                     continue;
                 }

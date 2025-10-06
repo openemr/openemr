@@ -765,7 +765,7 @@ class Savant3
             $fullname = $path . $file;
 
             // is the path based on a stream?
-            if (strpos($path, '://') === false) {
+            if (!str_contains($path, '://')) {
                 // not a stream, so do a realpath() to avoid
                 // directory traversal attempts on the local file
                 // system. Suggested by Ian Eure, initially

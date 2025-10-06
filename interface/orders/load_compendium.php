@@ -487,9 +487,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 
                                         // Figure out field type.
                                         $fldtype = 'T';
-                                        if (strpos($acsv[4], 'Drop') !== false) {
+                                        if (str_contains($acsv[4], 'Drop')) {
                                             $fldtype = 'S';
-                                        } elseif (strpos($acsv[4], 'Multiselect') !== false) {
+                                        } elseif (str_contains($acsv[4], 'Multiselect')) {
                                             $fldtype = 'S';
                                         }
 

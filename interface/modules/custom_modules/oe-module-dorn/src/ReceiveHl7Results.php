@@ -1027,7 +1027,7 @@ class ReceiveHl7Results
         // Try to parse composites
         foreach ($composites as $key => $composite) {
             // If it is a composite ...
-            if (!(strpos($composite, '^') === false)) {
+            if (str_contains($composite, '^')) {
                 $composites[$key] = explode('^', $composite);
             }
         }
@@ -1629,7 +1629,7 @@ class ReceiveHl7Results
         $string = ucwords(strtolower($string));
 
         foreach (['-', '\''] as $delimiter) {
-            if (strpos($string, $delimiter) !== false) {
+            if (str_contains($string, $delimiter)) {
                 $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
             }
         }
