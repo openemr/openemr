@@ -724,7 +724,7 @@ function generate_form_field($frow, $currvalue): void
 
         $tmp = htmlspecialchars($GLOBALS['gbl_mask_patient_id'], ENT_QUOTES);
         // If mask is for use at save time, treat as no mask.
-        if (strpos($tmp, '^') !== false) {
+        if (str_contains($tmp, '^')) {
             $tmp = '';
         }
         if ($field_id == 'pubpid' && strlen($tmp) > 0) {
@@ -3360,7 +3360,7 @@ function accumActionConditions(&$frow, &$condition_str): void
             "itemid:"   . js_escape($condition['itemid'])   . ", " .
             "operator:" . js_escape($condition['operator']) . ", " .
             "value:"    . js_escape($condition['value'])    . ", ";
-        if ($frow['data_type'] == BillingCodeType::OPTIONS_TYPE_INDEX && strpos($frow['edit_options'], '2') !== false) {
+        if ($frow['data_type'] == BillingCodeType::OPTIONS_TYPE_INDEX && str_contains($frow['edit_options'], '2')) {
             $billingCodeType = new BillingCodeType();
             // For billing codes handle requirement to display its description.
             $condition_str .= $billingCodeType->getAccumActionConditions($frow, $condition_str, $action);
@@ -3497,7 +3497,7 @@ function isSkipped(&$frow, $currvalue)
 // Load array of names of the given layout and its groups.
 function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = null): void
 {
-    if ($sel != '*' && strpos($sel, 'grp_group_id') === false) {
+    if ($sel != '*' && !str_contains($sel, 'grp_group_id')) {
         $sel = "grp_group_id, $sel";
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
@@ -3645,7 +3645,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -4183,7 +4183,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                         $tmp = xl_layout_label($group_fields['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {

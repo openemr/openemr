@@ -125,7 +125,7 @@ class BillingCodeType
         // Edit option E means allow multiple (Extra) billing codes in a field.
         // We invent a class name for this because JavaScript needs to know.
         $className = '';
-        if (strpos($frow['edit_options'], 'E') !== false) {
+        if (str_contains($frow['edit_options'], 'E')) {
             $className = 'EditOptionE';
         }
         //

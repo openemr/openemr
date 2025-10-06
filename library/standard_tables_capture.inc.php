@@ -144,7 +144,7 @@ function rxnorm_import($is_windows_flag)
             $replacement = $dir . "/" . $file_name;
 
             $pattern = '/' . $file_name . '/';
-            if (strpos($val, $file_name) !== false) {
+            if (str_contains($val, $file_name)) {
                 $val1 = str_replace($file_name, $replacement, $val);
                 if (trim($val1) != '') {
                     sqlStatementNoLog($val1);
@@ -245,15 +245,15 @@ function snomed_import($us_extension = false)
                         $array_replace = ["#FILENAME#","#TABLE#"];
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace = $path . $filename1;
-                            if (strpos($filename1, "Concepts") !== false) {
+                            if (str_contains($filename1, "Concepts")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct_concepts"], $load_script);
                             }
 
-                            if (strpos($filename1, "Descriptions") !== false) {
+                            if (str_contains($filename1, "Descriptions")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct_descriptions"], $load_script);
                             }
 
-                            if (strpos($filename1, "Relationships") !== false) {
+                            if (str_contains($filename1, "Relationships")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct_relationships"], $load_script);
                             }
 
@@ -444,22 +444,22 @@ function snomedRF2_import()
                         $array_replace = ["#FILENAME#","#TABLE#"];
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace = $path . $filename1;
-                            if (strpos($filename1, "Concept") !== false) {
+                            if (str_contains($filename1, "Concept")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_concept"], $load_script);
                             }
-                            if (strpos($filename1, "Description") !== false) {
+                            if (str_contains($filename1, "Description")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_description"], $load_script);
                             }
-                            if (strpos($filename1, "Identifier") !== false) {
+                            if (str_contains($filename1, "Identifier")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_identifier"], $load_script);
                             }
-                            if (strpos($filename1, "Relationship") !== false) {
+                            if (str_contains($filename1, "Relationship")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_relationship"], $load_script);
                             }
-                            if (strpos($filename1, "StatedRelationship") !== false) {
+                            if (str_contains($filename1, "StatedRelationship")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_statedrelationship"], $load_script);
                             }
-                            if (strpos($filename1, "TextDefinition") !== false) {
+                            if (str_contains($filename1, "TextDefinition")) {
                                 $new_str = str_replace($array_replace, [$file_replace,"sct2_textdefinition"], $load_script);
                             }
                             if ($new_str != '') {

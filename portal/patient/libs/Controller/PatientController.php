@@ -92,7 +92,7 @@ class PatientController extends AppBasePortalController
         $q = sqlStatement("SELECT `field_id`, `uor`, `edit_options` FROM `layout_options` " .
             "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '') ORDER BY `group_id`, `seq`");
         while ($key = sqlFetchArray($q)) {
-            if ((int)$key['uor'] === 0 || strpos($key['edit_options'], "EP") !== false) {
+            if ((int)$key['uor'] === 0 || str_contains($key['edit_options'], "EP")) {
                 $key['field_id'] = strtolower($key['field_id']);
                 $key['field_id'] = preg_replace_callback('/_([^_])/', fn(array $m): string => ucfirst($m[1]), $key['field_id']);
                 $exclude[] = lcfirst($key['field_id']) . "InputContainer";

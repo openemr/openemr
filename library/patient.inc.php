@@ -584,15 +584,15 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 function getPatientNameSplit($term)
 {
     $term = trim($term);
-    if (strpos($term, ',') !== false) {
+    if (str_contains($term, ',')) {
         $names = explode(',', $term);
         $n['last'] = $names[0];
-        if (strpos(trim($names[1]), ' ') !== false) {
+        if (str_contains(trim($names[1]), ' ')) {
             [$n['first'], $n['middle']] = explode(' ', trim($names[1]));
         } else {
             $n['first'] = $names[1];
         }
-    } elseif (strpos($term, ' ') !== false) {
+    } elseif (str_contains($term, ' ')) {
         $names = explode(' ', $term);
         if (count($names) == 1) {
             $n['last'] = $names[0];

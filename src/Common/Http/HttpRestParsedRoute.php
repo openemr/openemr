@@ -187,7 +187,7 @@ class HttpRestParsedRoute
         $apiType = $parts[1] ?? null;
 
         $finalArg = end($parts);
-        if (strpos($finalArg, '$') !== false) {
+        if (str_contains($finalArg, '$')) {
             $this->operation = $finalArg;
             array_pop($parts);
             $finalArg = end($parts);

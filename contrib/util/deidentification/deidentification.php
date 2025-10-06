@@ -335,10 +335,10 @@ function deIdUsersTable($con): void
     while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-        if (strpos($row['newcrop_user_role'], 'doctor') !== false) {
+        if (str_contains($row['newcrop_user_role'], 'doctor')) {
             $string .= "fname = 'Doctor.{$row['id']}',
                        lname = 'Doctor.{$row['id']}' ";
-        } elseif (strpos($row['newcrop_user_role'], 'nurse') !== false) {
+        } elseif (str_contains($row['newcrop_user_role'], 'nurse')) {
             $string .= "fname = 'Nurse.{$row['id']}',
                        lname = 'Nurse.{$row['id']}' ";
         } else {

@@ -971,7 +971,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
     //
     $ft = csv_file_type($file_type);
     //
-    if (strpos('|f837|f276|f270|f278', $ft) === false) {
+    if (!str_contains('|f837|f276|f270|f278', $ft)) {
         // debug
         csv_edihist_log('edih_rsp_st_match: file type ' . $ft . ' not in |f837|f276|f270|278');
         return $info_ar;

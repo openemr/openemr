@@ -128,7 +128,7 @@ class PHPFHIRResponseParser
             return $jsonEntry;
         }
 
-        if (false !== strpos($fhirElementName, '-primitive') || false !== strpos($fhirElementName, '-list')) {
+        if (str_contains($fhirElementName, '-primitive') || str_contains($fhirElementName, '-list')) {
             return $jsonEntry;
         }
 
@@ -207,7 +207,7 @@ class PHPFHIRResponseParser
             return $element->saveXML();
         }
 
-        if (false !== strpos($fhirElementName, '-primitive') || false !== strpos($fhirElementName, '-list')) {
+        if (str_contains($fhirElementName, '-primitive') || str_contains($fhirElementName, '-list')) {
             return (string)$element;
         }
 

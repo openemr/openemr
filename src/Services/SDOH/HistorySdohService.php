@@ -773,16 +773,16 @@ class HistorySdohService
             return '';
         }
         // URIs
-        if (strpos($s, '113883.6.96') !== false || strpos($s, 'snomed') !== false) {
+        if (str_contains($s, '113883.6.96') || str_contains($s, 'snomed')) {
             return 'SNOMED CT';
         }
-        if (strpos($s, '113883.6.1') !== false || strpos($s, 'loinc') !== false) {
+        if (str_contains($s, '113883.6.1') || str_contains($s, 'loinc')) {
             return 'LOINC';
         }
-        if (strpos($s, '113883.6.90') !== false || strpos($s, 'icd10') !== false) {
+        if (str_contains($s, '113883.6.90') || str_contains($s, 'icd10')) {
             return 'ICD10-CM';
         }
-        if (strpos($s, 'omb') !== false) {
+        if (str_contains($s, 'omb')) {
             return 'OMB';
         }
         // Names/prefix
@@ -825,14 +825,14 @@ class HistorySdohService
                     $txt = (string)($j['display'] ?? ($rec['description'] ?? $rec['codetext'] ?? ''));
                     return [$code, $this->normalizeSystemName($type), $txt];
                 }
-            } elseif (strpos($c, ':') !== false) {
+            } elseif (str_contains($c, ':')) {
                 // 2) codes "SYS:CODE"
                 [$pref, $cv] = explode(':', $c, 2);
                 return [trim($cv), $this->mapPrefixToType($pref), (string)($rec['description'] ?? $rec['codetext'] ?? '')];
             }
         }
         // 3) code "SYS:CODE"
-        if (!empty($rec['code']) && is_string($rec['code']) && strpos($rec['code'], ':') !== false) {
+        if (!empty($rec['code']) && is_string($rec['code']) && str_contains($rec['code'], ':')) {
             [$pref, $cv] = explode(':', $rec['code'], 2);
             return [trim($cv), $this->mapPrefixToType($pref), (string)($rec['codetext'] ?? $rec['description'] ?? '')];
         }

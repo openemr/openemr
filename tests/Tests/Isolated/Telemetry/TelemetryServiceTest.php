@@ -953,7 +953,7 @@ class TelemetryServiceTest extends TestCase
         // Mock error_log function using a custom error handler
         set_error_handler(function ($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
             // Check if this is our expected error_log call
-            if (strpos($message, 'cURL error: Connection timeout') !== false) {
+            if (str_contains($message, 'cURL error: Connection timeout')) {
                 $errorLogCalled = true;
                 $errorMessage = $message;
             }

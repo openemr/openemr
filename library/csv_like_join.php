@@ -39,10 +39,10 @@ function maybe_csv_quote($string)
 function need_csv_quote($string)
 {
     if (
-        strpos($string, ',') === false
-        && strpos($string, '"') === false
-        && strpos($string, "\r") === false
-        && strpos($string, "\n") === false
+        !str_contains($string, ',')
+        && !str_contains($string, '"')
+        && !str_contains($string, "\r")
+        && !str_contains($string, "\n")
     ) {
         return false;
     }

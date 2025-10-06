@@ -44,7 +44,7 @@ array_shift($files_array); // get rid of ".."
 
 foreach ($files_array as $file) {
     $this_file = $mainPATH . "/" . $file;
-    if (strpos($file, ".zip") === false) {
+    if (!str_contains($file, ".zip")) {
         continue;
     }
 

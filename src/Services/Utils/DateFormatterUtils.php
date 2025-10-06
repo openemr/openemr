@@ -57,7 +57,7 @@ class DateFormatterUtils
         //But in database the date can be stored only in the yyyy-mm-dd format.
         //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
         $timeFormat = '';
-        if (strpos($DateValue, ":") !== false) {
+        if (str_contains($DateValue, ":")) {
             $timeFormat = " H:i:s";
         }
         if (trim($DateValue ?? '') == '') {

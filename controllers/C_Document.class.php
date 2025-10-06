@@ -255,7 +255,7 @@ class C_Document extends Controller
                                 if ($fp) {
                                     $head = fread($fp, 256);
                                     fclose($fp);
-                                    if (strpos($head, 'DICM') === false) { // Fixed at offset 128. even one non DICOM makes zip invalid.
+                                    if (!str_contains($head, 'DICM')) { // Fixed at offset 128. even one non DICOM makes zip invalid.
                                         $mimetype = "application/zip";
                                         break;
                                     }
@@ -293,7 +293,7 @@ class C_Document extends Controller
                         $fname = $_POST['destination'];
                     }
                     // test for single DICOM and assign extension if missing.
-                    if (strpos($filetext, 'DICM') !== false) {
+                    if (str_contains($filetext, 'DICM')) {
                         $mimetype = 'application/dicom';
                         $parts = pathinfo($fname);
                         if (!$parts['extension']) {

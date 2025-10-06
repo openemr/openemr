@@ -169,7 +169,7 @@ class Controller extends Smarty
          $link = array_shift($url_parts);
          //print_r($url_parts);
 
-        if (strpos($url_parts[0], "=") === false) {
+        if (!str_contains($url_parts[0], "=")) {
             $inline_arg = $url_parts[0];
             $url_parts[0] = $action;
         } else {

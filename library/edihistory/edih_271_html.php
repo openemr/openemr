@@ -394,11 +394,11 @@ function edih_271_transaction_html($obj271, $bht03)
                 // if LS - LE segments loop should be 2110C or 2110D
                 if ($loopid == '2100C' || $loopid == '2110C') {
                     $loopid = '2110C';
-                    if (strpos('|A|B', $sar[1]) !== false) {
+                    if (str_contains('|A|B', $sar[1])) {
                         $sbr_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb07 . " " . $eb08) . "</td><td colspan=2>" . text($eb02 . " " . $eb03 . " " . $eb04 . " " . $eb06) . "</td></tr>" . PHP_EOL;
-                    } elseif (strpos('|C|G|J|Y', $sar[1]) !== false) {
+                    } elseif (str_contains('|C|G|J|Y', $sar[1])) {
                         $sbr_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb02) . "</td><td>" . text($eb06 . " " . $eb07) . "</td><td>" . text($eb03 . " " . $eb04) . "</td></tr>" . PHP_EOL;
-                    } elseif (strpos('|E|F|', $sar[1]) !== false) {
+                    } elseif (str_contains('|E|F|', $sar[1])) {
                         $sbr_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb02) . "</td><td colspan=2>" . text($eb03 . " " . $eb04 . " " . $eb06) . "</td></tr>" . PHP_EOL;
                     } else {
                         $sbr_eb_html .= "<tr class=" . attr($cls) . "><td>" . text($eb01) . "</td><td>" . text($eb02) . "</td><td colspan=3>" . text($eb07 . " " . $eb08 . " " . $eb03 . " " . $eb04 . " " . $eb06) . "</td></tr>" . PHP_EOL;

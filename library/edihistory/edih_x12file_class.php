@@ -525,7 +525,7 @@ class edih_x12_file
                 }
 
                 if ($delim_ct == 12) {
-                    if (strpos($s, '501') === false) {
+                    if (!str_contains($s, '501')) {
                         $dr = '';
                     }
                 }
@@ -733,7 +733,7 @@ class edih_x12_file
                 $env_ar['ST'][$st_ct]['acct'] = [];
                 $env_ar['ST'][$st_ct]['bht03'] = [];
                 // GS file id FA can be 999 or 997
-                if ($gs_fid != $st_type && strpos($st_type, '99') === false) {
+                if ($gs_fid != $st_type && !str_contains($st_type, '99')) {
                     $this->message[] = "edih_x12_envelopes: ISA " . text($icn) . ", GS " . text($gsn . " " . $gs_fid) . " ST " . text($stn . " " . $st_type) . " type mismatch" . PHP_EOL;
                 }
 
@@ -1314,7 +1314,7 @@ class edih_x12_file
                 if ($seg_pos) {
                     $segstr =  trim(substr($this->text, $seg_pos, $see_pos - $seg_pos), $dt);
                     if ($srch) {
-                        if (strpos($segstr, $srch) !== false) {
+                        if (str_contains($segstr, $srch)) {
                             $ret_ar[] = $segstr;
                         }
                     } else {
@@ -1332,7 +1332,7 @@ class edih_x12_file
             foreach ($seg_ar as $key => $seg) {
                 if (strncmp($seg, $segid . $de, $cmplen) === 0) {
                     if ($srch) {
-                        if (strpos($seg, $srch) !== false) {
+                        if (str_contains($seg, $srch)) {
                             $ret_ar[$key] = $seg;
                         }
                     } else {
@@ -1435,7 +1435,7 @@ class edih_x12_file
         }
 
         //
-        if ($trace && strpos('|HP|FA', (string) $ft) === false) {
+        if ($trace && !str_contains('|HP|FA', (string) $ft)) {
             $this->message[] = 'edih_x12_slice() incorrect type [' . text($ft) . '] for trace';
             return $ret_ar;
         }

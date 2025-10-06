@@ -26,7 +26,7 @@ trait Date
 
     public function value_or_null_flavor($time)
     {
-        if (!empty($time) && strpos($time, "0000-00-00") === false) {
+        if (!empty($time) && !str_contains($time, "0000-00-00")) {
             $time = DateHelper::format_datetime($time);
             $v = "value='{$time}'";
         } else {

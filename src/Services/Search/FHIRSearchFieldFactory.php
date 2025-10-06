@@ -145,7 +145,7 @@ class FHIRSearchFieldFactory
         $modifier = is_array($modifiers) ? array_pop($modifiers) : null;
 
         // need to handle the fact that we can have multiple OR values that are separated in CSV format.
-        if (is_string($fhirSearchValues) && strpos($fhirSearchValues, ',') !== false) {
+        if (is_string($fhirSearchValues) && str_contains($fhirSearchValues, ',')) {
             $fhirSearchValues = explode(',', $fhirSearchValues);
         }
 
@@ -192,7 +192,7 @@ class FHIRSearchFieldFactory
 
         $normalizedValues = [];
         foreach ($values as $searchValue) {
-            if (strpos($searchValue, '://') !== false) {
+            if (str_contains($searchValue, '://')) {
                 $url = $this->resolveReferenceRelativeUrl($searchValue);
                 $normalizedValues[] = $url;
             } else {

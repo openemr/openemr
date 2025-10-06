@@ -1408,7 +1408,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                                !in_array($token, $this->security_settings['IF_FUNCS'])) {
                                 $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
                             }
-                    } elseif(preg_match('~^' . $this->_var_regexp . '$~', $token) && (strpos('+-*/^%&|', substr($token, -1)) === false) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
+                    } elseif(preg_match('~^' . $this->_var_regexp . '$~', $token) && (!str_contains('+-*/^%&|', substr($token, -1))) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
                         // variable function call
                         $this->_syntax_error("variable function call '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
                     } elseif(preg_match('~^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . '*)$~', $token)) {
@@ -1805,7 +1805,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     if (is_numeric($_index)) {
                         $_output .= "[$_index]";
                     } elseif (str_starts_with($_index, '$')) {
-                        if (strpos($_index, '.') !== false) {
+                        if (str_contains($_index, '.')) {
                             $_output .= '[' . $this->_parse_var($_index) . ']';
                         } else {
                             $_output .= "[\$this->_tpl_vars['" . substr($_index, 1) . "']]";
