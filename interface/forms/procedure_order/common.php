@@ -1470,8 +1470,8 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 class="col-form-label col-md-2"><?php echo xlt('Billing'); ?></label>
                             <div class="col-md-2">
                                 <?php
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'billing_type',
-                                    'list_id' => 'procedure_billing'), $row['billing_type'] ?? '');
+                                generate_form_field(['data_type' => 1, 'field_id' => 'billing_type',
+                                    'list_id' => 'procedure_billing'], $row['billing_type'] ?? '');
                                 ?>
                             </div>
                             <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php echo xlt('Sending From'); ?></label>
