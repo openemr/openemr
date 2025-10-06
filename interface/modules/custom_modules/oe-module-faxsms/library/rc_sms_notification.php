@@ -217,7 +217,11 @@ $db_sms_msg['message'] = $MESSAGE;
                             } catch (\PHPMailer\PHPMailer\Exception $e) {
                                 $error = 'Error' . ' ' . $e->getMessage();
                             }
-                            if (stripos($error, 'error') !== false) {
+                            // Check for failures: boolean false, string containing 'error', or 'SMTP not setup'
+                            $isFailed = $error === false
+                                || (is_string($error) && (stripos($error, 'error') !== false || stripos($error, 'SMTP not setup') !== false));
+
+                            if ($isFailed) {
                                 $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>\n";
                                 echo(nl2br($strMsg));
                                 continue;
