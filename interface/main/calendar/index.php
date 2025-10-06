@@ -84,7 +84,7 @@ if ($GLOBALS['set_facility_cookie']) {
     if (!$GLOBALS['login_into_facility'] && ($_SESSION['pc_facility'] ?? 0) > 0) {
         // If login_into_facility is turn on $_COOKIE['pc_facility'] was saved in the login process.
         // In the case that login_into_facility is turn on you don't want to save different facility than the selected in the login screen.
-        setcookie("pc_facility", $_SESSION['pc_facility'], time() + (3600 * 365));
+        setcookie("pc_facility", $_SESSION['pc_facility'], ['expires' => time() + (3600 * 365)]);
     }
 }
 
