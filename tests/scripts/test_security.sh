@@ -209,9 +209,10 @@ printf "Testing: Security headers... " | tee -a "${REPORT_FILE}"
 
 headers=$(curl -s -I "${BASE_URL}/index.php")
 
-if echo "${headers}" | grep -q "X-Content-Type-Options" && \
-   echo "${headers}" | grep -q "X-XSS-Protection" && \
-   echo "${headers}" | grep -q "X-Frame-Options"; then
+# Check for security headers
+if grep -q "X-Content-Type-Options" <<< "${headers}" && \
+   grep -q "X-XSS-Protection" <<< "${headers}" && \
+   grep -q "X-Frame-Options" <<< "${headers}"; then
     printf "%sPASS%s\n" "${GREEN}" "${NC}" | tee -a "${REPORT_FILE}"
     PASSED_TESTS=$(( PASSED_TESTS + 1 ))
     echo "  ✓ All required security headers present" | tee -a "${REPORT_FILE}"

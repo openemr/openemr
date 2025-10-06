@@ -60,26 +60,33 @@ fi
 evaluate_overhead() {
     local overhead="${1}"
 
-    if (( $(bc -l <<< "${overhead} < 5") )); then
+    bc_result=$(bc -l <<< "${overhead} < 5")
+    if (( bc_result )); then
         {
             printf "%s✓ EXCELLENT: Overhead < 5%%%s\n" "${GREEN}" "${NC}"
             echo "  Front controller has negligible performance impact"
         } | tee -a "${REPORT_FILE}"
-    elif (( $(bc -l <<< "${overhead} < 10") )); then
-        {
-            printf "%s✓ GOOD: Overhead < 10%%%s\n" "${GREEN}" "${NC}"
-            echo "  Front controller has acceptable performance impact"
-        } | tee -a "${REPORT_FILE}"
-    elif (( $(bc -l <<< "${overhead} < 20") )); then
-        {
-            printf "⚠ ACCEPTABLE: Overhead < 20%%\n"
-            echo "  Front controller adds some overhead, consider optimization"
-        } | tee -a "${REPORT_FILE}"
     else
-        {
-            printf "%s✗ HIGH OVERHEAD: > 20%%%s\n" "${RED}" "${NC}"
-            echo "  Front controller adds significant overhead, optimization needed"
-        } | tee -a "${REPORT_FILE}"
+        bc_result=$(bc -l <<< "${overhead} < 10")
+        if (( bc_result )); then
+            {
+                printf "%s✓ GOOD: Overhead < 10%%%s\n" "${GREEN}" "${NC}"
+                echo "  Front controller has acceptable performance impact"
+            } | tee -a "${REPORT_FILE}"
+        else
+            bc_result=$(bc -l <<< "${overhead} < 20")
+            if (( bc_result )); then
+                {
+                    printf "⚠ ACCEPTABLE: Overhead < 20%%\n"
+                    echo "  Front controller adds some overhead, consider optimization"
+                } | tee -a "${REPORT_FILE}"
+            else
+                {
+                    printf "%s✗ HIGH OVERHEAD: > 20%%%s\n" "${RED}" "${NC}"
+                    echo "  Front controller adds significant overhead, optimization needed"
+                } | tee -a "${REPORT_FILE}"
+            fi
+        fi
     fi
 }
 
@@ -305,7 +312,8 @@ fi
 } | tee -a "${REPORT_FILE}"
 
 if [[ -n "${overhead}" ]] && [[ "${overhead}" =~ ^[0-9]+\.?[0-9]*$ ]]; then
-    if (( $(bc -l <<< "${overhead} < 10") )); then
+    bc_result=$(bc -l <<< "${overhead} < 10")
+    if (( bc_result )); then
         {
             echo "✓ Performance is acceptable for production use"
             echo "✓ Front controller adds minimal overhead"
