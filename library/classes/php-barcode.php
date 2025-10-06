@@ -783,7 +783,7 @@ class Barcode128
         // check each characters
         $len = strlen($code);
         for ($i = 0; $i < $len; $i++) {
-            if (strpos($tableB, $code[$i]) === false) {
+            if (strpos($tableB, (string) $code[$i]) === false) {
                 return("");
             }
         }
@@ -828,7 +828,7 @@ class Barcode128
                 $value = intval(substr($code, $i, 2)); // Add two characters (numeric)
                 $i += 2;
             } else {
-                $value = strpos($tableB, $code[$i]); // Add one character
+                $value = strpos($tableB, (string) $code[$i]); // Add one character
                 $i++;
             }
 
@@ -869,7 +869,7 @@ class BarcodeCodabar
 
         $len = strlen($code);
         for ($i = 0; $i < $len; $i++) {
-            $index = strpos($table, $code[$i]);
+            $index = strpos($table, (string) $code[$i]);
             if ($index === false) {
                 return('');
             }

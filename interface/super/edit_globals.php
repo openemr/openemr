@@ -471,7 +471,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string) $_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;

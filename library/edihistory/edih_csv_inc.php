@@ -1819,7 +1819,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         if ($srchtype == 'encounter') {
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 // check for a match
-                if (strpos($data[2], $e)) {
+                if (strpos($data[2], (string) $e)) {
                     $te = substr($data[2], strpos($data[2], '-') + 1);
                     if (strcmp($te, $e) === 0) {
                         for ($i = 0; $i < $hct; $i++) {
@@ -1832,7 +1832,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
             }
         } elseif ($srchtype == 'pid') {
             while (($data = fgetcsv($fh1, 1024, ',')) !== false) {
-                if (strpos($data[2], $p) !== false) {
+                if (strpos($data[2], (string) $p) !== false) {
                     $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2], '-')) : '';
                     if (strcmp($te, $p) === 0) {
                         for ($i = 0; $i < $hct; $i++) {

@@ -909,7 +909,7 @@ class parseCSV
 
             if ($equal) {
                 $match = ($almost) ? 2 : 1;
-                $pref = strpos($preferred, $char);
+                $pref = strpos($preferred, (string) $char);
                 $pref = ($pref !== false) ? str_pad($pref, 3, '0', STR_PAD_LEFT) : '999';
                 return $pref . $match . '.' . (99999 - str_pad($first, 5, '0', STR_PAD_LEFT));
             } else {

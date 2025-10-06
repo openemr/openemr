@@ -1117,7 +1117,7 @@ class ReceiveHl7Results
                 unset($ares['obxkey']);
                 // If TX result is not over 10 characters, move it from comments to result field.
                 if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
-                    $i = strpos($ares['comments'], $commentdelim);
+                    $i = strpos($ares['comments'], (string) $commentdelim);
                     if ($i && $i <= 10) {
                         $ares['result'] = substr($ares['comments'], 0, $i);
                         $ares['comments'] = substr($ares['comments'], $i);

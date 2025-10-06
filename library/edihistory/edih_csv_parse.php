@@ -857,7 +857,7 @@ function edih_278_csv_data($obj278)
                     } elseif ($loopid == '2000D') {
                         $ret_ar[$icn]['claim'][$cdx]['PtName'] = $nm103;  //$ptname = $nm1;
                         $loopid = '2010D';
-                    } elseif (strpos('|2000E', $loopid)) {
+                    } elseif (strpos('|2000E', (string) $loopid)) {
                         $loopid = '2000E';
                         $loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010EA' : $loopid;
                         $loopid = (strpos('|45|FS|ND|PW|R3', $nm101) ) ? '2010EB' : $loopid;

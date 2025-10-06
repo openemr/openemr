@@ -232,11 +232,11 @@ class edih_835_codes
         //
         $e = (string)$elem;
         $val = '';
-        if (($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false)) {
-            if ($this->ds && strpos($code, $this->ds) !== false) {
+        if (($this->ds && strpos($code, (string) $this->ds) !== false) || ($this->dr && strpos($code, (string) $this->dr) !== false)) {
+            if ($this->ds && strpos($code, (string) $this->ds) !== false) {
                 $cdar = explode($this->ds, $code);
                 foreach ($cdar as $cd) {
-                    if ($this->dr && strpos($code, $this->dr) !== false) {
+                    if ($this->dr && strpos($code, (string) $this->dr) !== false) {
                         $cdar2 = explode($this->dr, $code);
                         foreach ($cdar2 as $cd2) {
                             if (isset($this->code835[$e][$cd2])) {
@@ -249,7 +249,7 @@ class edih_835_codes
                         $val .= (isset($this->code835[$e][$cd]) ) ? $this->code835[$e][$cd] . ' ' : "code $cd unknown";
                     }
                 }
-            } elseif ($this->dr && strpos($code, $this->dr) != false) {
+            } elseif ($this->dr && strpos($code, (string) $this->dr) != false) {
                 $cdar = explode($this->dr, $code);
                 foreach ($cdar as $cd) {
                     $val .= (isset($this->code835[$e][$cd]) ) ? $this->code835[$e][$cd] . '; ' : "code $cd unknown";

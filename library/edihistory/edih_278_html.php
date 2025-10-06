@@ -308,7 +308,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem03 = (isset($sar[3])) ? $cd27x->get_271_code('EB03', $sar[3]) : '';
                 $elem04 = $sar[4] ?? '';
                 $elem04a = '';
-                if (strpos($elem04, $ds)) {
+                if (strpos($elem04, (string) $ds)) {
                     $elem04_ar = explode($ds, $elem04);
                     if (isset($elem04_ar[1]) && $elem04_ar[1] == 'B') {
                         $elem04a .= (isset($elem04_ar[0])) ? $cd27x->get_271_code('POS', $elem04_ar[0]) : '';
@@ -482,7 +482,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 $hi_str = '';
                 $tr_str = '';
                 foreach ($sar as $hi) {
-                    if (strpos($hi, $ds)) {
+                    if (strpos($hi, (string) $ds)) {
                         $a = explode($ds, $hi);
                         $hi_str .= (isset($a[0]) && $a[0]) ? $cd27x->get_271_code('HI01', $a[0]) : "";
                         $hi_str .= (isset($a[1]) && $a[1]) ? '[ ' . $a[1] . ' ]' : '[]';
@@ -739,7 +739,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
 
                 $elem01 = '';
-                if (isset($sar[1]) && strpos($sar[1], $ds)) {
+                if (isset($sar[1]) && strpos($sar[1], (string) $ds)) {
                     $ar01 = explode($ds, $sar[1]);
                     $ct = count($ar01);
                     $elem01 = (isset($ar01[0]) && $ar01[0]) ? $cd27x->get_271_code('SV101', $ar01[0]) : "";
@@ -782,7 +782,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
 
                 $elem01 = '';
-                if (isset($sar[1]) && strpos($sar[1], $ds)) {
+                if (isset($sar[1]) && strpos($sar[1], (string) $ds)) {
                     $ar01 = explode($ds, $sar[1]);
                     $ct = count($ar01);
                     $elem01 = (isset($ar01[0]) && $ar01[0]) ? $cd27x->get_271_code('SV101', $ar01[0]) : "";
