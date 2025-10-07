@@ -139,11 +139,15 @@ class EmployerService extends BaseService
             }
             $new = $valuesToSave;
         }
+        // we ignore any date that is passed in, we always set it to now
+        if (isset($new['date'])) {
+            unset($new['date']);
+        }
         if (!empty($new)) {
             $uuid = $this->getUuidRegistry()->createUuid();
             $new['uuid'] = $uuid;
             $insert = $this->buildInsertColumns($new);
-            $sql = "INSERT INTO employer_data SET " . $insert['set'] . ", date = NOW()";
+            $sql = "INSERT INTO employer_data SET " . $insert['set'] . ", `date` = NOW()";
             $insert = QueryUtils::sqlInsert($sql, $insert['bind']);
             return $insert;
         } else {

@@ -289,9 +289,9 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
                 ,"description" => $mapping['description']
                 ,"ob_type" => self::CATEGORY_SOCIAL_HISTORY
                 ,"ob_status" => 'final' // we always set this to final as there's no in-between state
-                ,"puuid" => $record['uuid']
+                ,"puuid" => $record['puuid']
                 ,"uuid" => $record['uuid']
-                ,"user_uuid" => 'user_uuid'
+                ,"user_uuid" => $record['user_uuid']
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $profiles
