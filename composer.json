@@ -131,12 +131,9 @@
         }
     ],
     "autoload": {
-        "exclude-from-classmap": [
-            "src/Common/Compatibility/Checker.php",
-            "library/classes/ClinicalTypes/",
-            "library/classes/rulesets/",
-            "library/classes/smtp/"
-        ],
+        "psr-4": {
+            "OpenEMR\\": "src"
+        },
         "classmap": [
             "library/classes"
         ],
@@ -149,9 +146,12 @@
             "library/validation/validate_core.php",
             "library/translation.inc.php"
         ],
-        "psr-4": {
-            "OpenEMR\\": "src"
-        }
+        "exclude-from-classmap": [
+            "src/Common/Compatibility/Checker.php",
+            "library/classes/ClinicalTypes/",
+            "library/classes/rulesets/",
+            "library/classes/smtp/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
