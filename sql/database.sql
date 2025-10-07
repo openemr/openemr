@@ -11998,7 +11998,7 @@ CREATE TABLE `form_functional_cognitive_status` (
 DROP TABLE IF EXISTS `form_observation`;
 CREATE TABLE `form_observation` (
    `id` bigint(20) NOT NULL AUTO_INCREMENT,
-   `uuid` binary(16) DEFAULT NULL,
+   `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for the observation, used as unique logical identifier',
    `form_id` bigint(20) NOT NULL COMMENT 'FK to forms.form_id',
   `date` DATETIME DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
@@ -12027,6 +12027,7 @@ CREATE TABLE `form_observation` (
    `parent_observation_id` bigint(20) DEFAULT NULL COMMENT 'FK to parent observation for sub-observations',
    `category` varchar(64) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation category (SDOH, Functional, Cognitive, Physical, etc)',
    `questionnaire_response_id` bigint(21) DEFAULT NULL COMMENT 'FK to questionnaire_response table',
+   `ob_value_code_description` VARCHAR(255) DEFAULT NULL,
    PRIMARY KEY (`id`),
    KEY `idx_form_id` (`form_id`),
    KEY `idx_parent_observation` (`parent_observation_id`),
@@ -13445,6 +13446,7 @@ CREATE TABLE `questionnaire_repository` (
     `code_display` text,
     `questionnaire` longtext,
     `lform` longtext,
+    `category` VARCHAR(64) DEFAULT NULL COMMENT 'Used for grouping and organizing ',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uuid` (`uuid`),
     KEY `search` (`name`,`questionnaire_id`)
@@ -14249,6 +14251,7 @@ CREATE TABLE `form_history_sdoh`
     `pregnancy_edd`                   date                         DEFAULT NULL,
     `pregnancy_gravida`               smallint(6)                  DEFAULT NULL,
     `pregnancy_para`                  smallint(6)                  DEFAULT NULL,
+    `pregnancy_intent`                VARCHAR(32)                  DEFAULT NULL COMMENT 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)',
     `postpartum_status`               varchar(20)                  DEFAULT NULL,
     `postpartum_end`                  date                         DEFAULT NULL,
     `goals`                           text,
@@ -14287,7 +14290,14 @@ VALUES ('lists', 'sdoh_food_insecurity_risk', 'SDOH – Food Insecurity (Risk)',
        ('lists', 'sdoh_education_level', 'SDOH – Education Level', 0),
        ('lists', 'pregnancy_status', 'Pregnancy Status', 0),
        ('lists', 'postpartum_status', 'Postpartum Status', 0),
-       ('lists', 'sdoh_instruments', 'SDOH – Screening Instruments', 0);
+       ('lists', 'sdoh_instruments', 'SDOH – Screening Instruments', 0),
+       ('lists','pregnancy_intent','Pregnancy Intent Over Next Year',0);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
+       ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
 
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
 VALUES ('sdoh_food_insecurity_risk', 'at_risk', 'At risk', 10, 'LOINC:LA19952-3', 'Question LOINC 88124-3'),

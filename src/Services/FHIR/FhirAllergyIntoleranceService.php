@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -52,6 +53,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var AllergyIntoleranceService
@@ -271,7 +273,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

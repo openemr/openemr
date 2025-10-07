@@ -8,6 +8,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerRoleService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -25,7 +26,10 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use VersionedProfileTrait;
     use FhirServiceBaseEmptyTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole';
 
     /**
      * @var PractitionerRoleService
@@ -145,10 +149,8 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

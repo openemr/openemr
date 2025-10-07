@@ -21,6 +21,7 @@ use OpenEMR\Common\Command\Runner\CcdaNewpatientImport;
 use OpenEMR\Common\Command\Runner\IOpenEMRCommand;
 use OpenEMR\Common\Command\Runner\Register;
 use OpenEMR\Common\Command\Runner\ZfcModule;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Command\CommandRunnerFilterEvent;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -31,9 +32,25 @@ class SymfonyCommandRunner
 {
     private $eventDispatcher;
 
+    private OEGlobalsBag $globalsBag;
+
     public function __construct()
     {
     }
+
+    public function getGlobalsBag(): OEGlobalsBag
+    {
+        if (!isset($this->globalsBag)) {
+            $this->globalsBag = new OEGlobalsBag();
+        }
+        return $this->globalsBag;
+    }
+
+    public function setGlobalsBag(OEGlobalsBag $globalsBag): void
+    {
+        $this->globalsBag = $globalsBag;
+    }
+
     public function setEventDispatcher(EventDispatcher $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
@@ -73,6 +90,9 @@ class SymfonyCommandRunner
                 }
                 if (class_exists($fqn)) {
                     $command = new $fqn();
+                    if ($command instanceof IGlobalsAwareCommand) {
+                        $command->setGlobalsBag($this->getGlobalsBag());
+                    }
                     if ($command instanceof Command) {
                         $filterCommand->setCommand($command::class, $command);
                     }
