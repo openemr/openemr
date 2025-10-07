@@ -77,7 +77,7 @@ class OemrUI
     * that will form the html string used to output the formatted heading of the page.
     * If a feature is not required set the corresponding element in the array to an empty string
     */
-    public function __construct($arrOeUiSettings = array())
+    public function __construct($arrOeUiSettings = [])
     {
         global $v_js_includes;
 
@@ -85,7 +85,7 @@ class OemrUI
         $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientFullNameAsString($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
         $this->expandable = $arrOeUiSettings['expandable'] ?? null;
         $this->arrFiles = $arrOeUiSettings['expandable_files'] ?? null;
-        $this->arrAction = array(($arrOeUiSettings['action'] ?? null), ($arrOeUiSettings['action_title'] ?? null), ($arrOeUiSettings['action_href'] ?? null));
+        $this->arrAction = [($arrOeUiSettings['action'] ?? null), ($arrOeUiSettings['action_title'] ?? null), ($arrOeUiSettings['action_href'] ?? null)];
         $this->display_help_icon = $arrOeUiSettings['show_help_icon'] ?? null;
         $this->help_file = $arrOeUiSettings['help_file_name'] ?? null;
         if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
@@ -259,7 +259,7 @@ class OemrUI
                 $action_href = "#";
                 break;
             case "link":
-                $target = (strpos($action_href, 'http') !== false) ? "_blank" : "_self";
+                $target = (str_contains($action_href, 'http')) ? "_blank" : "_self";
                 $action_title = ($action_title) ? $action_title : xl("Click to go to page");
                 $icon = "fa-external-link-alt";
                 break;
@@ -406,7 +406,7 @@ class OemrUI
     * @return void
     *
     */
-    private function headerExpandJs($arrFiles = array())
+    private function headerExpandJs($arrFiles = [])
     {
         $expandTitle = xlj("Click to Contract and set to henceforth open in Centered mode");
         $contractTitle = xlj("Click to Expand and set to henceforth open in Expanded mode");
@@ -488,7 +488,7 @@ class OemrUI
     * @return void
     *
     */
-    private function headerActionJs($arrAction = array())
+    private function headerActionJs($arrAction = [])
     {
         $arrAction = $this->arrAction;
         $page = attr(str_replace(" ", "", $this->heading));

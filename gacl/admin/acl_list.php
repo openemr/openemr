@@ -128,7 +128,7 @@ switch ($getAction) {
 		$query .= '
 				ORDER BY a.id ASC';
 
-		$acl_ids = array();
+		$acl_ids = [];
 
 		$rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
 		if ( is_object($rs) ) {
@@ -148,7 +148,7 @@ switch ($getAction) {
 			$acl_ids_sql = -1;
 		}
 
-		$acls = array();
+		$acls = [];
 
 		//If the user is searching, and there are no results, don't run the query at all
 		if ( !($getAction == 'Filter' AND $acl_ids_sql == -1) ) {
@@ -163,7 +163,7 @@ switch ($getAction) {
 
 			if ( is_object($rs) ) {
 				while ( $row = $rs->FetchRow() ) {
-					$acls[$row[0]] = array(
+					$acls[$row[0]] = [
 						'id' => $row[0],
 						// 'section_id' => $section_id,
 						'section_name' => $row[1],
@@ -173,17 +173,17 @@ switch ($getAction) {
 						'note' => $row[5],
 						'updated_date' => $row[6],
 
-						'aco' => array(),
-						'aro' => array(),
-						'aro_groups' => array(),
-						'axo' => array(),
-						'axo_groups' => array()
-					);
+						'aco' => [],
+						'aro' => [],
+						'aro_groups' => [],
+						'axo' => [],
+						'axo_groups' => []
+					];
 				}
 			}
 
 			// grab ACO, ARO and AXOs
-			foreach ( array('aco', 'aro', 'axo') as $type ) {
+			foreach ( ['aco', 'aro', 'axo'] as $type ) {
 				$query = '
 					SELECT	a.acl_id,o.name,s.name
 					FROM	'. $gacl_api->_db_table_prefix . $type .'_map a
@@ -194,7 +194,7 @@ switch ($getAction) {
 
 				if ( is_object($rs) ) {
 					while ( $row = $rs->FetchRow() ) {
-						list($acl_id, $name, $section_name) = $row;
+						[$acl_id, $name, $section_name] = $row;
 
 						if ( isset($acls[$acl_id]) ) {
 							$acls[$acl_id][$type][$section_name][] = $name;
@@ -204,7 +204,7 @@ switch ($getAction) {
 			}
 
 			// grab ARO and AXO groups
-			foreach ( array('aro', 'axo') as $type )
+			foreach ( ['aro', 'axo'] as $type )
 			{
 				$query = '
 					SELECT	a.acl_id,g.name
@@ -215,7 +215,7 @@ switch ($getAction) {
 
 				if ( is_object($rs) ) {
 					while ( $row = $rs->FetchRow () ) {
-						list($acl_id, $name) = $row;
+						[$acl_id, $name] = $row;
 
 						if ( isset($acls[$acl_id]) ) {
 							$acls[$acl_id][$type .'_groups'][] = $name;
@@ -245,13 +245,13 @@ switch ($getAction) {
 		$smarty->assign('filter_return_value', ($_GET['filter_return_value'] ?? null));
         $smarty->assign('filter_return_value_escaped', attr($_GET['filter_return_value'] ?? null));
 
-		foreach(array('aco','aro','axo','acl') as $type) {
+		foreach(['aco','aro','axo','acl'] as $type) {
 			//
 			//Grab all sections for select box
 			//
-			$options = array (
+			$options =  [
 				-1 => 'Any'
-			);
+			];
 
 			$query = '
 				SELECT value,name
@@ -276,8 +276,8 @@ switch ($getAction) {
             $smarty->assign('filter_' . $type . '_section_escaped', attr($_GET['filter_' . $type .'_section']));
 		}
 
-		$smarty->assign('options_filter_allow', array('-1' => 'Any', 1 => 'Allow', 0 => 'Deny'));
-		$smarty->assign('options_filter_enabled', array('-1' => 'Any', 1 => 'Yes', 0 => 'No'));
+		$smarty->assign('options_filter_allow', ['-1' => 'Any', 1 => 'Allow', 0 => 'Deny']);
+		$smarty->assign('options_filter_enabled', ['-1' => 'Any', 1 => 'Yes', 0 => 'No']);
 
 		if (!isset($_GET['filter_allow']) OR $_GET['filter_allow'] == '') {
 			$_GET['filter_allow'] = '-1';

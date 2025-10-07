@@ -92,13 +92,13 @@ if (preg_match("/^[^\/]/", $web_root)) {
 
 $ResolveServerHost = static function () {
     $scheme = ($_SERVER['REQUEST_SCHEME'] ?? 'https') . "://";
-    $possibleHostSources = array('HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR');
-    $sourceTransformations = array(
+    $possibleHostSources = ['HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR'];
+    $sourceTransformations = [
         "HTTP_X_FORWARDED_HOST" => function ($value) {
             $elements = explode(',', $value);
             return trim(end($elements));
         }
-    );
+    ];
     $host = '';
     foreach ($possibleHostSources as $source) {
         if (!empty($host)) {
@@ -364,7 +364,7 @@ $glrow = sqlQueryNoLog("SHOW TABLES LIKE 'globals'");
 if (!empty($glrow)) {
   // Collect user specific settings from user_settings table.
   //
-    $gl_user = array();
+    $gl_user = [];
   // Collect the user id first
     $temp_authuserid = '';
     if (!empty($_SESSION['authUserID'])) {
@@ -372,7 +372,7 @@ if (!empty($glrow)) {
         $temp_authuserid = $_SESSION['authUserID'];
     } else {
         if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", array($_POST['authUser']));
+            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$_POST['authUser']]);
             if (!empty($temp_sql_ret['id'])) {
               //Set the user id from the login variable
                 $temp_authuserid = $temp_sql_ret['id'];
@@ -386,7 +386,7 @@ if (!empty($glrow)) {
             "FROM `user_settings` " .
             "WHERE `setting_user` = ? " .
             "AND `setting_label` LIKE 'global:%'",
-            array($temp_authuserid)
+            [$temp_authuserid]
         );
         for ($iter = 0; $row = sqlFetchArray($glres_user); $iter++) {
           //remove global_ prefix from label
@@ -398,7 +398,7 @@ if (!empty($glrow)) {
   // Set global parameters from the database globals table.
   // Some parameters require custom handling.
   //
-    $GLOBALS['language_menu_show'] = array();
+    $GLOBALS['language_menu_show'] = [];
     $glres = sqlStatementNoLog(
         "SELECT gl_name, gl_index, gl_value FROM globals " .
         "ORDER BY gl_name, gl_index"
@@ -434,7 +434,7 @@ if (!empty($glrow)) {
             $current_theme = sqlQueryNoLog(
                 "SELECT `setting_value` FROM `patient_settings` " .
                 "WHERE setting_patient = ? AND `setting_label` = ?",
-                array($_SESSION['pid'] ?? 0, 'portal_theme')
+                [$_SESSION['pid'] ?? 0, 'portal_theme']
             )['setting_value'] ?? null;
             $gl_value = $current_theme ?? null ?: $gl_value;
             $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
@@ -467,7 +467,7 @@ if (!empty($glrow)) {
             }
 
           // Synchronize MySQL time zone with PHP time zone.
-            sqlStatementNoLog("SET time_zone = ?", array((new DateTime())->format("P")));
+            sqlStatementNoLog("SET time_zone = ?", [(new DateTime())->format("P")]);
         } else {
             $globalsBag->set($gl_name, $gl_value);
         }
@@ -514,7 +514,7 @@ if (!empty($glrow)) {
         }
     } else {
         //$_SESSION['language_direction'] is not set, so will use the default language
-        $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', array($GLOBALS['language_default'] ?? ''));
+        $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', [$GLOBALS['language_default'] ?? '']);
         $globalsBag->set('default_lang_id', $default_lang_id);
         if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) {
 // @todo eliminate 1 SQL query
@@ -568,7 +568,7 @@ if (!empty($glrow)) {
   // first release containing this table.
     $globalsBag->set('language_menu_login', true);
     $globalsBag->set('language_menu_showall', true);
-    $globalsBag->set('language_menu_show', array('English (Standard)','Swedish'));
+    $globalsBag->set('language_menu_show', ['English (Standard)','Swedish']);
     $globalsBag->set('language_default', "English (Standard)");
     $globalsBag->set('translate_layout', true);
     $globalsBag->set('translate_lists', true);
@@ -624,7 +624,7 @@ $globalsBag->set('restore_sessions', 1); // 0=no, 1=yes, 2=yes+debug
 // Theme definition.  All this stuff should be moved to CSS.
 //
 $top_bg_line = ' bgcolor="#dddddd" ';
-$globalsStyle = $globalsBag->get('style', array());
+$globalsStyle = $globalsBag->get('style', []);
 $globalsStyle['BGCOLOR2'] = "#dddddd";
 $globalsStyle['BGCOLOR1'] = "#cccccc";
 $globalsBag->set('style', $globalsStyle);

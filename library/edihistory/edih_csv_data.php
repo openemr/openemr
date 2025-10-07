@@ -59,7 +59,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
         }
 
         //
-        $cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
+        $cls = (strpos('|f837|f270|f276|f278', (string) $ft)) ? 'sub' : 'rsp';
         //
         if (array_key_exists('file', $csvdata)) {
             //
@@ -67,17 +67,17 @@ function edih_csv_process_html($data_ar, $err_only = false)
             foreach ($csvdata['file'] as $csvfile) {
                 //
                 $oe = ( $fidx % 2 == 1 ) ? 'fodd' : 'feven';
-                $cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
+                $cls = (strpos('|f837|f270|f276|f278', (string) $ft)) ? 'sub' : 'rsp';
                 //
                 $dt_str = "";
                 //
-                $dte = (isset($csvfile['Date'])) ? $csvfile['Date'] : '';
-                $fn1 = (isset($csvfile['FileName'])) ? $csvfile['FileName'] : '';
-                $ctl = (isset($csvfile['Control'])) ? $csvfile['Control'] : '';
-                $clmct = (isset($csvfile['Claim_ct'])) ? $csvfile['Claim_ct'] : '';
-                $trc = (isset($csvfile['Trace'])) ? $csvfile['Trace'] : '';
-                $typ = (isset($csvfile['RspType'])) ? $csvfile['RspType'] : '';
-                $rej = (isset($csvfile['RejCt'])) ? $csvfile['RejCt'] : '';
+                $dte = $csvfile['Date'] ?? '';
+                $fn1 = $csvfile['FileName'] ?? '';
+                $ctl = $csvfile['Control'] ?? '';
+                $clmct = $csvfile['Claim_ct'] ?? '';
+                $trc = $csvfile['Trace'] ?? '';
+                $typ = $csvfile['RspType'] ?? '';
+                $rej = $csvfile['RejCt'] ?? '';
                 //
                 $dt_str .= ($fn1) ? "<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&fmt=seg&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . text($fn1) . "</a>&nbsp;" : "";
                 $dt_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";
@@ -112,16 +112,16 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 if ($err_only) {
                     // output err_only is when claim status is a rejected type
                     if ($ft == 'f835') {
-                        if (in_array($claim['Status'], array('1', '2', '3', '19', '20', '21'))) {
+                        if (in_array($claim['Status'], ['1', '2', '3', '19', '20', '21'])) {
                             continue;
                         }
                     } elseif ($ft == 'f277') {
                         if (substr_count($claim['Status'], 'A1') || substr_count($claim['Status'], 'A2') || substr_count($claim['Status'], 'A5')) {
                             continue;
                         }
-                    } elseif (strpos('|f997|f999|f271', $ft) && $claim['Status'] == 'A') {
+                    } elseif (strpos('|f997|f999|f271', (string) $ft) && $claim['Status'] == 'A') {
                         continue;
-                    } elseif (strpos('|f837|f270|f276', $ft)) {
+                    } elseif (strpos('|f837|f270|f276', (string) $ft)) {
                         continue;
                     }
                 }
@@ -131,15 +131,15 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $dd_str = "";
                 $oe = ( $errct % 2 ) ? 'codd' : 'ceven';
                 //
-                $ptn = (isset($claim['PtName'])) ? $claim['PtName'] : '';
-                $fn1 = (isset($claim['FileName'])) ? $claim['FileName'] : '';
-                $ctl = (isset($claim['Control'])) ? $claim['Control'] : '';
-                $pid = (isset($claim['CLM01'])) ? $claim['CLM01'] : '';
-                $sts = (isset($claim['Status'])) ? $claim['Status'] : '';
-                $err = (isset($claim['err_seg'])) ? $claim['err_seg'] : '';
-                $trc = (isset($claim['Trace'])) ? $claim['Trace'] : '';
-                $bht03 = (isset($claim['BHT03'])) ? $claim['BHT03'] : '';
-                $pay = (isset($claim['Payer'])) ? $claim['Payer'] : '';
+                $ptn = $claim['PtName'] ?? '';
+                $fn1 = $claim['FileName'] ?? '';
+                $ctl = $claim['Control'] ?? '';
+                $pid = $claim['CLM01'] ?? '';
+                $sts = $claim['Status'] ?? '';
+                $err = $claim['err_seg'] ?? '';
+                $trc = $claim['Trace'] ?? '';
+                $bht03 = $claim['BHT03'] ?? '';
+                $pay = $claim['Payer'] ?? '';
                 $typ = (isset($csvfile['RspType'])) ? $claim['RspType'] : '';
                 $auth = (isset($csvfile['Auth'])) ? $claim['Auth'] : '';
                 //
@@ -148,14 +148,14 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 //
                 $clm = (isset($csvfile['ClaimID'])) ? $claim['ClaimID'] : $ins;
                 //
-                $dte = (isset($claim['SvcDate'])) ? $claim['SvcDate'] : '';
-                $dte = (isset($claim['ReqDate'])) ? $claim['ReqDate'] : $dte;
-                $dte = (isset($claim['RspDate'])) ? $claim['RspDate'] : $dte;
-                $dte = (isset($claim['FileDate'])) ? $claim['FileDate'] : $dte;
+                $dte = $claim['SvcDate'] ?? '';
+                $dte = $claim['ReqDate'] ?? $dte;
+                $dte = $claim['RspDate'] ?? $dte;
+                $dte = $claim['FileDate'] ?? $dte;
 
                 $dd_str .= ($ptn) ? text($ptn) . "&nbsp; " : "";
                 $dd_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";
-                if (strpos('|f277|f276|f270|f271|f278', $ft)) {
+                if (strpos('|f277|f276|f270|f271|f278', (string) $ft)) {
                     $dd_str .= ($sts) ? " &nbsp;" . text($sts) : "";
                     $dd_str .= ($ins) ? " &nbsp;" . text($ins) : "";
                     $dd_str .= ($clm) ? " &nbsp;" . text($clm) : "";
@@ -211,7 +211,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
 {
     //
     $str_html = '';
-    $row_ar = array();
+    $row_ar = [];
     //
     $ft = csv_file_type($filetype);
     if ($ft == 'f997') {
@@ -295,7 +295,7 @@ function edih_claim_history($encounter)
     // existing csv tables are queried
     $tbl2 = csv_table_select_list('array');
     //
-    $rtypes = array();
+    $rtypes = [];
     if (is_array($tbl2['claims']) && count($tbl2['claims'])) {
         $rtypes = array_keys($tbl2['claims']);
     } else {
@@ -456,7 +456,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     //
     $csv_html = "";
     $modstr = '';
-    $csv_d = array();
+    $csv_d = [];
     // debug
     csv_edihist_log("edih_csv_to_html: period $period datestart $datestart dateend $dateend");
     //

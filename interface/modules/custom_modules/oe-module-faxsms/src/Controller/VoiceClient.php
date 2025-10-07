@@ -47,10 +47,10 @@ class VoiceClient extends AppDispatch
         if (!($GLOBALS['oerestrict_users'] ?? null)) {
             $this->authUser = 0;
         }
-        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
 
         if (empty($credentials)) {
-            return array(
+            return [
                 'extension' => '',
                 'phone' => '',
                 'smsNumber' => '',
@@ -60,7 +60,7 @@ class VoiceClient extends AppDispatch
                 'portal' => '',
                 'production' => '',
                 'jwt' => ''
-            );
+            ];
         } else {
             $credentials = $credentials['credentials'];
         }

@@ -183,12 +183,10 @@ class TelemetryServiceTest extends TestCase
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
-                $this->callback(function ($eventData) {
-                    return $eventData['eventType'] === 'click'
-                        && $eventData['eventLabel'] === 'test-label'
-                        && $eventData['eventUrl'] === 'http://example.com/test' // Should strip query params
-                        && $eventData['eventTarget'] === 'button';
-                }),
+                $this->callback(fn($eventData): bool => $eventData['eventType'] === 'click'
+                    && $eventData['eventLabel'] === 'test-label'
+                    && $eventData['eventUrl'] === 'http://example.com/test' // Should strip query params
+                    && $eventData['eventTarget'] === 'button'),
                 $this->isType('string') // currentTime
             )
             ->willReturn(true);
@@ -280,9 +278,7 @@ class TelemetryServiceTest extends TestCase
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
-                $this->callback(function ($eventData) {
-                    return $eventData['eventUrl'] === 'http://example.com/test';
-                }),
+                $this->callback(fn($eventData): bool => $eventData['eventUrl'] === 'http://example.com/test'),
                 $this->isType('string')
             )
             ->willReturn(true);
@@ -320,9 +316,7 @@ class TelemetryServiceTest extends TestCase
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
-                $this->callback(function ($eventData) {
-                    return $eventData['eventUrl'] === '/interface/test#section';
-                }),
+                $this->callback(fn($eventData): bool => $eventData['eventUrl'] === '/interface/test#section'),
                 $this->isType('string')
             )
             ->willReturn(true);
@@ -365,12 +359,10 @@ class TelemetryServiceTest extends TestCase
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
-                $this->callback(function ($eventData) {
-                    return $eventData['eventType'] === 'click'
-                        && $eventData['eventLabel'] === 'test-label'
-                        && $eventData['eventUrl'] === ''
-                        && $eventData['eventTarget'] === '';
-                }),
+                $this->callback(fn($eventData): bool => $eventData['eventType'] === 'click'
+                    && $eventData['eventLabel'] === 'test-label'
+                    && $eventData['eventUrl'] === ''
+                    && $eventData['eventTarget'] === ''),
                 $this->isType('string')
             )
             ->willReturn(true);
@@ -833,9 +825,7 @@ class TelemetryServiceTest extends TestCase
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
-                $this->callback(function ($eventData) {
-                    return $eventData['eventUrl'] === '/interface/main/calendar/index.php#calendar';
-                }),
+                $this->callback(fn($eventData): bool => $eventData['eventUrl'] === '/interface/main/calendar/index.php#calendar'),
                 $this->isType('string')
             )
             ->willReturn(true);
@@ -880,9 +870,7 @@ class TelemetryServiceTest extends TestCase
         $mockRepository->expects($this->once())
             ->method('saveTelemetryEvent')
             ->with(
-                $this->callback(function ($eventData) {
-                    return $eventData['eventUrl'] === '#section-navigation';
-                }),
+                $this->callback(fn($eventData): bool => $eventData['eventUrl'] === '#section-navigation'),
                 $this->isType('string')
             )
             ->willReturn(true);
@@ -965,7 +953,7 @@ class TelemetryServiceTest extends TestCase
         // Mock error_log function using a custom error handler
         set_error_handler(function ($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
             // Check if this is our expected error_log call
-            if (strpos($message, 'cURL error: Connection timeout') !== false) {
+            if (str_contains($message, 'cURL error: Connection timeout')) {
                 $errorLogCalled = true;
                 $errorMessage = $message;
             }

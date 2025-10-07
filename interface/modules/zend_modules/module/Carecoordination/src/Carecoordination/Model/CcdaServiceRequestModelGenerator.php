@@ -102,10 +102,10 @@ class CcdaServiceRequestModelGenerator
         // TODO: this is the result of late night coding, hopefully we can come and fix this to be better in the future
         // we essentially need to handle the fall through case where we have a date range that's been sent us
         // that's not in our timestamp format
-        if (strpos($start, "-") !== false) {
+        if (str_contains($start, "-")) {
             $start = date('YmdHisO', strtotime($start));
         }
-        if (strpos($end, "-") !== false) {
+        if (str_contains($end, "-")) {
             $end = date('YmdHisO', strtotime($end));
         }
         return [

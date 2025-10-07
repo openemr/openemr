@@ -60,7 +60,7 @@ use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Pdf\Config_Mpdf;
 
-$staged_docs = array();
+$staged_docs = [];
 $archive_name = '';
 
 // For those who care that this is the patient report.
@@ -133,10 +133,10 @@ function report_basename($pid)
     $ptd = getPatientData($pid, "fname,lname");
     // escape names for pesky periods hyphen etc.
     $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $esc = str_replace(['.', ',', ' '], '', $esc);
     $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
 
-    return array('base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']);
+    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
 }
 
 function zip_content($source, $destination, $content = '', $create = true)
@@ -537,7 +537,7 @@ if ($printable) {
   /******************************************************************/
     $db = $GLOBALS['adodb']['db'];
     $results = $db->Execute($sql);
-    $facility = array();
+    $facility = [];
     if (!$results->EOF) {
         $facility = $results->fields;
     }
@@ -573,7 +573,7 @@ if ($printable) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $tmp_files_remove = array();
+    $tmp_files_remove = [];
 }
 
 // For each form field from patient_report.php...
@@ -629,7 +629,7 @@ foreach ($ar as $key => $val) {
             echo "<div class='text billing'>";
             print "<h1>" . xlt('Billing Information') . ":</h1>";
             if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
-                $billings = array();
+                $billings = [];
                 echo "<table>";
                 echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
                 $total = 0.00;
@@ -701,12 +701,12 @@ foreach ($ar as $key => $val) {
             while ($row = sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
                 if ($GLOBALS['use_custom_immun_list']) {
-                     $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                     $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {
                         $vaccine_display = xlt($row['code_text_short']);
                     } else {
-                         $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                         $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                     }
                 }
 
@@ -842,7 +842,7 @@ foreach ($ar as $key => $val) {
                             $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
                             $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                             $pdf->writeHTML($err);
-                            $staged_docs[] = array('path' => $d->url, 'fname' => $fname);
+                            $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
                         } finally {
                             unlink($from_file_tmp_name);
                             // Make sure whatever follows is on a new page. Maybe!
@@ -887,7 +887,7 @@ foreach ($ar as $key => $val) {
 
                 echo "</div>";
             }
-        } elseif (strpos($key, "issue_") === 0) {
+        } elseif (str_starts_with($key, "issue_")) {
             // display patient Issues
 
             if ($first_issue) {
@@ -996,7 +996,7 @@ foreach ($ar as $key => $val) {
                         "b.code_type = ct.ct_key AND " .
                         "ct.ct_diag = 0 " .
                         "ORDER BY b.date",
-                        array($pid, $form_encounter)
+                        [$pid, $form_encounter]
                     );
                     while ($brow = sqlFetchArray($bres)) {
                         echo "<span class='bold'>&nbsp;" . xlt('Procedure') . ": </span><span class='text'>" .

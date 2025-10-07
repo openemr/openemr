@@ -35,7 +35,7 @@
  */
 
 if (ini_get('register_globals') != 1) {
-    $supers = array('_REQUEST',
+    $supers = ['_REQUEST',
                             '_ENV',
                             '_SERVER',
                             '_POST',
@@ -43,7 +43,7 @@ if (ini_get('register_globals') != 1) {
                             '_COOKIE',
                             '_SESSION',
                             '_FILES',
-                            '_GLOBALS' );
+                            '_GLOBALS' ];
 
     foreach ($supers as $__s) {
         if ((isset($$__s) == true) && (is_array($$__s) == true)) {
@@ -94,7 +94,7 @@ function pnConfigInit()
 {
     global $pnconfig;
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $table = $pntable['module_vars'];
@@ -118,7 +118,7 @@ function pnConfigInit()
     }
 
     while (!$dbresult->EOF) {
-        list($k, $v) = $dbresult->fields;
+        [$k, $v] = $dbresult->fields;
         $dbresult->MoveNext();
         if (
             ($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
@@ -147,7 +147,7 @@ function pnConfigGetVar($name)
         /*
          * Fetch base data
          */
-        list($dbconn) = pnDBGetConn();
+        [$dbconn] = pnDBGetConn();
         $pntable = pnDBGetTables();
 
         $table = $pntable['module_vars'];
@@ -177,7 +177,7 @@ function pnConfigGetVar($name)
         /*
          * Get data
          */
-        list ($result) = $dbresult->fields;
+        [$result] = $dbresult->fields;
         $result = unserialize($result, ['allowed_classes' => false]);
 
         /*
@@ -219,12 +219,12 @@ function pnInit()
 
     // Initialise and load configuration
     global $pnconfig;
-    $pnconfig = array();
+    $pnconfig = [];
     require 'config.php';
 
     // Initialise and load pntables
     global $pntable;
-    $pntable = array();
+    $pntable = [];
     require 'pntables.php';
 
     // Connect to database
@@ -339,7 +339,7 @@ function pnDBGetConn()
 {
     global $dbconn;
 
-    return array($dbconn);
+    return [$dbconn];
 }
 
 /**
@@ -367,18 +367,18 @@ function pnDBGetTables()
  */
 function pnVarCleanFromInput()
 {
-    $search = array('|</?\s*SCRIPT.*?>|si',
+    $search = ['|</?\s*SCRIPT.*?>|si',
                     '|</?\s*FRAME.*?>|si',
                     '|</?\s*OBJECT.*?>|si',
                     '|</?\s*META.*?>|si',
                     '|</?\s*APPLET.*?>|si',
                     '|</?\s*LINK.*?>|si',
                     '|</?\s*IFRAME.*?>|si',
-                    '|STYLE\s*=\s*"[^"]*"|si');
+                    '|STYLE\s*=\s*"[^"]*"|si'];
 
-    $replace = array('');
+    $replace = [''];
 
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $var) {
     // Get var
         global $$var;
@@ -425,9 +425,9 @@ function pnVarPrepForDisplay()
     // This search and replace finds the text 'x@y' and replaces
     // it with HTML entities, this provides protection against
     // email harvesters
-    static $search = array('/(.)@(.)/s');
+    static $search = ['/(.)@(.)/s'];
 
-    $resarray = array();
+    $resarray = [];
 
     foreach (func_get_args() as $ourvar) {
         // Prepare var
@@ -481,15 +481,15 @@ function pnVarPrepHTMLDisplay()
     // Note that the use of \024 and \022 are needed to ensure that
     // this does not break HTML tags that might be around either
     // the username or the domain name
-    static $search = array('/([^\024])@([^\022])/s');
+    static $search = ['/([^\024])@([^\022])/s'];
 
     static $allowedhtml;
 
     if (!isset($allowedhtml)) {
-        $allowedhtml = array();
+        $allowedhtml = [];
     }
 
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Preparse var to mark the HTML that we want
         $ourvar = preg_replace($allowedhtml, "\022\\1\024", $ourvar);
@@ -498,21 +498,17 @@ function pnVarPrepHTMLDisplay()
         $ourvar = htmlspecialchars($ourvar);
         $ourvar = preg_replace_callback(
             $search,
-            function ($matches) {
-                return "&#" .
-                sprintf("%03d", ord($matches[1])) .
-                ";&#064;&#" .
-                sprintf("%03d", ord($matches[2])) . ";";
-            },
+            fn($matches): string => "&#" .
+            sprintf("%03d", ord($matches[1])) .
+            ";&#064;&#" .
+            sprintf("%03d", ord($matches[2])) . ";",
             $ourvar
         );
 
         // Fix the HTML that we want
         $ourvar = preg_replace_callback(
             '/\022([^\024]*)\024/',
-            function ($matches) {
-                return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
-            },
+            fn($matches): string => '<' . strtr("$matches[1]", ['&gt;' => '>', '&lt;' => '<', '&quot;' => '\"']) . '>',
             $ourvar
         );
 
@@ -546,7 +542,7 @@ function pnVarPrepHTMLDisplay()
  */
 function pnVarPrepForStore()
 {
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Prepare var
         $ourvar = add_escape_custom($ourvar);
@@ -577,17 +573,17 @@ function pnVarPrepForStore()
  */
 function pnVarPrepForOS()
 {
-    static $search = array('!\.\./!si', // .. (directory traversal)
+    static $search = ['!\.\./!si', // .. (directory traversal)
                            '!^.*://!si', // .*:// (start of URL)
                            '!/!si',     // Forward slash (directory traversal)
-                           '!\\\\!si'); // Backslash (directory traversal)
+                           '!\\\\!si']; // Backslash (directory traversal)
 
-    static $replace = array('',
+    static $replace = ['',
                             '',
                             '_',
-                            '_');
+                            '_'];
 
-    $resarray = array();
+    $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Parse out bad things
         $ourvar = preg_replace($search, $replace, $ourvar);
@@ -610,37 +606,22 @@ function pnVarPrepForOS()
 
 /**
  * get base URI for PostNuke
- * @returns string
- * @return base URI for PostNuke
+ *
+ * @return string base URI for PostNuke
  */
-function pnGetBaseURI()
+function pnGetBaseURI(): string
 {
-    global $HTTP_SERVER_VARS;
-
-    // Get the name of this URI
-
     // Start of with REQUEST_URI
-    if (isset($HTTP_SERVER_VARS['REQUEST_URI'])) {
-        $path = $HTTP_SERVER_VARS['REQUEST_URI'];
-    } else {
-        $path = getenv('REQUEST_URI');
-    }
+    $path = $_SERVER['REQUEST_URI'] ?? getenv('REQUEST_URI');
 
-    if (
-        (empty($path)) ||
-        (substr($path, -1, 1) == '/')
-    ) {
+    if (empty($path) || str_ends_with($path, '/')) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
         $path = getenv('PATH_INFO');
         if (empty($path)) {
             // No luck there either
             // Try SCRIPT_NAME
-            if (isset($HTTP_SERVER_VARS['SCRIPT_NAME'])) {
-                $path = $HTTP_SERVER_VARS['SCRIPT_NAME'];
-            } else {
-                $path = getenv('SCRIPT_NAME');
-            }
+            $path = $_SERVER['SCRIPT_NAME'] ?? getenv('SCRIPT_NAME');
         }
     }
 

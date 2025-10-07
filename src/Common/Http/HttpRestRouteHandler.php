@@ -91,9 +91,7 @@ class HttpRestRouteHandler
                     $routeControllerParameters[] = $this->globalsBag; // add in the globals bag to everything if they need it
 
                     // set the _controller attribute for the kernel to handle, gives other listeners a chance to modify things as needed
-                    $dispatchRestRequest->attributes->set("_controller", function () use ($routeCallback, $routeControllerParameters) {
-                        return $routeCallback(...$routeControllerParameters);
-                    });
+                    $dispatchRestRequest->attributes->set("_controller", fn() => $routeCallback(...$routeControllerParameters));
                     return null; // return null to let the kernel handle the response
                 }
             }

@@ -204,7 +204,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
  <tbody>
         <?php
     } // end not export
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $where = "pn.date >= ? AND pn.date <= ?";
     array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59");

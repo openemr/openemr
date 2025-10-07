@@ -34,7 +34,7 @@ function smarty_function_html_options($params, &$smarty)
     $name = null;
     $values = null;
     $options = null;
-    $selected = array();
+    $selected = [];
     $output = null;
 
     $extra = '';
@@ -81,7 +81,7 @@ function smarty_function_html_options($params, &$smarty)
     } else {
 
         foreach ($values as $_i=>$_key) {
-            $_val = isset($output[$_i]) ? $output[$_i] : '';
+            $_val = $output[$_i] ?? '';
             $_html_result .= smarty_function_html_options_optoutput($_key, $_val, $selected);
         }
 

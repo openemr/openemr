@@ -53,7 +53,7 @@ class FhirLocationRestController
     public function getAll($searchParams, $patientUuid)
     {
         $processingResult = $this->fhirLocationService->getAll($searchParams, $patientUuid);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

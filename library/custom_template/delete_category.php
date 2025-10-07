@@ -101,7 +101,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     <?php
     $i = 0;
     while ($row = sqlFetchArray($res)) {
-        $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($row['cl_list_id']));
+        $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", [$row['cl_list_id']]);
         $i++;
         $class = (($class ?? '') == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
         echo "<tr class='text " . htmlspecialchars($class, ENT_QUOTES) . "'>";

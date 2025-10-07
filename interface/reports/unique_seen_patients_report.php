@@ -221,7 +221,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_labels'])) {
     "c2.id = i2.provider " .
     "GROUP BY p.lname, p.fname, p.mname, p.pid, i1.date, i2.date " .
     "ORDER BY p.lname, p.fname, p.mname, p.pid, i1.date DESC, i2.date DESC";
-    $res = sqlStatement($query, array($form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59'));
+    $res = sqlStatement($query, [$form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59']);
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {

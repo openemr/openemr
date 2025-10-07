@@ -384,9 +384,7 @@ class ProcedureService extends BaseService
         // versions of php.
         foreach ($procedures as $uuid) {
             $procedure = $procedureByUuid[$uuid];
-            $procedure['reports'] = array_map(function ($reportUuid) use ($reportsByUuid) {
-                return $reportsByUuid[$reportUuid];
-            }, $procedure['reports']);
+            $procedure['reports'] = array_map(fn($reportUuid): array => $reportsByUuid[$reportUuid], $procedure['reports']);
             $processingResult->addData($procedure);
         }
         return $processingResult;
@@ -409,9 +407,9 @@ class ProcedureService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         if (isset($search['patient.uuid'])) {
             $isValidPatient = BaseValidator::validateId(
@@ -474,7 +472,7 @@ class ProcedureService extends BaseService
                 // code to support patient binding
                 $sql .= '(';
             }
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);
@@ -602,7 +600,7 @@ class ProcedureService extends BaseService
 
     public function addDiagnosis($data)
     {
-        $diagnosisArray = array();
+        $diagnosisArray = [];
         $dataArray = explode(";", $data);
         foreach ($dataArray as $diagnosis) {
             $diagnosisSplit = explode(":", $diagnosis);

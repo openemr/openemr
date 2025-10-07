@@ -47,7 +47,7 @@ if ($_POST['form_create'] ?? null) {
     if (!empty($_POST["pubpid"])) {
         $form_pubpid = trim($_POST["pubpid"]);
         $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
-            "pubpid = ?", array($form_pubpid));
+            "pubpid = ?", [$form_pubpid]);
         if ($result['count']) {
             unset($_POST['form_create']);
             require_once("./utility.php");
@@ -153,7 +153,7 @@ if ($_POST['form_create'] ?? null) {
 function getLayoutUOR($form_id, $field_id)
 {
     $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-        "form_id = ? AND field_id = ? LIMIT 1", array($form_id, $field_id));
+        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
     return 0 + $crow['uor'];
 }
 if (empty($_POST) && !empty($data)) {
@@ -254,7 +254,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 $lres = getLayoutRes();
                 while ($lrow = sqlFetchArray($lres)) {
                     $field_id  = $lrow['field_id'];
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with($field_id, 'em_')) {
                         continue;
                     }
                     $data_type = $lrow['data_type'];

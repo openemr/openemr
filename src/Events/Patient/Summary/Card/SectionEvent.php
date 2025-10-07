@@ -84,7 +84,7 @@ class SectionEvent extends Event
         if ($position == null || !is_int($position)) {
             $this->cards[] = $card;
         } else {
-            array_splice($this->cards, $position, 0, array($card));
+            array_splice($this->cards, $position, 0, [$card]);
         }
     }
 
@@ -103,7 +103,7 @@ class SectionEvent extends Event
 
         foreach ($this->cards as $card) {
             if (!$card instanceof CardInterface) {
-                $objtype = get_class($card);
+                $objtype = $card::class;
                 throw new \UnexpectedValueException("Expecting an object implementing CardInterface. Received {$objtype}");
             }
             $_idArr[] = $card->getIdentifier();

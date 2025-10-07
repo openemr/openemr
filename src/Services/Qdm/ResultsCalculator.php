@@ -71,9 +71,7 @@ class ResultsCalculator
          */
         $this->measure_result_hash[$measure->hqmf_id] = [];
         $population_set_keys = array_map(
-            function ($ps) use ($measure) {
-                return $measure->key_for_population_set($ps);
-            },
+            $measure->key_for_population_set(...),
             $measure->population_sets_and_stratifications_for_measure()
         );
         foreach ($population_set_keys as $psk) {
@@ -125,7 +123,7 @@ class ResultsCalculator
         // TODO: not storing results in DB
         // # If individual_results are provided, use them.  Otherwise, look them up in the database by measure id and correlation_id
         //          individual_results ||= CQM::IndividualResult.where('measure_id' => measure._id, correlation_id: @correlation_id)
-        $observation_hash = array();
+        $observation_hash = [];
         foreach ($individual_results as $individual_result) {
             // type safety and let's us get intellisense
             if (!($individual_result instanceof IndividualResult)) {
@@ -335,9 +333,7 @@ class ResultsCalculator
     {
         return array_reduce(
             $this->filter_null_values($arr),
-            function ($sum, $item) {
-                return $sum + $item;
-            },
+            fn($sum, $item): float|int|array => $sum + $item,
             0
         );
 

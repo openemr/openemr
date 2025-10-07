@@ -123,10 +123,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $select = "SELECT `lists`.`pid`,`patient_data`.`uuid` FROM `lists` INNER JOIN `patient_data` ON `patient_data`.`pid` = "
          . "`lists`.`pid` WHERE `type`='allergy' and `patient_data`.`pubpid` LIKE ? LIMIT 2";
         $records = QueryUtils::fetchTableColumn($select, 'uuid', [$pubpid]);
-        $uuids = array_map(function ($v) {
-            return UuidRegistry::uuidToString($v);
-        }, $records);
-        list($uuidPatient1, $uuidPatient2) = $uuids;
+        $uuids = array_map(UuidRegistry::uuidToString(...), $records);
+        [$uuidPatient1, $uuidPatient2] = $uuids;
 
         // replace any values that we will use for searching
         $parameterValue = str_replace(":uuid1", $uuidPatient1, $parameterValue);

@@ -47,11 +47,11 @@ class DBTable
     {
         $this->Schema = $schema;
         $this->Name = $row ["Tables_in_" . $this->Schema->Name];
-        $this->Columns = array ();
-        $this->PrimaryKeys = array ();
-        $this->ForeignKeys = array ();
-        $this->Constraints = array ();
-        $this->Sets = array ();
+        $this->Columns =  [];
+        $this->PrimaryKeys =  [];
+        $this->ForeignKeys =  [];
+        $this->Constraints =  [];
+        $this->Sets =  [];
 
         $this->LoadColumns();
         $this->DiscoverColumnPrefix();
@@ -258,18 +258,18 @@ class DBTable
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (substr($line, 0, 11) == "PRIMARY KEY") {
+            if (str_starts_with($line, "PRIMARY KEY")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->PrimaryKeys [$matches [1] [0]] = new DBKey($this, "PRIMARY KEY", $matches [0] [0]);
-            } elseif (substr($line, 0, 3) == "KEY") {
+            } elseif (str_starts_with($line, "KEY")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->ForeignKeys [$matches [1] [0]] = new DBKey($this, $matches [1] [0], $matches [1] [1]);
 
                 // Add keys to the column for convenience
                 $this->Columns [$matches [1] [1]]->Keys [] = $matches [1] [0];
-            } elseif (substr($line, 0, 10) == "CONSTRAINT") {
+            } elseif (str_starts_with($line, "CONSTRAINT")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->Constraints [$matches [1] [0]] = new DBConstraint($this, $matches [1]);
@@ -292,7 +292,7 @@ class DBTable
                 $comment = str_replace("''", "'", $comment);
                 $this->Columns [$column]->Comment = $comment;
 
-                if ($this->Columns [$column]->Default == "" && substr($comment, 0, 8) == "default=") {
+                if ($this->Columns [$column]->Default == "" && str_starts_with($comment, "default=")) {
                     $this->Columns [$column]->Default = substr($comment, 9, strlen($comment) - 10);
                 }
 

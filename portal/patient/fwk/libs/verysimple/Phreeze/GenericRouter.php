@@ -90,7 +90,7 @@ class GenericRouter implements IRouter
             // literal match check
         if (isset($this->routeMap [$uri])) {
             // expects mapped values to be in the form: Controller.Model
-            list ( $controller, $method ) = explode(".", $this->routeMap [$uri] ["route"]);
+            [$controller, $method] = explode(".", $this->routeMap [$uri] ["route"]);
 
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 // p_acl check
@@ -110,16 +110,16 @@ class GenericRouter implements IRouter
                 }
             }
 
-            $this->matchedRoute = array (
+            $this->matchedRoute =  [
                     "key" => $this->routeMap [$uri],
                     "route" => $this->routeMap [$uri] ["route"],
-                    "params" => isset($this->routeMap [$uri] ["params"]) ? $this->routeMap [$uri] ["params"] : array ()
-            );
+                    "params" => $this->routeMap [$uri] ["params"] ?? []
+            ];
 
-            return array (
+            return  [
                     $controller,
                     $method
-            );
+            ];
         }
 
         // loop through the route map for wild cards:
@@ -155,27 +155,27 @@ class GenericRouter implements IRouter
                     }
                 }
 
-                $this->matchedRoute = array (
+                $this->matchedRoute =  [
                         "key" => $unalteredKey,
                         "route" => $value ["route"],
-                        "params" => isset($value ["params"]) ? $value ["params"] : array ()
-                );
+                        "params" => $value ["params"] ?? []
+                ];
 
                 // expects mapped values to be in the form: Controller.Model
-                list ( $controller, $method ) = explode(".", $value ["route"]);
-                return array (
+                [$controller, $method] = explode(".", $value ["route"]);
+                return  [
                         $controller,
                         $method
-                );
+                ];
             }
         }
 
         // this is a page-not-found route
-        $this->matchedRoute = array (
+        $this->matchedRoute =  [
                 "key" => '',
                 "route" => '',
-                "params" => array ()
-        );
+                "params" =>  []
+        ];
 
         // if we haven't returned by now, we've found no match:
         return explode('.', self::$ROUTE_NOT_FOUND, 2);
@@ -193,13 +193,13 @@ class GenericRouter implements IRouter
             // if a root folder was provided, then we need to strip that out as well
             if ($this->appRootUrl) {
                 $prefix = str_replace(RequestUtil::GetServerRootUrl(), '/', $this->appRootUrl);
-                if (substr($this->uri, 0, strlen($prefix)) == $prefix) {
+                if (str_starts_with($this->uri, $prefix)) {
                     $this->uri = substr($this->uri, strlen($prefix));
                 }
             }
 
             // strip trailing slash
-            while (substr($this->uri, - 1) == '/') {
+            while (str_ends_with($this->uri, '/')) {
                 $this->uri = substr($this->uri, 0, - 1);
             }
         }
@@ -227,7 +227,7 @@ class GenericRouter implements IRouter
 
         // enumerate all of the routes in the map and look for the first one that matches
         foreach ($this->routeMap as $key => $value) {
-            list ( $routeController, $routeMethod ) = explode(".", $value ["route"]);
+            [$routeController, $routeMethod] = explode(".", $value ["route"]);
 
             $routeRequestMethodArr = explode(":", $key, 2);
             $routeRequestMethod = $routeRequestMethodArr [0];

@@ -39,7 +39,7 @@ if (!empty($_POST['bn_save'])) {
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
         $form_dest_filename = strtolower(basename($form_dest_filename));
-        if (substr($form_dest_filename, -4) != '.pdf') {
+        if (!str_ends_with($form_dest_filename, '.pdf')) {
             die(xlt('Filename must end with ".pdf"'));
         }
 
@@ -98,7 +98,7 @@ if (isset($_POST['generate_thumbnails'])) {
  */
 
 if ($GLOBALS['secure_upload']) {
-    $mime_types  = array('image/*', 'text/*', 'audio/*', 'video/*');
+    $mime_types  = ['image/*', 'text/*', 'audio/*', 'video/*'];
 
     $responseError = false;
     $responseErrorAsString = "";
@@ -121,7 +121,7 @@ if ($GLOBALS['secure_upload']) {
             $errorStatusCode = $resp->getStatusCode();
         }
         error_log('Get list of mime-type error: "' . errorLogEscape($responseErrorAsString) . '" - Code: ' . errorLogEscape($errorStatusCode ?? 0));
-        $mime_types_list = array(
+        $mime_types_list = [
             'application/pdf',
             'image/jpeg',
             'image/png',
@@ -129,7 +129,7 @@ if ($GLOBALS['secure_upload']) {
             'application/msword',
             'application/vnd.oasis.opendocument.spreadsheet',
             'text/plain'
-        );
+        ];
         $mime_types = array_merge($mime_types, $mime_types_list);
     }
 
@@ -139,17 +139,17 @@ if ($GLOBALS['secure_upload']) {
             CsrfUtils::csrfNotVerified();
         }
 
-        $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
+        $new_white_list = empty($_POST['white_list']) ? [] : $_POST['white_list'];
 
         // truncate white list from list_options table
         sqlStatement("DELETE FROM `list_options` WHERE `list_id` = 'files_white_list'");
         foreach ($new_white_list as $mimetype) {
-            sqlStatement("INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', ?, ?, 1)", array($mimetype, $mimetype));
+            sqlStatement("INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', ?, ?, 1)", [$mimetype, $mimetype]);
         }
 
         $white_list = $new_white_list;
     } else {
-        $white_list = array();
+        $white_list = [];
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
         while ($lrow = sqlFetchArray($lres)) {
             $white_list[] = $lrow['option_id'];

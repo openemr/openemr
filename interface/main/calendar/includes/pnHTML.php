@@ -177,7 +177,7 @@ class pnHTML
      */
     function __construct()
     {
-        $this->header = array ();
+        $this->header =  [];
         $this->output = '';
         $this->return = _PNH_KEEPOUTPUT;
         $this->parse = _PNH_PARSEINPUT;

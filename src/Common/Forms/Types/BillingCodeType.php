@@ -103,10 +103,10 @@ class BillingCodeType
         $lbfchange = (
             !empty($form_id) &&
             (
-                strpos($form_id, 'LBF') === 0 ||
-                strpos($form_id, 'LBT') === 0 ||
-                strpos($form_id, 'DEM') === 0 ||
-                strpos($form_id, 'HIS') === 0
+                str_starts_with($form_id, 'LBF') ||
+                str_starts_with($form_id, 'LBT') ||
+                str_starts_with($form_id, 'DEM') ||
+                str_starts_with($form_id, 'HIS')
             )
         ) ? "checkSkipConditions();" : "";
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
@@ -125,7 +125,7 @@ class BillingCodeType
         // Edit option E means allow multiple (Extra) billing codes in a field.
         // We invent a class name for this because JavaScript needs to know.
         $className = '';
-        if (strpos($frow['edit_options'], 'E') !== false) {
+        if (str_contains($frow['edit_options'], 'E')) {
             $className = 'EditOptionE';
         }
         //

@@ -85,7 +85,7 @@ class InsuranceCompany extends ORDataObject
         $fax = new PhoneNumber();
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
-        $this->phone_numbers = array($phone, $fax);
+        $this->phone_numbers = [$phone, $fax];
         if ($insuranceCompanyService === null) {
             $this->InsuranceCompany = new InsuranceCompanyService();
         } else {
@@ -335,7 +335,7 @@ class InsuranceCompany extends ORDataObject
     public function insurance_companies_factory()
     {
         $insuranceCompanyService = new InsuranceCompanyService();
-        $icompanies = array();
+        $icompanies = [];
 
         $listAll = $insuranceCompanyService->search([]);
         if ($listAll->hasData()) {
@@ -354,9 +354,7 @@ class InsuranceCompany extends ORDataObject
             }
         }
         // sort by name since we don't know that the sql query will return them in the correct order
-        usort($icompanies, function ($a, $b) {
-            return strcasecmp($a->name, $b->name);
-        });
+        usort($icompanies, fn($a, $b): int => strcasecmp($a->name, $b->name));
 
         return $icompanies;
     }

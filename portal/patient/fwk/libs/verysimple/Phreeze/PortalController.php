@@ -218,7 +218,7 @@ abstract class PortalController
         $token = $this->Context->Get('X-CSRFToken');
 
         if (! $token) {
-            $token = md5(rand(1111111111, 9999999999) . microtime());
+            $token = md5(random_int(1111111111, 9999999999) . microtime());
             $this->Context->Set('X-CSRFToken', $token);
         }
 
@@ -399,7 +399,7 @@ abstract class PortalController
     public function ListAll()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::ListAll");
+            throw new Exception("ModelName must be defined in " . $this::class . "::ListAll");
         }
 
         // capture output instead of rendering if specified
@@ -426,7 +426,7 @@ abstract class PortalController
     protected function _ListAll(Criteria $criteria, $current_page, $limit)
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::_ListAll.");
+            throw new Exception("ModelName must be defined in " . $this::class . "::_ListAll.");
         }
 
         $page = $this->Phreezer->Query($this->ModelName, $criteria)->GetDataPage($current_page, $limit);
@@ -452,7 +452,7 @@ abstract class PortalController
         require_once("verysimple/String/VerySimpleStringUtil.php");
 
         if (! is_array($supressProps)) {
-            $supressProps = array ();
+            $supressProps =  [];
         }
 
             // never include these props
@@ -476,7 +476,7 @@ abstract class PortalController
 
         // get the fieldmap for this object type unless not specified
         if ($noMap) {
-            $fms = array ();
+            $fms =  [];
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
@@ -618,9 +618,9 @@ abstract class PortalController
 
         if (! is_object($obj)) {
             $vr->Success = false;
-            $vr->Errors = array (
+            $vr->Errors =  [
                     "Unknown" => "LoadFromForm does not appear to be implemented.  Unable to validate"
-            );
+            ];
             $vr->Message = "LoadFromForm does not appear to be implemented.  Unable to validate";
         } elseif ($obj->Validate()) {
             $vr->Success = true;
@@ -650,7 +650,7 @@ abstract class PortalController
         require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
         $vr->Success = false;
-        $vr->Errors = array ();
+        $vr->Errors =  [];
         $vr->Message = "SaveInline is not implemented by this controller";
         $this->RenderJSON($vr);
     }
@@ -663,11 +663,11 @@ abstract class PortalController
     protected function GetColumns()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::GetColumns");
+            throw new Exception("ModelName must be defined in " . $this::class . "::GetColumns");
         }
 
         $counter = 0;
-        $props = array ();
+        $props =  [];
         foreach (get_class_vars($this->ModelName) as $var => $val) {
             $props [$counter++] = $var;
         }
@@ -731,7 +731,7 @@ abstract class PortalController
             $this->_cu = Authenticator::GetCurrentUser($this->GUID);
 
             if ($this->_cu) {
-                if (get_class($this->_cu) == "__PHP_Incomplete_Class") {
+                if ($this->_cu::class == "__PHP_Incomplete_Class") {
                     // this happens if the class used for authentication was not included before the session was started
                     $tmp = print_r($this->_cu, 1);
                     $parts1 = explode("__PHP_Incomplete_Class_Name] => ", $tmp);
@@ -764,7 +764,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (strpos($url, self::$ApiIdentifier) !== false);
+        return (str_contains($url, (string) self::$ApiIdentifier));
     }
 
     /**
@@ -793,10 +793,10 @@ abstract class PortalController
             $message = ! $cu || $cu->IsAnonymous() ? $not_authenticated_feedback : $permission_denied_feedback;
 
             if ($on_fail_action && $this->IsApiRequest() == false) {
-                $this->Redirect($on_fail_action, array (
+                $this->Redirect($on_fail_action, [
                         'feedback' => $message,
                         'warning' => $message
-                ));
+                ]);
             } else {
                 $ex = new AuthenticationException($message, 500);
                 $this->Crash("Permission Denied", 500, $ex);
@@ -825,7 +825,7 @@ abstract class PortalController
      */
     protected function Render($view = "", $format = null)
     {
-        $isSmarty = (strpos(get_class($this->RenderEngine), "Smarty") > - 1);
+        $isSmarty = (strpos($this->RenderEngine::class, "Smarty") > - 1);
 
         if ($isSmarty && $format == null) {
             $format = self::$SmartyViewPrefix;
@@ -876,7 +876,7 @@ abstract class PortalController
         } elseif ($useSimpleObject) {
             // we need to figure out what type
             if (is_array($var) || is_a($var, 'SplFixedArray')) {
-                $obj = array ();
+                $obj =  [];
                 foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
@@ -896,7 +896,7 @@ abstract class PortalController
         try {
             $output = json_encode($obj);
         } catch (Exception $ex) {
-            if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
+            if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
                     $this->UTF8Encode($obj);
@@ -958,14 +958,14 @@ abstract class PortalController
             $mode = self::$DefaultRedirectMode;
         }
 
-        $params = is_array($params) ? $params : array ();
+        $params = is_array($params) ? $params :  [];
 
         if ($feedback != null) {
             $this->Context->Set("feedback", $feedback);
         }
 
         // support for deprecated Controller/Method format
-        list ( $controller, $method ) = explode(".", str_replace("/", ".", $action));
+        [$controller, $method] = explode(".", str_replace("/", ".", $action));
 
         $url = $this->GetRouter()->GetUrl($controller, $method, $params);
 
@@ -1031,6 +1031,6 @@ abstract class PortalController
      */
     function __call($name, $vars = null)
     {
-        throw new Exception(get_class($this) . "::" . $name . " is not implemented");
+        throw new Exception($this::class . "::" . $name . " is not implemented");
     }
 }

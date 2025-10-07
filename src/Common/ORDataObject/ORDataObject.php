@@ -66,12 +66,12 @@ class ORDataObject
         foreach ($fields as $field) {
             $func = "get_" . $field;
             //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
-            if (is_callable(array($this,$func))) {
-                $val = call_user_func(array($this,$func));
+            if (is_callable([$this,$func])) {
+                $val = call_user_func([$this,$func]);
 
                 if (in_array($field, $pkeys)  && empty($val)) {
                     $last_id = generate_id();
-                    call_user_func(array(&$this,"set_" . $field), $last_id);
+                    call_user_func([&$this,"set_" . $field], $last_id);
                     $val = $last_id;
                 }
 
@@ -122,10 +122,10 @@ class ORDataObject
             foreach ($results as $field_name => $field) {
                 $func = "set_" . $field_name;
                 //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
-                if (is_callable(array($this,$func))) {
+                if (is_callable([$this,$func])) {
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func(array(&$this,$func), $field);
+                        call_user_func([&$this,$func], $field);
                     }
                 }
             }
@@ -205,7 +205,7 @@ class ORDataObject
 
     public function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
     {
-        $ar = array();
+        $ar = [];
         if ($blank) {
             $ar[0] = " ";
         }

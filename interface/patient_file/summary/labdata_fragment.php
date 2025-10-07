@@ -33,7 +33,7 @@ $spell = "SELECT procedure_report.date_collected AS thedate, " .
             "JOIN procedure_order_code ON procedure_order.procedure_order_id = procedure_order_code.procedure_order_id " .
             "WHERE procedure_order.patient_id = ? " .
             "ORDER BY procedure_report.date_collected DESC ";
-$result = sqlQuery($spell, array($pid));
+$result = sqlQuery($spell, [$pid]);
 
 if (!$result) { //If there are no lab data recorded
     ?>

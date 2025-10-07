@@ -73,7 +73,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitionerRole
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $practitionerRoleResource = new FHIRPractitionerRole();
 

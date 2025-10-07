@@ -48,10 +48,10 @@ if (empty($_POST['start']) || empty($_POST['end'])) {
 
 //Patient related stuff
 if (!empty($_POST["form_patient"])) {
-    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+    $form_patient = $_POST['form_patient'] ?? '';
 }
 
-$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+$form_pid = $_POST['form_pid'] ?? '';
 if (empty($form_patient)) {
     $form_pid = '';
 }
@@ -268,7 +268,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
     <?php
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
@@ -292,7 +292,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
     $iCounter = 0;
     if (empty($newpatient)) {
-        $newpatient = array();
+        $newpatient = [];
     }
 
     foreach ($newpatient as $patient) {
@@ -321,7 +321,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         print "<div id='superbill_billingdata'>";
         print "<h1>" . xlt('Billing Information') . ":</h1>";
         if (!empty($patient)) {
-            $billings = array();
+            $billings = [];
             echo "<table class='table w-100'>";
             echo "<tr>";
             echo "<td class='bold' width='10%'>" . xlt('Date') . "</td>";

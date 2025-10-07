@@ -67,7 +67,7 @@ class PhoneNumberService extends BaseService
 
         $phoneNumbersSqlResults = QueryUtils::sqlInsert(
             $phoneNumbersSql,
-            array(
+            [
                 $freshId,
                 self::COUNTRY_CODE,
                 $this->area_code,
@@ -75,7 +75,7 @@ class PhoneNumberService extends BaseService
                 $this->number,
                 $this->type,
                 $this->foreignId
-            )
+            ]
         );
 
         if (!$phoneNumbersSqlResults) {
@@ -99,14 +99,14 @@ class PhoneNumberService extends BaseService
 
         $phoneNumbersSqlResults = sqlStatement(
             $phoneNumbersSql,
-            array(
+            [
                 self::COUNTRY_CODE,
                 $this->area_code ,
                 $this->prefix,
                 $this->number,
                 $this->foreignId,
                 $this->type
-            )
+            ]
         );
 
         if (!$phoneNumbersSqlResults) {
@@ -123,7 +123,7 @@ class PhoneNumberService extends BaseService
 
     public function getPhoneParts(string $phone_number)
     {
-        $phone_parts = array();
+        $phone_parts = [];
         preg_match(
             "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
             $phone_number,
@@ -138,6 +138,6 @@ class PhoneNumberService extends BaseService
     public function getOneByForeignId($foreignId)
     {
         $sql = "SELECT * FROM phone_numbers WHERE foreign_id=?";
-        return sqlQuery($sql, array($foreignId));
+        return sqlQuery($sql, [$foreignId]);
     }
 }

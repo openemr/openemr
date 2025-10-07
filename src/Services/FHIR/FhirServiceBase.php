@@ -36,7 +36,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
      */
-    protected $resourceSearchParameters = array();
+    protected $resourceSearchParameters = [];
 
     /**
      * Url to the base fhir api location
@@ -114,7 +114,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return FHIRDomainResource the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    abstract public function parseOpenEMRRecord($dataRecord = array(), $encode = false);
+    abstract public function parseOpenEMRRecord($dataRecord = [], $encode = false);
 
     /**
      * Parses a FHIR Resource, returning the equivalent OpenEMR record.
@@ -240,14 +240,14 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
                         if ($provenanceResource) {
                             $fhirSearchResult->addData($provenanceResource);
                         } else {
-                            $this->getSystemLogger()->debug(get_class($this) . ":getAll() did not return a provenance record when requested");
+                            $this->getSystemLogger()->debug($this::class . ":getAll() did not return a provenance record when requested");
                         }
                     }
                 }
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = $this->getSystemLogger();
-            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

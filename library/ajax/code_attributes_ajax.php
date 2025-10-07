@@ -36,7 +36,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
     if ($codetype == 'PROD') {
         $wrow = sqlQuery(
             "SELECT default_warehouse FROM users WHERE username = ?",
-            array($_SESSION['authUser'])
+            [$_SESSION['authUser']]
         );
         $defaultwh = empty($wrow['default_warehouse']) ? '' : $wrow['default_warehouse'];
       //
@@ -45,7 +45,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
             "FROM drugs AS d " .
             "LEFT JOIN prices AS p ON p.pr_id = d.drug_id AND p.pr_selector = ? AND p.pr_level = ? " .
             "WHERE d.drug_id = ?",
-            array($selector, $pricelevel, $code)
+            [$selector, $pricelevel, $code]
         );
         $desc = $crow['name'];
         $price = empty($crow['pr_price']) ? 0 : (0 + $crow['pr_price']);
@@ -83,7 +83,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
                         "SELECT pr_price " .
                         "FROM prices WHERE pr_id = ? AND pr_selector = '' AND pr_level = ? " .
                         "LIMIT 1",
-                        array($crow['id'], $pricelevel)
+                        [$crow['id'], $pricelevel]
                     );
                     if (!empty($prow['pr_price'])) {
                         $price = 0 + $prow['pr_price'];
@@ -106,7 +106,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
     js_escape($wh) . ");";
 }
 
-$pricelevel = isset($_GET['pricelevel']) ? $_GET['pricelevel'] : '';
+$pricelevel = $_GET['pricelevel'] ?? '';
 
 if (!empty($_GET['list'])) {
   // This case supports packages of codes.
@@ -117,14 +117,14 @@ if (!empty($_GET['list'])) {
         }
         $arrcode = explode('|', $codestring);
         $codetype = $arrcode[0];
-        list($code, $modifier) = explode(":", $arrcode[1]);
-        $selector = isset($arrcode[2]) ? $arrcode[2] : '';
+        [$code, $modifier] = explode(":", $arrcode[1]);
+        $selector = $arrcode[2] ?? '';
         write_code_info($codetype, $code, $selector, $pricelevel);
     }
 } else {
   // This is the normal case of adding a single code.
-    $codetype   = isset($_GET['codetype'  ]) ? $_GET['codetype'  ] : '';
-    $code       = isset($_GET['code'      ]) ? $_GET['code'      ] : '';
-    $selector   = isset($_GET['selector'  ]) ? $_GET['selector'  ] : '';
+    $codetype   = $_GET['codetype'  ] ?? '';
+    $code       = $_GET['code'      ] ?? '';
+    $selector   = $_GET['selector'  ] ?? '';
     write_code_info($codetype, $code, $selector, $pricelevel);
 }

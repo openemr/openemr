@@ -22,8 +22,8 @@ use OpenEMR\Core\Header;
 
 formHeader("Form:AfterCare Planning");
 $returnurl = 'encounter_top.php';
-$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
-$obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
+$formid = (int) ($_GET['id'] ?? 0);
+$obj = $formid ? formFetch("form_aftercare_plan", $formid) : [];
 
 ?>
 <html>

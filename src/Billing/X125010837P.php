@@ -975,7 +975,7 @@ class X125010837P
                 "," . $claim->providerFirstName() . " has invalid NPI.\n";
         }
 
-        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {
+        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), ['0B', '1G', 'G2', 'LU'])) {
             if ($claim->providerNumber()) {
                 ++$edicount;
                 $out .= "REF" .

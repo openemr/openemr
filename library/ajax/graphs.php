@@ -29,7 +29,7 @@ $table = trim($_POST['table']);
 $name = trim($_POST['name']);
 $title = trim($_POST['title']);
 
-$is_lbf = substr($table, 0, 3) === 'LBF';
+$is_lbf = str_starts_with($table, 'LBF');
 
 // acl checks here
 //  For now, only allow access for med aco.
@@ -85,18 +85,18 @@ function graphsGetValues($name)
             "ld.field_id = ? AND " .
             "ld.field_value != '0' " .
             "ORDER BY date",
-            array($pid, $table, $name)
+            [$pid, $table, $name]
         );
     } else {
         // Collect the pertinent info and ranges
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
         $values = SqlStatement("SELECT " .
-            escape_sql_column_name($name, array($table)) . ", " .
+            escape_sql_column_name($name, [$table]) . ", " .
         "date " .
         "FROM " . escape_table_name($table) . " " .
-        "WHERE " . escape_sql_column_name($name, array($table)) . " != 0 " .
-        "AND pid = ? ORDER BY date", array($pid));
+        "WHERE " . escape_sql_column_name($name, [$table]) . " != 0 " .
+        "AND pid = ? ORDER BY date", [$pid]);
     }
 
     return $values;
@@ -225,7 +225,7 @@ if ($is_lbf) {
 }
 
 // Prepare data
-$data = array();
+$data = [];
 while ($row = sqlFetchArray($values)) {
     if ($row["$name"]) {
         $x = $row['date'];
@@ -283,7 +283,7 @@ foreach ($data as $date => $value) {
 }
 
 // Build and send back the json
-$graph_build = array();
+$graph_build = [];
 $graph_build['data_final'] = $data_final;
 $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather

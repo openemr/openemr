@@ -86,7 +86,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCareTeam
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $careTeamResource = new FHIRCareTeam();
 
@@ -193,7 +193,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         return $this->careTeamService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRCareTeam)) {
             throw new \BadMethodCallException("Data record should be correct instance class");

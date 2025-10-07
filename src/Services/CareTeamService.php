@@ -118,7 +118,7 @@ class CareTeamService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
             // code to support patient binding

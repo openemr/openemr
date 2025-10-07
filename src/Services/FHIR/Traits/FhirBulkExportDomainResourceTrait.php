@@ -66,7 +66,7 @@ trait FhirBulkExportDomainResourceTrait
                 }
                 (new SystemLogger())->debug(
                     "FhirBulkExportDomainResourceTrait->export() filtering by patient uuids",
-                    ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => get_class($this)]
+                    ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => $this::class]
                 );
                 $searchField = $this->getPatientContextSearchField();
                 $searchParams[$searchField->getName()] = implode(",", $patientUuids);

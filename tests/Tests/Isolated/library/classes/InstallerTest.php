@@ -501,7 +501,7 @@ class InstallerTest extends TestCase
             ->method('execute_sql')
             ->willReturnCallback(function ($sql) use (&$callCount, $mockResult) {
                 $callCount++;
-                if ($callCount === 1 && strpos($sql, 'SELECT user FROM mysql.user') !== false) {
+                if ($callCount === 1 && str_contains($sql, 'SELECT user FROM mysql.user')) {
                     return $mockResult;
                 }
                 return true;
@@ -532,7 +532,7 @@ class InstallerTest extends TestCase
             ->method('execute_sql')
             ->willReturnCallback(function ($sql) use (&$callCount, $mockResult) {
                 $callCount++;
-                if ($callCount === 1 && strpos($sql, 'SELECT user FROM mysql.user') !== false) {
+                if ($callCount === 1 && str_contains($sql, 'SELECT user FROM mysql.user')) {
                     return $mockResult;
                 }
                 return true;
@@ -3579,7 +3579,7 @@ class InstallerTest extends TestCase
         $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
             ->willReturnCallback(function ($sql) use ($mockResult) {
-                if (strpos($sql, 'SELECT') !== false) {
+                if (str_contains($sql, 'SELECT')) {
                     return $mockResult;
                 } else {
                     return true;
@@ -3611,7 +3611,7 @@ class InstallerTest extends TestCase
         $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
             ->willReturnCallback(function ($sql) use ($mockResult) {
-                if (strpos($sql, 'SELECT') !== false) {
+                if (str_contains($sql, 'SELECT')) {
                     return $mockResult;
                 } else {
                     return true;

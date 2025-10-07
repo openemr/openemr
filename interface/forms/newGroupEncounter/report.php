@@ -21,7 +21,7 @@ use OpenEMR\Common\Acl\AclMain;
 
 function newGroupEncounter_report($group_id, $encounter, $cols, $id): void
 {
-    $res = sqlStatement("select * from form_groups_encounter where group_id=? and id=?", array($group_id,$id));
+    $res = sqlStatement("select * from form_groups_encounter where group_id=? and id=?", [$group_id,$id]);
     print "<table><tr><td>\n";
     while ($result = sqlFetchArray($res)) {
         print "<span class='font-weight-bold'>" . xlt('Facility') . ": </span><span class='text'>" . text($result["facility"]) . "</span><br />\n";

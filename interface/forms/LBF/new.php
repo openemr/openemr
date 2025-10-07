@@ -39,7 +39,7 @@ use OpenEMR\Core\Header;
 
 $CPR = 4; // cells per row
 
-$pprow = array();
+$pprow = [];
 
 $alertmsg = '';
 
@@ -98,7 +98,7 @@ $from_lbf_edit = $patient_portal ? 1 : $from_lbf_edit;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 $formid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $portalid = isset($_GET['portalid']) ? (int)$_GET['portalid'] : 0;
 // know LBF origin
@@ -110,7 +110,7 @@ $portal_form_pid = 0;
 if ($form_origin !== null) {
     $portal_form_pid = sqlQuery(
         "SELECT id, pid FROM `onsite_documents` WHERE `encounter` != 0 AND `encounter` = ?",
-        array($formid)
+        [$formid]
     )['pid'] ?? 0;
 }
 $is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_portal_module);
@@ -131,7 +131,7 @@ if ($formid && !$visitid && $is_core) {
     $frow = sqlQuery(
         "SELECT pid, encounter FROM forms WHERE " .
         "form_id = ? AND formdir = ? AND deleted = 0",
-        array($formid, $formname)
+        [$formid, $formname]
     );
     $visitid = (int)$frow['encounter'];
     if ($frow['pid'] != $pid) {
@@ -143,7 +143,7 @@ if (!$from_trend_form && !$visitid && !$from_lbf_edit && $is_core) {
     die("Internal error: we do not seem to be in an encounter!");
 }
 
-$grparr = array();
+$grparr = [];
 getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
@@ -224,7 +224,7 @@ if (
         $newid = sqlInsert("INSERT INTO lbf_data " .
             "( field_id, field_value ) VALUES ( '', '' )");
         sqlStatement("DELETE FROM lbf_data WHERE form_id = ? AND " .
-            "field_id = ''", array($newid));
+            "field_id = ''", [$newid]);
         addForm($visitid, $formtitle, $newid, $formname, $pid, $userauthorized);
     }
 
@@ -234,7 +234,7 @@ if (
     if (isset($_POST['form_issue_id'])) {
         sqlStatement(
             "UPDATE forms SET issue_id = ? WHERE formdir = ? AND form_id = ? AND deleted = 0",
-            array($_POST['form_issue_id'], $formname, $my_form_id)
+            [$_POST['form_issue_id'], $formname, $my_form_id]
         );
     }
 
@@ -242,16 +242,16 @@ if (
     if (isset($_POST['form_provider_id'])) {
         sqlStatement(
             "UPDATE forms SET provider_id = ? WHERE formdir = ? AND form_id = ? AND deleted = 0",
-            array($_POST['form_provider_id'], $formname, $my_form_id)
+            [$_POST['form_provider_id'], $formname, $my_form_id]
         );
     }
 
-    $newhistorydata = array();
+    $newhistorydata = [];
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
         "edit_options != 'H' AND edit_options NOT LIKE '%0%' " .
-        "ORDER BY group_id, seq", array($formname));
+        "ORDER BY group_id, seq", [$formname]);
     while ($frow = sqlFetchArray($fres)) {
         $field_id = $frow['field_id'];
         $data_type = $frow['data_type'];
@@ -278,15 +278,15 @@ if (
                 // Do not call updateHistoryData() here! That would create multiple rows
                 // in the history_data table for a single form save.
                 $newhistorydata[$field_id] = $value;
-            } elseif (strpos($field_id, 'em_') === 0) {
+            } elseif (str_starts_with($field_id, 'em_')) {
                 $field_id = substr($field_id, 3);
-                $new = array($field_id => $value);
+                $new = [$field_id => $value];
                 updateEmployerData($pid, $new);
             } else {
-                $esc_field_id = escape_sql_column_name($field_id, array('patient_data'));
+                $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
                 sqlStatement(
                     "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
-                    array($value, $pid)
+                    [$value, $pid]
                 );
             }
 
@@ -298,16 +298,16 @@ if (
                 "REPLACE INTO shared_attributes SET " .
                 "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
                 "user_id = ?, field_value = ?",
-                array($pid, $visitid, $field_id, $_SESSION['authUserID'], $value)
+                [$pid, $visitid, $field_id, $_SESSION['authUserID'], $value]
             );
             continue;
         } elseif ($source == 'V') {
             // Save to form_encounter.
-            $esc_field_id = escape_sql_column_name($field_id, array('form_encounter'));
+            $esc_field_id = escape_sql_column_name($field_id, ['form_encounter']);
             sqlStatement(
                 "UPDATE form_encounter SET `$esc_field_id` = ? WHERE " .
                 "pid = ? AND encounter = ?",
-                array($value, $pid, $visitid)
+                [$value, $pid, $visitid]
             );
             continue;
         }
@@ -317,18 +317,18 @@ if (
             if ($value === '') {
                 $query = "DELETE FROM lbf_data WHERE " .
                     "form_id = ? AND field_id = ?";
-                sqlStatement($query, array($formid, $field_id));
+                sqlStatement($query, [$formid, $field_id]);
             } else {
                 $query = "REPLACE INTO lbf_data SET field_value = ?, " .
                     "form_id = ?, field_id = ?";
-                sqlStatement($query, array($value, $formid, $field_id));
+                sqlStatement($query, [$value, $formid, $field_id]);
             }
         } else { // new form
             if ($value !== '') {
                 sqlStatement(
                     "INSERT INTO lbf_data " .
                     "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
-                    array($newid, $field_id, $value)
+                    [$newid, $field_id, $value]
                 );
             }
         }
@@ -341,7 +341,7 @@ if (
 
     if ($portalid) {
         // Delete the request from the portal.
-        $result = cms_portal_call(array('action' => 'delpost', 'postid' => $portalid));
+        $result = cms_portal_call(['action' => 'delpost', 'postid' => $portalid]);
         if ($result['errmsg']) {
             die(text($result['errmsg']));
         }
@@ -913,7 +913,7 @@ if (
                         "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
                         "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
                         "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-                        "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
+                        "fe.id = f.form_id LIMIT 1", [$pid, $visitid]); ?>
                     <div class="row">
                         <div class="col-12">
                             <h3>
@@ -928,7 +928,7 @@ if (
                             $firow = sqlQuery(
                                 "SELECT issue_id, provider_id FROM forms WHERE " .
                                 "formdir = ? AND form_id = ? AND deleted = 0",
-                                array($formname, $formid)
+                                [$formname, $formid]
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
                             $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
@@ -952,7 +952,7 @@ if (
                                 echo "&nbsp;&nbsp;";
                                 $query = "SELECT id, title, date, begdate FROM lists WHERE pid = ? AND type = ? " .
                                     "ORDER BY COALESCE(begdate, date) DESC, id DESC";
-                                $ires = sqlStatement($query, array($pid, $LBF_ISSUE_TYPE));
+                                $ires = sqlStatement($query, [$pid, $LBF_ISSUE_TYPE]);
                                 echo "<select name='form_issue_id'>\n";
                                 echo " <option value='0'>-- " . xlt('Select Case') . " --</option>\n";
                                 while ($irow = sqlFetchArray($ires)) {
@@ -982,7 +982,7 @@ if (
 
                 $fres = sqlStatement("SELECT * FROM layout_options " .
                     "WHERE form_id = ? AND uor > 0 " .
-                    "ORDER BY group_id, seq", array($formname));
+                    "ORDER BY group_id, seq", [$formname]);
                 $cell_count = 0;
                 $item_count = 0;
                 // $display_style = 'block';
@@ -998,7 +998,7 @@ if (
                 // in list_options.option_value for this form's list item.  Values in this
                 // array are work areas for building the ending HTML for each displayed row.
                 //
-                $historical_ids = array();
+                $historical_ids = [];
 
                 // True if any data items in this form can be graphed.
                 $form_is_graphable = false;
@@ -1061,7 +1061,7 @@ if (
                                     "SELECT encounter, form_id FROM forms WHERE " .
                                     "pid = ? AND formdir = ? AND deleted = 0 " .
                                     "ORDER BY date DESC LIMIT 1",
-                                    array($pid, $formname)
+                                    [$pid, $formname]
                                 );
                                 if (!empty($tmp['encounter'])) {
                                     $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
@@ -1078,7 +1078,7 @@ if (
                                     "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ? " .
                                     "WHERE e1.pid = ? AND e1.encounter = ? " .
                                     "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
-                                    array($field_id, $pid, $visitid)
+                                    [$field_id, $pid, $visitid]
                                 );
                                 if (isset($tmp['field_value'])) {
                                     $currvalue = $tmp['field_value'];
@@ -1145,7 +1145,7 @@ if (
                         $group_table_active = true;
 
 
-                        $historical_ids = array();
+                        $historical_ids = [];
 
                         if ($USING_BOOTSTRAP) {
                             echo " <div class='container-fluid lbfdata'>\n";
@@ -1183,7 +1183,7 @@ if (
                                     "fe.pid = f.pid AND fe.encounter = f.encounter " .
                                     "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
                                     "LIMIT ?",
-                                    array($pid, $formname, $formid, $formhistory)
+                                    [$pid, $formname, $formid, $formhistory]
                                 );
                                 // For some readings like vitals there may be multiple forms per encounter.
                                 // We sort these sensibly, however only the encounter date is shown here;
@@ -1281,7 +1281,7 @@ if (
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -1395,7 +1395,7 @@ if (
                             if ($fs->code_is_in_fee_sheet) {
                                 echo " checked";
                             }
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             $title = lookup_code_descriptions($codestring);
                             $title = empty($title) ? $code : xl_list_label($title);
                             echo " />" . text($title);
@@ -1525,11 +1525,11 @@ if (
                             if ($fs->code_is_in_fee_sheet) {
                                 echo " checked";
                             }
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             $crow = sqlQuery(
                                 "SELECT name FROM drugs WHERE " .
                                 "drug_id = ? ORDER BY drug_id LIMIT 1",
-                                array($code)
+                                [$code]
                             );
                             $title = empty($crow['name']) ? $code : xl_list_label($crow['name']);
                             echo " />" . text($title);
@@ -1619,7 +1619,7 @@ if (
                             if ($fs->code_is_in_fee_sheet) {
                                 echo " checked";
                             }
-                            list($codetype, $code) = explode(':', $codestring);
+                            [$codetype, $code] = explode(':', $codestring);
                             $title = lookup_code_descriptions($codestring);
                             $title = empty($title) ? $code : xl_list_label($title);
                             echo " />" . text($title);
@@ -1713,7 +1713,7 @@ if (
                         "WHERE " .
                         "f.pid = ? AND f.encounter = ? AND f.formdir = 'LBFref' AND f.deleted = 0 " .
                         "ORDER BY refer_date, f.form_id",
-                        array($pid, $encounter)
+                        [$pid, $encounter]
                     );
 
                     while ($refrow = sqlFetchArray($refres)) {
@@ -1726,12 +1726,12 @@ if (
                                     continue;
                                 }
                                 ++$svccount;
-                                list($codetype, $code) = explode(':', $codestring);
+                                [$codetype, $code] = explode(':', $codestring);
                                 $rrow = sqlQuery(
                                     "SELECT code_text FROM codes WHERE " .
                                     "code_type = ? AND code = ? " .
                                     "ORDER BY active DESC, id ASC LIMIT 1",
-                                    array($code_types[$codetype]['id'], $code)
+                                    [$code_types[$codetype]['id'], $code]
                                 );
                                 $code_text = empty($rrow['code_text']) ? '' : $rrow['code_text'];
                                 if ($svcstring) {

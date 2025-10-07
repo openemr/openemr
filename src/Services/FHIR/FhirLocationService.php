@@ -82,7 +82,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRLocation
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $locationResource = new FHIRLocation();
 

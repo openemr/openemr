@@ -77,7 +77,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCarePlan
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $carePlanResource = new FHIRCarePlan();
 

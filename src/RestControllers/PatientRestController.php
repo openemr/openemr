@@ -25,7 +25,7 @@ class PatientRestController
     /**
      * White list of patient search fields
      */
-    private const SUPPORTED_SEARCH_FIELDS = array(
+    private const SUPPORTED_SEARCH_FIELDS = [
         "fname",
         "lname",
         "ss",
@@ -41,7 +41,7 @@ class PatientRestController
         'country_code',
         "email",
         "DOB",
-    );
+    ];
 
     public function __construct()
     {
@@ -96,9 +96,7 @@ class PatientRestController
     {
         $validSearchFields = array_filter(
             $search,
-            function ($key) {
-                return in_array($key, self::SUPPORTED_SEARCH_FIELDS);
-            },
+            fn($key): bool => in_array($key, self::SUPPORTED_SEARCH_FIELDS),
             ARRAY_FILTER_USE_KEY
         );
         $processingResult = $this->patientService->getAll($validSearchFields, true, null, $config);

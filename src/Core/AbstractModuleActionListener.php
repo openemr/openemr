@@ -148,7 +148,7 @@ abstract class AbstractModuleActionListener
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
+        $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
             $registry[$k] = trim((preg_replace('/\R/', '', $v)));
         }
@@ -172,6 +172,6 @@ abstract class AbstractModuleActionListener
     {
         // set module state.
         $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
-        return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
+        return sqlQuery($sql, [$flag, $flag_ui, $modId, $modId]);
     }
 }

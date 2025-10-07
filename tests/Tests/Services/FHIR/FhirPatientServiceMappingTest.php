@@ -75,9 +75,9 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertEquals($sourcePatientRecord['title'], $actualName->getPrefix()[0]);
 
         $this->assertEquals($sourcePatientRecord['lname'], $actualName->getFamily());
-        $this->assertEquals(array(
+        $this->assertEquals([
             $sourcePatientRecord['fname'],
-            $sourcePatientRecord['mname']), $actualName->getGiven());
+            $sourcePatientRecord['mname']], $actualName->getGiven());
 
         $this->assertEquals(1, count($fhirPatientResource->getAddress()));
         $actualAddress = $fhirPatientResource->getAddress()[0];
@@ -177,7 +177,7 @@ class FhirPatientServiceMappingTest extends TestCase
      */
     private function findTelecomEntry(FHIRPatient $fhirPatientResource, $telecomSystem, $telecomUse)
     {
-        $matchingEntries = array();
+        $matchingEntries = [];
 
         if (empty($fhirPatientResource->getTelecom())) {
             return $matchingEntries;

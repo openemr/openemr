@@ -28,7 +28,7 @@ use OpenEMR\Pdf\Config_Mpdf;
 $FONTSIZE = 9;
 
 // The form name is passed to us as a GET parameter.
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
@@ -51,7 +51,7 @@ $isblankform = empty($_REQUEST['isform']) ? 0 : 1;
 
 $CPR = 4; // cells per row
 
-$grparr = array();
+$grparr = [];
 getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
@@ -110,7 +110,7 @@ if ($visitid && (isset($LBF_SERVICES_SECTION) || isset($LBF_DIAGS_SECTION) || is
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = ? AND uor > 0 " .
-  "ORDER BY group_id, seq", array($formname));
+  "ORDER BY group_id, seq", [$formname]);
 ?>
 <?php if (!$PDF_OUTPUT) { ?>
 <html>
@@ -467,7 +467,7 @@ while ($frow = sqlFetchArray($fres)) {
         if ($cell_count > 0) {
             echo "padding-left:5pt;";
         }
-        if (in_array($data_type, array(21,27,40))) {
+        if (in_array($data_type, [21,27,40])) {
             // Omit underscore for checkboxes, radio buttons and images.
             echo "border-width:0 0 0 0;";
         }

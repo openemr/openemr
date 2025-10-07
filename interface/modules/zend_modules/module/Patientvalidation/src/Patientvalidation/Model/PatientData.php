@@ -156,34 +156,34 @@ class PatientData implements InputFilterAwareInterface
 
 
 
-    public static $inputsValidations = array(
-        array(
+    public static $inputsValidations = [
+        [
             'name'     => 'id',
             'required' => true,
-            'filters'  => array(
-                array('name' => 'Int'),
-            ),
-        ),
-        array(
+            'filters'  => [
+                ['name' => 'Int'],
+            ],
+        ],
+        [
             'name'     => 'fname',
             'required' => true,
 
-        ),
-        array(
+        ],
+        [
             'name'     => 'lname',
             'required' => true,
 
-        ),
+        ],
 
-        array(
+        [
             'name'     => 'sex',
             'required' => true,
-        ),
-        array(
+        ],
+        [
             'name'     => 'DOB',
             'required' => true,
-        )
-    );
+        ]
+    ];
 
 
     public function setInputFilter(InputFilterInterface $inputFilter)

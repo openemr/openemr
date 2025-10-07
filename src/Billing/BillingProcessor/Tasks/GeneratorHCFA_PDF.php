@@ -103,10 +103,10 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
                 $this->createNewPage = true;
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
-            $this->pdf->ezText($tmplines, 12, array(
+            $this->pdf->ezText($tmplines, 12, [
                 'justification' => 'left',
                 'leading' => 12
-            ));
+            ]);
         }
     }
 

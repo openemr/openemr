@@ -34,7 +34,7 @@ class MessageRestController
         }
 
         $serviceResult = $this->messageService->update($pid, $mid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array("mid" => $mid), 200);
+        return RestControllerHelper::responseHandler($serviceResult, ["mid" => $mid], 200);
     }
 
     public function post($pid, $data)
@@ -47,7 +47,7 @@ class MessageRestController
         }
 
         $serviceResult = $this->messageService->insert($pid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array("mid" => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, ["mid" => $serviceResult], 201);
     }
 
     public function delete($pid, $mid)

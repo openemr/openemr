@@ -24,7 +24,7 @@ class MaviqClient
         $this->Endpoint = $endpoint;
     }
 
-    public function sendRequest($path, $method = "POST", $vars = array())
+    public function sendRequest($path, $method = "POST", $vars = [])
     {
 
         echo "Path: {$path}\n";
@@ -45,7 +45,7 @@ class MaviqClient
 
         // if GET and vars, append them
         if ($method == "GET") {
-            $url .= (false === strpos($path, '?') ? "?" : "&") . $encoded;
+            $url .= (!str_contains($path, '?') ? "?" : "&") . $encoded;
         }
 
         // initialize a new curl object

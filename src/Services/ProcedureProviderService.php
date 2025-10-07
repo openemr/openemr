@@ -40,7 +40,7 @@ class ProcedureProviderService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sql = "SELECT  prov.ppid
                         ,prov.uuid
                         ,prov.name

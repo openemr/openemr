@@ -108,17 +108,17 @@ class CommonPlugin extends AbstractPlugin
 
         if ($audit_master_id_to_delete) {
             $qry = "DELETE from audit_details WHERE audit_master_id=?";
-            $appTable->zQuery($qry, array($audit_master_id_to_delete));
+            $appTable->zQuery($qry, [$audit_master_id_to_delete]);
 
             $qry = "DELETE from audit_master WHERE id=?";
-            $appTable->zQuery($qry, array($audit_master_id_to_delete));
+            $appTable->zQuery($qry, [$audit_master_id_to_delete]);
         }
 
         $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?, is_qrda_document = ?, is_unstructured_document = ?";
-        $result = $appTable->zQuery($master_query, array(0, $approval_status, $ip_address, $type, $isQrdaDocument, $isUnstructeredDocument));
+        $result = $appTable->zQuery($master_query, [0, $approval_status, $ip_address, $type, $isQrdaDocument, $isUnstructeredDocument]);
         $audit_master_id = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
-        $detail_query_array = array();
+        $detail_query_array = [];
         foreach ($field_name_value_array as $key => $val) {
             foreach ($field_name_value_array[$key] as $cnt => $field_details) {
                 foreach ($field_details as $field_name => $field_value) {
@@ -153,31 +153,31 @@ class CommonPlugin extends AbstractPlugin
     {
         $appTable = new ApplicationTable();
         $this->listenerObject = new Listener();
-        $res = $appTable->zQuery("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", array($list_id));
+        $res = $appTable->zQuery("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);
         $i = 0;
         if ($opt == 'search') {
-            $rows[$i] = array(
+            $rows[$i] = [
                 'value' => 'all',
                 'label' => $this->listenerObject->z_xlt('All'),
                 'selected' => true,
-            );
+            ];
             $i++;
         } elseif ($opt == '') {
-            $rows[$i] = array(
+            $rows[$i] = [
                 'value' => '',
                 'label' => $this->listenerObject->z_xlt('Unassigned'),
                 'disabled' => false
-            );
+            ];
             $i++;
         }
 
         foreach ($res as $row) {
             $sel = ($row['option_id'] == $selected) ? true : false;
-            $rows[$i] = array(
+            $rows[$i] = [
                 'value' => htmlspecialchars($row['option_id'], ENT_QUOTES),
                 'label' => $this->listenerObject->z_xlt($row['title']),
                 'selected' => $sel,
-            );
+            ];
             $i++;
         }
 
@@ -197,7 +197,7 @@ class CommonPlugin extends AbstractPlugin
     {
         $appTable = new ApplicationTable();
         $sql = "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? ";
-        $result = $appTable->zQuery($sql, array($listId, $listOptionId));
+        $result = $appTable->zQuery($sql, [$listId, $listOptionId]);
         $row = $result->current();
         $return = xl_list_label($row['title']);
         return $return;

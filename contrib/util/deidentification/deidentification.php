@@ -69,21 +69,21 @@ echo("\n Successfully connected to database....... Waiting...... \n ");
 
 //random names
 // count of males 33
-$male = array("John", "Joe", "Tony", "Harley", "Kenneth", "Sam", "Lewi", "Jimmy", "Moby", "Donald", "George", "Barack", "Jose", "Fonzy", "Cat", "David", "Scruggs",
+$male = ["John", "Joe", "Tony", "Harley", "Kenneth", "Sam", "Lewi", "Jimmy", "Moby", "Donald", "George", "Barack", "Jose", "Fonzy", "Cat", "David", "Scruggs",
               "Prately","Stabile","Faler","Wolfrum","Hughe","Gustave","Lemar","Zhu","Quihuiz","Krinsky","Cresswell","Vanbergen","Durelli","Carron","Targett","Emmert","Ferrusi"
-             );
+             ];
 
 // count female names 75
-$female = array(
+$female = [
                 "Hillary", "Alison", "Kathy", "Jesse", "Buzz", "Jenny", "Rachael", "Jennifer", "Lauren", "Lisa", "Amy", "Dana", "Blake",
                 "Beatrice", "Beatrix", "Bea", "Bee", "Beattie", "Trixie", "Trissie", "Belinda", "Bel", "Bell", "Belle", "Linda", "Lindy", "Lin", "Lynn",
                 "Belle", "Bell", "Bel", "Bella", "Annabel", "Arabella", "Isabel", "Rosabel", "Belinda", "Berenice", "Bernice", "Bernie",
                 "Bertha", "Berta", "Bertie", "Betty", "Beverly", "Beverley", "Bev", "Blanche", "Blanch", "Bonnie", "Bonny", "Brenda", "Brendie", "Brandy",
                 "Brett", "Bret", "Bretta", "Bridget", "Bridgette", "Brigid", "Brigit", "Biddie", "Biddy", "Bridie", "Bridey", "Brie", "Bree", "Brita",
                 "Brittany", "Brittney", "Britney", "Brit", "Britt", "Brita", "Brie"
-                );
+                ];
 // count of names is: 806
-$lnames = array (
+$lnames =  [
                         "Sandles","Hollifield","Flack","Lussier","Deloe","Thao","Dardenne","Spiro","Futter","Subasic","Shawler","Baehr","Murrillo","Christenbury",
                         "Plourde","Cotty","Suro","Gabe","Davids","Eschrich","Trautmann","Matarrita","Crompton","Pekas","Komo","Monroy","Kortkamp","Klukan","Henrity",
                         "Kindig","Syal","Hurtig","Vangilder","Ronsini","Hutchenson","Alvero","Valeriani","Bendtsen","Hornbarger","Marsili","Burfeind","Torello","Wink",
@@ -132,7 +132,7 @@ $lnames = array (
                         "Brackman","Borruso","Ficklin","Baza","Mercier","Sponholz","Trego","Channell","Vanburen","Zaring","Luken","Komorowski","Fasciano","Drafts","Dar","Callicoat","Callam",
                         "Villaquiran","Vanbrunt","Coiner","Luckenbill","Mcray","Pin","Hayer","Lapenta","Isita","Slaydon","Frondorf","Cavagna","Passalacqua","Lehnertz","Kavadias","Macione",
                         "Sturch","Boes","Albor","Bookamer","Burbine","Bardach","Ghaor","Quartieri","Mcgill","Michelena","Aronson","Brosig","Morganti","Rodewald","Barich","Langelier"
-                  );
+                  ];
 
 /* function to clear the present value if a record's column and replace it with a value if spoecified
    Input: $con, $table, $column, $value = value to replace with
@@ -175,20 +175,20 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
         $i++;
         $string = '';
         //Give the user a new last name in patient_data.lname
-        $last_name = $lnames[rand(0, 800)];
+        $last_name = $lnames[random_int(0, 800)];
 
         //Give the user a new first name
-        $first_name_male = $male[rand(0, 32)];
-        $first_name_female = $female[rand(0, 74)];
+        $first_name_male = $male[random_int(0, 32)];
+        $first_name_female = $female[random_int(0, 74)];
 
         //Change the street address patient_Data.street
-        $street = rand(1, 9999) . " " . rand(0, 200) . " Avenue ";
+        $street = random_int(1, 9999) . " " . random_int(0, 200) . " Avenue ";
 
         //remove the drivers license
-        $drivers_license = rand(2, 999) . rand(0, 999) . rand(0, 99);
+        $drivers_license = random_int(2, 999) . random_int(0, 999) . random_int(0, 99);
 
         //change the patient_data.phone_home
-        $phone_home = rand(200, 999) . "-" . rand(200, 999) . "-" . rand(1000, 9999);
+        $phone_home = random_int(200, 999) . "-" . random_int(200, 999) . "-" . random_int(1000, 9999);
 
         $string = "update patient_data set lname = '$last_name', ";
 
@@ -335,10 +335,10 @@ function deIdUsersTable($con): void
     while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-        if (strpos($row['newcrop_user_role'], 'doctor') !== false) {
+        if (str_contains($row['newcrop_user_role'], 'doctor')) {
             $string .= "fname = 'Doctor.{$row['id']}',
                        lname = 'Doctor.{$row['id']}' ";
-        } elseif (strpos($row['newcrop_user_role'], 'nurse') !== false) {
+        } elseif (str_contains($row['newcrop_user_role'], 'nurse')) {
             $string .= "fname = 'Nurse.{$row['id']}',
                        lname = 'Nurse.{$row['id']}' ";
         } else {

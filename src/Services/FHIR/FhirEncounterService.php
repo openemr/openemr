@@ -116,7 +116,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIREncounter
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $encounterResource = new FHIREncounter();
 
@@ -290,7 +290,7 @@ class FhirEncounterService extends FhirServiceBase implements
         }
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIREncounter)) {
             throw new \BadMethodCallException("Data record should be correct instance class");

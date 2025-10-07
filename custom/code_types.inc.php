@@ -58,11 +58,11 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once(__DIR__ . "/../library/csv_like_join.php");
 
-$code_types = array();
+$code_types = [];
 global $code_types;
 $ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
 while ($ctrow = sqlFetchArray($ctres)) {
-    $code_types[$ctrow['ct_key']] = array(
+    $code_types[$ctrow['ct_key']] = [
     'active' => $ctrow['ct_active'  ],
     'id'   => $ctrow['ct_id'  ],
     'fee'  => $ctrow['ct_fee' ],
@@ -79,7 +79,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'term' => $ctrow['ct_term'],
     'problem' => $ctrow['ct_problem'],
     'drug' => $ctrow['ct_drug']
-    );
+    ];
     if (!array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
         $GLOBALS['default_search_code_type'] = array_key_first($code_types);
     }
@@ -88,7 +88,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
 /** This array contains metadata describing the arrangement of the external data
  *  tables for storing codes.
  */
-$code_external_tables = array();
+$code_external_tables = [];
 global $code_external_tables;
 define('EXT_COL_CODE', 'code');
 define('EXT_COL_DESCRIPTION', 'description');
@@ -119,9 +119,9 @@ define('SKIP_TOTAL_TABLE_COUNT', 'skip_total_table_count');
  * @param type $joins               An array which describes additional tables to join as part of a code search.
  * @param array $extraColumns       An array of extra columns to be included in the table definition
  */
-function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "", $extraColumns = array()): void
+function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = [], $version_order = "", $joins = [], $display_desc = "", $extraColumns = []): void
 {
-    $results[$index] = array(EXT_TABLE_NAME => $table_name,
+    $results[$index] = [EXT_TABLE_NAME => $table_name,
                            EXT_COL_CODE => $col_code,
                            EXT_COL_DESCRIPTION => $col_description,
                            EXT_COL_DESCRIPTION_BRIEF => $col_description_brief,
@@ -135,47 +135,47 @@ function define_external_table(&$results, int $index, $table_name, $col_code, $c
                            // because innodb has to do a full table scan to get the count due to row level transaction isolation
                            // so we give the option to skip the total table count for these tables
                            SKIP_TOTAL_TABLE_COUNT => false
-                           );
+                           ];
     foreach ($extraColumns as $key => $value) {
         $results[$index][$key] = $value;
     }
 }
 // In order to treat all the code types the same for lookup_code_descriptions, we include metadata for the original codes table
-define_external_table($code_external_tables, 0, 'codes', 'code', 'code_text', 'code_text_short', array(), 'id');
+define_external_table($code_external_tables, 0, 'codes', 'code', 'code_text', 'code_text_short', [], 'id');
 
 // ICD9 External Definitions
-define_external_table($code_external_tables, 4, 'icd9_dx_code', 'formatted_dx_code', 'long_desc', 'short_desc', array("active='1'"), 'revision DESC');
-define_external_table($code_external_tables, 5, 'icd9_sg_code', 'formatted_sg_code', 'long_desc', 'short_desc', array("active='1'"), 'revision DESC');
+define_external_table($code_external_tables, 4, 'icd9_dx_code', 'formatted_dx_code', 'long_desc', 'short_desc', ["active='1'"], 'revision DESC');
+define_external_table($code_external_tables, 5, 'icd9_sg_code', 'formatted_sg_code', 'long_desc', 'short_desc', ["active='1'"], 'revision DESC');
 //**** End ICD9 External Definitions
 
 // SNOMED Definitions
 // For generic SNOMED-CT, there is no need to join with the descriptions table to get a specific description Type
 
 // For generic concepts, use the fully specified description (DescriptionType=3) so we can tell the difference between them.
-define_external_table($code_external_tables, 7, 'sct_descriptions', 'ConceptId', 'Term', 'Term', array("DescriptionStatus=0","DescriptionType=3"), "");
+define_external_table($code_external_tables, 7, 'sct_descriptions', 'ConceptId', 'Term', 'Term', ["DescriptionStatus=0","DescriptionType=3"], "");
 
 // To determine codes, we need to evaluate data in both the sct_descriptions table, and the sct_concepts table.
 // the base join with sct_concepts is the same for all types of SNOMED definitions, so we define the common part here
-$SNOMED_joins = array(JOIN_TABLE => "sct_concepts",JOIN_FIELDS => array("sct_descriptions.ConceptId=sct_concepts.ConceptId"));
+$SNOMED_joins = [JOIN_TABLE => "sct_concepts",JOIN_FIELDS => ["sct_descriptions.ConceptId=sct_concepts.ConceptId"]];
 
 // For disorders, use the preferred term (DescriptionType=1)
-define_external_table($code_external_tables, 2, 'sct_descriptions', 'ConceptId', 'Term', 'Term', array("DescriptionStatus=0","DescriptionType=1"), "", array($SNOMED_joins));
+define_external_table($code_external_tables, 2, 'sct_descriptions', 'ConceptId', 'Term', 'Term', ["DescriptionStatus=0","DescriptionType=1"], "", [$SNOMED_joins]);
 // Add the filter to choose only disorders. This filter happens as part of the join with the sct_concepts table
 array_push($code_external_tables[2][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(disorder)'");
 
 // SNOMED-PR definition
-define_external_table($code_external_tables, 9, 'sct_descriptions', 'ConceptId', 'Term', 'Term', array("DescriptionStatus=0","DescriptionType=1"), "", array($SNOMED_joins));
+define_external_table($code_external_tables, 9, 'sct_descriptions', 'ConceptId', 'Term', 'Term', ["DescriptionStatus=0","DescriptionType=1"], "", [$SNOMED_joins]);
 // Add the filter to choose only procedures. This filter happens as part of the join with the sct_concepts table
 array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(procedure)'");
 
 // SNOMED RF2 definitions
-define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', ["active=1"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 if (isSnomedSpanish()) {
-    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(trastorno)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(procedimiento)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 } else {
-    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(disorder)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedure)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(disorder)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(procedure)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 }
 
 define('SNOMED_RF2_EXTERNAL_TABLE_INDEXES', [10,11,12]);
@@ -183,12 +183,12 @@ define('SNOMED_RF2_EXTERNAL_TABLE_INDEXES', [10,11,12]);
 //**** End SNOMED Definitions
 
 // ICD 10 Definitions
-define_external_table($code_external_tables, 1, 'icd10_dx_order_code', 'formatted_dx_code', 'long_desc', 'short_desc', array("active='1'","valid_for_coding = '1'"), 'revision DESC');
-define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_code', 'long_desc', 'short_desc', array("active='1'","valid_for_coding = '1'"), 'revision DESC');
+define_external_table($code_external_tables, 1, 'icd10_dx_order_code', 'formatted_dx_code', 'long_desc', 'short_desc', ["active='1'","valid_for_coding = '1'"], 'revision DESC');
+define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_code', 'long_desc', 'short_desc', ["active='1'","valid_for_coding = '1'"], 'revision DESC');
 //**** End ICD 10 Definitions
 
-define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', array(), '');
-define_external_table($code_external_tables, 14, 'valueset_oid', 'code', 'description', 'description', array(), '');
+define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', [], '');
+define_external_table($code_external_tables, 14, 'valueset_oid', 'code', 'description', 'description', [], '');
 
 /**
  * This array stores the external table options. See above for $code_types array
@@ -196,7 +196,7 @@ define_external_table($code_external_tables, 14, 'valueset_oid', 'code', 'descri
  * @var array
  */
 global $ct_external_options;
-$ct_external_options = array(
+$ct_external_options = [
   '0' => xl('No'),
   '4' => xl('ICD9 Diagnosis'),
   '5' => xl('ICD9 Procedure/Service'),
@@ -210,7 +210,7 @@ $ct_external_options = array(
   '12' => xl('SNOMED (RF2) Procedure'),
   '13' => xl('CQM (Mixed Types) Value Set'),
   '14' => xl('CQM OID Value Set')
-);
+];
 
 /**
  * @var EventDispatcher
@@ -343,7 +343,7 @@ function check_is_code_type_justify($key)
  * @param   array    $filter (array of elements that can include 'active','fee','rel','nofs','diag','claim','proc','term','problem')
  * @return  boolean
  */
-function check_code_set_filters($key, $filters = array())
+function check_code_set_filters($key, $filters = [])
 {
     global $code_types;
 
@@ -381,7 +381,7 @@ function collect_codetypes($category, $return_format = "array")
 {
     global $code_types;
 
-    $return = array();
+    $return = [];
 
     foreach ($code_types as $ct_key => $ct_arr) {
         if (!$ct_arr['active']) {
@@ -462,7 +462,7 @@ function return_code_information($form_code_type, $code, $active = true)
 * @param array         $filter_elements  Array that contains elements to filter
 * @return mixed recordset/integer              - Will contain either a integer(if counting) or the results (recordset)
 */
-function main_code_set_search($form_code_type, $search_term, $limit = null, $category = null, $active = true, $modes = null, $count = false, $start = null, $number = null, $filter_elements = array())
+function main_code_set_search($form_code_type, $search_term, $limit = null, $category = null, $active = true, $modes = null, $count = false, $start = null, $number = null, $filter_elements = [])
 {
 
     // check for a category
@@ -507,7 +507,7 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  * @param  array     $return_query    This is a mode that will only return the query (everything except for the LIMIT is included) (returned as an array to include the query string and binding array)
  * @return mixed recordset/integer/array
  */
-function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = array(), $limit = null, $mode = 'default', $return_query = false)
+function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = [], $limit = null, $mode = 'default', $return_query = false)
 {
     global $code_types, $code_external_tables;
 
@@ -538,7 +538,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                  "dt.selector LIKE ? ) " .
                  "AND d.drug_id = dt.drug_id " .
                  "ORDER BY d.name, dt.selector, dt.drug_id $limit_query";
-        $res = sqlStatement($query, array("%" . $search_term . "%", "%" . $search_term . "%"));
+        $res = sqlStatement($query, ["%" . $search_term . "%", "%" . $search_term . "%"]);
     } else { // Start a codes search
         // We are looking up the external table id here.  An "unset" value gets treated as 0(zero) without this test.  This way we can differentiate between "unset" and explicitly zero.
         $table_id = isset($code_types[$form_code_type]['external']) ? intval(($code_types[$form_code_type]['external'])) : -9999 ;
@@ -575,7 +575,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
             $code_text_col = $table_info[EXT_COL_DESCRIPTION];
             $code_text_short_col = $table_info[EXT_COL_DESCRIPTION_BRIEF];
             if ($table_id == 0) {
-                $table_info[EXT_FILTER_CLAUSES] = array("code_type=" . $code_types[$form_code_type]['id']); // Add a filter for the code type
+                $table_info[EXT_FILTER_CLAUSES] = ["code_type=" . $code_types[$form_code_type]['id']]; // Add a filter for the code type
             }
 
             $code_external = $code_types[$form_code_type]['external'];
@@ -596,7 +596,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                 HelpfulDie("Missing table in code set search:" . $table);
             }
 
-            $sql_bind_array = array();
+            $sql_bind_array = [];
             if ($count) {
                 // only collecting a count
                 $query = "SELECT count(" . $table_dot . $code_col . ") as count ";
@@ -718,7 +718,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                 // information can then be used to combine queries of different code types
                 // via the mysql UNION command. Returning an array to contain the query string
                 // and the binding parameters.
-                return array('query' => $query,'binds' => $sql_bind_array);
+                return ['query' => $query,'binds' => $sql_bind_array];
             }
 
             $query .= $limit_query;
@@ -787,7 +787,7 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
             $code_col = $table_info[EXT_COL_CODE];
             $desc_col = $table_info[DISPLAY_DESCRIPTION] == "" ? $table_info[EXT_COL_DESCRIPTION] : $table_info[DISPLAY_DESCRIPTION];
             $desc_col_short = $table_info[DISPLAY_DESCRIPTION] == "" ? $table_info[EXT_COL_DESCRIPTION_BRIEF] : $table_info[DISPLAY_DESCRIPTION];
-            $sqlArray = array();
+            $sqlArray = [];
             $sql = "SELECT " . $desc_col . " as code_text," . $desc_col_short . " as code_text_short FROM " . $table_name;
 
             // include the "JOINS" so that we get the preferred term instead of the FullySpecifiedName when appropriate.
@@ -881,11 +881,11 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
 * @param string $is_hit_mode This is a mode that simply returns the name of the mode if results were found
 * @return mixed recordset/integer/string
 */
-function sequential_code_set_search($form_code_type, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array(), $is_hit_mode = false)
+function sequential_code_set_search($form_code_type, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = [], $is_hit_mode = false)
 {
   // Set the default behavior that is described in above function comments
     if (empty($modes)) {
-        $modes = array('code','description');
+        $modes = ['code','description'];
     }
 
   // Return the Search Results (loop through each mode in order)
@@ -920,7 +920,7 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 * @param array $filter_elements Array that contains elements to filter
 * @return mixed recordset/integer
 */
-function multiple_code_set_search(?array $form_code_types, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
+function multiple_code_set_search(?array $form_code_types, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = [])
 {
 
     if (empty($form_code_types)) {
@@ -936,7 +936,7 @@ function multiple_code_set_search(?array $form_code_types, $search_term, $limit 
         $limit_query = limit_query_string($limit, $start, $number);
 
         // Prepare the sql bind array
-        $sql_bind_array = array();
+        $sql_bind_array = [];
 
         // Start the query string
         $query = "SELECT * FROM ((";
@@ -1036,7 +1036,7 @@ function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0
         if ($codestring === '') {
             continue;
         }
-        list($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         if ($codetype === $typewanted) {
             // echo "<!-- returning '$code' -->\n"; // debugging
             return $code;
@@ -1045,7 +1045,7 @@ function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0
             "SELECT related_code FROM codes WHERE " .
             "code_type = ? AND code = ? AND active = 1 " .
             "ORDER BY id LIMIT 1",
-            array($code_types[$codetype]['id'], $code)
+            [$code_types[$codetype]['id'], $code]
         );
         $tmp = recursive_related_code($row['related_code'], $typewanted, $depth);
         if ($tmp !== false) {

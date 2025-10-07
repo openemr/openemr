@@ -194,7 +194,7 @@ class ClinicalNotesService extends BaseService
     public function setActivityForClinicalRecord($clinicalNoteId, $pid, $encounter, $activity)
     {
         $sql = "UPDATE `form_clinical_notes` SET activity = ? WHERE id=? AND pid = ? AND encounter = ?";
-        $bindings = array($activity, $clinicalNoteId, $pid, $encounter);
+        $bindings = [$activity, $clinicalNoteId, $pid, $encounter];
         QueryUtils::sqlStatementThrowException($sql, $bindings);
     }
 
@@ -208,7 +208,7 @@ class ClinicalNotesService extends BaseService
     {
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM `form_clinical_notes` WHERE form_id=? AND pid = ? AND encounter = ?",
-            array($formId, $pid, $encounter)
+            [$formId, $pid, $encounter]
         );
     }
 
@@ -272,9 +272,7 @@ class ClinicalNotesService extends BaseService
         }
 
         $keys = array_keys($record);
-        $setValues = array_map(function ($val) {
-            return $val . " = ? ";
-        }, $keys);
+        $setValues = array_map(fn($val): string => $val . " = ? ", $keys);
         if (!empty($id)) {
             $sql = "UPDATE " . self::TABLE_NAME . " SET " . implode(", ", $setValues) . " WHERE id = ? ";
             $bindValues = array_values($record);
@@ -297,7 +295,7 @@ class ClinicalNotesService extends BaseService
         }
 
         $sql = "SELECT id FROM `form_clinical_notes` WHERE `form_id`=? AND `pid` = ? AND `encounter` = ?";
-        return QueryUtils::fetchTableColumn($sql, 'id', array($formid, $pid, $encounter));
+        return QueryUtils::fetchTableColumn($sql, 'id', [$formid, $pid, $encounter]);
     }
 
     /**
@@ -323,7 +321,7 @@ class ClinicalNotesService extends BaseService
                 LEFT JOIN list_options lo_category ON lo_category.list_id = 'Clinical_Note_Category' AND lo_category.option_id = fcn.clinical_notes_category
                 LEFT JOIN list_options lo_type ON lo_type.list_id = 'Clinical_Note_Type' AND lo_type.option_id = fcn.clinical_notes_type
                 WHERE fcn.`form_id`=? AND fcn.`pid` = ? AND fcn.`encounter` = ?";
-        return QueryUtils::fetchRecords($sql, array($formid, $pid, $encounter));
+        return QueryUtils::fetchRecords($sql, [$formid, $pid, $encounter]);
     }
 
     public function deleteClinicalNoteRecordForPatient($recordId, $pid, $encounter)
@@ -341,7 +339,7 @@ class ClinicalNotesService extends BaseService
     public function isValidClinicalNoteCode($code)
     {
         // make it a LOINC code
-        if (strpos($code, ":") === false) {
+        if (!str_contains($code, ":")) {
             $code = "LOINC:" . $code;
         }
         $listService = new ListService();

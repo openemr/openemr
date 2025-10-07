@@ -57,7 +57,7 @@ function escape_limit($s)
  */
 function escape_sort_order($s)
 {
-    return escape_identifier(strtolower($s), array("asc","desc"));
+    return escape_identifier(strtolower($s), ["asc","desc"]);
 }
 
 /**
@@ -114,7 +114,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     // If the $tables is empty, then process them all
     if (empty($tables)) {
         $res = sqlStatementNoLog("SHOW TABLES");
-        $tables = array();
+        $tables = [];
         while ($row = sqlFetchArray($res)) {
             $keys_return = array_keys($row);
             $tables[] = $row[$keys_return[0]];
@@ -122,13 +122,13 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     }
 
     // First need to escape the $tables
-    $tables_escaped = array();
+    $tables_escaped = [];
     foreach ($tables as $table) {
         $tables_escaped[] = escape_table_name($table);
     }
 
     // Collect all the possible sql columns from the tables
-    $columns_options = array();
+    $columns_options = [];
     foreach ($tables_escaped as $table_escaped) {
         $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
         while ($row = sqlFetchArray($res)) {
@@ -168,7 +168,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
 function escape_table_name($s)
 {
     $res = sqlStatementNoLog("SHOW TABLES");
-    $tables_array = array();
+    $tables_array = [];
     while ($row = sqlFetchArray($res)) {
         $keys_return = array_keys($row);
         $tables_array[] = $row[$keys_return[0]];
@@ -281,11 +281,11 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
 function formData($name, $type = 'P', $isTrim = false)
 {
     if ($type == 'P') {
-        $s = isset($_POST[$name]) ? $_POST[$name] : '';
+        $s = $_POST[$name] ?? '';
     } elseif ($type == 'G') {
-        $s = isset($_GET[$name]) ? $_GET[$name] : '';
+        $s = $_GET[$name] ?? '';
     } else {
-        $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+        $s = $_REQUEST[$name] ?? '';
     }
 
     return formDataCore($s, $isTrim);

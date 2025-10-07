@@ -83,13 +83,13 @@ if (!$GLOBALS['ptkr_date_range']) {
 
 //set default end date of flow board to value based on globals
 if ($GLOBALS['ptkr_date_range']) {
-    if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+    if (str_starts_with($GLOBALS['ptkr_end_date'], 'Y')) {
         $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+    } elseif (str_starts_with($GLOBALS['ptkr_end_date'], 'M')) {
         $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+    } elseif (str_starts_with($GLOBALS['ptkr_end_date'], 'D')) {
         $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
     }
@@ -104,7 +104,7 @@ $form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['for
 $form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
 
 
-$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
+$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", ['apptstat']);
 while ($lrow = sqlFetchArray($lres)) {
     // if exists, remove the legend character
     if ($lrow['title'][1] == ' ') {
@@ -328,14 +328,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 } else {
     //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
     // get all appts for date range and refine view client side.  very fast...
-    $appointments = array();
+    $appointments = [];
     $datetime = date("Y-m-d H:i:s");
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date', 'time');
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
-    $chk_prov = array();  // list of providers with appointments
+    $chk_prov = [];  // list of providers with appointments
     // Scan appointments for additional info
     foreach ($appointments as $apt) {
         $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
@@ -472,12 +472,12 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $title = '';
                             $icon2_here = '';
                             $appt['stage'] = '';
-                            $icon_here = array();
+                            $icon_here = [];
                             $prog_text = '';
                             $FINAL = '';
 
                             $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
-                            $myMedEx = sqlStatement($query, array($appointment['eid']));
+                            $myMedEx = sqlStatement($query, [$appointment['eid']]);
                             /**
                              * Each row for this pc_eid in the medex_outgoing table represents an event.
                              * Every event is recorded in $prog_text.

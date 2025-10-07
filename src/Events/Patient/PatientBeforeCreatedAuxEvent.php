@@ -51,7 +51,7 @@ class PatientBeforeCreatedAuxEvent extends Event
      */
     public function getPatientData()
     {
-        $pid = array('pid' => $this->pid);
+        $pid = ['pid' => $this->pid];
         $this->patientData = array_merge($pid, $this->patientData);
 
         return $this->patientData;

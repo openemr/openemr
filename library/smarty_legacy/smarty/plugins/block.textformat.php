@@ -80,7 +80,7 @@ function smarty_block_textformat($params, $content, &$smarty)
             continue;
         }
         // convert mult. spaces & special chars to single space
-        $_paragraphs[$_x] = preg_replace(array('!\s+!','!(^\s+)|(\s+$)!'), array(' ',''), $_paragraphs[$_x]);
+        $_paragraphs[$_x] = preg_replace(['!\s+!','!(^\s+)|(\s+$)!'], [' ',''], $_paragraphs[$_x]);
         // indent first line
         if($indent_first > 0) {
             $_paragraphs[$_x] = str_repeat($indent_char, $indent_first) . $_paragraphs[$_x];

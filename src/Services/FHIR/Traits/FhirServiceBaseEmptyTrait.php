@@ -34,7 +34,7 @@ trait FhirServiceBaseEmptyTrait
         return $processingResult;
     }
 
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
         return;
     }
@@ -48,12 +48,12 @@ trait FhirServiceBaseEmptyTrait
     {
         return;
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         return;
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         return null;
     }

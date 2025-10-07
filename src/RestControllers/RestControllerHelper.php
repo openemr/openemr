@@ -439,7 +439,7 @@ class RestControllerHelper
             $fhirOperation->setName($operation);
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
-        } elseif (is_string($operation) && strpos($operation, '$') === 0) {
+        } elseif (is_string($operation) && str_starts_with($operation, '$')) {
             (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
@@ -486,7 +486,7 @@ class RestControllerHelper
         $mode->setValue('server');
         $restItem->setMode($mode);
 
-        $resourcesHash = array();
+        $resourcesHash = [];
         foreach ($routes as $key => $function) {
             $items = explode("/", $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
@@ -498,7 +498,7 @@ class RestControllerHelper
                     $resource = $items[2];
                 } elseif (count($items) < 7) {
                     $resource = $items[4];
-                    if (substr($resource, 0, 1) === ':') {
+                    if (str_starts_with($resource, ':')) {
                         // special behavior needed for the API portal route
                         $resource = $items[3];
                     }

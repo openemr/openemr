@@ -25,7 +25,7 @@ class DataAdapter implements IObservable
      * @var ConnectionSetting
      */
     public $ConnectionSetting;
-    private $_observers = array ();
+    private $_observers =  [];
     private $_dbconn;
     private $_dbopen;
     private $_driver;
@@ -384,7 +384,7 @@ class DataAdapter implements IObservable
     public function IsCommunicationError($error)
     {
         $msg = is_a($error, 'Exception') ? $error->getMessage() : $error;
-        return strpos(strtolower($msg), 'lost connection') !== false;
+        return str_contains(strtolower($msg), 'lost connection');
     }
 
     /**
@@ -410,7 +410,7 @@ class DataAdapter implements IObservable
             throw new Exception('Optimizing tables is allowed on a read-only slave');
         }
 
-        $results = array ();
+        $results =  [];
         $table_names = $this->_driver->GetTableNames($this->_dbconn, $this->GetDBName());
 
         foreach ($table_names as $table_name) {

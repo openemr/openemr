@@ -46,7 +46,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     $str_html = "";
     if (is_array($trans_array) && count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
-            $clp_ar = array();
+            $clp_ar = [];
             $clp_ar[] = $trans_array;
         } else {
             $clp_ar = $trans_array;
@@ -57,9 +57,9 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
         return $str_html;
     }
 
-    $de = (isset($delimiters['e'])) ? $delimiters['e'] : "";
-    $ds = (isset($delimiters['s'])) ? $delimiters['s'] : "";
-    $dr = (isset($delimiters['r'])) ? $delimiters['r'] : "";
+    $de = $delimiters['e'] ?? "";
+    $ds = $delimiters['s'] ?? "";
+    $dr = $delimiters['r'] ?? "";
     //
     if (!$de || !$ds) {
         csv_edihist_log("edih_835_transaction_html: Did not get delimiters");
@@ -72,15 +72,15 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ('edih_835_codes' == get_class($codes835)) {
+    if ('edih_835_codes' == $codes835::class) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x)) {
+    } elseif ('edih_835_codes' == $codes27x::class) {
         $cd835 = $codes27x;
     }
 
-    if ('edih_271_codes' == get_class($codes27x)) {
+    if ('edih_271_codes' == $codes27x::class) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835)) {
+    } elseif ('edih_271_codes' == $codes835::class) {
         $cd27x = $codes835;
     }
 
@@ -100,7 +100,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     $clp_html = "";
     $svc_html = "";
     $sbr_html = "";
-    $chksegs = array('CLP', 'NM1', 'AMT', 'QTY');
+    $chksegs = ['CLP', 'NM1', 'AMT', 'QTY'];
     foreach ($trans_array as $trans) {
         $capstr = "Summary ";
         $loopid = 'NA';
@@ -121,7 +121,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                 $loopid = '2100';
                 $cls = 'clp';
                 //
-                $clp09ar = array('1' => 'Original', '7' => 'Replacement',  '8' => 'Void');
+                $clp09ar = ['1' => 'Original', '7' => 'Replacement',  '8' => 'Void'];
                 //
                 $clp01 = $clp02 = $clp03 = $clp04 = $clp05 = $clp06 = $clp07 = '';
                 $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = $tblid = '';
@@ -306,7 +306,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $str_html = "";
     if (is_array($trans_array) && count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
-            $clp_ar = array();
+            $clp_ar = [];
             $clp_ar[] = $trans_array;
         } else {
             $clp_ar = $trans_array;
@@ -317,9 +317,9 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         return $str_html;
     }
 
-    $de = (isset($delimiters['e'])) ? $delimiters['e'] : "";
-    $ds = (isset($delimiters['s'])) ? $delimiters['s'] : "";
-    $dr = (isset($delimiters['r'])) ? $delimiters['r'] : "";
+    $de = $delimiters['e'] ?? "";
+    $ds = $delimiters['s'] ?? "";
+    $dr = $delimiters['r'] ?? "";
     //
     if (!$de || !$ds) {
         csv_edihist_log("edih_835_transaction_html: Did not get delimiters");
@@ -332,15 +332,15 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ('edih_835_codes' == get_class($codes835)) {
+    if ('edih_835_codes' == $codes835::class) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x)) {
+    } elseif ('edih_835_codes' == $codes27x::class) {
         $cd835 = $codes27x;
     }
 
-    if ('edih_271_codes' == get_class($codes27x)) {
+    if ('edih_271_codes' == $codes27x::class) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835)) {
+    } elseif ('edih_271_codes' == $codes835::class) {
         $cd27x = $codes835;
     }
 
@@ -365,9 +365,9 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $moa_html = "";
     //
     foreach ($clp_ar as $trans) {
-        $lq_ar = array();
-        $cas_ar = array();
-        $moa_ar = array();
+        $lq_ar = [];
+        $cas_ar = [];
+        $moa_ar = [];
         $rarc_str = "";
         $clp_html = "";
         $svc_html = "";
@@ -386,7 +386,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                         // entity ID code
                         $ref01 = (isset($sar[1])) ? $cd27x->get_271_code('REF', $sar[1]) : '';
                         // entity ID
-                        $ref02 = (isset($sar[2])) ? $sar[2] : '';
+                        $ref02 = $sar[2] ?? '';
                     }
 
                     //
@@ -407,7 +407,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 // DTM in 835 use DTP codes from 271 codes
                 $dtm01 = (isset($sar[1])) ? $cd27x->get_271_code('DTP', $sar[1]) : '';  // date qualifier
                 $dtm02 = (isset($sar[2])) ? edih_format_date($sar[2]) : '';             // production date
-                $dtm05 = (isset($sar[5])) ? $sar[5] : '';
+                $dtm05 = $sar[5] ?? '';
                 $dtm06 = (isset($sar[6])) ? edih_format_date($sar[2]) : '';
                 //
                 //if ( $elem02 == 'D8' && $elem03) {
@@ -431,14 +431,14 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
             if (strncmp('PER' . $de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $per01_ar = array('CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website');
+                $per01_ar = ['CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website'];
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k => $v) {
                     switch ($k) {
                         case 0:
                             break;
                         case 1:
-                            $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
+                            $per01 = $per01_ar[$v] ?? $v;
                             break;
                         case 2:
                             $per02 = $v;
@@ -490,7 +490,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $clp07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';                                        // Payer reference ID
                 $clp08 = (isset($sar[8]) && $sar[8]) ? "<em>Location</em> " . text($cd27x->get_271_code('POS', $sar[8])) : ''; // Faciliy code place of service
                 // frequency type code 1 original  7 replacement  8 void
-                $clp09ar = array('1' => 'original', '7' => 'replacement',  '8' => 'void');
+                $clp09ar = ['1' => 'original', '7' => 'replacement',  '8' => 'void'];
                 if (isset($sar[9]) && array_key_exists($sar[9], $clp09ar)) {                                                           // claim frequency code
                     $clp09 = "<em>Freq</em> " . text($clp09ar[$sar[9]]);
                 } else {
@@ -701,7 +701,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $svc01 = '';
                 if (isset($sar[1]) && $sar[1]) {
                     // construct a code source code modifier string
-                    if (strpos($sar[1], $ds)) {
+                    if (strpos($sar[1], (string) $ds)) {
                         $scda = explode($ds, $sar[1]);
                         reset($scda);
                         foreach ($scda as $key => $val) {
@@ -725,7 +725,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $svc06 = '';
                 if (isset($sar[6]) && $sar[6]) {
                     // construct a code source code modifier string
-                    if (strpos($sar[6], $ds)) {
+                    if (strpos($sar[6], (string) $ds)) {
                         $scda = explode($ds, $sar[6]);
                         reset($scda);
                         foreach ($scda as $key => $val) {
@@ -905,15 +905,15 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ('edih_835_codes' == get_class($codes835)) {
+    if ('edih_835_codes' == $codes835::class) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x)) {
+    } elseif ('edih_835_codes' == $codes27x::class) {
         $cd835 = $codes27x;
     }
 
-    if ('edih_271_codes' == get_class($codes27x)) {
+    if ('edih_271_codes' == $codes27x::class) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835)) {
+    } elseif ('edih_271_codes' == $codes835::class) {
         $cd27x = $codes835;
     }
 
@@ -937,11 +937,11 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     $clp_html = "";
     $trl_html = "";
     //
-    $acctng = array('pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0);
+    $acctng = ['pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0];
     //
     foreach ($trans_ar as $trans) {
-        $clpsegs = array();
-        $lx_ar = array();
+        $clpsegs = [];
+        $lx_ar = [];
         $clp_ct = 0;
         $lx_ct = 0;
         $loop = '';
@@ -961,8 +961,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = 'header';
                 $cls = 'pmt';
                 //
-                $acctng = array('pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0,
-                                'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0);
+                $acctng = ['pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0,
+                                'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0];
                 //
                 $sar = explode($de, $seg);
                 $bpr01 = (isset($sar[1]) && $sar[1]) ? $cd835->get_835_code('BPR01', $sar[1]) : ''; // handling code
@@ -1022,8 +1022,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
             if (strncmp('CUR' . $de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $cur01 = (isset($sar[1])) ? $sar[1] : '';  // entity ID code
-                $cur02 = (isset($sar[2])) ? $sar[2] : '';  // currency code
+                $cur01 = $sar[1] ?? '';  // entity ID code
+                $cur02 = $sar[2] ?? '';  // currency code
                 //
                 $pmt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Trace</em> " . text($cur02) . " by " . text($cur03 . " " . $cur04) . "</td></tr>" . PHP_EOL;
                 //
@@ -1035,7 +1035,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $sar = explode($de, $seg);
                 //
                 $ref01 = (isset($sar[1])) ? $cd27x->get_271_code('REF', $sar[1]) : '';  // entity ID code
-                $ref02 = (isset($sar[2])) ? $sar[2] : '';  // entity ID
+                $ref02 = $sar[2] ?? '';  // entity ID
                 //
                 if ($loopid == 'header') {
                     // should not be present for payee receiver
@@ -1063,7 +1063,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 // DTM in 835 use DTP codes from 271 codes
                 $dtm01 = (isset($sar[1])) ? $cd27x->get_271_code('DTP', $sar[1]) : '';  // date qualifier
                 $dtm02 = (isset($sar[2])) ? edih_format_date($sar[2]) : '';             // production date
-                $dtm05 = (isset($sar[5])) ? $sar[5] : '';
+                $dtm05 = $sar[5] ?? '';
                 $dtm06 = (isset($sar[6])) ? edih_format_date($sar[2]) : '';
                 //
                 //if ( $elem02 == 'D8' && $elem03) {
@@ -1092,9 +1092,9 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $sar = explode($de, $seg);
                 //
                 $n101 = (isset($sar[1])) ? $cd27x->get_271_code('NM101', $sar[1]) : '';  // entity ID code
-                $n102 = (isset($sar[2])) ? $sar[2] : '';                                // name
+                $n102 = $sar[2] ?? '';                                // name
                 $n103 = (isset($sar[3])) ? $cd27x->get_271_code('NM108', $sar[3]) : '';  // entity ID type code
-                $n104 = (isset($sar[4])) ? $sar[4] : '';
+                $n104 = $sar[4] ?? '';
                 //
                 if ($loopid == 'header') {
                     $loopid = '1000A';
@@ -1114,8 +1114,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
             if (strncmp('N3' . $de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $n301 = (isset($sar[1])) ? $sar[1] : '';  // address
-                $n302 = (isset($sar[2])) ? $sar[2] : '';  // address line 2
+                $n301 = $sar[1] ?? '';  // address
+                $n302 = $sar[2] ?? '';  // address line 2
                 //
                 if ($loopid == '1000A') {
                     $src_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($n301 . " " . $n302) . "</td></tr>" . PHP_EOL;
@@ -1131,11 +1131,11 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
             if (strncmp('N4' . $de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 //
-                $n401 = (isset($sar[1])) ? $sar[1] : '';  // city
-                $n402 = (isset($sar[2])) ? $sar[2] : '';  // state
-                $n403 = (isset($sar[3])) ? $sar[3] : '';  // Postal
-                $n404 = (isset($sar[4])) ? $sar[4] : '';  // Country
-                $n407 = (isset($sar[7])) ? $sar[7] : '';  // Country subdivision
+                $n401 = $sar[1] ?? '';  // city
+                $n402 = $sar[2] ?? '';  // state
+                $n403 = $sar[3] ?? '';  // Postal
+                $n404 = $sar[4] ?? '';  // Country
+                $n407 = $sar[7] ?? '';  // Country subdivision
                 //
                 if ($loopid == '1000A') {
                     $src_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($n401 . " " . $n402 . " " . $n403) . "</td></tr>" . PHP_EOL;
@@ -1158,14 +1158,14 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 }
 
                 $sar = explode($de, $seg);
-                $per01_ar = array('CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website');
+                $per01_ar = ['CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website'];
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k => $v) {
                     switch ($k) {
                         case 0:
                             break;
                         case 1:
-                            $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
+                            $per01 = $per01_ar[$v] ?? $v;
                             break;
                         case 2:
                             $per02 = $v;
@@ -1209,7 +1209,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 // loop 1000B -- add to pmt information
                 $sar = explode($de, $seg);
                 //
-                $rdm01 = (isset($sar[1])) ? $sar[1] : '';
+                $rdm01 = $sar[1] ?? '';
                 if ($sar[1] == 'BM') {
                     $rdm01 = 'By mail';
                 } elseif ($sar[1] == 'EM') {
@@ -1220,8 +1220,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     $rdm01 = 'By online';
                 }
 
-                $rdm02 = (isset($sar[2])) ? $sar[2] : '';                               // name
-                $rdm03 = (isset($sar[3])) ? $sar[3] : '';                               // number
+                $rdm02 = $sar[2] ?? '';                               // name
+                $rdm03 = $sar[3] ?? '';                               // number
                 //
                 $pmt_html .= "<tr class='" . attr($cls) . "'><td>" . text($rdm01) . "</td><td colspan=3>" . text($rdm02 . " " . $rdm03) . "</td></tr>" . PHP_EOL;
                 //
@@ -1240,7 +1240,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         // LX can follow loop 2110
                         if (count($clpsegs)) {
                             $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
-                            $clpsegs = array();
+                            $clpsegs = [];
                         }
 
                         $nlx_html = ($lx_html) ? "<table name='lx_" . attr($lxkey) . "' class='h835c' columns=4>" . PHP_EOL . "<tbody>" . PHP_EOL . $lx_html . PHP_EOL : "";
@@ -1248,13 +1248,13 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         $lx_ar[$lxkey]['clp'] = $clp_html;
                         $lx_html = "";
                         $clp_html = "";
-                        $clpsegs = array();
+                        $clpsegs = [];
                     }
                 }
 
                 $sar = explode($de, $seg);
                 $lxkey = (isset($sar[1]) && $sar[1]) ? $sar[1] : ''; // identify a grouping for claim info
-                $lx_ar[$lxkey] = array();
+                $lx_ar[$lxkey] = [];
                 //
                 $loopid = '2000';
                 $cls = 'lx';
@@ -1348,9 +1348,9 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         // PLB 3, 5, 7, 9, 11, 13
                         // composite element 'code:reference'
                         if ($k == 0) {
-                            if ($p && strpos($p, $ds)) {
-                                $plb_rc = substr($p, 0, strpos($p, $ds));   // code
-                                $plb_tr = substr($p, strpos($p, $ds) + 1);    // reference (case #)?
+                            if ($p && strpos($p, (string) $ds)) {
+                                $plb_rc = substr($p, 0, strpos($p, (string) $ds));   // code
+                                $plb_tr = substr($p, strpos($p, (string) $ds) + 1);    // reference (case #)?
                             } else {
                                 $plb_rc = ($p) ? $p : "";
                                 $plb_tr = "";
@@ -1414,7 +1414,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     if ($lxkey && array_key_exists($lxkey, $lx_ar)) {
                         if (count($clpsegs)) {
                             $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
-                            $clpsegs = array();
+                            $clpsegs = [];
                         }
 
                         // note: table ending in CLP if stanza
@@ -1423,7 +1423,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                         $lx_ar[$lxkey]['clp'] = $clp_html;
                         $lx_html = "";
                         $clp_html = "";
-                        $clpsegs = array();
+                        $clpsegs = [];
                     }
 
                     // append segments to html
@@ -1440,7 +1440,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 if (count($clpsegs)) {
                     // would be captured in LX and lx array
                     $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
-                    $clpsegs = array();
+                    $clpsegs = [];
                 }
 
                 if ($clp_html) {
@@ -1478,7 +1478,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
                 }
 
-                $clpsegs = array();
+                $clpsegs = [];
                 $clpsegs[] = $seg;
                 $clp_ct++;
                 continue;
@@ -1574,14 +1574,14 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     //
     if (trim($filename)) {
         $obj835 = csv_check_x12_obj($filename, 'f835');
-        if ($obj835 && 'edih_x12_file' == get_class($obj835)) {
+        if ($obj835 && 'edih_x12_file' == $obj835::class) {
             $fn = $obj835->edih_filename();
             $delims = $obj835->edih_delimiters();
             $env_ar = $obj835->edih_x12_envelopes();
             //
-            $de = (isset($delims['e'])) ? $delims['e'] : '';
-            $ds = (isset($delims['s'])) ? $delims['s'] : '';
-            $dr = (isset($delims['r'])) ? $delims['r'] : '';
+            $de = $delims['e'] ?? '';
+            $ds = $delims['s'] ?? '';
+            $dr = $delims['r'] ?? '';
                 // $dr is not used, but just in case
         } else {
             $html_str .= "<p>edih_835_html: invalid file name</p>" . PHP_EOL;
@@ -1631,13 +1631,13 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     } elseif ($chk) {
         // check detail
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
-            $trans_ar = array();
+            $trans_ar = [];
             foreach ($env_ar['ST'] as $st) {
                 if ($st['trace'] != $chk) {
                     continue;
                 }
 
-                $trans_ar[] = $obj835->edih_x12_slice(array('trace' => $chk));
+                $trans_ar[] = $obj835->edih_x12_slice(['trace' => $chk]);
             }
         } else {
             csv_edihist_log("edih_835_transaction_html: Did not get envelopes information for $fn");
@@ -1656,9 +1656,9 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     } else {
         // entire file
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
-            $trans_ar = array();
+            $trans_ar = [];
             foreach ($env_ar['ST'] as $st) {
-                $trans_ar[] = $obj835->edih_x12_slice(array('trace' => $st['trace']));
+                $trans_ar[] = $obj835->edih_x12_slice(['trace' => $st['trace']]);
             }
         } else {
             csv_edihist_log("edih_835_transaction_html: Did not envelopes information for $fn");

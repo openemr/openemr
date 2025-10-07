@@ -35,7 +35,7 @@ class PhoneNumber extends ORDataObject
     var $prefix;
     var $number;
     var $type;
-    var $type_array = array("","Home", "Work", "Cell" , "Emergency" , "Fax");
+    var $type_array = ["","Home", "Work", "Cell" , "Emergency" , "Fax"];
 
     /**
      * Constructor sets all attributes to their default value
@@ -56,7 +56,7 @@ class PhoneNumber extends ORDataObject
 
     static function factory_phone_numbers($foreign_id = "")
     {
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";
@@ -65,7 +65,7 @@ class PhoneNumber extends ORDataObject
             $sqlArray[] = strval($foreign_id);
         }
 
-        $phone_numbers = array();
+        $phone_numbers = [];
         $p = new PhoneNumber();
         $sql = "SELECT id FROM " . escape_table_name($p->_table) . " WHERE foreign_id " . $foreign_id_sql . " ORDER BY type";
         //echo $sql . "<bR />";
@@ -171,7 +171,7 @@ class PhoneNumber extends ORDataObject
                 $this->prefix = $nums[1];
                 $this->number = $nums[2];
             }
-        } elseif (strlen($num) == 14 && substr($num, 0, 1) == "(") {
+        } elseif (strlen($num) == 14 && str_starts_with($num, "(")) {
             $nums[0] = substr($num, 1, 3);
             $nums[1] = substr($num, 6, 3);
             $nums[2] = substr($num, 10, 4);

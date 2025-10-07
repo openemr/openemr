@@ -88,7 +88,7 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-        return sqlStatement($sql, array($pid));
+        return sqlStatement($sql, [$pid]);
     }
 
     /**
@@ -192,10 +192,10 @@ class PatientService extends BaseService
         $data = $this->databaseInsert($data);
 
         if (false !== $data['pid']) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -346,7 +346,7 @@ class PatientService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -355,8 +355,8 @@ class PatientService extends BaseService
             } elseif (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
-            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
-            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode');
+            $wildcardFields = ['fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
+            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode'];
             foreach ($wildcardFields as $field) {
                 if (isset($search[$field])) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
@@ -466,9 +466,7 @@ class PatientService extends BaseService
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
-                return "?";
-            }, $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
+            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(fn($uuid): string => "?", $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults, $pagination);
             $processingResult->getPagination()->setTotalCount($uuidCount);
@@ -632,7 +630,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+        $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -829,9 +827,7 @@ class PatientService extends BaseService
     {
         // get integer only filtered pids for sql safety
         $pids = array_map('intval', $patientPids);
-        $pids = array_filter($pids, function ($pid) {
-            return $pid > 0;
-        });
+        $pids = array_filter($pids, fn($pid): bool => $pid > 0);
 
         $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "
         . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY pid";
@@ -849,9 +845,7 @@ class PatientService extends BaseService
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";
-        $patientUuids = array_map(function ($uuid) {
-            return UuidRegistry::uuidToBytes($uuid);
-        }, $patientUuids);
+        $patientUuids = array_map(UuidRegistry::uuidToBytes(...), $patientUuids);
 
         $sql = "SELECT uuid,providerID FROM patient_data WHERE uuid IN (" . $bindString . ") "
             . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY uuid";
@@ -876,7 +870,7 @@ class PatientService extends BaseService
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
         foreach ($suffixes as $s) {
-            if (stripos($patientRecord['lname'], $s) !== false) {
+            if (stripos($patientRecord['lname'], (string) $s) !== false) {
                 $suffix = $s;
                 $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
                 break;
@@ -888,7 +882,7 @@ class PatientService extends BaseService
     private function getPatientSuffixKeys()
     {
         if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
+            $this->patientSuffixKeys = [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
         }
         return $this->patientSuffixKeys;
     }

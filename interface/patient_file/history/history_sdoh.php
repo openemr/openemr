@@ -92,7 +92,7 @@ function render_list_select(string $field, string $list_id, $current, string $pl
                 $cd = json_decode($codes, true) ?: [];
                 $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
-            } elseif (strpos($codes, ':') !== false) {
+            } elseif (str_contains($codes, ':')) {
                 [$system, $code] = explode(':', $codes, 2);
             }
         }
@@ -266,9 +266,7 @@ $self = basename($_SERVER['PHP_SELF']);
                             <?php
                             $yesNoList = 'sdoh_ipv_yesno';
                             $scale = json_decode($info['disability_scale'] ?? '[]', true) ?: [];
-                            $get = function ($key) use ($scale) {
-                                return $scale[$key]['code'] ?? '';
-                            };
+                            $get = (fn($key): mixed => $scale[$key]['code'] ?? '');
                             function fn_row($fieldKey, $label, $yesNoList, $get): void
                             {
                                 echo "<div class='form-row align-items-end mb-2'>";

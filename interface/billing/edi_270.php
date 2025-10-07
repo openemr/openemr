@@ -63,7 +63,7 @@ foreach ($appts as $eid) {
     $ids[] = $eid['pc_eid'];
 }
 //Set up the sql variable binding array (this prevents sql-injection attacks)
-$sqlBindArray = array();
+$sqlBindArray = [];
 
 $ids = count($ids) > 0 ? implode(',', $ids) : "'0'";
 $where  = "e.pc_eid in($ids) ";
@@ -199,8 +199,8 @@ if ($exclude_policy != "") {
     function unique_by_key($source, $key)
     {
         $i = 0;
-        $rtn_array = array();
-        $key_array = array();
+        $rtn_array = [];
+        $key_array = [];
 
         foreach ($source as $val) {
             if (!in_array($val[$key], $key_array)) {

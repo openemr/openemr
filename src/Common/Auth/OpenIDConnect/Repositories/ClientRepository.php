@@ -97,7 +97,7 @@ class ClientRepository implements ClientRepositoryInterface
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
         $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`, `skip_ehr_launch_authorization_flow`, `dsi_type`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $i_vals = array(
+        $i_vals = [
             $clientId,
             $info['client_role'],
             $info['client_name'],
@@ -121,7 +121,7 @@ class ClientRepository implements ClientRepositoryInterface
             $is_client_enabled,
             $skip_ehr_launch_authorization_flow,
             $info['dsi_type'] ?? 0
-        );
+        ];
 
         $result = QueryUtils::sqlInsert($sql, $i_vals);
         return $result !== false;
@@ -154,7 +154,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientEntity($clientIdentifier): ClientEntity|false
     {
-        $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
+        $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", [$clientIdentifier]);
 
         // Check if client is registered
         if ($clients === false) {
@@ -248,7 +248,7 @@ class ClientRepository implements ClientRepositoryInterface
     private function hydrateClientEntityFromArray($client_record): ClientEntity
     {
         // note redirect_uris in the database is actually named redirect_uri
-        $pipedValues = array('contacts', 'redirect_uri', 'request_uri', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values');
+        $pipedValues = ['contacts', 'redirect_uri', 'request_uri', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'];
         foreach ($pipedValues as $value) {
             if (!empty($client_record[$value])) {
                 $client_record[$value] = explode('|', $client_record[$value]);

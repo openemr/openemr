@@ -87,7 +87,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $practitionerResource = new FHIRPractitioner();
 
@@ -117,10 +117,10 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         if (empty(trim($narrativeText))) {
             $practitionerResource->addName(UtilsService::createDataMissingExtension());
         } else {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $practitionerResource->setText($text);
 
             $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
@@ -131,35 +131,35 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         }
 
         if (!empty($dataRecord['phone'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phone'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonew1'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonew1'],
                 'use' => 'work'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonecell'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonecell'],
                 'use' => 'mobile'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['email'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'email',
                 'value' => $dataRecord['email'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['npi'])) {
@@ -190,7 +190,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        $data = array();
+        $data = [];
         $data['uuid'] = (string)$fhirResource->getId() ?? null;
 
         if (!empty($fhirResource->getName())) {
@@ -232,9 +232,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['zip'] = (string)$activeAddress->getPostalCode() ?? null;
             $data['city'] = (string)$activeAddress->getCity() ?? null;

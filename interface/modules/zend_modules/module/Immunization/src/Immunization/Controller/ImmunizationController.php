@@ -49,7 +49,7 @@ class ImmunizationController extends AbstractActionController
         $isPost = '';
         $data = $request->getPost();
         $isFormRefresh = 'true';
-        $form_code = isset($data['codes']) ? $data['codes'] : array();
+        $form_code = $data['codes'] ?? [];
         $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         $form_get_hl7 = '';
@@ -96,7 +96,7 @@ class ImmunizationController extends AbstractActionController
             $query_codes .= ') and ';
         }
 
-        $params = array(
+        $params = [
             'form_from_date' => $from_date,
             'form_to_date' => $to_date,
             'form_get_hl7' => $form_get_hl7,
@@ -107,7 +107,7 @@ class ImmunizationController extends AbstractActionController
             'limit_end' => $end,
             'query_pids' => $query_pids,
             'patient_id' => $patient_id,
-        );
+        ];
 
         if ($new_search) {
             $count = $this->getImmunizationTable()->immunizedPatientDetails($params, 1);
@@ -120,7 +120,7 @@ class ImmunizationController extends AbstractActionController
 
         $totalpages = ceil($count / $results);
         $details = $this->getImmunizationTable()->immunizedPatientDetails($params);
-        $rows = array();
+        $rows = [];
         foreach ($details as $row) {
             $rows[] = $row;
         }
@@ -133,14 +133,14 @@ class ImmunizationController extends AbstractActionController
             $form->get('codes')->setValueOptions($codes);
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'listenerObject' => $this->listenerObject,
             'form' => $form,
             'view' => $rows,
             'isFormRefresh' => $isFormRefresh,
             'form_data' => $params,
             'commonplugin' => $this->CommonPlugin(),
-        ));
+        ]);
         return $view;
     }
 
@@ -150,7 +150,7 @@ class ImmunizationController extends AbstractActionController
      */
     public function getAllCodes($data)
     {
-        $defaultCode = isset($data['codes']) ? $data['codes'] : '';
+        $defaultCode = $data['codes'] ?? '';
         $res = $this->getImmunizationTable()->codeslist();
         $i = 0;
         foreach ($res as $value) {
@@ -160,11 +160,11 @@ class ImmunizationController extends AbstractActionController
                 $select = false;
             }
 
-            $rows[$i] = array(
+            $rows[$i] = [
                 'value' => $value['id'],
                 'label' => $value['NAME'],
                 'selected' => $select,
-            );
+            ];
             $i++;
         }
 
@@ -181,7 +181,7 @@ class ImmunizationController extends AbstractActionController
         $data = $request->getPost();
         $key_val = '';
         if (isset($data['hl7button'])) {
-            $form_code = isset($data['codes']) ? $data['codes'] : array();
+            $form_code = $data['codes'] ?? [];
             $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
             $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
             $form_get_hl7 = 'true';
@@ -228,7 +228,7 @@ class ImmunizationController extends AbstractActionController
                 $query_pids .= ') and ';
             }
 
-            $params = array(
+            $params = [
                 'form_from_date' => $from_date,
                 'form_to_date' => $to_date,
                 'form_get_hl7' => $form_get_hl7,
@@ -238,7 +238,7 @@ class ImmunizationController extends AbstractActionController
                 'limit_start' => $start,
                 'limit_end' => $end,
                 'query_pids' => $query_pids,
-            );
+            ];
 
             if ($new_search) {
                 $count = $this->getImmunizationTable()->immunizedPatientDetails($params, 1);
@@ -252,7 +252,7 @@ class ImmunizationController extends AbstractActionController
             $totalpages = ceil($count / $results);
 
             $details = $this->getImmunizationTable()->immunizedPatientDetails($params);
-            $rows = array();
+            $rows = [];
             foreach ($details as $row) {
                 $rows[] = $row;
             }

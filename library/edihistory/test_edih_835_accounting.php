@@ -227,7 +227,7 @@ function edih_835_accounting($segments, $delimiters)
      */
 
     if (is_array($segments) && count($segments)) {
-        $acct = array();
+        $acct = [];
     } else {
         csv_edihist_log("edih_835_accounting: invalid segments argument");
         return "835 accounting: invalid segments argument";
@@ -271,7 +271,7 @@ function edih_835_accounting($segments, $delimiters)
             $out[$ck]['clp'][$i]['subscriber_mname'] = '';
             $out[$ck]['clp'][$i]['subscriber_member_id'] = '';
             $out[$ck]['clp'][$i]['crossover'] = 0;
-            $out[$ck]['clp'][$i]['svc'] = array();
+            $out[$ck]['clp'][$i]['svc'] = [];
             //
             // This is the poorly-named "Patient Account Number".  For 837p
             // it comes from CLM01 which we populated as pid-diagid-procid,
@@ -302,12 +302,12 @@ function edih_835_accounting($segments, $delimiters)
                 // amount that offsets these adjustments.
                 $j = 0; // if present, the dummy service item will be first.
                 if (!$out['svc'][$j]) {
-                    $out[$ck]['clp'][$i]['svc'][$j] = array();
+                    $out[$ck]['clp'][$i]['svc'][$j] = [];
                     $out[$ck]['clp'][$i]['svc'][$j]['code'] = 'Claim';
                     $out[$ck]['clp'][$i]['svc'][$j]['mod']  = '';
                     $out[$ck]['clp'][$i]['svc'][$j]['chg']  = '0';
                     $out[$ck]['clp'][$i]['svc'][$j]['paid'] = '0';
-                    $out[$ck]['clp'][$i]['svc'][$j]['adj']  = array();
+                    $out[$ck]['clp'][$i]['svc'][$j]['adj']  = [];
                 }
 
                 for ($k = 2; $k < 20; $k += 3) {
@@ -316,7 +316,7 @@ function edih_835_accounting($segments, $delimiters)
                     }
 
                     $k = count($out['svc'][$j]['adj']);
-                    $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k] = array();
+                    $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k] = [];
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['group_code']  = $sar[1];
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['reason_code'] = $sar[$k];
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['amount']      = $sar[$k + 1];
@@ -324,7 +324,7 @@ function edih_835_accounting($segments, $delimiters)
             } elseif ($loopid == '2110') {
                 $sar = explode($de, $seg);
                 $j = count($out[$ck]['clp'][$i]['svc']);
-                $out[$ck]['clp'][$i]['svc'][$j] = array();
+                $out[$ck]['clp'][$i]['svc'][$j] = [];
                 if (! $out['loopid']) {
                     return 'Unexpected SVC segment';
                 }
@@ -348,7 +348,7 @@ function edih_835_accounting($segments, $delimiters)
 
                 // TBD: Other qualifiers are possible; see IG pages 140-141.
                 $j = count($out[$ck]['clp'][$i]['svc']);
-                $out['svc'][$j] = array();
+                $out['svc'][$j] = [];
                 // It seems some payers append the modifier with no separator!
                 if (strlen($svc[1]) == 7 && empty($svc[2])) {
                     $out['svc'][$j]['code'] = substr($svc[1], 0, 5);
@@ -364,7 +364,7 @@ function edih_835_accounting($segments, $delimiters)
 
                     $out['svc'][$j]['chg']  = $seg[2];
                     $out['svc'][$j]['paid'] = $seg[3];
-                    $out['svc'][$j]['adj']  = array();
+                    $out['svc'][$j]['adj']  = [];
                     // Note: SVC05, if present, indicates the paid units of service.
                     // It defaults to 1.
             }
@@ -402,8 +402,8 @@ function edih_835_accounting($segments, $delimiters)
             $p = (isset($out[$ck]['plb'])) ? count($out[$ck]['plb']) : 0;
             $q = 0;
             //
-            $out[$ck]['plb'][$p] = array();
-            $out[$ck]['plb']['adj'] = array();
+            $out[$ck]['plb'][$p] = [];
+            $out[$ck]['plb']['adj'] = [];
             $out[$ck]['plb'][$p]['provider'] = (isset($sar[1]) && $sar[1]) ? trim($sar[1]) : "";
             $out[$ck]['plb'][$p]['fye'] = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : "";
             // PLB02 is provider fiscal year end or CCYY1231
@@ -417,7 +417,7 @@ function edih_835_accounting($segments, $delimiters)
                         break;
                     // PLB03 05 07 ...
                     case 1:
-                        if (strpos($plb, $ds)) {
+                        if (strpos($plb, (string) $ds)) {
                             $plb02 = explode($ds, $plb);
                             $out[$ck]['per'][$p]['adj'][$q]['code']  = $plb02[0];
                             $out[$ck]['per'][$p]['adj'][$q]['ref']  = $plb02[1];
@@ -440,7 +440,7 @@ if (strncmp('SVC' . $de, $seg, 4) === 0) {
     $loopid = '2110';
 }
 
-    $acctng['lx'][$lx01] = array('ts3amt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'prvadj' => 0, 'ptrsp' => 0);
+    $acctng['lx'][$lx01] = ['ts3amt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'prvadj' => 0, 'ptrsp' => 0];
 if ($chk) {
     $acctng['pmt'] = $bpr02;
 }

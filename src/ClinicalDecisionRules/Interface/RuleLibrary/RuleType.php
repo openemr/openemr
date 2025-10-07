@@ -50,14 +50,14 @@ class RuleType
 
     private static function map()
     {
-        $map = array(
+        $map = [
             self::ActiveAlert => new RuleType(self::ActiveAlert, xl('Active Alert')),
             self::PassiveAlert => new RuleType(self::PassiveAlert, xl('Passive Alert')),
             // not yet supported
 //            self::CQM   =>  new OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType( self::CQM, xl( 'CQM' ) ),
 //            self::AMC   =>  new OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType( self::AMC, xl( 'AMC' ) ),
             self::PatientReminder => new RuleType(self::PatientReminder, xl('Patient Reminder'))
-        );
+        ];
         return $map;
     }
 }

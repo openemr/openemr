@@ -41,10 +41,10 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
         $zone .= "_canvas";
     }
 
-    $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
+    $tables = ['form_eye_hpi','form_eye_ros','form_eye_vitals',
                 'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
                 'form_eye_external', 'form_eye_antseg','form_eye_postseg',
-                'form_eye_neuro','form_eye_locking');
+                'form_eye_neuro','form_eye_locking'];
     $output_return = "<span id='" . attr($zone) . "_prefix_oldies' name='" . attr($zone) . "_prefix_oldies' class='oldies_prefix'>";
     $selected = '';
     $current = '';
@@ -59,9 +59,9 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                     forms.formdir='eye_mag' and form_eye_base.pid=? ORDER BY encounter_date DESC LIMIT 20";
                     // Unlike the obj data(PMSFH,Clinical,IMPPLAN etc), this data is static.
                     // It only needs to be passed once to the client side.
-        $result     = sqlStatement($query, array($pid));
+        $result     = sqlStatement($query, [$pid]);
         $counter    = sqlNumRows($result);
-        $priors     = array();
+        $priors     = [];
         if ($counter < 2) {
             return;
         }
@@ -73,7 +73,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             $oeexam_date = oeFormatShortDate($dated);
             foreach ($tables as $table) {
                 $sql = "SELECT * from " . $table . " WHERE id=?";
-                $sub_data = sqlStatement($sql, array($prior['id']));
+                $sub_data = sqlStatement($sql, [$prior['id']]);
                 $data = sqlFetchArray($sub_data);
                 if ($data) {
                     $prior = array_merge($prior, $data);
@@ -85,7 +85,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             if (($i > 0) && ($prior['PLAN'])) {
                 //this plan is a todo list for next visit, which is $i-1 actually
                 $j = $i - 1;
-                $priors[$j]['TODO'] = array();
+                $priors[$j]['TODO'] = [];
                 $priors[$j]['TODO'] = $prior['PLAN'];
             }
 
@@ -140,9 +140,9 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
 
     //current visit =[0]
     if (!$priors[$current]['PLAN']) {
-        $priors[$current]['PLAN'] = array();
+        $priors[$current]['PLAN'] = [];
         $query = "SELECT * from form_eye_mag_orders where form_id=?";
-        $orders = sqlStatement($query, array($priors[$earlier]['id']));
+        $orders = sqlStatement($query, [$priors[$earlier]['id']]);
         while ($row = sqlFetchArray($orders)) {
             $priors[$current]["PLAN"][] = $row;
             $priors[$later]["TODO"][] = $row;
@@ -218,7 +218,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 where PEZONE='PREFS' AND id=?
                 ORDER BY ZONE_ORDER,ordering";
 
-    $result = sqlStatement($query, array($_SESSION['authUserID']));
+    $result = sqlStatement($query, [$_SESSION['authUserID']]);
     while ($prefs = sqlFetchArray($result)) {
         ${$prefs['LOCATION']} = $prefs['GOVALUE'];
     }
@@ -243,7 +243,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     form_eye_base.id=form_eye_locking.id and
                     form_eye_base.pid =? and
                     form_eye_base.id=?";
-    $result = sqlQuery($query, array($pid,$id_to_show));
+    $result = sqlQuery($query, [$pid,$id_to_show]);
     @extract($result);
     ob_start();
     if ($zone == "REFRACTIONS") {
@@ -272,7 +272,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 <div id="PRIORS_EXT_left_1">
                     <table>
                         <?php
-                            list($imaging,$episode) = display($pid, $encounter ?? '', "EXT");
+                            [$imaging, $episode] = display($pid, $encounter ?? '', "EXT");
                             echo $episode;
                         ?>
                     </table>
@@ -397,7 +397,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div class="text_clinical" id="PRIORS_ANTSEG_left_1">
             <table>
                 <?php
-                    list($imaging,$episode) = display($pid, $encounter ?? '', "ANTSEG");
+                    [$imaging, $episode] = display($pid, $encounter ?? '', "ANTSEG");
                     echo $episode;
                 ?>
             </table>
@@ -561,7 +561,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div id="PRIORS_RETINA_left_1" class="text_clinical">
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter ?? '', "POSTSEG");
+                [$imaging, $episode] = display($pid, $encounter ?? '', "POSTSEG");
                 echo $episode;
                 ?>
             </table>
@@ -595,7 +595,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             <br />
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter ?? '', "NEURO");
+                [$imaging, $episode] = display($pid, $encounter ?? '', "NEURO");
                 echo $episode;
                 ?>
             </table>
@@ -1642,7 +1642,7 @@ function build_PMSFH($pid)
     $PMSFH = [];
     $PMSFH['CHRONIC'] = [];
     //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = array("POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
+    $PMSFH_labels = ["POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS"];
     foreach ($PMSFH_labels as $panel_type) {
         $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";
@@ -1696,7 +1696,7 @@ function build_PMSFH($pid)
         }
 
         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
-            $subtype . " " . $order, array($pid,$focusISSUE));
+            $subtype . " " . $order, [$pid,$focusISSUE]);
         $row_counter = '0';
         while ($row = sqlFetchArray($pres)) {
             $rowid = $row['id'];
@@ -1710,10 +1710,10 @@ function build_PMSFH($pid)
                 $diags = explode(";", $row['diagnosis']);
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
-                    if (strpos($diag, ':') !== false) {
-                        list($codetype, $code) = explode(':', $diag);
+                    if (str_contains($diag, ':')) {
+                        [$codetype, $code] = explode(':', $diag);
                     }
-                    $order   = array("\r\n", "\n","\r");
+                    $order   = ["\r\n", "\n","\r"];
                     $codedesc = str_replace($order, '', $codedesc);
                     $codetext .= text($diag) . " (" . text($codedesc) . ")";
                 }
@@ -1722,7 +1722,7 @@ function build_PMSFH($pid)
             // calculate the status
             if ($row['outcome'] == "1" && $row['enddate'] != null) {
               // Resolved
-                $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
+                $statusCompute = generate_display_field(['data_type' => '1','list_id' => 'outcome'], $row['outcome']);
             } elseif ($row['enddate'] == null) {
                    $statusCompute = xlt("Active");
             } else {
@@ -1731,7 +1731,7 @@ function build_PMSFH($pid)
 
             ($row['comments'] != null) ? ($comments = $row['comments']) : ($comments = "");
             $counter_here = count($PMSFH[$panel_type]);
-            $newdata =  array (
+            $newdata =   [
                 'title' => $disptitle,
                 'status' => $statusCompute,
                 'begdate' => $row['begdate'],
@@ -1766,7 +1766,7 @@ function build_PMSFH($pid)
                 'erx_uploaded' => $row['erx_uploaded'],
                 'modifydate' => $row['modifydate'],
                 'PMSFH_link' => $panel_type . "_" . $row_counter
-            );
+            ];
             //let the end user decide on display elsewhere...  This is all about the array itself.
             $PMSFH[$panel_type][] = $newdata;
             if ($row['occurrence'] == '4') {
@@ -1779,7 +1779,7 @@ function build_PMSFH($pid)
 
     //Build the SocHx portion of $PMSFH for this patient.
     //$given ="coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs";
-    $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", array($pid));
+    $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", [$pid]);
 
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
@@ -2012,7 +2012,7 @@ function build_PMSFH($pid)
     $ROS_table = "form_eye_ros";
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
-    $ROS = sqlStatement($query, array($form_id));
+    $ROS = sqlStatement($query, [$form_id]);
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
             $PMSFH['ROS'][$item]['display'] = $row[$item];
@@ -2048,7 +2048,7 @@ function build_PMSFH($pid)
     $PMSFH['ROS']['ROSENDOCRINE']['title'] = xlt("Endocrine");
     $PMSFH['ROS']['ROSCOMMENTS']['title'] = xlt("Comments");
 
-    return array($PMSFH); //yowsah!
+    return [$PMSFH]; //yowsah!
 }
 /**
  *  This function uses the complete PMSFH array for a given patient, including the ROS for this encounter
@@ -2964,13 +2964,13 @@ function display_QP($zone, $provider_id)
 
     ob_start();
     $query  = "SELECT * FROM list_options where list_id =?  ORDER BY seq";
-    $result = sqlStatement($query, array("Eye_QP_" . $zone . "_$provider_id"));
+    $result = sqlStatement($query, ["Eye_QP_" . $zone . "_$provider_id"]);
     if (sqlNumRows($result) < '1') {
         //this provider's list has not been created yet.
         $query = "REPLACE INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', ?, ?, '0', '1', '0')";
-        sqlStatement($query, array('Eye_QP_' . $zone . '_' . $provider_id,'Eye QP List ' . $zone . ' for ' . $prov_data['lname']));
+        sqlStatement($query, ['Eye_QP_' . $zone . '_' . $provider_id,'Eye QP List ' . $zone . ' for ' . $prov_data['lname']]);
         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
-        $result = sqlStatement($query, array("Eye_QP_" . $zone . "_defaults"));
+        $result = sqlStatement($query, ["Eye_QP_" . $zone . "_defaults"]);
         $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES (?,?,?,?,?,?,?,?,?)";
     } else {
         $SQL_INSERT = '';
@@ -2978,7 +2978,7 @@ function display_QP($zone, $provider_id)
 
     while ($QP = sqlFetchArray($result)) {
         if (!empty($SQL_INSERT)) {
-            sqlStatement($SQL_INSERT, array("Eye_QP_" . $zone . "_" . $provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
+            sqlStatement($SQL_INSERT, ["Eye_QP_" . $zone . "_" . $provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']]);
         }
 
         $here[$QP['title']][$QP['subtype']]['notes']    = $QP['notes'];     //the text to fill into form
@@ -3111,9 +3111,7 @@ function canvas_select($zone, $encounter, $pid)
             $canvi[] = $doc;
         }
     }
-    usort($canvi, function ($a, $b) {
-        return $b['encounter_date'] <=> $a['encounter_date'];
-    });
+    usort($canvi, fn($a, $b): int => $b['encounter_date'] <=> $a['encounter_date']);
     if (!empty($canvi)) {
         if ($canvi[0]['encounter_id'] != $encounter) {
             //put today on the front as current, item "0"
@@ -3225,7 +3223,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <?php
 
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
-                $doc = sqlQuery($sql, array("%" . $base_name . "%"));
+                $doc = sqlQuery($sql, ["%" . $base_name . "%"]);
                 $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
                 if ((($doc['id'] ?? null) > '0')) {
                     $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
@@ -3327,7 +3325,7 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
                     forms.pid =? and
                     forms.form_id =? ";
 
-    $objQuery = sqlQuery($query, array($pid,$copy_from));
+    $objQuery = sqlQuery($query, [$pid,$copy_from]);
     if ($zone == "EXT") {
         $result['RUL'] = $objQuery['RUL'];
         $result['LUL'] = $objQuery['LUL'];
@@ -3667,7 +3665,7 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         $result = $objQuery;
         $count_rx = '0';
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
-        $wear = sqlStatement($query1, array($pid,$_SESSION['encounter']));
+        $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
         while ($wearing = sqlFetchArray($wear)) {
             ${"display_W_$count_rx"}        = '';
                   ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
@@ -3727,8 +3725,8 @@ function build_IMPPLAN_items($pid, $form_id)
 {
     global $form_folder;
     $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? ORDER BY IMPPLAN_order";
-    $newdata = array();
-    $fres = sqlStatement($query, array($form_id,$pid));
+    $newdata = [];
+    $fres = sqlStatement($query, [$form_id,$pid]);
     $i = 0;
     while ($frow = sqlFetchArray($fres)) {
         $IMPPLAN_items[$i]['form_id'] = $frow['form_id'];
@@ -3757,7 +3755,7 @@ function build_IMPPLAN_items($pid, $form_id)
 function build_CODING_items($pid, $encounter)
 {
     $query = "select * from billing where encounter=? and pid=? ORDER BY id";
-    $fres = sqlStatement($query, array($encounter,$pid));
+    $fres = sqlStatement($query, [$encounter,$pid]);
     $i = 0;
 
     while ($frow = sqlFetchArray($fres)) {
@@ -3811,7 +3809,7 @@ function document_engine($pid)
                 categories, documents, categories_to_documents
                 where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
                 categories_to_documents.category_id=categories.id and documents.deleted = 0 ORDER BY categories.name";
-    $sql2 =  sqlStatement($query, array($pid));
+    $sql2 =  sqlStatement($query, [$pid]);
     while ($row2 = sqlFetchArray($sql2)) {
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
@@ -3846,7 +3844,7 @@ function document_engine($pid)
     $documents['docs_in_name']      = $docs_in_name ?? '';
     $documents['docs_by_date']      = $docs_by_date ?? '';
 
-    return array($documents);
+    return [$documents];
 }
 
 /**
@@ -3885,7 +3883,7 @@ function display($pid, $encounter, $category_value)
         *   to the associative array.
         */
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
 
     for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
@@ -3919,7 +3917,7 @@ function display($pid, $encounter, $category_value)
         }
     }
 
-    return array($documents,$episode);
+    return [$documents,$episode];
 }
 
 /**
@@ -4095,7 +4093,7 @@ function menu_overhaul_left($pid, $encounter): void
      * find out if the patient has a photo
      */
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
     ?>
     <div class="borderShadow row" id="title_bar">
@@ -4187,7 +4185,7 @@ function menu_overhaul_left($pid, $encounter): void
                                     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
                                     "AND p.type = 2 where d.id=? " .
                                     "ORDER BY state, city, name, area_code, prefix, number";
-                                $pharm = sqlQuery($sql, array($pat_data['pharmacy_id']));
+                                $pharm = sqlQuery($sql, [$pat_data['pharmacy_id']]);
                                 echo text($pharm['name'] . ", " . $pharm['city'] . " " . $pharm['state']);
                             }
                             ?>
@@ -4232,7 +4230,7 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
         $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
     }
 
-    $res = sqlStatement($sql, array($state));
+    $res = sqlStatement($sql, [$state]);
     if ($res) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
@@ -4368,11 +4366,11 @@ function start_your_engines($FIELDS)
     $result = sqlStatement($query);
     while ($term_sheet = sqlFetchArray($result)) {
         if ($term_sheet['title'] > '') {
-            $newdata =  array (
+            $newdata =   [
               'term'        => $term_sheet['title'], //the term to search for + possible option_values eg. CSME:DM|IOL|RVO
               'location'    => $term_sheet['notes'], //the Eye Form field to search for the term
               'codes'       => $term_sheet['codes']  //the specific code for this term/location, may be blank
-              );
+              ];
             $clinical_terms[] = $newdata;
         }
     }
@@ -4381,7 +4379,7 @@ function start_your_engines($FIELDS)
         return;
     }
 
-    $positives = array();
+    $positives = [];
     // Terms are sequenced in the DB (seq) from detailed (more complex descriptions) to a simple (one word) description.
     // $clinical_terms[] is built in this sequence also.
     // eg. "cicatricial ectropion","spastic ectropion", "ectropion".
@@ -4393,9 +4391,9 @@ function start_your_engines($FIELDS)
     foreach ($clinical_terms as $amihere) {
         $option_values = "";
         $term = "";
-        $code_found = array();
+        $code_found = [];
         if (stripos($amihere['term'], ":") !== false) { //options are stored here code:option_values
-            list ($term,$option_values) = explode(":", $amihere['term']);
+            [$term, $option_values] = explode(":", $amihere['term']);
         } else {
             $term = $amihere['term'];
         }
@@ -4435,7 +4433,7 @@ function start_your_engines($FIELDS)
                 //If so process - we are primed and don't need the carburetor for the Builder
                 //eg ICD10:H02.891
                 if (stripos($amihere['codes'], ":") !== false) {
-                    list($code_type,$code) = explode(":", $amihere['codes']);
+                    [$code_type, $code] = explode(":", $amihere['codes']);
                 } else {
                     //default to ICD10.  Maybe there is a GLOBALS value for this? Maybe there should be?
                     $code_type = "ICD10";
@@ -4443,7 +4441,7 @@ function start_your_engines($FIELDS)
 
                 $code_found['code'] = $code_type . ":" . $code;
                 $code_found['code_type'] = $code_type;
-                list($sub_term,$newdata) = coding_engine($term, $code_found, $amihere['location']);
+                [$sub_term, $newdata] = coding_engine($term, $code_found, $amihere['location']);
                 $codes_found[$sub_term][] = $newdata;
                 $positives[$amihere['location']][] = $term;
             } else { //no code was defined, further processing needed.
@@ -4573,7 +4571,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($DM_text, $MAC_text);
                             if (isset($code_found)) { //there are matches, present them to the engine
                                 foreach ($code_found as $found) {
-                                    list($sub_term,$newdata) = coding_engine($label, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($label, $found, $amihere['location'], $side1);
                                     // The carburetor is a simple machine - it has no boolean options -
                                     // so "with" and "without" match a search for "with"...
                                     // We need to be specific to whittle down the options.
@@ -4616,7 +4614,7 @@ function start_your_engines($FIELDS)
                                 $code_found = coding_carburetor("central retinal vein", $side);
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
-                                        list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                        [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
                                         $positives[$location][] = "CRVO";
                                         $hit_RVO[$location] = "1";
@@ -4628,7 +4626,7 @@ function start_your_engines($FIELDS)
                                 $terms = "BRVO " . $term;
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
-                                        list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                        [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
                                         $positives[$location][] = "BRVO";
                                         $hit_RVO[$location] = '1';
@@ -4643,7 +4641,7 @@ function start_your_engines($FIELDS)
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
                                         if ($found['code'] == "ICD10:H35.81") {
-                                            list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                            [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                             $codes_found[$sub_term][] = $newdata;
                                             $positives[$location][] = "CSME";
                                             $hit_RVO_CSME = '1';
@@ -4656,7 +4654,7 @@ function start_your_engines($FIELDS)
                             //search the same side Lens field for term IOL, ? procedure this eye in last 3 months?
                             //search surgery_issue_list or even search the billng engine
                             $query = "select begdate as surg_date from lists where pid=? and type='surgery' and title like '%IOL%' and (title like '%" . xlt($side1) . "%')";
-                            $surg = sqlQuery($query, array($pid));
+                            $surg = sqlQuery($query, [$pid]);
                             if ($surg['surg_date'] > '') {
                                 $date1 = date('Y-m-d');
                                 //$date2 = (DateTime($surg['surg_date']));
@@ -4670,7 +4668,7 @@ function start_your_engines($FIELDS)
                                     if (isset($code_found)) { //there are matches, present them to the Builder
                                         foreach ($code_found as $found) {
                                             $term = "Post-cataract CME";
-                                            list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
+                                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
                                             $codes_found[$sub_term][] = $newdata;
                                             $positives[$amihere['location']][] = $term;
                                             $hit_IOL = '1';
@@ -4697,7 +4695,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
-                                    list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
                                     $codes_found[$sub_term][] = $newdata;
                                     $positives[$amihere['location']][] = $term_now;
                                 }
@@ -4710,7 +4708,7 @@ function start_your_engines($FIELDS)
                     $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
-                            list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location']);
+                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location']);
                             $codes_found[$sub_term][] = $newdata;
                             $positives[$amihere['location']][] = $term;
                         }
@@ -4742,17 +4740,17 @@ function coding_carburetor($term, $field)
         return;
     }
 
-    $codes = array();
+    $codes = [];
     $code_type = "ICD10";  //only option is PROD (product or drug search) or NOT PROD...
     $search_term = $term . " " . $field;
     $res = main_code_set_search($code_type, $search_term);
     while ($row = sqlFetchArray($res)) {
-        $newdata =  array (
+        $newdata =   [
                         'code'  =>  $row['code'],
                         'code_text' => $row['code_text'],
                         'code_type' => $row['code_type_name'],
                         'code_desc' => $row['code_desc'] ?? ''
-                    );
+                    ];
         $codes[] = $newdata;
     }
 
@@ -4772,7 +4770,7 @@ function coding_carburetor($term, $field)
 function coding_engine($term, $code_found, $location, $side = '')
 {
     if (strpos($code_found['code'], ":")) {
-        list($code_type, $code) = explode(':', $code_found['code']);
+        [$code_type, $code] = explode(':', $code_found['code']);
     } else {
         $code = $code_found['code'];
         $code_type = "ICD10";//default to ICD10
@@ -4780,7 +4778,7 @@ function coding_engine($term, $code_found, $location, $side = '')
     }
 
     $code_desc = lookup_code_descriptions($code_found['code']);
-    $order   = array("\r\n", "\n","\r");
+    $order   = ["\r\n", "\n","\r"];
     $code_desc = str_replace($order, '', $code_desc);
 
     $code_text = text($code_found['code']) . " (" . text($code_desc) . ")";
@@ -4789,7 +4787,7 @@ function coding_engine($term, $code_found, $location, $side = '')
     //some codes are bilateral, some not, some are per eyelid.  Comment this out for now:
     //(preg_match("/right/",$code_desc))? $side = xlt('OD{{right eye}}') : $side = xlt('OS{{left eye}}');
 
-    $newdata =  array (
+    $newdata =   [
         'title'         => ucfirst($term) . " " . $side,
         'location'      => $location,
         'diagnosis'     => $code,
@@ -4798,8 +4796,8 @@ function coding_engine($term, $code_found, $location, $side = '')
         'codedesc'      => $code_desc,
         'codetext'      => $code_text,
         'PMSFH_link'    => "Clinical_" . $sub_term
-    );
-    return array($sub_term,$newdata);
+    ];
+    return [$sub_term,$newdata];
 }
 /**
  *  This is a function to sort an array of dates/times etc
@@ -4834,7 +4832,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     global $visit_date;
 
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
 
     $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
@@ -4851,14 +4849,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
         }
     }
     if (empty($encounter_data['ODIOPTARGET']) || empty($encounter_data['OSIOPTARGET'])) {
-        list($ODIOPTARGET, $OSIOPTARGET) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+        [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
     } else {
         $ODIOPTARGET = $encounter_data['ODIOPTARGET'];
         $OSIOPTARGET = $encounter_data['OSIOPTARGET'];
     }
 
     $i = 0;
-    list($ODIOPTARGET, $OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+    [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
     //if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
         if (empty($encounter_data['ODIOPTARGET'])) {
@@ -4993,7 +4991,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     //recreate them to include the testing only dates, placing null values for those dates if not done.
 
     //can't merge empty arrays
-    $list = array();
+    $list = [];
     $arrs[] = $OCT_date ?? '';
     $arrs[] = $VF_date ?? '';
     $arrs[] = $GONIO_date ?? '';
@@ -5691,7 +5689,7 @@ function display_VisualAcuities($pid = 0): void
             }
             // Current Correction or CC refers to the VA with current glasses.
             $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and RX_NUMBER =1";
-            $wear   = sqlQuery($query, array($pid,$prior['form_id']));
+            $wear   = sqlQuery($query, [$pid,$prior['form_id']]);
             $prior['CCODVA'] = $wear['ODVA'];
             $prior['CCOSVA'] = $wear['OSVA'];
 
@@ -6111,25 +6109,25 @@ function findProvider($pid, $encounter)
 {
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($pid,$encounter));
+        "ORDER BY id DESC LIMIT 1", [$pid,$encounter]);
     $providerid = $find_provider['provider_id'] ?? '';
     if ($providerid < '1') {
        //find the default providerID from the calendar
         $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
-        $find_provider3 = sqlQuery($query, array($pid,$visit_date));
+        $find_provider3 = sqlQuery($query, [$pid,$visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $get_authorized = $_SESSION['userauthorized'];
             if ($get_authorized == 1) {
-                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", array($pid));
+                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
                 $new_providerid = $find_provider2['providerID'];
             }
         }
 
         $providerid = $new_providerid;
-        sqlStatement("UPDATE form_encounter set provider_id =? WHERE pid = ? AND encounter = ?", array($providerid,$pid,$encounter));
-        sqlStatement("UPDATE patient_data set providerID =? WHERE pid = ?", array($providerid,$pid));
+        sqlStatement("UPDATE form_encounter set provider_id =? WHERE pid = ? AND encounter = ?", [$providerid,$pid,$encounter]);
+        sqlStatement("UPDATE patient_data set providerID =? WHERE pid = ?", [$providerid,$pid]);
     }
 
     return $providerid;
@@ -6139,7 +6137,7 @@ function generate_lens_treatments($W, $LTs_present)
 {
     ob_start();
     $query = "SELECT * FROM list_options where list_id =? and activity='1' ORDER BY seq";
-    $TXs_data = sqlStatement($query, array("Eye_Lens_Treatments"));
+    $TXs_data = sqlStatement($query, ["Eye_Lens_Treatments"]);
     $counter = 0;
     $TXs_arr = explode("|", $LTs_present);
     $tabindex = $W . "0144";
@@ -6172,7 +6170,7 @@ function generate_specRx($W)
     global $pid,$form_id,$encounter,$display_W_width;
 
     $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? and RX_NUMBER =?";
-    $wear   = sqlQuery($query, array($pid,$form_id,$encounter,$W));
+    $wear   = sqlQuery($query, [$pid,$form_id,$encounter,$W]);
     if ($wear) {
         $RX_VALUE = '1';
         @extract($wear);
@@ -6314,7 +6312,7 @@ function generate_specRx($W)
                           <td name="W_wide"><input type="text" class="prism" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($BPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0128"></td>
                           <td name="W_wide"><input type="text" class="prism" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($BPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0129"></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material Options'); ?>" colspan="2">
-                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", ($LENS_MATERIAL  ?? ''), '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px','tabindex' => $W . '0130')); ?>
+                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", ($LENS_MATERIAL  ?? ''), '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px','tabindex' => $W . '0130']); ?>
                           </td>
                         </tr>
                         <tr>
@@ -6348,7 +6346,7 @@ function display_refractive_data($encounter_data): void
 
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
 
-    $wear = sqlStatement($query, array($pid,$id));
+    $wear = sqlStatement($query, [$pid,$id]);
     while ($wearing = sqlFetchArray($wear)) {
         $count_rx++;
         ${"display_W_$count_rx"} = '';
@@ -6728,10 +6726,10 @@ function getIOPTARGETS($pid, $id, $provider_id)
                     SELECT date from form_encounter where id = ?
                     )
                 ORDER BY form_encounter.date DESC";
-    $result = sqlStatement($query, array($pid, $id));
+    $result = sqlStatement($query, [$pid, $id]);
     while ($row = sqlFetchArray($result)) {
         if (($row['ODIOPTARGET'] > '0') && ($row['OSIOPTARGET'] > '0')) {
-            return array($row['ODIOPTARGET'], $row['OSIOPTARGET']);
+            return [$row['ODIOPTARGET'], $row['OSIOPTARGET']];
         }
     }
     $query = "SELECT * FROM `list_options`
@@ -6740,7 +6738,7 @@ function getIOPTARGETS($pid, $id, $provider_id)
             (   option_id = 'ODIOPTARGET' OR
                 option_id = 'OSIOPTARGET'  )
              ";
-    $result = sqlQuery($query, array("Eye_defaults_" . $provider_id));
+    $result = sqlQuery($query, ["Eye_defaults_" . $provider_id]);
     while ($default_TARGETS = sqlFetchArray($result)) {
         if ($default_TARGETS['option_id'] == 'ODIOPTARGET') {
             $ODIOPTARGET = $default_TARGETS["title"];
@@ -6750,9 +6748,9 @@ function getIOPTARGETS($pid, $id, $provider_id)
         }
     }
     if ((($ODIOPTARGET ?? null) > '0') || (($OSIOPTARGET ?? null) > '0')) {
-        return array($ODIOPTARGET, $OSIOPTARGET);
+        return [$ODIOPTARGET, $OSIOPTARGET];
     }
-    return array('21','21');
+    return ['21','21'];
 }
 
 ?>

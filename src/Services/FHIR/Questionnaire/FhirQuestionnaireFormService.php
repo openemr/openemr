@@ -92,7 +92,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
      * @param bool $encode
      * @return FHIRQuestionnaire
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): FHIRQuestionnaire
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRQuestionnaire
     {
         try {
             // parse the json data in dataRecord questionnaire

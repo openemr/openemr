@@ -161,7 +161,7 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->patientService->getAll(array("postal_code" => "90210"));
+        $actualResult = $this->patientService->getAll(["postal_code" => "90210"]);
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 

@@ -54,7 +54,7 @@ if ($attendant_type == 'gid') {
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'))) {
+if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write'])) {
     echo xlt("access not allowed");
     exit();
 }
@@ -104,13 +104,13 @@ if (!empty($_GET['attachid'])) {
         $tmp = sqlQuery(
             "SELECT COUNT(*) AS count FROM procedure_order WHERE " .
             "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
-            array($aid, $pid)
+            [$aid, $pid]
         );
         if (!empty($tmp['count'])) {
             sqlStatement(
                 "UPDATE procedure_order SET encounter_id = ? WHERE " .
                 "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
-                array($encounter, $aid, $pid)
+                [$encounter, $aid, $pid]
             );
             addForm($encounter, "Procedure Order", $aid, "procedure_order", $pid, $userauthorized);
         }
@@ -291,7 +291,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 "FROM procedure_order WHERE " .
                 "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
                 "ORDER BY procedure_order_id",
-                array($pid)
+                [$pid]
             );
             echo "  // Ask about attaching orphaned orders to this encounter.\n";
             echo "  var attachid = '';\n";
@@ -329,10 +329,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     function createFollowUpEncounter() {
 
         <?php
-        $result = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", array(
+        $result = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", [
             $_SESSION['pid'],
             $encounter
-        ));
+        ]);
         $encounterId = (!empty($result['parent_encounter_id'])) ? $result['parent_encounter_id'] : $result['id'];
         ?>
         var data = {encounterId: '<?php echo attr($encounterId); ?>', mode: 'follow_up_encounter'};
@@ -548,7 +548,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
         $menuArray = $menuEvent->getMenuData();
         $reg = getFormsByCategory();
-        $sensitivity = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($GLOBALS["encounter"] ?? null))['sensitivity'] ?? null;
+        $sensitivity = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$GLOBALS["encounter"] ?? null])['sensitivity'] ?? null;
         $pass_sens = true;
         if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
             $pass_sens = false;
@@ -815,7 +815,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             $docs_list = getDocumentsByEncounter($pid, $_SESSION['encounter']);
         } else {
             // already doesn't exist document for therapy groups
-            $docs_list = array();
+            $docs_list = [];
         }
         if (!empty($docs_list) && count($docs_list) > 0) {
             ?>
@@ -828,10 +828,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     // Get notes for this document.
                     $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
         FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
-                    $noteData = sqlQuery($queryString, array($doc_iter['id']));
+                    $noteData = sqlQuery($queryString, [$doc_iter['id']]);
                     $note = '';
                     if ($noteData) {
-                        $notes = array();
+                        $notes = [];
                         $notes = explode("|", $noteData['docNotes']);
                         $dates = explode("|", $noteData['docDates']);
                         for ($i = 0, $iMax = count($notes); $i < $iMax; $i++) {
@@ -870,13 +870,13 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
                 $aco_spec = false;
 
-                if (substr($formdir, 0, 3) == 'LBF') {
+                if (str_starts_with($formdir, 'LBF')) {
                     // Skip LBF forms that we are not authorized to see.
                     $lrow = sqlQuery(
                         "SELECT grp_aco_spec " .
                         "FROM layout_group_properties WHERE " .
                         "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
-                        array($formdir)
+                        [$formdir]
                     );
                     if (!empty($lrow)) {
                         if (!empty($lrow['grp_aco_spec'])) {
@@ -962,7 +962,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
                 }
 
-                if (substr($formdir, 0, 3) == 'LBF') {
+                if (str_starts_with($formdir, 'LBF')) {
                     // A link for a nice printout of the LBF
                     echo "<a target='_blank' " .
                         "href='$rootdir/forms/LBF/printable.php?" .

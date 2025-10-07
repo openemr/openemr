@@ -33,8 +33,8 @@ class DocumentTemplateService extends QuestionnaireService
     public function uniqueByKey($source, $key): array
     {
         $i = 0;
-        $rtn_array = array();
-        $key_array = array();
+        $rtn_array = [];
+        $key_array = [];
 
         foreach ($source as $val) {
             if (!in_array($val[$key], $key_array)) {
@@ -51,10 +51,10 @@ class DocumentTemplateService extends QuestionnaireService
         $sql = "SELECT pid, `pubpid`, DOB as dob, Concat_WS(', ', lname, fname) as name FROM patient_data WHERE `allow_patient_portal` = 'YES' AND (lname LIKE ? OR fname LIKE ?) LIMIT 5000";
         $bind = ['%' . $searchTerm . '%', '%' . $searchTerm . '%'];
 
-        $results = array(
+        $results = [
             ['pid' => '0', 'ptname' => 'All Patients'],
             ['pid' => '-1', 'ptname' => 'Repository'],
-        );
+        ];
         $query_result = sqlStatement($sql, $bind);
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
@@ -77,16 +77,16 @@ class DocumentTemplateService extends QuestionnaireService
     public function getPortalAssignedTemplates($pid = 0, $category = '', $is_portal = false): array
     {
         // change at your peril! Seriously be careful, lots going on here.
-        $bind = array();
+        $bind = [];
         $pid_where = '';
         $cat_where = '';
         $cat_where_add = '';
         if (empty($pid)) {
             $pid_where = 'pid > ?';
-            $bind = array(0);
+            $bind = [0];
         } else {
             $pid_where = 'pid = ?';
-            $bind = array($pid);
+            $bind = [$pid];
         }
         if (!empty($category)) {
             $cat_where = 'Where `category` = ?';
@@ -123,7 +123,7 @@ class DocumentTemplateService extends QuestionnaireService
                 // then add to group resolved templates.
                 foreach ($results as $name => $templates) {
                     $t = array_shift($templates);
-                    $bind = array($t[0]['pid']);
+                    $bind = [$t[0]['pid']];
                     if (!empty($category)) {
                         $bind[] = $category;
                     }
@@ -151,7 +151,7 @@ class DocumentTemplateService extends QuestionnaireService
                         $cat = $row['category'] ?: '';
                         $name = '';
                         if (!empty($row['pid'] && !$is_portal)) {
-                            $name = sqlQuery($sql_patient, array($row['pid']))['name'] ?? '';
+                            $name = sqlQuery($sql_patient, [$row['pid']])['name'] ?? '';
                         }
                         if ($is_portal) {
                             $results[$cat][] = $row;
@@ -176,7 +176,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getTemplateCategoriesByPids($pids, $category = null): array
     {
-        $results = array();
+        $results = [];
         if (empty($pids)) {
             return $results;
         }
@@ -200,7 +200,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchTemplateEvent($profile, $tid = 0): bool|array|null
     {
-        return sqlQuery("SELECT * FROM `document_template_profiles` WHERE `template_id` = ? AND `profile` = ?", array($tid ?? 0, $profile ?? ''));
+        return sqlQuery("SELECT * FROM `document_template_profiles` WHERE `template_id` = ? AND `profile` = ?", [$tid ?? 0, $profile ?? '']);
     }
 
 
@@ -211,7 +211,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function showTemplateFromEvent($template, $show_due_date = false): mixed
     {
         $in_review = false;
-        $result = sqlQuery("SELECT * FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1", array($template['pid'], $template['id']));
+        $result = sqlQuery("SELECT * FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1", [$template['pid'], $template['id']]);
         if (!$result) {
             return true;
         }
@@ -292,8 +292,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getPatientGroupsByProfile($profile): array
     {
-        $rtn = sqlStatement('SELECT `profile`, `member_of`, `active` FROM `document_template_profiles` WHERE `profile` = ? AND `member_of` > ""', array($profile));
-        $profile_list = array();
+        $rtn = sqlStatement('SELECT `profile`, `member_of`, `active` FROM `document_template_profiles` WHERE `profile` = ? AND `member_of` > ""', [$profile]);
+        $profile_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $profile_list[$row['profile']][] = $row;
         }
@@ -306,8 +306,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getTemplateListByProfile($profile): array
     {
-        $rtn = sqlStatement('SELECT `template_id`, `category` FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > 0', array($profile));
-        $profile_list = array();
+        $rtn = sqlStatement('SELECT `template_id`, `category` FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > 0', [$profile]);
+        $profile_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $profile_list[$row['category']][] = $this->fetchTemplate($row['template_id']);
         }
@@ -322,9 +322,9 @@ class DocumentTemplateService extends QuestionnaireService
     {
         $isFetchById = is_numeric($id);
         if (!empty($id && $isFetchById)) {
-            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
+            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', [$id]);
         } else {
-            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', array($id));
+            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', [$id]);
         }
 
         return $return;
@@ -345,7 +345,7 @@ class DocumentTemplateService extends QuestionnaireService
 
             foreach ($profile_groups as $profile => $groups) {
                 foreach ($groups as $group) {
-                    $rtn = sqlInsert($sql, array($profile, $_SESSION['authUserID'] ?? null, $group['group'] ?? '', $group['active']));
+                    $rtn = sqlInsert($sql, [$profile, $_SESSION['authUserID'] ?? null, $group['group'] ?? '', $group['active']]);
                 }
             }
         } catch (Exception $e) {
@@ -366,9 +366,9 @@ class DocumentTemplateService extends QuestionnaireService
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
         try {
-            $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', array(null, 0));
+            $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', [null, 0]);
             foreach ($patients as $id => $groups) {
-                $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', array($groups, $id));
+                $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', [$groups, $id]);
             }
         } catch (Exception $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
@@ -388,10 +388,10 @@ class DocumentTemplateService extends QuestionnaireService
 
         $result_data = [];
         if (!$patients_only) {
-            $result_data = array(
+            $result_data = [
                 ['pid' => '0', 'ptname' => 'All Patients'],
                 ['pid' => '-1', 'ptname' => 'Repository'],
-            );
+            ];
         }
 
         while ($row = sqlFetchArray($response)) {
@@ -406,8 +406,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getTemplateListAllCategories($pid = 0, $exclude_sent = false): array
     {
-        $results = array();
-        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE pid = ? ORDER BY `category`', array($pid));
+        $results = [];
+        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE pid = ? ORDER BY `category`', [$pid]);
         $exclude = null;
         if ($exclude_sent) {
             $query = sqlStatement('SELECT `template_name` FROM `document_templates` WHERE pid = "0" ORDER BY `category`');
@@ -435,14 +435,14 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getTemplateListUnique(): array
     {
-        $results = array();
+        $results = [];
         $sql = "SELECT * FROM `document_templates` " .
             "Where `id` Not In (Select `template_id` From `document_template_profiles` Where `template_id` != '0') And `pid` = '-1'";
         $query_result = sqlStatement($sql);
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
                 // eliminate templates already in all patients
-                $duh = sqlQuery("Select `id` From `document_templates` Where `pid` = '0' And `template_name` = ?", array($row['template_name']))['id'];
+                $duh = sqlQuery("Select `id` From `document_templates` Where `pid` = '0' And `template_name` = ?", [$row['template_name']])['id'];
                 if ($duh) {
                     continue;
                 }
@@ -460,11 +460,11 @@ class DocumentTemplateService extends QuestionnaireService
     public function getTemplateListByCategory($category = null, $pid = 0, $name = null): bool|array|null
     {
         // if pid is -1 then belongs to repository. 0 is default templates else is assigned to patient.
-        $results = array($category => null);
+        $results = [$category => null];
         if (empty($name)) {
-            $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, $pid));
+            $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', [$category, $pid]);
         } else {
-            return sqlQuery('SELECT * FROM `document_templates` WHERE category = ? AND pid = ? AND template_name = ? LIMIT 1', array($category, $pid, $name));
+            return sqlQuery('SELECT * FROM `document_templates` WHERE category = ? AND pid = ? AND template_name = ? LIMIT 1', [$category, $pid, $name]);
         }
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
@@ -482,14 +482,14 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getTemplatesByPatient($pid = null, $category = null, $include_content = true): array
     {
-        $results = array();
-        $bind = array();
+        $results = [];
+        $bind = [];
         if (empty($pid)) {
             $where = 'WHERE pid > ?';
-            $bind = array(0);
+            $bind = [0];
         } else {
             $where = 'WHERE pid = ?';
-            $bind = array($pid);
+            $bind = [$pid];
         }
         if (!empty($category)) {
             $where .= ' AND category = ?';
@@ -579,7 +579,7 @@ class DocumentTemplateService extends QuestionnaireService
 
         $name = null;
         if (!empty($pid)) {
-            $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", array($pid))['name'] ?? '';
+            $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", [$pid])['name'] ?? '';
         } elseif ($pid == -1) {
             $name = 'Repository';
         }
@@ -589,7 +589,7 @@ class DocumentTemplateService extends QuestionnaireService
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE `pid` = ?, `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW(), `mime` = ?";
 
-        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen($content), $mimetype, $pid, ($_SESSION['authUserID'] ?? null), $content, strlen($content), $mimetype));
+        return sqlInsert($sql, [$pid, ($_SESSION['authUserID'] ?? null), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen($content), $mimetype, $pid, ($_SESSION['authUserID'] ?? null), $content, strlen($content), $mimetype]);
     }
 
     /**
@@ -600,7 +600,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         sqlQuery("UPDATE `document_template_profiles` SET `active` = '0' WHERE `template_id` = 0");
         foreach ($profiles as $profile) {
-            $rtn = sqlQuery("UPDATE `document_template_profiles` SET `active` = '1' WHERE `profile` = ? AND `template_id` = 0", array($profile));
+            $rtn = sqlQuery("UPDATE `document_template_profiles` SET `active` = '1' WHERE `profile` = ? AND `template_id` = 0", [$profile]);
         }
         return !$rtn;
     }
@@ -611,7 +611,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getProfileActiveStatus($profile)
     {
-        $rtn = sqlQuery("Select `active` From `document_template_profiles` WHERE `profile` = ? And `template_id` = 0", array($profile));
+        $rtn = sqlQuery("Select `active` From `document_template_profiles` WHERE `profile` = ? And `template_id` = 0", [$profile]);
         if ($rtn === false) {
             return '0';
         }
@@ -634,7 +634,7 @@ class DocumentTemplateService extends QuestionnaireService
                     "Join `document_template_profiles` as ptd On pd.patient_groups LIKE CONCAT('%',ptd.member_of, '%') And ptd.profile = ? " .
                     'Join (Select * From `document_template_profiles`) tplId On tplId.profile = ptd.profile ' .
                     'Join (Select `id`, `category`, `template_name`, `location`, `template_content`, `mime` From `document_templates`) as tpl On tpl.id = tplId.template_id';
-                $query_result = sqlStatement($sql, array($profile));
+                $query_result = sqlStatement($sql, [$profile]);
                 while ($row = sqlFetchArray($query_result)) {
                     if (is_array($row)) {
                         $tid = $row['template_name'];
@@ -702,7 +702,7 @@ class DocumentTemplateService extends QuestionnaireService
             throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
-        return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', array($content, $id));
+        return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', [$content, $id]);
     }
 
     /**
@@ -712,7 +712,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function updateTemplateCategory($id, $category)
     {
-        return sqlQuery('UPDATE  `document_templates`  SET `category` =  ? WHERE `id` = ?', array($category, $id));
+        return sqlQuery('UPDATE  `document_templates`  SET `category` =  ? WHERE `id` = ?', [$category, $id]);
     }
 
     /**
@@ -724,10 +724,10 @@ class DocumentTemplateService extends QuestionnaireService
     {
         $profile_delete = false;
         if (!empty($template)) {
-            $profile_delete = sqlQuery('DELETE FROM `document_template_profiles` WHERE `template_id` = ?', array($id));
-            $delete = sqlQuery('DELETE FROM `document_templates` WHERE `template_name` = ?', array($template));
+            $profile_delete = sqlQuery('DELETE FROM `document_template_profiles` WHERE `template_id` = ?', [$id]);
+            $delete = sqlQuery('DELETE FROM `document_templates` WHERE `template_name` = ?', [$template]);
         } else {
-            $delete = sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
+            $delete = sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', [$id]);
         }
         return ($delete && $profile_delete);
     }
@@ -751,9 +751,9 @@ class DocumentTemplateService extends QuestionnaireService
                 $rtn = sqlInsert(
                     "INSERT INTO `document_template_profiles`
             (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`, `notify_trigger`, `notify_period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    array($profile_array['id'], $profile_array['profile'],
+                    [$profile_array['id'], $profile_array['profile'],
                         $profile_array['name'], $profile_array['category'], ($_SESSION['authUserID'] ?? null),
-                        $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '')
+                        $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
                 );
             }
         } catch (Exception $e) {
@@ -769,8 +769,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchDefaultGroups(): array
     {
-        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Patient_Groupings'));
-        $category_list = array();
+        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Patient_Groupings']);
+        $category_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $group_list[$row['option_id']] = $row;
         }
@@ -782,14 +782,14 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchDefaultCategories(): array
     {
-        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
-        $category_list = array();
+        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Document_Template_Categories']);
+        $category_list = [];
 
-        $category_list['General'] = array(
+        $category_list['General'] = [
             'option_id' => '',
             'title' => '',
             'seq' => '',
-        );
+        ];
         while ($row = sqlFetchArray($rtn)) {
             $category_list[$row['option_id']] = $row;
         }
@@ -801,8 +801,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchDefaultProfiles(): array
     {
-        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Profiles'));
-        $profile_list = array();
+        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Document_Template_Profiles']);
+        $profile_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $profile_list[$row['option_id']] = $row;
         }
@@ -814,8 +814,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function getFormattedCategories(): array
     {
-        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
-        $category_list = array();
+        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Document_Template_Categories']);
+        $category_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $category_list[$row['option_id']] = $row;
         }
@@ -837,7 +837,7 @@ class DocumentTemplateService extends QuestionnaireService
             " LEFT JOIN `onsite_portal_activity` AS oa ON od.id = oa.id AND od.doc_type = oa.narrative" .
             " WHERE od.pid = ? AND od.file_path = ? ORDER BY od.create_date DESC LIMIT 1";
 
-        $q = sqlQuery($sql, array($pid, $name));
+        $q = sqlQuery($sql, [$pid, $name]);
         if ($q && !$return_content) {
             $q['full_document'] = null;
             $q["template_data"] = null;
@@ -851,7 +851,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchProfileStatus($profile): mixed
     {
-        return sqlQuery('SELECT active FROM `document_template_profiles` WHERE `template_id` = "0" AND `profile` = ?', array($profile))['active'];
+        return sqlQuery('SELECT active FROM `document_template_profiles` WHERE `template_id` = "0" AND `profile` = ?', [$profile])['active'];
     }
 
     /**
@@ -864,7 +864,7 @@ class DocumentTemplateService extends QuestionnaireService
         $search = '%' . $token . '%';
         $sql = "SELECT pd.pid, pd.`pubpid`, pd.`lname`, pd.`fname`, pd.`mname`, pd.`DOB`, pd.`providerID`, l.title, l.diagnosis FROM `patient_data` pd " .
             "JOIN(SELECT * FROM `lists` WHERE `type` = 'medical_problem' AND (`title` LIKE ? OR `diagnosis` LIKE ?)) AS l ON l.`pid` = pd.`pid` GROUP BY pd.`pid`";
-        $rtn = sqlStatement($sql, array($search, $search));
+        $rtn = sqlStatement($sql, [$search, $search]);
         while ($row = sqlFetchArray($rtn)) {
             $result[] = $row;
         }
@@ -896,7 +896,7 @@ class DocumentTemplateService extends QuestionnaireService
                         $template['pid'] = $current_patient;
                     }
                     $in_edit = sqlQuery("Select `id`, `doc_type`, `denial_reason` From `onsite_documents` Where (`denial_reason` = '"
-                        . self::DENIAL_STATUS_EDITING . "' Or `denial_reason` = '" . self::DENIAL_STATUS_IN_REVIEW . "') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
+                        . self::DENIAL_STATUS_EDITING . "' Or `denial_reason` = '" . self::DENIAL_STATUS_IN_REVIEW . "') And `pid` = ? And `file_path` = ? Limit 1", [$template['pid'], $template['id']]) ?? 0;
                     if (empty($in_edit)) {
                         $test = $this->showTemplateFromEvent($template);
                         if (!$test) {

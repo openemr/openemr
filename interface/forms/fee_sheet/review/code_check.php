@@ -13,11 +13,11 @@
 function diag_code_types($format = 'json', $sqlEscape = false)
 {
     global $code_types;
-    $diagCodes = array();
+    $diagCodes = [];
     foreach ($code_types as $key => $ct) {
         if ($ct['active'] && $ct['diag']) {
             if ($format == 'json') {
-                $entry = array("key" => $key,"id" => $ct['id']);
+                $entry = ["key" => $key,"id" => $ct['id']];
             } elseif ($format == 'keylist') {
                 $entry = "'";
                 $entry .= $sqlEscape ? add_escape_custom($key) : $key;

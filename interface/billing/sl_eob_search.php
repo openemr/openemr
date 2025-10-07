@@ -66,7 +66,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", array($pid))) {
+        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", [$pid])) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
@@ -120,7 +120,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     {
         $appsql = new ApplicationTable();
         try {
-            $audit = array();
+            $audit = [];
             $audit['patient_id'] = $pid;
             $audit['activity'] = "invoice";
             $audit['require_audit'] = "0";
@@ -159,7 +159,7 @@ function era_callback(&$out): void
         '_' . ltrim($out['payer_id'] ? $out['payer_id'] : $out['isa_sender_id'], '0');
 
     if (!empty($out['our_claim_id'])) {
-        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
         if ($pid && $encounter) {
             if ($where) {
                 $where .= ' OR ';
@@ -181,7 +181,7 @@ function validEmail($email)
 
 function emailLogin($patient_id, $message)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
     if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email'])) {
         return false;
     }
@@ -196,7 +196,7 @@ function emailLogin($patient_id, $message)
 
     if ($_SESSION['pc_facility']) {
         $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, array($_SESSION['pc_facility']));
+        $facility = sqlQuery($sql, [$_SESSION['pc_facility']]);
     } else {
         $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
         $facility = sqlQuery($sql);
@@ -312,9 +312,9 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                 stristr($OneLine, 'Current') == true
             ) {
                 // lines are made bold when 'REMIT TO' or 'Visit Date' is there.
-                $pdf->ezText('<b>' . $OneLine . '</b>', 12, array('justification' => 'left', 'leading' => 6));
+                $pdf->ezText('<b>' . $OneLine . '</b>', 12, ['justification' => 'left', 'leading' => 6]);
             } else {
-                $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
+                $pdf->ezText($OneLine, 12, ['justification' => 'left', 'leading' => 6]);
             }
 
             $countline++;
@@ -368,7 +368,7 @@ if (
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $where = "";
     foreach ($_REQUEST['form_cb'] as $key => $value) {
         $where .= " OR f.id = ?";
@@ -388,7 +388,7 @@ if (
         "p.pid = f.pid " .
         "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
 
-    $stmt = array();
+    $stmt = [];
     $stmt_count = 0;
 
     $flagT = true;
@@ -399,7 +399,7 @@ if (
 
     // get pids for delimits
     // need to only use summary invoice for multi visits
-    $inv_pid = array();
+    $inv_pid = [];
     $inv_count = -1;
     if (!empty($_REQUEST['form_portalnotify'])) {
         foreach ($_REQUEST['form_invpids'] as $key => $v) {
@@ -476,9 +476,9 @@ if (
             #guardiansname this will allow you to send statements to the parent
             #of a child or a guardian etc
             if (empty($row['guardiansname'])) {
-                $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+                $stmt['to'] = [$row['fname'] . ' ' . $row['lname']];
             } else {
-                $stmt['to'] = array($row['guardiansname']);
+                $stmt['to'] = [$row['guardiansname']];
             }
 
             if ($row['street']) {
@@ -486,7 +486,7 @@ if (
             }
 
             $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
-            $stmt['lines'] = array();
+            $stmt['lines'] = [];
             $stmt['amount'] = '0.00';
             $stmt['ins_paid'] = 0;
             $stmt['today'] = $today;
@@ -501,11 +501,11 @@ if (
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
         // grab last bill date from billing
-        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", array($row['pid'], $row['encounter']));
+        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
         $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
-            $line = array();
+            $line = [];
             $line['dos'] = $svcdate;
             if ($GLOBALS['use_custom_statement']) {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
@@ -528,7 +528,7 @@ if (
         if (!$DEBUG && empty($_REQUEST['form_without'])) {
             sqlStatement("UPDATE form_encounter SET " .
                 "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
-                "WHERE id = ?", array($today, $row['id']));
+                "WHERE id = ?", [$today, $row['id']]);
         }
         $inv_count += 1;
         if (!empty($_REQUEST['form_portalnotify'])) {
@@ -545,7 +545,7 @@ if (
                     break;
                 }
 
-                $pvoice = array();
+                $pvoice = [];
                 flush();
                 ftruncate($fhprint, 0);
             } else {
@@ -753,17 +753,17 @@ if (
         }
     </style>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
     'heading_title' => xl('EOB Posting - Search'),
     'include_patient_name' => false,
     'expandable' => true,
-    'expandable_files' => array('sl_eob_search_xpd'),//all file names need suffix _xpd
+    'expandable_files' => ['sl_eob_search_xpd'],//all file names need suffix _xpd
     'action' => "reset",
     'action_title' => "",
     'action_href' => "sl_eob_search.php",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "sl_eob_help.php"
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 
@@ -871,7 +871,7 @@ if (
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
                                 <select name='form_category' id='form_category' class='form-control'>
                                     <?php
-                                    foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
+                                    foreach ([xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')] as $value) {
                                         echo "    <option value='" . attr($value) . "'";
                                         if (!empty($_REQUEST['form_category']) && ($_REQUEST['form_category'] == $value)) {
                                             echo " selected";
@@ -1113,7 +1113,7 @@ if (
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
-                                if (substr($_REQUEST['form_category'], 0, 3) == 'Due' && !$isdueany) {
+                                if (str_starts_with($_REQUEST['form_category'], 'Due') && !$isdueany) {
                                     continue;
                                 }
                                 if ($_REQUEST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {
@@ -1170,7 +1170,7 @@ if (
                                     <?php } ?>
                                     <td class="detail text-left">
                                         <?php
-                                        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']));
+                                        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {

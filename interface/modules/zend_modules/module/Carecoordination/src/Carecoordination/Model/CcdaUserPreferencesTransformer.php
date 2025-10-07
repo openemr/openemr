@@ -35,12 +35,12 @@ class CcdaUserPreferencesTransformer
      * @param int|null $maxSections The maximum number of sections to display, null or 0 for unlimited
      * @param array $sortPreferences map of templateDocumentOids to array of section oids where the order of the array is the sort preference for the document
      */
-    public function __construct($maxSections = null, $sortPreferences = array())
+    public function __construct($maxSections = null, $sortPreferences = [])
     {
         // TODO: @adunsulag remove these defaults
             $this->maxSections = intval($maxSections ?? 0);
 
-        $this->sortPreferences = $sortPreferences ?? array();
+        $this->sortPreferences = $sortPreferences ?? [];
         if (isset($this->sortPreferences['default'])) {
             $this->defaultSortPreferences = $this->sortPreferences['default'] ?? [];
             unset($this->sortPreferences['default']);
