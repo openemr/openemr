@@ -8,6 +8,8 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Igor Mukhin <igor.mukhin@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -16,13 +18,29 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Auth\Password\RandomPasswordGenerator;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Acl\AclGroupMemberService;
+use OpenEMR\Services\Acl\AclGroupService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Validators\UserValidator;
+use Exception;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
+use Webmozart\Assert\Assert;
+use Webmozart\Assert\InvalidArgumentException;
 
 class UserService
 {
+    private AclGroupMemberService $aclGroupMemberService;
+
+    private RandomPasswordGenerator $randomPasswordGenerator;
+
+    private AuthHash $authHash;
+
     private $_includeUsername;
 
     /**
@@ -35,6 +53,9 @@ class UserService
      */
     public function __construct()
     {
+        $this->aclGroupMemberService = new AclGroupMemberService($this);
+        $this->randomPasswordGenerator = new RandomPasswordGenerator();
+        $this->authHash = new AuthHash();
         $this->_includeUsername = false;
     }
 
@@ -362,6 +383,9 @@ class UserService
     }
 
     /**
+     * @deprecated Use normalize instead
+     * @see self::normalize
+     *
      * Allows any mapping data conversion or other properties needed by a service to be returned.
      * @param $row The record returned from the database
      */
@@ -379,5 +403,118 @@ class UserService
             }
         }
         return $row;
+    }
+
+    public function normalize(array $user, array $allowedFields = []): array
+    {
+        $unknownFields = array_diff($allowedFields, array_keys($user));
+        Assert::isEmpty($unknownFields, sprintf(
+            'Unknown User fields: %s',
+            implode(', ', $unknownFields)
+        ));
+
+        $result = [];
+        foreach ($user as $fieldName => $fieldValue) {
+            if (
+                [] !== $allowedFields
+                && !in_array($fieldName, $allowedFields, true)
+            ) {
+                continue;
+            }
+
+            if (in_array($fieldName, $this->getUuidFields(), true)) {
+                try {
+                    $fieldValue = UuidRegistry::uuidToString($fieldValue);
+                } catch (\Ramsey\Uuid\Exception\InvalidArgumentException $e) {
+                    // UUID is already human-readable
+                }
+
+            }
+
+            $result[$fieldName] = $fieldValue;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function insert(array $data): array
+    {
+        Assert::keyExists($data, 'fname');
+        Assert::keyExists($data, 'lname');
+        Assert::keyExists($data, 'username');
+
+        try {
+            $password = $data['password'] ?: $this->randomPasswordGenerator->generatePassword();
+
+            $aclGroupIds = $data['acl_group_ids'] ?? [];
+            unset($data['acl_group_ids']);
+
+            QueryUtils::startTransaction();
+            $uuid = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+            $data['id'] = QueryUtils::insertOne('users', array_merge($data, [
+                'uuid' => $uuid,
+                'password' => 'NoLongerUsed',
+                'authorized' => 1,
+            ]));
+
+            QueryUtils::insertOne('users_secure', [
+                'id' => $data['id'],
+                'username' => $data['username'],
+                'password' => $this->authHash->passwordHash($password),
+            ]);
+
+            QueryUtils::insertOne('groups', [
+                'user' => $data['username'],
+                'name' => 'Default',
+            ]);
+
+            if ($aclGroupIds) {
+                foreach ($aclGroupIds as $aclGroupId) {
+                    $this->aclGroupMemberService->addUserToGroup(
+                        $data,
+                        $aclGroupId
+                    );
+                }
+            }
+
+            QueryUtils::commitTransaction();
+
+            return [
+                'id' => $data['id'],
+                'uuid' => UuidRegistry::uuidToString($uuid),
+                'password' => $password,
+            ];
+        } catch (Exception $e) {
+            QueryUtils::rollbackTransaction();
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function deleteByUuid(string $uuid): void
+    {
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        } catch (InvalidUuidStringException $exception) {
+            throw new InvalidArgumentException(sprintf('UUID %s is invalid', $uuid), 0, $exception);
+        }
+
+        $user = $this->getUserByUUID($uuid); // @todo Migrate to userRepository->findOneByUuid($uuid)
+        Assert::notFalse($user, sprintf('User with UUID %s not found', $uuid)); // @todo Migrate to notNull
+
+        // @todo Transaction/commit/rollback
+        // @todo Remove uuid from uuid_mapping?
+        $this->aclGroupMemberService->deleteUserFromAllGroups($user);
+        QueryUtils::removeById('users_secure', $user['id']);
+        QueryUtils::removeBy('uuid_registry', [
+            'table_name' => 'users',
+            'uuid' => $uuidBytes,
+        ]);
+        QueryUtils::removeById('users', $user['id']);
     }
 }
