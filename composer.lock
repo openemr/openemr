@@ -14098,7 +14098,6 @@
     },
     "platform-dev": {},
     "platform-overrides": {
-        "php": "8.2",
         "ext-calendar": "8.2",
         "ext-ctype": "8.2",
         "ext-curl": "8.2",
@@ -14125,7 +14124,8 @@
         "ext-xmlwriter": "8.2",
         "ext-xsl": "8.2",
         "ext-zip": "8.2",
-        "ext-zlib": "8.2"
+        "ext-zlib": "8.2",
+        "php": "8.2"
     },
     "plugin-api-version": "2.6.0"
 }

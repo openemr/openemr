@@ -109,43 +109,6 @@
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2"
     },
-    "config": {
-        "platform": {
-            "php": "8.2",
-            "ext-calendar": "8.2",
-            "ext-ctype": "8.2",
-            "ext-curl": "8.2",
-            "ext-fileinfo": "8.2",
-            "ext-gd": "8.2",
-            "ext-iconv": "8.2",
-            "ext-intl": "8.2",
-            "ext-json": "8.2",
-            "ext-ldap": "8.2",
-            "ext-mbstring": "8.2",
-            "ext-mysqli": "8.2",
-            "ext-openssl": "8.2",
-            "ext-pdo": "8.2",
-            "ext-pdo_mysql": "8.2",
-            "ext-phar": "8.2",
-            "ext-session": "8.2",
-            "ext-simplexml": "8.2",
-            "ext-soap": "8.2",
-            "ext-sockets": "8.2",
-            "ext-sodium": "8.2",
-            "ext-tokenizer": "8.2",
-            "ext-xml": "8.2",
-            "ext-xmlreader": "8.2",
-            "ext-xmlwriter": "8.2",
-            "ext-xsl": "8.2",
-            "ext-zip": "8.2",
-            "ext-zlib": "8.2"
-        },
-        "allow-plugins": {
-            "openemr/oe-module-installer-plugin": true,
-            "php-http/discovery": false,
-            "phpstan/extension-installer": true
-        }
-    },
     "require-dev": {
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
@@ -193,6 +156,43 @@
     "autoload-dev": {
         "psr-4": {
             "OpenEMR\\Tests\\": "tests\\Tests"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "openemr/oe-module-installer-plugin": true,
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true
+        },
+        "platform": {
+            "ext-calendar": "8.2",
+            "ext-ctype": "8.2",
+            "ext-curl": "8.2",
+            "ext-fileinfo": "8.2",
+            "ext-gd": "8.2",
+            "ext-iconv": "8.2",
+            "ext-intl": "8.2",
+            "ext-json": "8.2",
+            "ext-ldap": "8.2",
+            "ext-mbstring": "8.2",
+            "ext-mysqli": "8.2",
+            "ext-openssl": "8.2",
+            "ext-pdo": "8.2",
+            "ext-pdo_mysql": "8.2",
+            "ext-phar": "8.2",
+            "ext-session": "8.2",
+            "ext-simplexml": "8.2",
+            "ext-soap": "8.2",
+            "ext-sockets": "8.2",
+            "ext-sodium": "8.2",
+            "ext-tokenizer": "8.2",
+            "ext-xml": "8.2",
+            "ext-xmlreader": "8.2",
+            "ext-xmlwriter": "8.2",
+            "ext-xsl": "8.2",
+            "ext-zip": "8.2",
+            "ext-zlib": "8.2",
+            "php": "8.2"
         }
     }
 }
