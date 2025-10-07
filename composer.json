@@ -4,11 +4,11 @@
     "license": "GPL",
     "version": "7.0.4",
     "support": {
-        "website": "https://www.open-emr.org/",
         "issues": "https://github.com/openemr/openemr/issues",
         "forum": "https://community.open-emr.org/",
         "wiki": "https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
-        "source": "https://github.com/openemr/openemr"
+        "source": "https://github.com/openemr/openemr",
+        "website": "https://www.open-emr.org/"
     },
     "require": {
         "php": ">=8.2.0",
