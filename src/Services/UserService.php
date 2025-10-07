@@ -8,6 +8,8 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Igor Mukhin <igor.mukhin@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -16,13 +18,25 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Auth\Password\RandomPasswordGenerator;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Acl\AclGroupService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Validators\UserValidator;
+use Exception;
 
 class UserService
 {
+    private UserValidator $userValidator;
+
+    private RandomPasswordGenerator $randomPasswordGenerator;
+
+    private AuthHash $authHash;
+
     private $_includeUsername;
 
     /**
@@ -35,6 +49,9 @@ class UserService
      */
     public function __construct()
     {
+        $this->userValidator = new UserValidator();
+        $this->randomPasswordGenerator = new RandomPasswordGenerator();
+        $this->authHash = new AuthHash();
         $this->_includeUsername = false;
     }
 
@@ -379,5 +396,71 @@ class UserService
             }
         }
         return $row;
+    }
+
+    /**
+     * Inserts a new user record.
+     *
+     * @param array $data The user fields (array) to insert.
+     *
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        $processingResult = $this->userValidator->validate($data, BaseValidator::DATABASE_INSERT_CONTEXT);
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        try {
+            $password = $data['password'] ?: $this->randomPasswordGenerator->generatePassword();
+
+            $aclGroupIds = $data['acl_group_ids'] ?? [];
+            unset($data['acl_group_ids']);
+
+            QueryUtils::startTransaction();
+            $uuid = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+            $data['id'] = QueryUtils::insertOne('users', array_merge($data, [
+                'uuid' => $uuid,
+                'password' => 'NoLongerUsed',
+                'authorized' => 1,
+            ]));
+
+            QueryUtils::insertOne('users_secure', [
+                'id' => $data['id'],
+                'username' => $data['username'],
+                'password' => $this->authHash->passwordHash($password),
+            ]);
+
+            QueryUtils::insertOne('groups', [
+                'user' => $data['username'],
+                'name' => 'Default',
+            ]);
+
+            if ($aclGroupIds) {
+                $aclService = new AclGroupService();
+                foreach ($aclGroupIds as $aclGroupId) {
+                    $aclService->addUserToGroupById(
+                        $data['id'],
+                        $data['username'],
+                        $aclGroupId
+                    );
+                }
+            }
+
+            $processingResult->addData([
+                'id' => $data['id'],
+                'uuid' => UuidRegistry::uuidToString($uuid),
+                'password' => $password,
+            ]);
+
+            QueryUtils::commitTransaction();
+
+            return $processingResult;
+        } catch (Exception $e) {
+            QueryUtils::rollbackTransaction();
+            throw $e;
+        }
     }
 }
