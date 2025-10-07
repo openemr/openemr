@@ -69,7 +69,7 @@ trait FhirObservationTrait
         return $this->codeTypesService;
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): FHIRDomainResource|string
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
     {
         return $this->parseObservationOpenEMRRecord($dataRecord, $encode);
     }
@@ -81,7 +81,7 @@ trait FhirObservationTrait
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return FHIRObservation|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseObservationOpenEMRRecord($dataRecord = array(), $encode = false): FHIRDomainResource|string
+    public function parseObservationOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
     {
         // AI-generated implementation start
         if (empty($dataRecord)) {
@@ -199,7 +199,7 @@ trait FhirObservationTrait
         }
     }
 
-    protected function setObservationValueWithDetails(FhirObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = array())
+    protected function setObservationValueWithDetails(FhirObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = [])
     {
         $valueType = "string";
         if (is_string($value) && !empty($codeDescription) && str_contains($value, ':')) {
@@ -389,7 +389,7 @@ trait FhirObservationTrait
         $value = $dataRecord['value'] ?? null;
         $valueUnit = $dataRecord['value_unit'] ?? null;
         $codeDescription = $dataRecord['value_code_description'] ?? null;
-        $children = $dataRecord['sub_observations'] ?? array();
+        $children = $dataRecord['sub_observations'] ?? [];
         $this->setObservationValueWithDetails($observation, $value, $valueUnit, $codeDescription, $children);
     }
 

@@ -156,7 +156,7 @@ class ObservationService extends BaseService
     public function getObservationsByFormId(int $formId, int $pid, int $encounter): array
     {
         $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";
-        return QueryUtils::fetchRecords($sql, array($formId, $pid, $encounter));
+        return QueryUtils::fetchRecords($sql, [$formId, $pid, $encounter]);
         $result = $this->search([
             'form_id' => $formId,
             'pid' => $pid,
