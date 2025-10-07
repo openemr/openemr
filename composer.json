@@ -1,8 +1,8 @@
 {
     "name": "openemr/openemr",
-    "version": "7.0.4",
     "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
     "license": "GPL",
+    "version": "7.0.4",
     "support": {
         "website": "https://www.open-emr.org/",
         "issues": "https://github.com/openemr/openemr/issues",
