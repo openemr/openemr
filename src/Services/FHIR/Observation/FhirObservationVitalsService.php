@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
+use Google\Service\Playdeveloperreporting\Resource\Vitals;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -34,6 +35,7 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\VitalsCalculatedService;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -81,6 +83,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * @var VitalsService
      */
     private VitalsService $service;
+
+    /**
+     * @var VitalsCalculatedService the calculated service that manages calculated vital statistics
+     */
+    private VitalsCalculatedService $calculatedService;
 
     const CATEGORY = "vital-signs";
 
@@ -309,6 +316,20 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         ]
         // need pediatric weight for height observations...
     ];
+    const AVERAGE_BLOOD_PRESSURE_LOINC_CODE = '96607-7';
+
+    const COLUMN_CALCULATED_MAPPINGS = [
+        self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE => [
+            'fullcode' => 'LOINC:' . self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE
+            ,'code' => self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE
+            ,'description' => 'Average Blood Pressure Panel'
+            ,'column' => ''
+            ,'in_vitals_panel' => false
+            ,'profiles' => [
+                self::USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
+        ]
+    ];
 
     public function __construct($fhirApiURL = null)
     {
@@ -330,10 +351,20 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     public function supportsCode($code)
     {
-        return array_search($code, array_keys(self::COLUMN_MAPPINGS)) !== false;
+        return in_array($code, array_keys(self::COLUMN_MAPPINGS))
+            || in_array($code, array_keys(self::COLUMN_CALCULATED_MAPPINGS));
     }
 
+    public function setVitalsCalculatedService(VitalsCalculatedService $service): void {
+        $this->calculatedService = $service;
+    }
 
+    public function getVitalsCalculatedService(): VitalsCalculatedService {
+        if (!isset($this->calculatedService)) {
+            $this->calculatedService = new VitalsCalculatedService();
+        }
+        return $this->calculatedService;
+    }
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
@@ -398,13 +429,22 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
             if (empty($observationCodesToReturn)) {
                 // grab everything
-                $observationCodesToReturn = array_keys(self::COLUMN_MAPPINGS);
+                $observationCodesToReturn = array_merge(array_keys(self::COLUMN_MAPPINGS), array_keys(self::COLUMN_CALCULATED_MAPPINGS));
                 $observationCodesToReturn = array_combine($observationCodesToReturn, $observationCodesToReturn);
             }
 
             // convert vital sign records from 1:many
 
             $result = $this->service->search($openEMRSearchParameters, true);
+
+
+            if (!empty($observationCodesToReturn[self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE])) {
+                $calcResult = $this->getVitalsCalculatedService()->search($openEMRSearchParameters, true);
+                $result->addProcessingResult($calcResult);
+            }
+            if (!$result->isValid()) {
+                return $result;
+            }
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume

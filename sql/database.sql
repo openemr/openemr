@@ -13400,6 +13400,42 @@ KEY `fk_form_id` (`form_id`),
 KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
 ) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
 
+CREATE TABLE `form_vitals_calculation` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `uuid` binary(16) DEFAULT NULL,
+   `encounter` bigint(20) DEFAULT NULL COMMENT 'fk to form_encounter.id',
+   `pid` bigint(20) NOT NULL COMMENT 'fk to patient_data.pid',
+   `date_start` datetime DEFAULT NULL,
+   `date_end` datetime DEFAULT NULL,
+   `created_at` datetime DEFAULT NULL,
+   `updated_at` datetime DEFAULT NULL,
+   `created_by` bigint(20) DEFAULT NULL,
+   `updated_by` bigint(20) DEFAULT NULL,
+   `calculation_id` varchar(64) DEFAULT NULL,
+   `vitals_column` varchar(64) DEFAULT NULL,
+   `value_quantity` DECIMAL(12,6) DEFAULT NULL,
+   `value_string` varchar(64) DEFAULT NULL,
+   `value_unit` varchar(16) DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `unq_uuid` (`uuid`),
+   KEY `idx_pid` (`pid`),
+   KEY `idx_encounter` (`encounter`),
+   KEY `idx_calculation_id` (`calculation_id`),
+   KEY `idx_vitals_column` (`vitals_column`),
+   CONSTRAINT `fk_fvc_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+   CONSTRAINT `fk_fvc_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+   CONSTRAINT `fk_fvc_encounter` FOREIGN KEY (`encounter`) REFERENCES `form_encounter` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `fk_fvc_pid` FOREIGN KEY (`pid`) REFERENCES `patient_data` (`pid`) ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT = 'Vital records created from calculations on original vital entries';
+
+CREATE TABLE `form_vitals_calculation_form_vitals` (
+   `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
+   `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
+   PRIMARY KEY (`fvc_uuid`, `vitals_id`),
+   CONSTRAINT `fk_fvc_uuid` FOREIGN KEY (`fvc_uuid`) REFERENCES `form_vitals_calculation` (`uuid`) ON DELETE CASCADE,
+   CONSTRAINT `fk_vitals_id` FOREIGN KEY (`vitals_id`) REFERENCES `form_vitals` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
+
 DROP TABLE IF EXISTS `jwt_grant_history`;
 CREATE TABLE `jwt_grant_history` (
 `id` INT NOT NULL AUTO_INCREMENT

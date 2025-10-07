@@ -488,9 +488,19 @@ trait FhirObservationTrait
 //        }
 
         if (!empty($dataRecord['parent_observation_uuid'])) {
-            $parentRef = new FHIRReference();
-            $parentRef->setReference(new FHIRString('Observation/' . $dataRecord['parent_observation_uuid']));
-            $observation->addDerivedFrom($parentRef);
+            // an observation could potentially have many parent observations if for example the observation
+            // is a calculated observation
+            if (is_array($dataRecord['parent_observation_uuid'])) {
+                foreach ($dataRecord['parent_observation_uuid'] as $uuid) {
+                    $parentRef = new FHIRReference();
+                    $parentRef->setReference(new FHIRString('Observation/' . $uuid));
+                    $observation->addDerivedFrom($parentRef);
+                }
+            } else {
+                $parentRef = new FHIRReference();
+                $parentRef->setReference(new FHIRString('Observation/' . $dataRecord['parent_observation_uuid']));
+                $observation->addDerivedFrom($parentRef);
+            }
         }
     }
 
