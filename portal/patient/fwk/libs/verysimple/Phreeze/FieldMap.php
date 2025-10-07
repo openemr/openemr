@@ -58,22 +58,14 @@ class FieldMap
     /**
      * Initializes the FieldMap
      *
-     * @param string $PropertyName
-     *          Model property name
-     * @param string $TableName
-     *          DB table name
-     * @param string $cb
-     *          DB column name
-     * @param bool $IsPrimaryKey
-     *          True if column is a primary key (optional default = false)
-     * @param int $FieldType
-     *          Field type FM_TYPE_VARCHAR | FM_TYPE_INT | etc... (optional default = FM_TYPE_UNKNOWN)
-     * @param variant $FieldSize
-     *          Field size, 0 for unlimited. for enums, an array of acceptable values (default = 0)
-     * @param variant $DefaultValue
-     *          Default value (optional default = null)
-     * @param bool $IsAutoInsert
-     *          True if column is auto insert column (optional default = null)
+     * @param string $PropertyName Model property name
+     * @param string $TableName DB table name
+     * @param string $ColumnName DB column name
+     * @param bool $IsPrimaryKey True if column is a primary key (optional default = false)
+     * @param int $FieldType Field type FM_TYPE_VARCHAR | FM_TYPE_INT | etc... (optional default = FM_TYPE_UNKNOWN)
+     * @param mixed $FieldSize Field size, 0 for unlimited. for enums, an array of acceptable values (default = 0)
+     * @param mixed $DefaultValue Default value (optional default = null)
+     * @param bool $IsAutoInsert True if column is auto insert column (optional default = null)
      */
     public function __construct(public $PropertyName, public $TableName, public $ColumnName, public $IsPrimaryKey = false, public $FieldType = FM_TYPE_UNKNOWN, public $FieldSize = 0, public $DefaultValue = null, public $IsAutoInsert = null)
     {

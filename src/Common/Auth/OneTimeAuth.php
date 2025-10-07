@@ -32,6 +32,11 @@ class OneTimeAuth
     private $cryptoGen;
     private $systemLogger;
 
+    /**
+     * @param string $context context = portal, patient etc.
+     * @param string $scope scope = portal/service tasks (reset, register).
+     * @param string $profile
+     */
     public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
         $this->cryptoGen = new CryptoGen();

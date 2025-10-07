@@ -80,12 +80,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     const OAUTH_JWT_CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
     /**
      * CustomClientCredentialsGrant constructor.
-     * @param $authTokenUrl string The OAUTH2 token issuing url to be used as the audience parameter for JWT validation
+     * @param SessionInterface $session
+     * @param string $authTokenUrl The OAUTH2 token issuing url to be used as the audience parameter for JWT validation
      */
     public function __construct(
-        private SessionInterface $session, /**
-         * @var string The OAUTH2 token issuing url to be used as the audience parameter for JWT validation
-         */
+        private SessionInterface $session,
         private string $authTokenUrl
     ) {
         $this->logger = new SystemLogger();

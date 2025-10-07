@@ -54,16 +54,13 @@ class HttpRestParsedRoute
     private $routeParams;
 
     /**
-     * @param string $routeDefinition
-     * @param string $requestRoute
+     * @param mixed $requestMethod
+     * @param string $requestRoute The current HTTP request route we are attempting to match against a route definition
+     * @param string $routeDefinition The OpenEMR route definition that this request is being matched / parsed against
      */
     public function __construct(
-        private $requestMethod, /**
-         * The current HTTP request route we are attempting to match against a route definition
-         */
-        private $requestRoute, /**
-         * The OpenEMR route definition that this request is being matched / parsed against
-         */
+        private $requestMethod,
+        private $requestRoute,
         private $routeDefinition
     ) {
         $this->instanceIdentifier = null;

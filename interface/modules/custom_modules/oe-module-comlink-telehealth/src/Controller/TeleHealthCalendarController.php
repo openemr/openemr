@@ -47,10 +47,15 @@ class TeleHealthCalendarController
 
     private TeleHealthProviderRepository $healthProviderRepository;
 
+    /**
+     * @param TelehealthGlobalConfig $config
+     * @param Environment $twig Twig container
+     * @param SystemLogger $logger
+     * @param mixed $assetPath
+     * @param mixed $loggedInUserId
+     */
     public function __construct(
-        TelehealthGlobalConfig $config, /**
-         * @var Environment Twig container
-         */
+        TelehealthGlobalConfig $config,
         private Environment $twig,
         private SystemLogger $logger,
         private $assetPath,

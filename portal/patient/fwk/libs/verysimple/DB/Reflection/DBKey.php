@@ -23,8 +23,7 @@ class DBKey
      * Instantiate new DBSet
      *
      * @access public
-     * @param DBTable $table
-     *          that is the dependent/child table
+     * @param DBTable $table that is the dependent/child table
      * @param string $Name
      * @param string $columnname
      */

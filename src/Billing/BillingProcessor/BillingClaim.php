@@ -98,13 +98,13 @@ class BillingClaim implements \JsonSerializable
     protected $is_last;
 
     /**
-     * @param string $processing_task_action
+     * @param mixed $claimId
+     * @param mixed $partner_and_payor
+     * @param string $action processing task action
      */
     public function __construct(
         $claimId,
-        $partner_and_payor, /**
-         * processing task action
-         */
+        $partner_and_payor,
         public $action
     ) {
         // Assume this is not the last claim in the "loop" unless explicitly set.

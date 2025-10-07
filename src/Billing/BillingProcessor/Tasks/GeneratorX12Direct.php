@@ -59,12 +59,12 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected $pat_segment_counts = [];
 
+    /**
+     * @param mixed $action
+     * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
+     */
     public function __construct(
-        $action, /**
-         * If "Allow Encounter Claims" is enabled, this allows the claims to use
-         * the alternate payor ID on the claim and sets the claims to report,
-         * not chargeable. ie: RP = reporting, CH = chargeable
-         */
+        $action,
         protected $encounter_claim = false
     ) {
         parent::__construct($action);

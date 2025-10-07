@@ -74,26 +74,16 @@ class SMARTAuthorizationController
      * TODO: @adunsulag this constructor has a lot of parameters, we should look at refactoring this to use a configuration object or reduce the scope of what this class does.
      * @param SessionInterface $session The session interface to use for storing session data.
      * @param OEHttpKernel $kernel The OpenEMR kernel to use for getting the system logger and event dispatcher.
-     * @param $authBaseFullURL
-     * @param $smartFinalRedirectURL string The URL that should be redirected to once all SMART authorizations are complete.
-     * @param $oauthTemplateDir string The directory that the oauth template files can be included from.
+     * @param string $authBaseFullURL The base URL of the oauth2 url
+     * @param string $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
+     * @param string $oauthTemplateDir The directory that the oauth template files can be included from.
      * @param Environment $twig The twig template engine to use for rendering pages.
-     * @param string $authBaseFullURL
      */
     public function __construct(
         private SessionInterface $session,
         OEHttpKernel $kernel,
-        /**
-         * The base URL of the oauth2 url
-         */
         private string $authBaseFullURL,
-        /**
-         * The oauth2 endpoint url to send to once smart authorization is complete.
-         */
         private string $smartFinalRedirectURL,
-        /**
-         * The directory that the oauth template files can be included from
-         */
         private string $oauthTemplateDir,
         private Environment $twig
     ) {

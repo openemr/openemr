@@ -21,32 +21,13 @@ class GlobalsService
 {
     /**
      * GlobalsInitEvent constructor.
-     * @param $userService
-     * @param $GLOBALS_METADATA
-     * @param $USER_SPECIFIC_GLOBALS
-     * @param $USER_SPECIFIC_TABS
-     * @param mixed[] $GLOBALS_METADATA
-     * @param mixed[] $USER_SPECIFIC_GLOBALS
-     * @param mixed[] $USER_SPECIFIC_TABS
+     * @param mixed[] $globalsMetadata The entire globals structure
+     * @param mixed[] $userSpecificGlobals User-specific globals
+     * @param mixed[] $userSpecificTabs User specific tabs
      */
     public function __construct(
-        /**
-         * @var array
-         *
-         * The entire globals structure
-         */
         private $globalsMetadata,
-        /**
-         * @var array
-         *
-         * User-specific globals
-         */
         private $userSpecificGlobals,
-        /**
-         * @var array
-         *
-         *  User specific tabs
-         */
         private $userSpecificTabs
     ) {
     }

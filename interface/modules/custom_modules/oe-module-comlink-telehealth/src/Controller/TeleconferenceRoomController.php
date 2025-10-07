@@ -86,8 +86,16 @@ class TeleconferenceRoomController
     private TeleHealthUserRepository $telehealthUserRepo;
 
     /**
-     * @param bool $isPatient
-     * @param string $assetPath
+     * @param Environment $twig
+     * @param LoggerInterface $logger
+     * @param TeleHealthVideoRegistrationController $telehealthRegistrationController
+     * @param TeleHealthParticipantInvitationMailerService $mailerService
+     * @param TeleHealthFrontendSettingsController $settingsController
+     * @param TelehealthGlobalConfig $config
+     * @param TeleHealthProvisioningService $provisioningService
+     * @param ParticipantListService $participantListService
+     * @param string $assetPath The location where the module assets are stored
+     * @param bool $isPatient Whether we are running as a patient in the portal context
      */
     public function __construct(
         private Environment $twig,
@@ -98,13 +106,7 @@ class TeleconferenceRoomController
         private TelehealthGlobalConfig $config,
         private TeleHealthProvisioningService $provisioningService,
         private ParticipantListService $participantListService,
-        /**
-         * @var string The location where the module assets are stored
-         */
         private string $assetPath,
-        /**
-         * @var boolean  Whether we are running as a patient in the portal context
-         */
         private bool $isPatient = false
     ) {
         $this->appointmentService = new AppointmentService();

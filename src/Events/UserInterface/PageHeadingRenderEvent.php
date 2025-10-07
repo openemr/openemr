@@ -35,13 +35,9 @@ class PageHeadingRenderEvent extends Event
 
     /**
      * UserEditRenderEvent constructor.
-     * @param string $pageName
-     * @param int|null $userId The userid that is being edited, null if this is a brand new user
-     * @param array $context
+     * @param string $page_id The PageID being rendered
      */
-    public function __construct(/**
-         * The PageID being rendered
-         */
+    public function __construct(
         private string $page_id
     ) {
         $this->actions = [];

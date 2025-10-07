@@ -25,13 +25,7 @@ class FhirSearchParameterDefinition
     public function __construct(
         private $name,
         private $type,
-        /**
-         * @var string[]
-         */
         private $mappedFields,
-        /**
-         * @var string[]
-         */
         private $options = []
     ) {
     }

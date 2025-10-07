@@ -15,10 +15,15 @@ use Throwable;
 
 class AccessDeniedException extends \Exception
 {
+    /**
+     * @param string $requiredSection
+     * @param string $subCategory
+     * @param string $message
+     * @param int $code
+     * @param ?Throwable $previous
+     */
     public function __construct(
-        private string $requiredSection, /**
-         * @var string;
-         */
+        private string $requiredSection,
         private $subCategory = '',
         $message = "",
         $code = 0,

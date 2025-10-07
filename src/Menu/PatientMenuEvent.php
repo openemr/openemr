@@ -32,10 +32,9 @@ class PatientMenuEvent extends Event
     const MENU_RESTRICT = 'patient.menu.restrict';
 
     /**
-     * @param mixed[] $menu
+     * @param mixed[] $menu The menu list
      */
     public function __construct(
-        /** @var array The menu list */
         private $menu = []
     ) {
     }

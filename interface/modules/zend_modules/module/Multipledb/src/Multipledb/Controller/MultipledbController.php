@@ -35,10 +35,9 @@ class MultipledbController extends BaseController
 
     /**
      * MultipledbController constructor.
+     * @param MultipledbTable $MultipledbTable TableGateway for the Multipledb data.
      */
-    public function __construct(/**
-         * TableGateway for the Multipledb data.
-         */
+    public function __construct(
         private MultipledbTable $MultipledbTable
     ) {
         parent::__construct();

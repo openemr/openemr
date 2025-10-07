@@ -50,10 +50,8 @@ class DataAdapter implements IObservable
      * @access public
      * @param ConnectionSetting $csetting
      * @param Observable $listener
-     * @param
-     *          IDataDriver (optional) if not provided, then DataAdapter will attempt to instantiate one based on ConnectionSetting->Type
-     * @param
-     *          string (optional) a label for the DataAdapter used in debug messages (if empty a random label will be generated)
+     * @param ?IDataDriver $_driver (optional) if not provided, then DataAdapter will attempt to instantiate one based on ConnectionSetting->Type
+     * @param string $label (optional) a label for the DataAdapter used in debug messages (if empty a random label will be generated)
      */
     function __construct($csetting, $listener = null, private ?IDataDriver $_driver = null, $label = null)
     {
