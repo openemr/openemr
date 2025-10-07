@@ -122,9 +122,9 @@ class FhirLocationServiceIntegrationTest extends TestCase
             $exportedUuids[] = $resourceData['id'];
 
             // Determine type based on name or other identifying characteristics
-            if (strpos($resourceData['name'], 'Test Clinic') !== false) {
+            if (str_contains($resourceData['name'], 'Test Clinic')) {
                 $exportedTypes[] = 'facility';
-            } elseif (strpos($resourceData['name'], 'Group Patient') !== false) {
+            } elseif (str_contains($resourceData['name'], 'Group Patient')) {
                 $exportedTypes[] = 'patient';
             }
         }
