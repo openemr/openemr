@@ -292,7 +292,8 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
                 ,"puuid" => $record['puuid']
                 ,"uuid" => $record['uuid']
                 ,"user_uuid" => $record['user_uuid']
-                ,"date" => $record['date']
+                ,"date" => $record['start_date'] ?? $record['date']
+                ,"date_end" => $record['end_date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $profiles
                 ,"value" => $value

@@ -370,8 +370,9 @@ trait FhirObservationTrait
             $effectiveDateTime = new FHIRDateTime();
             $dateStart = UtilsService::getLocalDateAsUTC($dataRecord['date']);
             $effectiveDateTime->setValue($dateStart);
-            $observation->setEffectiveDateTime($effectiveDateTime);
 
+            // we will either have effectivePeriod
+            // OR effectiveDateTime not both
             // Set period if end date is provided
             if (DateFormatterUtils::isNotEmptyDateTimeString($dataRecord['date_end'] ?? null)) {
                 $period = new FHIRPeriod();
@@ -383,6 +384,8 @@ trait FhirObservationTrait
                 $period->setEnd($endDateTime);
 
                 $observation->setEffectivePeriod($period);
+            } else {
+                $observation->setEffectiveDateTime($effectiveDateTime);
             }
         }
     }
