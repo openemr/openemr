@@ -134,7 +134,8 @@
         "phpunit/phpunit": "^11.0",
         "rector/rector": "^2.1",
         "squizlabs/php_codesniffer": "^4.0",
-        "symfony/panther": "^2.0"
+        "symfony/panther": "^2.0",
+        "symplify/easy-coding-standard": "^12.6"
     },
     "repositories": [
         {
