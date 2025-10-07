@@ -225,9 +225,18 @@
         }
     },
     "scripts": {
+        "analyse": [
+            "php -d memory_limit=-1 vendor/bin/phpstan analyse"
+        ],
+        "check-style": [
+            "php -d memory_limit=-1 vendor/bin/ecs",
+            "php -d memory_limit=-1 vendor/bin/phpcs -p -n --extensions=php,inc --standard=ci/phpcs.xml --report=full ."
+        ],
         "checks": [
+            "@check-style",
             "composer validate",
             "composer normalize --dry-run"
-        ]
+        ],
+        "fix-style": "php -d memory_limit=-1 vendor/bin/ecs --fix"
     }
 }
