@@ -150,12 +150,12 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
-	"phpunit/php-code-coverage": "^11.0",
-        "phpunit/phpunit": "11.*",
+        "phpunit/php-code-coverage": "^11.0",
+        "phpunit/phpunit": "^11.0",
         "rector/rector": "^2.1",
         "squizlabs/php_codesniffer": "^4.0",
-        "symfony/panther": "2.*",
-        "zircote/swagger-php": "3.*"
+        "symfony/panther": "^2.0",
+        "zircote/swagger-php": "^3.0"
     },
     "repositories": [
         {
