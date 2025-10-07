@@ -64,6 +64,10 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker compose exec openemr /root/devtools build-themes
       ```
+7. Fix your code style before committing
+   - Make sure you added path of files you created into `ecs.php`, so tool able to check them
+   - Run `composer run fix-style` to fix code style automatically
+   - Run `composer run check-style` to check code style for manual fixes
 7. When you're done, it's best to clean up after yourself with `docker compose down -v`
     - If you don't want to build from scratch every time, just use `docker compose down` so your next `docker compose up` will use the cached volumes.
 8. To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
