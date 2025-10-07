@@ -31,23 +31,13 @@ class PatientFinderFilterEvent extends AbstractBoundFilterEvent
 
     /**
      * PatientFinderFilterEvent constructor.
-     * @param BoundFilter the filter object to be modified to create custom filter
-     * @param $displayedColumns
-     * @param array of ColumnFilter objects $userColumnFilters
-     * @param mixed[] $displayedColumns
-     * @param mixed[] $userColumnFilters
+     * @param BoundFilter $boundFilter the filter object to be modified to create custom filter
+     * @param mixed[] $displayedColumns Array of columns displayed on the UI of patient finder
+     * @param mixed[] $userColumnFilters Array of ColumnFilters that the end-user has created through UI
      */
     public function __construct(
-        BoundFilter $boundFilter, /**
-         * @var array
-         *
-         * Array of columns displayed on the UI of patient finder
-         */
-        private $displayedColumns, /**
-         * @var array
-         *
-         * Array of ColumnFilters that the end-user has created through UI
-         */
+        BoundFilter $boundFilter,
+        private $displayedColumns,
         private $userColumnFilters = []
     ) {
         parent::__construct($boundFilter);

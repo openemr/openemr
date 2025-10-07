@@ -24,17 +24,11 @@ class CommandRunner
     const COMMAND_SUFFIX = "Command";
 
     /**
-     * @param string $rootPath
-     * @param string $scriptName
+     * @param string $rootPath The OpenEMR root installation folder
+     * @param string $scriptName The name of the script that is calling the command runner
      */
     public function __construct(
-        /**
-         * The OpenEMR root installation folder
-         */
         private $rootPath,
-        /**
-         * The name of the script that is calling the command runner
-         */
         private $scriptName
     ) {
     }

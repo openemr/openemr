@@ -23,10 +23,11 @@ class ResultsCalculator
     protected $patient_sup_map;
     protected $measure_result_hash;
 
-    // @param [Array] patients the list of patients that are included in the aggregate results
-    // @param [String] correlation_id the id used to associate a group of patients
-    // @param [String] effective_date used when generating the query_cache_object for HDS QRDA Cat III export
-    // @param [Hash] options :individual_results are the raw results from CqmExecutionCalc
+    /**
+     * @param array $patients the list of patients that are included in the aggregate results
+     * @param mixed $correlation_id the id used to associate a group of patients
+     * @param mixed $effective_date used when generating the query_cache_object for HDS QRDA Cat III export
+     */
     public function __construct(array $patients, protected $correlation_id, protected $effective_date)
     {
         // Hash of patient_id and their supplemental information

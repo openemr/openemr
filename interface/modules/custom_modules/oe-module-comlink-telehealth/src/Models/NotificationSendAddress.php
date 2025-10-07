@@ -9,9 +9,9 @@ class NotificationSendAddress
     const TYPE_OTHER = "Other";
 
     /**
-     * @param string $name
      * @param string $destination
-     * @param 'Other' $type
+     * @param string $name
+     * @param string $type
      */
     public function __construct(private $destination, private $name = "", private $type = "Email")
     {

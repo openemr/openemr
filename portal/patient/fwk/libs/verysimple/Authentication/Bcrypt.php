@@ -22,8 +22,7 @@ class Bcrypt
     /**
      * Constructor
      *
-     * @param
-     *          int number of crypt rounds
+     * @param int $rounds number of crypt rounds
      * @throws Exception if bcrypt is not supported
      */
     public function __construct(private $rounds = 12)

@@ -38,10 +38,10 @@ class AppointmentRenderEvent extends Event
      */
     const RENDER_BEFORE_ACTION_BAR = 'appointment.render.action-bar.before';
 
+    /**
+     * @param mixed $appt
+     */
     public function __construct(
-        /**
-         * @var
-         */
         private $appt
     ) {
     }

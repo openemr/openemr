@@ -58,11 +58,9 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Default constructor.
+     * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
-    public function __construct(/**
-         * Passed in data should be vetted and fully qualified from calling service class
-         * Expect to see some search helpers here as well.
-         */
+    public function __construct(
         private $table
     ) {
         $this->fields = sqlListFields($this->table);

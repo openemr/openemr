@@ -29,10 +29,23 @@ require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 class Signature implements SignatureIF
 {
-    // note about the signature, if any
-
     private $_verification = null;
 
+    /**
+     * @param mixed $id id of the signature
+     * @param mixed $tid
+     * @param mixed $table
+     * @param mixed $isLock flag signifying whether the signable object is locked
+     * @param mixed $uid user id of the signer
+     * @param mixed $firstName first name of signer
+     * @param mixed $lastName last name of signer
+     * @param mixed $suffix suffix of signer
+     * @param mixed $valedictory aka credential of signer
+     * @param mixed $datetime date and time of the signature
+     * @param mixed $hash hash of the thing being signed on (SignableIF)
+     * @param mixed $amendment note about the signature, if any
+     * @param mixed $signatureHash hash of data in this signature
+     */
     public function __construct(
         private $id,
         private $tid,

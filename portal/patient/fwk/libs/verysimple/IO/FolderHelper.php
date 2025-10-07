@@ -22,8 +22,7 @@ class FolderHelper
      * Constructor
      *
      * @access public
-     * @param string $Path
-     *          uri to directory to manipulate
+     * @param string $Path uri to directory to manipulate
      */
     function __construct(private $Path)
     {

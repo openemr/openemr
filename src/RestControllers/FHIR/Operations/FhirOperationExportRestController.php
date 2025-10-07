@@ -81,9 +81,11 @@ class FhirOperationExportRestController
     private FhirServiceLocator $fhirServiceLocator;
 
 
-    public function __construct(/**
-         * @var HttpRestRequest The current http request object
-         */
+    /**
+     * @param HttpRestRequest $request The current http request object
+     * @param OEGlobalsBag $globalsBag
+     */
+    public function __construct(
         private HttpRestRequest $request,
         OEGlobalsBag $globalsBag
     ) {

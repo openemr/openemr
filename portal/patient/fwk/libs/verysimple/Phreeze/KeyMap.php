@@ -27,18 +27,12 @@ class KeyMap
     /**
      * Initializes the KeyMap
      *
-     * @param string $KeyName
-     *          KeyName a unique name for this key
-     * @param string $KeyProperty
-     *          KeyProperty the foreign key property
-     * @param string $ForeignObject
-     *          ForeignObject the name of the foreign model object
-     * @param string $ForeignKeyProperty
-     *          ForeignKeyProperty the primary key property of the foreign model object
-     * @param int $KeyType
-     *          Key Type (optional default = KM_TYPE_ONETOMANY)
-     * @param int $LoadType
-     *          Load Type KM_LOAD_LAZY | KM_LOAD_EAGER (optional default = KM_LOAD_LAZY)
+     * @param string $KeyName a unique name for this key
+     * @param string $KeyProperty the foreign key property
+     * @param string $ForeignObject the name of the foreign model object
+     * @param string $ForeignKeyProperty the primary key property of the foreign model object
+     * @param int $KeyType Key Type (optional default = KM_TYPE_ONETOMANY)
+     * @param int $LoadType Load Type KM_LOAD_LAZY | KM_LOAD_EAGER (optional default = KM_LOAD_LAZY)
      */
     public function __construct(public $KeyName, public $KeyProperty, public $ForeignObject, public $ForeignKeyProperty, public $KeyType = KM_TYPE_ONETOMANY, public $LoadType = KM_LOAD_LAZY)
     {

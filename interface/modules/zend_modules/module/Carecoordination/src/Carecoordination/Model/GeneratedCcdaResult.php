@@ -14,22 +14,16 @@ namespace Carecoordination\Model;
 
 class GeneratedCcdaResult
 {
+    /**
+     * @param int $id The database id from the ccda table for the generated ccda.
+     * @param string $uuid The database uuid from the ccda table for the generated ccda.
+     * @param string $filename The human readable file name for the generated ccda
+     * @param string $content The xml content for the generated ccda
+     */
     public function __construct(
-        /**
-         * @var int The database id from the ccda table for the generated ccda.
-         */
         private int $id,
-        /**
-         * @var string The database uuid from the ccda table for the generated ccda.
-         */
         private string $uuid,
-        /**
-         * @var string The human readable file name for the generated ccda
-         */
         private string $filename,
-        /**
-         * @var string The xml content for the generated ccda
-         */
         private string $content
     ) {
     }

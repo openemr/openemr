@@ -9,9 +9,16 @@
 //
 class AmcResult implements RsResultIF
 {
-    // Calculated percentage
     public $itemized_test_id;
 
+    /**
+     * @param mixed $rule
+     * @param mixed $totalPatients
+     * @param mixed $patientsInPopulation
+     * @param mixed $patientsExcluded
+     * @param mixed $patientsIncluded
+     * @param mixed $percentage Calculated percentage
+     */
     public function __construct(public $rule, public $totalPatients, public $patientsInPopulation, public $patientsExcluded, public $patientsIncluded, public $percentage)
     {
         // If itemization is turned on, then record the itemized_test_id

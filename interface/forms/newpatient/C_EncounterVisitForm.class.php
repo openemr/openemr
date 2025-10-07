@@ -54,18 +54,16 @@ class C_EncounterVisitForm
     /**
      * @param $templatePath
      * @param Kernel $kernel
-     * @param $issueTypes
-     * @param $rootdir
+     * @param array $issueTypes
+     * @param string $rootdir
+     * @param string $pageName The name to use when firing off any events for this page
      * @throws \Exception
-     * @param string $pageName
      */
     public function __construct(
         $templatePath,
         Kernel $kernel,
         private array $issueTypes,
-        private string $rootdir, /**
-         * @var string $pageName The name to use when firing off any events for this page
-         */
+        private string $rootdir,
         private string $pageName = 'newpatient/common.php'
     ) {
         // Initialize Twig

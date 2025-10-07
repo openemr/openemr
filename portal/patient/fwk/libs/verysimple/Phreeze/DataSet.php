@@ -50,14 +50,10 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * Contructor initializes the object
      *
      * @access public
-     * @param
-     *          Phreezer
-     * @param
-     *          string class of object this DataSet contains
-     * @param string $_sql
-     *          code
-     * @param
-     *          int cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
+     * @param Phreezer $preezer
+     * @param string $_objectclass class of object this DataSet contains
+     * @param string $_sql code
+     * @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
      */
     function __construct(&$preezer, protected $_objectclass, private $_sql, $cache_timeout = null)
     {

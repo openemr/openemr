@@ -17,11 +17,12 @@ use Throwable;
 class SqlQueryException extends \RuntimeException
 {
     /**
-     * @param string $sqlStatement
+     * @param string $sqlStatement The sql statement that threw an error.
+     * @param string $message
+     * @param int $code
+     * @param ?Throwable $previous
      */
-    public function __construct(/**
-         * @var string The sql statement that threw an error.
-         */
+    public function __construct(
         private $sqlStatement = "",
         $message = "",
         $code = 0,

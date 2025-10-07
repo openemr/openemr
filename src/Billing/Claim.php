@@ -1,6 +1,7 @@
 <?php
 
-/* Claim Class
+/**
+ * Claim Class
  *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
@@ -23,7 +24,8 @@ use OpenEMR\Services\UserService;
 class Claim
 {
     public const X12_VERSION = '005010X222A1';
-    public const NOC_CODES = ['J3301'];      // encounter id
+    public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
+
     public $procs;             // array of procedure rows from billing table
     public $diags;             // array of icd codes from billing table
     public $diagtype = "ICD10"; // diagnosis code_type; safe to assume ICD10 now
@@ -50,6 +52,11 @@ class Claim
     public $using_modifiers;
 
 
+    /**
+     * @param $pid patient id
+     * @param $encounter_id encounter id
+     * @param $x12_partner_id
+     */
     public function __construct(public $pid, public $encounter_id, $x12_partner_id)
     {
         $this->encounterService = new EncounterService();

@@ -59,9 +59,11 @@ class Bootstrap
      */
     private $logger;
 
-    public function __construct(/**
-         * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-         */
+    /**
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param ?Kernel $kernel
+     */
+    public function __construct(
         private EventDispatcherInterface $eventDispatcher,
         ?Kernel $kernel = null
     ) {

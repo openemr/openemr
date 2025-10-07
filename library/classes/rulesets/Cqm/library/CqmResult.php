@@ -9,10 +9,20 @@
 //
 class CqmResult implements RsResultIF
 {
-    // Calculated percentage
-
     public $itemized_test_id;
 
+    /**
+     * @param mixed $rule
+     * @param mixed $numeratorLabel
+     * @param mixed $populationLabel
+     * @param mixed $totalPatients
+     * @param mixed $denominator
+     * @param mixed $denom_exclusion
+     * @param mixed $numerator
+     * @param mixed $percentage Calculated percentage
+     * @param mixed $ipp
+     * @param mixed $denom_exception
+     */
     public function __construct(public $rule, public $numeratorLabel, public $populationLabel, public $totalPatients, public $denominator, public $denom_exclusion, public $numerator, public $percentage, public $ipp, public $denom_exception)
     {
         // If itemization is turned on, then record the itemized_test_id

@@ -31,10 +31,10 @@ class AppointmentSetEvent extends Event
 
     public $eid;
 
+    /**
+     * @param mixed $post
+     */
     public function __construct(
-        /**
-         * @var
-         */
         private $post
     ) {
     }

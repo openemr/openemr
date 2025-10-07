@@ -21,13 +21,13 @@ class TokenSearchValue
     private $code;
 
     /**
+     * @param mixed $code
      * @param string $system
+     * @param bool $isUuid
      */
     public function __construct(
         $code,
-        private $system = null, /**
-         * @var
-         */
+        private $system = null,
         private $isUuid = false
     ) {
         $this->setCode($code);

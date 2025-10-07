@@ -28,14 +28,12 @@ final class CDAPostParseEvent extends Event
     /**
      *
      * @param string $componentName
+     * @param string $oid The OID of the template
      * @param array $component
      * @param array $templateData
      */
     public function __construct(
         private string $componentName,
-        /**
-         * @var string The OID of the template
-         */
         private string $oid,
         private array $component,
         private array $templateData

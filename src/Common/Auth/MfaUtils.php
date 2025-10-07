@@ -25,14 +25,14 @@ class MfaUtils
     private $regs;
     private $registrations;
     private $var1U2F;
-    private $var1TOTP; // User Id who try connect
+    private $var1TOTP;
     private $errorMsg = '';
     private $appId;
 
     /**
      * MfaUtils constructor.
      * Load the settings of user from login_mfa_registrations
-     * @param $uid - user Id
+     * @param $uid User Id who try connect
      */
     public function __construct(private $uid)
     {

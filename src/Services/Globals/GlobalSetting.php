@@ -95,13 +95,14 @@ class GlobalSetting
     protected $fieldOptions = [];
 
     /**
-     * @param string $dataType
+     * @param mixed $label
+     * @param string $dataType The field type that this value can be.  Valid options include 'bool', 'color_code',
+     * @param mixed $default
+     * @param mixed $description
+     * @param bool $isUserSetting
      */
     public function __construct(
         protected $label,
-        /**
-         * @var string The field type that this value can be.  Valid options include 'bool', 'color_code',
-         */
         protected $dataType,
         protected $default,
         protected $description,
