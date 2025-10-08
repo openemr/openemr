@@ -2,7 +2,8 @@
 
 /**
  * FhirObservationLaboratoryService.php
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -81,6 +82,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
+
     public function getCodeFromResourcePath($resourcePath)
     {
         $query_vars = [];
@@ -180,7 +182,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @param $encode     Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -251,7 +253,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                 if (!empty($unit)) {
                     if ($unit === 'in') {
                         $unit = 'in_i';
-                    } else if ($unit === 'lb') {
+                    } elseif ($unit === 'lb') {
                         $unit = 'lb_av';
                     }
                     $quantity->setUnit($unit);
@@ -304,13 +306,12 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             // Optional: Add a note if there are multiple specimens
             if (count($dataRecord['specimens']) > 1) {
                 $specimenNote = "Multiple specimens collected: ";
-                $specimenIdentifiers = array_map(fn($spec) => $spec['identifier'] ?? $spec['type'] ?? 'Unknown', $dataRecord['specimens']);
+                $specimenIdentifiers = array_map(fn($spec): mixed => $spec['identifier'] ?? $spec['type'] ?? 'Unknown', $dataRecord['specimens']);
                 $specimenNote .= implode(', ', $specimenIdentifiers);
                 $observation->addNote(['text' => $specimenNote]);
             }
-        }
-        // Legacy support: single specimen object (backward compatibility)
-        elseif (!empty($dataRecord['specimen']['uuid'])) {
+        } elseif (!empty($dataRecord['specimen']['uuid'])) {
+            // Legacy support: single specimen object (backward compatibility)
             $observation->setSpecimen(
                 UtilsService::createRelativeReference('Specimen', $dataRecord['specimen']['uuid'])
             );
@@ -338,6 +339,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         }
         return "unknown";
     }
+
     private function getDescriptionForCode($code)
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
