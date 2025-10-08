@@ -208,7 +208,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert($statement, $binds = [])
+    public static function sqlInsert($statement, $binds = []): int
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
