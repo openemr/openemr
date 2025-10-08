@@ -19,7 +19,7 @@ $specimen_by_seq = $specimen_by_seq ?? [];
 $oprow = $oprow ?? null;
 
 $seq = (int)($oprow['procedure_order_seq'] ?? 0);
-$rows = $specimen_by_seq[$seq] ?? [];
+$rows = $specimen_by_seq[$seq];
 ?>
 <tr class="specimenContainer collapse" id="specimen_code_<?php echo attr($i); ?>">
     <td colspan="6" class="bg-light">
