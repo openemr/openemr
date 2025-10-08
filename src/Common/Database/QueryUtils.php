@@ -298,6 +298,11 @@ class QueryUtils
         return \sqlGetLastInsertId();
     }
 
+    public static function getAffectedRows(): int
+    {
+        return (int) $GLOBALS['adodb']['db']->affected_rows();
+    }
+
     public static function querySingleRow(string $sql, array $params = [])
     {
         $result = self::sqlStatementThrowException($sql, $params);
