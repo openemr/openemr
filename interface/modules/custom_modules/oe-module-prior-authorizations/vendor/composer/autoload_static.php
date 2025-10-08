@@ -6,27 +6,29 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
 {
-    public static $prefixLengthsPsr4 =  [
-        'J' =>
-         [
+    public static $prefixLengthsPsr4 = array (
+        'J' => 
+        array (
             'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => 43,
-        ],
-    ];
+        ),
+    );
 
-    public static $prefixDirsPsr4 =  [
-        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' =>
-         [
+    public static $prefixDirsPsr4 = array (
+        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => 
+        array (
             0 => __DIR__ . '/../..' . '/src',
-        ],
-    ];
+        ),
+    );
 
-    public static $classMap =  [
+    public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-    ];
+        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\Controller\\AuthorizationService' => __DIR__ . '/../..' . '/src/Controller/AuthorizationService.php',
+        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\Controller\\ListAuthorizations' => __DIR__ . '/../..' . '/src/Controller/ListAuthorizations.php',
+    );
 
     public static function getInitializer(ClassLoader $loader)
     {
-        return \Closure::bind(function () use ($loader): void {
+        return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$classMap;

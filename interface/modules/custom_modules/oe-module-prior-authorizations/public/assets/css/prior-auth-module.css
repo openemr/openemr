@@ -1,0 +1,405 @@
+/**
+ * Prior Authorization Module - Modern CSS with FIXED Color Palette
+ * Provides modern styling with proper contrast and readability
+ */
+
+:root {
+  /* Light, readable color palette */
+  --pa-primary: #0066cc;
+  --pa-primary-dark: #0052a3;
+  --pa-primary-light: #e6f0ff;
+  --pa-secondary: #6c757d;
+  --pa-success: #28a745;
+  --pa-success-light: #d4edda;
+  --pa-warning: #ffc107;
+  --pa-warning-light: #fff3cd;
+  --pa-danger: #dc3545;
+  --pa-danger-light: #f8d7da;
+  --pa-info: #17a2b8;
+  --pa-info-light: #d1ecf1;
+  
+  /* Background colors - light and readable */
+  --pa-bg-primary: #ffffff;
+  --pa-bg-secondary: #f8f9fa;
+  --pa-bg-light: #e9ecef;
+  --pa-text-primary: #212529;
+  --pa-text-secondary: #6c757d;
+  --pa-text-muted: #868e96;
+  
+  /* Progress Bar Colors */
+  --pa-progress-high: #28a745;
+  --pa-progress-medium: #ffc107;
+  --pa-progress-low: #dc3545;
+  
+  /* Spacing */
+  --pa-spacing-xs: 0.25rem;
+  --pa-spacing-sm: 0.5rem;
+  --pa-spacing-md: 1rem;
+  --pa-spacing-lg: 1.5rem;
+  --pa-spacing-xl: 2rem;
+  --pa-spacing-xxl: 3rem;
+  
+  /* Border Radius */
+  --pa-border-radius: 0.375rem;
+  --pa-border-radius-lg: 0.5rem;
+  --pa-border-radius-pill: 50rem;
+  
+  /* Borders */
+  --pa-border-color: #dee2e6;
+  --pa-border-color-light: #e9ecef;
+  
+  /* Shadows */
+  --pa-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --pa-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --pa-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  
+  /* Transitions */
+  --pa-transition-base: all 0.3s ease;
+  --pa-transition-fast: all 0.15s ease;
+}
+
+/* Base body styling - light background */
+.pa-body {
+  background: var(--pa-bg-secondary) !important;
+  color: var(--pa-text-primary) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Modern Card System - WHITE backgrounds */
+.pa-card {
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+  border-radius: var(--pa-border-radius-lg);
+  box-shadow: var(--pa-shadow);
+  border: 1px solid var(--pa-border-color);
+  transition: var(--pa-transition-base);
+  overflow: hidden;
+  margin-bottom: var(--pa-spacing-lg);
+}
+
+.pa-card:hover {
+  box-shadow: var(--pa-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.pa-card-header {
+  background: linear-gradient(135deg, var(--pa-primary-light) 0%, #ffffff 100%) !important;
+  color: var(--pa-text-primary) !important;
+  border-bottom: 1px solid var(--pa-border-color);
+  padding: var(--pa-spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pa-card-body {
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+  padding: var(--pa-spacing-lg);
+}
+
+.pa-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--pa-text-primary) !important;
+  display: flex;
+  align-items: center;
+  gap: var(--pa-spacing-sm);
+}
+
+.pa-card-title i {
+  color: var(--pa-primary);
+}
+
+/* Enhanced Form Styling with WHITE backgrounds */
+.pa-form-floating {
+  position: relative;
+  margin-bottom: var(--pa-spacing-lg);
+}
+
+.pa-form-floating > .form-control {
+  height: 3.25rem;
+  padding: 1rem 0.75rem 0.25rem;
+  border: 2px solid var(--pa-border-color);
+  border-radius: var(--pa-border-radius);
+  transition: var(--pa-transition-fast);
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+}
+
+.pa-form-floating > .form-control:focus {
+  border-color: var(--pa-primary);
+  box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+}
+
+.pa-form-floating > label {
+  position: absolute;
+  top: 1rem;
+  left: 0.75rem;
+  height: 1.5rem;
+  padding: 0 0.25rem;
+  background: var(--pa-bg-primary);
+  color: var(--pa-text-secondary) !important;
+  font-size: 0.875rem;
+  transition: var(--pa-transition-fast);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.pa-form-floating > .form-control:focus ~ label,
+.pa-form-floating > .form-control:not(:placeholder-shown) ~ label {
+  color: var(--pa-primary) !important;
+  transform: scale(0.85) translateY(-1.25rem) translateX(-0.15rem);
+}
+
+/* Modern Button System with better contrast */
+.pa-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--pa-border-radius);
+  font-weight: 500;
+  transition: var(--pa-transition-fast);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-spacing-sm);
+  text-decoration: none;
+}
+
+.pa-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--pa-shadow);
+  text-decoration: none;
+}
+
+.pa-btn-primary {
+  background: var(--pa-primary) !important;
+  color: white !important;
+}
+
+.pa-btn-primary:hover {
+  background: var(--pa-primary-dark) !important;
+  color: white !important;
+}
+
+.pa-btn-success {
+  background: var(--pa-success) !important;
+  color: white !important;
+}
+
+.pa-btn-danger {
+  background: var(--pa-danger) !important;
+  color: white !important;
+}
+
+.pa-btn-outline {
+  background: var(--pa-bg-primary) !important;
+  border: 2px solid var(--pa-primary) !important;
+  color: var(--pa-primary) !important;
+}
+
+.pa-btn-outline:hover {
+  background: var(--pa-primary) !important;
+  color: white !important;
+}
+
+/* Enhanced Progress Bars */
+.pa-progress-container {
+  position: relative;
+  background: var(--pa-bg-light);
+  border-radius: var(--pa-border-radius-pill);
+  height: 1.5rem;
+  border: 1px solid var(--pa-border-color);
+  overflow: hidden;
+}
+
+.pa-progress-bar {
+  height: 100%;
+  border-radius: var(--pa-border-radius-pill);
+  transition: width 0.6s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pa-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--pa-text-primary) !important;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Enhanced Table Styling with WHITE backgrounds */
+.pa-table-container {
+  background: var(--pa-bg-primary) !important;
+  border-radius: var(--pa-border-radius-lg);
+  box-shadow: var(--pa-shadow);
+  overflow: hidden;
+  border: 1px solid var(--pa-border-color);
+}
+
+.pa-table {
+  margin: 0;
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+}
+
+.pa-table thead th {
+  background: var(--pa-primary-light) !important;
+  color: var(--pa-text-primary) !important;
+  border: none;
+  font-weight: 600;
+  padding: 1rem;
+  position: relative;
+}
+
+.pa-table tbody tr {
+  transition: var(--pa-transition-fast);
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+}
+
+.pa-table tbody tr:hover {
+  background: var(--pa-primary-light) !important;
+  color: var(--pa-text-primary) !important;
+}
+
+.pa-table tbody td {
+  padding: 1rem;
+  border-top: 1px solid var(--pa-border-color);
+  vertical-align: middle;
+  background: inherit !important;
+  color: inherit !important;
+}
+
+/* Enhanced Alerts */
+.pa-alert {
+  border-radius: var(--pa-border-radius-lg);
+  padding: var(--pa-spacing-lg);
+  margin-bottom: var(--pa-spacing-lg);
+  border: 1px solid;
+}
+
+.pa-alert-success {
+  background: var(--pa-success-light) !important;
+  color: #155724 !important;
+  border-color: var(--pa-success);
+}
+
+.pa-alert-warning {
+  background: var(--pa-warning-light) !important;
+  color: #856404 !important;
+  border-color: var(--pa-warning);
+}
+
+.pa-alert-danger {
+  background: var(--pa-danger-light) !important;
+  color: #721c24 !important;
+  border-color: var(--pa-danger);
+}
+
+.pa-alert-info {
+  background: var(--pa-info-light) !important;
+  color: #0c5460 !important;
+  border-color: var(--pa-info);
+}
+
+/* Loading States */
+.pa-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 102, 204, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--pa-primary);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state styling */
+.text-center {
+  color: var(--pa-text-primary) !important;
+}
+
+.text-muted {
+  color: var(--pa-text-muted) !important;
+}
+
+/* Badge styling */
+.badge {
+  color: white !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--pa-primary) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--pa-secondary) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pa-card-header {
+    flex-direction: column;
+    gap: var(--pa-spacing-sm);
+    text-align: center;
+  }
+  
+  .pa-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .pa-table-container {
+    overflow-x: auto;
+  }
+  
+  .pa-progress-container {
+    min-width: 100px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .pa-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    background: white !important;
+  }
+  
+  .pa-btn {
+    display: none;
+  }
+}
+
+/* Force light backgrounds and dark text throughout */
+* {
+  color: inherit;
+}
+
+input, textarea, select {
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-primary) !important;
+}
+
+/* Override any dark styling */
+.container, .container-fluid {
+  background: transparent !important;
+}
+
+/* Ensure footer is readable */
+.pa-footer {
+  background: var(--pa-bg-primary) !important;
+  color: var(--pa-text-secondary) !important;
+  border-top: 1px solid var(--pa-border-color);
+}
