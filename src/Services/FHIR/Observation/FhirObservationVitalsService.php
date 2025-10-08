@@ -94,7 +94,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'column' => ''
             ,'in_vitals_panel' => false
             ,'profiles' => [
-                self::USCDI_PROFILE_VITAL_SIGNS_V3_1_1 => ['', self::PROFILE_VERSIONS_V1]
+                self::USCDI_PROFILE_VITAL_SIGNS_V3_1_1 => self::PROFILE_VERSIONS_V1
                 , self::USCDI_PROFILE_VITAL_SIGNS => self::PROFILE_VERSIONS_V2
             ]
         ],

@@ -63,7 +63,7 @@ class BaseService implements BaseServiceInterface
     public function __construct(
         private $table
     ) {
-        $this->fields = sqlListFields($this->table);
+        $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();

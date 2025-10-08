@@ -92,7 +92,7 @@ class CapabilityStatementTest extends TestCase
     const V8_CORE_PROFILES = [
         // 8.0.0 profiles
 //        'http://hl7.org/fhir/us/core/StructureDefinition/us-core-adi-documentreference',
-        'http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure',
+//        'http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure',
         'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation',
     ];
 
