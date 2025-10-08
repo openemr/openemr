@@ -38,10 +38,10 @@
  */
 class xmltoarray_parser_htmlfix
 {
-    var $values;
-    var $index;
-    var $thearray;
-    var $parser;
+    public $values;
+    public $index;
+    public $thearray;
+    public $parser;
 
     /**
      * Default constructor for xmltoarray_parser_htmlfix.

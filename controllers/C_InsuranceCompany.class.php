@@ -5,15 +5,13 @@ use OpenEMR\Services\InsuranceCompanyService;
 
 class C_InsuranceCompany extends Controller
 {
-    var $template_mod;
-    var $icompanies;
-    var $InsuranceCompany;
+    public $icompanies;
+    public $InsuranceCompany;
 
-    public function __construct($template_mod = "general")
+    public function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->icompanies = [];
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&");

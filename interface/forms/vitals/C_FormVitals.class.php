@@ -30,11 +30,9 @@ class C_FormVitals
      */
     public $vitals;
 
-    var $template_dir;
-    var $form_id;
-    var $units_of_measurement;
-    var $template_mod;
-    var $context;
+    public $template_dir;
+    public $form_id;
+    public $units_of_measurement;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -44,13 +42,11 @@ class C_FormVitals
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general", $context = '')
+    public function __construct(public $template_mod = "general", public $context = '')
     {
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
-        $this->context = $context;
     }
 
     public function setFormId($form_id)

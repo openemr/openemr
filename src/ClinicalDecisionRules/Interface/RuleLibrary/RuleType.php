@@ -16,19 +16,14 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class RuleType
 {
-    var $code;
-    var $lbl;
-
     const ActiveAlert = "activealert";
     const PassiveAlert = "passivealert";
     const CQM = "cqm";
     const AMC = "amc";
     const PatientReminder = "patientreminder";
 
-    function __construct($code, $lbl)
+    function __construct(public $code, public $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**

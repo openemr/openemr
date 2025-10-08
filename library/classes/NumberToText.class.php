@@ -33,17 +33,8 @@ define("N2T_NEGATIVE", "negative");
 
 class NumberToText
 {
-    var $number;
-    var $currency;
-    var $capatalize;
-    var $and;
-
-    function __construct($number, $currency = false, $capatalize = false, $and = false)
+    function __construct(public $number, public $currency = false, public $capatalize = false, public $and = false)
     {
-        $this->number = $number;
-        $this->currency = $currency;
-        $this->capatalize = $capatalize;
-        $this->and = $and;
     }
 
     /** Number to text converter. Converts a number into a textual description, such as

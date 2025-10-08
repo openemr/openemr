@@ -68,7 +68,7 @@ class HTML_TreeMenu
     * Indexed array of subnodes
     * @var array
     */
-    var $items;
+    public $items;
 
     /**
     * Constructor
@@ -251,84 +251,69 @@ class HTML_TreeNode
     * The text for this node.
     * @var string
     */
-    var $text;
+    public $text;
 
     /**
     * The link for this node.
     * @var string
     */
-    var $link;
+    public $link;
 
     /**
     * The icon for this node.
     * @var string
     */
-    var $icon;
+    public $icon;
 
     /**
     * The icon to show when expanded for this node.
     * @var string
     */
-    var $expandedIcon;
+    public $expandedIcon;
 
     /**
     * The css class for this node
     * @var string
     */
-    var $cssClass;
+    public $cssClass;
 
     /**
     * The link target for this node
     * @var string
     */
-    var $linkTarget;
+    public $linkTarget;
 
     /**
     * Indexed array of subnodes
     * @var array
     */
-    var $items;
+    public $items;
 
     /**
     * Whether this node is expanded or not
     * @var bool
     */
-    var $expanded;
+    public $expanded;
 
     /**
     * Whether this node is dynamic or not
     * @var bool
     */
-    var $isDynamic;
+    public $isDynamic;
 
     /**
     * Should this node be made visible?
     * @var bool
     */
-    var $ensureVisible;
+    public $ensureVisible;
 
     /**
     * The parent node. Null if top level
     * @var object
     */
-    var $parent;
+    public $parent;
 
-    /**
-    * Unique ID of this node
-    * @var int
-    */
-    //commented out because it was causing Documents page to not show
-   //because of this redeclaration of $parent.  I do not know what the
-  // author's intention was in using this name twice or if it was a mistake
-    //var $parent;
-
-    /**
-    * Javascript event handlers;
-    * @var array
-    */
-    var $events;
-
-    var $id;
+    public $id;
 
     /**
     * Constructor
@@ -355,7 +340,7 @@ class HTML_TreeNode
     *                       for the 'onexpand', 'oncollapse' and 'ontoggle' events which will be fired
     *                       whenever a node is collapsed and/or expanded.
     */
-    function __construct($options = [], $events = [])
+    function __construct($options = [], public $events = [])
     {
         $this->text          = '';
         $this->link          = '';
@@ -369,7 +354,6 @@ class HTML_TreeNode
         $this->id            = null;
 
         $this->parent        = null;
-        $this->events        = $events;
 
         foreach ($options as $option => $value) {
             $this->$option = $value;
@@ -448,7 +432,7 @@ class HTML_TreeMenu_Presentation
     * The TreeMenu structure
     * @var object
     */
-    var $menu;
+    public $menu;
 
     /**
     * Base constructor simply sets the menu object
@@ -492,43 +476,36 @@ class HTML_TreeMenu_Presentation
 class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
 {
     /**
-    * Dynamic status of the treemenu. If true (default) this has no effect. If
-    * false it will override all dynamic status vars and set the menu to be
-    * fully expanded an non-dynamic.
-    */
-    var $isDynamic;
-
-    /**
     * Path to the images
     * @var string
     */
-    var $images;
+    public $images;
 
     /**
     * Target for the links generated
     * @var string
     */
-    var $linkTarget;
+    public $linkTarget;
 
     /**
     * Whether to use clientside persistence or not
     * @var bool
     */
-    var $userPersistence;
+    public $userPersistence;
 
     /**
     * The default CSS class for the nodes
     */
-    var $defaultClass;
+    public $defaultClass;
 
     /**
     * Whether to skip first level branch images
     * @var bool
     */
-    var $noTopLevelImages;
+    public $noTopLevelImages;
 
-    var $maxDepth;
-    var $usePersistence;
+    public $maxDepth;
+    public $usePersistence;
 
     /**
     * Constructor, takes the tree structure as
@@ -552,10 +529,9 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     * @param array  $options   Array of options
     * @param bool   $isDynamic Whether the tree is dynamic or not
     */
-    function __construct(&$structure, $options = [], $isDynamic = true)
+    function __construct(&$structure, $options = [], public $isDynamic = true)
     {
         parent::__construct($structure);
-        $this->isDynamic = $isDynamic;
 
         // Defaults
         $this->images           = 'public/images';
@@ -682,28 +658,28 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     * The text that is displayed in the first option
     * @var string
     */
-    var $promoText;
+    public $promoText;
 
     /**
     * The character used for indentation
     * @var string
     */
-    var $indentChar;
+    public $indentChar;
 
     /**
     * How many of the indent chars to use
     * per indentation level
     * @var integer
     */
-    var $indentNum;
+    public $indentNum;
 
     /**
     * Target for the links generated
     * @var string
     */
-    var $linkTarget;
+    public $linkTarget;
 
-    var $submitText;
+    public $submitText;
 
     /**
     * Constructor

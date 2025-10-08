@@ -63,22 +63,22 @@
 class PDF_Label extends FPDF {
 
 	// Private properties
-	var $_Margin_Left;			// Left margin of labels
-	var $_Margin_Top;			// Top margin of labels
-	var $_X_Space;				// Horizontal space between 2 labels
-	var $_Y_Space;				// Vertical space between 2 labels
-	var $_X_Number;				// Number of labels horizontally
-	var $_Y_Number;				// Number of labels vertically
-	var $_Width;				// Width of label
-	var $_Height;				// Height of label
-	var $_Line_Height;			// Line height
-	var $_Padding;				// Padding
-	var $_Metric_Doc;			// Type of metric for the document
-	var $_COUNTX;				// Current x position
-	var $_COUNTY;				// Current y position
+	public $_Margin_Left;			// Left margin of labels
+	public $_Margin_Top;			// Top margin of labels
+	public $_X_Space;				// Horizontal space between 2 labels
+	public $_Y_Space;				// Vertical space between 2 labels
+	public $_X_Number;				// Number of labels horizontally
+	public $_Y_Number;				// Number of labels vertically
+	public $_Width;				// Width of label
+	public $_Height;				// Height of label
+	public $_Line_Height;			// Line height
+	public $_Padding;				// Padding
+	public $_Metric_Doc;			// Type of metric for the document
+	public $_COUNTX;				// Current x position
+	public $_COUNTY;				// Current y position
 
 	// List of label formats
-	var $_Avery_Labels = [
+	public $_Avery_Labels = [
 		'5160' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>1.762,	'marginTop'=>10.7,		'NX'=>3,	'NY'=>10,	'SpaceX'=>3.175,	'SpaceY'=>0,	'width'=>66.675,	'height'=>25.4,		'font-size'=>10],
 		'5161' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>0.967,	'marginTop'=>10.7,		'NX'=>2,	'NY'=>10,	'SpaceX'=>3.967,	'SpaceY'=>0,	'width'=>101.6,		'height'=>25.4,		'font-size'=>10],
 		'5162' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>0.97,		'marginTop'=>20.224,	'NX'=>2,	'NY'=>7,	'SpaceX'=>4.762,	'SpaceY'=>0,	'width'=>100.807,	'height'=>35.72,	'font-size'=>10],

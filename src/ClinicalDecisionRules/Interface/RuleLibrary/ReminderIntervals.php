@@ -20,7 +20,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
  */
 class ReminderIntervals
 {
-    var $detailMap;
+    public $detailMap;
 
     function __construct()
     {

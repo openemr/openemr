@@ -24,24 +24,22 @@ use OpenEMR\Common\ORDataObject\Address;
 
 class Pharmacy extends ORDataObject
 {
-    var $id;
-    var $name;
-    var $phone_numbers;
-    var $address;
-    var $transmit_method;
-    var $email;
-    var $transmit_method_array; //set in constructor
-    var $pageno;
-    var $state;
-    var $npi;
-    var $ncpdp;
+    public $name;
+    public $phone_numbers;
+    public $address;
+    public $transmit_method;
+    public $email;
+    public $transmit_method_array; //set in constructor
+    public $pageno;
+    public $state;
+    public $npi;
+    public $ncpdp;
 
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct($id = "", $prefix = "")
+    function __construct(public $id = "", $prefix = "")
     {
-        $this->id = $id;
         $this->state = $this->getState();
         $this->name = "";
         $this->email = "";
@@ -52,7 +50,7 @@ class Pharmacy extends ORDataObject
         $phone->set_type(TYPE_WORK);
         $this->phone_numbers = [$phone];
         $this->address = new Address();
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }

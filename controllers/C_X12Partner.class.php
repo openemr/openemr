@@ -16,15 +16,13 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 class C_X12Partner extends Controller
 {
-    var $template_mod;
-    var $providers;
-    var $x12_partners;
+    public $providers;
+    public $x12_partners;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->x12_partners = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&");
         $this->assign("STYLE", $GLOBALS['style']);

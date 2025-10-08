@@ -34,56 +34,56 @@ abstract class AbstractClickmapModel extends ORDataObject
      *
      * @var id
      */
-    var $id;
+    public $id;
     /**
      *
      * FIXME: either last modification date OR creation date?
      *
      * @var date
      */
-    var $date;
+    public $date;
     /**
      *
      * The unique identifier of the patient this form belongs to.
      *
      * @var pid
      */
-    var $pid;
+    public $pid;
     /**
      *
      * required field in database table. not used, always defaulted to NULL.
      *
      * @var user
      */
-    var $user;
+    public $user;
     /**
      *
      * required field in database table. not used, always defaulted to NULL.
      *
      * @var groupname
      */
-    var $groupname;
+    public $groupname;
     /**
      *
      * required field in the database table. always defaulted to NULL.
      *
      * @var authorized
      */
-    var $authorized;
+    public $authorized;
     /**
      *
      * required field in the database table. always defaulted to NULL.
      *
      * @var activity
      */
-    var $activity;
+    public $activity;
     /**
      *
      * The contents of our form, in one field.
      *
      * @var data
      */
-    var $data;
+    public $data;
 
     /**
      * @brief Initialize a newly created object belonging to this class

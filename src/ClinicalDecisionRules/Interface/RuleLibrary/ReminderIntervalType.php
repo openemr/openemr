@@ -15,13 +15,8 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class ReminderIntervalType
 {
-    var $code;
-    var $lbl;
-
-    function __construct($code, $lbl)
+    function __construct(public $code, public $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**

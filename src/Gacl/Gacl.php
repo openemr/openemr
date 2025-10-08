@@ -38,43 +38,43 @@ class Gacl {
 	/*
 	--- phpGACL Configuration path/file ---
 	*/
-	var $config_file = '';
+	public $config_file = '';
 
 	/*
 	--- Private properties ---
 	*/
 	/** @var boolean Enables Debug output if true */
-	var $_debug = FALSE;
+	public $_debug = FALSE;
 
 	/*
 	--- Database configuration. ---
 	*/
 	/** @var string Prefix for all the phpgacl tables in the database */
-	var $_db_table_prefix = 'gacl_';
+	public $_db_table_prefix = 'gacl_';
 
 	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-	var $_db_type = 'mysqli';
+	public $_db_type = 'mysqli';
 
 	/** @var string The database server */
-	var $_db_host = '';
+	public $_db_host = '';
 
 	/** @var string The database user name */
-	var $_db_user = '';
+	public $_db_user = '';
 
 	/** @var string The database user password */
-	var $_db_password = '';
+	public $_db_password = '';
 
 	/** @var string The database name */
-	var $_db_name = '';
+	public $_db_name = '';
 
 	/** @var object An ADODB database connector object */
-	var $_db = '';
+	public $_db = '';
 
     /** @var boolean The utf8 encoding flag */
-    var $_db_encoding_setting = '';
+    public $_db_encoding_setting = '';
 
     /** @var object An ADODB database connector object */
-    var $db;
+    public $db;
 
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
@@ -82,19 +82,19 @@ class Gacl {
 	 */
 
 	/** @var boolean Caches queries if true */
-	var $_caching = FALSE;
+	public $_caching = FALSE;
 
 	/** @var boolean Force cache to expire */
-	var $_force_cache_expire = TRUE;
+	public $_force_cache_expire = TRUE;
 
 	/** @var string The directory for cache file to eb written (ensure write permission are set) */
-	var $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
+	public $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 
 	/** @var int The time for the cache to expire in seconds - 600 == Ten Minutes */
-	var $_cache_expire_time=600;
+	public $_cache_expire_time=600;
 
 	/** @var string A switch to put acl_check into '_group_' mode */
-	var $_group_switch = '_group_';
+	public $_group_switch = '_group_';
 
 	/**
 	 * Constructor

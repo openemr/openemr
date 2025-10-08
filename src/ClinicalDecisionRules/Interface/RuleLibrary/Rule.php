@@ -126,27 +126,27 @@ class Rule
     /**
      * @var ReminderIntervals
      */
-    var $reminderIntervals;
+    public $reminderIntervals;
 
     /**
      * @var RuleFilters
      */
-    var $filters;
+    public $filters;
 
     /**
      * @var RuleTargetActionGroups
      */
-    var $groups;
+    public $groups;
 
     /**
      * @var RuleTargets
      */
-    var $targets;
+    public $targets;
 
     /**
      * @var RuleActions
      */
-    var $actions;
+    public $actions;
 
     /**
      * User provided feedback on an applied rule instance
