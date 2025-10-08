@@ -14780,10 +14780,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: library/classes/fpdf/fpdf.php
-  - message: '#^Variable \$colspace might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: library/classes/fpdf/fpdf.php
   - message: '#^Variable \$ls might not be defined\.$#'
     identifier: variable.undefined
     count: 1

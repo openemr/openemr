@@ -339,7 +339,7 @@ class BaseService implements BaseServiceInterface
      * @param $type                 - Type of Exception
      * @throws InvalidValueException
      */
-    public static function throwException($message, $type = "Error")
+    public static function throwException($message, $type = "Error"): never
     {
         throw new InvalidValueException($message, $type);
     }

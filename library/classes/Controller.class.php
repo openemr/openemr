@@ -63,7 +63,7 @@ class Controller extends Smarty
             return true;
     }
 
-    public function function_argument_error()
+    public function function_argument_error(): never
     {
          $this->display($GLOBALS['template_dir'] . "error/" . $this->template_mod . "_function_argument.html");
          exit;

@@ -269,7 +269,7 @@ function AliasNbPages($alias='{nb}')
 	$this->AliasNbPages = $alias;
 }
 
-function Error($msg)
+function Error($msg): never
 {
 	// Fatal error
 	throw new Exception('FPDF error: '.$msg);

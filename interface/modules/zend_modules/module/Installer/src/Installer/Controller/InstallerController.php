@@ -515,7 +515,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return void
      */
-    public function nickNameAction()
+    public function nickNameAction(): never
     {
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;

@@ -114,7 +114,7 @@ class MultipledbController extends BaseController
         ]);
     }
 
-    public function checknamespacejsonAction()
+    public function checknamespacejsonAction(): never
     {
         $this->checkAcl('write');
         $namespace = $_REQUEST['namespace'];
