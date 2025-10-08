@@ -44,11 +44,14 @@ if (!empty($_POST['confirm'])) {
         sqlStatement($sql, [$_POST['id']]);
       // set the procedure order to deleted
         $sql = "update procedure_order p
-                left join
-                       forms f
+                left join forms f
                 on f.form_id = p.procedure_order_id
                 set activity=0
                 where f.id=?";
+        sqlStatement($sql, [$_POST['id']]);
+        $sql = "update procedure_specimen p
+                set deleted=1
+                where `procedure_order_id`=?";
         sqlStatement($sql, [$_POST['id']]);
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(

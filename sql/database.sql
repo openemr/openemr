@@ -9613,7 +9613,7 @@ CREATE TABLE `procedure_order` (
   `procedure_order_type`   varchar(32)      NOT NULL DEFAULT 'laboratory_test',
   PRIMARY KEY (`procedure_order_id`),
   UNIQUE KEY `uuid` (`uuid`),
-  KEY datepid (date_ordered, patient_id),
+  KEY `datepid` (`date_ordered`,`patient_id`),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB;
 
@@ -9714,6 +9714,46 @@ CREATE TABLE `procedure_result` (
   PRIMARY KEY (`procedure_result_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY procedure_report_id (procedure_report_id)
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_specimen`
+--
+
+DROP TABLE IF EXISTS `procedure_specimen`;
+CREATE TABLE `procedure_specimen` (
+  `procedure_specimen_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'record id',
+  `uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Specimen id',
+  `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'links to procedure_order.procedure_order_id',
+  `procedure_order_seq` INT(11) NOT NULL COMMENT 'links to procedure_order_code.procedure_order_seq (per test line)',
+  `specimen_identifier` VARCHAR(128) DEFAULT NULL COMMENT 'tube/barcode/internal id',
+  `accession_identifier` VARCHAR(128) DEFAULT NULL COMMENT 'lab accession number',
+  `specimen_type_code` VARCHAR(64) DEFAULT NULL COMMENT 'prefer SNOMED CT code',
+  `specimen_type` VARCHAR(255) DEFAULT NULL COMMENT 'display/text',
+  `collection_method_code` VARCHAR(64) DEFAULT NULL,
+  `collection_method` VARCHAR(255) DEFAULT NULL,
+  `specimen_location_code` VARCHAR(64) DEFAULT NULL,
+  `specimen_location` VARCHAR(255) DEFAULT NULL,
+  `collected_date` DATETIME DEFAULT NULL COMMENT 'single instant',
+  `collection_date_low` DATETIME DEFAULT NULL COMMENT 'period start',
+  `collection_date_high` DATETIME DEFAULT NULL COMMENT 'period end',
+  `volume_value` DECIMAL(10,3) DEFAULT NULL,
+  `volume_unit` VARCHAR(32) DEFAULT 'mL',
+  `condition_code` VARCHAR(32) DEFAULT NULL COMMENT 'HL7 v2 0493 (e.g., ACT, HEM)',
+  `specimen_condition` VARCHAR(64) DEFAULT NULL,
+  `comments` TEXT,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT(20) DEFAULT NULL,
+  `updated_by` BIGINT(20) DEFAULT NULL,
+   `deleted` TINYINT(1) DEFAULT 0,
+  PRIMARY KEY (`procedure_specimen_id`),
+  UNIQUE KEY `uuid_unique` (`uuid`),
+  KEY `idx_order_line` (`procedure_order_id`,`procedure_order_seq`),
+  KEY `idx_identifier` (`specimen_identifier`),
+  KEY `idx_accession` (`accession_identifier`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -14473,3 +14513,136 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_p
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_type', 'Specimen Type', 1, 0, 0, '', 'FHIR Specimen.type - SNOMED CT preferred');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_type', '119297000', 'Blood specimen', 10, 1, 0, 'SNOMED-CT:119297000', 'Whole blood'),
+    ('specimen_type', '122555007', 'Venous blood specimen', 15, 0, 0, 'SNOMED-CT:122555007', 'Venous blood'),
+    ('specimen_type', '122554006', 'Capillary blood specimen', 20, 0, 0, 'SNOMED-CT:122554006', 'Capillary blood'),
+    ('specimen_type', '119364003', 'Serum specimen', 30, 0, 0, 'SNOMED-CT:119364003', 'Blood serum'),
+    ('specimen_type', '119361006', 'Plasma specimen', 40, 0, 0, 'SNOMED-CT:119361006', 'Blood plasma'),
+    ('specimen_type', '122556008', 'Cord blood specimen', 50, 0, 0, 'SNOMED-CT:122556008', 'Umbilical cord blood'),
+    ('specimen_type', '122560006', 'Arterial blood specimen', 60, 0, 0, 'SNOMED-CT:122560006', 'Arterial blood'),
+    ('specimen_type', '258580003', 'Whole blood specimen', 65, 0, 0, 'SNOMED-CT:258580003', 'Whole blood for testing'),
+    ('specimen_type', '122575003', 'Urine specimen', 70, 0, 0, 'SNOMED-CT:122575003', 'Urine'),
+    ('specimen_type', '278020009', 'Spot urine specimen', 75, 0, 0, 'SNOMED-CT:278020009', 'Random/spot urine'),
+    ('specimen_type', '258574006', 'Midstream urine specimen', 80, 0, 0, 'SNOMED-CT:258574006', 'Midstream catch'),
+    ('specimen_type', '258566001', '24-hour urine specimen', 85, 0, 0, 'SNOMED-CT:258566001', '24-hour collection'),
+    ('specimen_type', '119376003', 'Tissue specimen', 90, 0, 0, 'SNOMED-CT:119376003', 'Tissue'),
+    ('specimen_type', '119327009', 'Tissue specimen from skin', 95, 0, 0, 'SNOMED-CT:119327009', 'Skin biopsy'),
+    ('specimen_type', '430268003', 'Bone specimen', 100, 0, 0, 'SNOMED-CT:430268003', 'Bone tissue'),
+    ('specimen_type', '258415003', 'Biopsy specimen', 105, 0, 0, 'SNOMED-CT:258415003', 'Biopsy'),
+    ('specimen_type', '309051001', 'Body fluid specimen', 110, 0, 0, 'SNOMED-CT:309051001', 'Body fluid'),
+    ('specimen_type', '258450006', 'Cerebrospinal fluid specimen', 120, 0, 0, 'SNOMED-CT:258450006', 'CSF'),
+    ('specimen_type', '119378004', 'Amniotic fluid specimen', 125, 0, 0, 'SNOMED-CT:119378004', 'Amniotic fluid'),
+    ('specimen_type', '258459008', 'Gastric fluid specimen', 130, 0, 0, 'SNOMED-CT:258459008', 'Gastric aspirate'),
+    ('specimen_type', '258442002', 'Bile specimen', 135, 0, 0, 'SNOMED-CT:258442002', 'Bile fluid'),
+    ('specimen_type', '258498002', 'Synovial fluid specimen', 140, 0, 0, 'SNOMED-CT:258498002', 'Joint fluid'),
+    ('specimen_type', '119323008', 'Pus specimen', 145, 0, 0, 'SNOMED-CT:119323008', 'Pus/purulent drainage'),
+    ('specimen_type', '119334006', 'Sputum specimen', 150, 0, 0, 'SNOMED-CT:119334006', 'Sputum'),
+    ('specimen_type', '258603007', 'Respiratory tract specimen', 155, 0, 0, 'SNOMED-CT:258603007', 'Respiratory specimen'),
+    ('specimen_type', '258500001', 'Nasopharyngeal swab', 160, 0, 0, 'SNOMED-CT:258500001', 'NP swab'),
+    ('specimen_type', '472901003', 'Swab from nasal sinus', 165, 0, 0, 'SNOMED-CT:472901003', 'Nasal swab'),
+    ('specimen_type', '258529004', 'Throat swab', 170, 0, 0, 'SNOMED-CT:258529004', 'Throat culture swab'),
+    ('specimen_type', '258607008', 'Bronchoalveolar lavage fluid specimen', 175, 0, 0, 'SNOMED-CT:258607008', 'BAL fluid'),
+    ('specimen_type', '119339001', 'Stool specimen', 180, 0, 0, 'SNOMED-CT:119339001', 'Fecal specimen'),
+    ('specimen_type', '119342007', 'Saliva specimen', 190, 0, 0, 'SNOMED-CT:119342007', 'Saliva'),
+    ('specimen_type', '258455001', 'Gastric aspirate specimen', 195, 0, 0, 'SNOMED-CT:258455001', 'Gastric contents'),
+    ('specimen_type', '119295008', 'Aspirate', 200, 0, 0, 'SNOMED-CT:119295008', 'Specimen obtained by aspiration'),
+    ('specimen_type', '119396002', 'Specimen from vagina', 210, 0, 0, 'SNOMED-CT:119396002', 'Vaginal specimen'),
+    ('specimen_type', '119397006', 'Specimen from cervix', 215, 0, 0, 'SNOMED-CT:119397006', 'Cervical specimen'),
+    ('specimen_type', '119393003', 'Specimen from urethra', 220, 0, 0, 'SNOMED-CT:119393003', 'Urethral specimen'),
+    ('specimen_type', '119395003', 'Semen specimen', 225, 0, 0, 'SNOMED-CT:119395003', 'Seminal fluid'),
+    ('specimen_type', '119303007', 'Microbial isolate specimen', 230, 0, 0, 'SNOMED-CT:119303007', 'Microbial culture');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_location', 'Specimen Collection Site', 1, 0, 0, '', 'FHIR Specimen.collection.bodySite - SNOMED CT required');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_location', '368208006', 'Left upper arm structure', 10, 0, 0, 'SNOMED-CT:368208006', 'Left arm'),
+    ('specimen_location', '368209003', 'Right upper arm structure', 20, 1, 0, 'SNOMED-CT:368209003', 'Right arm'),
+    ('specimen_location', '16671000205103', 'Structure of left antecubital fossa', 30, 0, 0, 'SNOMED-CT:16671000205103', 'Left AC fossa'),
+    ('specimen_location', '16681000205101', 'Structure of right antecubital fossa', 40, 0, 0, 'SNOMED-CT:16681000205101', 'Right AC fossa'),
+    ('specimen_location', '368456002', 'Left forearm structure', 50, 0, 0, 'SNOMED-CT:368456002', 'Left forearm'),
+    ('specimen_location', '368454004', 'Right forearm structure', 60, 0, 0, 'SNOMED-CT:368454004', 'Right forearm'),
+    ('specimen_location', '85151006', 'Structure of left hand', 70, 0, 0, 'SNOMED-CT:85151006', 'Left hand'),
+    ('specimen_location', '78791008', 'Structure of right hand', 80, 0, 0, 'SNOMED-CT:78791008', 'Right hand'),
+    ('specimen_location', '762101005', 'Structure of left index finger', 85, 0, 0, 'SNOMED-CT:762101005', 'Left index finger'),
+    ('specimen_location', '762106000', 'Structure of right index finger', 87, 0, 0, 'SNOMED-CT:762106000', 'Right index finger'),
+    ('specimen_location', '7569003', 'Finger structure', 90, 0, 0, 'SNOMED-CT:7569003', 'Finger (unspecified)'),
+    ('specimen_location', '76853006', 'Structure of heel', 100, 0, 0, 'SNOMED-CT:76853006', 'Heel stick'),
+    ('specimen_location', '29707007', 'Structure of toe', 105, 0, 0, 'SNOMED-CT:29707007', 'Toe'),
+    ('specimen_location', '117590005', 'Structure of ear', 110, 0, 0, 'SNOMED-CT:117590005', 'Ear lobe'),
+    ('specimen_location', '45206002', 'Nasal structure', 120, 0, 0, 'SNOMED-CT:45206002', 'Nose/nasal cavity'),
+    ('specimen_location', '71836000', 'Nasopharyngeal structure', 130, 0, 0, 'SNOMED-CT:71836000', 'Nasopharynx'),
+    ('specimen_location', '31389004', 'Oropharyngeal structure', 140, 0, 0, 'SNOMED-CT:31389004', 'Oropharynx'),
+    ('specimen_location', '54066008', 'Pharyngeal structure', 150, 0, 0, 'SNOMED-CT:54066008', 'Throat/pharynx'),
+    ('specimen_location', '44567001', 'Tracheal structure', 155, 0, 0, 'SNOMED-CT:44567001', 'Trachea'),
+    ('specimen_location', '39607008', 'Lung structure', 160, 0, 0, 'SNOMED-CT:39607008', 'Lung'),
+    ('specimen_location', '13648007', 'Urethral structure', 170, 0, 0, 'SNOMED-CT:13648007', 'Urethra'),
+    ('specimen_location', '71252005', 'Cervix uteri structure', 180, 0, 0, 'SNOMED-CT:71252005', 'Cervix'),
+    ('specimen_location', '76784001', 'Vaginal structure', 190, 0, 0, 'SNOMED-CT:76784001', 'Vagina'),
+    ('specimen_location', '34402009', 'Rectum structure', 200, 0, 0, 'SNOMED-CT:34402009', 'Rectum'),
+    ('specimen_location', '13024002', 'Male genital structure', 205, 0, 0, 'SNOMED-CT:13024002', 'Male genitalia'),
+    ('specimen_location', '416462003', 'Wound', 210, 0, 0, 'SNOMED-CT:416462003', 'Wound site'),
+    ('specimen_location', '125643001', 'Open wound', 215, 0, 0, 'SNOMED-CT:125643001', 'Open wound'),
+    ('specimen_location', '39937001', 'Skin structure', 220, 0, 0, 'SNOMED-CT:39937001', 'Skin'),
+    ('specimen_location', '128477000', 'Abscess', 225, 0, 0, 'SNOMED-CT:128477000', 'Abscess'),
+    ('specimen_location', '83419000', 'Spinal canal structure', 230, 0, 0, 'SNOMED-CT:83419000', 'CSF collection site'),
+    ('specimen_location', '39352004', 'Joint structure', 240, 0, 0, 'SNOMED-CT:39352004', 'Joint (arthrocentesis)'),
+    ('specimen_location', '38266002', 'Entire body', 250, 0, 0, 'SNOMED-CT:38266002', 'Body as a whole'),
+    ('specimen_location', '113345001', 'Abdominal structure', 255, 0, 0, 'SNOMED-CT:113345001', 'Abdomen'),
+    ('specimen_location', '69105007', 'Carotid artery structure', 260, 0, 0, 'SNOMED-CT:69105007', 'Carotid artery'),
+    ('specimen_location', '51185008', 'Radial artery structure', 265, 0, 0, 'SNOMED-CT:51185008', 'Radial artery');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_condition', 'Specimen Condition', 1, 0, 0, '', 'FHIR uses HL7 v2 Table 0493 - specimen condition/state');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_condition', 'AUT', 'Autolyzed', 10, 0, 0, 'HL7V20493:AUT', 'Autolyzed specimen'),
+    ('specimen_condition', 'CLOT', 'Clotted', 20, 0, 0, 'HL7V20493:CLOT', 'Specimen clotted'),
+    ('specimen_condition', 'CON', 'Contaminated', 30, 0, 0, 'HL7V20493:CON', 'Specimen contaminated'),
+    ('specimen_condition', 'COOL', 'Cool', 40, 0, 0, 'HL7V20493:COOL', 'Cooled specimen'),
+    ('specimen_condition', 'FROZ', 'Frozen', 50, 0, 0, 'HL7V20493:FROZ', 'Frozen specimen'),
+    ('specimen_condition', 'HEM', 'Hemolyzed', 60, 0, 0, 'HL7V20493:HEM', 'Hemolyzed specimen'),
+    ('specimen_condition', 'LIVE', 'Live', 70, 0, 0, 'HL7V20493:LIVE', 'Live organism'),
+    ('specimen_condition', 'ROOM', 'Room temperature', 80, 0, 0, 'HL7V20493:ROOM', 'Room temperature'),
+    ('specimen_condition', 'SNR', 'Sample not received', 90, 0, 0, 'HL7V20493:SNR', 'Not received by lab'),
+    ('specimen_condition', 'THAW', 'Thawed', 100, 0, 0, 'HL7V20493:THAW', 'Thawed specimen'),
+    ('specimen_condition', 'UNFZ', 'Unfrozen', 110, 0, 0, 'HL7V20493:UNFZ', 'Unfrozen specimen'),
+    ('specimen_condition', 'WARM', 'Warm', 120, 0, 0, 'HL7V20493:WARM', 'Warmed specimen'),
+    ('specimen_condition', 'WET', 'Wet', 130, 0, 0, 'HL7V20493:WET', 'Wet specimen'),
+    ('specimen_condition', 'DRY', 'Dry', 140, 0, 0, 'HL7V20493:DRY', 'Dry specimen'),
+    ('specimen_condition', 'OTHER', 'Other', 150, 0, 0, 'HL7V20493:OTHER', 'Other condition'),
+    ('specimen_condition', 'acceptable', 'Acceptable', 160, 1, 0, '','Specimen is acceptable for testing'),
+    ('specimen_condition', 'QNS', 'Quantity not sufficient', 170, 0, 0, 'LOCAL:QNS', 'Insufficient volume'),
+    ('specimen_condition', 'HEMOLYZED', 'Hemolyzed', 180, 0, 0, 'LOCAL:HEM', 'Hemolysis detected'),
+    ('specimen_condition', 'LIPEMIC', 'Lipemic', 190, 0, 0, 'LOCAL:LIP', 'Lipemia present'),
+    ('specimen_condition', 'ICTERIC', 'Icteric', 200, 0, 0, 'LOCAL:ICT', 'Icterus/jaundice'),
+    ('specimen_condition', 'EXPIRED', 'Specimen expired', 210, 0, 0, 'LOCAL:EXP', 'Past stability time'),
+    ('specimen_condition', 'MISLABELED', 'Mislabeled', 220, 0, 0, 'LOCAL:MISLAB', 'Labeling error'),
+    ('specimen_condition', 'UNLABELED', 'Unlabeled', 230, 0, 0, 'LOCAL:NOLAB', 'No label present'),
+    ('specimen_condition', 'DAMAGED', 'Container damaged', 240, 0, 0, 'LOCAL:DAM', 'Container leak/break'),
+    ('specimen_condition', 'WRONGTEMP', 'Improper storage temperature', 250, 0, 0, 'LOCAL:TEMP', 'Temperature abuse'),
+    ('specimen_condition', 'WRONGTUBE', 'Wrong collection container', 260, 0, 0, 'LOCAL:TUBE', 'Incorrect tube type');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_collection_method', 'Specimen Collection Method', 1, 0, 0, '', 'SNOMED-CT binding');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_collection_method', '129316008', 'Aspiration', 10, 0, 0, 'SNOMED-CT:129316008', 'Aspiration procedure'),
+    ('specimen_collection_method', '129300006', 'Puncture', 20, 0, 0, 'SNOMED-CT:129300006', 'Puncture procedure'),
+    ('specimen_collection_method', '129314006', 'Biopsy', 30, 0, 0, 'SNOMED-CT:129314006', 'Biopsy procedure'),
+    ('specimen_collection_method', '129304002', 'Excision', 40, 0, 0, 'SNOMED-CT:129304002', 'Excision procedure'),
+    ('specimen_collection_method', '129323009', 'Scraping', 50, 0, 0, 'SNOMED-CT:129323009', 'Scraping procedure'),
+    ('specimen_collection_method', '70777001', 'Swab', 60, 0, 0, 'SNOMED-CT:70777001', 'Swab procedure'),
+    ('specimen_collection_method', '225113003', 'Timed collection', 70, 0, 0, 'SNOMED-CT:225113003', 'Timed specimen collection'),
+    ('specimen_collection_method', '386089008', 'Collection of coughed sputum', 80, 0, 0, 'SNOMED-CT:386089008', 'Sputum collection'),
+    ('specimen_collection_method', '278450005', 'Finger-prick sampling', 90, 0, 0, 'SNOMED-CT:278450005', 'Capillary blood collection'),
+    ('specimen_collection_method', '28520004', 'Venipuncture', 100, 1, 0, 'SNOMED-CT:28520004', 'Venous blood draw'),
+    ('specimen_collection_method', '76499008', 'Arterial puncture', 110, 0, 0, 'SNOMED-CT:76499008', 'Arterial blood draw'),
+    ('specimen_collection_method', '258574006', 'Midstream urine', 120, 0, 0, 'SNOMED-CT:258574006', 'Midstream urine collection'),
+    ('specimen_collection_method', '73416001', 'Urine specimen collection, clean catch', 130, 0, 0, 'SNOMED-CT:73416001', 'Clean catch method'),
+    ('specimen_collection_method', '386090004', 'Catheter specimen of urine', 140, 0, 0, 'SNOMED-CT:386090004', 'Catheterized urine'),
+    ('specimen_collection_method', '386091000', 'Suprapubic aspiration of urine', 150, 0, 0, 'SNOMED-CT:386091000', 'Suprapubic tap'),
+    ('specimen_collection_method', '397394008', 'Bronchoalveolar lavage', 160, 0, 0, 'SNOMED-CT:397394008', 'BAL procedure'),
+    ('specimen_collection_method', '168138009', 'Nasopharyngeal swab', 170, 0, 0, 'SNOMED-CT:168138009', 'NP swab collection'),
+    ('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');
