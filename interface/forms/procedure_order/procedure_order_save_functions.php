@@ -19,7 +19,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
  * @param array $postData The POST data array
  * @return array Array mapping form indices to order sequences
  */
-function saveProcedureOrderCodes($formid, $postData)
+function saveProcedureOrderCodes($formid, $postData): array
 {
     // Track existing order codes by sequence
     $existingCodes = [];
@@ -134,7 +134,7 @@ function saveProcedureOrderCodes($formid, $postData)
 /**
  * Insert new procedure order code with sequence
  */
-function insertProcedureOrderCode($formid, $order_seq, $data, $ptid)
+function insertProcedureOrderCode($formid, $order_seq, $data, $ptid): void
 {
     sqlInsert(
         "INSERT INTO procedure_order_code SET
@@ -172,7 +172,7 @@ function insertProcedureOrderCode($formid, $order_seq, $data, $ptid)
 /**
  * FIXED: Save procedure specimens with proper tracking
  */
-function saveProcedureSpecimens($formid, $order_seq, $postData, $index)
+function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
 {
     // Get existing ACTIVE specimens for this order line
     $existingSpecimens = [];
@@ -283,7 +283,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index)
 /**
  * Soft delete specimens not in the processed list
  */
-function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds)
+function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds): void
 {
     if (empty($processedIds)) {
         // Mark all as deleted
@@ -320,7 +320,7 @@ function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds)
  * @param int $index Current index
  * @return int|null Procedure type ID
  */
-function getOrCreateProcedureType($postData, $index)
+function getOrCreateProcedureType($postData, $index): ?int
 {
     $query_select_pt = 'SELECT * FROM procedure_type WHERE procedure_code = ? AND lab_id = ?';
     $result_types = sqlQuery(
@@ -361,7 +361,7 @@ function getOrCreateProcedureType($postData, $index)
  * @param int $ptid Procedure type ID
  * @return void
  */
-function updateProcedureOrderCode($formid, $seq, $data, $ptid)
+function updateProcedureOrderCode($formid, $seq, $data, $ptid): void
 {
     sqlStatement(
         "UPDATE procedure_order_code SET
@@ -403,7 +403,7 @@ function updateProcedureOrderCode($formid, $seq, $data, $ptid)
  * @param array $processedSequences Array of sequences that were processed
  * @return void
  */
-function deleteRemovedOrderCodes($formid, $processedSequences)
+function deleteRemovedOrderCodes($formid, $processedSequences): void
 {
     if (empty($processedSequences)) {
         // If no sequences processed, delete all
@@ -494,7 +494,7 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
  * @param array $data Specimen data
  * @return void
  */
-function updateProcedureSpecimen($specimenId, $data)
+function updateProcedureSpecimen($specimenId, $data): void
 {
     sqlStatement(
         "UPDATE procedure_specimen SET
@@ -547,7 +547,7 @@ function updateProcedureSpecimen($specimenId, $data)
  * @param array $processedIds Array of specimen IDs that were processed
  * @return void
  */
-function deleteRemovedSpecimens($formid, $order_seq, $processedIds)
+function deleteRemovedSpecimens($formid, $order_seq, $processedIds): void
 {
     if (empty($processedIds)) {
         // If no specimens processed, delete all for this line
@@ -582,7 +582,7 @@ function deleteRemovedSpecimens($formid, $order_seq, $processedIds)
  * @param int $index Current index
  * @return void
  */
-function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index)
+function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
 {
     $prefix = "ans$index" . "_";
 
