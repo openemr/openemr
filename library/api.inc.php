@@ -45,16 +45,16 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
         if ($key == "csrf_token_form") {
             continue;
         }
-        if (strpos($key, "openemr_net_cpt") === 0) {
+        if (str_starts_with($key, "openemr_net_cpt")) {
             //code to auto add cpt code
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);
 
                 BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
-        } elseif (strpos($key, "diagnosis") == (strlen($key) - 10) && !(strpos($key, "diagnosis") === false )) {
-            //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
-            //icd auto add ICD9-CM
+        } elseif ((bool) preg_match("/diagnosis\d$/", $key)) {
+            // case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
+            // icd auto add ICD9-CM
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);
                 BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);

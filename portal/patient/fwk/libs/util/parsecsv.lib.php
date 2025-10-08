@@ -368,8 +368,8 @@ class parseCSV
         // walk specific depth finding posssible delimiter characters
         for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
-            $nch = (isset($data [$i + 1])) ? $data [$i + 1] : false;
-            $pch = (isset($data [$i - 1])) ? $data [$i - 1] : false;
+            $nch = $data [$i + 1] ?? false;
+            $pch = $data [$i - 1] ?? false;
 
             // open and closing quotes
             if ($ch == $enclosure) {
@@ -477,8 +477,8 @@ class parseCSV
         // walk through each character
         for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
-            $nch = (isset($data [$i + 1])) ? $data [$i + 1] : false;
-            $pch = (isset($data [$i - 1])) ? $data [$i - 1] : false;
+            $nch = $data [$i + 1] ?? false;
+            $pch = $data [$i - 1] ?? false;
 
             // open/close quotes, and inline quotes
             if ($ch == $this->enclosure) {
@@ -596,7 +596,7 @@ class parseCSV
 
             ($this->sort_reverse) ? krsort($rows, $sort_type) : ksort($rows, $sort_type);
             if ($this->offset !== null || $this->limit !== null) {
-                $rows = array_slice($rows, ($this->offset === null ? 0 : $this->offset), $this->limit, true);
+                $rows = array_slice($rows, ($this->offset ?? 0), $this->limit, true);
             }
         }
 
@@ -723,25 +723,25 @@ class parseCSV
     {
         if (! empty($row)) {
             if (! empty($conditions)) {
-                $conditions = (strpos($conditions, ' OR ') !== false) ? explode(' OR ', $conditions) :  [
+                $conditions = (str_contains($conditions, ' OR ')) ? explode(' OR ', $conditions) :  [
                         $conditions
                 ];
                 $or = '';
                 foreach ($conditions as $value) {
-                    if (strpos($value, ' AND ') !== false) {
+                    if (str_contains($value, ' AND ')) {
                         $value = explode(' AND ', $value);
                         $and = '';
                         foreach ($value as $v) {
                             $and .= $this->_validate_row_condition($row, $v);
                         }
 
-                        $or .= (strpos($and, '0') !== false) ? '0' : '1';
+                        $or .= (str_contains($and, '0')) ? '0' : '1';
                     } else {
                         $or .= $this->_validate_row_condition($row, $value);
                     }
                 }
 
-                return (strpos($or, '1') !== false) ? true : false;
+                return (str_contains($or, '1')) ? true : false;
             }
 
             return true;
@@ -909,7 +909,7 @@ class parseCSV
 
             if ($equal) {
                 $match = ($almost) ? 2 : 1;
-                $pref = strpos($preferred, $char);
+                $pref = strpos($preferred, (string) $char);
                 $pref = ($pref !== false) ? str_pad($pref, 3, '0', STR_PAD_LEFT) : '999';
                 return $pref . $match . '.' . (99999 - str_pad($first, 5, '0', STR_PAD_LEFT));
             } else {

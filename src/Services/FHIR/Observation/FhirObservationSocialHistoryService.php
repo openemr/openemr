@@ -14,20 +14,16 @@ namespace OpenEMR\Services\FHIR\Observation;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\CodeTypesService;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
-use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -38,9 +34,9 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
-    use FhirServiceBaseEmptyTrait;
+    use FhirObservationTrait;
 
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -58,9 +54,16 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             'fullcode' => 'LOINC:' . self::SMOKING_CESSATION_CODE
             ,'code' => self::SMOKING_CESSATION_CODE
             ,'description' => 'Tobacco smoking status NHIS'
-            ,'column' => ['smoking_status_codes', 'tobacco']
+            // TODO: can we make this more generic? and consolidate it across the observation services?
+            ,'column' => 'tobacco' // different than our services but we have to be backwards compatible with the way the underlying service is
+            ,'column_codes' => 'smoking_status_codes'
+            ,'profiles' => [
+                self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_ALL
+            ]
         ]
     ];
+
+    const USCGI_PROFILE_SMOKING_STATUS = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus';
 
     /**
      * @var SocialHistoryService
@@ -178,7 +181,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
-            foreach ($result->getData() as $record) {
+            foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseSocialHistoryIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
             }
@@ -189,29 +192,54 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         return $processingResult;
     }
 
-    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn)
+    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn): void
     {
         $uuidMappings = $this->getUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
 
-        foreach ($observationCodesToReturn as $code) {
-            $vitalsRecord = [
-                "code" => $code
-                ,"description" => $this->getDescriptionForCode($code)
-                ,"category" => "social-history"
-                , "puuid" => $record['puuid']
-                ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
-                ,"date" => $record['date']
-            ];
 
-            $columns = $this->getColumnsForCode($code);
-            // if any value of the column is populated we will return that the record has a value.
-            foreach ($columns as $column) {
-                if (isset($record[$column]) && $record[$column] != "") {
-                    $vitalsRecord[$column] = $record[$column];
-                }
+        foreach ($observationCodesToReturn as $code) {
+            $mapping = self::COLUMN_MAPPINGS[$code] ?? null;
+            if (!isset($mapping)) {
+                continue;
             }
-            $processingResult->addData($vitalsRecord);
+
+            $profileVersions = $mapping['profiles'] ?? [self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_ALL];
+            $profiles = [];
+            foreach ($profileVersions as $profile => $versions) {
+                $profiles[] = $this->getProfileForVersions($profile, $versions);
+            }
+
+            $value = null;
+            $valueDescription = null;
+            $codes = $record[$mapping['column_codes']] ?? [];
+            if (!empty($codes)) {
+                $codes = array_values($codes)[0];
+                $value = $codes['code_type'] . ':' . $codes['code'];
+                $valueDescription = $codes['description'];
+            } else {
+                $value = $record[$mapping['column']];
+            }
+            // no value means we skip this observation as value is a required field
+            if (empty($value)) {
+                continue;
+            }
+
+            $observation = [
+                "code" => $mapping['fullcode']
+                ,"description" => $this->getDescriptionForCode($code)
+                ,"ob_type" => self::CATEGORY
+                ,"ob_status" => 'final' // we always set this to final as there's no in-between state
+                ,"puuid" => $record['puuid']
+                ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
+                ,"user_uuid" => 'provider_uuid'
+                ,"date" => $record['date']
+                ,"last_updated" => $record['date']
+                ,"profiles" => $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions())
+                ,"value" => $value
+                ,'value_code_description' => $valueDescription
+            ];
+            $processingResult->addData($observation);
         }
     }
 
@@ -233,82 +261,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         return $codeMappings;
     }
 
-    /**
-     * Parses an OpenEMR data record, returning the equivalent FHIR Resource
-     *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
-     */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
-    {
-        $observation = new FHIRObservation();
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
-        } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $observation->setMeta($meta);
-
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $observation->setId($id);
-
-        if (!empty($dataRecord['date'])) {
-            $observation->setIssued(UtilsService::getLocalDateAsUTC($dataRecord['date']));
-        } else {
-            $observation->setIssued(UtilsService::createDataMissingExtension());
-        }
-
-        $code = $dataRecord['code'];
-        $description = $this->getDescriptionForCode($code);
-
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
-        if (!empty($dataRecord['code'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($description);
-            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observation->setCode($categoryCode);
-        }
-
-
-        $observation->setStatus(self::DEFAULT_OBSERVATION_STATUS);
-        $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
-
-        // more complicated codes
-        switch ($code) {
-            case self::SMOKING_CESSATION_CODE: // vital-signs panel
-                $this->populateSmokingCessation($observation, $dataRecord);
-                break;
-        }
-        return $observation;
-    }
-
-    private function populateSmokingCessation(FHIRObservation $observation, $dataRecord)
-    {
-        if (empty($dataRecord['smoking_status_codes'])) {
-            // we are going to create our null flavor code here
-            $concept = UtilsService::createDataAbsentUnknownCodeableConcept();
-            $observation->setValueCodeableConcept($concept);
-        } else {
-            $concept = UtilsService::createCodeableConcept($dataRecord['smoking_status_codes'], FhirCodeSystemConstants::SNOMED_CT);
-            $observation->setValueCodeableConcept($concept);
-        }
-    }
-
-    private function getColumnsForCode($code)
-    {
-        $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
-        if (isset($codeMapping)) {
-            return is_array($codeMapping['column']) ? $codeMapping['column'] : [$codeMapping['column']];
-        }
-        return [];
-    }
-
     private function getDescriptionForCode($code)
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
@@ -323,7 +275,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return false|string|FHIRProvenance the FHIR Resource. Returned format is defined using $encode parameter.
      */
     public function createProvenanceResource($dataRecord, $encode = false)
     {
@@ -342,5 +294,10 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions());
     }
 }

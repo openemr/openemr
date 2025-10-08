@@ -179,7 +179,7 @@ class Address extends ORDataObject implements \JsonSerializable
         // change things up for the USA
         if ($this->country == "USA") {
             // we will parse our inner elements based on our postal codes
-            if (strpos($postalcode, "-") !== false) { // yes I know this is lazy...
+            if (str_contains($postalcode, "-")) { // yes I know this is lazy...
                 $parts = explode("-", $postalcode);
                 $this->zip = $parts[0] ?? "";
                 $this->plus_four = $parts[1] ?? "";

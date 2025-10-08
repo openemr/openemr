@@ -399,7 +399,7 @@ abstract class PortalController
     public function ListAll()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::ListAll");
+            throw new Exception("ModelName must be defined in " . $this::class . "::ListAll");
         }
 
         // capture output instead of rendering if specified
@@ -426,7 +426,7 @@ abstract class PortalController
     protected function _ListAll(Criteria $criteria, $current_page, $limit)
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::_ListAll.");
+            throw new Exception("ModelName must be defined in " . $this::class . "::_ListAll.");
         }
 
         $page = $this->Phreezer->Query($this->ModelName, $criteria)->GetDataPage($current_page, $limit);
@@ -663,7 +663,7 @@ abstract class PortalController
     protected function GetColumns()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::GetColumns");
+            throw new Exception("ModelName must be defined in " . $this::class . "::GetColumns");
         }
 
         $counter = 0;
@@ -731,7 +731,7 @@ abstract class PortalController
             $this->_cu = Authenticator::GetCurrentUser($this->GUID);
 
             if ($this->_cu) {
-                if (get_class($this->_cu) == "__PHP_Incomplete_Class") {
+                if ($this->_cu::class == "__PHP_Incomplete_Class") {
                     // this happens if the class used for authentication was not included before the session was started
                     $tmp = print_r($this->_cu, 1);
                     $parts1 = explode("__PHP_Incomplete_Class_Name] => ", $tmp);
@@ -764,7 +764,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (strpos($url, self::$ApiIdentifier) !== false);
+        return (str_contains($url, (string) self::$ApiIdentifier));
     }
 
     /**
@@ -825,7 +825,7 @@ abstract class PortalController
      */
     protected function Render($view = "", $format = null)
     {
-        $isSmarty = (strpos(get_class($this->RenderEngine), "Smarty") > - 1);
+        $isSmarty = (strpos($this->RenderEngine::class, "Smarty") > - 1);
 
         if ($isSmarty && $format == null) {
             $format = self::$SmartyViewPrefix;
@@ -896,7 +896,7 @@ abstract class PortalController
         try {
             $output = json_encode($obj);
         } catch (Exception $ex) {
-            if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
+            if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
                     $this->UTF8Encode($obj);
@@ -1031,6 +1031,6 @@ abstract class PortalController
      */
     function __call($name, $vars = null)
     {
-        throw new Exception(get_class($this) . "::" . $name . " is not implemented");
+        throw new Exception($this::class . "::" . $name . " is not implemented");
     }
 }

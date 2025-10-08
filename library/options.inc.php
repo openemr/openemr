@@ -398,7 +398,7 @@ function parse_static_text($frow, $value_allowed = true)
 {
     $tmp = str_replace("\r\n", "\n", $frow['description']);
     // Translate if it does not look like HTML.
-    if (substr($tmp, 0, 1) != '<') {
+    if (!str_starts_with($tmp, '<')) {
         $tmp2 = $frow['description'];
         $tmp3 = xl_layout_label($tmp);
         if ($tmp3 == $tmp && $tmp2 != $tmp) {
@@ -512,7 +512,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][0]",
-            (isset($avalue[$option_id][0]) ? $avalue[$option_id][0] : ''),
+            ($avalue[$option_id][0] ?? ''),
             $outtype,
             3,
             2,
@@ -521,7 +521,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
         );
 
         if ($outtype == 2) {
-            $tmp = isset($avalue[$option_id][1]) ? $avalue[$option_id][1] : '0';
+            $tmp = $avalue[$option_id][1] ?? '0';
             $restype = ($tmp == '1') ? xl('Normal') : (($tmp == '2') ? xl('Abnormal') : xl('N/A'));
             $s .= "<td>" . text($restype) . "&nbsp;</td>";
         } else {
@@ -542,7 +542,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
         }
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][2]",
-            (isset($avalue[$option_id][2]) ? $avalue[$option_id][2] : ''),
+            ($avalue[$option_id][2] ?? ''),
             $outtype,
             10,
             30,
@@ -551,7 +551,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
         );
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][3]",
-            (isset($avalue[$option_id][3]) ? $avalue[$option_id][3] : ''),
+            ($avalue[$option_id][3] ?? ''),
             $outtype,
             $fldlength,
             $maxlength,
@@ -643,10 +643,10 @@ function generate_form_field($frow, $currvalue): void
     $lbfchange = (
         !empty($form_id) &&
         (
-            strpos($form_id, 'LBF') === 0 ||
-            strpos($form_id, 'LBT') === 0 ||
-            strpos($form_id, 'DEM') === 0 ||
-            strpos($form_id, 'HIS') === 0
+            str_starts_with($form_id, 'LBF') ||
+            str_starts_with($form_id, 'LBT') ||
+            str_starts_with($form_id, 'DEM') ||
+            str_starts_with($form_id, 'HIS')
         )
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
@@ -724,7 +724,7 @@ function generate_form_field($frow, $currvalue): void
 
         $tmp = htmlspecialchars($GLOBALS['gbl_mask_patient_id'], ENT_QUOTES);
         // If mask is for use at save time, treat as no mask.
-        if (strpos($tmp, '^') !== false) {
+        if (str_contains($tmp, '^')) {
             $tmp = '';
         }
         if ($field_id == 'pubpid' && strlen($tmp) > 0) {
@@ -919,7 +919,7 @@ function generate_form_field($frow, $currvalue): void
         echo "<option value=''>" . htmlspecialchars(xl('Unassigned'), ENT_NOQUOTES) . "</option>";
         while ($urow = sqlFetchArray($ures)) {
             $uname = $urow['organization'];
-            if (empty($uname) || substr($uname, 0, 1) == '(') {
+            if (empty($uname) || str_starts_with($uname, '(')) {
                 $uname = $urow['lname'];
                 if ($urow['fname']) {
                     $uname .= ", " . $urow['fname'];
@@ -2406,9 +2406,9 @@ function generate_display_field($frow, $currvalue)
     global $ISSUE_TYPES, $facilityService;
 
     $data_type  = $frow['data_type'];
-    $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
+    $field_id   = $frow['field_id'] ?? null;
     $list_id    = $frow['list_id'];
-    $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
+    $backup_list = $frow['list_backup_id'] ?? null;
     $show_unchecked_arr = [];
     getLayoutProperties($frow['form_id'] ?? null, $show_unchecked_arr, 'grp_unchecked', "1");
     $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) == "0" ? false : true;
@@ -2911,7 +2911,7 @@ function generate_plaintext_field($frow, $currvalue)
     global $ISSUE_TYPES;
 
     $data_type = $frow['data_type'];
-    $field_id  = isset($frow['field_id']) ? $frow['field_id'] : null;
+    $field_id  = $frow['field_id'] ?? null;
     $list_id   = $frow['list_id'];
     $backup_list = $frow['backup_list'] ?? null;
     $edit_options = $frow['edit_options'] ?? null;
@@ -3360,7 +3360,7 @@ function accumActionConditions(&$frow, &$condition_str): void
             "itemid:"   . js_escape($condition['itemid'])   . ", " .
             "operator:" . js_escape($condition['operator']) . ", " .
             "value:"    . js_escape($condition['value'])    . ", ";
-        if ($frow['data_type'] == BillingCodeType::OPTIONS_TYPE_INDEX && strpos($frow['edit_options'], '2') !== false) {
+        if ($frow['data_type'] == BillingCodeType::OPTIONS_TYPE_INDEX && str_contains($frow['edit_options'], '2')) {
             $billingCodeType = new BillingCodeType();
             // For billing codes handle requirement to display its description.
             $condition_str .= $billingCodeType->getAccumActionConditions($frow, $condition_str, $action);
@@ -3453,7 +3453,7 @@ function isSkipped(&$frow, $currvalue)
             $tmp = explode('|', $srcvalue);
             $srcvalue = '';
             foreach ($tmp as $tmp2) {
-                if (strpos($tmp2, "$itemid:") === 0) {
+                if (str_starts_with($tmp2, "$itemid:")) {
                     if ($datatype == 22) {
                         $srcvalue = substr($tmp2, strlen($itemid) + 1);
                     } else {
@@ -3488,7 +3488,7 @@ function isSkipped(&$frow, $currvalue)
         $prevcond = $condition;
     }
 
-    if (substr($action, 0, 6) == 'hsval=') {
+    if (str_starts_with($action, 'hsval=')) {
         return $prevcond ? 'skip' : ('value=' . substr($action, 6));
     }
     return $prevcond ? $action : '';
@@ -3497,7 +3497,7 @@ function isSkipped(&$frow, $currvalue)
 // Load array of names of the given layout and its groups.
 function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = null): void
 {
-    if ($sel != '*' && strpos($sel, 'grp_group_id') === false) {
+    if ($sel != '*' && !str_contains($sel, 'grp_group_id')) {
         $sel = "grp_group_id, $sel";
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
@@ -3567,7 +3567,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
 
             if ($formtype == 'DEM') {
-                if (strpos($field_id, 'em_') === 0) {
+                if (str_starts_with($field_id, 'em_')) {
                     // Skip employer related fields, if it's disabled.
                     if ($GLOBALS['omit_employers']) {
                         continue;
@@ -3645,7 +3645,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -3762,7 +3762,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
 
         // This loops once per group within a given layout.
         while ($frow = sqlFetchArray($fres)) {
-            $this_group = isset($frow['group_id']) ? $frow['group_id'] : "" ;
+            $this_group = $frow['group_id'] ?? "" ;
 
             if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
                 continue;
@@ -3800,7 +3800,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 $span_col_row = isOption($edit_options, 'SP');
 
                 if ($formtype == 'DEM') {
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with($field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
                         if ($GLOBALS['omit_employers']) {
                             continue;
@@ -4105,7 +4105,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 accumActionConditions($group_fields, $condition_str);
 
                 if ($formtype == 'DEM') {
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with($field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
                         if ($GLOBALS['omit_employers']) {
                             continue;
@@ -4183,7 +4183,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                         $tmp = xl_layout_label($group_fields['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -4675,7 +4675,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $indicatorTag = "style='display: none'";
     }
 
-    $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
+    $indicatorTag = $indicatorTag ?? "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
         attr_js($label . "_ps_expand") . ")'><span class='text font-weight-bold'>";
     echo text($title) . "</span>";
@@ -4777,7 +4777,7 @@ function lbf_current_value($frow, $formid, $encounter)
         if ($source == 'H') {
             $table = 'history_data';
             $orderby = 'ORDER BY date DESC LIMIT 1';
-        } elseif (strpos($field_id, 'em_') === 0) {
+        } elseif (str_starts_with($field_id, 'em_')) {
             $field_id = substr($field_id, 3);
             $table = 'employer_data';
             $orderby = 'ORDER BY date DESC LIMIT 1';

@@ -113,7 +113,7 @@ class ContactService extends BaseService
                 (new SystemLogger())->errorLogCaller("address use does not exist in list_options address-uses", ['use' => $use]);
             }
 
-            $periodStart = DateFormatterUtils::dateStringToDateTime($contactData['period_start'][$i] ?? '');
+            $periodStart = DateFormatterUtils::dateStringToDateTime($contactData['period_start'][$i] ?? '', true);
             if ($periodStart !== false) {
                 $contactAddress->set_period_start($periodStart);
             } else {
@@ -122,7 +122,7 @@ class ContactService extends BaseService
 
             $contactAddress->set_period_end(null);
             if (!empty($contactData['period_end'][$i])) {
-                $date = DateFormatterUtils::dateStringToDateTime($contactData['period_end'][$i]);
+                $date = DateFormatterUtils::dateStringToDateTime($contactData['period_end'][$i], true);
                 if ($date !== false) {
                     $contactAddress->set_period_end($date);
                 } else {

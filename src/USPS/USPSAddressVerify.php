@@ -59,7 +59,7 @@ class USPSAddressVerify extends USPSBase
    */
     public function addAddress(USPSAddress $data, $id = null)
     {
-        $packageId = $id !== null ? $id : ((count($this->addresses) + 1));
+        $packageId = $id ?? count($this->addresses) + 1;
         $this->addresses['Address'][] = array_merge(['@attributes' => ['ID' => $packageId]], $data->getAddressInfo());
     }
 }

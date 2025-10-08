@@ -247,7 +247,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.
-            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . $fhirResource::class);
         }
 
         $data = [];

@@ -93,7 +93,7 @@ class C_Document extends Controller
         if (!empty($dh)) {
               $templateslist = [];
             while (false !== ($sfname = readdir($dh))) {
-                if (substr($sfname, 0, 1) == '.') {
+                if (str_starts_with($sfname, '.')) {
                     continue;
                 }
                 $templateslist[$sfname] = $sfname;
@@ -255,7 +255,7 @@ class C_Document extends Controller
                                 if ($fp) {
                                     $head = fread($fp, 256);
                                     fclose($fp);
-                                    if (strpos($head, 'DICM') === false) { // Fixed at offset 128. even one non DICOM makes zip invalid.
+                                    if (!str_contains($head, 'DICM')) { // Fixed at offset 128. even one non DICOM makes zip invalid.
                                         $mimetype = "application/zip";
                                         break;
                                     }
@@ -293,7 +293,7 @@ class C_Document extends Controller
                         $fname = $_POST['destination'];
                     }
                     // test for single DICOM and assign extension if missing.
-                    if (strpos($filetext, 'DICM') !== false) {
+                    if (str_contains($filetext, 'DICM')) {
                         $mimetype = 'application/dicom';
                         $parts = pathinfo($fname);
                         if (!$parts['extension']) {
@@ -1436,7 +1436,7 @@ class C_Document extends Controller
             $ep = ['assigned_to' => $_SESSION['authUser']];
         }
 
-        $encounter_provider = isset($ep['assigned_to']) ? $ep['assigned_to'] : $_SESSION['authUser'];
+        $encounter_provider = $ep['assigned_to'] ?? $_SESSION['authUser'];
         $noteid = addPnote($_SESSION['pid'], 'New Image Report received ' . $narration, 0, 1, 'Image Results', $encounter_provider, '', 'New', '');
         setGpRelation(1, $doc_id, 6, $noteid);
     }

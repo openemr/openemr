@@ -53,7 +53,7 @@ class Form_Factory implements FactoryIF
     public function createSignable()
     {
         $signable = null;
-        if (strpos($this->_formDir, 'LBF') === 0) {
+        if (str_starts_with($this->_formDir, 'LBF')) {
             $signable = new Form_LBF_Signable($this->_formId, $this->_formDir, $this->_encounterId);
         } else {
             $signable = new Form_Signable($this->_formId, $this->_formDir, $this->_encounterId);

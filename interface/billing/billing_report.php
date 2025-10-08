@@ -90,26 +90,26 @@ if (isset($_POST['mode'])) {
 }
 
 // global variables:
-$from_date = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
-$to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
-$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'all';
-$unbilled = isset($_POST['unbilled']) ? $_POST['unbilled'] : 'on';
-$my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '';
+$from_date = $_POST['from_date'] ?? date('Y-m-d');
+$to_date = $_POST['to_date'] ?? '';
+$code_type = $_POST['code_type'] ?? 'all';
+$unbilled = $_POST['unbilled'] ?? 'on';
+$my_authorized = $_POST["authorized"] ?? '';
 
 // This tells us if only encounters that appear to be missing a "25" modifier
 // are to be reported.
 $missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
-$left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : $GLOBALS['cms_left_margin_default'];
-$top_margin = isset($_POST["top_margin"]) ? $_POST["top_margin"] : $GLOBALS['cms_top_margin_default'];
+$left_margin = $_POST["left_margin"] ?? $GLOBALS['cms_left_margin_default'];
+$top_margin = $_POST["top_margin"] ?? $GLOBALS['cms_top_margin_default'];
 if ($left_margin + 0 === 20 && $top_margin + 0 === 24) {
 // defaults are flipped. No easy way to reset existing. Global defaults fixed.
     $left_margin = '24';
     $top_margin = '20';
 }
 if ($ub04_support) {
-    $left_ubmargin = isset($_POST["left_ubmargin"]) ? $_POST["left_ubmargin"] : $GLOBALS['left_ubmargin_default'];
-    $top_ubmargin = isset($_POST["top_ubmargin"]) ? $_POST["top_ubmargin"] : $GLOBALS['top_ubmargin_default'];
+    $left_ubmargin = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
+    $top_ubmargin = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
 }
 $ofrom_date = $from_date;
 $oto_date = $to_date;

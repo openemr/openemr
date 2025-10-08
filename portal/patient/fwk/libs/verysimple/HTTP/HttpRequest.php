@@ -181,7 +181,7 @@ class HttpRequest
             }
         }
 
-        $url ['query'] = isset($url ['query']) ? $url ['query'] : '';
+        $url ['query'] = $url ['query'] ?? '';
 
         $url ['protocol'] = $url ['scheme'] . '://';
         $eol = "\r\n";

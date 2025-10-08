@@ -29,7 +29,7 @@ $table = trim($_POST['table']);
 $name = trim($_POST['name']);
 $title = trim($_POST['title']);
 
-$is_lbf = substr($table, 0, 3) === 'LBF';
+$is_lbf = str_starts_with($table, 'LBF');
 
 // acl checks here
 //  For now, only allow access for med aco.

@@ -105,7 +105,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                         <?php
                         // step 1 is to verify the password
                         if ($action == 'reg1') {
-                            $error = (isset($_GET["error"])) ? $_GET["error"] : false;
+                            $error = $_GET["error"] ?? false;
                             ?>
                             <div>
                                 <fieldset>

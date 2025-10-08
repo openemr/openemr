@@ -43,7 +43,7 @@ class Bcrypt
      */
     static function isBlowfish($hash)
     {
-        return substr($hash, 0, 4) == '$2a$';
+        return str_starts_with($hash, '$2a$');
     }
 
     /**

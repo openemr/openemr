@@ -31,7 +31,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
+$activeAccordionSection = $_GET['aas'] ?? '0';
 
 ?>
 <html>

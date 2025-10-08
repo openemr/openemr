@@ -39,7 +39,7 @@ $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $type = $_POST["type"] ?? '';
-$facility = isset($_POST['facility']) ? $_POST['facility'] : '';
+$facility = $_POST['facility'] ?? '';
 $patient_id = trim($_POST["patient_id"] ?? '');
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';

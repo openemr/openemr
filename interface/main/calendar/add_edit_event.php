@@ -248,7 +248,7 @@ function DOBandEncounter($pc_eid): void
                 // appointment. It is set in the InsertEvent() function. Note that in the case of spearating a recurrent appointment, the get eid
                 // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
                 // temporary-eid-for-manage-tracker global instead.
-                $temp_eid = (isset($GLOBALS['temporary-eid-for-manage-tracker'])) ? $GLOBALS['temporary-eid-for-manage-tracker'] : $_GET['eid'];
+                $temp_eid = $GLOBALS['temporary-eid-for-manage-tracker'] ?? $_GET['eid'];
                 manage_tracker_status($event_date, $appttime, $temp_eid, $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room'], $encounter);
             }
         } else {
@@ -758,7 +758,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
         // done with EVENT insert/update statements
 
-        DOBandEncounter(isset($eid) ? $eid : null);
+        DOBandEncounter($eid ?? null);
 } elseif (!empty($_POST['form_action']) && ($_POST['form_action'] == "delete")) { //    DELETE EVENT(s)
     $appointmentService = new \OpenEMR\Services\AppointmentService();
     $appointmentService->deleteAppointment($eid, $_POST['recurr_affect'], $_POST['selected_date']);
@@ -861,7 +861,7 @@ if ($eid) {
     $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
-    if (substr($hometext, 0, 6) == ':text:') {
+    if (str_starts_with($hometext, ':text:')) {
         $hometext = substr($hometext, 6);
     }
 } else {
@@ -1386,7 +1386,7 @@ $classpati = '';
 <input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo attr($eventstartdate); ?>" />
 <!-- Following added by epsdky 2016 (details in commit) -->
 <input type="hidden" name="old_repeats" id="old_repeats" value="<?php echo attr($repeats); ?>" />
-<input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>" />
+<input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr($rspecs['rt2_pf_flag'] ?? '0'); ?>" />
 <!-- End of addition by epsdky -->
 <div class="form-row mx-2">
     <div class="col-sm form-group">

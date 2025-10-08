@@ -99,7 +99,7 @@ class ScopePermissionObject
         $strlen = strlen($input);
         for ($i = 0; $i < $strlen; $i++) {
             $char = $input[$i];
-            $pos = strpos($allowed, $char);
+            $pos = strpos($allowed, (string) $char);
             if ($pos === false) {
                 return false; // invalid character
             }

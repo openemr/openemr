@@ -117,15 +117,15 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             $excp = json_decode("{" . $row['title'] . "}");
         }
 
-        $tbl = (isset($excp->tbl) ? $excp->tbl : "form_" . $this->_formDir);
+        $tbl = ($excp->tbl ?? "form_" . $this->_formDir);
 
         // eye form fix
         if ($tbl == 'form_eye_mag') {
             $tbl = 'form_eye_base';
         }
 
-        $id = (isset($excp->id) ? $excp->id : 'id');
-        $limit = (isset($excp->limit) ? $excp->limit : 1);
+        $id = ($excp->id ?? 'id');
+        $limit = ($excp->limit ?? 1);
 
       // Get form data based on key from forms table
         $sql = sprintf(

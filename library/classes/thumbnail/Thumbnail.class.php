@@ -55,7 +55,7 @@ class Thumbnail
 
         $info = getimagesize($file);
 
-        $type = isset($info['type']) ? $info['type'] : $info[2];
+        $type = $info['type'] ?? $info[2];
 
         // Check support of file type
         if (!(imagetypes() & $type)) {
@@ -85,8 +85,8 @@ class Thumbnail
             return false;
         }
 
-        $width  = isset($info['width'])  ? $info['width']  : $info[0];
-        $height = isset($info['height']) ? $info['height'] : $info[1];
+        $width  = $info['width'] ?? $info[0];
+        $height = $info['height'] ?? $info[1];
 
         // Calculate aspect ratio
         $wRatio = $this->max_size / $width;

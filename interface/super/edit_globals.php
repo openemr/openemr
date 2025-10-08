@@ -243,7 +243,7 @@ function checkBackgroundServices(): void
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
+                if (!is_array($fldtype) && str_starts_with($fldtype, 'm_')) {
                     if (isset($_POST["form_$i"])) {
                         $fldindex = 0;
 
@@ -471,7 +471,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string) $_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;

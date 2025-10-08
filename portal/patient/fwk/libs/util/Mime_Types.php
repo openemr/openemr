@@ -219,7 +219,7 @@ class Mime_Types
                             'video',
                             'chemical',
                             'model'
-                        ]) || (substr($match [2], 0, 2) == 'x-')
+                        ]) || (str_starts_with($match [2], 'x-'))
                     ) {
                         $type = $match [1];
                     }

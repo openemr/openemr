@@ -870,7 +870,7 @@ class PatientService extends BaseService
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
         foreach ($suffixes as $s) {
-            if (stripos($patientRecord['lname'], $s) !== false) {
+            if (stripos($patientRecord['lname'], (string) $s) !== false) {
                 $suffix = $s;
                 $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
                 break;

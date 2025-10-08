@@ -1113,7 +1113,7 @@ if (
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
-                                if (substr($_REQUEST['form_category'], 0, 3) == 'Due' && !$isdueany) {
+                                if (str_starts_with($_REQUEST['form_category'], 'Due') && !$isdueany) {
                                     continue;
                                 }
                                 if ($_REQUEST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {

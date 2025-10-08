@@ -88,7 +88,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
-$password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
+$password_update = $_SESSION['password_update'] ?? 0;
 unset($_SESSION['password_update']);
 
 $authorizedPortal = false; // flag

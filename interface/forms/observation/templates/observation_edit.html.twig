@@ -6,7 +6,7 @@
 
 {% block head %}
     {{ parent() }}
-    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
+    {{ setupHeader(['i18next', 'i18formatting', 'datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
     <link rel="stylesheet" href="{{ webroot }}/interface/forms/observation/observation.css?v={{ assetVersion|attr_url }}" type="text/css"/>
 {% endblock %}
 
@@ -19,7 +19,7 @@
                 <input type="hidden" name="form_id" value="{{ formId|attr }}" />
 
                 {# AI Generated: Hidden field for QuestionnaireResponse FHIR ID #}
-                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="" />
+                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="{{ observation.questionnaire_response_id|attr }}" />
 
                 {# Return to List Button #}
                 {% if isEdit %}
@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label class="form-label">{{ "Date"|xlt }}:</label>
                                         <input type="text" name="date" class="form-control datepicker"
-                                               value="{{ observation.date|default('now')|date('Y-m-d H:i:s') }}"
+                                               value="{{ observation.date|default('now')|oeFormatDateTime|attr }}"
                                                required>
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">{{ "Status"|xlt }}: </label>
-                                        {{ selectList('status', 'observation-status', observation.ob_status, '') }}
+                                        {{ selectList('ob_status', 'observation-status', observation.ob_status, '') }}
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -123,7 +123,7 @@
                                                     <span class="response-id">{{ linkedQuestionnaireResponse.response_id|text }}</span>
                                                 </p>
                                                 <p class="text-muted mb-3">
-                                                    <strong>{{ "Date"|xlt }}:</strong> {{ linkedQuestionnaireResponse.date|oeFormatDateTime }}
+                                                    <strong>{{ "Date"|xlt }}:</strong> {{ linkedQuestionnaireResponse.date|oeFormatDateTime|attr }}
                                                     <span class="ml-3"><strong>{{ "Status"|xlt }}:</strong> {{ linkedQuestionnaireResponse.status|text }}</span>
                                                 </p>
                                             </div>
@@ -328,7 +328,7 @@
                             <div class="mt-3">
                                 {# TODO: move this to observation.js #}
                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="observationForm.loadQuestionnaireData()">
-                                    <i class="fa fa-refresh"></i> {{ 'Retry'|xlt )}
+                                    <i class="fa fa-refresh"></i> {{ 'Retry'|xlt }}
                                 </button>
                             </div>
                         </div>

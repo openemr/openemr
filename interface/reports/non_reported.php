@@ -126,7 +126,7 @@ if (!empty($from_date) || !empty($to_date)) {
     $query .= " and " ;
 }
 
-$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : [];
+$form_code = $_POST['form_code'] ?? [];
 if (empty($form_code)) {
     $query_codes = '';
 } else {

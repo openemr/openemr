@@ -134,7 +134,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id): void
 {
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
-    if (substr($formdir, 0, 3) == 'LBF') {
+    if (str_starts_with($formdir, 'LBF')) {
         row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
         // Delete the visit's "source=visit" attributes that are not used by any other form.
         $where = "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .

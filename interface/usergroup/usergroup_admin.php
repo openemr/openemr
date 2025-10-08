@@ -314,9 +314,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         AclExtended::setUserAro(
             $_POST['access_group'],
             $user_data["username"],
-            (isset($_POST['fname']) ? $_POST['fname'] : ''),
-            (isset($_POST['mname']) ? $_POST['mname'] : ''),
-            (isset($_POST['lname']) ? $_POST['lname'] : '')
+            ($_POST['fname'] ?? ''),
+            ($_POST['mname'] ?? ''),
+            ($_POST['lname'] ?? '')
         );
 
         // TODO: why are we sending $user_data here when its overwritten with just the 'username' of the user updated
@@ -354,33 +354,33 @@ if (isset($_POST["mode"])) {
             }
             $insertUserSQL =
             "insert into users set " .
-            "username = '"         . add_escape_custom(trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) .
+            "username = '"         . add_escape_custom(trim(($_POST['rumple'] ?? ''))) .
             "', password = '"      . 'NoLongerUsed'                  .
-            "', fname = '"         . add_escape_custom(trim((isset($_POST['fname']) ? $_POST['fname'] : ''))) .
-            "', mname = '"         . add_escape_custom(trim((isset($_POST['mname']) ? $_POST['mname'] : ''))) .
-            "', lname = '"         . add_escape_custom(trim((isset($_POST['lname']) ? $_POST['lname'] : ''))) .
-            "', suffix = '"         . add_escape_custom(trim((isset($_POST['suffix']) ? $_POST['suffix'] : ''))) .
+            "', fname = '"         . add_escape_custom(trim(($_POST['fname'] ?? ''))) .
+            "', mname = '"         . add_escape_custom(trim(($_POST['mname'] ?? ''))) .
+            "', lname = '"         . add_escape_custom(trim(($_POST['lname'] ?? ''))) .
+            "', suffix = '"         . add_escape_custom(trim(($_POST['suffix'] ?? ''))) .
             "', google_signin_email = " . $googleSigninEmail .
-            ", valedictory = '"         . add_escape_custom(trim((isset($_POST['valedictory']) ? $_POST['valedictory'] : ''))) .
-            "', federaltaxid = '"  . add_escape_custom(trim((isset($_POST['federaltaxid']) ? $_POST['federaltaxid'] : ''))) .
-            "', state_license_number = '"  . add_escape_custom(trim((isset($_POST['state_license_number']) ? $_POST['state_license_number'] : ''))) .
-            "', newcrop_user_role = '"  . add_escape_custom(trim((isset($_POST['erxrole']) ? $_POST['erxrole'] : ''))) .
-            "', physician_type = '"  . add_escape_custom(trim((isset($_POST['physician_type']) ? $_POST['physician_type'] : ''))) .
-            "', main_menu_role = '"  . add_escape_custom(trim((isset($_POST['main_menu_role']) ? $_POST['main_menu_role'] : ''))) .
-            "', patient_menu_role = '"  . add_escape_custom(trim((isset($_POST['patient_menu_role']) ? $_POST['patient_menu_role'] : ''))) .
-            "', weno_prov_id = '"  . add_escape_custom(trim((isset($_POST['erxprid']) ? $_POST['erxprid'] : ''))) .
-            "', authorized = '"    . add_escape_custom(trim((isset($_POST['authorized']) ? $_POST['authorized'] : ''))) .
-            "', info = '"          . add_escape_custom(trim((isset($_POST['info']) ? $_POST['info'] : ''))) .
-            "', federaldrugid = '" . add_escape_custom(trim((isset($_POST['federaldrugid']) ? $_POST['federaldrugid'] : ''))) .
-            "', upin = '"          . add_escape_custom(trim((isset($_POST['upin']) ? $_POST['upin'] : ''))) .
-            "', npi  = '"          . add_escape_custom(trim((isset($_POST['npi']) ? $_POST['npi'] : ''))) .
-            "', taxonomy = '"      . add_escape_custom(trim((isset($_POST['taxonomy']) ? $_POST['taxonomy'] : ''))) .
-            "', facility_id = '"   . add_escape_custom(trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : ''))) .
-            "', billing_facility_id = '"   . add_escape_custom(trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : ''))) .
-            "', specialty = '"     . add_escape_custom(trim((isset($_POST['specialty']) ? $_POST['specialty'] : ''))) .
-            "', see_auth = '"      . add_escape_custom(trim((isset($_POST['see_auth']) ? $_POST['see_auth'] : ''))) .
-            "', default_warehouse = '" . add_escape_custom(trim((isset($_POST['default_warehouse']) ? $_POST['default_warehouse'] : ''))) .
-            "', irnpool = '"       . add_escape_custom(trim((isset($_POST['irnpool']) ? $_POST['irnpool'] : ''))) .
+            ", valedictory = '"         . add_escape_custom(trim(($_POST['valedictory'] ?? ''))) .
+            "', federaltaxid = '"  . add_escape_custom(trim(($_POST['federaltaxid'] ?? ''))) .
+            "', state_license_number = '"  . add_escape_custom(trim(($_POST['state_license_number'] ?? ''))) .
+            "', newcrop_user_role = '"  . add_escape_custom(trim(($_POST['erxrole'] ?? ''))) .
+            "', physician_type = '"  . add_escape_custom(trim(($_POST['physician_type'] ?? ''))) .
+            "', main_menu_role = '"  . add_escape_custom(trim(($_POST['main_menu_role'] ?? ''))) .
+            "', patient_menu_role = '"  . add_escape_custom(trim(($_POST['patient_menu_role'] ?? ''))) .
+            "', weno_prov_id = '"  . add_escape_custom(trim(($_POST['erxprid'] ?? ''))) .
+            "', authorized = '"    . add_escape_custom(trim(($_POST['authorized'] ?? ''))) .
+            "', info = '"          . add_escape_custom(trim(($_POST['info'] ?? ''))) .
+            "', federaldrugid = '" . add_escape_custom(trim(($_POST['federaldrugid'] ?? ''))) .
+            "', upin = '"          . add_escape_custom(trim(($_POST['upin'] ?? ''))) .
+            "', npi  = '"          . add_escape_custom(trim(($_POST['npi'] ?? ''))) .
+            "', taxonomy = '"      . add_escape_custom(trim(($_POST['taxonomy'] ?? ''))) .
+            "', facility_id = '"   . add_escape_custom(trim(($_POST['facility_id'] ?? ''))) .
+            "', billing_facility_id = '"   . add_escape_custom(trim(($_POST['billing_facility_id'] ?? ''))) .
+            "', specialty = '"     . add_escape_custom(trim(($_POST['specialty'] ?? ''))) .
+            "', see_auth = '"      . add_escape_custom(trim(($_POST['see_auth'] ?? ''))) .
+            "', default_warehouse = '" . add_escape_custom(trim(($_POST['default_warehouse'] ?? ''))) .
+            "', irnpool = '"       . add_escape_custom(trim(($_POST['irnpool'] ?? ''))) .
             "', calendar = '"      . add_escape_custom($calvar) .
             "', portal_user = '"   . add_escape_custom($portalvar) .
             "', supervisor_id = '" . add_escape_custom((isset($_POST['supervisor_id']) ? (int)$_POST['supervisor_id'] : 0)) .
@@ -394,7 +394,7 @@ if (isset($_POST["mode"])) {
                 $_POST['stiltskin'],
                 true,
                 $insertUserSQL,
-                trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                trim(($_POST['rumple'] ?? ''))
             );
             if (!empty($authUtilsNewPassword->getErrorMessage())) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();
@@ -407,8 +407,8 @@ if (isset($_POST["mode"])) {
                     "UPDATE users, facility SET users.facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
                     [
                         $uuid,
-                        trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : '')),
-                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                        trim(($_POST['facility_id'] ?? '')),
+                        trim(($_POST['rumple'] ?? ''))
                     ]
                 );
 
@@ -417,32 +417,32 @@ if (isset($_POST["mode"])) {
                     "UPDATE users, facility SET users.billing_facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
                     [
                         $uuid,
-                        trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : '')),
-                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                        trim(($_POST['billing_facility_id'] ?? '')),
+                        trim(($_POST['rumple'] ?? ''))
                     ]
                 );
 
                 sqlStatement(
                     "insert into `groups` set name = ?, user = ?",
                     [
-                        trim((isset($_POST['groupname']) ? $_POST['groupname'] : '')),
-                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                        trim(($_POST['groupname'] ?? '')),
+                        trim(($_POST['rumple'] ?? ''))
                     ]
                 );
 
-                if (trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) {
+                if (trim(($_POST['rumple'] ?? ''))) {
                               // Set the access control group of user
                               AclExtended::setUserAro(
                                   $_POST['access_group'],
-                                  trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')),
-                                  trim((isset($_POST['fname']) ? $_POST['fname'] : '')),
-                                  trim((isset($_POST['mname']) ? $_POST['mname'] : '')),
-                                  trim((isset($_POST['lname']) ? $_POST['lname'] : ''))
+                                  trim(($_POST['rumple'] ?? '')),
+                                  trim(($_POST['fname'] ?? '')),
+                                  trim(($_POST['mname'] ?? '')),
+                                  trim(($_POST['lname'] ?? ''))
                               );
                 }
             }
         } else {
-            $alertmsg .= xl('User') . ' ' . trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')) . ' ' . xl('already exists.');
+            $alertmsg .= xl('User') . ' ' . trim(($_POST['rumple'] ?? '')) . ' ' . xl('already exists.');
         }
 
         if ($_POST['access_group']) {
@@ -472,7 +472,7 @@ if (isset($_POST["mode"])) {
 
         $doit = 1;
         foreach ($result as $iter) {
-            if ($doit == 1 && $iter["name"] == (trim((isset($_POST['groupname']) ? $_POST['groupname'] : ''))) && $iter["user"] == (trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')))) {
+            if ($doit == 1 && $iter["name"] == (trim(($_POST['groupname'] ?? ''))) && $iter["user"] == (trim(($_POST['rumple'] ?? '')))) {
                 $doit--;
             }
         }
@@ -481,13 +481,13 @@ if (isset($_POST["mode"])) {
             sqlStatement(
                 "insert into `groups` set name = ?, user = ?",
                 [
-                    trim((isset($_POST['groupname']) ? $_POST['groupname'] : '')),
-                    trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                    trim(($_POST['groupname'] ?? '')),
+                    trim(($_POST['rumple'] ?? ''))
                 ]
             );
         } else {
-            $alertmsg .= "User " . trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')) .
-            " is already a member of group " . trim((isset($_POST['groupname']) ? $_POST['groupname'] : '')) . ". ";
+            $alertmsg .= "User " . trim(($_POST['rumple'] ?? '')) .
+            " is already a member of group " . trim(($_POST['groupname'] ?? '')) . ". ";
         }
     }
 }

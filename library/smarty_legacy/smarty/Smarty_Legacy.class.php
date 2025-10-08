@@ -579,8 +579,7 @@ class Smarty_Legacy
      */
     public function __construct()
     {
-      $this->assign('SCRIPT_NAME', isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME']
-                    : @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
+      $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
     }
 
     /**
@@ -1130,8 +1129,7 @@ class Smarty_Legacy
     {
         static $_cache_info = [];
 
-        $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting(isset($this->error_reporting)
-               ? $this->error_reporting : error_reporting() & ~E_NOTICE);
+        $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting($this->error_reporting ?? error_reporting() & ~E_NOTICE);
 
         if (!$this->debugging && $this->debugging_ctrl == 'URL') {
             $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : $GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'];
@@ -1707,7 +1705,7 @@ class Smarty_Legacy
      */
     function _dequote($string)
     {
-        if ((substr($string, 0, 1) == "'" || substr($string, 0, 1) == '"') &&
+        if ((str_starts_with($string, "'") || str_starts_with($string, '"')) &&
             substr($string, -1) == substr($string, 0, 1))
             return substr($string, 1, -1);
         else
@@ -1955,7 +1953,7 @@ class Smarty_Legacy
 	{
 		if (is_array($function)) {
 			$_class_name = (is_object($function[0]) ?
-				get_class($function[0]) : $function[0]);
+				$function[0]::class : $function[0]);
 			return $_class_name . '_' . $function[1];
 		}
 		else {

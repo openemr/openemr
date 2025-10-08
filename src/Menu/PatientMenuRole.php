@@ -192,7 +192,7 @@ class PatientMenuRole extends MenuRole
         foreach ($menu_restrictions as $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
-                $class = isset($value->class) ? $value->class : '';
+                $class = $value->class ?? '';
                 $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
                 $list .= '<ul class="dropdown-menu">';
                 foreach ($value->children as $children_value) {
@@ -205,7 +205,7 @@ class PatientMenuRole extends MenuRole
                 $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                $class = isset($value->class) ? $value->class : '';
+                $class = $value->class ?? '';
                 $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
                 $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
@@ -233,7 +233,7 @@ class PatientMenuRole extends MenuRole
     {
         if ($rel_url && !strpos($rel_url, "://")) {
             // Normalize URL if it starts with a forward or backward slash
-            if (strpos($rel_url, '/') === 0 || strpos($rel_url, '\\') === 0) {
+            if (str_starts_with($rel_url, '/') || str_starts_with($rel_url, '\\')) {
                 $rel_url = ltrim($rel_url, '/\\');
             }
             return $GLOBALS['webroot'] . "/" . $rel_url;

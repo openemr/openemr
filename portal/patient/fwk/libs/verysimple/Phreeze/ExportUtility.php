@@ -67,7 +67,7 @@ class ExportUtility
         if (isset($objects [0])) {
             try {
                 // see if there is a fieldmap for this object
-                $fields = $phreezer->GetFieldMaps(get_class($objects [0]));
+                $fields = $phreezer->GetFieldMaps($objects [0]::class);
                 $fieldmap_exists = true;
 
                 // these are the columns we'll use for enumeration from here on

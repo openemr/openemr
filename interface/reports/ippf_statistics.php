@@ -44,9 +44,9 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
 
 $form_by       = $_POST['form_by'];     // this is a scalar
 $form_show     = $_POST['form_show'];   // this is an array
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
-$form_sexes    = isset($_POST['form_sexes']) ? $_POST['form_sexes'] : '3';
-$form_content  = isset($_POST['form_content']) ? $_POST['form_content'] : '1';
+$form_facility = $_POST['form_facility'] ?? '';
+$form_sexes    = $_POST['form_sexes'] ?? '3';
+$form_content  = $_POST['form_content'] ?? '1';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
 if (empty($form_by)) {
@@ -533,7 +533,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
         $areport[$key]['.age2'] = [0,0];               // age array
         $areport[$key]['.age9'] = [0,0,0,0,0,0,0,0,0]; // age array
         foreach ($arr_show as $askey => $dummy) {
-            if (substr($askey, 0, 1) == '.') {
+            if (str_starts_with($askey, '.')) {
                 continue;
             }
 
@@ -603,7 +603,7 @@ function ippfLoadColumnData(string $key, array $row, int $quantity = 1): void
     $areport[$key]['.age2'][$i] += $quantity;
 
     foreach ($arr_show as $askey => $dummy) {
-        if (substr($askey, 0, 1) == '.') {
+        if (str_starts_with($askey, '.')) {
             continue;
         }
 
@@ -1278,7 +1278,7 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 if ($_POST['form_submit']) {
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {
-        if (substr($askey, 0, 1) == '.') {
+        if (str_starts_with($askey, '.')) {
             continue;
         }
 

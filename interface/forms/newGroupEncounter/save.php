@@ -35,14 +35,14 @@ $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
 
 $date             = (isset($_POST['form_date']))            ? DateToYYYYMMDD($_POST['form_date']) : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? DateToYYYYMMDD($_POST['form_onset_date']) : '';
-$sensitivity      = (isset($_POST['form_sensitivity']))     ? $_POST['form_sensitivity'] : '';
-$pc_catid         = (isset($_POST['pc_catid']))             ? $_POST['pc_catid'] : '';
-$facility_id      = (isset($_POST['facility_id']))          ? $_POST['facility_id'] : '';
-$billing_facility = (isset($_POST['billing_facility']))     ? $_POST['billing_facility'] : '';
-$reason           = (isset($_POST['reason']))               ? $_POST['reason'] : '';
-$mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
-$referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
-$pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+$sensitivity      = $_POST['form_sensitivity'] ?? '';
+$pc_catid         = $_POST['pc_catid'] ?? '';
+$facility_id      = $_POST['facility_id'] ?? '';
+$billing_facility = $_POST['billing_facility'] ?? '';
+$reason           = $_POST['reason'] ?? '';
+$mode             = $_POST['mode'] ?? '';
+$referral_source  = $_POST['form_referral_source'] ?? '';
+$pos_code         = $_POST['pos_code'] ?? '';
 $counselors       = (isset($_POST['counselors']) && is_array($_POST['counselors']))  ?  implode(', ', $_POST['counselors']) : $provider_id;
 
 
