@@ -27,18 +27,16 @@ use OpenEMR\Common\Twig\TwigContainer;
 
 class C_Prescription extends Controller
 {
-    var $template_mod;
-    var $pconfig;
-    var $providerid = 0;
-    var $is_faxing = false;
-    var $is_print_to_fax = false;
-    var $RxList;
-    var $prescriptions;
+    public $pconfig;
+    public $providerid = 0;
+    public $is_faxing = false;
+    public $is_print_to_fax = false;
+    public $RxList;
+    public $prescriptions;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);

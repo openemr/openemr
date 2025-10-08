@@ -136,8 +136,8 @@ class RuleManager
         "INSERT INTO rule_target ( id, include_flag, required_flag, method, value, group_id )
      VALUES ( ?, ?, ?, ?, ?, ? )";
 
-    var $filterCriteriaFactory;
-    var $targetCriteriaFactory;
+    public $filterCriteriaFactory;
+    public $targetCriteriaFactory;
 
     function __construct()
     {

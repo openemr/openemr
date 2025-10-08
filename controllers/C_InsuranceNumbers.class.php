@@ -13,16 +13,14 @@
 
 class C_InsuranceNumbers extends Controller
 {
-        var $template_mod;
-        var $providers;
-        var $insurance_numbers;
+        public $providers;
+        public $insurance_numbers;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->providers = [];
         $this->insurance_numbers = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&");
         $this->assign("STYLE", $GLOBALS['style']);

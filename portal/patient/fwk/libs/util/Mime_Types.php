@@ -65,7 +65,7 @@ class Mime_Types
      * @var array
      * @access private
      */
-    var $mime_types =  [
+    public $mime_types =  [
             'txt' => 'text/plain',
             'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
@@ -80,7 +80,7 @@ class Mime_Types
      *
      * @var string
      */
-    var $file_cmd = '';
+    public $file_cmd = '';
     // var $file_cmd = '/usr/bin/file';
 
     /**
@@ -92,7 +92,7 @@ class Mime_Types
      *
      * @var array
      */
-    var $file_options =  [
+    public $file_options =  [
             'b' => null,
             'i' => null
     ];

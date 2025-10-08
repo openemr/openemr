@@ -19,28 +19,18 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
  */
 class RuleCriteriaDatabaseBucket extends RuleCriteria
 {
-    var $category;
-    var $item;
-    var $categoryLbl;
-    var $itemLbl;
-    var $completed;
-    var $frequencyComparator;
-    var $frequency;
+    public $categoryLbl;
+    public $itemLbl;
 
     function __construct(
-        $category,
-        $item,
-        $completed,
-        $frequencyComparator,
-        $frequency
+        public $category,
+        public $item,
+        public $completed,
+        public $frequencyComparator,
+        public $frequency
     ) {
-        $this->category = $category;
         $this->categoryLbl = $this->getLabel($this->category, 'rule_action_category');
-        $this->item = $item;
         $this->itemLbl = $this->getLabel($this->item, 'rule_action');
-        $this->completed = $completed;
-        $this->frequencyComparator = $frequencyComparator;
-        $this->frequency = $frequency;
     }
 
     function getRequirements()

@@ -18,15 +18,14 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class InsuranceNumbers extends ORDataObject
 {
-        var $id;
-        var $provider_id;
-        var $insurance_company_name;
-        var $insurance_company_id;
-        var $provider_number;
-        var $rendering_provider_number;
-        var $group_number;
-        var $provider_number_type;
-        var $provider_number_type_array =
+        public $provider_id;
+        public $insurance_company_name;
+        public $insurance_company_id;
+        public $provider_number;
+        public $rendering_provider_number;
+        public $group_number;
+        public $provider_number_type;
+        public $provider_number_type_array =
         [
             ""   => "Unspecified",
             "0B" => "State License Number",
@@ -49,8 +48,8 @@ class InsuranceNumbers extends ORDataObject
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
         ];
-        var $rendering_provider_number_type;
-        var $rendering_provider_number_type_array =
+        public $rendering_provider_number_type;
+        public $rendering_provider_number_type_array =
         [
             ""   => "Unspecified",
             "0B" => "State License Number",
@@ -73,11 +72,10 @@ class InsuranceNumbers extends ORDataObject
          * Constructor sets all Insurance attributes to their default value
          */
 
-        function __construct($id = "", $prefix = "")
+        function __construct(public $id = "", $prefix = "")
         {
-            $this->id = $id;
             $this->_table = "insurance_numbers";
-            if ($id != "") {
+            if ($this->id != "") {
                 $this->populate();
             }
         }

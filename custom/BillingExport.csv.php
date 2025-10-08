@@ -21,11 +21,11 @@ class BillingExport
   // You should customize these paths.  They must share the same
   // physical disk partition so that the final rename will be an
   // atomic operation.
-    var $TMP_DIR    = "/home/billing/tmp";
-    var $TARGET_DIR = "/home/billing/ftp";
+    public $TMP_DIR    = "/home/billing/tmp";
+    public $TARGET_DIR = "/home/billing/ftp";
 
-    var $tmpname; // output filename including path
-    var $tmpfh;   // output file handle
+    public $tmpname; // output filename including path
+    public $tmpfh;   // output file handle
 
     function fixString($string)
     {

@@ -27,39 +27,39 @@ abstract class RuleCriteria
      *
      * @var boolean
      */
-    var $optional;
+    public $optional;
 
     /**
      * if true, then criteira is an inclusion; exclusion otherwise
      *
      * @var boolean
      */
-    var $inclusion = true;
+    public $inclusion = true;
 
     /**
      * @var string
      */
-    var $interval;
+    public $interval;
 
     /**
      * @var TimeUnit
      */
-    var $intervalType;
+    public $intervalType;
 
     /**
      * uniquely identifies this criteria
      *
      * @var string
      */
-    var $guid;
+    public $guid;
 
     /**
      *
      * @var RuleCriteriaType
      */
-    var $criteriaType;
+    public $criteriaType;
 
-    var $groupId;
+    public $groupId;
 
     function getCharacteristics()
     {

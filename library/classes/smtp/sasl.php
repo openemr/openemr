@@ -14,11 +14,11 @@ define("SASL_NOMECH",  -4);
 
 class sasl_interact_class
 {
-	var $id;
-	var $challenge;
-	var $prompt;
-	var $default_result;
-	var $result;
+	public $id;
+	public $challenge;
+	public $prompt;
+	public $default_result;
+	public $result;
 };
 
 /*
@@ -76,7 +76,7 @@ class sasl_client_class
 	</variable>
 {/metadocument}
 */
-	var $error='';
+	public $error='';
 
 /*
 {metadocument}
@@ -92,7 +92,7 @@ class sasl_client_class
 	</variable>
 {/metadocument}
 */
-	var $mechanism='';
+	public $mechanism='';
 
 /*
 {metadocument}
@@ -110,12 +110,12 @@ class sasl_client_class
 	</variable>
 {/metadocument}
 */
-	var $encode_response=1;
+	public $encode_response=1;
 
 	/* Private variables */
 
-	var $driver;
-	var $drivers=[
+	public $driver;
+	public $drivers=[
 		"Digest"   => ["digest_sasl_client_class",   "digest_sasl_client.php"   ],
 		"CRAM-MD5" => ["cram_md5_sasl_client_class", "cram_md5_sasl_client.php" ],
 		"LOGIN"    => ["login_sasl_client_class",    "login_sasl_client.php"    ],
@@ -123,7 +123,7 @@ class sasl_client_class
 		"PLAIN"    => ["plain_sasl_client_class",    "plain_sasl_client.php"    ],
 		"Basic"    => ["basic_sasl_client_class",    "basic_sasl_client.php"    ]
 	];
-	var $credentials=[];
+	public $credentials=[];
 
 	/* Public functions */
 

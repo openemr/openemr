@@ -17,8 +17,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleFilters
 {
-    var $ruleId;
-    var $criteria = [];
+    public $ruleId;
+    public $criteria = [];
 
     function __construct()
     {

@@ -16,52 +16,50 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class X12Partner extends ORDataObject
 {
-    var $id;
-    var $name;
-    var $x12_submitter_id;
-    var $x12_submitter_name;
-    var $x12_submitter_array;
-    var $id_number;
-    var $x12_isa01; //
-    var $x12_isa02; //
-    var $x12_isa03; //
-    var $x12_isa04; //
-    var $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
-    var $x12_sender_id;   // ISA06
-    var $x12_isa07; // Receiver Interchange ID Qualifier.
-    var $x12_receiver_id; // ISA08
-    var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
-    var $x12_isa15; // Usage Indicator. T = testing, P = production.
-    var $x12_gs02;  // Application Sender's Code. Default to ISA06.
-    var $x12_dtp03; // 270 2100C DTP03 service date for eligibility.
-    var $x12_per06; // The submitter's EDI Access Number, if any.
-    var $x12_version;
-    var $processing_format;
-    var $processing_format_array;
-    var $x12_gs03; // Application Sender's Code. If this isn't set then we will use the $x12_receiver_id(ISA08).
+    public $name;
+    public $x12_submitter_id;
+    public $x12_submitter_name;
+    public $x12_submitter_array;
+    public $id_number;
+    public $x12_isa01; //
+    public $x12_isa02; //
+    public $x12_isa03; //
+    public $x12_isa04; //
+    public $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
+    public $x12_sender_id;   // ISA06
+    public $x12_isa07; // Receiver Interchange ID Qualifier.
+    public $x12_receiver_id; // ISA08
+    public $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
+    public $x12_isa15; // Usage Indicator. T = testing, P = production.
+    public $x12_gs02;  // Application Sender's Code. Default to ISA06.
+    public $x12_dtp03; // 270 2100C DTP03 service date for eligibility.
+    public $x12_per06; // The submitter's EDI Access Number, if any.
+    public $x12_version;
+    public $processing_format;
+    public $processing_format_array;
+    public $x12_gs03; // Application Sender's Code. If this isn't set then we will use the $x12_receiver_id(ISA08).
 
     //for submitting claims via sftp
-    var $x12_sftp_login;
-    var $x12_sftp_pass;
-    var $x12_sftp_host;
-    var $x12_sftp_port;
-    var $x12_sftp_local_dir;
-    var $x12_sftp_remote_dir;
-    var $x12_client_id;
-    var $x12_client_secret;
-    var $x12_token_endpoint;
-    var $x12_eligibility_endpoint;
-    var $x12_claim_status_endpoint;
-    var $x12_attachment_endpoint;
+    public $x12_sftp_login;
+    public $x12_sftp_pass;
+    public $x12_sftp_host;
+    public $x12_sftp_port;
+    public $x12_sftp_local_dir;
+    public $x12_sftp_remote_dir;
+    public $x12_client_id;
+    public $x12_client_secret;
+    public $x12_token_endpoint;
+    public $x12_eligibility_endpoint;
+    public $x12_claim_status_endpoint;
+    public $x12_attachment_endpoint;
 
     /**
      * Constructor sets all Insurance attributes to their default value
      */
 
-    function __construct($id = "", $prefix = "")
+    function __construct(public $id = "", $prefix = "")
     {
         parent::__construct();
-        $this->id = $id;
         $this->_table = "x12_partners";
         $this->processing_format_array = $this->_load_enum("processing_format", false);
         $this->processing_format = $this->processing_format_array[0] ?? null;
@@ -72,7 +70,7 @@ class X12Partner extends ORDataObject
         $this->x12_isa07 = "ZZ";
         $this->x12_isa14 = "0";
         $this->x12_dtp03 = "A";
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
