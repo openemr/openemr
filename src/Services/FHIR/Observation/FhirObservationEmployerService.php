@@ -89,7 +89,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['start_date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
                 new ServiceField('uuid', ServiceField::TYPE_UUID)
             ]),
@@ -183,10 +183,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
     protected function getListOption(string $listId, string $optionId): ?array
     {
         $listOptionsByListId = $this->getListOptionsByListId();
-        if (isset($listOptionsByListId[$listId][$optionId])) {
-            return $listOptionsByListId[$listId][$optionId];
-        }
-        return null;
+        return $listOptionsByListId[$listId][$optionId] ?? null;
     }
 
     // patient_data observations currently are the following:

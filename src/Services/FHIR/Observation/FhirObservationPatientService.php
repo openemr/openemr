@@ -141,10 +141,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
     protected function getListOption(string $listId, string $optionId)
     {
         $listOptionsByListId = $this->getListOptionsByListId();
-        if (isset($listOptionsByListId[$listId][$optionId])) {
-            return $listOptionsByListId[$listId][$optionId];
-        }
-        return null;
+        return $listOptionsByListId[$listId][$optionId] ?? null;
     }
 
     // patient_data observations currently are the following:

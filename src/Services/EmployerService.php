@@ -99,7 +99,7 @@ class EmployerService extends BaseService
                 ) lo_ind ON lo_ind.industry_option_id = emp.industry
             ";
             $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters, $isAndCondition);
-            $sql = $sql . $whereClause->getFragment();
+            $sql .= $whereClause->getFragment();
             $results = QueryUtils::fetchRecords($sql, $whereClause->getBoundValues());
             $processingResult = new ProcessingResult();
             foreach ($results as $record) {
@@ -160,7 +160,7 @@ class EmployerService extends BaseService
     public function getMostRecentEmployerData($pid, $given = "*"): array|false
     {
         $sql = "select $given from employer_data where pid = ? order by date DESC limit 0,1";
-        $resultSet = QueryUtils::fetchRecords($sql, array($pid));
+        $resultSet = QueryUtils::fetchRecords($sql, [$pid]);
         if (!empty($resultSet)) {
             return $resultSet[0];
         } else {

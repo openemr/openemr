@@ -99,7 +99,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
     public function onServicePostSaveEvent(ServiceSaveEvent $event, $eventName)
     {
         $service = $event->getService();
-        $serviceClass = get_class($service);
+        $serviceClass = $service::class;
         $data = $event->getSaveData();
         $targetUuid = $data['uuid'] ?? null;
 
