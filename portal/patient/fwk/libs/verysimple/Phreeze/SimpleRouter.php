@@ -54,7 +54,7 @@ class SimpleRouter implements IRouter
      *          in the format param1=val1&param2=val2
      * @return string URL
      */
-    public function GetUrl($controller, $method, $params = '', $requestMethod = '')
+    public function GetUrl($controller, $method, $params = '', $requestMethod = ''): never
     {
         throw new Exception('Not yet implemented');
     }

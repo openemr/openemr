@@ -229,7 +229,7 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals("patient/Patient.ruds", $allowedScopes[2]->getIdentifier(), "Allowed scope should be patient/Patient.ruds");
     }
 
-    public function finalizeScopesWithInvalidSubScopeWillFail()
+    public function finalizeScopesWithInvalidSubScopeWillFail(): never
     {
         // tests we need to handle here
         $this->markTestIncomplete("ScopeRepository::finalizeScopes() needs to be implemented and tested.");

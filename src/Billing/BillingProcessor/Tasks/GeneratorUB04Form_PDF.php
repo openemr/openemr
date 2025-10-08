@@ -80,7 +80,7 @@ class GeneratorUB04Form_PDF extends AbstractGenerator implements GeneratorInterf
      *
      * @param array $context
      */
-    public function completeToFile(array $context)
+    public function completeToFile(array $context): never
     {
         ub04Dispose('download', $this->template, $this->batch->getBatFilename(), 'form');
         exit();

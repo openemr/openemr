@@ -81,7 +81,7 @@ class DBEventHandler
      * @param string $data
      *          any additional information that may help with debugging
      */
-    function Crash($code, $message = "", $data = "")
+    function Crash($code, $message = "", $data = ""): never
     {
         throw new DatabaseException($message, $code, $data);
     }

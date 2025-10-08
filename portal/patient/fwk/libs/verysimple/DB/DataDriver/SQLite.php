@@ -28,7 +28,7 @@ class DataDriverSQLite implements IDataDriver
     {
         return "SQLite";
     }
-    function Ping($connection)
+    function Ping($connection): never
     {
         throw new DatabaseException("Not Implemented");
     }
@@ -182,7 +182,7 @@ class DataDriverSQLite implements IDataDriver
     /**
      * @inheritdocs
      */
-    function StartTransaction($connection)
+    function StartTransaction($connection): never
     {
         throw new Exception('Transaction support is not implemented for this DataDriver');
     }
@@ -190,7 +190,7 @@ class DataDriverSQLite implements IDataDriver
     /**
      * @inheritdocs
      */
-    function CommitTransaction($connection)
+    function CommitTransaction($connection): never
     {
         throw new Exception('Transaction support is not implemented for this DataDriver');
     }
@@ -198,7 +198,7 @@ class DataDriverSQLite implements IDataDriver
     /**
      * @inheritdocs
      */
-    function RollbackTransaction($connection)
+    function RollbackTransaction($connection): never
     {
         throw new Exception('Transaction support is not implemented for this DataDriver');
     }
