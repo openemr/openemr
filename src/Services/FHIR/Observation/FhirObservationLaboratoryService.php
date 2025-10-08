@@ -304,9 +304,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             // Optional: Add a note if there are multiple specimens
             if (count($dataRecord['specimens']) > 1) {
                 $specimenNote = "Multiple specimens collected: ";
-                $specimenIdentifiers = array_map(function($spec) {
-                    return $spec['identifier'] ?? $spec['type'] ?? 'Unknown';
-                }, $dataRecord['specimens']);
+                $specimenIdentifiers = array_map(fn($spec) => $spec['identifier'] ?? $spec['type'] ?? 'Unknown', $dataRecord['specimens']);
                 $specimenNote .= implode(', ', $specimenIdentifiers);
                 $observation->addNote(['text' => $specimenNote]);
             }

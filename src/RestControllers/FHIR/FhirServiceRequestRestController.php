@@ -30,7 +30,8 @@ class FhirServiceRequestRestController
 
     /**
      * Queries for a single FHIR ServiceRequest resource by FHIR id
-     * @param $fhirId  - The FHIR ServiceRequest resource id (uuid)
+     *
+     * @param $fhirId    - The FHIR ServiceRequest resource id (uuid)
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
@@ -48,16 +49,17 @@ class FhirServiceRequestRestController
      * - code (procedure/test code)
      * - authored (order date)
      * - status (order status)
+     *
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirServiceRequestService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' => $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

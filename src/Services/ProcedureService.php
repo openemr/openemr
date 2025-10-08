@@ -452,9 +452,7 @@ class ProcedureService extends BaseService
         // Final assembly
         foreach ($procedures as $uuid) {
             $procedure = $procedureByUuid[$uuid];
-            $procedure['reports'] = array_map(function ($reportUuid) use ($reportsByUuid) {
-                return $reportsByUuid[$reportUuid];
-            }, $procedure['reports']);
+            $procedure['reports'] = array_map(fn($reportUuid): array => $reportsByUuid[$reportUuid], $procedure['reports']);
             $processingResult->addData($procedure);
         }
 

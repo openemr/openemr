@@ -3,7 +3,7 @@
 /**
  * FhirServiceRequestService.php
  *
- * @package openemr
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
@@ -62,6 +62,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
 
     /**
      * OpenEMR procedure_order_title / order types mapping
+     *
      * @see list_options order_types
      */
     const ORDER_TYPE_LABORATORY = "laboratory_test";
@@ -115,10 +116,10 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * Parses an OpenEMR procedure_order record into a FHIR ServiceRequest resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string
+     * @param bool  $encode     Indicates if the returned resource is encoded into a string
      * @return FHIRServiceRequest
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $serviceRequest = new FHIRServiceRequest();
 
