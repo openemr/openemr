@@ -33,7 +33,7 @@ define("N2T_NEGATIVE", "negative");
 
 class NumberToText
 {
-    function __construct(public $number, public $currency = false, public $capatalize = false, public $and = false)
+    function __construct(public $number, public $currency = false, public $capitalize = false, public $and = false)
     {
     }
 
@@ -47,7 +47,7 @@ class NumberToText
     * @version 1.1
     * @param int  $number      The number to convert
     * @param bool $currency    True to convert as a dollar amount
-    * @param bool $capatalize  True to capatalize every word (except "and")
+    * @param bool $capitalize  True to capitalize every word (except "and")
     * @param bool $and         True to use "and"  (ie. "one hundred AND six")
     * @return The textual description of the number, as a string.
     * @package NumberToText
@@ -57,7 +57,7 @@ class NumberToText
     {
         $number = $this->number;
         $currency = $this->currency;
-        $capatalize = $this->capatalize;
+        $capitalize = $this->capitalize;
         $and = $this->and;
 
         $big = unserialize(N2T_BIG, ['allowed_classes' => false]);
@@ -172,9 +172,9 @@ class NumberToText
             $text = N2T_NEGATIVE . " " . $text;
         }
 
-        // capatalize words
-        if ($capatalize) {
-            // easier to capatalize all words then un-capatalize "and"
+        // capitalize words
+        if ($capitalize) {
+            // easier to capitalize all words then un-capitalize "and"
             $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
         }
 
