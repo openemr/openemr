@@ -10,8 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Ensure $i and optional $specimens are in scope
-
 /** @var array<int, array<string, mixed>> $specimen_by_seq */
 /** @var array<string, mixed>|null $oprow */
 /** @var int|null $i */
@@ -20,8 +18,8 @@ $i = isset($i) ? (int)$i : 0;
 $specimen_by_seq = $specimen_by_seq ?? [];
 $oprow = $oprow ?? null;
 
-$line = (int)$i;
-$rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
+$seq = (int)($oprow['procedure_order_seq'] ?? 0);
+$rows = $specimen_by_seq[$seq] ?? [];
 ?>
 <tr class="specimenContainer collapse" id="specimen_code_<?php echo attr($i); ?>">
     <td colspan="6" class="bg-light">
@@ -62,8 +60,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                                     ob_start();
                                     generate_form_field([
                                         'data_type' => 1,
-                                        'field_id'  => "proc_specimen_type_code[$i][]",
-                                        'list_id'   => 'specimen_type'
+                                        'field_id' => "proc_specimen_type_code[$i][]",
+                                        'list_id' => 'specimen_type'
                                     ], $sp['specimen_type_code'] ?? '');
                                     echo ob_get_clean();
                                     ?>
@@ -76,8 +74,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                                     ob_start();
                                     generate_form_field([
                                         'data_type' => 1,
-                                        'field_id'  => "proc_collection_method_code[$i][]",
-                                        'list_id'   => 'specimen_collection_method'
+                                        'field_id' => "proc_collection_method_code[$i][]",
+                                        'list_id' => 'specimen_collection_method'
                                     ], $sp['collection_method_code'] ?? '');
                                     echo ob_get_clean();
                                     ?>
@@ -90,8 +88,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                                     ob_start();
                                     generate_form_field([
                                         'data_type' => 1,
-                                        'field_id'  => "proc_specimen_location_code[$i][]",
-                                        'list_id'   => 'specimen_location'
+                                        'field_id' => "proc_specimen_location_code[$i][]",
+                                        'list_id' => 'specimen_location'
                                     ], $sp['specimen_location_code'] ?? '');
                                     echo ob_get_clean();
                                     ?>
@@ -125,8 +123,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                                     ob_start();
                                     generate_form_field([
                                         'data_type' => 1,
-                                        'field_id'  => "proc_specimen_condition_code[$i][]",
-                                        'list_id'   => 'specimen_condition'
+                                        'field_id' => "proc_specimen_condition_code[$i][]",
+                                        'list_id' => 'specimen_condition'
                                     ], $sp['condition_code'] ?? '');
                                     echo ob_get_clean();
                                     ?>
@@ -165,8 +163,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                     ob_start();
                     generate_form_field([
                         'data_type' => 1,
-                        'field_id'  => "proc_specimen_type_code[$i][]",
-                        'list_id'   => 'specimen_type'
+                        'field_id' => "proc_specimen_type_code[$i][]",
+                        'list_id' => 'specimen_type'
                     ], '');
                     echo ob_get_clean();
                     ?>
@@ -177,8 +175,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                     ob_start();
                     generate_form_field([
                         'data_type' => 1,
-                        'field_id'  => "proc_collection_method_code[$i][]",
-                        'list_id'   => 'specimen_collection_method'
+                        'field_id' => "proc_collection_method_code[$i][]",
+                        'list_id' => 'specimen_collection_method'
                     ], '');
                     echo ob_get_clean();
                     ?>
@@ -189,8 +187,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                     ob_start();
                     generate_form_field([
                         'data_type' => 1,
-                        'field_id'  => "proc_specimen_location_code[$i][]",
-                        'list_id'   => 'specimen_location'
+                        'field_id' => "proc_specimen_location_code[$i][]",
+                        'list_id' => 'specimen_location'
                     ], '');
                     echo ob_get_clean();
                     ?>
@@ -217,8 +215,8 @@ $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];
                     ob_start();
                     generate_form_field([
                         'data_type' => 1,
-                        'field_id'  => "proc_specimen_condition_code[$i][]",
-                        'list_id'   => 'specimen_condition'
+                        'field_id' => "proc_specimen_condition_code[$i][]",
+                        'list_id' => 'specimen_condition'
                     ], '');
                     echo ob_get_clean();
                     ?>
