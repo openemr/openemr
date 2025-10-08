@@ -17840,10 +17840,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: src/Services/PhoneNumberService.php
-  - message: '#^Variable \$report might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: src/Services/ProcedureService.php
   - message: '#^Variable \$result on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
