@@ -13,7 +13,6 @@
 
 namespace Juggernaut\OpenEMR\Modules\PriorAuthModule;
 
-
 use OpenEMR\Core\Kernel;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Menu\PatientMenuEvent;
@@ -34,7 +33,7 @@ class Bootstrap
     private $twig;
     private ?Kernel $kernel;
 
-    public function __construct(EventDispatcherInterface $dispatcher,  Kernel $kernel = null)
+    public function __construct(EventDispatcherInterface $dispatcher, Kernel $kernel = null)
     {
         $this->kernel = $kernel;
         $this->eventDispatcher = $dispatcher;

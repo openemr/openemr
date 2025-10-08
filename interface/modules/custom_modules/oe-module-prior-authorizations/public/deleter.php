@@ -21,7 +21,6 @@ try {
     echo $controller->deleteAction();
 } catch (Exception $e) {
     error_log("Error in deleter.php: " . $e->getMessage());
-    
     // Fallback error response for modal
     echo "<!DOCTYPE html><html><head><title>" . xlt('Error') . "</title></head><body>";
     echo "<div class='container-fluid text-center p-4'>";

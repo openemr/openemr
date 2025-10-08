@@ -23,7 +23,6 @@ $controller = new PatientAuthManagerController();
 // Process form submission if present
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller->processForm();
-    
     // Redirect to prevent duplicate submission on refresh
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
@@ -34,7 +33,7 @@ try {
     echo $controller->view();
 } catch (Exception $e) {
     error_log("Error rendering patient auth manager view: " . $e->getMessage());
-    
+
     // Fallback to simple error message
     echo "<!DOCTYPE html><html><head><title>Error</title></head><body>";
     echo "<div class='alert alert-danger'>";

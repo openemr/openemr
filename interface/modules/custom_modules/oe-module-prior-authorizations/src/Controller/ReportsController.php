@@ -22,7 +22,6 @@ class ReportsController
     public function __construct(?AuthorizationService $authorizationService = null, ?TwigContainer $twigContainer = null, ?Kernel $kernel = null)
     {
         $this->authorizationService = $authorizationService ?? new AuthorizationService();
-        
         // Set up Twig with module template path
         $modulePath = dirname(__DIR__, 2) . '/templates';
         $this->twig = $twigContainer ?? new TwigContainer($modulePath, $kernel);
@@ -38,7 +37,6 @@ class ReportsController
 
         // Get authorization data
         $patients = $this->authorizationService->listPatientAuths();
-        
         // Process data for view
         $processedData = $this->processAuthorizationData($patients, $hideExpired);
 
@@ -75,8 +73,8 @@ class ReportsController
                 $pid = $iter['mrn'];
             }
 
-            $isExpired = !empty($iter['end_date']) && 
-                         $iter['end_date'] !== '0000-00-00' && 
+            $isExpired = !empty($iter['end_date']) &&
+                         $iter['end_date'] !== '0000-00-00' &&
                          $iter['end_date'] < date('Y-m-d');
 
             // Skip expired if filtering is enabled
@@ -99,7 +97,6 @@ class ReportsController
             // Calculate remaining units and percentage
             $initialUnits = (int)$iter['init_units'];
             $remainingUnits = $initialUnits - $usedUnits;
-            
             $percentRemaining = 0;
             if ($initialUnits > 0) {
                 $percentRemaining = round(($remainingUnits / $initialUnits) * 100);

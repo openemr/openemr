@@ -34,7 +34,6 @@ class DeleteController
     public function deleteAction(): string
     {
         $result = $this->processDelete();
-        
         // Prepare template data
         $templateData = [
             'success' => $result['success'],
@@ -117,7 +116,6 @@ class DeleteController
             return [
                 'success' => true
             ];
-
         } catch (\Exception $e) {
             error_log("Prior Auth Delete: Exception occurred - " . $e->getMessage());
             return [

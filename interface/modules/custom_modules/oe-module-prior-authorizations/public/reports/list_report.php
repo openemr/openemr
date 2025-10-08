@@ -20,7 +20,6 @@ try {
     echo $controller->listAction();
 } catch (Exception $e) {
     error_log("Error rendering list report: " . $e->getMessage());
-    
     // Fallback to simple error message
     echo "<!DOCTYPE html><html><head><title>Error</title></head><body>";
     echo "<div class='alert alert-danger'>";

@@ -25,5 +25,3 @@ $classLoader->registerNamespaceIfNotExists('Juggernaut\\OpenEMR\Modules\\PriorAu
  */
 $bootstrap = new Bootstrap($eventDispatcher);
 $bootstrap->subscribeToEvents();
-
-

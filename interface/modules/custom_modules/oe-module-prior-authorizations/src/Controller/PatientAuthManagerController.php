@@ -35,7 +35,6 @@ class PatientAuthManagerController
     public function view(): string
     {
         $templateData = $this->gatherPageVars();
-        
         // Get Twig instance and render template
         $twig = $this->twig->getTwig();
         return $twig->render('patient_auth_manager.html.twig', $templateData);
@@ -76,7 +75,6 @@ class PatientAuthManagerController
     private function gatherPageVars(): array
     {
         $pid = $_SESSION['pid'] ?? null;
-        
         // Get all authorizations for this patient
         $authorizations = [];
         if ($pid) {
@@ -102,21 +100,18 @@ class PatientAuthManagerController
     private function processAuthorizationData($authList): array
     {
         $authorizations = [];
-        
         if (!empty($authList)) {
             while ($iter = sqlFetchArray($authList)) {
                 $editData = json_encode($iter);
                 $used = AuthorizationService::getUnitsUsed(
-                    $iter['auth_num'], 
-                    $iter['pid'], 
-                    $iter['cpt'], 
-                    $iter['start_date'], 
+                    $iter['auth_num'],
+                    $iter['pid'],
+                    $iter['cpt'],
+                    $iter['start_date'],
                     $iter['end_date']
                 );
-                
                 $remaining = $iter['init_units'] - $used;
                 $initialUnits = (int)$iter['init_units'];
-                
                 if ($initialUnits > 0) {
                     $percentRemaining = round(($remaining / $initialUnits) * 100);
                 } else {
@@ -143,7 +138,6 @@ class PatientAuthManagerController
                 ];
             }
         }
-        
         return $authorizations;
     }
 
@@ -157,11 +151,9 @@ class PatientAuthManagerController
         }
 
         $formattedDate = DateToYYYYMMDD($date);
-        
         if ($this->isValidDate($formattedDate)) {
             return $formattedDate;
         }
-        
         return $date; // Return original if formatting fails
     }
 
