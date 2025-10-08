@@ -22,13 +22,11 @@ class FhirCoverageRestController
 {
     private $fhirCoverage;
     private $fhirService;
-    private $fhirValidationService;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirCoverage = new FhirCoverageService();
-        $this->fhirValidationService = new FhirValidationService();
     }
 
     /**

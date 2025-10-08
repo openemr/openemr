@@ -11372,10 +11372,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-comlink-telehealth/public/index.php
-  - message: '#^Access to an undefined property Comlink\\OpenEMR\\Modules\\TeleHealthModule\\Controller\\TeleHealthCalendarController\:\:\$teleHealthProviderRepository\.$#'
-    identifier: property.notFound
-    count: 3
-    path: interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php
   - message: '#^Variable \$user might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -11960,10 +11956,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
-  - message: '#^Variable \$adapter on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php
   - message: '#^Variable \$curr_html_tag might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -17476,10 +17468,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Pharmacy/Services/ImportPharmacies.php
-  - message: '#^Access to an undefined property OpenEMR\\RestControllers\\FHIR\\FhirImmunizationRestController\:\:\$fhirValidate\.$#'
-    identifier: property.notFound
-    count: 1
-    path: src/RestControllers/FHIR/FhirImmunizationRestController.php
   - message: '#^Class OpenEMR\\Services\\FHIR\\FhirDocRefService constructor invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1

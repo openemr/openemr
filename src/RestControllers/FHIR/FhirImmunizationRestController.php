@@ -25,13 +25,11 @@ class FhirImmunizationRestController
 {
     private readonly FhirImmunizationService $fhirImmunizationService;
     private readonly FhirResourcesService $fhirService;
-    private readonly FhirValidationService $fhirValidationService;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirImmunizationService = new FhirImmunizationService();
-        $this->fhirValidate = new FhirValidationService();
     }
 
     /**

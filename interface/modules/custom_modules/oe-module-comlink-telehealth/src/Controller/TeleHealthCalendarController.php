@@ -45,7 +45,7 @@ class TeleHealthCalendarController
      */
     private $apptService;
 
-    private readonly TeleHealthProviderRepository $healthProviderRepository;
+    private readonly TeleHealthProviderRepository $teleHealthProviderRepository;
 
     /**
      * @param TelehealthGlobalConfig $config
