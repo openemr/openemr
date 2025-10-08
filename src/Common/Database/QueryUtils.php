@@ -291,7 +291,7 @@ class QueryUtils
         \sqlRollbackTrans();
     }
 
-    public static function getLastInsertId()
+    public static function getLastInsertId(): int
     {
         return \sqlGetLastInsertId();
     }
