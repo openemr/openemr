@@ -66,7 +66,7 @@ class sms
     * Define SMS balance limit below class will not work
     * @var integer
     */
-    public $balace_limit = 0;
+    public $balance_limit = 0;
 
     /**
     * Gateway command sending method (curl,fopen)
@@ -167,7 +167,7 @@ class sms
     {
 
         /* Check SMS credits balance */
-        if ($this->getbalance() < $this->balace_limit) {
+        if ($this->getbalance() < $this->balance_limit) {
             die("You have reach the SMS credit limit!");
         };
 
