@@ -1,0 +1,522 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'Prior Authorization Report' | xlt }}{% endblock %}
+
+{% block page_header %}
+<div class="pa-card mb-4">
+    <div class="pa-card-header">
+        <h1 class="pa-card-title">
+            <i class="fas fa-chart-bar"></i>
+            {{ 'Prior Authorization Report' | xlt }}
+        </h1>
+        <div class="d-flex gap-2">
+            <button class="pa-btn pa-btn-outline" onclick="window.print()">
+                <i class="fas fa-print"></i>
+                {{ 'Print Report' | xlt }}
+            </button>
+            <button class="pa-btn pa-btn-primary" onclick="exportReport()">
+                <i class="fas fa-download"></i>
+                {{ 'Export Data' | xlt }}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filter Controls -->
+<div class="pa-card mb-4">
+    <div class="pa-card-body">
+        <form method="get" action="" class="d-flex align-items-center justify-content-between">
+            <div class="form-check form-switch">
+                <input class="form-check-input" 
+                       type="checkbox" 
+                       name="hide_expired" 
+                       value="1" 
+                       id="hideExpiredSwitch"
+                       {% if hideExpired %}checked{% endif %} 
+                       onchange="handleFilterChange()">
+                <label class="form-check-label fw-bold" for="hideExpiredSwitch">
+                    <i class="fas fa-filter me-2"></i>
+                    {{ 'Hide Expired Authorizations' | xlt }}
+                </label>
+            </div>
+            <div class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                {{ 'Showing' | xlt }} <strong>{{ totalCount }}</strong> {{ 'authorization(s)' | xlt }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Dashboard Summary Cards -->
+<div class="row mb-4">
+    <!-- Usage Summary Chart -->
+    <div class="col-lg-8">
+        <div class="pa-card h-100">
+            <div class="pa-card-header">
+                <h3 class="pa-card-title">
+                    <i class="fas fa-chart-pie"></i>
+                    {{ 'Usage Summary' | xlt }}
+                </h3>
+                {% if chartData.hasData %}
+                    <div class="text-muted">
+                        {{ 'Total Units:' | xlt }} <strong>{{ chartData.totalInitial }}</strong>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="pa-card-body text-center">
+                {% if chartData.hasData %}
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="me-2" style="width: 20px; height: 20px; background-color: rgba(75, 192, 192, 0.8); border-radius: 3px;"></div>
+                                <span class="text-muted">{{ 'Units Used:' | xlt }} <strong>{{ chartData.totalUsed }}</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="me-2" style="width: 20px; height: 20px; background-color: rgba(255, 99, 132, 0.8); border-radius: 3px;"></div>
+                                <span class="text-muted">{{ 'Units Remaining:' | xlt }} <strong>{{ chartData.totalRemaining }}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="py-5">
+                        <i class="fas fa-chart-pie text-muted fa-4x mb-3"></i>
+                        <h4 class="text-muted">{{ 'No Usage Data' | xlt }}</h4>
+                        <p class="text-muted">{{ 'No active authorizations with units found.' | xlt }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="col-lg-4">
+        <div class="row h-100">
+            <div class="col-12 mb-3">
+                <div class="pa-card text-center h-100">
+                    <div class="pa-card-body d-flex flex-column justify-content-center">
+                        <i class="fas fa-clipboard-list text-primary fa-3x mb-2"></i>
+                        <h3 class="mb-1">{{ totalCount }}</h3>
+                        <p class="text-muted mb-0">{{ 'Total Authorizations' | xlt }}</p>
+                    </div>
+                </div>
+            </div>
+            {% if chartData.hasData %}
+            <div class="col-12 mb-3">
+                <div class="pa-card text-center h-100">
+                    <div class="pa-card-body d-flex flex-column justify-content-center">
+                        <i class="fas fa-percentage text-success fa-3x mb-2"></i>
+                        <h3 class="mb-1">{{ ((chartData.totalRemaining / chartData.totalInitial) * 100) | round }}%</h3>
+                        <p class="text-muted mb-0">{{ 'Units Available' | xlt }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="pa-card text-center h-100">
+                    <div class="pa-card-body d-flex flex-column justify-content-center">
+                        <i class="fas fa-chart-line text-info fa-3x mb-2"></i>
+                        <h3 class="mb-1">{{ chartData.totalInitial }}</h3>
+                        <p class="text-muted mb-0">{{ 'Total Units' | xlt }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Authorization Details Table -->
+<div class="pa-card">
+    <div class="pa-card-header">
+        <h3 class="pa-card-title">
+            <i class="fas fa-table"></i>
+            {{ 'Authorization Details' | xlt }}
+        </h3>
+        <div class="d-flex gap-2">
+            <button class="pa-btn pa-btn-outline btn-sm" onclick="toggleTableView()">
+                <i class="fas fa-th" id="viewToggleIcon"></i>
+                <span id="viewToggleText">{{ 'Card View' | xlt }}</span>
+            </button>
+        </div>
+    </div>
+    <div class="pa-card-body p-0">
+        {% if authorizations | length > 0 %}
+            <!-- Table View (Default) -->
+            <div id="tableView" class="pa-table-container">
+                <table class="table pa-table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="sortable" onclick="sortTable(0)">
+                                <i class="fas fa-id-badge text-primary me-1"></i>
+                                {{ 'Patient' | xlt }}
+                                <i class="fas fa-sort text-muted ms-1"></i>
+                            </th>
+                            <th scope="col" class="sortable" onclick="sortTable(1)">
+                                <i class="fas fa-building text-primary me-1"></i>
+                                {{ 'Insurance' | xlt }}
+                                <i class="fas fa-sort text-muted ms-1"></i>
+                            </th>
+                            <th scope="col" class="sortable" onclick="sortTable(2)">
+                                <i class="fas fa-key text-primary me-1"></i>
+                                {{ 'Authorization' | xlt }}
+                                <i class="fas fa-sort text-muted ms-1"></i>
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-code text-primary me-1"></i>
+                                {{ 'CPT' | xlt }}
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-calendar-alt text-primary me-1"></i>
+                                {{ 'Period' | xlt }}
+                            </th>
+                            <th scope="col" class="text-center">
+                                <i class="fas fa-chart-bar text-primary me-1"></i>
+                                {{ 'Units' | xlt }}
+                            </th>
+                            <th scope="col" class="text-center">
+                                <i class="fas fa-percentage text-primary me-1"></i>
+                                {{ 'Usage' | xlt }}
+                            </th>
+                            <th scope="col" class="text-center">
+                                <i class="fas fa-info-circle text-primary me-1"></i>
+                                {{ 'Status' | xlt }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for auth in authorizations %}
+                            <tr class="auth-row" data-patient="{{ auth.fullName | lower }}">
+                                {% if auth.is_new_patient %}
+                                    <td class="patient-info" rowspan="1">
+                                        <div class="d-flex flex-column">
+                                            <a href="#" 
+                                               onclick="openNewTopWindow({{ auth.pid | e }})" 
+                                               class="fw-bold text-decoration-none">
+                                                {{ auth.lname | e }}, {{ auth.fname | e }}
+                                            </a>
+                                            <small class="text-muted">
+                                                <i class="fas fa-id-card me-1"></i>
+                                                MRN: {{ auth.mrn | e }}
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td class="insurance-info">
+                                        <span class="badge bg-secondary">{{ auth.insurance | e | default('N/A') }}</span>
+                                    </td>
+                                {% else %}
+                                    <td></td>
+                                    <td></td>
+                                {% endif %}
+                                
+                                <td>
+                                    <div class="fw-bold">{{ auth.auth_num | e }}</div>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge bg-info">{{ auth.cpt | e }}</span>
+                                </td>
+                                
+                                <td>
+                                    <div class="small">
+                                        <div class="text-success">
+                                            <i class="fas fa-play me-1"></i>
+                                            {{ auth.start_date | e }}
+                                        </div>
+                                        {% if auth.end_date != '0000-00-00' %}
+                                            <div class="text-danger">
+                                                <i class="fas fa-stop me-1"></i>
+                                                {{ auth.end_date | e }}
+                                            </div>
+                                        {% else %}
+                                            <div class="text-muted">
+                                                <i class="fas fa-infinity me-1"></i>
+                                                {{ 'No end date' | xlt }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                
+                                <td class="text-center">
+                                    {% if auth.is_expired and auth.auth_num %}
+                                        <span class="badge bg-danger">{{ 'Expired' | xlt }}</span>
+                                    {% else %}
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fw-bold">{{ auth.init_units | e }}</span>
+                                            <small class="text-muted">{{ 'remaining:' | xlt }} {{ auth.remaining_units | e }}</small>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="text-center">
+                                    {% if not (auth.is_expired and auth.auth_num) %}
+                                        <div class="pa-progress-container mx-auto" style="width: 120px;">
+                                            <div class="pa-progress-bar" 
+                                                 style="background-color: {{ auth.bar_color | e }}; width: {{ auth.percent_remaining | e }}%;">
+                                            </div>
+                                            <div class="pa-progress-text">{{ auth.percent_remaining | e }}%</div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="text-center">
+                                    {% if auth.is_expired %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>
+                                            {{ 'Expired' | xlt }}
+                                        </span>
+                                    {% elseif auth.percent_remaining <= 20 %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            {{ 'Low' | xlt }}
+                                        </span>
+                                    {% elseif auth.percent_remaining <= 50 %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            {{ 'Moderate' | xlt }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            {{ 'Good' | xlt }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card View (Hidden by default) -->
+            <div id="cardView" class="d-none p-3">
+                <div class="row">
+                    {% for auth in authorizations %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 auth-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    {% if auth.is_new_patient %}
+                                        <strong>{{ auth.lname | e }}, {{ auth.fname | e }}</strong>
+                                    {% endif %}
+                                    {% if auth.is_expired %}
+                                        <span class="badge bg-danger">{{ 'Expired' | xlt }}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">{{ 'Active' | xlt }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ auth.auth_num | e }}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-code me-1"></i>{{ auth.cpt | e }}<br>
+                                            <i class="fas fa-calendar me-1"></i>{{ auth.start_date | e }}
+                                            {% if auth.end_date != '0000-00-00' %} - {{ auth.end_date | e }}{% endif %}
+                                        </small>
+                                    </p>
+                                    {% if not auth.is_expired %}
+                                        <div class="pa-progress-container mb-2">
+                                            <div class="pa-progress-bar" 
+                                                 style="background-color: {{ auth.bar_color | e }}; width: {{ auth.percent_remaining | e }}%;">
+                                            </div>
+                                            <div class="pa-progress-text">{{ auth.percent_remaining | e }}%</div>
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ auth.remaining_units | e }}/{{ auth.init_units | e }} {{ 'units remaining' | xlt }}
+                                        </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search text-muted fa-4x mb-3"></i>
+                <h4 class="text-muted">{{ 'No Authorizations Found' | xlt }}</h4>
+                <p class="text-muted">{{ 'Try adjusting your filter settings or check back later.' | xlt }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Chart initialization
+const chartData = {{ chartData | json_encode | raw }};
+const ctx = document.getElementById('usageChart');
+
+if (chartData.hasData && ctx) {
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: '{{ 'Unit Count' | xlt }}',
+                data: chartData.data,
+                backgroundColor: chartData.backgroundColor,
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const total = chartData.totalInitial;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                duration: 1000
+            }
+        }
+    });
+}
+
+// Filter handling with loading state
+function handleFilterChange() {
+    const checkbox = document.getElementById('hideExpiredSwitch');
+    const form = checkbox.closest('form');
+    
+    // Show loading state
+    checkbox.disabled = true;
+    
+    // Submit form
+    form.submit();
+}
+
+// Table sorting
+let sortDirection = {};
+
+function sortTable(columnIndex) {
+    const table = document.querySelector('.pa-table tbody');
+    const rows = Array.from(table.querySelectorAll('tr'));
+    
+    // Toggle sort direction
+    sortDirection[columnIndex] = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+    
+    rows.sort((a, b) => {
+        const aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
+        const bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
+        
+        if (sortDirection[columnIndex] === 'asc') {
+            return aValue.localeCompare(bValue);
+        } else {
+            return bValue.localeCompare(aValue);
+        }
+    });
+    
+    // Re-append sorted rows
+    rows.forEach(row => table.appendChild(row));
+    
+    // Update sort icons
+    document.querySelectorAll('.sortable i.fa-sort, .sortable i.fa-sort-up, .sortable i.fa-sort-down')
+        .forEach(icon => {
+            icon.className = 'fas fa-sort text-muted ms-1';
+        });
+    
+    const currentIcon = document.querySelector(`.sortable:nth-child(${columnIndex + 1}) i.fa-sort`);
+    if (currentIcon) {
+        currentIcon.className = `fas fa-sort-${sortDirection[columnIndex] === 'asc' ? 'up' : 'down'} text-primary ms-1`;
+    }
+}
+
+// Toggle between table and card view
+function toggleTableView() {
+    const tableView = document.getElementById('tableView');
+    const cardView = document.getElementById('cardView');
+    const toggleIcon = document.getElementById('viewToggleIcon');
+    const toggleText = document.getElementById('viewToggleText');
+    
+    if (tableView.classList.contains('d-none')) {
+        // Switch to table view
+        tableView.classList.remove('d-none');
+        cardView.classList.add('d-none');
+        toggleIcon.className = 'fas fa-th';
+        toggleText.textContent = '{{ 'Card View' | xlt }}';
+    } else {
+        // Switch to card view
+        tableView.classList.add('d-none');
+        cardView.classList.remove('d-none');
+        toggleIcon.className = 'fas fa-table';
+        toggleText.textContent = '{{ 'Table View' | xlt }}';
+    }
+}
+
+// Patient window opener
+function openNewTopWindow(newpid) {
+    top.restoreSession();
+    top.RTop.location = "{{ webroot }}/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+}
+
+// Export functionality
+function exportReport() {
+    // Simple CSV export
+    const table = document.querySelector('.pa-table');
+    if (!table) return;
+    
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const row = [], cols = rows[i].querySelectorAll('td, th');
+        for (let j = 0; j < cols.length; j++) {
+            let cellText = cols[j].innerText.replace(/"/g, '""');
+            row.push('"' + cellText + '"');
+        }
+        csv.push(row.join(','));
+    }
+    
+    const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+    const downloadLink = document.createElement('a');
+    downloadLink.download = 'prior_authorizations_' + new Date().toISOString().split('T')[0] + '.csv';
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+// Initialize tooltips if Bootstrap is available
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading state to filter
+    const filterForm = document.querySelector('form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function() {
+            const submitBtn = filterForm.querySelector('input[type="checkbox"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

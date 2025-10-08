@@ -1,0 +1,44 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'Delete Record' | xlt }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="text-center p-4">
+        {% if success %}
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <h5>{{ 'Record Deleted Successfully' | xlt }}</h5>
+                <p>{{ 'The authorization record has been permanently removed from the system.' | xlt }}</p>
+                <p class="mt-3">
+                    <small class="text-muted">{{ 'Please click "Done" to close this window.' | xlt }}</small>
+                </p>
+            </div>
+        {% elseif error %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                <h5>{{ 'Deletion Failed' | xlt }}</h5>
+                <p>{{ error_message | e }}</p>
+                <p class="mt-3">
+                    <small class="text-muted">{{ 'Please click "Done" to close this window.' | xlt }}</small>
+                </p>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle fa-2x mb-3"></i>
+                <h5>{{ 'Processing Deletion...' | xlt }}</h5>
+                <p>{{ 'Please wait while the record is being deleted.' | xlt }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-focus for better accessibility in modal
+    $(document).ready(function() {
+        $('body').focus();
+    });
+</script>
+{% endblock %}

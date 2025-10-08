@@ -24,9 +24,9 @@ class ComposerAutoloaderInit5ac827bf40622181f7ba27e2c5b800a8
 
         require __DIR__ . '/platform_check.php';
 
-        spl_autoload_register(['ComposerAutoloaderInit5ac827bf40622181f7ba27e2c5b800a8', 'loadClassLoader'], true, true);
+        spl_autoload_register(array('ComposerAutoloaderInit5ac827bf40622181f7ba27e2c5b800a8', 'loadClassLoader'), true, true);
         self::$loader = $loader = new \Composer\Autoload\ClassLoader(\dirname(__DIR__));
-        spl_autoload_unregister(['ComposerAutoloaderInit5ac827bf40622181f7ba27e2c5b800a8', 'loadClassLoader']);
+        spl_autoload_unregister(array('ComposerAutoloaderInit5ac827bf40622181f7ba27e2c5b800a8', 'loadClassLoader'));
 
         require __DIR__ . '/autoload_static.php';
         call_user_func(\Composer\Autoload\ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::getInitializer($loader));
