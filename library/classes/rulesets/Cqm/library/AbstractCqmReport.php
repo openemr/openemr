@@ -23,7 +23,7 @@ abstract class AbstractCqmReport implements RsReportIF
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget)
     {
         // require all .php files in the report's sub-folder
-        $className = get_class($this);
+        $className = $this::class;
         foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
@@ -40,7 +40,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
         $this->_cqmPopulation = new CqmPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
+        $this->_ruleId = $rowRule['id'] ?? '';
         // Calculate measurement period
         $tempDateArray = explode("-", ($dateTarget ?? ''));
         $tempYear = $tempDateArray[0];

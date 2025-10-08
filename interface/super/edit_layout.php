@@ -192,12 +192,12 @@ function swapGroups($id1, $id2): void
 function tableNameFromLayout($layout_id)
 {
     // Skip layouts that store data in vertical tables.
-    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") {
+    if (str_starts_with($layout_id, 'LBF') || str_starts_with($layout_id, 'LBT') || $layout_id == "FACUSR") {
         return '';
     }
     if ($layout_id == "DEM") {
         $tablename = "patient_data";
-    } elseif (substr($layout_id, 0, 3) == "HIS") {
+    } elseif (str_starts_with($layout_id, "HIS")) {
         $tablename = "history_data";
     } elseif ($layout_id == "SRH") {
         $tablename = "lists_ippf_srh";
@@ -308,7 +308,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
             $lotmp = [];
             // For History layouts do not delete a field name duplicated in another History layout
             // (should not happen, but a bug allowed it).
-            if (substr($layout_id, 0, 3) == 'HIS') {
+            if (str_starts_with($layout_id, 'HIS')) {
                 $lotmp = sqlQuery(
                     "SELECT COUNT(*) AS count FROM layout_options WHERE " .
                     "form_id LIKE 'HIS%' AND form_id != ? AND field_id = ?",
@@ -406,7 +406,7 @@ $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 $layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
-$lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
+$lbfonly = str_starts_with($layout_id, 'LBF') ? "" : "style='display:none;'";
 
 // Handle the Form actions
 
@@ -2294,7 +2294,7 @@ function elemFromPart(part) {
 }
 
 function FieldIDClicked(elem) {
-<?php if (substr($layout_id, 0, 3) == 'LBF') { ?>
+<?php if (str_starts_with($layout_id, 'LBF')) { ?>
   fieldselectfield = elem;
   var srcval = elemFromPart('source').value;
   // If the field ID is for the local form, allow direct entry.

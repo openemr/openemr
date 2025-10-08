@@ -384,7 +384,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
 // An adjustment reason including "Ins" is assumed to be assigned by
 // insurance, and in that case we identify which one by appending
 // Ins1, Ins2 or Ins3.
-                    if (strpos(strtolower($reason), 'ins') != false) {
+                    if (str_contains(strtolower($reason), 'ins')) {
                         $reason .= ' ' . $_POST['form_insurance'];
                     }
                 }

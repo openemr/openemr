@@ -281,11 +281,11 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
 function formData($name, $type = 'P', $isTrim = false)
 {
     if ($type == 'P') {
-        $s = isset($_POST[$name]) ? $_POST[$name] : '';
+        $s = $_POST[$name] ?? '';
     } elseif ($type == 'G') {
-        $s = isset($_GET[$name]) ? $_GET[$name] : '';
+        $s = $_GET[$name] ?? '';
     } else {
-        $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+        $s = $_REQUEST[$name] ?? '';
     }
 
     return formDataCore($s, $isTrim);

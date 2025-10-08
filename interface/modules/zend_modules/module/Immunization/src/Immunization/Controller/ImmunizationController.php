@@ -49,7 +49,7 @@ class ImmunizationController extends AbstractActionController
         $isPost = '';
         $data = $request->getPost();
         $isFormRefresh = 'true';
-        $form_code = isset($data['codes']) ? $data['codes'] : [];
+        $form_code = $data['codes'] ?? [];
         $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         $form_get_hl7 = '';
@@ -150,7 +150,7 @@ class ImmunizationController extends AbstractActionController
      */
     public function getAllCodes($data)
     {
-        $defaultCode = isset($data['codes']) ? $data['codes'] : '';
+        $defaultCode = $data['codes'] ?? '';
         $res = $this->getImmunizationTable()->codeslist();
         $i = 0;
         foreach ($res as $value) {
@@ -181,7 +181,7 @@ class ImmunizationController extends AbstractActionController
         $data = $request->getPost();
         $key_val = '';
         if (isset($data['hl7button'])) {
-            $form_code = isset($data['codes']) ? $data['codes'] : [];
+            $form_code = $data['codes'] ?? [];
             $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
             $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
             $form_get_hl7 = 'true';

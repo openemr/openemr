@@ -54,7 +54,7 @@ class smtp_class
 		}
 		for($character=0;$character<strlen($separator);$character++)
 		{
-			if(GetType($position=strpos($string,$separator[$character]))=="integer")
+			if(GetType($position=strpos($string,(string) $separator[$character]))=="integer")
 				$found=(IsSet($found) ? min($found,$position) : $position);
 		}
 		if(IsSet($found))

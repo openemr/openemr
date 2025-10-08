@@ -106,7 +106,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
     js_escape($wh) . ");";
 }
 
-$pricelevel = isset($_GET['pricelevel']) ? $_GET['pricelevel'] : '';
+$pricelevel = $_GET['pricelevel'] ?? '';
 
 if (!empty($_GET['list'])) {
   // This case supports packages of codes.
@@ -118,13 +118,13 @@ if (!empty($_GET['list'])) {
         $arrcode = explode('|', $codestring);
         $codetype = $arrcode[0];
         [$code, $modifier] = explode(":", $arrcode[1]);
-        $selector = isset($arrcode[2]) ? $arrcode[2] : '';
+        $selector = $arrcode[2] ?? '';
         write_code_info($codetype, $code, $selector, $pricelevel);
     }
 } else {
   // This is the normal case of adding a single code.
-    $codetype   = isset($_GET['codetype'  ]) ? $_GET['codetype'  ] : '';
-    $code       = isset($_GET['code'      ]) ? $_GET['code'      ] : '';
-    $selector   = isset($_GET['selector'  ]) ? $_GET['selector'  ] : '';
+    $codetype   = $_GET['codetype'  ] ?? '';
+    $code       = $_GET['code'      ] ?? '';
+    $selector   = $_GET['selector'  ] ?? '';
     write_code_info($codetype, $code, $selector, $pricelevel);
 }

@@ -3496,10 +3496,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$date on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/billing/sl_eob_process.php
   - message: '#^Variable \$STMT_PRINT_CMD might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17764,10 +17760,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Services/FHIR/FhirResourcesService.php
-  - message: '#^Class OpenEMR\\Services\\ProcedureService constructor invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Services/FHIR/Observation/FhirObservationLaboratoryService.php
   - message: '#^Variable \$codeMapping in isset\(\) always exists and is always null\.$#'
     identifier: isset.variable
     count: 1

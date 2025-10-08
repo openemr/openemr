@@ -61,7 +61,7 @@ class MfaUtils
 
     public function tokenFromRequest($type)
     {
-        $token = isset($_POST['mfa_token']) ? $_POST['mfa_token'] : null;
+        $token = $_POST['mfa_token'] ?? null;
         if (is_null($token)) {
             return null;
         }

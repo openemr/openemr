@@ -124,7 +124,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         $sqlBindArraySpecial = [];
         $where = "1 = 0";
         foreach ($_REQUEST as $key => $value) {
-            if (substr($key, 0, 3) != 'mf_') {
+            if (!str_starts_with($key, 'mf_')) {
                 continue; // "match field"
             }
             $fldname = substr($key, 3);

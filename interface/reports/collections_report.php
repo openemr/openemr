@@ -58,7 +58,7 @@ $is_due_pt      = $form_category == 'Due Pt';
 $is_all         = $form_category == 'All';
 // $is_ageby_lad = is aged by last active date which is determined to be either the dos,
 // the last payment date or the last statement date applied by statement.inc.php
-$is_ageby_lad   = strpos(($_POST['form_ageby'] ?? ''), 'Last') !== false;
+$is_ageby_lad   = str_contains(($_POST['form_ageby'] ?? ''), 'Last');
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
 $form_payer_id  = $_POST['form_payer_id'] ?? null;

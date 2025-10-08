@@ -140,7 +140,7 @@ class FeeSheet
 
         // Get some information about the patient.
         $patientrow = getPatientData($this->pid, "DOB, sex, pricelevel");
-        $this->patient_age = $this->getAge($patientrow['DOB'], $this->visit_date);
+        $this->patient_age = static::getAge($patientrow['DOB'], $this->visit_date);
         $this->patient_male = strtoupper(substr($patientrow['sex'], 0, 1)) == 'M' ? 1 : 0;
         $this->patient_pricelevel = $patientrow['pricelevel'];
     }
@@ -434,20 +434,20 @@ class FeeSheet
 
         $codetype    = $args['codetype'];
         $code        = $args['code'];
-        $revenue_code    = isset($args['revenue_code']) ? $args['revenue_code'] : '';
-        $modifier    = isset($args['modifier']) ? $args['modifier'] : '';
-        $code_text   = isset($args['code_text']) ? $args['code_text'] : '';
-        $units       = intval(isset($args['units']) ? $args['units'] : 0);
+        $revenue_code    = $args['revenue_code'] ?? '';
+        $modifier    = $args['modifier'] ?? '';
+        $code_text   = $args['code_text'] ?? '';
+        $units       = intval($args['units'] ?? 0);
         $billed      = !empty($args['billed']);
         $auth        = !empty($args['auth']);
         $id          = isset($args['id']) ? intval($args['id']) : 0;
-        $ndc_info    = isset($args['ndc_info']) ? $args['ndc_info'] : '';
+        $ndc_info    = $args['ndc_info'] ?? '';
         $provider_id = isset($args['provider_id']) ? intval($args['provider_id']) : 0;
-        $justify     = isset($args['justify']) ? $args['justify'] : '';
-        $notecodes   = isset($args['notecodes']) ? $args['notecodes'] : '';
+        $justify     = $args['justify'] ?? '';
+        $notecodes   = $args['notecodes'] ?? '';
         $fee         = isset($args['fee']) ? (0 + $args['fee']) : 0;
         // Price level should be unset only if adding a new line item.
-        $pricelevel  = isset($args['pricelevel']) ? $args['pricelevel'] : $this->patient_pricelevel;
+        $pricelevel  = $args['pricelevel'] ?? $this->patient_pricelevel;
         $del         = !empty($args['del']);
 
         // If using line item billing and user wishes to default to a selected provider, then do so.
@@ -643,9 +643,9 @@ class FeeSheet
         $li['hidden'] = [];
 
         $drug_id      = $args['drug_id'];
-        $selector     = isset($args['selector']) ? $args['selector'] : '';
+        $selector     = $args['selector'] ?? '';
         $sale_id      = isset($args['sale_id']) ? intval($args['sale_id']) : 0;
-        $units        = intval(isset($args['units']) ? $args['units'] : 0);
+        $units        = intval($args['units'] ?? 0);
         if (!$units) {
             $units = 1;
         }
@@ -653,14 +653,14 @@ class FeeSheet
         $rx           = !empty($args['rx']);
         $del          = !empty($args['del']);
         $fee          = isset($args['fee']) ? (0 + $args['fee']) : 0;
-        $pricelevel   = isset($args['pricelevel']) ? $args['pricelevel'] : $this->patient_pricelevel;
-        $warehouse_id = isset($args['warehouse_id']) ? $args['warehouse_id'] : '';
+        $pricelevel   = $args['pricelevel'] ?? $this->patient_pricelevel;
+        $warehouse_id = $args['warehouse_id'] ?? '';
 
         if ($convert_units) {
             // "Basic Units" is the quantity from the product template and is the number of
             // inventory items in the package that the template represents.
             // Units seen by the user should be inventory units divided by template quantity.
-            $units /= $this->getBasicUnits($drug_id, $selector);
+            $units /= static::getBasicUnits($drug_id, $selector);
         }
 
         $drow = sqlQuery("SELECT name, related_code FROM drugs WHERE drug_id = ?", [$drug_id]);
@@ -831,7 +831,7 @@ class FeeSheet
                 $sale_id     = empty($iter['sale_id']) ? 0 : intval($iter['sale_id']); // present only if already saved
                 $units     = empty($iter['units']) ? 1 : intval($iter['units']);
                 $selector  = empty($iter['selector']) ? '' : $iter['selector'];
-                $inv_units = $units * $this->getBasicUnits($drug_id, $selector);
+                $inv_units = $units * static::getBasicUnits($drug_id, $selector);
                 $warehouse_id = empty($iter['warehouse']) ? '' : $iter['warehouse'];
 
                         // Deleting always works.
@@ -1200,7 +1200,7 @@ class FeeSheet
 
                 // $units is the user view, multipliers of Basic Units.
                 // Need to compute inventory units for the save logic below.
-                $inv_units = $units * $this->getBasicUnits($drug_id, $selector);
+                $inv_units = $units * static::getBasicUnits($drug_id, $selector);
 
                 // If the item is already in the database...
                 if ($sale_id) {
@@ -1366,7 +1366,7 @@ class FeeSheet
                     if (!empty($drow)) {
                             $rxobj = new Prescription($rxid);
                             $rxobj->set_patient_id($this->pid);
-                            $rxobj->set_provider_id(isset($main_provid) ? $main_provid : $this->provider_id);
+                            $rxobj->set_provider_id($main_provid ?? $this->provider_id);
                             $rxobj->set_drug_id($drug_id);
                             $rxobj->set_quantity($inv_units);
                             $rxobj->set_per_refill($inv_units);
@@ -1422,7 +1422,7 @@ class FeeSheet
         // generally useful.  It provides the ability to mark an encounter as billed
         // directly from the Fee Sheet, if there are no charges.
         if ($mark_as_closed) {
-            $this->closeVisit($this->pid, $this->encounter);
+            static::closeVisit($this->pid, $this->encounter);
         }
     }
 

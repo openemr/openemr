@@ -112,7 +112,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
          'I6' => 'Implementation dependent segment missing',
          ];
     // array_key_exists($ak_seg_field, $aktext) && array_key_exists($ak_code, $aktext[$ak_seg_field]) )
-     return ( isset($aktext[$ak_seg_field][$ak_code]) ) ? $aktext[$ak_seg_field][$ak_code] : '';
+     return $aktext[$ak_seg_field][$ak_code] ?? '';
     //if ( isset($aktext[$ak_seg_field][$ak_code]) ) {
     //  return $aktext[$ak_seg_field][$ak_code];
     //} else {

@@ -3441,7 +3441,7 @@ class FHIRResourceContainer implements \JsonSerializable
     public function __construct($data = [])
     {
         if (is_object($data)) {
-            $n = substr(strrchr(get_class($data), 'FHIR'), 4);
+            $n = substr(strrchr($data::class, 'FHIR'), 4);
             $this->{"set{$n}"}($data);
         } elseif (is_array($data)) {
             if (($cnt = count($data)) > 1) {

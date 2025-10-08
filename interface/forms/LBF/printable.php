@@ -28,7 +28,7 @@ use OpenEMR\Pdf\Config_Mpdf;
 $FONTSIZE = 9;
 
 // The form name is passed to us as a GET parameter.
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {

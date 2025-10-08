@@ -36,7 +36,7 @@ abstract class BaseController
 
     public function getControllerName()
     {
-        $class = get_class($this);
+        $class = $this::class;
         $parts = explode('\\', $class);
         $name = str_replace('Controller', '', end($parts));
         return $name;

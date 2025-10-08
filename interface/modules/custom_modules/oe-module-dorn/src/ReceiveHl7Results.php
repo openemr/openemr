@@ -194,7 +194,7 @@ class ReceiveHl7Results
         $rhl7_segnum = 0;
         $obrPerformingOrganization = '';
 
-        if (substr($hl7, 0, 3) != 'MSH') {
+        if (!str_starts_with($hl7, 'MSH')) {
             return $this->rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
         }
 
@@ -491,7 +491,7 @@ class ReceiveHl7Results
                     $tmp = explode($d2, $a[29]);
                     $in_parent_obrkey = isset($tmp[1]) ? str_replace($d5, $d2, $tmp[1]) : '';
                     $tmp = explode($d2, $a[26]);
-                    $in_parent_obxkey = (isset($tmp[0]) ? str_replace($d5, $d2, $tmp[0]) : '') . $d1 . (isset($tmp[1]) ? $tmp[1] : '');
+                    $in_parent_obxkey = (isset($tmp[0]) ? str_replace($d5, $d2, $tmp[0]) : '') . $d1 . ($tmp[1] ?? '');
 
                     // Look for the parent report.
                     foreach ($amain as $arr) {
@@ -1027,7 +1027,7 @@ class ReceiveHl7Results
         // Try to parse composites
         foreach ($composites as $key => $composite) {
             // If it is a composite ...
-            if (!(strpos($composite, '^') === false)) {
+            if (str_contains($composite, '^')) {
                 $composites[$key] = explode('^', $composite);
             }
         }
@@ -1117,7 +1117,7 @@ class ReceiveHl7Results
                 unset($ares['obxkey']);
                 // If TX result is not over 10 characters, move it from comments to result field.
                 if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
-                    $i = strpos($ares['comments'], $commentdelim);
+                    $i = strpos($ares['comments'], (string) $commentdelim);
                     if ($i && $i <= 10) {
                         $ares['result'] = substr($ares['comments'], 0, $i);
                         $ares['comments'] = substr($ares['comments'], $i);
@@ -1629,7 +1629,7 @@ class ReceiveHl7Results
         $string = ucwords(strtolower($string));
 
         foreach (['-', '\''] as $delimiter) {
-            if (strpos($string, $delimiter) !== false) {
+            if (str_contains($string, $delimiter)) {
                 $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
             }
         }

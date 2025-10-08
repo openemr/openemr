@@ -73,7 +73,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
     while ($prow = sqlFetchArray($pres)) {
         echo "  <td class='tmplcell'>";
         echo "<input type='checkbox' name='form_tmpl[" . attr($tmpl_line_no) . "][taxrate][" . attr($prow['option_id']) . "]' value='1'";
-        if (strpos(":$taxrates", $prow['option_id']) !== false) {
+        if (str_contains(":$taxrates", (string) $prow['option_id'])) {
             echo " checked";
         }
 

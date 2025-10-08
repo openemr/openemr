@@ -120,7 +120,7 @@ class PatientNameHistoryService extends BaseService
         $results =  QueryUtils::sqlStatementThrowException($sql, [$pid, 'name_history']);
         $rows = [];
         while ($row = sqlFetchArray($results)) {
-            $row['formatted_name'] = $this->formatPreviousName($row);
+            $row['formatted_name'] = static::formatPreviousName($row);
             $rows[] = $row;
         }
 
@@ -141,7 +141,7 @@ class PatientNameHistoryService extends BaseService
             FROM patient_history
             WHERE pid = ? AND id = ? AND history_type_key = ?";
         $result =  sqlQuery($sql, [$pid, $id, 'name_history']);
-        $result['formatted_name'] = $this->formatPreviousName($result);
+        $result['formatted_name'] = static::formatPreviousName($result);
 
         return $result;
     }

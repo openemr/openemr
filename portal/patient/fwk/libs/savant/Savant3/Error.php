@@ -106,7 +106,7 @@ class Savant3_Error
     public function __toString()
     {
         ob_start();
-        echo get_class($this) . ': ';
+        echo $this::class . ': ';
         print_r(get_object_vars($this));
         return ob_get_clean();
     }

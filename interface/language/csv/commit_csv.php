@@ -54,13 +54,13 @@ if (!$errmsg) {
             "",
             $preview
         );
-        if (strpos($result, '[2]') !== 0) { // Definition Exists
-            if (strpos($result, '[1]') !== 0) { // Empty Definition
+        if (!str_starts_with($result, '[2]')) { // Definition Exists
+            if (!str_starts_with($result, '[1]')) { // Empty Definition
                 if ($result) {
                     array_push($changed, $result);
-                    if (strpos($result, '[3]') === 0) {
+                    if (str_starts_with($result, '[3]')) {
                         array_push($updated, substr($result, 3));
-                    } else if (strpos($result, '[5]') === 0) {
+                    } else if (str_starts_with($result, '[5]')) {
                         array_push($created, substr($result, 3));
                     }
                 }

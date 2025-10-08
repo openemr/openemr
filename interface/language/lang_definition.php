@@ -77,7 +77,7 @@ if (!$thisauth) {
             $res = SqlStatement($sql, [$mainLangID]);
 
           // collect the default selected language id, and then display list
-            $tempLangID = isset($_POST['language_select']) ? $_POST['language_select'] : $mainLangID;
+            $tempLangID = $_POST['language_select'] ?? $mainLangID;
             while ($row = SqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
                     echo "<option value='" . attr($row['lang_id']) . "' selected>" .
@@ -186,12 +186,12 @@ if (!empty($_POST['edit'])) {
          exit(xlt("Please select a language"));
     }
 
-    $lang_id = isset($_POST['language_select']) ? $_POST['language_select'] : '';
+    $lang_id = $_POST['language_select'] ?? '';
     $lang_id = (int)$lang_id;
 
-    $lang_filter = isset($_POST['filter_cons']) ? $_POST['filter_cons'] : '';
+    $lang_filter = $_POST['filter_cons'] ?? '';
     $lang_filter .= '%';
-    $lang_filter_def = isset($_POST['filter_def']) ? $_POST['filter_def'] : '';
+    $lang_filter_def = $_POST['filter_def'] ?? '';
     $lang_filter_def .= '%';
 
     $bind_sql_array = [];

@@ -498,7 +498,7 @@ class C_EncounterVisitForm
         $encounter_followup_id = null;
         $followup_date = null;
         if ($viewmode) {
-            $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
+            $id = $_REQUEST['id'] ?? '';
             $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.

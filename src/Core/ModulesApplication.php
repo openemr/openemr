@@ -48,7 +48,7 @@ class ModulesApplication
         // Prepare the service manager
         // We customize this and skip using the static Laminas\Mvc\Application::init in order to inject the
         // Symfony Kernel's EventListener that way we can bridge the two frameworks.
-        $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : [];
+        $smConfig = $configuration['service_manager'] ?? [];
         $smConfig = new ServiceManagerConfig($smConfig);
 
         $serviceManager = new ServiceManager();
@@ -60,9 +60,9 @@ class ModulesApplication
         $serviceManager->get('ModuleManager')->loadModules();
 
         // Prepare list of listeners to bootstrap
-        $listenersFromAppConfig = isset($configuration['listeners']) ? $configuration['listeners'] : [];
+        $listenersFromAppConfig = $configuration['listeners'] ?? [];
         $config = $serviceManager->get('config');
-        $listenersFromConfigService = isset($config['listeners']) ? $config['listeners'] : [];
+        $listenersFromConfigService = $config['listeners'] ?? [];
 
         $listeners = array_unique(array_merge($listenersFromConfigService, $listenersFromAppConfig));
 
@@ -202,7 +202,7 @@ class ModulesApplication
         $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
         // make sure we haven't left our root path ie interface folder
-        if (strpos($realpath, $moduleRootLocation) === 0 && file_exists($realpath) && strpos($realpath, ".php") !== false) {
+        if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && str_contains($realpath, ".php")) {
             return true;
         }
         return false;
@@ -226,7 +226,7 @@ class ModulesApplication
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = stripos($scriptSrcPath, $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, (string) $GLOBALS['web_root']);
                 if ($pos !== false) {
                     $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($GLOBALS['web_root']));
                 } else {
@@ -236,7 +236,7 @@ class ModulesApplication
                 $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
                 // make sure we haven't left our root path ie interface folder
-                if (strpos($realPath, $moduleRootLocation) === 0 && file_exists($realPath)) {
+                if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {
                     return $scriptSrc;
                 }
                 return null;

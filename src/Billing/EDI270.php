@@ -619,8 +619,8 @@ class EDI270
                 $showString .= "<b>" . xlt('Verified On') . ":</b> " . text($benefit['verificationDate']) . "<br/><br/>\n";
                 $showString .= "</div><br/>\n";
             }
-            $benefit['start_date'] = strpos($benefit['start_date'], "0000") === false ? $benefit['start_date'] : '';
-            $benefit['end_date'] = strpos($benefit['end_date'], "0000") === false ? $benefit['end_date'] : '';
+            $benefit['start_date'] = !str_contains($benefit['start_date'], "0000") ? $benefit['start_date'] : '';
+            $benefit['end_date'] = !str_contains($benefit['end_date'], "0000") ? $benefit['end_date'] : '';
             $color = "";
             switch ($benefit['type']) {
                 case '1':

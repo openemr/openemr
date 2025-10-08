@@ -47,7 +47,7 @@ function smarty_function_html_image($params, &$smarty)
     $suffix = '';
     $path_prefix = '';
     $server_vars = ($smarty->request_use_auto_globals) ? $_SERVER : $GLOBALS['HTTP_SERVER_VARS'];
-    $basedir = isset($server_vars['DOCUMENT_ROOT']) ? $server_vars['DOCUMENT_ROOT'] : '';
+    $basedir = $server_vars['DOCUMENT_ROOT'] ?? '';
     foreach($params as $_key => $_val) {
         switch($_key) {
             case 'file':
@@ -88,7 +88,7 @@ function smarty_function_html_image($params, &$smarty)
         return;
     }
 
-    if (substr($file,0,1) == '/') {
+    if (str_starts_with($file, '/')) {
         $_image_path = $basedir . $file;
     } else {
         $_image_path = $file;

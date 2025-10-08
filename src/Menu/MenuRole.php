@@ -122,7 +122,7 @@ class MenuRole
                     for ($globalIdx = 0; $globalIdx < count($srcEntry->global_req); $globalIdx++) {
                         $curSetting = $srcEntry->global_req[$globalIdx];
                         // ! at the start of the string means test the negation
-                        if (substr($curSetting, 0, 1) === '!') {
+                        if (str_starts_with($curSetting, '!')) {
                             $curSetting = substr($curSetting, 1);
                             // If the global isn't set at all, or if it is false, then show it
                             if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting]) {
@@ -141,7 +141,7 @@ class MenuRole
                     }
                 } else {
                     // ! at the start of the string means test the negation
-                    if (substr($srcEntry->global_req, 0, 1) === '!') {
+                    if (str_starts_with($srcEntry->global_req, '!')) {
                         $globalSetting = substr($srcEntry->global_req, 1);
                         // If the setting is both set and true, then skip this entry
                         if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
@@ -164,7 +164,7 @@ class MenuRole
                     for ($globalIdx = 0; $globalIdx < count($srcEntry->global_req_strict); $globalIdx++) {
                         $curSetting = $srcEntry->global_req_strict[$globalIdx];
                         // ! at the start of the string means test the negation
-                        if (substr($curSetting, 0, 1) === '!') {
+                        if (str_starts_with($curSetting, '!')) {
                             $curSetting = substr($curSetting, 1);
                             // If the setting is both set and true, then do not show it
                             if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting]) {
@@ -183,7 +183,7 @@ class MenuRole
                     }
                 } else {
                     // ! at the start of the string means test the negation
-                    if (substr($srcEntry->global_req_strict, 0, 1) === '!') {
+                    if (str_starts_with($srcEntry->global_req_strict, '!')) {
                         $globalSetting = substr($srcEntry->global_req_strict, 1);
                         // If the setting is both set and true, then skip this entry
                         if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
@@ -225,7 +225,7 @@ class MenuRole
     {
         if (isset($arr[2])) {
             for ($i = 2; isset($arr[$i]); ++$i) {
-                if (substr($arr[0], 0, 1) == '!') {
+                if (str_starts_with($arr[0], '!')) {
                     if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
                         return true;
                     }
@@ -236,7 +236,7 @@ class MenuRole
                 }
             }
         } else {
-            if (substr($arr[0], 0, 1) == '!') {
+            if (str_starts_with($arr[0], '!')) {
                 if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1])) {
                     return true;
                 }

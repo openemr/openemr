@@ -606,37 +606,22 @@ function pnVarPrepForOS()
 
 /**
  * get base URI for PostNuke
- * @returns string
- * @return base URI for PostNuke
+ *
+ * @return string base URI for PostNuke
  */
-function pnGetBaseURI()
+function pnGetBaseURI(): string
 {
-    global $HTTP_SERVER_VARS;
-
-    // Get the name of this URI
-
     // Start of with REQUEST_URI
-    if (isset($HTTP_SERVER_VARS['REQUEST_URI'])) {
-        $path = $HTTP_SERVER_VARS['REQUEST_URI'];
-    } else {
-        $path = getenv('REQUEST_URI');
-    }
+    $path = $_SERVER['REQUEST_URI'] ?? getenv('REQUEST_URI');
 
-    if (
-        (empty($path)) ||
-        (str_ends_with($path, '/'))
-    ) {
+    if (empty($path) || str_ends_with($path, '/')) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
         $path = getenv('PATH_INFO');
         if (empty($path)) {
             // No luck there either
             // Try SCRIPT_NAME
-            if (isset($HTTP_SERVER_VARS['SCRIPT_NAME'])) {
-                $path = $HTTP_SERVER_VARS['SCRIPT_NAME'];
-            } else {
-                $path = getenv('SCRIPT_NAME');
-            }
+            $path = $_SERVER['SCRIPT_NAME'] ?? getenv('SCRIPT_NAME');
         }
     }
 

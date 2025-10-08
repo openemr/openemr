@@ -60,13 +60,13 @@ if (!$form_batch && !$pid && !$form_review) {
 
 function oresRawData($name, $index)
 {
-    $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
+    $s = $_POST[$name][$index] ?? '';
     return trim($s);
 }
 
 function oresData($name, $index)
 {
-    $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
+    $s = $_POST[$name][$index] ?? '';
     return add_escape_custom(trim($s));
 }
 

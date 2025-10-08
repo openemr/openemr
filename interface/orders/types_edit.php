@@ -18,11 +18,11 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
 
-$typeid = (isset($_REQUEST['typeid']) ? $_REQUEST['typeid'] : '') + 0;
-$parent = (isset($_REQUEST['parent']) ? $_REQUEST['parent'] : '') + 0;
-$ordtype = isset($_REQUEST['addfav']) ? $_REQUEST['addfav'] : '';
+$typeid = ($_REQUEST['typeid'] ?? '') + 0;
+$parent = ($_REQUEST['parent'] ?? '') + 0;
+$ordtype = $_REQUEST['addfav'] ?? '';
 $disabled = $ordtype ? "disabled" : '';
-$labid = isset($_GET['labid']) ? $_GET['labid'] : 0;
+$labid = $_GET['labid'] ?? 0;
 $info_msg = "";
 
 function QuotedOrNull($fld)

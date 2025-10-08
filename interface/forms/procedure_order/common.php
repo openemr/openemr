@@ -116,7 +116,7 @@ if (!function_exists('ucname')) {
     {
         $string = ucwords(strtolower($string));
         foreach (['-', '\''] as $delimiter) {
-            if (strpos($string, $delimiter) !== false) {
+            if (str_contains($string, $delimiter)) {
                 $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
             }
         }
@@ -1386,7 +1386,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     );
                                     $problem_diags = '';
                                     while ($probrow = sqlFetchArray($diagres)) {
-                                        if (strpos($probrow['diagnosis'], 'ICD') === false) {
+                                        if (!str_contains($probrow['diagnosis'], 'ICD')) {
                                             continue;
                                         }
                                         $problem_diags .= $probrow['diagnosis'] . ';';

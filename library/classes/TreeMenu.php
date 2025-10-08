@@ -124,8 +124,8 @@ class HTML_TreeMenu
             * Wolfram Kriesings' PEAR Tree class
             */
             case 'kriesing':
-                $className = strtolower(get_class($params['structure']->dataSourceClass));
-                $isXMLStruct = strpos($className, '_xml') !== false ? true : false;
+                $className = strtolower($params['structure']->dataSourceClass::class);
+                $isXMLStruct = str_contains($className, '_xml') ? true : false;
 
                 // Get the entire tree, the $nodes are sorted like in the tree view
                 // from top to bottom, so we can easily put them in the nodes
@@ -153,7 +153,7 @@ class HTML_TreeMenu
                     foreach ($aNode as $key => $val) {
                         if (!is_array($val)) {
                             // Dont get the recursive data in here! they are always arrays
-                            if (substr($key, 0, 2) == 'on') {  // get the events
+                            if (str_starts_with($key, 'on')) {  // get the events
                                 $events[$key] = $val;
                             }
 

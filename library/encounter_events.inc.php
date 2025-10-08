@@ -330,7 +330,7 @@ function check_event_exist($eid)
         $origEventRow = sqlFetchArray($origEvent);
         return $origEventRow['pc_eid'];
     } else {
-        if (strpos($pc_recurrspec_array['exdate'], date('Ymd')) === false) {//;'20110228'
+        if (!str_contains($pc_recurrspec_array['exdate'], date('Ymd'))) {//;'20110228'
             return false;
         } else {//this happens in delete case
             return true;
@@ -363,7 +363,7 @@ function InsertEvent($args, $from = 'general')
             "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
             "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
-            [$args['form_category'],(isset($args['new_multiple_value']) ? $args['new_multiple_value'] : ''),$args['form_provider'],$form_pid,$form_gid,
+            [$args['form_category'],($args['new_multiple_value'] ?? ''),$args['form_provider'],$form_pid,$form_gid,
             $args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
             fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
             $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],

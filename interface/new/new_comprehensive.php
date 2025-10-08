@@ -335,7 +335,7 @@ $lres = getLayoutRes();
 
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
@@ -457,7 +457,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // Accumulate action conditions into a JSON expression for the browser side.
                         accumActionConditions($frow, $condition_str);
 
-                        if (strpos($field_id, 'em_') === 0) {
+                        if (str_starts_with($field_id, 'em_')) {
                             $tmp = substr($field_id, 3);
                             if (isset($result2[$tmp])) {
                                 $currvalue = $result2[$tmp];
@@ -868,7 +868,7 @@ $(function () {
             "ORDER BY group_id, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
-            if (strpos($field_id, 'em_') === 0) {
+            if (str_starts_with($field_id, 'em_')) {
                 continue;
             }
 
@@ -911,7 +911,7 @@ $(function () {
 $lres = getLayoutRes();
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 

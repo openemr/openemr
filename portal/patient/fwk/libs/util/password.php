@@ -133,7 +133,7 @@ if (! function_exists('password_get_info')) {
                 'algoName' => 'unknown',
                 'options' =>  []
         ];
-        if (substr($hash, 0, 4) == '$2y$' && strlen($hash) == 60) {
+        if (str_starts_with($hash, '$2y$') && strlen($hash) == 60) {
             $return ['algo'] = PASSWORD_BCRYPT;
             $return ['algoName'] = 'bcrypt';
             [$cost] = sscanf($hash, "$2y$%d$");
@@ -168,7 +168,7 @@ if (! function_exists('password_needs_rehash')) {
 
         switch ($algo) {
             case PASSWORD_BCRYPT:
-                $cost = isset($options ['cost']) ? $options ['cost'] : 10;
+                $cost = $options ['cost'] ?? 10;
                 if ($cost != $info ['options'] ['cost']) {
                     return true;
                 }

@@ -32,7 +32,11 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\OpenEMR;
+use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -41,22 +45,37 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirObservationLaboratoryService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationLaboratoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
+    use VersionedProfileTrait;
 
     const DEFAULT_OBSERVATION_STATUS = "final";
     const CATEGORY = "laboratory";
+    const USCDI_PROFILE = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab';
 
     /**
      * @var ProcedureService
      */
-    private $service;
+    private ProcedureService $service;
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
         $this->service = new ProcedureService($fhirApiURL);
+    }
+
+    public function getProcedureService(): ProcedureService
+    {
+        if (!isset($this->service)) {
+            $this->service = new ProcedureService();
+        }
+        return $this->service;
+    }
+
+    public function setProcedureService(ProcedureService $service): void
+    {
+        $this->service = $service;
     }
 
     public function getResourcePathForCode($code)
@@ -166,6 +185,10 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
+        // setup our profiles
+        $meta = $this->addProfilesToMeta([
+            self::USCDI_PROFILE
+        ], $meta);
         $observation->setMeta($meta);
 
         $id = new FHIRId();
@@ -305,5 +328,10 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCDI_PROFILE, $this->getSupportedVersions());
     }
 }

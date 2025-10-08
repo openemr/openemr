@@ -6021,7 +6021,7 @@ return [
 
     /**
      *  @OA\Get(
-     *      path="/fhir/Questionnaire",
+     *      path="/fhir/QuestionnaireResponse",
      *      description="Returns a list of QuestionnaireResponse resources.",
      *      tags={"fhir"},
      *      @OA\Parameter(
@@ -6076,6 +6076,66 @@ return [
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/QuestionnaireResponse/{uuid}",
+     *      description="Returns a single QuestionnaireResponse resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *           name="uuid",
+     *           in="path",
+     *           description="The id for the QuestionnaireResponse resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
+     *           required=true,
+     *           @OA\Schema(
+     *               type="string"
+     *           )
+     *       ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/QuestionnaireResponse"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request) {
+        $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
+        $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
+        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->one($request, $uuid);
         return $return;
     },
 

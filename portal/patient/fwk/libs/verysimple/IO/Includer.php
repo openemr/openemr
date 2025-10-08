@@ -104,7 +104,7 @@ class Includer
 
         $tmp1 = explode(")", $string);
         $tmp2 = explode("(", $tmp1 [0]);
-        $mfile = isset($tmp2 [1]) ? $tmp2 [1] : "";
+        $mfile = $tmp2 [1] ?? "";
 
         $msg = "Error $code: " . ($mfile ? "Unable to include file: '" . $mfile . "'" : $string);
 

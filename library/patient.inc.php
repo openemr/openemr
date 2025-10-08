@@ -584,15 +584,15 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 function getPatientNameSplit($term)
 {
     $term = trim($term);
-    if (strpos($term, ',') !== false) {
+    if (str_contains($term, ',')) {
         $names = explode(',', $term);
         $n['last'] = $names[0];
-        if (strpos(trim($names[1]), ' ') !== false) {
+        if (str_contains(trim($names[1]), ' ')) {
             [$n['first'], $n['middle']] = explode(' ', trim($names[1]));
         } else {
             $n['first'] = $names[1];
         }
-    } elseif (strpos($term, ' ') !== false) {
+    } elseif (str_contains($term, ' ')) {
         $names = explode(' ', $term);
         if (count($names) == 1) {
             $n['last'] = $names[0];
@@ -1159,7 +1159,7 @@ function pdValueOrNull($key, $value)
 {
     if (
         ($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-        substr($key, 0, 8) == 'userdate' || $key == 'deceased_date') &&
+        str_starts_with($key, 'userdate') || $key == 'deceased_date') &&
         (empty($value) || $value == '0000-00-00')
     ) {
         return "NULL";
@@ -1239,7 +1239,7 @@ function updateEmployerData($pid, $new, $create = false)
     if ($create) {
         $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";
         foreach ($colnames as $key) {
-            $value = isset($new[$key]) ? $new[$key] : '';
+            $value = $new[$key] ?? '';
             $set .= ", `$key` = '" . add_escape_custom($value) . "'";
         }
 

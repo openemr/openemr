@@ -19,9 +19,11 @@ use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\VitalsService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -37,6 +39,11 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
      * @var array Holds the cached resource paths for social history observation records
      */
     private $fhirSocialObservationResourcePaths = [];
+
+    /**
+     * @var array Holds the cached resource paths for SDOH observation records
+     */
+    private array $fhirSdohObservationResourcePaths = [];
 
     private const RESOURCE = "Observation";
 
@@ -80,7 +87,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
     {
         if ($event->getService() instanceof VitalsService) {
             // now we need to generate our uuid mappings if they don't exist
-            $data = $event->getSaveData() ?? [];
+            $data = $event->getSaveData();
             $targetUuid = $data['uuid'] ?? null;
             $keysToCreate = $this->getFhirVitalObservationResourcePaths();
             // vitals as of October 13th 2021 had 27 mapping uuids... so we batch this process
@@ -88,10 +95,17 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
         }
         if ($event->getService() instanceof SocialHistoryService) {
             // now we need to generate our uuid mappings if they don't exist
-            $data = $event->getSaveData() ?? [];
+            $data = $event->getSaveData();
             $targetUuid = $data['uuid'] ?? null;
             $keysToCreate = $this->getFhirSocialObservationResourcePaths();
             $this->createMappingRecordsForService($targetUuid, self::RESOURCE, SocialHistoryService::TABLE_NAME, $keysToCreate);
+        }
+        if ($event->getService() instanceof HistorySdohService) {
+            // now we need to generate our uuid mappings if they don't exist
+            $data = $event->getSaveData();
+            $targetUuid = $data['uuid'] ?? null;
+            $keysToCreate = $this->getFhirSdohObservationResourcePaths();
+            $this->createMappingRecordsForService($targetUuid, self::RESOURCE, HistorySdohService::TABLE_NAME, $keysToCreate);
         }
     }
 
@@ -110,6 +124,24 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
         if (!empty($values)) {
             UuidMapping::createMappingRecordForResourcePaths($targetUuid, $resource, $table, $values);
         }
+    }
+
+    protected function getFhirSdohObservationResourcePaths()
+    {
+        if (!empty($this->fhirSdohObservationResourcePaths)) {
+            return $this->fhirSdohObservationResourcePaths;
+        }
+
+        $this->fhirSdohObservationResourcePaths = [];
+        $service = new FhirObservationHistorySdohService();
+        $columnMappings = $service->getColumnMappings();
+        foreach ($columnMappings as $mapping) {
+            if (isset($mapping['category']) && isset($mapping['code'])) {
+                $resourcePath = "category=" . $mapping['category'] . '&code=' . $mapping['code'];
+                $this->fhirSdohObservationResourcePaths[$resourcePath] = $resourcePath;
+            }
+        }
+        return $this->fhirSdohObservationResourcePaths;
     }
 
     private function getFhirSocialObservationResourcePaths()

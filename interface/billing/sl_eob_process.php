@@ -346,7 +346,7 @@ function era_callback(&$out): void
         }
 
         // Simplify some claim attributes for cleaner code.
-        $service_date = parse_date(isset($out['dos']) ? $out['dos'] : $out['claim_date']);
+        $service_date = parse_date($out['dos'] ?? $out['claim_date']);
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
@@ -489,7 +489,7 @@ function era_callback(&$out): void
                         $debug,
                         '',
                         $codetype,
-                        $date ?? null,
+                        $check_date,
                         $out['payer_claim_id']
                     );
                     $invoice_total -= $svc['paid'];

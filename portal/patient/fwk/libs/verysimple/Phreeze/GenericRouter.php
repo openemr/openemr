@@ -113,7 +113,7 @@ class GenericRouter implements IRouter
             $this->matchedRoute =  [
                     "key" => $this->routeMap [$uri],
                     "route" => $this->routeMap [$uri] ["route"],
-                    "params" => isset($this->routeMap [$uri] ["params"]) ? $this->routeMap [$uri] ["params"] :  []
+                    "params" => $this->routeMap [$uri] ["params"] ?? []
             ];
 
             return  [
@@ -158,7 +158,7 @@ class GenericRouter implements IRouter
                 $this->matchedRoute =  [
                         "key" => $unalteredKey,
                         "route" => $value ["route"],
-                        "params" => isset($value ["params"]) ? $value ["params"] :  []
+                        "params" => $value ["params"] ?? []
                 ];
 
                 // expects mapped values to be in the form: Controller.Model
@@ -193,7 +193,7 @@ class GenericRouter implements IRouter
             // if a root folder was provided, then we need to strip that out as well
             if ($this->appRootUrl) {
                 $prefix = str_replace(RequestUtil::GetServerRootUrl(), '/', $this->appRootUrl);
-                if (substr($this->uri, 0, strlen($prefix)) == $prefix) {
+                if (str_starts_with($this->uri, $prefix)) {
                     $this->uri = substr($this->uri, strlen($prefix));
                 }
             }

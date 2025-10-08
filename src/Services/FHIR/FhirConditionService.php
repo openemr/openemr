@@ -13,6 +13,7 @@ use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -33,6 +34,10 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis';
+    const USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns';
 
     /**
      * @var ConditionService
@@ -245,9 +250,20 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        $profileSets = [];
+        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_URI, ['', '3.1.1']);
+        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
+        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
+
+        $profiles = array_merge(...$profileSets);
+        return $profiles;
+    }
+
+    protected function getSupportedVersions(): array
+    {
+        return ['', '7.0.0', '8.0.0'];
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
