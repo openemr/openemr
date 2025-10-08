@@ -223,9 +223,7 @@ class QueryUtils
             throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError() . " Query: " . $statement);
         }
 
-        // Return the correct last id generated using function
-        //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return self::getLastInsertId();
     }
 
     /**
