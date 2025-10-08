@@ -14,12 +14,11 @@
 
 /** @var array<int, array<string, mixed>> $specimen_by_seq */
 /** @var array<string, mixed>|null $oprow */
-/** @var array<int, array<string, mixed>> $i */
+/** @var int|null $i */
 
-// define defaults so PHPStan knows they exist in this file
+$i = isset($i) ? (int)$i : 0;
 $specimen_by_seq = $specimen_by_seq ?? [];
 $oprow = $oprow ?? null;
-$i = $i ?? 0;
 
 $line = (int)$i;
 $rows = $specimen_by_seq[(int)($oprow['procedure_order_seq'] ?? 0)] ?? [];

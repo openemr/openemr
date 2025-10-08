@@ -1256,6 +1256,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
         <?php
 
         $oparr = [];
+        $oprow = [];
         if ($formid) {
             $opres = sqlStatement(
                 "SELECT " .
