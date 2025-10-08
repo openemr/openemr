@@ -1242,7 +1242,7 @@ function newEmployerData(
  * @deprecated Use EmployerService->updateEmployerData() instead.
  * @return void
  */
-function updateEmployerData($pid, $new, $create = false, ?array $patientData = null)
+function updateEmployerData($pid, $new, $create = false, ?array $patientData = null): void
 {
     $employerService = new EmployerService();
     $employerService->updateEmployerData($pid, $new, $create, $patientData);
