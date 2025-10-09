@@ -46,8 +46,8 @@ if (ini_get('register_globals') != 1) {
                             '_GLOBALS' ];
 
     foreach ($supers as $__s) {
-        if ((isset($$__s) == true) && (is_array($$__s) == true)) {
-            extract($$__s, EXTR_OVERWRITE);
+        if ((isset(${$__s}) == true) && (is_array(${$__s}) == true)) {
+            extract(${$__s}, EXTR_OVERWRITE);
         }
     }
 
@@ -381,12 +381,12 @@ function pnVarCleanFromInput()
     $resarray = [];
     foreach (func_get_args() as $var) {
     // Get var
-        global $$var;
+        global ${$var};
         if (empty($var)) {
             return;
         }
 
-        $ourvar = $$var;
+        $ourvar = ${$var};
         if (!isset($ourvar)) {
             array_push($resarray, null);
             continue;

@@ -56,20 +56,20 @@ function smarty_function_html_checkboxes($params, &$smarty)
         switch($_key) {
             case 'name':
             case 'separator':
-                $$_key = $_val;
+                ${$_key} = $_val;
                 break;
 
             case 'labels':
-                $$_key = (bool)$_val;
+                ${$_key} = (bool)$_val;
                 break;
 
             case 'options':
-                $$_key = (array)$_val;
+                ${$_key} = (array)$_val;
                 break;
 
             case 'values':
             case 'output':
-                $$_key = array_values((array)$_val);
+                ${$_key} = array_values((array)$_val);
                 break;
 
             case 'checked':
