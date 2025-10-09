@@ -238,12 +238,6 @@ jobs:
         . ci/ciLibrary.source
         build_test unit
 
-    - name: Upload unit test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-
     ##
     # To skip E2E tests for specific docker directories,
     # rename the docker directory to end with "_no-e2e".
@@ -255,12 +249,6 @@ jobs:
       run: |
         . ci/ciLibrary.source
         build_test e2e
-
-    - name: Upload E2e test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload E2E test videos
       if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
@@ -275,23 +263,11 @@ jobs:
         . ci/ciLibrary.source
         build_test api
 
-    - name: Upload Api test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-
     - name: Fixtures testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test fixtures
-
-    - name: Upload Fixtures test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Services testing
       if: ${{ success() || failure() }}
@@ -299,23 +275,11 @@ jobs:
         . ci/ciLibrary.source
         build_test services
 
-    - name: Upload Services test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-
     - name: Validators testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test validators
-
-    - name: Upload Validators test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Controllers testing
       if: ${{ success() || failure() }}
@@ -323,23 +287,28 @@ jobs:
         . ci/ciLibrary.source
         build_test controllers
 
-    - name: Upload Controllers test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-
     - name: Common testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test common
 
-    - name: Upload Common test results to Codecov
-      if: ${{ !cancelled() }}
+    - name: Collect test results for Codecov
+      id: collect-junit-files
+      if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
+      run: |
+        shopt -s nullglob
+        files=( ./junit-*.xml )
+        (( "${#files[@]}" < 1 )) && exit
+        export IFS=,
+        echo "files=${files[*]}" >> $GITHUB_OUTPUT
+
+    - name: Upload all test results to Codecov
+      if: ${{ !cancelled() && steps.collect-junit-files.outputs.files != '' }}
       uses: codecov/test-results-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        files: ${{ steps.collect-junit-files.outputs.files }}
 
     - name: Upload JUnit test results
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
