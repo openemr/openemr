@@ -15,17 +15,7 @@
 namespace OpenEMR\ZendModules\FHIR\Listener;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidMapping;
-use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Services\ServiceSaveEvent;
-use OpenEMR\Services\CareTeamService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
-use OpenEMR\Services\PatientService;
-use OpenEMR\Services\SDOH\HistorySdohService;
-use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\VitalsCalculatedService;
 use OpenEMR\Services\VitalsService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -59,6 +49,7 @@ class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
     }
     public function createVitalCalculatedRecords(array $vitalRecord): void {
         try {
+            $vitalRecord['encounter'] = intval($vitalRecord['eid'] ?? 0);
             $vitalCalculations = new VitalsCalculatedService();
             $vitalCalculations->saveCalculatedVitalsForRecord($vitalRecord);
         }

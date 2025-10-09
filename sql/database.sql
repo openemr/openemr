@@ -13411,23 +13411,33 @@ CREATE TABLE `form_vitals_calculation` (
    `updated_at` datetime DEFAULT NULL,
    `created_by` bigint(20) DEFAULT NULL,
    `updated_by` bigint(20) DEFAULT NULL,
-   `calculation_id` varchar(64) DEFAULT NULL,
-   `vitals_column` varchar(64) DEFAULT NULL,
-   `value_quantity` DECIMAL(12,6) DEFAULT NULL,
-   `value_string` varchar(64) DEFAULT NULL,
-   `value_unit` varchar(16) DEFAULT NULL,
+   `calculation_id` varchar(64) DEFAULT NULL COMMENT 'application identifier representing calculation e.g., bp-MeanLast5, bp-Mean3Day, bp-MeanEncounter',
    PRIMARY KEY (`id`),
    UNIQUE KEY `unq_uuid` (`uuid`),
    KEY `idx_pid` (`pid`),
    KEY `idx_encounter` (`encounter`),
-   KEY `idx_calculation_id` (`calculation_id`),
-   KEY `idx_vitals_column` (`vitals_column`),
-   CONSTRAINT `fk_fvc_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-   CONSTRAINT `fk_fvc_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-   CONSTRAINT `fk_fvc_encounter` FOREIGN KEY (`encounter`) REFERENCES `form_encounter` (`id`) ON DELETE CASCADE,
-   CONSTRAINT `fk_fvc_pid` FOREIGN KEY (`pid`) REFERENCES `patient_data` (`pid`) ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT = 'Vital records created from calculations on original vital entries';
+   KEY `idx_calculation_id` (`calculation_id`)
+) ENGINE=InnoDB COMMENT = 'Main calculation records - one per logical calculation (e.g., average BP)';
+#EndIf
 
+#IfNotTable form_vitals_calculation_components
+CREATE TABLE `form_vitals_calculation_components` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
+    `vitals_column` varchar(64) NOT NULL COMMENT 'Component type: bps, bpd, pulse, etc.',
+    `value` DECIMAL(12,6) DEFAULT NULL COMMENT 'Calculated numeric component value',
+    `value_string` varchar(255) DEFAULT NULL COMMENT 'Calculated non-numeric component value',
+    `value_unit` varchar(16) DEFAULT NULL COMMENT 'Unit for this component value',
+    `component_order` int NOT NULL DEFAULT 0 COMMENT 'Display order for components',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unq_fvc_component` (`fvc_uuid`, `vitals_column`),
+    KEY `idx_vitals_column` (`vitals_column`),
+    KEY `idx_component_order` (`fvc_uuid`, `component_order`),
+    CONSTRAINT `fk_fvcc_fvc_uuid` FOREIGN KEY (`fvc_uuid`) REFERENCES `form_vitals_calculation` (`uuid`) ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
+#EndIf
+
+#IfMissingTable form_vitals_calculation_form_vitals
 CREATE TABLE `form_vitals_calculation_form_vitals` (
    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
    `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',

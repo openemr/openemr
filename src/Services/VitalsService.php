@@ -393,6 +393,8 @@ class VitalsService extends BaseService
                 $vitalsData['id'] = $id;
             }
             QueryUtils::sqlStatementThrowException($sql, $values);
+            $vitalsData['eid'] = $eid;
+            $vitalsData['authorized'] = $authorized;
         }
 
         // now go through and update all of our vital details
