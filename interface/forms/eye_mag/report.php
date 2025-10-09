@@ -77,7 +77,7 @@ $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER 
 $result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
-    $$LOCATION = text($prefs['GOVALUE']);
+    ${$LOCATION} = text($prefs['GOVALUE']);
 }
 
 function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): void
@@ -207,7 +207,7 @@ function left_overs(): void
 
     if ($data) {
         foreach ($data as $key => $value) {
-            $$key = $value;
+            ${$key} = $value;
         }
     }
 }
@@ -728,7 +728,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 $bad = 0;
                 for ($z = 1; $z < 5; $z++) {
                     $ODzone = "ODVF" . $z;
-                    if ($$ODzone == '1') {
+                    if (${$ODzone} == '1') {
                         $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
                         if ($PDF_OUTPUT) {
                             $ODVF[$z] = 'X';
@@ -743,7 +743,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
 
                     $OSzone = "OSVF" . $z;
-                    if ($$OSzone == "1") {
+                    if (${$OSzone} == "1") {
                         $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
                         if ($PDF_OUTPUT) {
                             $OSVF[$z] = 'X';
@@ -875,7 +875,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             "MOTILITY_LLIO"
                         ];
                         for ($i = 0; $i < count($zone); ++$i) {
-                            ($$zone[$i] >= '1') ? ($$zone[$i] = "-" . $$zone[$i]) : ($$zone[$i] = '');
+                            (${$zone}[$i] >= '1') ? (${$zone}[$i] = "-" . ${$zone}[$i]) : (${$zone}[$i] = '');
                         }
                         ?>
                             <table cellspacing="2" style="margin:2px;text-align:center;">

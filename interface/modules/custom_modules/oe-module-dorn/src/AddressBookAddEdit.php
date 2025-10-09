@@ -81,7 +81,7 @@ class AddressBookAddEdit
         $phonew2        = "";
         $phonecell      = "";
 
-        $sqlArr = [$$userName, $password, $authorized, $info, $source
+        $sqlArr = [${$userName}, $password, $authorized, $info, $source
             ,$title, $fname, $lname, $mname, $suffix
             ,$federaltaxid, $federaldrugid,$upin,$facility,$see_auth,$active,$npi,$taxonomy,$cpoe
             ,$specialty,$organization,$valedictory,$assistant,$billname,$email,$email_direct,$url

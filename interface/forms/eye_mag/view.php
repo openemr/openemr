@@ -41,7 +41,7 @@ $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDE
 $result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
-    $$LOCATION = text($prefs['GOVALUE']);
+    ${$LOCATION} = text($prefs['GOVALUE']);
 }
 // These settings are sticky user preferences linked to a given page.
 // Could do ALL preferences this way instead of the modified extract above...
@@ -1044,7 +1044,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             $bad = 0;
                         for ($z = 1; $z < 5; $z++) {
                             $ODzone = "ODVF" . $z;
-                            if ($$ODzone == '1') {
+                            if (${$ODzone} == '1') {
                                 $ODVF[$z] = 'checked value=1';
                                 $bad++;
                             } else {
@@ -1052,7 +1052,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             }
 
                             $OSzone = "OSVF" . $z;
-                            if ($$OSzone == "1") {
+                            if (${$OSzone} == "1") {
                                 $OSVF[$z] = 'checked value=1';
                                 $bad++;
                             } else {

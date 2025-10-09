@@ -68,7 +68,7 @@ function smarty_function_html_table($params, &$smarty)
     foreach ($params as $_key=>$_value) {
         switch ($_key) {
             case 'loop':
-                $$_key = (array)$_value;
+                ${$_key} = (array)$_value;
                 break;
 
             case 'cols':
@@ -86,7 +86,7 @@ function smarty_function_html_table($params, &$smarty)
                 break;
 
             case 'rows':
-                $$_key = (int)$_value;
+                ${$_key} = (int)$_value;
                 break;
 
             case 'table_attr':
@@ -95,13 +95,13 @@ function smarty_function_html_table($params, &$smarty)
             case 'vdir':
             case 'inner':
             case 'caption':
-                $$_key = (string)$_value;
+                ${$_key} = (string)$_value;
                 break;
 
             case 'tr_attr':
             case 'td_attr':
             case 'th_attr':
-                $$_key = $_value;
+                ${$_key} = $_value;
                 break;
         }
     }
