@@ -666,7 +666,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
 
         $code = $dataRecord['code'];
-        $description = $this->getDescriptionForCode($code) ?? $dataRecord['description'];
+        $description = $dataRecord['description'] ?? $this->getDescriptionForCode($code);
 
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
