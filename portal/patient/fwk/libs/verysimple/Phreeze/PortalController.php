@@ -1006,7 +1006,7 @@ abstract class PortalController
     {
         if (is_string($input)) {
             // pop recursion here
-            $input = utf8_encode($input);
+            $input = mb_convert_encoding($input, 'UTF-8', 'ISO-8859-1');
         } elseif (is_array($input)) {
             foreach ($input as &$value) {
                 $this->UTF8Encode($value);
