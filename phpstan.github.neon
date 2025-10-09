@@ -3906,7 +3906,7 @@ parameters:
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$fs might not be defined\.$#'
     identifier: variable.undefined
-    count: 16
+    count: 15
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$ignoreAuth_onsite_portal might not be defined\.$#'
     identifier: variable.undefined
