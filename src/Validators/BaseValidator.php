@@ -1,15 +1,6 @@
 <?php
 
-namespace OpenEMR\Validators;
-
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Validators\ProcessingResult;
-use Particle\Validator\Validator;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-
 /**
- * Base class for OpenEMR object validation.
- * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -17,7 +8,29 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Validators;
+
+use OpenEMR\Common\Uuid\UuidRegistry;
+use Particle\Validator\Validator;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
+
+/**
+ * Base class for OpenEMR object validation.
+ * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
+ *
+ * Usage:
+ *     class InsertAndUpdateContextsAwareValidator extends BaseValidator {
+ *         protected function configureValidatorContext(Validator $validator, string $contextName): void { ... }
+ *     }
+ *
+ *     class CustomContextsAwareValidator extends BaseValidator {
+ *         public function __construct() { parent::__construct([self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT, self::TELEHEALTH_INSERT_CONTEXT]); }
+ *         protected function configureValidatorContext(Validator $validator, string $contextName): void { ... }
+ *     }
  */
 abstract class BaseValidator
 {
@@ -25,9 +38,7 @@ abstract class BaseValidator
     public const DATABASE_INSERT_CONTEXT = "db-insert";
     public const DATABASE_UPDATE_CONTEXT = "db-update";
 
-    protected $validator;
-
-    protected $supportedContexts;
+    protected Validator $validator;
 
     /**
      * Configures the validator instance with validation requirements and rules.
@@ -36,15 +47,39 @@ abstract class BaseValidator
      */
     protected function configureValidator()
     {
-        array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);
+        $this->addSupportedContext(self::DATABASE_INSERT_CONTEXT);
+        $this->addSupportedContext(self::DATABASE_UPDATE_CONTEXT);
+
+        if (!method_exists($this, 'configureValidatorContext')) {
+            return;
+        }
+
+        foreach ($this->supportedContexts as $contextName) {
+            $this->validator->context($contextName, function (Validator $validator) use ($contextName): void {
+                $this->configureValidatorContext($validator, $contextName);
+            });
+        }
     }
 
-    public function __construct()
+    public function __construct(protected array $supportedContexts = [])
     {
         $this->validator = $this->getInnerValidator();
-        $this->supportedContexts = [];
         $this->configureValidator();
     }
+
+    /**
+     * Can be called only from configureValidator before calling parent configureValidator
+     */
+    protected function addSupportedContext(string $supportedContext): void
+    {
+        if (in_array($supportedContext, $this->supportedContexts, true)) {
+            return;
+        }
+
+        $this->supportedContexts[] = $supportedContext;
+    }
+
+    // abstract protected function configureValidatorContext(Validator $validator, string $contextName): void;
 
     protected function getInnerValidator(): Validator
     {
@@ -90,11 +125,11 @@ abstract class BaseValidator
     /**
      * Validates that a ID exists in the database.
      *
-     * @param $field The identifier field in database
-     * @param $table The table in database
-     * @param $lookupId The identifier to validateId
-     * @param $isUuid true if the lookupId is UUID, otherwise false
-     * @return true if the lookupId is a valid existing id, otherwise Validation Message
+     * @param string $field The identifier field in database
+     * @param string $table The table in database
+     * @param string $lookupId The identifier to validateId
+     * @param bool $isUuid true if the lookupId is UUID, otherwise false
+     * @return bool|ProcessingResult True if the lookupId is a valid existing id, otherwise Validation Message
      */
     public static function validateId($field, $table, $lookupId, $isUuid = false)
     {
@@ -131,9 +166,9 @@ abstract class BaseValidator
     /**
      * Validates that a Code from Valueset exists in the database.
      *
-     * @param $code The code which needs to be verified
-     * @param $table The table in database
-     * @param $valueset Name of the particular Valueset
+     * @param string $code The code which needs to be verified
+     * @param string $table The table in database
+     * @param string $valueset Name of the particular Valueset
      * @return boolean
      */
     public function validateCode($code, $table, $valueset)
