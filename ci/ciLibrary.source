@@ -169,7 +169,7 @@ build_test_e2e() {
 
     echo 'Running E2E tests…'
     set +e
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit.xml --testsuite e2e --testdox
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit-e2e.xml --testsuite e2e --testdox
     status=$?
     set -e
 
@@ -197,8 +197,30 @@ build_test_e2e() {
     return "${status}"
 }
 
+##
+# Use the testsuite to figure out which junit filename to use.
+# This could get ugly if there's a long comma-delimited list of testsuites,
+# but we usually have only one.
 phpunit() {
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit.xml --testdox "$@"
+    local testsuite_arg
+    local args=( "${@}" )
+    while [[ -n ${1} ]]; do
+        case "${1}" in
+            --testsuite)
+                shift
+                testsuite_arg="${1}"
+                break
+                ;;
+            --testsuite=*)
+                testsuite_arg="${1#--testsuite=}"
+                break
+                ;;
+            *) :;;
+        esac
+        shift
+    done
+    [[ -n "${testsuite_arg}" ]] && args+=( --log-junit "junit-${testsuite_arg}.xml" )
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testdox "${args[@]}"
 }
 
 ##
