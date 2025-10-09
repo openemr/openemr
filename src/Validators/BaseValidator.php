@@ -37,6 +37,16 @@ abstract class BaseValidator
     protected function configureValidator()
     {
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);
+
+        if (!method_exists($this, 'configureValidatorContext')) {
+            return;
+        }
+
+        foreach ($this->supportedContexts as $contextName) {
+            $this->validator->context($contextName, function (Validator $validator) use ($contextName): void {
+                $this->configureValidatorContext($validator, $contextName);
+            });
+        }
     }
 
     public function __construct()
