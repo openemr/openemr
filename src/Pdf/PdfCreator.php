@@ -28,11 +28,7 @@ class PdfCreator
 
         // This will not necessarily reflect actual machine bus width but php bus size.
         $intsize = strlen(decbin(~ 0));
-        if (empty(strstr(php_uname("m"), '64'))) {
-            $bit = "32";
-        } else {
-            $bit = "64";
-        }
+        $bit = empty(strstr(php_uname("m"), '64')) ? "32" : "64";
         try {
             $thisos = strtolower(php_uname());
             if (str_contains($thisos, "darwin")) {

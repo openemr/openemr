@@ -257,11 +257,7 @@ class InstModuleTable
             if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
                 $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
             }
-            if (!empty($lines)) {
-                $name = $lines[0];
-            } else {
-                $name = $directory;
-            }
+            $name = !empty($lines) ? $lines[0] : $directory;
 
             $uiname = ucwords(strtolower($directory));
             $section_id = 0;

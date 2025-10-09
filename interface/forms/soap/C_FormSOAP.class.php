@@ -45,11 +45,7 @@ class C_FormSOAP extends Controller
 
     function view_action($form_id)
     {
-        if (is_numeric($form_id)) {
-            $form = new FormSOAP($form_id);
-        } else {
-            $form = new FormSOAP();
-        }
+        $form = is_numeric($form_id) ? new FormSOAP($form_id) : new FormSOAP();
 
         return $this->twig->getTwig()->render(
             'soap_form.twig',

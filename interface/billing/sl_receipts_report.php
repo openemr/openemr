@@ -549,11 +549,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             //
 
                             if (empty($form_use_edate)) {
-                                if (!empty($row['deposit_date'])) {
-                                    $thedate = $row['deposit_date'];
-                                } else {
-                                    $thedate = substr($row['post_time'], 0, 10);
-                                }
+                                $thedate = !empty($row['deposit_date']) ? $row['deposit_date'] : substr($row['post_time'], 0, 10);
                             } elseif ($form_use_edate == 1) {
                                 $thedate = substr($row['date'], 0, 10);
                             } elseif ($form_use_edate == 2) {

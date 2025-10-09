@@ -333,11 +333,7 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
 
             return $result;
         } elseif ($dotype == "sent") {
-            if ($nsrch) {
-                $result_sent_notes = getPortalPatientSentNotes($owner, '', '0', $nsrch);
-            } else {
-                $result_sent_notes = getPortalPatientSentNotes($owner);
-            }
+            $result_sent_notes = $nsrch ? getPortalPatientSentNotes($owner, '', '0', $nsrch) : getPortalPatientSentNotes($owner);
 
             return $result_sent_notes;
         } elseif ($dotype == "all") {

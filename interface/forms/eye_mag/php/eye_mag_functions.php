@@ -125,17 +125,9 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     }
 
     $i--;
-    if ($current < $i) {
-        $earlier = $current + 1;
-    } else {
-        $earlier = $current;
-    }
+    $earlier = $current < $i ? $current + 1 : $current;
 
-    if ($current > '0') {
-        $later   = ($current - 1);
-    } else {
-        $later   = "0";
-    }
+    $later = $current > '0' ? $current - 1 : "0";
 
 
     //current visit =[0]
@@ -2183,11 +2175,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
 
                 if ($key == "Allergy") {
-                    if ($item['reaction']) {
-                        $reaction = " (" . text($item['reaction']) . ")";
-                    } else {
-                        $reaction = "";
-                    }
+                    $reaction = $item['reaction'] ? " (" . text($item['reaction']) . ")" : "";
 
                     $red = "style='color:red;'";
                 } else {
@@ -2548,11 +2536,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if ($PMSFH[0]['Allergy']) {
         $i = 0;
         foreach ($PMSFH[0]['Allergy'] as $item) {
-            if ($item['reaction']) {
-                $reaction = "(" . text($item['reaction']) . ")";
-            } else {
-                $reaction = "";
-            }
+            $reaction = $item['reaction'] ? "(" . text($item['reaction']) . ")" : "";
 
             echo "<span style='color:red;' name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
       onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Allergy','" . $i . "');\">" . text($item['title']) . " " . $reaction . "</span><br />";
@@ -4598,11 +4582,7 @@ function start_your_engines($FIELDS)
                         } elseif ($option == "RVO") {
                             //is there a CRVO or BRVO associated?
                             //check Clinical fields for these terms
-                            if ($side == "right eye") {
-                                $location = "ODVESSELS";
-                            } else {
-                                $location = "OSVESSELS";
-                            }
+                            $location = $side == "right eye" ? "ODVESSELS" : "OSVESSELS";
 
                             if ($hit_RVO[$location] == '1') {
                                 continue;

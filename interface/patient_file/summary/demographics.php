@@ -129,11 +129,7 @@ if ($GLOBALS['enable_cdr']) {
     }
 }
 //Check to see is only one insurance is allowed
-if ($GLOBALS['insurance_only_one']) {
-    $insurance_array = ['primary'];
-} else {
-    $insurance_array = ['primary', 'secondary', 'tertiary'];
-}
+$insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 function getHiddenDashboardCards(): array
 {

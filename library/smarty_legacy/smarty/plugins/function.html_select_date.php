@@ -154,18 +154,10 @@ function smarty_function_html_select_date($params, &$smarty)
 
     // make syntax "+N" or "-N" work with start_year and end_year
     if (preg_match('!^(\+|\-)\s*(\d+)$!', $end_year, $match)) {
-        if ($match[1] == '+') {
-            $end_year = strftime('%Y') + $match[2];
-        } else {
-            $end_year = strftime('%Y') - $match[2];
-        }
+        $end_year = $match[1] == '+' ? strftime('%Y') + $match[2] : strftime('%Y') - $match[2];
     }
     if (preg_match('!^(\+|\-)\s*(\d+)$!', $start_year, $match)) {
-        if ($match[1] == '+') {
-            $start_year = strftime('%Y') + $match[2];
-        } else {
-            $start_year = strftime('%Y') - $match[2];
-        }
+        $start_year = $match[1] == '+' ? strftime('%Y') + $match[2] : strftime('%Y') - $match[2];
     }
     if (strlen($time[0]) > 0) {
         if ($start_year > $time[0] && !isset($params['start_year'])) {
@@ -259,11 +251,7 @@ function smarty_function_html_select_date($params, &$smarty)
 
     if ($display_years) {
     	$field_separator_count++;
-        if (null !== $field_array){
-            $year_name = $field_array . '[' . $prefix . 'Year]';
-        } else {
-            $year_name = $prefix . 'Year';
-        }
+        $year_name = null !== $field_array ? $field_array . '[' . $prefix . 'Year]' : $prefix . 'Year';
         if ($year_as_text) {
             $year_result .= '<input type="text" name="' . $year_name . '" value="' . $time[0] . '" size="4" maxlength="4"';
             if (null !== $all_extra){

@@ -249,11 +249,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $clm_amount_paid = $ub04_proc_index ? 0 : $claim->patientPaidAmount();
     for ($tlh = 0; $tlh < $proccount; ++$tlh) {
         $tmp = $claim->procs[$tlh]['code_text'];
-        if ($claim->procs[$tlh]['code_type'] == 'HCPCS') {
-            $tmpcode = '3';
-        } else {
-            $tmpcode = '1';
-        }
+        $tmpcode = $claim->procs[$tlh]['code_type'] == 'HCPCS' ? '3' : '1';
         $getrevcd = $claim->cptCode($tlh);
         $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY revenue_code DESC";
         $revcode[$tlh] = sqlQuery($sql, [

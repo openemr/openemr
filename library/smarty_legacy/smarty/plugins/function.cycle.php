@@ -84,11 +84,7 @@ function smarty_function_cycle($params, &$smarty)
         $smarty->assign($params['assign'], $cycle_array[$cycle_vars[$name]['index']]);
     }
 
-    if($print) {
-        $retval = $cycle_array[$cycle_vars[$name]['index']];
-    } else {
-        $retval = null;
-    }
+    $retval = $print ? $cycle_array[$cycle_vars[$name]['index']] : null;
 
     if($advance) {
         if ( $cycle_vars[$name]['index'] >= count($cycle_array) -1 ) {

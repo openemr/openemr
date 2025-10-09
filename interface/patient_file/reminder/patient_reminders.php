@@ -166,11 +166,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                   "FROM `patient_reminders` as a, `patient_data` as b " .
                   "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '');
                 $result = sqlStatement($sql, $sqlBindArray);
-                if (sqlNumRows($result) != 0) {
-                    $total = sqlNumRows($result);
-                } else {
-                    $total = 0;
-                }
+                $total = sqlNumRows($result) != 0 ? sqlNumRows($result) : 0;
 
                 if ($begin == "" or $begin == 0) {
                     $begin = 0;

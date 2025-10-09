@@ -380,11 +380,7 @@ STYLES;
         foreach ($all_diagnoses as $diagnosis) {
             $splitCode = explode(":", $diagnosis);
             if (!empty($splitCode)) {
-                if (!empty($splitCode[1])) {
-                    $codesOnlyArray[] = $splitCode[1];
-                } else {
-                    $codesOnlyArray[] = $splitCode;
-                }
+                $codesOnlyArray[] = !empty($splitCode[1]) ? $splitCode[1] : $splitCode;
             }
         }
         for ($i = 0; $i < 8; $i++) {

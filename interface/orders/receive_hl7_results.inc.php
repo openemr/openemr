@@ -177,11 +177,7 @@ function rhl7Text($s, $allow_newlines = false)
     $s = str_replace('\\T\\', '&', $s);
     $s = str_replace('\\X0d\\', "\r", $s);
     $s = str_replace('\\E\\', '\\', $s);
-    if ($allow_newlines) {
-        $s = str_replace('\\.br\\', "\n", $s);
-    } else {
-        $s = str_replace('\\.br\\', '~', $s);
-    }
+    $s = $allow_newlines ? str_replace('\\.br\\', "\n", $s) : str_replace('\\.br\\', '~', $s);
 
     return $s;
 }
@@ -1358,11 +1354,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 // The first line of comments is reserved for such things.
                 $ares['result_data_type'] = 'L';
                 $ares['result'] = '';
-                if (empty($a[5])) {
-                    $vTx = rhl7Text(str_replace('^', ' ', $a[3]));
-                } else {
-                    $vTx = rhl7Text($a[5]);
-                }
+                $vTx = empty($a[5]) ? rhl7Text(str_replace('^', ' ', $a[3])) : rhl7Text($a[5]);
                 $ares['comments'] = $vTx . $commentdelim;
             } else {
                 $ares['result'] = rhl7Text($a[5]);

@@ -147,11 +147,7 @@ class BasicSearchField implements ISearchField, \Stringable
             $values = $this->values;
             $newValues = [];
             foreach ($values as $value) {
-                if (is_object($value)) {
-                    $newValues[] = clone $value;
-                } else {
-                    $newValues[] = $value;
-                }
+                $newValues[] = is_object($value) ? clone $value : $value;
             }
             $this->values = $values;
         }

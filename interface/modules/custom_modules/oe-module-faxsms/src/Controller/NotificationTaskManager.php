@@ -46,11 +46,7 @@ class NotificationTaskManager
             return false;
         }
 
-        if (empty($hours)) {
-            $total_minutes = $this->getTaskHours($type);
-        } else {
-            $total_minutes = $hours * 60;
-        }
+        $total_minutes = empty($hours) ? $this->getTaskHours($type) : $hours * 60;
 
         $sql = "SELECT COUNT(*) as count FROM `background_services` WHERE `name` = ?";
         $result = sqlQueryNoLog($sql, [$name]);

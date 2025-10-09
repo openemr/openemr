@@ -174,11 +174,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
         $method = List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
-        if ($unassigned) {
-            $memo = List_Look($pmt['adjustment_code'], 'payment_adjustment_code');
-        } else {
-            $memo = $pmt['memo'];
-        }
+        $memo = $unassigned ? List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
 
         $description = $method;
         if ($ref) {
@@ -208,11 +204,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
         $print .= "<td class='detail' colspan='2'>" .
             text($description) . "</td>";
         $payer = ($pmt['name'] == '') ? xl('Patient') : $pmt['name'];
-        if ($unassigned) {
-            $pmt_date = substr($pmt['post_to_date'], 0, 10);
-        } else {
-            $pmt_date = substr($pmt['post_time'], 0, 10);
-        }
+        $pmt_date = $unassigned ? substr($pmt['post_to_date'], 0, 10) : substr($pmt['post_time'], 0, 10);
 
         $print .= "<td class='detail'>" .
             text($pmt_date) . "/" . text($payer) . "</td>";

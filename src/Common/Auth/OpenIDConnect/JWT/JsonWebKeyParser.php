@@ -105,11 +105,7 @@ class JsonWebKeyParser
         }
         // determine if access or refresh.
         $access_parts = explode(".", $rawToken);
-        if (count($access_parts) === 3) {
-            $token_hint = 'access_token';
-        } else {
-            $token_hint = 'refresh_token';
-        }
+        $token_hint = count($access_parts) === 3 ? 'access_token' : 'refresh_token';
         return $token_hint;
     }
 }

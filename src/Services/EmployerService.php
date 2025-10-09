@@ -131,11 +131,7 @@ class EmployerService extends BaseService
             $valuesToSave = [];
             foreach ($old as $key => $oldValue) {
                 $newValue = empty($new[$key]) ? '' : $new[$key];
-                if (strcmp($newValue, $oldValue) != 0) {
-                    $valuesToSave[$key] = $newValue;
-                } else {
-                    $valuesToSave[$key] = $oldValue;
-                }
+                $valuesToSave[$key] = strcmp($newValue, $oldValue) != 0 ? $newValue : $oldValue;
             }
             $new = $valuesToSave;
         }

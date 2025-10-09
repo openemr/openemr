@@ -62,17 +62,9 @@ if ($pid) {
 }
 // $statii = array('married','single','divorced','widowed','separated','domestic partner');
 // $provideri = getProviderInfo();
-if ($GLOBALS['insurance_information'] != '0') {
-    $insurancei = getInsuranceProvidersExtra();
-} else {
-    $insurancei = getInsuranceProviders();
-}
+$insurancei = $GLOBALS['insurance_information'] != '0' ? getInsuranceProvidersExtra() : getInsuranceProviders();
 //Check to see if only one insurance is allowed
-if ($GLOBALS['insurance_only_one']) {
-    $insurance_array = ['primary'];
-} else {
-    $insurance_array = ['primary', 'secondary', 'tertiary'];
-}
+$insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 //Check to see if only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {

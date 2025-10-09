@@ -983,11 +983,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         $AMSLEROS = "0";
                     }
 
-                    if ($AMSLEROD || $AMSLEROS) {
-                        $checked = 'value="0"';
-                    } else {
-                        $checked = 'value="1" checked';
-                    }
+                    $checked = $AMSLEROD || $AMSLEROS ? 'value="0"' : 'value="1" checked';
 
                     ?>
                     <input type="hidden" id="AMSLEROD" name="AMSLEROD" value='<?php echo attr($AMSLEROD); ?>'>

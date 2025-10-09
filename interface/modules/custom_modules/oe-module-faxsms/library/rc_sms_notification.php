@@ -349,11 +349,7 @@ function cron_GetNotificationData($type): bool|array
  */
 function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
 {
-    if ($type == 'SMS') {
-        $smsgateway_info = "";
-    } else {
-        $smsgateway_info = $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
-    }
+    $smsgateway_info = $type == 'SMS' ? "" : $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
 
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_cell'] . "|||" . $prow['email'];
     $data_info = $prow['pc_eventDate'] . "|||" . $prow['pc_endDate'] . "|||" . $prow['pc_startTime'] . "|||" . $prow['pc_endTime'];

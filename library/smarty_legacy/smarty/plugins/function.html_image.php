@@ -88,11 +88,7 @@ function smarty_function_html_image($params, &$smarty)
         return;
     }
 
-    if (str_starts_with($file, '/')) {
-        $_image_path = $basedir . $file;
-    } else {
-        $_image_path = $file;
-    }
+    $_image_path = str_starts_with($file, '/') ? $basedir . $file : $file;
 
     if(!isset($params['width']) || !isset($params['height'])) {
         if(!$_image_data = @getimagesize($_image_path)) {
@@ -124,11 +120,7 @@ function smarty_function_html_image($params, &$smarty)
     }
 
     if(isset($params['dpi'])) {
-        if(strstr($server_vars['HTTP_USER_AGENT'], 'Mac')) {
-            $dpi_default = 72;
-        } else {
-            $dpi_default = 96;
-        }
+        $dpi_default = strstr($server_vars['HTTP_USER_AGENT'], 'Mac') ? 72 : 96;
         $_resize = $dpi_default/$params['dpi'];
         $width = round($width * $_resize);
         $height = round($height * $_resize);

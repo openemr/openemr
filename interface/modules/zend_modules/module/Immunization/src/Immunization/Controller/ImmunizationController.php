@@ -154,11 +154,7 @@ class ImmunizationController extends AbstractActionController
         $res = $this->getImmunizationTable()->codeslist();
         $i = 0;
         foreach ($res as $value) {
-            if ($value == $defaultCode) {
-                $select = true;
-            } else {
-                $select = false;
-            }
+            $select = $value == $defaultCode ? true : false;
 
             $rows[$i] = [
                 'value' => $value['id'],

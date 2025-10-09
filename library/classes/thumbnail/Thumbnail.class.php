@@ -38,11 +38,7 @@ class Thumbnail
             die('Abort. Thumbnail generator error : Missing GD extension');
         }
 
-        if (!is_null($max_size)) {
-            $this->max_size = $max_size;
-        } else {
-            $this->max_size = self::MAX_SIZE;
-        }
+        $this->max_size = !is_null($max_size) ? $max_size : self::MAX_SIZE;
     }
 
     /**
@@ -74,11 +70,7 @@ class Thumbnail
      */
     public function create_thumbnail($file = null, $content_file = null)
     {
-        if (is_null($file)) {
-            $info = getimagesizefromstring($content_file);
-        } else {
-            $info =  getimagesize($file);
-        }
+        $info = is_null($file) ? getimagesizefromstring($content_file) : getimagesize($file);
 
         if (!$info) {
             error_log("Can't open file " . errorLogEscape($file) . " for generate thumbnail");

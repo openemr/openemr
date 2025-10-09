@@ -246,11 +246,7 @@ function replace($pid, $enc, $content)
         $fname = $results['fname'];
         $mname = $results['mname'];
         $lname = $results['lname'];
-        if ($mname) {
-            $name = $fname . ' ' . $mname . ' ' . $lname;
-        } else {
-            $name = $fname . ' ' . $lname;
-        }
+        $name = $mname ? $fname . ' ' . $mname . ' ' . $lname : $fname . ' ' . $lname;
 
             $dob = $results['DOB'];
             $date = $results['date'];

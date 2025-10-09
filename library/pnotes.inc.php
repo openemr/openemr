@@ -128,11 +128,7 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
 
   // return the results
     if ($count) {
-        if (sqlNumRows($result) != 0) {
-            $total = sqlNumRows($result);
-        } else {
-            $total = 0;
-        }
+        $total = sqlNumRows($result) != 0 ? sqlNumRows($result) : 0;
 
         return $total;
     } else {

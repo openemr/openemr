@@ -36,11 +36,7 @@ de_identification_screen1.php  */
 $begin_date = $_POST["begin_date"];
 $end_date = $_POST["end_date"];
 
-if ($_POST["unstructured"]) {
-    $include_unstructured = 1;
-} else {
-    $include_unstructured = 0;
-}
+$include_unstructured = $_POST["unstructured"] ? 1 : 0;
 
 if ($_POST["all"]) {
     $include_tables = "all";

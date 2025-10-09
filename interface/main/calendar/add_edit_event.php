@@ -81,11 +81,7 @@ if (isset($_GET['prov'])) {
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null);
 
-if ($date) {
-    $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-} else {
-    $date = date("Y-m-d");
-}
+$date = $date ? substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6) : date("Y-m-d");
 
 $starttimem = '00';
 if (isset($_GET['starttimem'])) {
@@ -145,11 +141,7 @@ if ($_GET['group'] == true) {
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
 }
 
-if (empty($collectthis)) {
-    $collectthis = "undefined";
-} else {
-    $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
-}
+$collectthis = empty($collectthis) ? "undefined" : json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 
 $group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled ) ? ' disabled=true; ' : '';
 if ($group_disabled) {
@@ -851,11 +843,7 @@ if ($eid) {
     // Adjustments for repeat type 2, a particular weekday of the month.
     if ($repeats == 2) {
             $repeatfreq = $rspecs['event_repeat_on_freq'];
-        if ($rspecs['event_repeat_on_num'] < 5) {
-            $repeattype = 5;
-        } else {
-             $repeattype = 6;
-        }
+        $repeattype = $rspecs['event_repeat_on_num'] < 5 ? 5 : 6;
     }
 
     $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;

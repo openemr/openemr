@@ -142,11 +142,7 @@ if (!empty($_POST['bn_upload'])) {
         $fileData = file_get_contents($tmp_name);
 
         // Encrypt uploaded file, if applicable.
-        if ($GLOBALS['drive_encryption']) {
-            $storedData = $cryptoGen->encryptStandard($fileData, null, 'database');
-        } else {
-            $storedData = $fileData;
-        }
+        $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($fileData, null, 'database') : $fileData;
 
         // Store the uploaded file.
         if (file_put_contents($templatepath, $storedData) === false) {
@@ -211,11 +207,7 @@ if (!empty($_POST['bn_upload'])) {
                         <select class="form-control" name='form_filename'>
                         <?php
                         // Generate an <option> for each existing file.
-                        if (file_exists($templatedir)) {
-                            $dh = opendir($templatedir);
-                        } else {
-                            $dh = false;
-                        }
+                        $dh = file_exists($templatedir) ? opendir($templatedir) : false;
                         if ($dh) {
                             $templateslist = [];
                             while (false !== ($sfname = readdir($dh))) {

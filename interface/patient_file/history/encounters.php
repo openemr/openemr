@@ -273,17 +273,9 @@ window.onload = function() {
     if (isset($_GET['pagesize'])) {
         $pagesize = $_GET['pagesize'];
     } else {
-        if (array_key_exists('encounter_page_size', $GLOBALS)) {
-            $pagesize = $GLOBALS['encounter_page_size'];
-        } else {
-            $pagesize = 0;
-        }
+        $pagesize = array_key_exists('encounter_page_size', $GLOBALS) ? $GLOBALS['encounter_page_size'] : 0;
     }
-    if (isset($_GET['pagestart'])) {
-        $pagestart = $_GET['pagestart'];
-    } else {
-        $pagestart = 0;
-    }
+    $pagestart = $_GET['pagestart'] ?? 0;
     $getStringForPage = "&pagesize=" . attr_url($pagesize) . "&pagestart=" . attr_url($pagestart);
 
     ?>

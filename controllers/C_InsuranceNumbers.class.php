@@ -116,11 +116,7 @@ class C_InsuranceNumbers extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->insurance_numbers[0] = new InsuranceNumbers($_POST['id']);
-        } else {
-            $this->insurance_numbers[0] = new InsuranceNumbers();
-        }
+        $this->insurance_numbers[0] = is_numeric($_POST['id']) ? new InsuranceNumbers($_POST['id']) : new InsuranceNumbers();
 
         parent::populate_object($this->insurance_numbers[0]);
 
