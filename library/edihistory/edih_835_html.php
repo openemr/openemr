@@ -644,7 +644,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                         default:
                         // case 3, 4, 5, 6, 7 are remark codes
                             $moa_str .= ($v) ? ' ' . $v : '';
-                            $moa_ar[] = ($v) ? $v : '';
+                            $moa_ar[] = $v ?: '';
                     }
                 }
 
@@ -777,7 +777,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $str_html .= $hdr_html;
         $str_html .= $sbr_html;
         $str_html .= $clp_html;
-        $str_html .= ($mia_str) ? $mia_str : '';
+        $str_html .= $mia_str ?: '';
         $str_html .= $svc_html;
         $str_html .= ($rarc_str) ? "<tr class='svc'><td>&gt;</td><td colspan=3>$rarc_str</td></tr>" . PHP_EOL : "";
         if (count($cas_ar)) {
@@ -823,7 +823,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                                     $ca = ($c) ? edih_format_money($c) : "";
                                     break;
                                 case 2:
-                                    $cq = ($c) ? $c : "";
+                                    $cq = $c ?: "";
                             }
                         }
                     }
@@ -1010,7 +1010,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     $trn03 = substr($trn03, 1);
                 } // originator ID is '1' prepended to EIN or TIN
                 // the html ID for the table
-                $tblid = ($trn02) ? $trn02 : "";
+                $tblid = $trn02 ?: "";
                 $capstr .= ($trn02) ? "Check No: " . $trn02 : "Payment Listing";
                 //
                 $pmt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Trace</em> " . text($trn02) . " <em>by</em> " . text($trn03 . " " . $trn04) . "</td></tr>" . PHP_EOL;
@@ -1352,7 +1352,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                                 $plb_rc = substr($p, 0, strpos($p, (string) $ds));   // code
                                 $plb_tr = substr($p, strpos($p, (string) $ds) + 1);    // reference (case #)?
                             } else {
-                                $plb_rc = ($p) ? $p : "";
+                                $plb_rc = $p ?: "";
                                 $plb_tr = "";
                             }
 
@@ -1522,10 +1522,10 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     foreach ($cas as $k => $v) {
                         if ($k == 1) {
                             // monetary amount elem 3, 6, 9, 12, 15, 18
-                            $cav = ($v) ?  $v : 0;
+                            $cav = $v ?: 0;
                         } elseif ($k == 2) {
                             // quantity elem 4, 7, 10, 13, 16, 19
-                            $cq =  ($v) ? $v : "";
+                            $cq =  $v ?: "";
                             if ($cq && strcmp($cq, '1') > 0) {
                                 $cav *= $cq;
                             }

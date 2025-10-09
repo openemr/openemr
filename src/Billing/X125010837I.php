@@ -880,7 +880,7 @@ class X125010837I
                 "*" . $claim->insuredRelationship($ins) .
                 "*" . $claim->groupNumber($ins) .
                 "*" . (($claim->groupNumber($ins)) ? '' : $claim->groupName($ins)) .
-                "*" . ($claim->insuredTypeCode($ins) ? $claim->insuredTypeCode($ins) : $tmp2) .
+                "*" . ($claim->insuredTypeCode($ins) ?: $tmp2) .
                 "*" .
                 "*" .
                 "*" .

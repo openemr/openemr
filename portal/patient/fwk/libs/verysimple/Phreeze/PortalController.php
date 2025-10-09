@@ -92,7 +92,7 @@ abstract class PortalController
         $ra = RequestUtil::GetRemoteHost();
         $this->GUID = $this->Phreezer->DataAdapter->GetDBName() . "_" . str_replace(".", "_", $ra);
 
-        $this->_router = $router ? $router : new GenericRouter();
+        $this->_router = $router ?: new GenericRouter();
 
         if ($context) {
             $this->Context = & $context;
@@ -287,7 +287,7 @@ abstract class PortalController
     protected function Get401AuthUsername($qs_username_field = "")
     {
         $qsv = $qs_username_field ? RequestUtil::Get($qs_username_field) : '';
-        return $qsv ? $qsv : Auth401::GetUsername();
+        return $qsv ?: Auth401::GetUsername();
     }
 
     /**
@@ -301,7 +301,7 @@ abstract class PortalController
     protected function Get401AuthPassword($qs_password_field = "")
     {
         $qsv = $qs_password_field ? RequestUtil::Get($qs_password_field) : '';
-        return $qsv ? $qsv : Auth401::GetPassword();
+        return $qsv ?: Auth401::GetPassword();
     }
 
     /**
@@ -935,7 +935,7 @@ abstract class PortalController
      */
     protected function Crash($errmsg = "Unknown Error", $code = 0, $exception = null)
     {
-        $ex = $exception ? $exception : new Exception($errmsg, $code);
+        $ex = $exception ?: new Exception($errmsg, $code);
         throw $ex;
     }
 

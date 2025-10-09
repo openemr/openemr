@@ -820,12 +820,12 @@ function edih_278_transaction_html($obj278, $bht03)
 
         //
         $str_html .= $hdr_html;
-        $str_html .= ($src_html) ? $src_html : "";
-        $str_html .= ($rcv_html) ? $rcv_html : "";
-        $str_html .= ($sbr_nm1_html) ? $sbr_nm1_html : "";
-        $str_html .= ($dep_nm1_html) ? $dep_nm1_html : "";
-        $str_html .= ($evt_html) ? $evt_html : "";
-        $str_html .= ($svc_html) ? $svc_html : "";
+        $str_html .= $src_html ?: "";
+        $str_html .= $rcv_html ?: "";
+        $str_html .= $sbr_nm1_html ?: "";
+        $str_html .= $dep_nm1_html ?: "";
+        $str_html .= $evt_html ?: "";
+        $str_html .= $svc_html ?: "";
         $str_html .= "<tr><td colspan=4>&nbsp;</td></tr>" . PHP_EOL;
         $str_html .= "</tbody>" . PHP_EOL . "</table>" . PHP_EOL;
     }

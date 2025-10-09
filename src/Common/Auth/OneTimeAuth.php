@@ -354,7 +354,7 @@ class OneTimeAuth
         $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
         $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-';
-        $_SESSION['providerId'] = $patient['providerID'] ? $patient['providerID'] : 'undefined';
+        $_SESSION['providerId'] = $patient['providerID'] ?: 'undefined';
         $_SESSION['ptName'] = $patient['fname'] . ' ' . $patient['lname'];
         // never set authUserID though authUser is used for ACL!
         $_SESSION['authUser'] = 'portal-user';

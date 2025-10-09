@@ -74,7 +74,7 @@ class PredisSessionHandler implements SessionHandlerInterface
         // Read session data
         $data = $this->redis->get($sessionKey);
         $this->logger->debug("PredisSessionHandler read session data");
-        return $data ? $data : '';
+        return $data ?: '';
     }
 
     public function write(string $sessionId, string $data): bool

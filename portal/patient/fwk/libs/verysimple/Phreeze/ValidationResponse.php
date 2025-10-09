@@ -18,7 +18,7 @@ class ValidationResponse
 {
     public function __construct(public $Success = false, public $Message = "", public $PrimaryKeyValue = "", $errors = null)
     {
-        $this->Errors = $errors ? $errors :  [];
+        $this->Errors = $errors ?: [];
     }
     public $Errors =  [];
     public $Data;

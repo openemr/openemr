@@ -246,7 +246,7 @@ class Phreezer extends Observable
         }
 
         $obj = $this->_level1Cache->Get(md5($key));
-        return $obj ? $obj : $this->_level2Cache->Get($key);
+        return $obj ?: $this->_level2Cache->Get($key);
     }
 
 /**

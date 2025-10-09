@@ -1086,7 +1086,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     $de = '';
     $segments = '';
     $stsegkey = '';
-    $ft = ($filetype) ? $filetype : '';
+    $ft = $filetype ?: '';
     $errs = ( strlen($err_info) ) ? $err_info : '';
     $bht03 = '';
     //
@@ -1199,7 +1199,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
 
     //
     $capstr = '';
-    $tbl_id = ($claimid) ? $claimid : $fn;
+    $tbl_id = $claimid ?: $fn;
     //
     //'HB'=>'271', 'HS'=>'270', 'HR'=>'276', 'HI'=>'278','HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
     switch ((string)$ftype) {

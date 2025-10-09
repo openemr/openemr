@@ -152,7 +152,7 @@ class DBTable
 
             if ($prev_prefix == "") {
                 // first time through the loop
-                $prev_prefix = $curr_prefix ? $curr_prefix : "#NONE#";
+                $prev_prefix = $curr_prefix ?: "#NONE#";
             } elseif ($prev_prefix != $curr_prefix) {
                 $has_prefix = false;
             }

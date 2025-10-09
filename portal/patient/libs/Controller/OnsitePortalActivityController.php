@@ -60,7 +60,7 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');
-            $doc = $doc ? $doc : 0;
+            $doc = $doc ?: 0;
             $criteria->PatientId_Equals = $pid;
             $criteria->Activity_Equals = $activity;
             $criteria->TableArgs_Equals = $doc;

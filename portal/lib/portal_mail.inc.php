@@ -50,7 +50,7 @@ function addPortalMailboxMail(
         $datetime = date('Y-m-d H:i:s');
     }
 
-    $user = $_SESSION['portal_username'] ? $_SESSION['portal_username'] : $_SESSION['authUser'];
+    $user = $_SESSION['portal_username'] ?: $_SESSION['authUser'];
     // make inactive if set as Done
     if ($message_status == "Done") {
         $activity = 0;
@@ -296,8 +296,8 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
 
     if ($message_status == "Delete") {
         $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", [$id, $owner]);
-        $by = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['ptName'];
-        $loguser = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['portal_username'];
+        $by = $_SESSION['authUser'] ?: $_SESSION['ptName'];
+        $loguser = $_SESSION['authUser'] ?: $_SESSION['portal_username'];
         $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
         $log_from = '';
         $puser = '';

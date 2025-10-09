@@ -212,7 +212,7 @@ class GenericRouter implements IRouter
         }
 
             // The app root url is needed so we can return the fully qualified URL
-        $url = $this->appRootUrl ? $this->appRootUrl : RequestUtil::GetBaseURL();
+        $url = $this->appRootUrl ?: RequestUtil::GetBaseURL();
 
         // normalize the url so that there are no trailing slashes
         $url = rtrim($url, '/');
@@ -264,7 +264,7 @@ class GenericRouter implements IRouter
         }
 
         if (! $found) {
-            throw new Exception('No route found for ' . ($requestMethod ? $requestMethod : '*') . ":$controller.$method" . ($params ? '?' . implode('&', $params) : ''));
+            throw new Exception('No route found for ' . ($requestMethod ?: '*') . ":$controller.$method" . ($params ? '?' . implode('&', $params) : ''));
         }
 
         // if this is the root url then we want to include the trailing slash

@@ -101,7 +101,7 @@ class ActionRouter implements IRouter
                 $action = $this->_defaultRoute;
             }
 
-            $uri = $action ? $action : RequestUtil::GetCurrentURL();
+            $uri = $action ?: RequestUtil::GetCurrentURL();
         }
 
         // get the action requested

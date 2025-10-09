@@ -42,7 +42,7 @@ class OAuthUtil
                 'consumer_key' => $key,
                 'consumer_secret' => $secret
         ];
-        $params = $params ? $params :  [];
+        $params = $params ?: [];
 
         OAuthStore::instance("2Leg", $options);
 

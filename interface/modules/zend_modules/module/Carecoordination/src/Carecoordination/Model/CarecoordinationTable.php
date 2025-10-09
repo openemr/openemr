@@ -1906,7 +1906,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $data['lists2-title-con'][$i],
                                     'RXNORM' . ':' . $data['lists2-diagnosis-con'][$i],
                                     $severity_option_id,
-                                    $reaction_option_id ? $reaction_option_id : 0,
+                                    $reaction_option_id ?: 0,
                                     $data['pid'],
                                     $data['lists2-list_id-con'][$i]]);
 

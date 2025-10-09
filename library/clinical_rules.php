@@ -64,7 +64,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 {
 
   // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
   // Collect active actions
     $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, [], 'primary', null, null, $user);
@@ -218,7 +218,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 {
 
   // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
   // Collect active actions
     $actions = test_rules_clinic('', 'active_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, [], 'primary', null, null, $user);
@@ -943,7 +943,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
     }
 
   // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
   // Prepare the results array
     $results = [];
@@ -1605,7 +1605,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     */
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Collect patient information
     $patientData = getPatientData($patient_id, "sex, DATE_FORMAT(DOB,'%Y %m %d') as DOB_TS");
@@ -2426,7 +2426,7 @@ function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $
     $isMatch = 'continue';
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Unpackage interval information
     // (Assume only one for now and only pertinent for targets)
@@ -2514,7 +2514,7 @@ function procedure_check($patient_id, $filter, $interval = '', $dateFocus = '', 
     $isMatch = 'continue';
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Unpackage interval information
     // (Assume only one for now and only pertinent for targets)
@@ -2560,7 +2560,7 @@ function appointment_check($patient_id, $dateFocus = '', $dateTarget = '')
     $isMatch = 'continue';
 
     // Set date to current if not set (although should always be set)
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
     $dateTargetRound = date('Y-m-d', $dateTarget);
 
     // Set current date
@@ -2615,7 +2615,7 @@ function lists_check($patient_id, $filter, $dateTarget)
     $isMatch = 'continue';
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     /*
     HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately.
@@ -2671,7 +2671,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
     // HR: used for filters and targets
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Collect the correct column label for patient id in the table
     $patient_id_label = collect_database_label('pid', $table);
@@ -2781,7 +2781,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
 {
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Set the table exception (for looking up pertinent date and pid sql columns)
     $table = "PROCEDURE-EXCEPTION";
@@ -2917,7 +2917,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
 {
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Collect pertinent history data
     // If illegal value in $lifestyle, then will die and report error (to prevent security vulnerabilities)
@@ -2954,7 +2954,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
     // HR: used only for filters, not targets
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Attempt to explode the value into a code type and code (if applicable)
     $value_array = explode("::", $value);
@@ -3260,7 +3260,7 @@ function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = nul
 {
 
     // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
     // Collect the current date settings (to ensure not skip)
     $res = resolve_reminder_sql($rule, $type . '_current');

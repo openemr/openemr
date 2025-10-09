@@ -48,7 +48,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         } else {
             if (trim(formData('inshort' . $cnt)) != '' || trim(formdata('designation' . $cnt)) != '') {
                 $rowID = sqlQuery("SELECT MAX(cl_list_item_id)+1 as maxID FROM customlists WHERE cl_list_type=6");
-                $itemID = $rowID['maxID'] ? $rowID['maxID'] : 1;
+                $itemID = $rowID['maxID'] ?: 1;
                 $sql = "INSERT INTO customlists (cl_list_item_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order) VALUES(?,?,?,?,?)";
                 $newid = sqlInsert($sql, [$itemID, 6, $_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt]]);
                 sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", [$_SESSION['authUserID'], $newid]);

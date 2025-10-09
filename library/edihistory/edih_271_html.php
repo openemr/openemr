@@ -534,12 +534,12 @@ function edih_271_transaction_html($obj271, $bht03)
 
         //
         $str_html .= $hdr_html;
-        $str_html .= ($src_html) ? $src_html : "";
-        $str_html .= ($rcv_html) ? $rcv_html : "";
-        $str_html .= ($sbr_nm1_html) ? $sbr_nm1_html : "";
+        $str_html .= $src_html ?: "";
+        $str_html .= $rcv_html ?: "";
+        $str_html .= $sbr_nm1_html ?: "";
         $str_html .= $sbr_ref_html;
         $str_html .= $sbr_eb_html;
-        $str_html .= ($dep_nm1_html) ? $dep_nm1_html : "";
+        $str_html .= $dep_nm1_html ?: "";
         $str_html .= $dep_ref_html;
         $str_html .= $dep_eb_html;
         $str_html .= "<tr><td colspan=4>&nbsp;</td></tr>" . PHP_EOL;

@@ -233,11 +233,11 @@ class OemrUI
             return;
         }
 
-        $action_href = ($action_href) ? $action_href : "#";
+        $action_href = $action_href ?: "#";
         $id = "advanced-action";
         switch ($action) {
             case "reset":
-                $action_title = ($action_title) ? $action_title : xl("Reset");
+                $action_title = $action_title ?: xl("Reset");
                 $icon = "fa-undo";
                 break;
             case "conceal":
@@ -260,11 +260,11 @@ class OemrUI
                 break;
             case "link":
                 $target = (str_contains($action_href, 'http')) ? "_blank" : "_self";
-                $action_title = ($action_title) ? $action_title : xl("Click to go to page");
+                $action_title = $action_title ?: xl("Click to go to page");
                 $icon = "fa-external-link-alt";
                 break;
             case "back":
-                $action_title = ($action_title) ? $action_title : xl("Go Back");
+                $action_title = $action_title ?: xl("Go Back");
                 $arrow_direction = ($_SESSION['language_direction'] == 'rtl') ? "fa-arrow-circle-right" : "fa-arrow-circle-left";
                 $icon = $arrow_direction;
                 break;

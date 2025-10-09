@@ -445,7 +445,7 @@ class smtp_class
 			$this->error=$error;
 			return(0);
 		}
-		$timeout=($this->data_timeout ? $this->data_timeout : $this->timeout);
+		$timeout=($this->data_timeout ?: $this->timeout);
 		if($timeout
 		&& function_exists("socket_set_timeout"))
 			socket_set_timeout($this->connection,$timeout,0);

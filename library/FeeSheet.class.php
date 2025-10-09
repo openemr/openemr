@@ -481,7 +481,7 @@ class FeeSheet
         $query .= " ORDER BY active DESC, id LIMIT 1";
         $result = sqlQuery($query, $sqlArray);
         $codes_id = $result['id'] ?? null;
-        $revenue_code = $revenue_code ? $revenue_code : ($result['revenue_code'] ?? null);
+        $revenue_code = $revenue_code ?: $result['revenue_code'] ?? null;
         if (!$code_text) {
             $code_text = $result['code_text'] ?? null;
             if (empty($units) && !empty($result)) {

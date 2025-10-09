@@ -501,14 +501,14 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             $str_html .= "<div id='ac_" . attr($bht) . "'>" . PHP_EOL;
         }
 
-        $str_html .= ($hdr_html) ? $hdr_html : "";
-        $str_html .= ($src_html) ? $src_html : "";
-        $str_html .= ($rcv_html) ? $rcv_html : "";
-        $str_html .= ($prv_html) ? $prv_html : "";
-        $str_html .= ($sbr_nm1_html) ? $sbr_nm1_html : "";
-        $str_html .= ($sbr_stc_html) ? $sbr_stc_html : "";
-        $str_html .= ($dep_nm1_html) ? $dep_nm1_html : "";
-        $str_html .= ($dep_stc_html) ? $dep_stc_html : "";
+        $str_html .= $hdr_html ?: "";
+        $str_html .= $src_html ?: "";
+        $str_html .= $rcv_html ?: "";
+        $str_html .= $prv_html ?: "";
+        $str_html .= $sbr_nm1_html ?: "";
+        $str_html .= $sbr_stc_html ?: "";
+        $str_html .= $dep_nm1_html ?: "";
+        $str_html .= $dep_stc_html ?: "";
         $str_html .= "<tr><td colspan=4>&nbsp;</td></tr>" . PHP_EOL;
         $str_html .= "</tbody>" . PHP_EOL . "</table>" . PHP_EOL;
         //

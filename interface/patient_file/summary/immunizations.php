@@ -93,7 +93,7 @@ if (isset($_GET['mode'])) {
         $education_date = date('Y-m-d');
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
         $administered_by = $vis_date = "";
-        $newid = $_GET['id'] ? $_GET['id'] : $newid;
+        $newid = $_GET['id'] ?: $newid;
         if ($GLOBALS['observation_results_immunization']) {
             saveImmunizationObservationResults($newid, $_GET);
         }
@@ -143,9 +143,9 @@ if (isset($_GET['mode'])) {
 
         $manufacturer = $result['manufacturer'];
         $lot_number = $result['lot_number'];
-        $administered_by_id = ($result['administered_by_id'] ? $result['administered_by_id'] : 0);
-        $ordered_by_id      = ($result['ordering_provider'] ? $result['ordering_provider'] : 0);
-        $entered_by_id      = ($result['created_by'] ? $result['created_by'] : 0);
+        $administered_by_id = ($result['administered_by_id'] ?: 0);
+        $ordered_by_id      = ($result['ordering_provider'] ?: 0);
+        $entered_by_id      = ($result['created_by'] ?: 0);
 
         $administered_by = "";
         if (empty($result['administered_by']) && empty($row['administered_by_id'])) {
@@ -295,8 +295,8 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
             $code                     = $immunizationdata['cvx_vac_type_code'][$i];
             $code_text                = $immunizationdata['code_text_hidden'][$i];
             $code_type                = $immunizationdata['code_type_hidden'][$i];
-            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ? $immunizationdata['vis_published_date'][$i] : '';
-            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ? $immunizationdata['vis_presented_date'][$i] : '';
+            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ?: '';
+            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ?: '';
             $imo_criteria_value       = '';
         } elseif ($immunizationdata['observation_criteria'][$i] == 'disease_with_presumed_immunity') {
             $code                     = $immunizationdata['sct_code'][$i];
@@ -606,7 +606,7 @@ tr.selected {
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
+                                                $vis_published_dateval = $value['imo_vis_date_published'] ?: '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
@@ -614,7 +614,7 @@ tr.selected {
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ? $value['imo_vis_date_presented'] : '';
+                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ?: '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>

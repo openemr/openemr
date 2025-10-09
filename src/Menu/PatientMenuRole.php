@@ -156,7 +156,7 @@ class PatientMenuRole extends MenuRole
                 }
 
                 $relative_link = "../../modules/" . $modulePath . "/public/" . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+                $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                 $subEntry = new \stdClass();
                 $subEntry->requirement = 0;

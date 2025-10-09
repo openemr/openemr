@@ -45,7 +45,7 @@ function collectLayoutNames($condition, $mapping = ''): void
         "ORDER BY grp_mapping, grp_seq, grp_title"
     );
     while ($grow = sqlFetchArray($gres)) {
-        $tmp = $mapping ? $mapping : $grow['grp_mapping'];
+        $tmp = $mapping ?: $grow['grp_mapping'];
         if (!$tmp) {
             $tmp = '(' . xl('No Name') . ')';
         }

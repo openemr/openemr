@@ -83,7 +83,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $var_index++;
     $balance = $charges - $ptpaid - $inspaid;
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ? $encounter : '';
+    $encounter = $encounter ?: '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";

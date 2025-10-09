@@ -205,7 +205,7 @@ if ($preselect_category == '' && !$out_of_encounter) {
     //so let's get the most recent values from form_CAMOS for this patient's pid
     $tmp = sqlQuery("SELECT max(id) AS max FROM " . mitigateSqlTableUpperCase("form_CAMOS") . " WHERE " .
     "pid = ?", [$_SESSION['pid']]);
-    $maxid = $tmp['max'] ? $tmp['max'] : 0;
+    $maxid = $tmp['max'] ?: 0;
 
     $query = "SELECT category, subcategory, item FROM " . mitigateSqlTableUpperCase("form_CAMOS") . " WHERE id = ?";
     $statement = sqlStatement($query, [$maxid]);
@@ -480,19 +480,19 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
     $clone_data2 = '';
     $clone_data_array = [];
     if (str_starts_with($_POST['hidden_mode'] ?? '', 'clone')) {
-        $clone_category = $_POST['category'] ? $_POST['category'] : '';
+        $clone_category = $_POST['category'] ?: '';
         $clone_category_term = '';
         if ($clone_category != '') {
             $clone_category_term = " where category like '" . add_escape_custom($clone_category) . "'";
         }
 
-        $clone_subcategory = $_POST['subcategory'] ? $_POST['subcategory'] : '';
+        $clone_subcategory = $_POST['subcategory'] ?: '';
         $clone_subcategory_term = '';
         if ($clone_subcategory != '') {
             $clone_subcategory_term = " and subcategory like '" . add_escape_custom($_POST['subcategory']) . "'";
         }
 
-        $clone_item = $_POST['item'] ? $_POST['item'] : '';
+        $clone_item = $_POST['item'] ?: '';
         $clone_item_term = '';
         if ($clone_item != '') {
             $clone_item_term = " and item like '" . add_escape_custom($_POST['item']) . "'";
@@ -631,14 +631,14 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
             //two queries to the 'billing' table rather than form_encounter and make sure to add in 'and activity=1'
             //OK, now I have tried tracking last encounter from billing, then form_encounter.  Now, we are going to
             //try from forms where form_name like 'CAMOS%' so we will not bother with encounters that have no CAMOS entries...
-                $stepback = $_POST['stepback'] ? $_POST['stepback'] : 1;
+                $stepback = $_POST['stepback'] ?: 1;
                 $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < ?" .
                     " and form_name like 'CAMOS%' and pid= ?", [$_SESSION['encounter'], $_SESSION['pid']]);
-                $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+                $last_encounter_id = $tmp['max'] ?: 0;
                 for ($i = 0; $i < $stepback - 1; $i++) {
                         $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < ?" .
                             " and form_name like 'CAMOS%' and pid= ?", [$last_encounter_id, $_SESSION['pid']]);
-                        $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+                        $last_encounter_id = $tmp['max'] ?: 0;
                 }
 
                 $query = "SELECT category, subcategory, item, content FROM " . mitigateSqlTableUpperCase("form_CAMOS") . " " .

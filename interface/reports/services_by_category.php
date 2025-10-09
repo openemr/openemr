@@ -196,7 +196,7 @@ if (!empty($_POST['form_refresh'])) {
     $last_category = '';
     $irow = 0;
     while ($row = sqlFetchArray($res)) {
-        $category = $row['title'] ? $row['title'] : xl('Uncategorized');
+        $category = $row['title'] ?: xl('Uncategorized');
         $disp_category = ' ';
         if ($category !== $last_category) {
             $last_category = $category;

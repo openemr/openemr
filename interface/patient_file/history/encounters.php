@@ -111,7 +111,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             while ($row = sqlFetchArray($noteResultSet)) {
                 $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . $row['note'] . "\n";
             }
-            $docTitle = ( $note ) ? $note : xl("View document");
+            $docTitle = $note ?: xl("View document");
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
@@ -520,7 +520,7 @@ window.onload = function() {
 
                 if ($billing_view) {
                     // Show billing note that you can click on to edit.
-                    $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
+                    $feid = $result4['id'] ?: 0; // form_encounter id
                     echo "<td class='align-top'>";
                     echo "<div id='note_" . attr($feid) . "'>";
                     echo "<div id='" . attr($feid) . "'data-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";

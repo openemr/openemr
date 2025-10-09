@@ -1037,7 +1037,7 @@ class edih_x12_file
                 $de = (str_starts_with(reset($segment_ar), 'ISA')) ? substr(reset($segment_ar), 3, 1) : '';
             }
 
-            $tp = ($this->type) ? $this->type : $this->edih_x12_type();
+            $tp = $this->type ?: $this->edih_x12_type();
             $env_ar = ( isset($this->envelopes['ST']) ) ? $this->envelopes : $env_ar;
         } elseif ($this->text) {
             // object with file text, but no processing
@@ -1133,7 +1133,7 @@ class edih_x12_file
                 // so type and search values can be determined here.
                 if (strncmp($seg, 'ST' . $de, 3) == 0) {
                     $stseg = explode($de, $seg);
-                    $type = ($type) ? $type : $stseg[1];
+                    $type = $type ?: $stseg[1];
                     //
                     $idval = ( strpos('|HN|277|HB|271', $type) ) ? 'TRN' . $de . '2' . $de . $clm01 : '';
                     $idval = ( strpos('|HR|276|HS|270', $type) ) ? 'TRN' . $de . '1' . $de . $clm01 : $idval;
@@ -1465,7 +1465,7 @@ class edih_x12_file
             }
 
             if ($gsn) {
-                $srchstr = ($srchstr) ? $srchstr : $f_str;
+                $srchstr = $srchstr ?: $f_str;
                 $gspos =  strpos($srchstr, $de . $gsn . $de);
                 if ($gspos === false) {
                     // $gsn not found
@@ -1483,7 +1483,7 @@ class edih_x12_file
             }
 
             if ($stn) {
-                $srchstr = ($srchstr) ? $srchstr : $f_str;
+                $srchstr = $srchstr ?: $f_str;
                 $sttp = $this->gstype_ar[$ft];
                 $seg_st = $dt . 'ST' . $de . $sttp . $de . $stn   ;
                 $seg_se = $dt . 'SE' . $de;
