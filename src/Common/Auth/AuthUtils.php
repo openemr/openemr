@@ -43,7 +43,7 @@ use Google_Client;
 use MyMailer;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Auth\Password\PasswordStrengthChecker;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Services\UserService;
@@ -1058,6 +1058,9 @@ class AuthUtils
 
     /**
      * Does the new password meet the strength requirements?
+     *
+     * @deprecated Use PasswordStrengthChecker instead
+     * @see PasswordStrengthChecker
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return boolean      is the password strong enough?
