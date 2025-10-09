@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
+use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
 use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
@@ -111,6 +112,7 @@ return RectorConfig::configure()
         RestoreDefaultNullToNullableTypePropertyRector::class, // one of the withPhpSets rules
         ReturnNeverTypeRector::class, // one of the withPhpSets rules
         SetCookieRector::class, // one of the withPhpSets rules
+        SimplifyIfElseToTernaryRector::class,
         StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
         StrStartsWithRector::class, // one of the withPhpSets rules
