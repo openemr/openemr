@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <?php
-$patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
+$patient_id = $_GET['patient_id'] ?: "";
 ?>
 
 <body class='body_top'>

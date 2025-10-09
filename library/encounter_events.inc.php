@@ -76,8 +76,8 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
         $visit_provider = '(NULL)';
     }
 
-    $dos = $enc_date ? $enc_date : $today;
-    $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
+    $dos = $enc_date ?: $today;
+    $visit_reason = $reason ?: xl('Please indicate visit reason');
     if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
         $visit_reason = 'Please indicate visit reason';
     }
@@ -87,7 +87,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$facility_id])['pos_code'];
-    $visit_cat = $cat ? $cat : '(NULL)';
+    $visit_cat = $cat ?: '(NULL)';
     $conn = $GLOBALS['adodb']['db'];
     $encounter = $conn->GenID("sequences");
     addForm(
@@ -140,14 +140,14 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
         $visit_provider = $counselors = null;
     }
 
-    $dos = $enc_date ? $enc_date : $today;
-    $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
+    $dos = $enc_date ?: $today;
+    $visit_reason = $reason ?: xl('Please indicate visit reason');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
-    $visit_cat = $cat ? $cat : '(NULL)';
+    $visit_cat = $cat ?: '(NULL)';
     $conn = $GLOBALS['adodb']['db'];
     $encounter = $conn->GenID("sequences");
     addForm(

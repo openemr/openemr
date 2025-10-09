@@ -261,7 +261,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
             $getrevcd
         ]);
         if (!empty($revcode[$tlh])) {
-            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ? $claim->procs[$tlh]['revenue_code'] : $revcode[$tlh]['revenue_code'];
+            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ?: $revcode[$tlh]['revenue_code'];
             $revcode2[$tlh] = array_merge($revcode[$tlh], $claim->procs[$tlh]);
         }
     }

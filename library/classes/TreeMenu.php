@@ -163,7 +163,7 @@ class HTML_TreeMenu
                     }
 
                     // Normally the text is in 'name' in the Tree class, so we check both but 'text' is used if found
-                    $data['text'] = $aNode['text'] ? $aNode['text'] : $aNode['name'];
+                    $data['text'] = $aNode['text'] ?: $aNode['name'];
 
                     // Add the item to the proper node
                     $thisNode = &$curNode[$aNode['level']]->addItem(new HTML_TreeNode($data, $events));

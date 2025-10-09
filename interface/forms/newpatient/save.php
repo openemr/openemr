@@ -85,8 +85,8 @@ $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-$provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
-$provider_id = $encounter_provider ? $encounter_provider : $provider_id;
+$provider_id = $_SESSION['authUserID'] ?: 0;
+$provider_id = $encounter_provider ?: $provider_id;
 
 $encounter_type = $_POST['encounter_type'] ?? '';
 $encounter_type_code = null;

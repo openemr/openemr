@@ -146,26 +146,26 @@ class ApplicationTable
             $type = 'insert';
         }
         if ($type != 'insert') {
-            $audit['date'] = $auditvals['date'] ? $auditvals['date'] : date("Y-m-d H:i:s");
+            $audit['date'] = $auditvals['date'] ?: date("Y-m-d H:i:s");
         }
 
-        $audit['patient_id'] = $auditvals['patient_id'] ? $auditvals['patient_id'] : $_SESSION['pid'];
-        $audit['activity'] = $auditvals['activity'] ? $auditvals['activity'] : "";
-        $audit['require_audit'] = $auditvals['require_audit'] ? $auditvals['require_audit'] : "";
-        $audit['pending_action'] = $auditvals['pending_action'] ? $auditvals['pending_action'] : "";
-        $audit['action_taken'] = $auditvals['action_taken'] ? $auditvals['action_taken'] : "";
-        $audit['status'] = $auditvals['status'] ? $auditvals['status'] : "new";
-        $audit['narrative'] = $auditvals['narrative'] ? $auditvals['narrative'] : "";
-        $audit['table_action'] = $auditvals['table_action'] ? $auditvals['table_action'] : "";
+        $audit['patient_id'] = $auditvals['patient_id'] ?: $_SESSION['pid'];
+        $audit['activity'] = $auditvals['activity'] ?: "";
+        $audit['require_audit'] = $auditvals['require_audit'] ?: "";
+        $audit['pending_action'] = $auditvals['pending_action'] ?: "";
+        $audit['action_taken'] = $auditvals['action_taken'] ?: "";
+        $audit['status'] = $auditvals['status'] ?: "new";
+        $audit['narrative'] = $auditvals['narrative'] ?: "";
+        $audit['table_action'] = $auditvals['table_action'] ?: "";
         if ($auditvals['activity'] == 'profile') {
             $audit['table_args'] = serialize($auditvals['table_args']);
         } else {
             $audit['table_args'] = $auditvals['table_args'];
         }
 
-        $audit['action_user'] = $auditvals['action_user'] ? $auditvals['action_user'] : "";
-        $audit['action_taken_time'] = $auditvals['action_taken_time'] ? $auditvals['action_taken_time'] : "";
-        $audit['checksum'] = $auditvals['checksum'] ? $auditvals['checksum'] : "";
+        $audit['action_user'] = $auditvals['action_user'] ?: "";
+        $audit['action_taken_time'] = $auditvals['action_taken_time'] ?: "";
+        $audit['checksum'] = $auditvals['checksum'] ?: "";
 
         try {
             if ($type != 'update') {

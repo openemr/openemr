@@ -150,7 +150,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
-            $output->orderBy = $output->orderBy ? $output->orderBy : 'DenialReason';
+            $output->orderBy = $output->orderBy ?: 'DenialReason';
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
             if ($output->orderBy) {
                 $criteria->SetOrder($output->orderBy, $output->orderDesc);

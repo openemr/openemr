@@ -1088,7 +1088,7 @@ class Document extends ORDataObject
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
-        $this->owner = $owner ? $owner : ($_SESSION['authUserID'] ?? null);
+        $this->owner = $owner ?: $_SESSION['authUserID'] ?? null;
         $this->date_expires = $date_expires;
         $this->set_foreign_id($patient_id);
         $this->persist();

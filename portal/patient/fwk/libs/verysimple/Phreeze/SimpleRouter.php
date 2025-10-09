@@ -70,7 +70,7 @@ class SimpleRouter implements IRouter
     {
         $match = '';
 
-        $qs = $uri ? $uri : (array_key_exists('QUERY_STRING', $_SERVER) ? $_SERVER ['QUERY_STRING'] : '');
+        $qs = $uri ?: (array_key_exists('QUERY_STRING', $_SERVER) ? $_SERVER ['QUERY_STRING'] : '');
         $parsed = explode('&', $qs, 2);
         $action = $parsed [0];
 

@@ -1285,17 +1285,17 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (isset($jobj['services'])) {
                     $query .= ", grp_services = ?";
                     // if present but empty, means all services
-                    $sqlvars[] = $jobj['services'] ? $jobj['services'] : '*';
+                    $sqlvars[] = $jobj['services'] ?: '*';
                 }
                 if (isset($jobj['products'])) {
                     $query .= ", grp_products = ?";
                     // if present but empty, means all products
-                    $sqlvars[] = $jobj['products'] ? $jobj['products'] : '*';
+                    $sqlvars[] = $jobj['products'] ?: '*';
                 }
                 if (isset($jobj['diags'])) {
                     $query .= ", grp_diags = ?";
                     // if present but empty, means all diags
-                    $sqlvars[] = $jobj['diags'] ? $jobj['diags'] : '*';
+                    $sqlvars[] = $jobj['diags'] ?: '*';
                 }
             }
             sqlStatement($query, $sqlvars);

@@ -211,7 +211,7 @@ function era_callback_check(&$out): void
             $chk_num = $out['check_number' . $check_count];
             $chk_num = str_replace(' ', '_', $chk_num);
             if (isset($_REQUEST['chk' . $chk_num])) {
-                $check_date = $out['check_date' . $check_count] ? $out['check_date' . $check_count] : $_REQUEST['paydate'];
+                $check_date = $out['check_date' . $check_count] ?: $_REQUEST['paydate'];
                 $post_to_date = $_REQUEST['post_to_date'] != '' ? $_REQUEST['post_to_date'] : date('Y-m-d');
                 $deposit_date = $_REQUEST['deposit_date'] != '' ? $_REQUEST['deposit_date'] : date('Y-m-d');
                 $InsertionId[$out['check_number' . $check_count]] = SLEOB::arPostSession($_REQUEST['InsId'], $out['check_number' . $check_count], $out['check_date' . $check_count], $out['check_amount' . $check_count], $post_to_date, $deposit_date, $debug);
@@ -347,8 +347,8 @@ function era_callback(&$out): void
 
         // Simplify some claim attributes for cleaner code.
         $service_date = parse_date($out['dos'] ?? $out['claim_date']);
-        $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
-        $production_date = $paydate ? $paydate : parse_date($out['production_date']);
+        $check_date      = $paydate ?: parse_date($out['check_date']);
+        $production_date = $paydate ?: parse_date($out['production_date']);
 
         $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
         if (empty($ferow['lname'])) {

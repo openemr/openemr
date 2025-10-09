@@ -185,7 +185,7 @@ function echoServiceLines(): void
             echo $fs->genProviderSelect(
                 '',
                 '-- ' . xl("Default") . ' --',
-                $li['provid'] ? $li['provid'] : $fs->provider_id,
+                $li['provid'] ?: $fs->provider_id,
                 true
             );
             echo "</td>\n";
@@ -1654,7 +1654,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="col-10">
                                     <?php
                                     if (empty($GLOBALS['default_rendering_provider'])) {
-                                        $default_rid = $fs->provider_id ? $fs->provider_id : 0;
+                                        $default_rid = $fs->provider_id ?: 0;
                                         if (!$default_rid && $userauthorized) {
                                             $default_rid = $_SESSION['authUserID'];
                                         }

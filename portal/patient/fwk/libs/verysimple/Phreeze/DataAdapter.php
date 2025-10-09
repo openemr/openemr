@@ -59,7 +59,7 @@ class DataAdapter implements IObservable
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
         }
 
-        $this->_label = $label ? $label : 'db-' . mt_rand(10000, 99999);
+        $this->_label = $label ?: 'db-' . mt_rand(10000, 99999);
 
         $this->ConnectionSetting = & $csetting;
 

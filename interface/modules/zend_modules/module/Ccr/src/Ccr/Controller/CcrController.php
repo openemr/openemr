@@ -253,9 +253,9 @@ class CcrController extends AbstractActionController
     public function revandapproveAction()
     {
         $request            = $this->getRequest();
-        $audit_master_id    = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
-        $pid                = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
-        $document_id        = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
+        $audit_master_id    = $request->getQuery('amid') ?: $request->getPost('amid', null);
+        $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
+        $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
 
         if ($request->getPost('setval') == 'approve') {
             $this->getCcrTable()->insertApprovedData($_REQUEST);

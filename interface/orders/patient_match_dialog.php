@@ -111,7 +111,7 @@ if ($form_key) {
                 <?php
                 echo xlt('Matching for Patient') . ": " .
                     text("$form_lname, $form_fname") . text(" Dob = $form_DOB") .
-                    " SS = " . text(($form_ss ? $form_ss : "unk"))
+                    " SS = " . text(($form_ss ?: "unk"))
                 ?>
             </h5>
             <tr>

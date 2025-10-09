@@ -281,10 +281,10 @@ if ($what == 'fields' && $source == 'V') {
 //
 $out = [
   "sEcho"                => intval($_GET['sEcho']),
-  "iTotalRecords"        => ($iTotal) ? $iTotal : 0,
+  "iTotalRecords"        => $iTotal ?: 0,
   "iTotalHasMoreRecords" => false,
   "iSearchEmptyError"    => false,
-  "iTotalDisplayRecords" => ($iFilteredTotal) ? $iFilteredTotal : 0,
+  "iTotalDisplayRecords" => $iFilteredTotal ?: 0,
   "aaData"               => []
 ];
 

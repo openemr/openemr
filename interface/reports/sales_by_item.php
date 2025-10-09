@@ -76,7 +76,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
 
-    $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
+    $invnumber = $irnumber ?: "$patient_id.$encounter_id";
     $rowamount = sprintf('%01.2f', $amount);
 
     $patdata = sqlQuery("SELECT " .

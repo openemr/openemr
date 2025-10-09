@@ -115,7 +115,7 @@ function edih_835_csv_data($obj835)
         }
 
         $ret_ar[$icn]['type'] = csv_file_type($ft);
-        $gsdate = ($gsdate) ? $gsdate : edih_parse_date($isa['date']);
+        $gsdate = $gsdate ?: edih_parse_date($isa['date']);
         //
         $fdx = count($ret_ar[$icn]['file']);
         //
@@ -222,7 +222,7 @@ function edih_835_csv_data($obj835)
                 } // end foreach($clpsegs as $trans) {
             } // end for($i=0; $i<$clmct; $i++)
             // get denied count
-            $ret_ar[$icn]['file'][$fdx]['Denied'] = ($denied) ? $denied : '0';
+            $ret_ar[$icn]['file'][$fdx]['Denied'] = $denied ?: '0';
             //
         } // end  foreach($env_ar['ST'] as $st)
     } // end  foreach($env_ar['ISA'] as $icn => $isa)
@@ -1040,7 +1040,7 @@ function edih_997_csv_data($obj997)
         //
         $fdx = count($ret_ar[$icn]['file']);
         //
-        $ret_ar[$icn]['file'][$fdx]['Date'] = ($rspdate) ? $rspdate : $isa['date'];
+        $ret_ar[$icn]['file'][$fdx]['Date'] = $rspdate ?: $isa['date'];
         $ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
         $ret_ar[$icn]['file'][$fdx]['Control'] = $icn;
         //
@@ -1062,8 +1062,8 @@ function edih_997_csv_data($obj997)
             $isadate = $env_ar['ISA'][$st['icn']]['date'];
             $isaicn = $st['icn'];
             // match 997/999 response to sent file ISA control
-            $ret_ar[$icn]['file'][$fdx]['Trace'] = ($st['trace']) ? $st['trace'] : '';
-            $bticn = ($st['trace']) ? $st['trace'] : '';
+            $ret_ar[$icn]['file'][$fdx]['Trace'] = $st['trace'] ?: '';
+            $bticn = $st['trace'] ?: '';
             if (!$st['trace']) {
                 //
                 csv_edihist_log('edih_997_csv_data: no trace to submitted file! ' . $fn);

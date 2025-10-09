@@ -266,7 +266,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
         $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
-        $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
+        $_SESSION['providerId'] = $userData['providerID'] ?: 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
         // never set authUserID though authUser is used for ACL!
         $_SESSION['authUser'] = 'portal-user';

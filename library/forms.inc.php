@@ -136,8 +136,8 @@ function getFormNameByFormdir($formdir)
 function getDocumentsByEncounter($patientID = null, $encounterID = null)
 {
     $allDocuments = null;
-    $currentEncounter = ( $encounterID ) ? $encounterID : $_SESSION['encounter'];
-    $currentPatient = ( $patientID ) ? $patientID : $_SESSION['pid'];
+    $currentEncounter = $encounterID ?: $_SESSION['encounter'];
+    $currentPatient = $patientID ?: $_SESSION['pid'];
 
     if ($currentPatient != "" && $currentEncounter != "") {
         $sql = "SELECT d.id, d.type, d.url, d.name as document_name, d.docdate, d.list_id, c.name, d.encounter_id FROM documents AS d, categories_to_documents AS cd,

@@ -105,6 +105,6 @@ class TokenSearchValue
 
     public function __toString()
     {
-        return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ? $this->getSystem() : "");
+        return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ?: "");
     }
 }

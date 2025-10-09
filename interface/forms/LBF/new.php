@@ -228,7 +228,7 @@ if (
         addForm($visitid, $formtitle, $newid, $formname, $pid, $userauthorized);
     }
 
-    $my_form_id = $formid ? $formid : $newid;
+    $my_form_id = $formid ?: $newid;
 
     // If there is an issue ID, update it in the forms table entry.
     if (isset($_POST['form_issue_id'])) {
@@ -1435,7 +1435,7 @@ if (
                         }
                         echo "</select>&nbsp;&nbsp;\n";
                     }
-                    $tmp_provider_id = $fs->provider_id ? $fs->provider_id : 0;
+                    $tmp_provider_id = $fs->provider_id ?: 0;
                     if (!$tmp_provider_id && $userauthorized) {
                         // Default to the logged-in user if they are a provider.
                         $tmp_provider_id = $_SESSION['authUserID'];
@@ -1746,7 +1746,7 @@ if (
                         echo "  <td class='text linkcolor'>" . text(oeFormatShortDate($refrow['refer_date'])) . "&nbsp;</td>\n";
                         echo "  <td class='text linkcolor'>" . text($refrow['refer_type']) . "&nbsp;</td>\n";
                         echo "  <td class='text linkcolor'>" . text($refrow['body']) . "&nbsp;</td>\n";
-                        echo "  <td class='text linkcolor'>" . text($refrow['organization'] ? $refrow['organization'] : $refrow['referto_name']) . "&nbsp;</td>\n";
+                        echo "  <td class='text linkcolor'>" . text($refrow['organization'] ?: $refrow['referto_name']) . "&nbsp;</td>\n";
                         echo "  <td class='text linkcolor'>" . $svcstring . "&nbsp;</td>\n";
                         echo " </tr>\n";
                     }

@@ -66,7 +66,7 @@ class FileUpload
      */
     public function SaveTo($path, $alternate_name = "", $chmod = true)
     {
-        $name = $alternate_name ? $alternate_name : $this->Name;
+        $name = $alternate_name ?: $this->Name;
 
         $fullpath = $path . $name;
         $handle = fopen($fullpath, "w");

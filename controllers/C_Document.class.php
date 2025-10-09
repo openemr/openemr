@@ -1340,7 +1340,7 @@ class C_Document extends Controller
                 $facility_id = $facilityRow['facility_id'];
                 // Get the primary Business Entity facility to set as billing facility, if null take user's facility as billing facility
                 $billingFacility = $this->facilityService->getPrimaryBusinessEntity();
-                $billingFacilityID = ( $billingFacility['id'] ) ? $billingFacility['id'] : $facility_id;
+                $billingFacilityID = $billingFacility['id'] ?: $facility_id;
 
                 $conn = $GLOBALS['adodb']['db'];
                 $encounter = $conn->GenID("sequences");

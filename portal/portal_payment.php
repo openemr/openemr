@@ -97,7 +97,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $var_index++;
     $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ? $encounter : '';
+    $encounter = $encounter ?: '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
@@ -1025,7 +1025,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 <!-- For radio self -->
                 <td class='text' valign="top"><?php echo xlt('Payment against'); ?>:</td>
                 <td class='text' colspan="2">
-                    <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment1" class="<?php echo $hide ? $hide : ''; ?>"
+                    <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment1" class="<?php echo $hide ?: ''; ?>"
                            value="copay" onClick="make_visible_row();cursor_pointer();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2" checked="checked"
                            value="invoice_balance" onClick="make_visible_row();"/><?php echo xlt('Invoice Balance'); ?>

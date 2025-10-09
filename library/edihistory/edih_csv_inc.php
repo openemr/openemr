@@ -314,7 +314,7 @@ function csv_notes_file($content = '', $open = true)
             return $str_html;
         }
     } else {
-        $ftxt = ($content) ? $content : 'empty';
+        $ftxt = $content ?: 'empty';
         $saved = file_put_contents($fp, $ftxt);
         $str_html .= ($saved) ? '<p>Save Error with notes file</p>' : '<p>Notes content saved</p>';
     }
