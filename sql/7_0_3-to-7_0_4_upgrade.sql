@@ -1281,13 +1281,13 @@ ALTER TABLE `employer_data` ADD `end_date` datetime DEFAULT NULL COMMENT 'Employ
 #IfMissingColumn employer_data occupation
 -- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
 -- this may create some performance issues if searching on this field, so consider re-mapping to a shorter code in the future
-ALTER TABLE `employer_data` ADD COLUMN `occupation` longtext DEFAULT NULL COMMENT 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH';
+ALTER TABLE `employer_data` ADD COLUMN `occupation` longtext COMMENT 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH';
 #EndIf
 
 #IfMissingColumn employer_data industry
 -- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
 -- this may create some performance issues if searching on this field, so consider re-mapping to a shorter code in the future
-ALTER TABLE `employer_data` ADD COLUMN `industry` text DEFAULT NULL COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH';
+ALTER TABLE `employer_data` ADD COLUMN `industry` text COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH';
 #EndIf
 
 #IfMissingColumn employer_data created_by
