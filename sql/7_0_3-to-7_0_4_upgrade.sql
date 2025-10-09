@@ -1298,7 +1298,7 @@ ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk
 ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
 #EndIf
 
-#IfMissingTable form_vitals_calculation
+#IfNotTable form_vitals_calculation
 CREATE TABLE `form_vitals_calculation` (
    `id` int NOT NULL AUTO_INCREMENT,
    `uuid` binary(16) DEFAULT NULL,
@@ -1319,7 +1319,7 @@ CREATE TABLE `form_vitals_calculation` (
 ) ENGINE=InnoDB COMMENT = 'Main calculation records - one per logical calculation (e.g., average BP)';
 #EndIf
 
-    #IfNotTable form_vitals_calculation_components
+#IfNotTable form_vitals_calculation_components
 CREATE TABLE `form_vitals_calculation_components` (
   `id` int NOT NULL AUTO_INCREMENT,
   `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
@@ -1336,7 +1336,7 @@ CREATE TABLE `form_vitals_calculation_components` (
 ) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
 #EndIf
 
-#IfMissingTable form_vitals_calculation_form_vitals
+#IfNotTable form_vitals_calculation_form_vitals
 CREATE TABLE `form_vitals_calculation_form_vitals` (
     `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
     `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
