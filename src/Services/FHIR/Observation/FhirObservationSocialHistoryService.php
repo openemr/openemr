@@ -15,7 +15,6 @@ use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
-use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -23,7 +22,6 @@ use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
-use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -80,13 +78,12 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
-    public function getCodeFromResourcePath($resourcePath)
-    {
-        $query_vars = [];
-        parse_str($resourcePath, $query_vars);
-        return $query_vars['code'] ?? null;
-    }
 
+    /**
+     * @return void
+     * @deprecated Handled automatically by the UuidMappingEventsSubscriber
+     * @throws \Exception
+     */
     public function populateResourceMappingUuidsForAll()
     {
         $resourcePathList = [];
@@ -241,24 +238,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             ];
             $processingResult->addData($observation);
         }
-    }
-
-    private function getUuidMappings($uuid)
-    {
-        $mappedRecords = UuidMapping::getMappedRecordsForTableUUID($uuid);
-        $codeMappings = [];
-        if (!empty($mappedRecords)) {
-            foreach ($mappedRecords as $record) {
-                $resourcePath = $record['resource_path'] ?? '';
-                $code = $this->getCodeFromResourcePath($resourcePath);
-                if (empty($code)) {
-                    // TODO: @adunsulag handle this exception
-                    continue;
-                }
-                $codeMappings[$code] = $record['uuid'];
-            }
-        }
-        return $codeMappings;
     }
 
     private function getDescriptionForCode($code)

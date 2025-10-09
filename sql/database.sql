@@ -1571,6 +1571,7 @@ KEY `sent` (`sent`)
 DROP TABLE IF EXISTS `employer_data`;
 CREATE TABLE `employer_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes',
   `name` varchar(255) default NULL,
   `street` varchar(255) default NULL,
   `street_line_2` TINYTEXT,
@@ -1580,6 +1581,11 @@ CREATE TABLE `employer_data` (
   `country` varchar(255) default NULL,
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
+  `start_date` datetime DEFAULT NULL COMMENT 'Employment start date for patient',
+  `end_date` datetime DEFAULT NULL COMMENT 'Employment end date for patient',
+  `occupation` longtext COMMENT 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH',
+  `industry` text COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH',
+  `created_by` int DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the employer data',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -3601,7 +3607,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 230, 44, 1, 0, 0, '', 1, 1, '', '[\"EP\"]', '', 0);
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','patient_groups','3','Patient Categories',240,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
 --
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, 'OccupationODH', 1, 1, '', 'C', 'Occupation', 0, 'Occupation');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 26, 1, 20, 63, 'OccupationODH', 1, 1, '', 'C', 'Occupation', 0, 'Occupation');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`) VALUES ('DEM', 'industry', '4', 'Industry', 2, 26, 1, 0, 0, 'IndustryODH', 1, 1, '', '', 'Industry', 0, 'Industry');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 3, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_street', '4', 'Employer Address', 4, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
@@ -3610,6 +3616,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_state', '4', 'State', 7, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_postal_code', '4', 'Postal Code', 8, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_country', '4', 'Country', 9, 26, 1, 0, 0, 'country', 1, 1, '', '', 'Country', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`, `source`) VALUES ('DEM','em_start_date','4','Employment Start Date', 10,4,1,20,0, '',1,1,'','','Employment Start Date',63,'','F');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`, `list_backup_id`, `source`) VALUES ('DEM','em_end_date','4','Employment End Date', 11,4,1,20,0, '',1,1,'','','Employment End Date',63,'','F');
 -- Stats
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'language', '5', 'Language', 1, 26, 1, 0, 0, 'language', 1, 1, '', '', 'Preferred Language', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ethnicity', '5', 'Ethnicity', 2, 33, 1, 0, 0, 'ethnicity', 1, 1, '', '[\"EP\"]', 'Ethnicity', 0);

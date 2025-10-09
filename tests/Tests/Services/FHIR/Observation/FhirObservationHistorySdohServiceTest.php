@@ -219,7 +219,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         foreach ($observations as $obs) {
             if ($obs instanceof FHIRObservation) {
                 $coding = $obs->getCode()->getCoding();
-                if (!empty($coding) && $coding[0]->getCode()->getValue() === '82810-3') {
+                if (!empty($coding) && $coding[0]->getCode() === '82810-3') {
                     $pregnancyStatusObs = $obs;
                     break;
                 }
@@ -247,8 +247,8 @@ class FhirObservationHistorySdohServiceTest extends TestCase
 
         // Validate code is correct LOINC for pregnancy status
         $coding = $pregnancyStatusObs->getCode()->getCoding()[0];
-        $this->assertEquals('82810-3', $coding->getCode()->getValue(), "Should use LOINC 82810-3 for pregnancy status");
-        $this->assertEquals('http://loinc.org', $coding->getSystem()->getValue(), "Should use LOINC system");
+        $this->assertEquals('82810-3', $coding->getCode(), "Should use LOINC 82810-3 for pregnancy status");
+        $this->assertEquals('http://loinc.org', $coding->getSystem(), "Should use LOINC system");
 
         // Validate category is social-history
         $categories = $pregnancyStatusObs->getCategory();
@@ -291,7 +291,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         foreach ($observations as $obs) {
             if ($obs instanceof FHIRObservation) {
                 $coding = $obs->getCode()->getCoding();
-                if (!empty($coding) && $coding[0]->getCode()->getValue() === '86645-9') {
+                if (!empty($coding) && $coding[0]->getCode() === '86645-9') {
                     $pregnancyIntentObs = $obs;
                     break;
                 }
@@ -319,8 +319,8 @@ class FhirObservationHistorySdohServiceTest extends TestCase
 
         // Validate code is correct LOINC for pregnancy intent
         $coding = $pregnancyIntentObs->getCode()->getCoding()[0];
-        $this->assertEquals('86645-9', $coding->getCode()->getValue(), "Should use LOINC 86645-9 for pregnancy intent");
-        $this->assertEquals('http://loinc.org', $coding->getSystem()->getValue(), "Should use LOINC system");
+        $this->assertEquals('86645-9', $coding->getCode(), "Should use LOINC 86645-9 for pregnancy intent");
+        $this->assertEquals('http://loinc.org', $coding->getSystem(), "Should use LOINC system");
 
         // Validate category is social-history
         $categories = $pregnancyIntentObs->getCategory();
@@ -375,7 +375,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
             if ($obs instanceof FHIRObservation) {
                 $coding = $obs->getCode()->getCoding();
                 if (!empty($coding)) {
-                    $code = $coding[0]->getCode()->getValue();
+                    $code = $coding[0]->getCode();
                     // Exclude pregnancy-specific codes
                     if (!in_array($code, ['82810-3', '86645-9'])) {
                         $screeningObservations[] = $obs;
@@ -471,7 +471,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
             if ($obs instanceof FHIRObservation) {
                 $coding = $obs->getCode()->getCoding();
                 if (!empty($coding)) {
-                    $observationCodes[] = $coding[0]->getCode()->getValue();
+                    $observationCodes[] = $coding[0]->getCode();
                 }
             }
         }

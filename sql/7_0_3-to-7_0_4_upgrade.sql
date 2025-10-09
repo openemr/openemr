@@ -1251,3 +1251,49 @@ CREATE TABLE `procedure_specimen` (
   KEY `idx_accession` (`accession_identifier`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id occupation data_type 26
+UPDATE `layout_options` SET `data_type` = 26 WHERE `form_id` = 'DEM' AND `field_id` = 'occupation';
+-- Migrate existing occupation values to new list (if not already present)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity) SELECT 'OccupationODH', occupations.occupation, occupations.occupation, 0, 0, 0, 'O*NET-SOC based occupation codes from ODH - migrated from patient_data.occupation', 1 FROM ( select distinct occupation from patient_data where occupation is not null and occupation != '' AND occupation NOT IN ( select option_id FROM list_options WHERE list_id='OccupationODH' ) ) AS occupations;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id em_start_date
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='em_country' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='em_country' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
+    ('DEM','em_start_date',@group_id,'Employment Start Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment Start Date',63,'','F',NULL,NULL,'');
+ALTER TABLE `employer_data` ADD `start_date` datetime DEFAULT NULL COMMENT 'Employment start date for patient';
+#Endif
+
+#IfNotRow2D layout_options form_id DEM field_id em_end_date
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='em_start_date' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='em_start_date' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
+('DEM','em_end_date',@group_id,'Employment End Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment End Date',63,'','F',NULL,NULL,'');
+ALTER TABLE `employer_data` ADD `end_date` datetime DEFAULT NULL COMMENT 'Employment end date for patient';
+#Endif
+
+#IfMissingColumn employer_data occupation
+-- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
+-- this may create some performance issues if searching on this field, so consider re-mapping to a shorter code in the future
+ALTER TABLE `employer_data` ADD COLUMN `occupation` longtext COMMENT 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH';
+#EndIf
+
+#IfMissingColumn employer_data industry
+-- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
+-- this may create some performance issues if searching on this field, so consider re-mapping to a shorter code in the future
+ALTER TABLE `employer_data` ADD COLUMN `industry` text COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH';
+#EndIf
+
+#IfMissingColumn employer_data created_by
+ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the employer data';
+#EndIf
+
+#IfMissingColumn employer_data uuid
+ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
+#EndIf

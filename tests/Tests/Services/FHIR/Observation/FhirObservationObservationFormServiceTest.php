@@ -63,7 +63,6 @@ class FhirObservationObservationFormServiceTest extends TestCase
             'uuid' => 'observation-123',
             'last_updated_time' => date('Y-m-d H:i:s'),
             'date' => date('Y-m-d H:i:s'),
-            'date_end' => date('Y-m-d H:i:s', strtotime('+1 HOUR')),
             'user' => 'admin'
             ,'user_uuid' => 'user-123'
             ,'puuid' => 'patient-123'
@@ -168,10 +167,10 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertNotEmpty($observation->getCode(), "Code property should be populated");
         $this->assertCount(1, $observation->getCode()->getCoding(), "Coding should have just a single code in  it");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getSystem());
-        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $observation->getCode()->getCoding()[0]->getSystem()->getValue(), "Code.coding[0].system should have been set");
+        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $observation->getCode()->getCoding()[0]->getSystem(), "Code.coding[0].system should have been set");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getCode(), "observation.code.coding[0].code should not be empty");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getDisplay(), "observation.code.coding[0].display should not be empty");
-        $this->assertEquals(substr($record['code'], 6), $observation->getCode()->getCoding()[0]->getCode()->getValue());
+        $this->assertEquals(substr($record['code'], 6), $observation->getCode()->getCoding()[0]->getCode());
         $this->assertEquals($record['code_description'], $observation->getCode()->getCoding()[0]->getDisplay());
 
         // Test required performer field (mustSupport)
@@ -374,7 +373,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
-        $dateTime = $observation->getEffectiveDateTime()->getValue();
+        $dateTime = $observation->getEffectiveDateTime();
         $this->assertGreaterThanOrEqual(10, strlen($dateTime)); // At least YYYY-MM-DD format
     }
 

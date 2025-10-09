@@ -22,6 +22,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\EmployerService;
 
 require_once(__DIR__ . "/dupscore.inc.php");
 
@@ -426,12 +427,18 @@ function getInsuranceNameByDate(
     return $row['provider_name'];
 }
 
-// To prevent sql injection on this function, if a variable is used for $given parameter, then
-// it needs to be escaped via whitelisting prior to using this function.
+/**
+ * To prevent sql injection on this function, if a variable is used for $given parameter, then
+ * it needs to be escaped via whitelisting prior to using this function.
+ * @deprecated use EmployerService->getMostRecentEmployerData()
+ * @param $pid
+ * @param $given
+ * @return \OpenEMR\Common\Database\recordset
+ */
 function getEmployerData($pid, $given = "*")
 {
-    $sql = "select $given from employer_data where pid = ? order by date DESC limit 0,1";
-    return sqlQuery($sql, [$pid]);
+    $employerService = new EmployerService();
+    return $employerService->getMostRecentEmployerData($pid, $given);
 }
 
 // Generate a consistent header and footer, used for printed patient reports
@@ -1227,44 +1234,18 @@ function newEmployerData(
 
 // Create or update employer data from an array.
 //
-function updateEmployerData($pid, $new, $create = false)
+/**
+ * @param $pid
+ * @param $new
+ * @param $create
+ * @param array|null $patientData
+ * @deprecated Use EmployerService->updateEmployerData() instead.
+ * @return void
+ */
+function updateEmployerData($pid, $new, $create = false, ?array $patientData = null): void
 {
-    // used to hard code colnames array('name','street','city','state','postal_code','country');
-    // but now adapted for layout based
-    $colnames = [];
-    foreach ($new as $key => $value) {
-        $colnames[] = $key;
-    }
-
-    if ($create) {
-        $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";
-        foreach ($colnames as $key) {
-            $value = $new[$key] ?? '';
-            $set .= ", `$key` = '" . add_escape_custom($value) . "'";
-        }
-
-        return sqlInsert("INSERT INTO employer_data SET $set");
-    } else {
-        $set = '';
-        $old = getEmployerData($pid);
-        $modified = false;
-        foreach ($colnames as $key) {
-            $value = empty($old[$key]) ? '' : $old[$key];
-            if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
-                $value = $new[$key];
-                $modified = true;
-            }
-
-            $set .= "`$key` = '" . add_escape_custom($value) . "', ";
-        }
-
-        if ($modified) {
-            $set .= "pid = '" . add_escape_custom($pid) . "', date = NOW()";
-            return sqlInsert("INSERT INTO employer_data SET $set");
-        }
-
-        return ($old['id'] ?? '');
-    }
+    $employerService = new EmployerService();
+    $employerService->updateEmployerData($pid, $new, $create, $patientData);
 }
 
 // This updates or adds the given insurance data info, while retaining any

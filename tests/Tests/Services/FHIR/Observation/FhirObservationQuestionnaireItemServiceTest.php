@@ -176,10 +176,10 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
         $this->assertNotEmpty($observation->getCode(), "Code property should be populated");
         $this->assertCount(1, $observation->getCode()->getCoding(), "Coding should have just a single code in  it");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getSystem());
-        $this->assertEquals(FhirCodeSystemConstants::LOINC, $observation->getCode()->getCoding()[0]->getSystem()->getValue(), "Code.coding[0].system should have been set");
+        $this->assertEquals(FhirCodeSystemConstants::LOINC, $observation->getCode()->getCoding()[0]->getSystem(), "Code.coding[0].system should have been set");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getCode(), "observation.code.coding[0].code should not be empty");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getDisplay(), "observation.code.coding[0].display should not be empty");
-        $this->assertEquals(substr($record['code'], 6), $observation->getCode()->getCoding()[0]->getCode()->getValue());
+        $this->assertEquals(substr($record['code'], 6), $observation->getCode()->getCoding()[0]->getCode());
         $this->assertEquals($record['code_description'], $observation->getCode()->getCoding()[0]->getDisplay());
 
         // Test required performer field (mustSupport)

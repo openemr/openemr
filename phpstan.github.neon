@@ -3914,7 +3914,7 @@ parameters:
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$pid might not be defined\.$#'
     identifier: variable.undefined
-    count: 17
+    count: 18
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$rootdir might not be defined\.$#'
     identifier: variable.undefined

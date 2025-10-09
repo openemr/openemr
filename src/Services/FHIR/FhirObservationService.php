@@ -7,9 +7,11 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -62,6 +64,8 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationLaboratoryService());
         $this->addMappedService(new FhirObservationObservationFormService());
         $this->addMappedService(new FhirObservationHistorySdohService());
+        $this->addMappedService(new FhirObservationPatientService());
+        $this->addMappedService(new FhirObservationEmployerService());
     }
 
     /**
@@ -114,10 +118,10 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                  */
                 $category = $fhirSearchParameters['category'];
 
-                $cateServices = $this->getServiceListForCategory(
+                $catServices = $this->getServiceListForCategory(
                     new TokenSearchField('category', $category)
                 );
-                foreach ($cateServices as $service) {
+                foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;
                 }
                 $services = $servicesMap;
@@ -132,7 +136,12 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 foreach ($codeServices as $service) {
                     $codeMap[$service::class] = $service;
                 }
-                $services = array_intersect_key($servicesMap, $codeMap);
+                if (isset($fhirSearchParameters['category'])) {
+                    // we have both category and code so we need to intersect the two maps
+                    $services = array_intersect_key($servicesMap, $codeMap);
+                } else {
+                    $services = $codeMap;
+                }
             }
             if (empty($services)) {
                 $services = $this->getMappedServices();

@@ -77,7 +77,7 @@ if (empty($pid)) {
 }
 setpid($pid);
 if (!$GLOBALS['omit_employers']) {
-    updateEmployerData($pid, $newdata['employer_data'], true);
+    updateEmployerData($pid, $newdata['employer_data'], true, $newdata['patient_data']);
 }
 
 if (!empty($addressFieldsToSave)) {

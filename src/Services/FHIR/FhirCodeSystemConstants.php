@@ -95,4 +95,7 @@ class FhirCodeSystemConstants
     const AMA_CPT = 'http://www.ama-assn.org/go/cpt';
 
     const HL7_CATEGORY_OBSERVATION = 'http://terminology.hl7.org/CodeSystem/observation-category';
+
+    const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
+    const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
 }
