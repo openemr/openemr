@@ -23,4 +23,4 @@ return [
             CalculatedObservationEventsSubscriber::class => InvokableFactory::class
         ]
     ]
-);
+];
