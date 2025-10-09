@@ -43,7 +43,7 @@ include_once __DIR__ . '/Savant3/Plugin.php';
  */
 
 #[\AllowDynamicProperties]
-class Savant3
+class Savant3 implements \Stringable
 {
     /**
      *
@@ -212,7 +212,7 @@ class Savant3
      * @return string The template output.
      *
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getOutput();
     }

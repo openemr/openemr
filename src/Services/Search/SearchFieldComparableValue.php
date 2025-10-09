@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services\Search;
 
-class SearchFieldComparableValue
+class SearchFieldComparableValue implements \Stringable
 {
     /**
      * @param mixed $value
@@ -43,7 +43,7 @@ class SearchFieldComparableValue
         return $this->value;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $value = $this->getValue() || "";
         if (is_object($value)) {

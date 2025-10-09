@@ -16,7 +16,7 @@
  * class PriorAuth
  *
  */
-class FormPriorAuth extends ORDataObject
+class FormPriorAuth extends ORDataObject implements \Stringable
 {
     /**
      *
@@ -67,7 +67,7 @@ class FormPriorAuth extends ORDataObject
         }
     }
 
-    function __toString()
+    function __toString(): string
     {
         return "ID: " . $this->id . "\n";
     }

@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services\Search;
 
-class SearchQueryFragment
+class SearchQueryFragment implements \Stringable
 {
     /**
      * @var string
@@ -73,7 +73,7 @@ class SearchQueryFragment
      * Helper statement useful for debugging the query fragment.
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return "(fragment=" . $this->getFragment() . ", boundValues=[" . implode(",", $this->boundValues) . "])";
     }

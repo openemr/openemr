@@ -66,7 +66,7 @@ namespace OpenEMR\FHIR\R4;
  * Base definition for all elements in a resource.
  * If the element is present, it must have a value for at least one of the defined elements, an @id referenced from the Narrative, or extensions
  */
-class FHIRElement implements \JsonSerializable
+class FHIRElement implements \JsonSerializable, \Stringable
 {
     /**
      * May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.
@@ -156,7 +156,7 @@ class FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getId();
     }
