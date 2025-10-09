@@ -22,10 +22,10 @@ class EhiExportJobTask
 
     public ?\Document $document;
 
-    public ?int $ehi_task_id;
-    public ?int $ehi_export_job_id;
+    public ?int $ehi_task_id = null;
+    public ?int $ehi_export_job_id = null;
     public string $creation_date;
-    public ?string $completion_date;
+    public ?string $completion_date = null;
 
     /**
      * @var "pending"|"processing"|"failed"|"completed"

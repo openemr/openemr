@@ -18,7 +18,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 
 class ModuleconfigController extends AbstractActionController
 {
-    protected ?InputFilterInterface $inputFilter;
+    protected ?InputFilterInterface $inputFilter = null;
 
     public function __construct()
     {
