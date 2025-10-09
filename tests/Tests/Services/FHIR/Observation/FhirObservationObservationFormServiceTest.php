@@ -63,7 +63,6 @@ class FhirObservationObservationFormServiceTest extends TestCase
             'uuid' => 'observation-123',
             'last_updated_time' => date('Y-m-d H:i:s'),
             'date' => date('Y-m-d H:i:s'),
-            'date_end' => date('Y-m-d H:i:s', strtotime('+1 HOUR')),
             'user' => 'admin'
             ,'user_uuid' => 'user-123'
             ,'puuid' => 'patient-123'
@@ -374,7 +373,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
 
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
-        $dateTime = $observation->getEffectiveDateTime()->getValue();
+        $dateTime = $observation->getEffectiveDateTime();
         $this->assertGreaterThanOrEqual(10, strlen($dateTime)); // At least YYYY-MM-DD format
     }
 
