@@ -670,11 +670,7 @@ class TeleconferenceRoomController
         try {
             // grab the settings, grab the waiting room & grab the conference room
             $waitingRoom = $this->renderWaitingRoom($queryVars);
-            if ($this->isPatient) {
-                $settings = $this->getPatientSettings($queryVars);
-            } else {
-                $settings = $this->getProviderSettings($queryVars);
-            }
+            $settings = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
             $conferenceRoom = $this->renderConferenceRoom($queryVars);
 
             $result = [
@@ -1210,11 +1206,7 @@ class TeleconferenceRoomController
      */
     public function renderConferenceRoom($queryVars)
     {
-        if ($this->isPatient) {
-            $data = $this->getPatientSettings($queryVars);
-        } else {
-            $data = $this->getProviderSettings($queryVars);
-        }
+        $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
 //        $statuses = $apptRepo->getAppointmentStatuses();
         $statuses = $this->getAppointmentStatuses();

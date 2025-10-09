@@ -131,17 +131,9 @@ class DateFormatterUtils
         $format = $GLOBALS['time_display_format'] ?? 0;
 
         if ($format == 1) {
-            if ($seconds) {
-                $formatted = "g:i:s a";
-            } else {
-                $formatted = "g:i a";
-            }
+            $formatted = $seconds ? "g:i:s a" : "g:i a";
         } else { // ($format == 0)
-            if ($seconds) {
-                $formatted = "H:i:s";
-            } else {
-                $formatted = "H:i";
-            }
+            $formatted = $seconds ? "H:i:s" : "H:i";
         }
         return $formatted;
     }

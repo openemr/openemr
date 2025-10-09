@@ -217,11 +217,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     <div class="container">
         <div id="report_custom w-100">  <!-- large outer DIV -->
             <?php
-            if (count($_GET) > 0) {
-                $ar = $_GET;
-            } else {
-                $ar = $_POST;
-            }
+            $ar = count($_GET) > 0 ? $_GET : $_POST;
 
             if ($printable) {
                 /*******************************************************************

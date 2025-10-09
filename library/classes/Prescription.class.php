@@ -271,11 +271,7 @@ class Prescription extends ORDataObject
     {
         $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", [$id]);
         while ($row = sqlFetchArray($res)) {
-            if ($row['title'] == '') {
-                $arr[$row['option_id']] = ' ';
-            } else {
-                $arr[$row['option_id']] = xl_list_label($row['title']);
-            }
+            $arr[$row['option_id']] = $row['title'] == '' ? ' ' : xl_list_label($row['title']);
         }
 
         return $arr;

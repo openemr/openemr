@@ -527,11 +527,7 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
     //
     $csvtp = (strpos($csv_type, 'aim')) ? 'claims' : 'files';
     //
-    if (is_file($filepath)) {
-        $csv_arch_path = $filepath;
-    } else {
-        $csv_arch_path = $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
-    }
+    $csv_arch_path = is_file($filepath) ? $filepath : $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
 
     //
     $ct = 0;
@@ -650,11 +646,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
             $car_cmb = array_merge($car2, $car1);
             // now eliminate duplicates
             if ($csvtp == 'files') {
-                if ($filetype == 'f835') {
-                    $ky = 'Trace';
-                } else {
-                    $ky = 'Control';
-                }
+                $ky = $filetype == 'f835' ? 'Trace' : 'Control';
 
                 // array_column() php v5.5
                 foreach ($car_cmb as $idx => $row) {

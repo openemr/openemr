@@ -184,11 +184,7 @@ if (
         CsrfUtils::csrfNotVerified();
     }
 
-    if (($_POST['form_save'] ?? '') == 'Save as New') {
-        $ins_id = '';
-    } else {
-        $ins_id = $_POST['form_id'];
-    }
+    $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
     $ins_name = $_POST['form_name'];
 
     if ($ins_id) {

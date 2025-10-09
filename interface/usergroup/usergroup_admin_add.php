@@ -51,11 +51,7 @@ $alertmsg = '';
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_add.php");
-if (empty($collectthis)) {
-    $collectthis = "undefined";
-} else {
-    $collectthis = json_sanitize($collectthis["new_user"]["rules"]);
-}
+$collectthis = empty($collectthis) ? "undefined" : json_sanitize($collectthis["new_user"]["rules"]);
 ?>
 <script>
 

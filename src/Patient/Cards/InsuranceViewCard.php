@@ -80,11 +80,7 @@ class InsuranceViewCard extends CardModel
     private function getInsuranceTypeArray()
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
-        if ($GLOBALS['insurance_only_one']) {
-            $insurance_array = ['primary'];
-        } else {
-            $insurance_array = ['primary', 'secondary', 'tertiary'];
-        }
+        $insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
         return $insurance_array;
     }
     private function getInsuranceData()

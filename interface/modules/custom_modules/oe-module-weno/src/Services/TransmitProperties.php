@@ -75,11 +75,7 @@ class TransmitProperties
         $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
         $this->provider_pass = $this->getProviderPassword();
-        if (!empty($this->wenoLocation)) {
-            $this->locid = $this->getFacilityForWenoId();
-        } else {
-            $this->locid = $this->getFacilityInfo();
-        }
+        $this->locid = !empty($this->wenoLocation) ? $this->getFacilityForWenoId() : $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
         // check if patient is under 19 years old
@@ -202,11 +198,7 @@ class TransmitProperties
     {
         //default is testing mode
         $testing = isset($GLOBALS['weno_rx_enable_test']);
-        if ($testing) {
-            $mode = 'Y';
-        } else {
-            $mode = 'N';
-        }
+        $mode = $testing ? 'Y' : 'N';
         $gender = $this->patient['sex'];
         $heightDate = explode(" ", $this->vitals['date'] ?? '');
         $phonePrimary = $this->formatPhoneNumber($this->patient['phone_cell']);
@@ -437,11 +429,7 @@ insurance;
      */
     public static function echoError($errors): void
     {
-        if (is_array($errors)) {
-            $error = $errors['errors'] . $errors['warnings'] . $errors['info'];
-        } else {
-            $error = $errors;
-        }
+        $error = is_array($errors) ? $errors['errors'] . $errors['warnings'] . $errors['info'] : $errors;
         $log = self::styleErrors($error);
         echo($log);
     }

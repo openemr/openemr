@@ -195,11 +195,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $method = List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
-        if ($unassigned) {
-              $memo = List_Look($pmt['adjustment_code'], 'payment_adjustment_code');
-        } else {
-              $memo = $pmt['memo'];
-        }
+        $memo = $unassigned ? List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
 
         $description = $method;
         if ($ref) {
@@ -239,11 +235,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
             $payerId = $effectiveInsurances[$pmt['payer_type'] - 1]['provider'];
             $payer = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$payerId])['name'];
         }
-        if ($unassigned) {
-              $pmt_date = substr($pmt['post_to_date'], 0, 10);
-        } else {
-              $pmt_date = substr($pmt['post_time'], 0, 10);
-        }
+        $pmt_date = $unassigned ? substr($pmt['post_to_date'], 0, 10) : substr($pmt['post_time'], 0, 10);
 
         $print .= "<td class='detail'>" .
         text($pmt_date) . "&nbsp;/&nbsp;" . text($payer) . "</td>";
@@ -677,11 +669,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             echo csvEscape("Chg/Pmt Amount") . "\n";
         }
     } else {
-        if (!$form_facility) {
-            $facility = $facilityService->getPrimaryBusinessEntity();
-        } else {
-            $facility = $facilityService->getById($form_facility);
-        }
+        $facility = !$form_facility ? $facilityService->getPrimaryBusinessEntity() : $facilityService->getById($form_facility);
 
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", [$form_patient]);
         $pat_dob = $patient['DOB'] ?? null;

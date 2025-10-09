@@ -180,11 +180,7 @@ class ObservationService extends BaseService
     public function getObservationById(int $id, int $pid, bool $includeChildObservations = false): ?array
     {
         $search = ['id' => $id, 'pid' => $pid];
-        if ($includeChildObservations) {
-            $result = $this->searchAndPopulateChildObservations($search);
-        } else {
-            $result = $this->search($search);
-        }
+        $result = $includeChildObservations ? $this->searchAndPopulateChildObservations($search) : $this->search($search);
         if ($result->hasData()) {
             $observation = $result->getFirstDataResult();
         } else {

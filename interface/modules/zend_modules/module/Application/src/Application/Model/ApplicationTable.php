@@ -253,17 +253,9 @@ class ApplicationTable extends AbstractTableGateway
         $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
 
         if (isset($GLOBALS['set_autosuggest_options'])) {
-            if ($GLOBALS['set_autosuggest_options'] == 1) {
-                $leading = '%';
-            } else {
-                $leading = $post->leading;
-            }
+            $leading = $GLOBALS['set_autosuggest_options'] == 1 ? '%' : $post->leading;
 
-            if ($GLOBALS['set_autosuggest_options'] == 2) {
-                $trailing = '%';
-            } else {
-                $trailing = $post->trailing;
-            }
+            $trailing = $GLOBALS['set_autosuggest_options'] == 2 ? '%' : $post->trailing;
 
             if ($GLOBALS['set_autosuggest_options'] == 3) {
                 $leading = '%';
@@ -281,11 +273,7 @@ class ApplicationTable extends AbstractTableGateway
         $searchType = $post->searchType;
         $searchEleNo = $post->searchEleNo;
 
-        if ($page == '') {
-            $limitStart = 0;
-        } else {
-            $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
-        }
+        $limitStart = $page == '' ? 0 : \Application\Plugin\CommonPlugin::escapeLimit($page);
 
         $keyword = $leading . $queryString . $trailing;
         if (strtolower($searchType) == 'patient') {

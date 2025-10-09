@@ -26,11 +26,7 @@ class ObserveToSmarty implements IObserver
     }
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        if (is_object($obj) || is_array($obj)) {
-            $msg = "<pre>" . print_r($obj, 1) . "</pre>";
-        } else {
-            $msg = $obj;
-        }
+        $msg = is_object($obj) || is_array($obj) ? "<pre>" . print_r($obj, 1) . "</pre>" : $obj;
 
         $desc = "";
 

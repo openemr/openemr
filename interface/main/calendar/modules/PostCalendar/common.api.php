@@ -192,11 +192,7 @@ function postcalendar_getDate($format = 'Ymd')
             $jumpmonth = substr($jumpdate, 5, 2);
             $jumpday   = substr($jumpdate, 8, 2);
         } else {
-            if (!empty($_SESSION['lastcaldate'])) {
-                $time = strtotime($_SESSION['lastcaldate']);
-            } else {
-                $time = time();
-            }
+            $time = !empty($_SESSION['lastcaldate']) ? strtotime($_SESSION['lastcaldate']) : time();
 
             if (!isset($jumpday)) {
                 $jumpday   = date('d', $time);

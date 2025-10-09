@@ -48,11 +48,7 @@ function smarty_function_config_load($params, &$smarty): void
                 $smarty->trigger_error("invalid 'scope' attribute value", E_USER_ERROR, __FILE__, __LINE__);
             }
         } else {
-            if ($_global) {
-                $_scope = 'parent';
-            } else {
-                $_scope = 'local';
-            }
+            $_scope = $_global ? 'parent' : 'local';
         }
 
         $_params = ['resource_name' => $_file,

@@ -1071,11 +1071,7 @@ class BarcodeDatamatrix
             for ($i = $k; $i < $nDataCW; $i += $blocks) {
                 $temp = self::champGaloisSum($dataTab[$i], $correctionCW[$errorBlocks - 1]);
                 for ($j = $errorBlocks - 1; $j >= 0; $j--) {
-                    if (!$temp) {
-                        $correctionCW[$j] = 0;
-                    } else {
-                        $correctionCW[$j] = self::champGaloisMult($temp, $coeffTab[$j]);
-                    }
+                    $correctionCW[$j] = !$temp ? 0 : self::champGaloisMult($temp, $coeffTab[$j]);
 
                     if ($j > 0) {
                         $correctionCW[$j] = self::champGaloisSum($correctionCW[$j - 1], $correctionCW[$j]);
@@ -1242,19 +1238,11 @@ class BarcodeDatamatrix
             $datamatrixTemp[$i + 1][$totalColsCW + 1] = 0;
             for ($j = 0; $j < $totalColsCW; $j++) {
                 if ($i % ($rowsRegionCW + 2) == 0) {
-                    if ($j % 2 == 0) {
-                        $datamatrixTemp[$i + 1][$j + 1] = 1;
-                    } else {
-                        $datamatrixTemp[$i + 1][$j + 1] = 0;
-                    }
+                    $datamatrixTemp[$i + 1][$j + 1] = $j % 2 == 0 ? 1 : 0;
                 } elseif ($i % ($rowsRegionCW + 2) == $rowsRegionCW + 1) {
                     $datamatrixTemp[$i + 1][$j + 1] = 1;
                 } elseif ($j % ($colsRegionCW + 2) == $colsRegionCW + 1) {
-                    if ($i % 2 == 0) {
-                        $datamatrixTemp[$i + 1][$j + 1] = 0;
-                    } else {
-                        $datamatrixTemp[$i + 1][$j + 1] = 1;
-                    }
+                    $datamatrixTemp[$i + 1][$j + 1] = $i % 2 == 0 ? 0 : 1;
                 } elseif ($j % ($colsRegionCW + 2) == 0) {
                     $datamatrixTemp[$i + 1][$j + 1] = 1;
                 } else {

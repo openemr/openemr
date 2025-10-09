@@ -233,11 +233,7 @@ $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
 //
-if (empty($where)) {
-    $where = $customWhere;
-} else {
-    $where = "$customWhere AND ( $where )";
-}
+$where = empty($where) ? $customWhere : "$customWhere AND ( $where )";
 $row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];
 

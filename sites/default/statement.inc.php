@@ -238,11 +238,7 @@ function create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = $GLOBALS['use_custom_statement'] ? substr($line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr($description, 0, 14);
         if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
@@ -721,11 +717,7 @@ function create_statement($stmt)
 
 
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = $GLOBALS['use_custom_statement'] ? substr($line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr($description, 0, 14);
         if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
@@ -990,11 +982,7 @@ function osp_create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+        $description = $GLOBALS['use_custom_statement'] ? substr($line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr($description, 0, 14);
         if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {

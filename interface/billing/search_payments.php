@@ -205,11 +205,7 @@ if (isset($_POST["mode"])) {
             $SortFieldOld = isset($_POST['SortFieldOld']) ? trim($_POST['SortFieldOld']) : '';
             $Sort = isset($_POST['Sort']) ? trim($_POST['Sort']) : '';
             if ($SortFieldOld == $PaymentSortBy) {
-                if ($Sort == 'DESC' || $Sort == '') {
-                    $Sort = 'ASC';
-                } else {
-                    $Sort = 'DESC';
-                }
+                $Sort = $Sort == 'DESC' || $Sort == '' ? 'ASC' : 'DESC';
             } else {
                 $Sort = 'ASC';
             }
@@ -506,11 +502,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                         //=============================================
                                         $CountIndex++;
-                                        if ($CountIndex % 2 == 1) {
-                                            $bgcolor = '#ddddff';
-                                        } else {
-                                            $bgcolor = '#ffdddd';
-                                        }
+                                        $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
                                         ?>
                                         <tr bgcolor='<?php echo attr($bgcolor); ?>' class="text">
                                             <td>

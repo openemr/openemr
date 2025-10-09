@@ -251,11 +251,7 @@ function sellDrug(
 
         // Compute the proportional fee for this line item.  For the last line
         // item take the remaining unallocated fee to avoid round-off error.
-        if ($qty_final) {
-            $thisfee = sprintf('%0.2f', $fee * $thisqty / $quantity);
-        } else {
-            $thisfee = sprintf('%0.2f', $fee_final);
-        }
+        $thisfee = $qty_final ? sprintf('%0.2f', $fee * $thisqty / $quantity) : sprintf('%0.2f', $fee_final);
 
         $fee_final -= $thisfee;
 

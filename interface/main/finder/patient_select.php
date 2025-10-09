@@ -226,11 +226,7 @@ if ($popup) {
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
 
-    if (empty($where)) {
-        $where = $customWhere;
-    } else {
-        $where = "$customWhere AND $where";
-    }
+    $where = empty($where) ? $customWhere : "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);

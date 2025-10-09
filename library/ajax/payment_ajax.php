@@ -48,11 +48,7 @@ function AjaxDropDownCode(): void
         $res = sqlStatement("SELECT insurance_companies.id,name,city,state,country FROM insurance_companies
 			left join addresses on insurance_companies.id=addresses.foreign_id  where name like ? or  insurance_companies.id like ? ORDER BY name", [$insurance_text_ajax . '%', $insurance_text_ajax . '%']);
         while ($row = sqlFetchArray($res)) {
-            if ($CountIndex % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
 
                 $CountIndex++;
                 $Id = $row['id'];
@@ -129,11 +125,7 @@ function AjaxDropDownCode(): void
             ]
         );
         while ($row = sqlFetchArray($res)) {
-            if ($CountIndex % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
 
                 $CountIndex++;
                 $Id = $row['id'];
@@ -183,11 +175,7 @@ function AjaxDropDownCode(): void
         $res = sqlStatement("SELECT date,encounter FROM form_encounter
 			 where pid =? ORDER BY encounter", [$patient_code]);
         while ($row = sqlFetchArray($res)) {
-            if ($CountIndex % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
 
                 $CountIndex++;
                 $Date = $row['date'];

@@ -540,11 +540,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $profile_items_list = $templateService->getPatientGroupsByProfile($profile);
                     $active = $templateService->getProfileActiveStatus($profile);
                     $active_esc = attr($active);
-                    if (!empty($active)) {
-                        $active_text = '<span class="small float-left">' . xlt('Active') . '</span>';
-                    } else {
-                        $active_text = '';
-                    }
+                    $active_text = !empty($active) ? '<span class="small float-left">' . xlt('Active') . '</span>' : '';
                     $profile_esc = attr($profile);
                     echo "<h5 class='text-center bg-dark text-light p-1 mt-1 mb-0'>" . $active_text . text($profiles['title']) .
                         "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";

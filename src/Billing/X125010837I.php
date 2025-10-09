@@ -492,11 +492,7 @@ class X125010837I
                 $out .= "HI"; // Health Diagnosis Codes
             }
             $out .= "*" . $diag_type_code . ":" . $diag;
-            if ($claim->diagtype == "ICD9") {
-                $diag_type_code = 'BF';
-            } else {
-                $diag_type_code = 'ABF';
-            }
+            $diag_type_code = $claim->diagtype == "ICD9" ? 'BF' : 'ABF';
 
             ++$tmp;
         }
@@ -992,11 +988,7 @@ class X125010837I
         for ($tlh = 0; $tlh < $proccount; ++$tlh) {
             $tmp = $claim->procs[$tlh]['code_text'];
 
-            if ($claim->procs[$tlh]['code_type'] == 'HCPCS') {
-                $tmpcode = '3';
-            } else {
-                $tmpcode = '1';
-            }
+            $tmpcode = $claim->procs[$tlh]['code_type'] == 'HCPCS' ? '3' : '1';
             $getrevcd = $claim->cptCode($tlh);
             $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY revenue_code DESC";
             $revcode[$tlh] = sqlQuery($sql, [

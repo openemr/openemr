@@ -34,11 +34,7 @@ use OpenEMR\OeUI\OemrUI;
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
-if (empty($collectthis)) {
-    $collectthis = "{}";
-} else {
-    $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
-}
+$collectthis = empty($collectthis) ? "{}" : json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
@@ -207,11 +203,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     <?php
                     // Check to see if the user has Admin rights, and if so, allow access to See All.
                     $showall = $_GET['show_all'] ?? "";
-                    if ($showall == "yes") {
-                        $show_all = $showall;
-                    } else {
-                        $show_all = "no";
-                    }
+                    $show_all = $showall == "yes" ? $showall : "no";
                     // Collect active variable and applicable html code for links
                     $form_active = ($_REQUEST['form_active'] ?? false);
                     $form_inactive = ($_REQUEST['form_inactive'] ?? false);

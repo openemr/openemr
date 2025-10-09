@@ -452,11 +452,7 @@ class InsuranceService extends BaseService
                 'date_end' => $compositeDateEnd
             ]
         );
-        if ($insuranceDataResult->hasData()) {
-            $result = $insuranceDataResult->getData();
-        } else {
-            $result = [];
-        }
+        $result = $insuranceDataResult->hasData() ? $insuranceDataResult->getData() : [];
 
         return $result;
     }

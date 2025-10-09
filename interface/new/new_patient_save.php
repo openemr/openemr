@@ -57,11 +57,7 @@ if ($pid == null) {
 }
 
 // what do we set for the public pid?
-if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
-    $mypubpid = $_POST["pubpid"];
-} else {
-    $mypubpid = $pid;
-}
+$mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] : $pid;
 
 if ($_POST['form_create']) {
     $form_fname = ucwords(trim($_POST["fname"]));

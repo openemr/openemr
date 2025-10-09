@@ -96,11 +96,7 @@ if ($action === 'print_labels') {
             if (empty($t)) {
                 continue;
             }
-            if ($t === 'none') {
-                $ord = $order;
-            } else {
-                $ord = $order . '-' . $t;
-            }
+            $ord = $t === 'none' ? $order : $order . '-' . $t;
 
             $pdf->AddPage();
             $barcode = '<div style="text-align: center;vertical-align: bottom;">';

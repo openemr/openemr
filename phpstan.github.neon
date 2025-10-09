@@ -14810,7 +14810,7 @@ parameters:
     path: library/classes/smtp/smtp.php
   - message: '#^Access to an undefined property Thumbnail\:\:\$max_size\.$#'
     identifier: property.notFound
-    count: 5
+    count: 4
     path: library/classes/thumbnail/Thumbnail.class.php
   - message: '#^Variable \$new_file might not be defined\.$#'
     identifier: variable.undefined
@@ -15322,7 +15322,7 @@ parameters:
     path: library/edihistory/edih_x12file_class.php
   - message: '#^Variable \$gs_ct might not be defined\.$#'
     identifier: variable.undefined
-    count: 6
+    count: 5
     path: library/edihistory/edih_x12file_class.php
   - message: '#^Variable \$gs_fid might not be defined\.$#'
     identifier: variable.undefined

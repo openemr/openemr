@@ -263,11 +263,7 @@ if (!empty($_POST['edit'])) {
 
                 $isShow = false; //flag if passes the definition filter
             $stringTemp = '<tr><td>' . text($row['constant_name']) . '</td>';
-            if ($row['definition'] == '' or $row['definition'] == 'NULL') {
-                $def = " " ;
-            } else {
-                $def = $row['definition'];
-            }
+            $def = ($row['definition'] == '' or $row['definition'] == 'NULL') ? " " : $row['definition'];
 
             $stringTemp .= '<td>' . text($def) . '</td>';
             $row = SqlFetchArray($res); // jump one to get the second language selected

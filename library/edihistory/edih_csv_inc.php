@@ -198,11 +198,7 @@ function csv_log_manage($list = true)
     //
     if (count($old_ar)) {
         $zip = new ZipArchive();
-        if (is_file($archname)) {
-            $ok = $zip->open($archname, ZipArchive::CHECKCONS);
-        } else {
-            $ok = $zip->open($archname, ZipArchive::CREATE);
-        }
+        $ok = is_file($archname) ? $zip->open($archname, ZipArchive::CHECKCONS) : $zip->open($archname, ZipArchive::CREATE);
 
         //
         if ($ok) {
@@ -1183,11 +1179,7 @@ function edih_format_date($str_val, $pref = "Y-m-d")
 function edih_format_money($str_val)
 {
     //
-    if ($str_val || $str_val === '0') {
-        $mny = sprintf("$%01.2f", $str_val);
-    } else {
-        $mny = $str_val;
-    }
+    $mny = $str_val || $str_val === '0' ? sprintf("$%01.2f", $str_val) : $str_val;
 
     return $mny;
 }
@@ -1202,11 +1194,7 @@ function edih_format_money($str_val)
 function edih_format_percent($str_val)
 {
     $val = (float)$str_val;
-    if (is_float($val)) {
-        $pct = $val * 100 . '%';
-    } else {
-        $pct = $str_val . '%';
-    }
+    $pct = is_float($val) ? $val * 100 . '%' : $str_val . '%';
 
     return $pct;
 }
@@ -1222,11 +1210,7 @@ function edih_format_percent($str_val)
 function csv_thead_html($file_type, $csv_type, $tblhd = null)
 {
     //
-    if (is_array($tblhd) && count($tblhd)) {
-        $hvals = $tblhd;
-    } else {
-        $hvals = csv_table_header($file_type, $csv_type);
-    }
+    $hvals = is_array($tblhd) && count($tblhd) ? $tblhd : csv_table_header($file_type, $csv_type);
 
     if (is_array($hvals) && count($hvals)) {
         $str_html = '';
@@ -1428,11 +1412,7 @@ function csv_singlerecord_test($array)
 {
     // the two versions of count() are compared
     // if the array has a sub-array, count recursive is greater
-    if (is_array($array)) {
-        $is_sngl = count($array, COUNT_RECURSIVE) == count($array, COUNT_NORMAL);
-    } else {
-        $is_sngl = false;
-    }
+    $is_sngl = is_array($array) ? count($array, COUNT_RECURSIVE) == count($array, COUNT_NORMAL) : false;
 
     //
     return $is_sngl;

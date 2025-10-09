@@ -47,11 +47,7 @@ class SearchFieldComparableValue
     {
         $value = $this->getValue() || "";
         if (is_object($value)) {
-            if (method_exists($value, '__toString')) {
-                $value = $value->__toString();
-            } else {
-                $value = $value::class;
-            }
+            $value = method_exists($value, '__toString') ? $value->__toString() : $value::class;
         }
         return "(value=" . $value . ",comparator=" . $this->getComparator() ?? "" . ")";
     }

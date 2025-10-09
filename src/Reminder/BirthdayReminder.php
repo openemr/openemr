@@ -22,11 +22,7 @@ class BirthdayReminder
 
     public function birthdayAlertResponse($turnOff)
     {
-        if ($turnOff == "true") {
-            $date = date('Y-m-d', strtotime("now"));
-        } else {
-            $date  = date('Y-m-d', strtotime("-1 year"));
-        }
+        $date = $turnOff == "true" ? date('Y-m-d', strtotime("now")) : date('Y-m-d', strtotime("-1 year"));
 
         $sql = "REPLACE INTO `patient_birthday_alert` (`pid`, `user_id`, `turned_off_on`) VALUES (?,?,?)";
         $res = sqlStatement($sql, [$this->pid, $this->user_id, $date]);
@@ -46,11 +42,7 @@ class BirthdayReminder
         $dobStr = strtotime($res['DOB']);
 
         // fix for December birthdays check in January
-        if (date('m') == '01' && date('m', $dobStr) == '12') {
-            $dobStr = "00-" . date('d', $dobStr);
-        } else {
-            $dobStr = date('m-d', $dobStr);
-        }
+        $dobStr = date('m') == '01' && date('m', $dobStr) == '12' ? "00-" . date('d', $dobStr) : date('m-d', $dobStr);
 
         if (
             // on and up to 28 days

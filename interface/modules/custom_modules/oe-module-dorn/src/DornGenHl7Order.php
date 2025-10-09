@@ -132,11 +132,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         // GT1 segment
         $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
         foreach ($guarantors as $guarantor) {
-            if ($bill_type == "C") {
-                $gType = "C";
-            } else {
-                $gType = "P";
-            }
+            $gType = $bill_type == "C" ? "C" : "P";
             $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], $gType, $guarantor['data']['subscriber_relationship']);
         }
         if (empty($guarantors)) {
@@ -763,11 +759,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             exit;
         } else {
             $response = ConnectorApi::sendOrder($labGuid, $labAccountNumber, $orderId, $pid, $out);
-            if (!$response->isSuccess) {
-                $responseMessage = $response->responseMessage;
-            } else {
-                $responseMessage = $response;
-            }
+            $responseMessage = !$response->isSuccess ? $response->responseMessage : $response;
         }
 
         // Falling through to here indicates success.

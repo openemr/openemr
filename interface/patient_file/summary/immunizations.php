@@ -182,11 +182,7 @@ if ($GLOBALS['use_custom_immun_list']) {
 } else {
     if (!empty($_GET['mode']) && ($_GET['mode'] == "edit")) {
         //depends on if a cvx code is enterer already
-        if (empty($cvx_code)) {
-            $useCVX = false;
-        } else {
-            $useCVX = true;
-        }
+        $useCVX = empty($cvx_code) ? false : true;
     } else { // $_GET['mode'] == "add"
         $useCVX = true;
     }
@@ -551,11 +547,7 @@ tr.selected {
                                         <div class="form-row" id="or_tr_<?php echo attr(($key + 1)); ?>">
                                             <?php
                                             if ($id == 0) {
-                                                if ($key == 0) {
-                                                    $style = 'display: table-cell;width:765px !important';
-                                                } else {
-                                                    $style = 'display: none;width:765px !important';
-                                                }
+                                                $style = $key == 0 ? 'display: table-cell;width:765px !important' : 'display: none;width:765px !important';
                                             } else {
                                                 $style = 'display : table-cell;width:765px !important';
                                             }
@@ -757,11 +749,7 @@ tr.selected {
                         while ($row = sqlFetchArray($result)) {
                             $isError = $row['added_erroneously'];
 
-                            if ($isError) {
-                                $tr_title = 'title="' . xla("Entered in Error") . '"';
-                            } else {
-                                $tr_title = "";
-                            }
+                            $tr_title = $isError ? 'title="' . xla("Entered in Error") . '"' : "";
 
                             if (!empty($id) && ($row["id"] == $id)) {
                                 echo "<tr " . $tr_title . " class='immrow text selected' id='" . attr($row["id"]) . "'>";
@@ -814,11 +802,7 @@ tr.selected {
                             echo "<td>" . $del_tag_open . text($row["note"]) . $del_tag_close . "</td>";
                             echo "<td>" . $del_tag_open . generate_display_field(['data_type' => '1','list_id' => 'Immunization_Completion_Status'], $row['completion_status']) . $del_tag_close . "</td>";
 
-                            if ($isError) {
-                                $checkbox = "checked";
-                            } else {
-                                $checkbox = "";
-                            }
+                            $checkbox = $isError ? "checked" : "";
 
                                 echo "<td><input type='checkbox' class='error' id='" . attr($row["id"]) . "' value='" . xlt('Error') . "' " . $checkbox . " /></td>";
 

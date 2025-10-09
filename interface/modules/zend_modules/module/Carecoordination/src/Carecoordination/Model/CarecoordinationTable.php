@@ -793,11 +793,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     '228274009' => 'Never'
                 ];
                 $alcohol = explode("|", $newdata['social_history']['alcohol'] ?? '');
-                if (!empty($alcohol[2])) {
-                    $alcohol_date = $this->formatDate($alcohol[2], 1);
-                } else {
-                    $alcohol_date = $alcohol[2];
-                }
+                $alcohol_date = !empty($alcohol[2]) ? $this->formatDate($alcohol[2], 1) : $alcohol[2];
 
                 $alcohol_date_value = fixDate($alcohol_date);
                 foreach ($alcohol_status as $key => $value) {
@@ -809,11 +805,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
                 $tobacco = explode("|", $newdata['social_history']['smoking'] ?? '');
-                if (!empty($tobacco[2])) {
-                    $smoking_date = $this->formatDate($tobacco[2], 1);
-                } else {
-                    $smoking_date = $tobacco[2];
-                }
+                $smoking_date = !empty($tobacco[2]) ? $this->formatDate($tobacco[2], 1) : $tobacco[2];
 
                 $smoking_date_value = fixDate($smoking_date);
                 foreach ($tobacco_status as $key => $value2) {
@@ -1019,11 +1011,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $day = substr($unformatted_date, 6, 2);
         $month = substr($unformatted_date, 4, 2);
         $year = substr($unformatted_date, 0, 4);
-        if ($ymd == 1) {
-            $formatted_date = $year . "/" . $month . "/" . $day;
-        } else {
-            $formatted_date = $day . "/" . $month . "/" . $year;
-        }
+        $formatted_date = $ymd == 1 ? $year . "/" . $month . "/" . $day : $day . "/" . $month . "/" . $year;
 
         return $formatted_date;
     }

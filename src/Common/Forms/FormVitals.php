@@ -372,11 +372,7 @@ class FormVitals extends ORDataObject
     }
     public function set_oxygen_flow_rate($o)
     {
-        if (is_numeric($o)) {
-            $this->oxygen_flow_rate = $o;
-        } else {
-            $this->oxygen_flow_rate = 0.00;
-        }
+        $this->oxygen_flow_rate = is_numeric($o) ? $o : 0.00;
     }
 
     public function get_inhaled_oxygen_concentration()
@@ -386,11 +382,7 @@ class FormVitals extends ORDataObject
 
     public function set_inhaled_oxygen_concentration($value)
     {
-        if (is_numeric($value)) {
-            $this->inhaled_oxygen_concentration = $value;
-        } else {
-            $this->inhaled_oxygen_concentration = 0.00;
-        }
+        $this->inhaled_oxygen_concentration = is_numeric($value) ? $value : 0.00;
     }
 
     public function get_ped_weight_height()
@@ -399,11 +391,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_weight_height($o)
     {
-        if (is_numeric($o)) {
-            $this->ped_weight_height = $o;
-        } else {
-            $this->ped_weight_height = 0.00;
-        }
+        $this->ped_weight_height = is_numeric($o) ? $o : 0.00;
     }
 
     public function get_ped_bmi()
@@ -412,11 +400,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_bmi($o)
     {
-        if (is_numeric($o)) {
-            $this->ped_bmi = $o;
-        } else {
-            $this->ped_bmi = 0.00;
-        }
+        $this->ped_bmi = is_numeric($o) ? $o : 0.00;
     }
 
     public function get_ped_head_circ()
@@ -425,11 +409,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_head_circ($o)
     {
-        if (is_numeric($o)) {
-            $this->ped_head_circ = $o;
-        } else {
-            $this->ped_head_circ = 0.00;
-        }
+        $this->ped_head_circ = is_numeric($o) ? $o : 0.00;
     }
 
     /**

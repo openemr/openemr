@@ -60,11 +60,7 @@ function smarty_function_fetch($params, &$smarty)
                 $uri = !empty($uri_parts['path']) ? $uri_parts['path'] : '/';
                 $uri .= !empty($uri_parts['query']) ? '?' . $uri_parts['query'] : '';
                 $_is_proxy = false;
-                if(empty($uri_parts['port'])) {
-                    $port = 80;
-                } else {
-                    $port = $uri_parts['port'];
-                }
+                $port = empty($uri_parts['port']) ? 80 : $uri_parts['port'];
                 if(!empty($uri_parts['user'])) {
                     $user = $uri_parts['user'];
                 }

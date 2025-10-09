@@ -393,11 +393,7 @@ function getAllImmunization($xml, $patient_id): void
                 $arr = ['code' => '416118004', 'codeSystemName' => 'SNOMED CT', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'Administration'];
                 $xml->self_codeCustom($arr);
 
-                if ($medRow['status'] == "" || $medRow['status'] == "not_completed") {
-                    $statusChk = "active";
-                } else {
-                    $statusChk = "completed";
-                }
+                $statusChk = $medRow['status'] == "" || $medRow['status'] == "not_completed" ? "active" : "completed";
 
                 $arr = ['code' => "completed"];
                 $xml->self_customTag('statusCode', $arr);

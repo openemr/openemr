@@ -96,11 +96,7 @@ $header_height = 44; // height of page headers in points
 // This tells us if patient/encounter data is to be filled in.
 // 1 = single PID from popup, 2=array of PIDs for session
 
-if (empty($_GET['fill'])) {
-    $form_fill = 0;
-} else {
-    $form_fill = $_GET['fill'];
-}
+$form_fill = empty($_GET['fill']) ? 0 : $_GET['fill'];
 
 // Show based on session array or single pid?
 $pid_list = [];
@@ -355,11 +351,7 @@ if (empty($frow)) {
 
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
-if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "$web_root/$ma_logo_path";
-} else {
-    $logo = "";
-}
+$logo = is_file("$webserver_root/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet

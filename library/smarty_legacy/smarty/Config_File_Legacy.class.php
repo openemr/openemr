@@ -231,10 +231,7 @@ class Config_File_Legacy {
      */
     function load_file($file_name, $prepend_path = true)
     {
-        if ($prepend_path && $this->_config_path != "")
-            $config_file = $this->_config_path . $file_name;
-        else
-            $config_file = $file_name;
+        $config_file = $prepend_path && $this->_config_path != "" ? $this->_config_path . $file_name : $file_name;
 
         ini_set('track_errors', true);
         $fp = @fopen($config_file, "r");

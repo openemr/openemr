@@ -351,11 +351,7 @@ if ($what == 'fields' && $source == 'V') {
         while ($count < $maxCount && $row = sqlFetchArray($res)) {
             $count += 1;
         }
-        if (sqlFetchArray($res)) {
-            $out['iTotalHasMoreRecords'] = true;
-        } else {
-            $out['iTotalHasMoreRecords'] = false;
-        }
+        $out['iTotalHasMoreRecords'] = sqlFetchArray($res) ? true : false;
     }
     $out['iTotalDisplayRecords'] = min($maxCount, $start + $count);
     $out['iTotalRecords'] = min($maxCount, $start + $count);
