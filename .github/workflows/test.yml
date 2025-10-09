@@ -341,6 +341,13 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
+    - name: Upload JUnit test results
+      if: ${{ success() || failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: junit-test-results-${{ matrix.configurations.docker_dir }}
+        path: junit.xml
+
     - name: Combine coverage
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
       run: |
