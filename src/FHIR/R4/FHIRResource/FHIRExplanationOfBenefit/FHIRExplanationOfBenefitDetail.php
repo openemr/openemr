@@ -539,7 +539,7 @@ class FHIRExplanationOfBenefitDetail extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

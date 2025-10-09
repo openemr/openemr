@@ -15,7 +15,7 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Services\Search\SearchFieldType;
 
-class BasicSearchField implements ISearchField
+class BasicSearchField implements ISearchField, \Stringable
 {
     private $field;
     private $name;
@@ -161,7 +161,7 @@ class BasicSearchField implements ISearchField
      * Useful for debugging, you can echo the object to see its values.
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return "(field=" . $this->getField() . ",type=" . $this->getType()
             . ",values=[" . implode(",", $this->getValues()) . "],modifier=" . ($this->getModifier() ?? "") . ")";

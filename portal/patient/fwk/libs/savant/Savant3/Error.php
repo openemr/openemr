@@ -24,7 +24,7 @@
  *
  *
  */
-class Savant3_Error
+class Savant3_Error implements \Stringable
 {
     /**
      *
@@ -103,11 +103,11 @@ class Savant3_Error
      *
      * @return void
      */
-    public function __toString()
+    public function __toString(): string
     {
         ob_start();
         echo $this::class . ': ';
         print_r(get_object_vars($this));
-        return ob_get_clean();
+        return (string) ob_get_clean();
     }
 }

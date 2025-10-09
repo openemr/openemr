@@ -13,7 +13,7 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-class TokenSearchValue
+class TokenSearchValue implements \Stringable
 {
     /**
      * @var string|int|float|boolean
@@ -103,7 +103,7 @@ class TokenSearchValue
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ?: "");
     }
