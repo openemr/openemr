@@ -110,6 +110,7 @@
         "yubico/u2flib-server": "1.0.2"
     },
     "require-dev": {
+        "ergebnis/composer-normalize": "^2.48",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
@@ -160,6 +161,7 @@
     },
     "config": {
         "allow-plugins": {
+            "ergebnis/composer-normalize": true,
             "openemr/oe-module-installer-plugin": true,
             "php-http/discovery": false,
             "phpstan/extension-installer": true
@@ -193,6 +195,12 @@
             "ext-zip": "8.2",
             "ext-zlib": "8.2",
             "php": "8.2"
+        }
+    },
+    "extra": {
+        "composer-normalize": {
+            "indent-size": 4,
+            "indent-style": "space"
         }
     }
 }
