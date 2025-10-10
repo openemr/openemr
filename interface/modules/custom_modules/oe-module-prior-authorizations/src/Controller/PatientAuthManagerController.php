@@ -17,8 +17,8 @@ use OpenEMR\Core\Kernel;
 
 class PatientAuthManagerController
 {
-    private TwigContainer $twig;
-    private AuthorizationService $authService;
+    private readonly TwigContainer $twig;
+    private readonly AuthorizationService $authService;
 
     public function __construct(?TwigContainer $twigContainer = null)
     {

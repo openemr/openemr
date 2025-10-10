@@ -17,7 +17,7 @@ use OpenEMR\Core\Kernel;
 
 class DeleteController
 {
-    private TwigContainer $twig;
+    private readonly TwigContainer $twig;
     private const MODULE_TABLE = 'module_prior_authorizations';
 
     public function __construct(?TwigContainer $twigContainer = null)

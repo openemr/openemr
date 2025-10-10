@@ -213,7 +213,7 @@ class AuthorizationService
     public static function registration($clinic): bool|string
     {
         $curl = curl_init();
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.affordablecustomehr.com/register.php',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
@@ -222,8 +222,8 @@ class AuthorizationService
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array("name" => $clinic['name'],"phone" => $clinic['phone'],"email" => $clinic['email']),
-        ));
+            CURLOPT_POSTFIELDS => ["name" => $clinic['name'],"phone" => $clinic['phone'],"email" => $clinic['email']],
+        ]);
 
         $response = curl_exec($curl);
         curl_close($curl);

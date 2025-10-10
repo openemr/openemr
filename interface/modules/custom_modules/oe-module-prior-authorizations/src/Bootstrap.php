@@ -26,19 +26,15 @@ class Bootstrap
     const MODULE_NAMESPACE = 'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule';
 
     private array $paths = [];
-    /**
+    private $twig;
+
+    public function __construct(/**
      * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
      */
-    private EventDispatcherInterface $eventDispatcher;
-    private $twig;
-    private ?Kernel $kernel;
-
-    public function __construct(EventDispatcherInterface $dispatcher, Kernel $kernel = null)
+    private readonly EventDispatcherInterface $eventDispatcher, private readonly ?Kernel $kernel = null)
     {
-        $this->kernel = $kernel;
-        $this->eventDispatcher = $dispatcher;
         $this->paths = [self::MODULE_PATH . '/templates'];
-        $this->twig = new TwigContainer($this->getTemplatePath(), $kernel);
+        $this->twig = new TwigContainer($this->getTemplatePath(), $this->kernel);
         $this->twigEnv = $this->twig->getTwig();
     }
 

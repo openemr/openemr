@@ -16,8 +16,8 @@ use OpenEMR\Core\Kernel;
 
 class ReportsController
 {
-    private AuthorizationService $authorizationService;
-    private TwigContainer $twig;
+    private readonly AuthorizationService $authorizationService;
+    private readonly TwigContainer $twig;
 
     public function __construct(?AuthorizationService $authorizationService = null, ?TwigContainer $twigContainer = null, ?Kernel $kernel = null)
     {
