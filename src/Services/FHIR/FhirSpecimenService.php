@@ -26,6 +26,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenContainer;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -125,73 +126,49 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
     /**
      * Search for specimens across all procedure orders
      *
-     * @param array $searchParams
+     * @param array $searchParams ISearchField objects
      * @return array
      */
     private function searchSpecimens(array $searchParams): array
     {
         $sql = "SELECT 
-                ps.procedure_specimen_id,
-                ps.uuid,
-                ps.procedure_order_id,
-                ps.procedure_order_seq,
-                ps.specimen_identifier,
-                ps.accession_identifier,
-                ps.specimen_type_code,
-                ps.specimen_type,
-                ps.collection_method_code,
-                ps.collection_method,
-                ps.specimen_location_code,
-                ps.specimen_location,
-                ps.collected_date,
-                ps.collection_date_low,
-                ps.collection_date_high,
-                ps.volume_value,
-                ps.volume_unit,
-                ps.condition_code,
-                ps.specimen_condition,
-                ps.comments,
-                ps.deleted,
-                ps.created_at,
-                ps.updated_at,
-                po.patient_id,
-                p.uuid AS patient_uuid
-            FROM procedure_specimen ps
-            INNER JOIN procedure_order po ON po.procedure_order_id = ps.procedure_order_id
-            INNER JOIN patient_data p ON p.pid = po.patient_id
-            WHERE 1=1";
+            ps.procedure_specimen_id,
+            ps.uuid,
+            ps.procedure_order_id,
+            ps.procedure_order_seq,
+            ps.specimen_identifier,
+            ps.accession_identifier,
+            ps.specimen_type_code,
+            ps.specimen_type,
+            ps.collection_method_code,
+            ps.collection_method,
+            ps.specimen_location_code,
+            ps.specimen_location,
+            ps.collected_date,
+            ps.collection_date_low,
+            ps.collection_date_high,
+            ps.volume_value,
+            ps.volume_unit,
+            ps.condition_code,
+            ps.specimen_condition,
+            ps.comments,
+            ps.deleted,
+            ps.created_at,
+            ps.updated_at,
+            po.patient_id,
+            p.uuid AS patient_uuid
+        FROM procedure_specimen ps
+        INNER JOIN procedure_order po ON po.procedure_order_id = ps.procedure_order_id
+        INNER JOIN patient_data p ON p.pid = po.patient_id";
 
-        $bindings = [];
-
-        // Apply search filters
-        if (isset($searchParams['puuid'])) {
-            $sql .= " AND p.uuid = ?";
-            $bindings[] = $searchParams['puuid'];
-        }
-
-        if (isset($searchParams['specimen_identifier'])) {
-            $sql .= " AND ps.specimen_identifier = ?";
-            $bindings[] = $searchParams['specimen_identifier'];
-        }
-
-        if (isset($searchParams['accession_identifier'])) {
-            $sql .= " AND ps.accession_identifier = ?";
-            $bindings[] = $searchParams['accession_identifier'];
-        }
-
-        if (isset($searchParams['specimen_type_code'])) {
-            $sql .= " AND ps.specimen_type_code = ?";
-            $bindings[] = $searchParams['specimen_type_code'];
-        }
-
-        if (isset($searchParams['uuid'])) {
-            $sql .= " AND ps.uuid = ?";
-            $bindings[] = $searchParams['uuid'];
-        }
+        // Use FhirSearchWhereClauseBuilder to build WHERE clause properly
+        $whereClause = FhirSearchWhereClauseBuilder::build($searchParams, true);
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
 
         $sql .= " ORDER BY ps.collected_date DESC, ps.procedure_specimen_id DESC";
 
-        $result = sqlStatement($sql, $bindings);
+        $result = sqlStatement($sql, $sqlBindArray);
         $specimens = [];
 
         while ($row = sqlFetchArray($result)) {
@@ -290,7 +267,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             $accessionType = UtilsService::createCodeableConcept([
                 'ACSN' => [
                     'code' => 'ACSN',
-                    'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
+                    'system' => FhirCodeSystemConstants::SPECIMEN_IDENTIFIER,
                     'display' => 'Accession ID'
                 ]
             ]);
@@ -310,7 +287,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             if (!empty($dataRecord['type'])) {
                 $coding->setDisplay($dataRecord['type']);
             }
-            $coding->setSystem('http://snomed.info/sct');
+            $coding->setSystem(FhirCodeSystemConstants::SNOMED_CT);
 
             $type->addCoding($coding);
             $specimen->setType($type);
@@ -355,7 +332,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                 if (!empty($dataRecord['method'])) {
                     $coding->setDisplay($dataRecord['method']);
                 }
-                $coding->setSystem('http://snomed.info/sct');
+                $coding->setSystem(FhirCodeSystemConstants::SNOMED_CT);
 
                 $method->addCoding($coding);
                 $collection->setMethod($method);
@@ -372,7 +349,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                 if (!empty($dataRecord['location'])) {
                     $coding->setDisplay($dataRecord['location']);
                 }
-                $coding->setSystem('http://snomed.info/sct');
+                $coding->setSystem(FhirCodeSystemConstants::SNOMED_CT);
 
                 $bodySite->addCoding($coding);
                 $collection->setBodySite($bodySite);
@@ -406,7 +383,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             if (!empty($dataRecord['condition'])) {
                 $coding->setDisplay($dataRecord['condition']);
             }
-            $coding->setSystem('http://terminology.hl7.org/CodeSystem/v2-0493');
+            $coding->setSystem(FhirCodeSystemConstants::SPECIMEN_CONDITION);
 
             $condition->addCoding($coding);
             $specimen->addCondition($condition);
