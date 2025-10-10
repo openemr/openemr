@@ -952,7 +952,7 @@ function csv_processed_files_list($type)
         }
     }
 
-    $csv_col = $csv_col ?? 1;
+    $csv_col ??= 1;
     $csv_file = $param['files_csv'];
     //if ($tp == 'dpr') {
         //$csv_file = $param['claims_csv'];

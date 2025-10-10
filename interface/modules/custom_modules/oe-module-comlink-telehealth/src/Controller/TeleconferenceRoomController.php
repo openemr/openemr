@@ -543,7 +543,7 @@ class TeleconferenceRoomController
         $pwd = $patientAccessService->getRandomPortalPassword();
         $uname = $patientData['fname'] . $patientData['id'];
         $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
-        $login_uname = $login_uname ?? $uname;
+        $login_uname ??= $uname;
         $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
 
         // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this

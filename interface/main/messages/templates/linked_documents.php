@@ -51,7 +51,7 @@ if (!empty($prow)) {
 // if we have phimail enabled, we are going to find out if our document is an xml file, if so, we are going to do a validation
 // report on the document.  This would be a great thing for caching if we wanted to do that, we'll just compute on the fly for now.
 $records = [];
-$prow = $prow ?? null;
+$prow ??= null;
 $cdaDocumentValidator = new CdaValidateDocumentObject();
 foreach ($tmp as $record) {
     if ($record['type1'] == 1) {

@@ -4675,7 +4675,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $indicatorTag = "style='display: none'";
     }
 
-    $indicatorTag = $indicatorTag ?? "";
+    $indicatorTag ??= "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
         attr_js($label . "_ps_expand") . ")'><span class='text font-weight-bold'>";
     echo text($title) . "</span>";

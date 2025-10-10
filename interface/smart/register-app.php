@@ -69,7 +69,7 @@ switch ($GLOBALS['login_page_layout']) {
 }
 
 // TODO: adunsulag find out where our openemr name comes from
-$openemr_name = $openemr_name ?? '';
+$openemr_name ??= '';
 
 $serverConfig = new ServerConfig();
 $fhirRegisterURL = $serverConfig->getRegistrationUrl();

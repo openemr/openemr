@@ -262,7 +262,7 @@ class RCFaxClient extends AppDispatch
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
-        $fileName = $fileName ?? pathinfo($file, PATHINFO_BASENAME);
+        $fileName ??= pathinfo($file, PATHINFO_BASENAME);
         // validate/format file path
         if (is_file($file)) {
             if (str_starts_with($file, 'file://')) {
@@ -1144,7 +1144,7 @@ class RCFaxClient extends AppDispatch
 
             // Determine file extension and file name
             $ext = $this->getExtensionFromContentType($contentType);
-            $fileName = $fileName ?? xlt("fax") . '_' . text($jobId) . $ext;
+            $fileName ??= xlt("fax") . '_' . text($jobId) . $ext;
             $content = $rawData;
 
             // Create a new document and save it

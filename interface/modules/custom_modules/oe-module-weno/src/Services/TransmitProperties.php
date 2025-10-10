@@ -512,7 +512,7 @@ insurance;
     private function getSubscriber(): mixed
     {
         $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
-        $relation = $relation ?? ['subscriber_relationship' => ''];
+        $relation ??= ['subscriber_relationship' => ''];
 
         return $relation['subscriber_relationship'] ?? '';
     }
@@ -547,7 +547,7 @@ insurance;
     public function getProviderName(): string
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
-        $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
 
@@ -557,7 +557,7 @@ insurance;
     public function getPatientName(): string
     {
         $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
-        $patient_info = $patient_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $patient_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 

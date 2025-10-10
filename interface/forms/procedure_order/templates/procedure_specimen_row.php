@@ -15,7 +15,7 @@
 /** @var int|null $i */
 
 $i = isset($i) ? (int)$i : 0;
-$oprow = $oprow ?? null;
+$oprow ??= null;
 
 $seq = (int)($oprow['procedure_order_seq'] ?? 0);
 $rows = $specimen_by_seq[$seq];
