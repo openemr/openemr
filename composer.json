@@ -205,8 +205,10 @@
         }
     },
     "scripts": {
+        "check-requirements": "php -d memory_limit=-1 vendor/bin/composer-require-checker check composer.json",
         "checks": [
             "composer validate",
+            "@check-requirements",
             "composer normalize --dry-run"
         ]
     }
