@@ -47,7 +47,7 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
     const PROCEDURE_STATUS_COMPLETED = "completed";
     const PROCEDURE_STATUS_PENDING = "pending";
     const PROCEDURE_STATUS_CANCELLED = "cancelled";
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure';
+    const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure";
 
 
     /**
