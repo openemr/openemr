@@ -16244,30 +16244,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/patient/fwk/libs/verysimple/DB/Reflection/DBTable.php
-  - message: '#^Constant MCRYPT_MODE_ECB not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Constant MCRYPT_RAND not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Constant MCRYPT_RIJNDAEL_256 not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Function mcrypt_create_iv not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Function mcrypt_decrypt not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Function mcrypt_encrypt not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
   - message: '#^Undefined variable\: \$attachment$#'
     identifier: variable.undefined
     count: 4
