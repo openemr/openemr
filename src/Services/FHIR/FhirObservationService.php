@@ -223,7 +223,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             ,'us-core-observation-pregnancystatus'
             ,'us-core-observation-sexual-orientation'
             ,'us-core-treatment-intervention-preference'
-       ];
+        ];
         $v8Versions = [
             'us-core-observation-adi-documentation'
         ];
