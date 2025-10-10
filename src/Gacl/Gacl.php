@@ -20,6 +20,8 @@
 
 namespace OpenEMR\Gacl;
 
+use Hashed_Cache_Lite;
+
 /*
  * Path to ADODB.
  */
