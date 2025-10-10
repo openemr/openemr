@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
 {
     public static $prefixLengthsPsr4 =  [
-        'J' => 
+        'J' =>
          [
             'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => 43,
         ],
     ];
 
     public static $prefixDirsPsr4 =  [
-        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => 
+        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' =>
          [
             0 => __DIR__ . '/../..' . '/src',
         ],
@@ -32,7 +32,6 @@ class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
             $loader->prefixLengthsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$classMap;
-
         }, null, ClassLoader::class);
     }
 }

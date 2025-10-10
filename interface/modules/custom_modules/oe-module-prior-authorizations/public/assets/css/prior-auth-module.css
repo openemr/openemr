@@ -17,7 +17,7 @@
   --pa-danger-light: #f8d7da;
   --pa-info: #17a2b8;
   --pa-info-light: #d1ecf1;
-  
+
   /* Background colors - light and readable */
   --pa-bg-primary: #ffffff;
   --pa-bg-secondary: #f8f9fa;
@@ -25,12 +25,12 @@
   --pa-text-primary: #212529;
   --pa-text-secondary: #6c757d;
   --pa-text-muted: #868e96;
-  
+
   /* Progress Bar Colors */
   --pa-progress-high: #28a745;
   --pa-progress-medium: #ffc107;
   --pa-progress-low: #dc3545;
-  
+
   /* Spacing */
   --pa-spacing-xs: 0.25rem;
   --pa-spacing-sm: 0.5rem;
@@ -38,21 +38,21 @@
   --pa-spacing-lg: 1.5rem;
   --pa-spacing-xl: 2rem;
   --pa-spacing-xxl: 3rem;
-  
+
   /* Border Radius */
   --pa-border-radius: 0.375rem;
   --pa-border-radius-lg: 0.5rem;
   --pa-border-radius-pill: 50rem;
-  
+
   /* Borders */
   --pa-border-color: #dee2e6;
   --pa-border-color-light: #e9ecef;
-  
+
   /* Shadows */
   --pa-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   --pa-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   --pa-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
-  
+
   /* Transitions */
   --pa-transition-base: all 0.3s ease;
   --pa-transition-fast: all 0.15s ease;
@@ -354,16 +354,16 @@
     gap: var(--pa-spacing-sm);
     text-align: center;
   }
-  
+
   .pa-btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .pa-table-container {
     overflow-x: auto;
   }
-  
+
   .pa-progress-container {
     min-width: 100px;
   }
@@ -376,7 +376,7 @@
     border: 1px solid #ccc;
     background: white !important;
   }
-  
+
   .pa-btn {
     display: none;
   }

@@ -21,18 +21,19 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Bootstrap
 {
-    const MODULE_NAME = 'oe-module-prior-authorizations';
-    const MODULE_PATH = __DIR__;
-    const MODULE_NAMESPACE = 'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule';
+    public const MODULE_NAME = 'oe-module-prior-authorizations';
+    public const MODULE_PATH = __DIR__;
+    public const MODULE_NAMESPACE = 'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule';
 
     private array $paths = [];
     private $twig;
 
     public function __construct(/**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private readonly EventDispatcherInterface $eventDispatcher, private readonly ?Kernel $kernel = null)
-    {
+         * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
+         */
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?Kernel $kernel = null
+    ) {
         $this->paths = [self::MODULE_PATH . '/templates'];
         $this->twig = new TwigContainer($this->getTemplatePath(), $this->kernel);
         $this->twigEnv = $this->twig->getTwig();
@@ -62,7 +63,7 @@ class Bootstrap
         $this->eventDispatcher->addListener(PatientMenuEvent::MENU_UPDATE, [$this, 'oe_module_priorauth_patient_menu_item']);
     }
 
-    function oe_module_priorauth_add_menu_item(MenuEvent $event): MenuEvent
+    public function oeModulePriorauthAddMenuItem(MenuEvent $event): MenuEvent
     {
         $menu = $event->getMenu();
 
@@ -92,7 +93,7 @@ class Bootstrap
         return $event;
     }
 
-    function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent): PatientMenuEvent
+    public function oeModulePriorauthPatientMenuItem(PatientMenuEvent $menuEvent): PatientMenuEvent
     {
         $existingMenu = $menuEvent->getMenu();
 
