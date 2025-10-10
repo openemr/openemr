@@ -15,9 +15,11 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSpecimen;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenCollection;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenContainer;
@@ -59,7 +61,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             'collected' => new FhirSearchParameterDefinition('collected', SearchFieldType::DATETIME, ['collected_date']),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['deleted']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
-            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date_updated'])
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['updated_at'])
         ];
     }
 
@@ -150,8 +152,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                 ps.specimen_condition,
                 ps.comments,
                 ps.deleted,
-                ps.date_created,
-                ps.date_updated,
+                ps.created_at,
+                ps.updated_at,
                 po.patient_id,
                 p.uuid AS patient_uuid
             FROM procedure_specimen ps
@@ -201,6 +203,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
 
     /**
      * Create specimen record from database result
+     * Maps database columns to internal array structure
      *
      * @param array $row
      * @return array
@@ -229,8 +232,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             'condition' => $row['specimen_condition'],
             'comments' => $row['comments'],
             'deleted' => $row['deleted'],
-            'date_created' => $row['date_created'],
-            'date_updated' => $row['date_updated'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
             'patient_id' => $row['patient_id'],
             'patient_uuid' => \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($row['patient_uuid'])
         ];
@@ -251,10 +254,10 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
 
-        if (!empty($dataRecord['date_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_updated']));
-        } elseif (!empty($dataRecord['date_created'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_created']));
+        if (!empty($dataRecord['updated_at'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['updated_at']));
+        } elseif (!empty($dataRecord['created_at'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['created_at']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
@@ -296,15 +299,20 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             $specimen->setAccessionIdentifier($accession);
         }
 
-        // Set type
+        // Set type - Manual creation to ensure display works
         if (!empty($dataRecord['type_code']) || !empty($dataRecord['type'])) {
-            $type = UtilsService::createCodeableConcept([
-                    $dataRecord['type_code'] ?? $dataRecord['type'] => [
-                    'code' => $dataRecord['type_code'] ?? null,
-                    'display' => $dataRecord['type'] ?? null,
-                    'system' => 'http://terminology.hl7.org/CodeSystem/v2-0487'
-                    ]
-            ]);
+            $type = new FHIRCodeableConcept();
+            $coding = new FHIRCoding();
+
+            if (!empty($dataRecord['type_code'])) {
+                $coding->setCode($dataRecord['type_code']);
+            }
+            if (!empty($dataRecord['type'])) {
+                $coding->setDisplay($dataRecord['type']);
+            }
+            $coding->setSystem('http://snomed.info/sct');
+
+            $type->addCoding($coding);
             $specimen->setType($type);
         }
 
@@ -316,7 +324,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         }
 
         // Set collection details
-        if (!empty($dataRecord['collected_date']) || !empty($dataRecord['method'])) {
+        if (!empty($dataRecord['collected_date']) || !empty($dataRecord['collection_start']) || !empty($dataRecord['collection_end']) || !empty($dataRecord['method']) || !empty($dataRecord['location'])) {
             $collection = new FHIRSpecimenCollection();
 
             // Collection time
@@ -326,34 +334,47 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                 );
             } elseif (!empty($dataRecord['collection_start']) || !empty($dataRecord['collection_end'])) {
                 // Use period if available
-                $period = UtilsService::createPeriod(
-                    $dataRecord['collection_start'] ?? null,
-                    $dataRecord['collection_end'] ?? null
-                );
+                $period = new FHIRPeriod();
+                if (!empty($dataRecord['collection_start'])) {
+                    $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['collection_start']));
+                }
+                if (!empty($dataRecord['collection_end'])) {
+                    $period->setEnd(UtilsService::getLocalDateAsUTC($dataRecord['collection_end']));
+                }
                 $collection->setCollectedPeriod($period);
             }
 
-            // Collection method
+            // Collection method - Manual creation to ensure display works
             if (!empty($dataRecord['method_code']) || !empty($dataRecord['method'])) {
-                $method = UtilsService::createCodeableConcept([
-                        $dataRecord['method_code'] ?? $dataRecord['method'] => [
-                        'code' => $dataRecord['method_code'] ?? null,
-                        'display' => $dataRecord['method'] ?? null,
-                        'system' => 'http://terminology.hl7.org/CodeSystem/v2-0488'
-                        ]
-                ]);
+                $method = new FHIRCodeableConcept();
+                $coding = new FHIRCoding();
+
+                if (!empty($dataRecord['method_code'])) {
+                    $coding->setCode($dataRecord['method_code']);
+                }
+                if (!empty($dataRecord['method'])) {
+                    $coding->setDisplay($dataRecord['method']);
+                }
+                $coding->setSystem('http://snomed.info/sct');
+
+                $method->addCoding($coding);
                 $collection->setMethod($method);
             }
 
-            // Body site (specimen location)
+            // Body site (specimen location) - Manual creation to ensure display works
             if (!empty($dataRecord['location_code']) || !empty($dataRecord['location'])) {
-                $bodySite = UtilsService::createCodeableConcept([
-                        $dataRecord['location_code'] ?? $dataRecord['location'] => [
-                        'code' => $dataRecord['location_code'] ?? null,
-                        'display' => $dataRecord['location'] ?? null,
-                        'system' => 'http://snomed.info/sct'
-                        ]
-                ]);
+                $bodySite = new FHIRCodeableConcept();
+                $coding = new FHIRCoding();
+
+                if (!empty($dataRecord['location_code'])) {
+                    $coding->setCode($dataRecord['location_code']);
+                }
+                if (!empty($dataRecord['location'])) {
+                    $coding->setDisplay($dataRecord['location']);
+                }
+                $coding->setSystem('http://snomed.info/sct');
+
+                $bodySite->addCoding($coding);
                 $collection->setBodySite($bodySite);
             }
 
@@ -374,15 +395,20 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             $specimen->addContainer($container);
         }
 
-        // Set condition
+        // Set condition - Manual creation to ensure display works
         if (!empty($dataRecord['condition_code']) || !empty($dataRecord['condition'])) {
-            $condition = UtilsService::createCodeableConcept([
-                    $dataRecord['condition_code'] ?? $dataRecord['condition'] => [
-                    'code' => $dataRecord['condition_code'] ?? null,
-                    'display' => $dataRecord['condition'] ?? null,
-                    'system' => 'http://terminology.hl7.org/CodeSystem/v2-0493'
-                    ]
-            ]);
+            $condition = new FHIRCodeableConcept();
+            $coding = new FHIRCoding();
+
+            if (!empty($dataRecord['condition_code'])) {
+                $coding->setCode($dataRecord['condition_code']);
+            }
+            if (!empty($dataRecord['condition'])) {
+                $coding->setDisplay($dataRecord['condition']);
+            }
+            $coding->setSystem('http://terminology.hl7.org/CodeSystem/v2-0493');
+
+            $condition->addCoding($coding);
             $specimen->addCondition($condition);
         }
 

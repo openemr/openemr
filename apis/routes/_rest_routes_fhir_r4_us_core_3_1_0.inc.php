@@ -60,11 +60,12 @@ use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
+use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
 //   to only see the data of the one patient)
-return [
+return array(
     /**
      *  @OA\Get(
      *      path="/fhir/AllergyIntolerance",
@@ -3551,6 +3552,235 @@ return [
 
         return $return;
     },
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Specimen",
+     *      description="Returns a list of Specimen resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Specimen resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="accession",
+     *          in="query",
+     *          description="The accession identifier of the Specimen resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="The type of the Specimen resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="collected",
+     *          in="query",
+     *          description="The collection datetime of the Specimen resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2025-10-10T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Specimen"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Specimen" => function (HttpRestRequest $request) {
+    $getParams = $request->getQueryParams();
+    if ($request->isPatientRequest()) {
+        // only allow access to data of binded patient
+        $return = (new FhirSpecimenRestController())->getAll($getParams, $request->getPatientUUIDString());
+    } else {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $return = (new FhirSpecimenRestController())->getAll($getParams);
+    }
+
+    return $return;
+},
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Specimen/{uuid}",
+     *      description="Returns a single Specimen resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Specimen resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95e9d3fb-fe7b-448a-aa60-d40b11b486a5",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2025-10-10T17:20:14+00:00"
+     *                      },
+     *                      "resourceType": "Specimen",
+     *                      "identifier": {
+     *                          {
+     *                              "system": "https://example.org/specimen-id",
+     *                              "value": "SPEC-2025-001"
+     *                          }
+     *                      },
+     *                      "accessionIdentifier": {
+     *                          "system": "https://example.org/accession",
+     *                          "value": "ACC-2025-12345"
+     *                      },
+     *                      "status": "available",
+     *                      "type": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://snomed.info/sct",
+     *                                  "code": "122555007",
+     *                                  "display": "Venous blood specimen"
+     *                              }
+     *                          }
+     *                      },
+     *                      "subject": {
+     *                          "reference": "Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf",
+     *                          "type": "Patient"
+     *                      },
+     *                      "receivedTime": "2025-10-10T10:30:00+00:00",
+     *                      "collection": {
+     *                          "collectedDateTime": "2025-10-10T09:00:00+00:00",
+     *                          "quantity": {
+     *                              "value": 10,
+     *                              "unit": "mL",
+     *                              "system": "http://unitsofmeasure.org",
+     *                              "code": "mL"
+     *                          },
+     *                          "bodySite": {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://snomed.info/sct",
+     *                                      "code": "368208006",
+     *                                      "display": "Left arm"
+     *                                  }
+     *                              }
+     *                          }
+     *                      },
+     *                      "container": {
+     *                          {
+     *                              "type": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://snomed.info/sct",
+     *                                          "code": "702281005",
+     *                                          "display": "Evacuated blood collection tube with heparin"
+     *                                      }
+     *                                  }
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Specimen/:uuid" => function ($uuid, HttpRestRequest $request) {
+    if ($request->isPatientRequest()) {
+        // only allow access to data of binded patient
+        $return = (new FhirSpecimenRestController())->getOne($uuid, $request->getPatientUUIDString());
+    } else {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $return = (new FhirSpecimenRestController())->getOne($uuid);
+    }
+
+    return $return;
+},
 
     /**
      *  @OA\Post(
@@ -6021,7 +6251,7 @@ return [
 
     /**
      *  @OA\Get(
-     *      path="/fhir/QuestionnaireResponse",
+     *      path="/fhir/Questionnaire",
      *      description="Returns a list of QuestionnaireResponse resources.",
      *      tags={"fhir"},
      *      @OA\Parameter(
@@ -6076,66 +6306,6 @@ return [
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
-        return $return;
-    },
-
-    /**
-     *  @OA\Get(
-     *      path="/fhir/QuestionnaireResponse/{uuid}",
-     *      description="Returns a single QuestionnaireResponse resource.",
-     *      tags={"fhir"},
-     *      @OA\Parameter(
-     *           name="uuid",
-     *           in="path",
-     *           description="The id for the QuestionnaireResponse resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
-     *           required=true,
-     *           @OA\Schema(
-     *               type="string"
-     *           )
-     *       ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Standard Response",
-     *          @OA\MediaType(
-     *              mediaType="application/json",
-     *              @OA\Schema(
-     *                  @OA\Property(
-     *                      property="json object",
-     *                      description="FHIR Json object.",
-     *                      type="object"
-     *                  ),
-     *                  example={
-     *                      "meta": {
-     *                          "lastUpdated": "2021-09-14T09:13:51"
-     *                      },
-     *                      "resourceType": "Bundle",
-     *                      "type": "collection",
-     *                      "total": 0,
-     *                      "link": {
-     *                          {
-     *                              "relation": "self",
-     *                              "url": "https://localhost:9300/apis/default/fhir/QuestionnaireResponse"
-     *                          }
-     *                      }
-     *                  }
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-    "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request) {
-        $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
-        $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
-        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->one($request, $uuid);
         return $return;
     },
 
@@ -6512,4 +6682,4 @@ return [
 
         return $return;
     },
-];
+);
