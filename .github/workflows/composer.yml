@@ -52,5 +52,9 @@ jobs:
     - name: "Validate Composer"
       run: composer validate
 
+    # Temporarily disabled, as there are unresolvable unknown symbols like mcrypt_create_iv, MCRYPT_RIJNDAEL_256, etc
+    # - name: "Check Composer Requirements"
+    #   run: vendor/bin/composer-require-checker check composer.json
+
     - name: "Check Composer Normalized"
       run: composer normalize --dry-run
