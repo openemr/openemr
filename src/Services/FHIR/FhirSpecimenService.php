@@ -30,6 +30,7 @@ use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirSpecimenService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
@@ -77,43 +78,21 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         $processingResult = new ProcessingResult();
 
         try {
-            // Extract custom parameters
-            $includeDeleted = false;
-            if (isset($openEMRSearchParameters['_include_deleted'])) {
-                $includeDeleted = filter_var(
-                    $openEMRSearchParameters['_include_deleted'],
-                    FILTER_VALIDATE_BOOLEAN
+            // Translate FHIR status values to database values before search
+            if (isset($openEMRSearchParameters['deleted'])) {
+                $openEMRSearchParameters['deleted'] = $this->translateStatusToDeleted(
+                    $openEMRSearchParameters['deleted']
                 );
-                unset($openEMRSearchParameters['_include_deleted']);
-            }
-
-            // Handle status search
-            $requestedStatus = null;
-            if (isset($openEMRSearchParameters['status'])) {
-                $requestedStatus = $openEMRSearchParameters['status'];
-                unset($openEMRSearchParameters['status']);
+            } else {
+                // Default: exclude deleted specimens (only show 'available' status)
+                // Create a TokenSearchField for deleted = '0'
+                $openEMRSearchParameters['deleted'] = new TokenSearchField('deleted', ['0']);
             }
 
             // Get specimens from procedure service
             $specimens = $this->searchSpecimens($openEMRSearchParameters);
 
             foreach ($specimens as $specimen) {
-                // Filter deleted specimens unless explicitly requested
-                $isDeleted = !empty($specimen['deleted']) && $specimen['deleted'] == '1';
-
-                if ($isDeleted && !$includeDeleted) {
-                    // Skip deleted specimens by default
-                    continue;
-                }
-
-                // Filter by requested status if specified
-                if ($requestedStatus !== null) {
-                    $fhirStatus = $this->mapDeletedToFhirStatus($specimen['deleted'] ?? '0');
-                    if (!$this->matchesRequestedStatus($fhirStatus, $requestedStatus)) {
-                        continue;
-                    }
-                }
-
                 $processingResult->addData($specimen);
             }
         } catch (SearchFieldException $exception) {
@@ -124,9 +103,51 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
     }
 
     /**
+     * Translate FHIR status parameter to database deleted field values
+     *
+     * @param mixed $statusField TokenSearchField or other ISearchField with FHIR status values
+     * @return mixed TokenSearchField with database deleted values ('0' or '1')
+     */
+    private function translateStatusToDeleted($statusField)
+    {
+        // If it's not a TokenSearchField, return as-is (shouldn't happen, but be defensive)
+        if (!($statusField instanceof TokenSearchField)) {
+            return $statusField;
+        }
+
+        $values = $statusField->getValues();
+        $translatedValues = [];
+
+        foreach ($values as $tokenValue) {
+            if (method_exists($tokenValue, 'getCode')) {
+                $code = $tokenValue->getCode();
+            } else {
+                $code = (string)$tokenValue;
+            }
+
+            // Translate FHIR status to database deleted flag
+            switch ($code) {
+                case 'available':
+                    $translatedValues[] = '0';
+                    break;
+                case 'entered-in-error':
+                case 'unavailable':
+                    $translatedValues[] = '1';
+                    break;
+                default:
+                    // Unknown status - skip it
+                    break;
+            }
+        }
+
+        // Return new TokenSearchField with translated values
+        return new TokenSearchField('deleted', $translatedValues);
+    }
+
+    /**
      * Search for specimens across all procedure orders
      *
-     * @param array $searchParams ISearchField objects
+     * @param array $searchParams OpenEMR search parameters (as ISearchField objects)
      * @return array
      */
     private function searchSpecimens(array $searchParams): array
@@ -160,8 +181,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         FROM procedure_specimen ps
         INNER JOIN procedure_order po ON po.procedure_order_id = ps.procedure_order_id
         INNER JOIN patient_data p ON p.pid = po.patient_id";
-
-        // Use FhirSearchWhereClauseBuilder to build WHERE clause properly
+        // Use FhirSearchWhereClauseBuilder to build WHERE clause
+        // Status has been translated to 'deleted' field with proper values
         $whereClause = FhirSearchWhereClauseBuilder::build($searchParams, true);
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
