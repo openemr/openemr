@@ -17140,14 +17140,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Common/ORDataObject/ORDataObject.php
-  - message: '#^Caught class OpenEMR\\Common\\Utils\\Error not found\.$#'
-    identifier: class.notFound
-    count: 2
-    path: src/Common/Utils/RandomGenUtils.php
-  - message: '#^Caught class OpenEMR\\Common\\Utils\\Exception not found\.$#'
-    identifier: class.notFound
-    count: 2
-    path: src/Common/Utils/RandomGenUtils.php
   - message: '#^Method OpenEMR\\Core\\Header\:\:readConfigFile\(\) should return array but return statement is missing\.$#'
     identifier: return.missing
     count: 1
