@@ -54,9 +54,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     public function __construct()
     {
         parent::__construct();
-        $this->innerServices = [];
-        $this->addMappedService(new FhirConditionEncounterDiagnosisService());
-        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
+//        $this->addMappedService(new FhirConditionEncounterDiagnosisService());
+//        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
         $this->conditionService = new ConditionService();
     }
 
@@ -96,6 +95,9 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        foreach ($this->getProfileURIs() as $profileUri) {
+            $meta->addProfile($profileUri);
         }
         $conditionResource->setMeta($meta);
 
@@ -158,35 +160,28 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
     private function populateVerificationStatus($dataRecord, FHIRCondition $conditionResource)
     {
-        $verificationStatus = new FHIRCodeableConcept();
-        $verificationCoding = [
-            'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
-            'code' => 'unconfirmed',
-            'display' => 'Unconfirmed',
-        ];
-        if (!empty($dataRecord['verification'])) {
-            $verificationCoding = [
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
-                'code' => $dataRecord['verification'],
-                'display' => $dataRecord['verification_title']
-            ];
-        }
-        $verificationStatus->addCoding($verificationCoding);
+        $system = "http://terminology.hl7.org/CodeSystem/condition-ver-status";
+        $code = $dataRecord['verification'] ?? 'unconfirmed';
+        $display = $dataRecord['verification_title'] ?? 'Unconfirmed';
+        $verificationStatus = UtilsService::createCodeableConcept([
+            $code => [
+                'system' => $system,
+                'code' => $code,
+                'display' => $display
+            ]
+        ]);
         $conditionResource->setVerificationStatus($verificationStatus);
     }
 
     private function populateCategory($dataRecord, $conditionResource)
     {
-
-        $conditionCategory = new FHIRCodeableConcept();
-        $conditionCategory->addCoding(
-            [
+        $conditionResource->addCategory(UtilsService::createCodeableConcept([
+            'problem-list-item' => [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
                 'code' => 'problem-list-item',
                 'display' => 'Problem List Item'
             ]
-        );
-        $conditionResource->addCategory($conditionCategory);
+        ]));
     }
 
     private function populateClinicalStatus($dataRecord, FHIRCondition $conditionResource)
@@ -211,14 +206,13 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
             $clinicalStatus = "unknown";
         }
-        $clinical_Status = new FHIRCodeableConcept();
-        $clinical_Status->addCoding(
-            [
+        $clinical_Status = UtilsService::createCodeableConcept([
+            $clinicalStatus => [
                 'system' => $clinicalSysytem,
                 'code' => $clinicalStatus,
-                'display' => ucwords($clinicalStatus),
+                'display' => ucwords($clinicalStatus)
             ]
-        );
+        ]);
         $conditionResource->setClinicalStatus($clinical_Status);
     }
 
@@ -260,8 +254,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     {
         $profileSets = [];
         $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_URI, ['', '3.1.1']);
-        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
-        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
+//        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
+//        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
 
         $profiles = array_merge(...$profileSets);
         return $profiles;
