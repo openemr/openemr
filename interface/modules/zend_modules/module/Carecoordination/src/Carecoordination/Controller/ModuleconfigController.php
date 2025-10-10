@@ -23,18 +23,18 @@ class ModuleconfigController extends AbstractActionController
 {
     protected InputFilterInterface $inputFilter;
 
-    public function __construct(private ?AdapterInterface $dbAdapter = null)
+    public function __construct(private readonly ?AdapterInterface $dbAdapter = null)
     {
     }
 
     public function indexAction()
     {
         $form = new ModuleconfigForm($this->dbAdapter);
-        $form->get('hie_author_id')->setAttribute('options', array('user 1','user 2'));
+        $form->get('hie_author_id')->setAttribute('options', ['user 1','user 2']);
 
-        $view =  new ViewModel(array(
+        $view =  new ViewModel([
             'form' => $form,
-        ));
+        ]);
         return $view;
     }
 
@@ -45,7 +45,7 @@ class ModuleconfigController extends AbstractActionController
     {
         return get_object_vars($this);
     }
-    public function setInputFilter(InputFilterInterface $inputFilter)
+    public function setInputFilter(InputFilterInterface $inputFilter): never
     {
         throw new \Exception("Not used");
     }
@@ -64,13 +64,13 @@ class ModuleconfigController extends AbstractActionController
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
     //SHOULD SPECIFY THE CONTROLLER AND ITS ACTION IN THE PATH, INCLUDING INDEX ACTION
-        $hooks  =  array(
-                '0' => array(
+        $hooks  =  [
+                '0' => [
                         'name'  => "send_to_hie",
                         'title' => "Send To HIE",
                         'path'  => "encountermanager",
-                    ),
-               );
+                    ],
+               ];
 
         return $hooks;
     }
@@ -78,24 +78,24 @@ class ModuleconfigController extends AbstractActionController
     public function getDependedModulesConfig()
     {
         // these modules need to be activated before this module can be installed
-        $dependedModules = array(
+        $dependedModules = [
             'Ccr'
             ,'Immunization'
             ,'Syndromicsurveillance'
             , 'Documents'       // Handles the saving and retrieving of embedded documents in this module.
-        );
+        ];
         return $dependedModules;
     }
 
     public function getAclConfig()
     {
-        $acl = array(
-        array(
+        $acl = [
+        [
         'section_id' => 'send_to_hie',
         'section_name' => 'Send To HIE',
         'parent_section' => 'carecoordination',
-        ),
-        );
+        ],
+        ];
         return $acl;
     }
 }

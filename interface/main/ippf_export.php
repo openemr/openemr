@@ -40,7 +40,7 @@ $indent = 0;
 function Add($tag, $text): void
 {
     global $out, $indent;
-    $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
+    $text = trim(str_replace(["\r", "\n", "\t"], " ", $text));
     $text = substr(text($text), 0, 50);
     if (/* $text */ true) {
         if ($text === 'NULL') {
@@ -113,7 +113,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
         $default = '1800-01-01T00:00:00';
     }
 
-    if (strlen($str) < 10 || substr($str, 0, 4) == '0000') {
+    if (strlen($str) < 10 || str_starts_with($str, '0000')) {
         $str = $default;
     } elseif (strlen($str) > 10) {
         $str = substr($str, 0, 10) . 'T' . substr($str, 11);
@@ -155,7 +155,7 @@ function mappedOption($list_id, $option_id, $default = '9')
     }
 
     $row = sqlQuery("SELECT mapping FROM list_options WHERE " .
-    "list_id = ? AND option_id = ? LIMIT 1", array($list_id, $option_id));
+    "list_id = ? AND option_id = ? LIMIT 1", [$list_id, $option_id]);
     if (empty($row)) {
         return $option_id; // should not happen
     }
@@ -174,7 +174,7 @@ function mappedFieldOption($form_id, $field_id, $option_id)
     "layout_options WHERE " .
     "form_id = ? AND " .
     "field_id = ? " .
-    "LIMIT 1", array($form_id, $field_id));
+    "LIMIT 1", [$form_id, $field_id]);
     if (empty($row)) {
         return $option_id; // should not happen
     }
@@ -192,7 +192,7 @@ function mappedFieldOption($form_id, $field_id, $option_id)
     "list_options WHERE " .
     "list_id = ? AND " .
     "option_id = ? " .
-    "LIMIT 1", array($list_id, $option_id));
+    "LIMIT 1", [$list_id, $option_id]);
     if (empty($row)) {
         return $option_id; // should not happen
     }
@@ -215,7 +215,7 @@ function exportEncounter($pid, $encounter, $date): void
     "b.pid = ? AND b.encounter = ? AND " .
     "b.activity = 1 AND " .
     "c.code_type = '12' AND c.code = b.code AND c.modifier = b.modifier ";
-    $bres = sqlStatement($query, array($pid, $encounter));
+    $bres = sqlStatement($query, [$pid, $encounter]);
     while ($brow = sqlFetchArray($bres)) {
         if (!empty($brow['related_code'])) {
             $relcodes = explode(';', $brow['related_code']);
@@ -224,7 +224,7 @@ function exportEncounter($pid, $encounter, $date): void
                     continue;
                 }
 
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 if ($codetype !== 'IPPF') {
                     continue;
                 }
@@ -245,7 +245,7 @@ function exportEncounter($pid, $encounter, $date): void
     $query = "SELECT drug_id, quantity, fee FROM drug_sales WHERE " .
     "pid = ? AND encounter = ? " .
     "ORDER BY drug_id, sale_id";
-    $pres = sqlStatement($query, array($pid, $encounter));
+    $pres = sqlStatement($query, [$pid, $encounter]);
     while ($prow = sqlFetchArray($pres)) {
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $prow['drug_id']);
@@ -260,7 +260,7 @@ function exportEncounter($pid, $encounter, $date): void
     $query = "SELECT code FROM billing WHERE " .
     "pid = ? AND encounter = ? AND " .
     "code_type = 'ICD9' AND activity = 1 ORDER BY code, id";
-    $dres = sqlStatement($query, array($pid, $encounter));
+    $dres = sqlStatement($query, [$pid, $encounter]);
     while ($drow = sqlFetchArray($dres)) {
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $drow['code']);
@@ -277,7 +277,7 @@ function exportEncounter($pid, $encounter, $date): void
     "pid = ? AND refer_date = ? AND " .
     "refer_related_code != '' " .
     "ORDER BY id";
-    $tres = sqlStatement($query, array($pid, $date));
+    $tres = sqlStatement($query, [$pid, $date]);
     while ($trow = sqlFetchArray($tres)) {
         $relcodes = explode(';', $trow['refer_related_code']);
         foreach ($relcodes as $codestring) {
@@ -285,14 +285,14 @@ function exportEncounter($pid, $encounter, $date): void
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
             if ($codetype == 'REF') {
                 // This is the expected case; a direct IPPF code is obsolete.
                 $rrow = sqlQuery("SELECT related_code FROM codes WHERE " .
                 "code_type = '16' AND code = ? AND active = 1 " .
-                "ORDER BY id LIMIT 1", array($code));
+                "ORDER BY id LIMIT 1", [$code]);
                 if (!empty($rrow['related_code'])) {
-                        list($codetype, $code) = explode(':', $rrow['related_code']);
+                        [$codetype, $code] = explode(':', $rrow['related_code']);
                 }
             }
 
@@ -331,7 +331,7 @@ function endClient($pid, &$encarray): void
     "LEFT JOIN lists_ippf_con  AS c ON l.type = 'contraceptive' AND c.id = l.id " .
     "LEFT JOIN lists_ippf_gcac AS g ON l.type = 'ippf_gcac' AND g.id = l.id " .
     "WHERE l.pid = ? " .
-    "ORDER BY l.begdate", array($pid));
+    "ORDER BY l.begdate", [$pid]);
 
     while ($irow = sqlFetchArray($ires)) {
         OpenTag('IMS_eMRUpload_Issue');
@@ -369,7 +369,7 @@ function endClient($pid, &$encarray): void
         // to speed up the search, as it begins the primary key.
         $ieres = sqlStatement("SELECT encounter FROM issue_encounter " .
         "WHERE pid = ? AND list_id = ? " .
-        "ORDER BY encounter", array($pid, $irow['id']));
+        "ORDER BY encounter", [$pid, $irow['id']]);
         while ($ierow = sqlFetchArray($ieres)) {
               OpenTag('IMS_eMRUpload_VisitIssue');
               Add('emrIssueId', $irow['id']);
@@ -388,7 +388,7 @@ function endClient($pid, &$encarray): void
         "encounter = ? AND " .
         "formdir = 'LBFgcac' AND " .
         "deleted = 0 " .
-        "ORDER BY id", array($pid, $erow['encounter']));
+        "ORDER BY id", [$pid, $erow['encounter']]);
         // For each GCAC form in this encounter...
         while ($frow = sqlFetchArray($fres)) {
               $form_id = $frow['form_id'];
@@ -400,7 +400,7 @@ function endClient($pid, &$encarray): void
               Add('IssueTitle', 'GCAC Visit Form');
               Add('IssueDiagnosis', '');
               $gres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE " .
-              "form_id = ? ORDER BY field_id", array($form_id));
+              "form_id = ? ORDER BY field_id", [$form_id]);
               // For each data item in the form...
             while ($grow = sqlFetchArray($gres)) {
                     $key = $grow['field_id'];
@@ -557,14 +557,14 @@ if (!empty($form_submit)) {
         $crow = sqlQuery("SELECT l.begdate, c.new_method " .
         "FROM lists AS l, lists_ippf_con AS c WHERE " .
         "l.pid = ? AND c.id = l.id " .
-        "ORDER BY l.begdate DESC LIMIT 1", array($last_pid));
+        "ORDER BY l.begdate DESC LIMIT 1", [$last_pid]);
 
         // Get obstetric and abortion data from most recent static history.
         $hrow = sqlQuery("SELECT date, " .
           "usertext16 AS genobshist, " .
           "usertext17 AS genabohist " .
           "FROM history_data WHERE pid = ? " .
-          "ORDER BY date DESC LIMIT 1", array($last_pid));
+          "ORDER BY date DESC LIMIT 1", [$last_pid]);
 
         // Starting a new client (patient).
         OpenTag('IMS_eMRUpload_Client');
@@ -646,7 +646,7 @@ if (!empty($form_submit)) {
         // Add('Debug', $query); // debugging
 
         $eres = sqlStatement($query);
-        $encarray = array();
+        $encarray = [];
         while ($erow = sqlFetchArray($eres)) {
               exportEncounter($last_pid, $erow['encounter'], $erow['date']);
               $encarray[] = $erow;
@@ -670,9 +670,9 @@ if (!empty($form_submit)) {
     exit(0);
 }
 
-$months = array(1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+$months = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
   5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September',
- 10 => 'October', 11 => 'November', 12 => 'December');
+ 10 => 'October', 11 => 'November', 12 => 'December'];
 
 $selmonth = date('m') - 1;
 $selyear  = date('Y') + 0;

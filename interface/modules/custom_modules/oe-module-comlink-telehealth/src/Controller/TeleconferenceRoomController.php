@@ -66,26 +66,6 @@ class TeleconferenceRoomController
     const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
 
     /**
-     * @var Environment
-     */
-    private Environment $twig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private LoggerInterface $logger;
-
-    /**
-     * @var boolean  Whether we are running as a patient in the portal context
-     */
-    private bool $isPatient;
-
-    /**
-     * @var string The location where the module assets are stored
-     */
-    private string $assetPath;
-
-    /**
      * @var EncounterService
      */
     private EncounterService $encounterService;
@@ -98,69 +78,41 @@ class TeleconferenceRoomController
     /**
      * @var TeleHealthSessionRepository
      */
-    private TeleHealthSessionRepository $sessionRepository;
+    private readonly TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private TeleHealthUserRepository $telehealthUserRepo;
+    private readonly TeleHealthUserRepository $telehealthUserRepo;
 
     /**
-     * @var TeleHealthVideoRegistrationController
+     * @param Environment $twig
+     * @param LoggerInterface $logger
+     * @param TeleHealthVideoRegistrationController $telehealthRegistrationController
+     * @param TeleHealthParticipantInvitationMailerService $mailerService
+     * @param TeleHealthFrontendSettingsController $settingsController
+     * @param TelehealthGlobalConfig $config
+     * @param TeleHealthProvisioningService $provisioningService
+     * @param ParticipantListService $participantListService
+     * @param string $assetPath The location where the module assets are stored
+     * @param bool $isPatient Whether we are running as a patient in the portal context
      */
-    private TeleHealthVideoRegistrationController $telehealthRegistrationController;
-
-    /**
-     * @var TeleHealthParticipantInvitationMailerService
-     */
-    private TeleHealthParticipantInvitationMailerService $mailerService;
-
-    /**
-     * @var TeleHealthFrontendSettingsController
-     */
-    private TeleHealthFrontendSettingsController $settingsController;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private TelehealthGlobalConfig $config;
-
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private TeleHealthProvisioningService $provisioningService;
-
-    /**
-     * @var ParticipantListService
-     */
-    private ParticipantListService $participantListService;
-
     public function __construct(
-        Environment $twig,
-        LoggerInterface $logger,
-        TeleHealthVideoRegistrationController $registrationController,
-        TeleHealthParticipantInvitationMailerService $mailerService,
-        TeleHealthFrontendSettingsController $settingsController,
-        TelehealthGlobalConfig $config,
-        TeleHealthProvisioningService $provisioningService,
-        ParticipantListService $participantListService,
-        $assetPath,
-        $isPatient = false
+        private readonly Environment $twig,
+        private readonly LoggerInterface $logger,
+        private readonly TeleHealthVideoRegistrationController $telehealthRegistrationController,
+        private readonly TeleHealthParticipantInvitationMailerService $mailerService,
+        private readonly TeleHealthFrontendSettingsController $settingsController,
+        private readonly TelehealthGlobalConfig $config,
+        private readonly TeleHealthProvisioningService $provisioningService,
+        private readonly ParticipantListService $participantListService,
+        private readonly string $assetPath,
+        private readonly bool $isPatient = false
     ) {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->isPatient = $isPatient;
         $this->appointmentService = new AppointmentService();
         $this->encounterService = new EncounterService();
         $this->sessionRepository = new TeleHealthSessionRepository();
-        $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
-        $this->mailerService = $mailerService;
-        $this->settingsController = $settingsController;
-        $this->config = $config;
-        $this->provisioningService = $provisioningService;
-        $this->participantListService = $participantListService;
     }
 
     /**
@@ -422,7 +374,7 @@ class TeleconferenceRoomController
             }
             $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
             if (empty($session)) {
-                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+                throw new InvalidArgumentException("session was not found for pc_eid of {$pc_eid}");
             }
             // check to make sure the session user is the same as the logged in user
             $verifiedUser = null;
@@ -667,7 +619,7 @@ class TeleconferenceRoomController
                 // throw error
                 throw new InvalidArgumentException("Cannot update appointment status in a patient context");
             }
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to update appointment status");
             }
 
@@ -954,7 +906,7 @@ class TeleconferenceRoomController
         $sql = "UPDATE openemr_postcalendar_events SET pc_aid =? WHERE pc_eid =? ";
         QueryUtils::sqlStatementThrowException($sql, [$userId, $appt['pc_eid']]);
 
-        if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+        if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
             throw new AccessDeniedException("patients", "appt", "No access to change appointments");
         }
 
@@ -996,7 +948,7 @@ class TeleconferenceRoomController
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "apt", "User does not have access to update current appointment information");
             }
             // grab the appointment and make sure the current user has access to the calendar

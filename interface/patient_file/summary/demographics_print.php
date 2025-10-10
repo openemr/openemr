@@ -53,9 +53,9 @@ if ($PDF_OUTPUT) {
 
 $CPR = 4; // cells per row
 
-$prow = array();
-$erow = array();
-$irow = array();
+$prow = [];
+$erow = [];
+$irow = [];
 
 if ($patientid) {
     $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -72,7 +72,7 @@ if ($patientid) {
 }
 
 // Load array of properties for this layout and its groups.
-$grparr = array();
+$grparr = [];
 getLayoutProperties('DEM', $grparr);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -246,7 +246,7 @@ while ($frow = sqlFetchArray($fres)) {
     $list_id    = $frow['list_id'];
     $currvalue  = '';
 
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with($field_id, 'em_')) {
         $tmp = substr($field_id, 3);
         if (isset($erow[$tmp])) {
             $currvalue = $erow[$tmp];

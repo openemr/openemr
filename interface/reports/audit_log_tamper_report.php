@@ -217,9 +217,9 @@ $check_sum = isset($_GET['check_sum']);
         $gev = $getevent;
     }
 
-    $dispArr = array();
+    $dispArr = [];
     $icnt = 1;
-    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent))) {
+    if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent])) {
         // Set up crypto object (object will increase performance since caches used keys)
         $cryptoGen = new CryptoGen();
 
@@ -231,8 +231,8 @@ $check_sum = isset($_GET['check_sum']);
             }
 
             //translate comments
-            $patterns = array ('/^success/','/^failure/','/ encounter/');
-            $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
+            $patterns =  ['/^success/','/^failure/','/ encounter/'];
+            $replace =  [ xl('success'), xl('failure'), xl('encounter', '', ' ')];
 
             $checkSumOld = $iter['checksum'];
             if (empty($checkSumOld)) {

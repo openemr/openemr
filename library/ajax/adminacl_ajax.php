@@ -30,7 +30,7 @@ header("Content-type: text/xml");
 header("Cache-Control: no-cache");
 
 //initiate error array
-$error = array();
+$error = [];
 
 //verify csrf
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {

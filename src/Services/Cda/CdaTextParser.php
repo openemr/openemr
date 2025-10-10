@@ -18,11 +18,9 @@ use DOMXPath;
 class CdaTextParser
 {
     private $xml;
-    private mixed $title;
 
-    public function __construct($xmlContent, $title = "Imported CarePlan Notes.")
+    public function __construct($xmlContent, private readonly mixed $title = "Imported CarePlan Notes.")
     {
-        $this->title = $title;
         $dom = new DOMDocument();
         $dom->loadXML($xmlContent);
         $this->xml = $dom;

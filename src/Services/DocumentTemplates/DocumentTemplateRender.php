@@ -30,7 +30,6 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 class DocumentTemplateRender
 {
-    private $pid;
     private $user;
     private int $nextLocation = 0; // offset to resume scanning
     private mixed $keyLocation = false; // offset of a potential {string} to replace
@@ -48,13 +47,12 @@ class DocumentTemplateRender
     private int $ta_cnt = -1;
     private int $signed_cnt = -1;
     private bool $html_flag = false;
-    private mixed $encounter;
+    private readonly mixed $encounter;
     public $version;
-    private DocumentTemplateService $templateService;
+    private readonly DocumentTemplateService $templateService;
 
-    public function __construct($pid, $user, $encounter = null)
+    public function __construct(private $pid, $user, $encounter = null)
     {
-        $this->pid = $pid;
         $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
         $this->encounter = $encounter ?: $GLOBALS['encounter'];
         $this->version = (new VersionService())->asString();
@@ -73,19 +71,19 @@ class DocumentTemplateRender
     {
         $formData = [];
         // Get patient demographic info. pd.ref_providerID
-        $this->ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", array($this->user, $this->pid));
+        $this->ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", [$this->user, $this->pid]);
 
-        $this->hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " . "ORDER BY date DESC LIMIT 1", array(
+        $this->hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " . "ORDER BY date DESC LIMIT 1", [
             $this->pid
-        ));
+        ]);
 
-        $this->enrow = array();
+        $this->enrow = [];
         // Get some info for the currently selected encounter.
         if ($this->encounter) {
-            $this->enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " . "encounter = ?", array(
+            $this->enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " . "encounter = ?", [
                 $this->pid,
                 $this->encounter
-            ));
+            ]);
         }
         // From database
         if (!empty($template_id)) {
@@ -393,7 +391,7 @@ class DocumentTemplateRender
                 $patientid = $this->ptrow['pid'];
                 $DOS = substr($this->enrow['date'], 0, 10);
                 // Prefer appointment comment if one is present.
-                $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
+                $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [$patientid]);
                 foreach ($evlist as $tmp) {
                     if ($tmp['pc_pid'] == $this->pid && !empty($tmp['pc_hometext'])) {
                         $cc = $tmp['pc_hometext'];
@@ -416,10 +414,10 @@ class DocumentTemplateRender
                 }
                 $s = $this->keyReplace($s, $this->dataFixup($tmp, xl('Referer')));
             } elseif ($this->keySearch($s, '{Allergies}')) {
-                $tmp = generate_plaintext_field(array(
+                $tmp = generate_plaintext_field([
                     'data_type' => '24',
                     'list_id' => ''
-                ), '');
+                ], '');
                 $s = $this->keyReplace($s, $this->dataFixup($tmp, xl('Allergies')));
             } elseif ($this->keySearch($s, '{Medications}')) {
                 $s = $this->keyReplace($s, $this->dataFixup($this->getIssues('medication'), xl('Medications')));
@@ -451,17 +449,17 @@ class DocumentTemplateRender
                 $data = '';
                 $currvalue = '';
                 $title = '';
-                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", array(
+                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", [
                     $formname,
                     $fieldid
-                ));
+                ]);
                 if (!empty($frow)) {
-                    $ldrow = sqlQuery("SELECT ld.field_value " . "FROM lbf_data AS ld, forms AS f WHERE " . "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " . "ld.form_id = f.form_id AND ld.field_id = ? " . "ORDER BY f.form_id DESC LIMIT 1", array(
+                    $ldrow = sqlQuery("SELECT ld.field_value " . "FROM lbf_data AS ld, forms AS f WHERE " . "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " . "ld.form_id = f.form_id AND ld.field_id = ? " . "ORDER BY f.form_id DESC LIMIT 1", [
                         $this->pid,
                         $this->encounter,
                         $formname,
                         $fieldid
-                    ));
+                    ]);
                     if (!empty($ldrow)) {
                         $currvalue = $ldrow['field_value'];
                         $title = $frow['title'];
@@ -479,10 +477,10 @@ class DocumentTemplateRender
                 $data = '';
                 $currvalue = '';
                 $title = '';
-                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", array(
+                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", [
                     $formname,
                     $fieldid
-                ));
+                ]);
                 if (!empty($frow)) {
                     $tmprow = $formname == 'DEM' ? $this->ptrow : $this->hisrow;
                     if (isset($tmprow[$fieldid])) {
@@ -606,10 +604,10 @@ class DocumentTemplateRender
     private function getIssues($type): string
     {
         $tmp = '';
-        $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", array(
+        $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", [
             $GLOBALS['pid'],
             $type
-        ));
+        ]);
         while ($lrow = sqlFetchArray($lres)) {
             if ($tmp) {
                 $tmp .= '; ';
@@ -647,9 +645,9 @@ class DocumentTemplateRender
             }
         } elseif (!empty($template_id) && $source == 'exists') {
             if ($isFetchById) {
-                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `id` = ?', array($template_id));
+                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `id` = ?', [$template_id]);
             } else { // by name
-                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `file_name` = ?', array($template_id));
+                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `file_name` = ?', [$template_id]);
                 $template = $return['full_document'];
             }
             if ($render) {

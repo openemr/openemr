@@ -21,19 +21,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 abstract class AbstractBoundFilterEvent extends Event
 {
     /**
-     * @var string
-     *
-     * This is the custom filter that can add to the appointment fetching query
-     */
-    private $boundFilter = null;
-
-    /**
      * AppointmentsFilterEvent constructor.
      * @param string $boundFilter
      */
-    public function __construct(BoundFilter $boundFilter)
+    public function __construct(private BoundFilter $boundFilter)
     {
-        $this->boundFilter = $boundFilter;
     }
 
     /**

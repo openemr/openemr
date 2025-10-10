@@ -26,8 +26,7 @@ class EmailClient extends AppDispatch
     public $credentials;
     public string $portalUrl;
     protected CryptoGen $crypto;
-    private EmailClient $client;
-    private bool $smtpEnabled;
+    private readonly bool $smtpEnabled;
 
     public function __construct()
     {
@@ -81,7 +80,7 @@ class EmailClient extends AppDispatch
      */
     public function authenticate($acl = ['patients', 'appt']): int
     {
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 
@@ -156,13 +155,13 @@ class EmailClient extends AppDispatch
     {
         $id = $this->getRequest('uid');
         $query = "SELECT * FROM users WHERE id = ?";
-        $result = sqlStatement($query, array($id));
-        $u = array();
+        $result = sqlStatement($query, [$id]);
+        $u = [];
         foreach ($result as $row) {
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']);
+        $r = [$u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']];
 
         return json_encode($r);
     }

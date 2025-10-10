@@ -30,23 +30,11 @@ class ServiceSaveEvent extends Event
     const EVENT_POST_SAVE = 'service.save.post';
 
     /**
-     * @var BaseService
-     */
-    private $service;
-
-    /**
-     * @var array
-     */
-    private $saveData;
-
-    /**
      * UserCreatedEvent constructor.
      * @param $saveData
      */
-    public function __construct(BaseService $service, array $saveData)
+    public function __construct(private readonly BaseService $service, private array $saveData)
     {
-        $this->service = $service;
-        $this->saveData = $saveData;
     }
 
     public function getService(): BaseService

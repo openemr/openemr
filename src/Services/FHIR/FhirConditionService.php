@@ -13,6 +13,7 @@ use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -33,6 +34,10 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis';
+    const USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns';
 
     /**
      * @var ConditionService
@@ -74,7 +79,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCondition
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $conditionResource = new FHIRCondition();
 
@@ -148,17 +153,17 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     private function populateVerificationStatus($dataRecord, FHIRCondition $conditionResource)
     {
         $verificationStatus = new FHIRCodeableConcept();
-        $verificationCoding = array(
+        $verificationCoding = [
             'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
-        );
+        ];
         if (!empty($dataRecord['verification'])) {
-            $verificationCoding = array(
+            $verificationCoding = [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
-            );
+            ];
         }
         $verificationStatus->addCoding($verificationCoding);
         $conditionResource->setVerificationStatus($verificationStatus);
@@ -169,11 +174,11 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         $conditionCategory = new FHIRCodeableConcept();
         $conditionCategory->addCoding(
-            array(
+            [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
                 'code' => 'problem-list-item',
                 'display' => 'Problem List Item'
-            )
+            ]
         );
         $conditionResource->addCategory($conditionCategory);
     }
@@ -202,11 +207,11 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
         $clinical_Status = new FHIRCodeableConcept();
         $clinical_Status->addCoding(
-            array(
+            [
                 'system' => $clinicalSysytem,
                 'code' => $clinicalStatus,
                 'display' => ucwords($clinicalStatus),
-            )
+            ]
         );
         $conditionResource->setClinicalStatus($clinical_Status);
     }
@@ -224,7 +229,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         return $result;
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRCondition)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -245,9 +250,20 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        $profileSets = [];
+        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_URI, ['', '3.1.1']);
+        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
+        $profileSets[] = $this->getProfileForVersions(self::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
+
+        $profiles = array_merge(...$profileSets);
+        return $profiles;
+    }
+
+    protected function getSupportedVersions(): array
+    {
+        return ['', '7.0.0', '8.0.0'];
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

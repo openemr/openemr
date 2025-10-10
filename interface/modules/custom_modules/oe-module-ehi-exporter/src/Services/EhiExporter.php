@@ -61,10 +61,10 @@ class EhiExporter
     // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
     const PATIENT_SIZE_PER_RECORD = 100 * 1024;
 
-    private SystemLogger $logger;
-    private EhiExportJobTaskService $taskService;
-    private CryptoGen $cryptoGen;
-    private EhiExportJobService $jobService;
+    private readonly SystemLogger $logger;
+    private readonly EhiExportJobTaskService $taskService;
+    private readonly CryptoGen $cryptoGen;
+    private readonly EhiExportJobService $jobService;
 
     public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
@@ -631,7 +631,7 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = array())
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = [])
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         if (!empty($uuidDefinition)) {

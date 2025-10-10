@@ -80,10 +80,10 @@ function smarty_function_pc_sort_events($params, &$smarty): void
             break;
     }
 
-    $newArray = array();
+    $newArray = [];
     foreach ($value as $date => $events) {
         usort($events, $function);
-        $newArray[$date] = array();
+        $newArray[$date] = [];
         $newArray[$date] = $events;
     }
 

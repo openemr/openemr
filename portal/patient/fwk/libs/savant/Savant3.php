@@ -54,23 +54,23 @@ class Savant3
      * @var array
      *
      */
-    protected $__config = array (
-            'template_path' => array (),
-            'resource_path' => array (),
+    protected $__config =  [
+            'template_path' =>  [],
+            'resource_path' =>  [],
             'error_text' => "\n\ntemplate error, examine fetch() result\n\n",
             'exceptions' => false,
             'autoload' => false,
             'compiler' => null,
-            'filters' => array (),
-            'plugins' => array (),
+            'filters' =>  [],
+            'plugins' =>  [],
             'template' => null,
-            'plugin_conf' => array (),
+            'plugin_conf' =>  [],
             'extract' => false,
             'fetch' => null,
-            'escape' => array (
+            'escape' =>  [
                     'htmlspecialchars'
-            )
-    );
+            ]
+    ];
 
     // -----------------------------------------------------------------
     //
@@ -187,29 +187,16 @@ class Savant3
         // for plugins with very few parameters. thanks to
         // Andreas Korthaus for profiling the code to find
         // the slowdown.
-        switch (count($args)) {
-            case 0:
-                return $plugin->$func();
-
-            case 1:
-                return $plugin->$func($args [0]);
-                break;
-
-            case 2:
-                return $plugin->$func($args [0], $args [1]);
-                break;
-
-            case 3:
-                return $plugin->$func($args [0], $args [1], $args [2]);
-                break;
-
-            default:
-                return call_user_func_array(array (
-                        $plugin,
-                        $func
-                ), $args);
-                break;
-        }
+        return match (count($args)) {
+            0 => $plugin->$func(),
+            1 => $plugin->$func($args [0]),
+            2 => $plugin->$func($args [0], $args [1]),
+            3 => $plugin->$func($args [0], $args [1], $args [2]),
+            default => call_user_func_array([
+                    $plugin,
+                    $func
+            ], $args),
+        };
     }
 
     /**
@@ -279,9 +266,9 @@ class Savant3
                 $result = $this->findFile('resource', $file);
                 if (! $result) {
                     // not available, this is an error
-                    return $this->error('ERR_PLUGIN', array (
+                    return $this->error('ERR_PLUGIN', [
                             'method' => $name
-                    ));
+                    ]);
                 } else {
                     // available, load the class file
                     include_once $result;
@@ -293,7 +280,7 @@ class Savant3
             if (! empty($plugin_conf [$name])) {
                 $opts = $plugin_conf [$name];
             } else {
-                $opts = array ();
+                $opts =  [];
             }
 
             // add the Savant reference
@@ -653,10 +640,10 @@ class Savant3
             echo $this->escape($value);
         } else {
             $args = func_get_args();
-            echo call_user_func_array(array (
+            echo call_user_func_array([
                     $this,
                     'escape'
-            ), $args);
+            ], $args);
         }
     }
 
@@ -686,7 +673,7 @@ class Savant3
     public function setPath($type, $path)
     {
         // clear out the prior search dirs
-        $this->__config [$type . '_path'] = array ();
+        $this->__config [$type . '_path'] =  [];
 
         // always add the fallback directories as last resort
         switch (strtolower($type)) {
@@ -740,7 +727,7 @@ class Savant3
             $dir = trim($dir);
 
             // add trailing separators as needed
-            if (strpos($dir, '://') && substr($dir, - 1) != '/') {
+            if (strpos($dir, '://') && !str_ends_with($dir, '/')) {
                 // stream
                 $dir .= '/';
             } elseif (substr($dir, - 1) != DIRECTORY_SEPARATOR) {
@@ -778,7 +765,7 @@ class Savant3
             $fullname = $path . $file;
 
             // is the path based on a stream?
-            if (strpos($path, '://') === false) {
+            if (!str_contains($path, '://')) {
                 // not a stream, so do a realpath() to avoid
                 // directory traversal attempts on the local file
                 // system. Suggested by Ian Eure, initially
@@ -792,7 +779,7 @@ class Savant3
             // that the realpath() results in a directory registered
             // with Savant so that non-registered directores are not
             // accessible via directory traversal attempts.
-            if (file_exists($fullname) && is_readable($fullname) && substr($fullname, 0, strlen($path)) == $path) {
+            if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, $path)) {
                 return $fullname;
             }
         }
@@ -1063,9 +1050,9 @@ class Savant3
         // find the template source.
         $file = $this->findFile('template', $tpl);
         if (! $file) {
-            return $this->error('ERR_TEMPLATE', array (
+            return $this->error('ERR_TEMPLATE', [
                     'template' => $tpl
-            ));
+            ]);
         }
 
         // are we compiling source into a script?
@@ -1073,10 +1060,10 @@ class Savant3
             // compile the template source and get the path to the
             // compiled script (will be returned instead of the
             // source path)
-            $result = call_user_func(array (
+            $result = call_user_func([
                     $this->__config ['compiler'],
                     'compile'
-            ), $file);
+            ], $file);
         } else {
             // no compiling requested, use the source path
             $result = $file;
@@ -1086,10 +1073,10 @@ class Savant3
         if (! $result || $this->isError($result)) {
             // return an error, along with any error info
             // generated by the compiler.
-            return $this->error('ERR_COMPILER', array (
+            return $this->error('ERR_COMPILER', [
                     'template' => $tpl,
                     'compiler' => $result
-            ));
+            ]);
         } else {
             // no errors, the result is a path to a script
             return $result;
@@ -1153,7 +1140,7 @@ class Savant3
         foreach ($this->__config ['filters'] as $callback) {
             // if the callback is a static Savant3_Filter method,
             // and not already loaded, try to auto-load it.
-            if (is_array($callback) && is_string($callback [0]) && substr($callback [0], 0, 15) == 'Savant3_Filter_' && ! class_exists($callback [0], $autoload)) {
+            if (is_array($callback) && is_string($callback [0]) && str_starts_with($callback [0], 'Savant3_Filter_') && ! class_exists($callback [0], $autoload)) {
                 // load the Savant3_Filter_*.php resource
                 $file = $callback [0] . '.php';
                 $result = $this->findFile('resource', $file);
@@ -1198,7 +1185,7 @@ class Savant3
      * @return object Savant3_Error
      *
      */
-    public function error($code, $info = array(), $level = E_USER_ERROR, $trace = true)
+    public function error($code, $info = [], $level = E_USER_ERROR, $trace = true)
     {
         $autoload = $this->__config ['autoload'];
 
@@ -1212,12 +1199,12 @@ class Savant3
         }
 
         // the error config array
-        $config = array (
+        $config =  [
                 'code' => $code,
                 'info' => (array) $info,
                 'level' => $level,
                 'trace' => $trace
-        );
+        ];
 
         // make sure the Savant3 error class is available
         if (! class_exists('Savant3_Error', $autoload)) {

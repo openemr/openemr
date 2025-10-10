@@ -63,7 +63,7 @@ class LocalProviderListType
             }
         } else {
             $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-                "WHERE id = ?", array($id));
+                "WHERE id = ?", [$id]);
         }
         return $urow;
     }
@@ -130,10 +130,10 @@ class LocalProviderListType
         $lbfchange = (
             !empty($form_id) &&
             (
-                strpos($form_id, 'LBF') === 0 ||
-                strpos($form_id, 'LBT') === 0 ||
-                strpos($form_id, 'DEM') === 0 ||
-                strpos($form_id, 'HIS') === 0
+                str_starts_with($form_id, 'LBF') ||
+                str_starts_with($form_id, 'LBT') ||
+                str_starts_with($form_id, 'DEM') ||
+                str_starts_with($form_id, 'HIS')
             )
         ) ? "checkSkipConditions();" : "";
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";

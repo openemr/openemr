@@ -34,15 +34,15 @@ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
 if ($docid) {
-    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docid]);
     $patient_id = intval($row['foreign_id']);
 } elseif ($orderid) {
-    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", [$orderid]);
     $patient_id = intval($row['patient_id']);
 }
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
     die(xlt('Not authorized'));
 }
 
@@ -89,7 +89,7 @@ if (isset($mode)) {
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (strncmp($var, 'act', 3) == 0) {
+            if (str_starts_with($var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);
@@ -233,7 +233,7 @@ function submitform(attr) {
                     if ($noteid) {
                     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                         echo xlt('Amend Existing Message') .
-                        "<span class='font-weight-bold'> &quot;" . generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) . "&quot;</span>\n";
+                        "<span class='font-weight-bold'> &quot;" . generate_display_field(['data_type' => '1','list_id' => 'note_type'], $title) . "&quot;</span>\n";
                     } else {
                         echo xlt('Add New Message') . "\n";
                     }
@@ -245,7 +245,7 @@ function submitform(attr) {
                     <label for='note_type' class='font-weight-bold'><?php echo xlt('Type'); ?>:</label>
                     <?php
                     // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-                    generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), $title);
+                    generate_form_field(['data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'], $title);
                     ?>
                 </div>
 
@@ -275,7 +275,7 @@ function submitform(attr) {
                     <div class="form-group mt-3">
                         <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php
-                            generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
+                            generate_form_field(['data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'], empty($datetime) ? date('Y-m-d H:i') : $datetime);
                         ?>
                     </div>
                 <?php } ?>
@@ -284,7 +284,7 @@ function submitform(attr) {
                     <?php
                     if ($noteid) {
                         $body = $prow['body'];
-                        $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
+                        $body = preg_replace(['/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'], '${1}' . $patientname . '${2}', $body);
                         $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         echo "<div class='text'>" . $body . "</div>";
                     }

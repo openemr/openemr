@@ -13,8 +13,8 @@ define("SASL_LOGIN_STATE_DONE",              3);
 
 class login_sasl_client_class
 {
-	var $credentials=array();
-	var $state=SASL_LOGIN_STATE_START;
+	public $credentials=[];
+	public $state=SASL_LOGIN_STATE_START;
 
 	Function Initialize(&$client)
 	{
@@ -28,14 +28,14 @@ class login_sasl_client_class
 			$client->error="LOGIN authentication state is not at the start";
 			return(SASL_FAIL);
 		}
-		$this->credentials=array(
+		$this->credentials=[
 			"user"=>"",
 			"password"=>"",
 			"realm"=>""
-		);
-		$defaults=array(
+		];
+		$defaults=[
 			"realm"=>""
-		);
+		];
 		$status=$client->GetCredentials($this->credentials,$defaults,$interactions);
 		if($status==SASL_CONTINUE)
 			$this->state=SASL_LOGIN_STATE_IDENTIFY_USER;

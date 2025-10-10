@@ -69,27 +69,25 @@ use OpenEMR\Common\Session\Predis\SentinelUtil;
 
 class SessionUtil
 {
-    private const CORE_SESSION_ID = "OpenEMR";
-    private const OAUTH_SESSION_ID = 'authserverOpenEMR';
+    public const CORE_SESSION_ID = "OpenEMR";
+    public const OAUTH_SESSION_ID = 'authserverOpenEMR';
 
-    private static $gc_maxlifetime = 14400;
-    private static $use_strict_mode = true;
-    private static $use_cookies = true;
-    private static $use_only_cookies = true;
-    private static $use_cookie_samesite = "Strict";
-    private static $use_cookie_httponly = true;
-    private static $use_cookie_secure = false;
+    public const API_SESSION_ID = 'apiOpenEMR';
+
+    public const API_WEBROOT = '/apis/';
+
+    public const OAUTH_WEBROOT = '/oauth2/';
+
+    public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
 
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
-    private static $sid_bits_per_character = 6;
-    private static $sid_length = 48;
 
     public static function sessionStartWrapper(array $settings = []): bool
     {
-        if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+        if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
             (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
-            (new SentinelUtil(self::$gc_maxlifetime))->configure();
+            (new SentinelUtil(self::DEFAULT_GC_MAXLIFETIME))->configure();
         }
         return session_start($settings);
     }
@@ -104,31 +102,7 @@ class SessionUtil
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        $settings = [
-            'read_and_close' => $read_only,
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => self::CORE_SESSION_ID,
-            'cookie_httponly' => false,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
+        $settings = SessionConfigurationBuilder::forCore($web_root, $read_only);
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started core session");
     }
@@ -194,29 +168,7 @@ class SessionUtil
 
     public static function portalSessionStart(): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'PortalOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
+        $settings = SessionConfigurationBuilder::forPortal();
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started portal session");
     }
@@ -231,28 +183,7 @@ class SessionUtil
 
     public static function apiSessionStart($web_root): void
     {
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => true,
-            'name' => 'apiOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
+        $settings = SessionConfigurationBuilder::forApi($web_root);
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started api session");
     }
@@ -273,28 +204,7 @@ class SessionUtil
 
     public static function oauthSessionStart($web_root): void
     {
-        $settings = [
-            'cookie_samesite' => "None",
-            'cookie_secure' => true,
-            'name' => self::OAUTH_SESSION_ID,
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/oauth2/' : '/oauth2/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
+        $settings = SessionConfigurationBuilder::forOAuth($web_root);
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started oauth session");
     }
@@ -307,27 +217,7 @@ class SessionUtil
 
     public static function setupScriptSessionStart(): void
     {
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'setupOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
+        $settings = SessionConfigurationBuilder::forSetup();
         self::sessionStartWrapper($settings);
         (new SystemLogger())->debug("SessionUtil: started setup script session");
     }

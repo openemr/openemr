@@ -135,10 +135,10 @@ class Phreezer extends Observable
         }
 
         $this->Observe("Phreeze Instantiated", OBSERVE_DEBUG);
-        $csettings = is_array($csetting) ? $csetting : array (
+        $csettings = is_array($csetting) ? $csetting :  [
         'default' => $csetting
-        );
-        $this->DataAdapters = array ();
+        ];
+        $this->DataAdapters =  [];
         foreach ($csettings as $key => $connection) {
             $this->DataAdapters [$key] = new DataAdapter($connection, $observer, null, $key);
         }
@@ -246,7 +246,7 @@ class Phreezer extends Observable
         }
 
         $obj = $this->_level1Cache->Get(md5($key));
-        return $obj ? $obj : $this->_level2Cache->Get($key);
+        return $obj ?: $this->_level2Cache->Get($key);
     }
 
 /**
@@ -380,10 +380,10 @@ class Phreezer extends Observable
 */
     static function Sort(&$objects)
     {
-        usort($objects, array (
+        usort($objects, [
         "Phreezer",
         "Compare"
-        ));
+        ]);
     }
 
 /**
@@ -550,7 +550,7 @@ class Phreezer extends Observable
 */
     public function Save($obj, $force_insert = false)
     {
-        $objectclass = get_class($obj);
+        $objectclass = $obj::class;
         $fms = $this->GetFieldMaps($objectclass);
         $pk = $obj->GetPrimaryKeyName();
         $id = $obj->$pk;
@@ -562,9 +562,9 @@ class Phreezer extends Observable
         $is_insert = $force_insert || $pk_is_auto_insert;
     // fire the OnSave event in case the object needs to prepare itself
     // if OnSave returns false, then don't proceed with the save
-        $this->Observe("Firing " . get_class($obj) . "->OnSave($is_insert)", OBSERVE_DEBUG);
+        $this->Observe("Firing " . $obj::class . "->OnSave($is_insert)", OBSERVE_DEBUG);
         if (! $obj->OnSave($is_insert)) {
-            $this->Observe("" . get_class($obj) . "->OnSave($is_insert) returned FALSE.  Exiting without saving", OBSERVE_WARN);
+            $this->Observe("" . $obj::class . "->OnSave($is_insert) returned FALSE.  Exiting without saving", OBSERVE_WARN);
             return false;
         }
 
@@ -654,7 +654,7 @@ class Phreezer extends Observable
 */
     public function Delete($obj)
     {
-        $objectclass = get_class($obj);
+        $objectclass = $obj::class;
         if (! $obj->OnBeforeDelete()) {
             $this->Observe("Delete was cancelled because OnBeforeDelete did not return true");
             return 0;
@@ -684,7 +684,7 @@ class Phreezer extends Observable
 */
     public function DeleteAll($obj)
     {
-        $fms = $this->GetFieldMaps(get_class($obj));
+        $fms = $this->GetFieldMaps($obj::class);
         $pk = $obj->GetPrimaryKeyName();
         $table = $fms [$pk]->TableName;
         $sql = "delete from `$table`";
@@ -715,10 +715,10 @@ class Phreezer extends Observable
             throw new Exception($objectclass . " must either implement GetCustomQuery or '" . $objectclass . "Map' class must exist in the include path.");
         }
 
-        $fms = call_user_func(array (
+        $fms = call_user_func([
         $objectclass . "Map",
         "GetFieldMaps"
-        ));
+        ]);
         $this->_mapCache->Set($objectclass . "FieldMaps", $fms);
         return $fms;
     }
@@ -734,10 +734,10 @@ class Phreezer extends Observable
     public function GetCustomQuery($objectclass, $criteria)
     {
         $this->IncludeModel($objectclass);
-        $sql = call_user_func(array (
+        $sql = call_user_func([
         $objectclass,
         "GetCustomQuery"
-        ), $criteria);
+        ], $criteria);
         return $sql;
     }
 
@@ -752,10 +752,10 @@ class Phreezer extends Observable
     public function GetCustomCountQuery($objectclass, $criteria)
     {
         $this->IncludeModel($objectclass);
-        $sql = call_user_func(array (
+        $sql = call_user_func([
         $objectclass,
         "GetCustomCountQuery"
-        ), $criteria);
+        ], $criteria);
         return $sql;
     }
     static $cnt = 0;
@@ -791,10 +791,10 @@ class Phreezer extends Observable
             throw new Exception("Class '" . $objectclass . "Map' is not defined.");
         }
 
-        $kms = call_user_func(array (
+        $kms = call_user_func([
         $objectclass . "Map",
         "GetKeyMaps"
-        ));
+        ]);
         $this->_mapCache->Set($objectclass . "KeyMaps", $kms);
         return $kms;
     }
@@ -895,7 +895,7 @@ class Phreezer extends Observable
     {
 
     // get the keymap for this child relationship
-        $km = $this->GetKeyMap(get_class($parent), $keyname);
+        $km = $this->GetKeyMap($parent::class, $keyname);
     // we need the value of the foreign key. (ex. to get all orders for a customer, we need Customer.Id)
         $parent_prop = $km->KeyProperty;
         $key_value = $parent->$parent_prop;
@@ -939,7 +939,7 @@ class Phreezer extends Observable
     public function GetManyToOne($parent, $keyname)
     {
     // get the keymap for this child relationship
-        $km = $this->GetKeyMap(get_class($parent), $keyname);
+        $km = $this->GetKeyMap($parent::class, $keyname);
     // we need the value of the foreign key. (ex. to get all orders for a customer, we need Customer.Id)
     // we also need to know the class of the object we're retrieving because if it's cached, we need to
     // make sure the model file is loaded
@@ -1004,9 +1004,9 @@ class Phreezer extends Observable
 */
     public function IncludeModel($objectclass)
     {
-        Includer::RequireClass($objectclass, array (
+        Includer::RequireClass($objectclass, [
         "Model/",
         "Reporter/"
-        ));
+        ]);
     }
 }

@@ -5,15 +5,13 @@ use OpenEMR\Services\InsuranceCompanyService;
 
 class C_InsuranceCompany extends Controller
 {
-    var $template_mod;
-    var $icompanies;
-    var $InsuranceCompany;
+    public $icompanies;
+    public $InsuranceCompany;
 
-    public function __construct($template_mod = "general")
+    public function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->icompanies = array();
-        $this->template_mod = $template_mod;
+        $this->icompanies = [];
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&");
@@ -28,11 +26,9 @@ class C_InsuranceCompany extends Controller
         return $this->list_action();
     }
 
-    public function edit_action($id = "", $patient_id = "", $p_obj = null)
+    public function edit_action($id = "", $patient_id = "")
     {
-        if ($p_obj != null && get_class($p_obj) == "insurancecompany") {
-            $this->icompanies[0] = $p_obj;
-        } elseif (empty($this->icompanies[0]) || $this->icompanies[0] == null || get_class($this->icompanies[0]) != "insurancecompany") {
+        if (!(($this->icompanies[0] ?? null) instanceof InsuranceCompany)) {
             $this->icompanies[0] = new InsuranceCompany($id);
         }
 
@@ -68,9 +64,7 @@ class C_InsuranceCompany extends Controller
                 ];
                 $iCompanies[] = $company;
             }
-            usort($iCompanies, function ($a, $b) {
-                return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
-            });
+            usort($iCompanies, fn($a, $b): int => strcasecmp($a['name'] ?? '', $b['name'] ?? ''));
         }
         $templateVars = [
             'CURRENT_ACTION' => $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&"

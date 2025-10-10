@@ -26,10 +26,8 @@ define("DBH_LOG_ERROR", 32);
  */
 class DBEventHandler
 {
-    public $LogLevel;
-    function __construct($level = DBH_LOG_NONE)
+    function __construct(public $LogLevel = DBH_LOG_NONE)
     {
-        $this->LogLevel = $level;
     }
 
     /**
@@ -83,7 +81,7 @@ class DBEventHandler
      * @param string $data
      *          any additional information that may help with debugging
      */
-    function Crash($code, $message = "", $data = "")
+    function Crash($code, $message = "", $data = ""): never
     {
         throw new DatabaseException($message, $code, $data);
     }

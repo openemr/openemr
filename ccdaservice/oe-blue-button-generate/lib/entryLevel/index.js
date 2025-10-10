@@ -16,6 +16,8 @@ var medicationEntryLevel = require("./medicationEntryLevel");
 var medicalDeviceEntryLevel = require("./medicalDeviceEntryLevel");
 var careTeamEntryLevel = require('./careTeamEntryLevel');
 
+const advanceDirectivesEntryLevel = require("./advanceDirectivesEntryLevel");
+
 exports.allergyProblemAct = allergyEntryLevel.allergyProblemAct;
 exports.allergyProblemActNKA = allergyEntryLevel.allergyProblemActNKA;
 
@@ -53,6 +55,8 @@ exports.mentalStatusObservation = functionalStatusEntryLevel.mentalStatusObserva
 exports.disabilityStatusObservation = functionalStatusEntryLevel.disabilityStatusObservation;
 exports.resultOrganizer = resultEntryLevel.resultOrganizer;
 exports.careTeamOrganizer = careTeamEntryLevel.careTeamOrganizer;
+
+exports.advanceDirectiveOrganizer = advanceDirectivesEntryLevel.advanceDirectiveOrganizer;
 
 exports.socialHistoryObservation = socialHistoryEntryLevel.socialHistoryObservation;
 exports.smokingStatusObservation = socialHistoryEntryLevel.smokingStatusObservation;

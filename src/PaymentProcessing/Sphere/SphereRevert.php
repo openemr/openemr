@@ -173,7 +173,7 @@ class SphereRevert
         $lines = explode("\n", $complete);
         foreach ($lines as $line) {
             if (!empty($line)) {
-                list($param, $val) = explode('=', $line, 2);
+                [$param, $val] = explode('=', $line, 2);
                 $data[$param] = $val;
             }
         }

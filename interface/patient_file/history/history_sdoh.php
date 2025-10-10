@@ -92,7 +92,7 @@ function render_list_select(string $field, string $list_id, $current, string $pl
                 $cd = json_decode($codes, true) ?: [];
                 $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
-            } elseif (strpos($codes, ':') !== false) {
+            } elseif (str_contains($codes, ':')) {
                 [$system, $code] = explode(':', $codes, 2);
             }
         }
@@ -266,9 +266,7 @@ $self = basename($_SERVER['PHP_SELF']);
                             <?php
                             $yesNoList = 'sdoh_ipv_yesno';
                             $scale = json_decode($info['disability_scale'] ?? '[]', true) ?: [];
-                            $get = function ($key) use ($scale) {
-                                return $scale[$key]['code'] ?? '';
-                            };
+                            $get = (fn($key): mixed => $scale[$key]['code'] ?? '');
                             function fn_row($fieldKey, $label, $yesNoList, $get): void
                             {
                                 echo "<div class='form-row align-items-end mb-2'>";
@@ -378,6 +376,12 @@ $self = basename($_SERVER['PHP_SELF']);
                                 value="<?php echo attr(v($info, 'postpartum_end')); ?>">
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label><?php echo xlt("Pregnancy intention in the next year"); ?></label>
+                            <?php render_list_select('pregnancy_intent', 'pregnancy_intent', v($info, 'pregnancy_intent')); ?>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -449,8 +453,8 @@ $self = basename($_SERVER['PHP_SELF']);
             // Warn on save if total score < 6
             $('form').on('submit', function () {
                 let total = parseInt($('#total_score').val(), 10) || 0;
-                if (total <= 3) {
-                    alert(<?php echo xlj("Total SDOH score is less than 6. Please review before saving."); ?>);
+                if (total < 1) {
+                    alert(<?php echo xlj("Total SDOH score should have at least one positive. Please review before saving."); ?>);
                     return false; // Prevent form submission
                 }
             });

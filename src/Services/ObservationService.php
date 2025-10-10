@@ -19,7 +19,7 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\Search\TokenSearchField;
 use RuntimeException;
 use OpenEMR\Common\Database\QueryUtils;
@@ -33,6 +33,8 @@ use Exception;
 
 class ObservationService extends BaseService
 {
+    use SystemLoggerAwareTrait;
+
     const TABLE_NAME = 'form_observation';
     const FORM_NAME = "Observation Form";
     const FORM_DIR = "observation";
@@ -42,6 +44,8 @@ class ObservationService extends BaseService
     private ListService $listService;
 
     private FormService $formService;
+
+    private CodeTypesService $codeTypesService;
 
     private array $typesById;
 
@@ -83,6 +87,18 @@ class ObservationService extends BaseService
         $this->listService = $listService;
     }
 
+    public function getCodeTypesService(): CodeTypesService
+    {
+        if (!isset($this->codeTypesService)) {
+            $this->codeTypesService = new CodeTypesService();
+        }
+        return $this->codeTypesService;
+    }
+    public function setCodeTypesService(CodeTypesService $codeTypesService): void
+    {
+        $this->codeTypesService = $codeTypesService;
+    }
+
     public function getUuidRegistry(): UuidRegistry
     {
         if (!isset($this->uuidRegistry)) {
@@ -100,7 +116,7 @@ class ObservationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'questionnaire_response_uuid', 'parent_observation_uuid'];
+        return ['uuid', 'questionnaire_response_uuid', 'parent_observation_uuid', 'euuid', 'puuid', 'performer_uuid'];
     }
 
     public function getObservationTypeDisplayName($obType): string
@@ -139,6 +155,8 @@ class ObservationService extends BaseService
      */
     public function getObservationsByFormId(int $formId, int $pid, int $encounter): array
     {
+        $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";
+        return QueryUtils::fetchRecords($sql, [$formId, $pid, $encounter]);
         $result = $this->search([
             'form_id' => $formId,
             'pid' => $pid,
@@ -161,16 +179,12 @@ class ObservationService extends BaseService
      */
     public function getObservationById(int $id, int $pid, bool $includeChildObservations = false): ?array
     {
-        // need to do a compound join where we get the main observation and any sub-observations
-        $searchField = new CompositeSearchField('id-with-children', [], false);
-        $idField = new TokenSearchField('id', [(string)$id]);
-        $parentIdField = new TokenSearchField('parent_observation_id', [(string)$id]);
-        $searchField->addChild($idField);
-        $searchField->addChild($parentIdField);
-        $result = $this->search([
-            'id-with-children' => $searchField,
-            'pid' => $pid
-        ]);
+        $search = ['id' => $id, 'pid' => $pid];
+        if ($includeChildObservations) {
+            $result = $this->searchAndPopulateChildObservations($search);
+        } else {
+            $result = $this->search($search);
+        }
         if ($result->hasData()) {
             $observation = $result->getFirstDataResult();
         } else {
@@ -182,12 +196,6 @@ class ObservationService extends BaseService
             $observation['questionnaire_response'] = $this->getLinkedQuestionnaireResponse(
                 $observation['questionnaire_response_id']
             );
-        }
-
-        if ($includeChildObservations) {
-            // Get sub-observations
-            $subObservations = $this->getSubObservations($id);
-            $observation['sub_observations'] = $subObservations;
         }
 
         return $observation;
@@ -228,7 +236,7 @@ class ObservationService extends BaseService
                 WHERE pid = ? AND encounter = ? AND parent_observation_id IS NULL
                 ORDER BY date DESC, id DESC";
 
-        $mainObservations = QueryUtils::fetchRecords($sql, array($pid, $encounter));
+        $mainObservations = QueryUtils::fetchRecords($sql, [$pid, $encounter]);
 
         // For each main observation, get its sub-observations
         foreach ($mainObservations as &$observation) {
@@ -251,7 +259,7 @@ class ObservationService extends BaseService
             $record['ob_status_display'] = $this->getStatusDisplayName($record['ob_status']);
         }
         if (!empty($record['sub_observations']) && is_array($record['sub_observations'])) {
-            $record['sub_observations'] = array_map(fn($rec): array => $this->createResultRecordFromDatabaseResult($rec), $record['sub_observations']);
+            $record['sub_observations'] = array_map($this->createResultRecordFromDatabaseResult(...), $record['sub_observations']);
         }
         $record['ob_reason_status_display'] = $this->getReasonStatusDisplay($record['ob_reason_status']);
         return $record;
@@ -284,6 +292,46 @@ class ObservationService extends BaseService
         }
     }
 
+    public function searchAndPopulateChildObservations($search, $isAndCondition = true): ProcessingResult
+    {
+        $foundResult = $this->search($search);
+        if (!$foundResult->hasData()) {
+            return $foundResult;
+        }
+
+        // we need to loop through any found results and grab all records that do NOT have a parent_observation_uuid
+        // because those are the top level observations, we will then search for the observation and their children
+        // and replace the foundResult with the merged set
+        $topLevelIds = [];
+        $records = $foundResult->getData();
+        $recordIndex = [];
+        foreach ($records as $index => $result) {
+            $recordIndex[$result['id']] = $index;
+            if (empty($result['parent_observation_id'])) {
+                $topLevelIds[] = (string)$result['id'];
+            }
+        }
+        // this search has no top level observations so just return what we found
+        if (empty($topLevelIds)) {
+            return $foundResult;
+        }
+        // need to populate sub_observations for each top level observation
+        $parentSearch = new TokenSearchField('parent_observation_id', $topLevelIds);
+        $childRecordResult = $this->search([$parentSearch]);
+        foreach ($childRecordResult->getData() as $childRecord) {
+            if (isset($recordIndex[$childRecord['parent_observation_id']])) {
+                $parentIndex = $recordIndex[$childRecord['parent_observation_id']];
+                if (!isset($records[$parentIndex]['sub_observations'])) {
+                    $records[$parentIndex]['sub_observations'] = [];
+                }
+                $records[$parentIndex]['sub_observations'][] = $childRecord;
+            }
+        }
+        $finalResult = new ProcessingResult();
+        $finalResult->setData($records);
+        return $finalResult;
+    }
+
     /**
      * @param ISearchField[]|string[]|array $search
      * @param bool $isAndCondition
@@ -294,15 +342,37 @@ class ObservationService extends BaseService
         if (empty($search['activity'])) {
             $search['activity'] = '1'; // default to active records only
         }
+        // we first need to grab all of the record ids that match the search criteria
+        // then we fetch all records where the id matches either the id or the parent_observation id in the list
+        // so that we can grab the entire relationship.
 
-        $sql = "SELECT fo.*
+        $sql = "SELECT
+                fo.id, fo.uuid, fo.form_id, fo.date, fo.pid, fo.encounter, fo.user, fo.groupname, fo.authorized, fo.activity, fo.code
+                ,fo.observation, fo.ob_value, fo.ob_unit, fo.description, fo.code_type, fo.table_code, fo.ob_code, fo.ob_type, fo.ob_status
+                ,fo.result_status, fo.ob_reason_status, fo.ob_reason_code, fo.ob_documentationof_table, fo.ob_documentationof_table_id
+                ,fo.date_end, fo.parent_observation_id, fo.category, fo.questionnaire_response_id
+                ,fo.ob_value_code_description
+                ,performer.performer_uuid
+                ,performer.performer_type
+                ,patient.puuid
+                ,encounter.euuid
+                ,observation_parent.parent_observation_uuid
                 ,r.questionnaire_response_uuid
                 ,r.questionnaire_name
                 ,r.questionnaire_status
                 ,r.questionnaire_date
+                ,r.screening_category_code
+                ,r.screening_category_display
                 ,lo_type.ob_type_display
                 ,lo_status.ob_status_display
                 FROM form_observation fo
+                LEFT JOIN (
+                    SELECT
+                        users.uuid AS performer_uuid
+                        ,users.username AS performer_username
+                        ,'Practitioner' AS performer_type
+                    FROM users
+                ) performer ON performer.performer_username = fo.user
                 LEFT JOIN (
                     SELECT
                         title AS ob_type_display
@@ -318,43 +388,41 @@ class ObservationService extends BaseService
                     FROM list_options
                 ) lo_status ON (fo.ob_status = lo_status.option_id AND lo_status.list_id = 'observation-status')
                 LEFT JOIN (
-                    -- we limit the fields we bring in from questionnaire_response for performance and to avoid column conflicts
+                    select
+                        id AS parent_observation_fk_id
+                        ,uuid AS parent_observation_uuid
+                    FROM form_observation
+                ) observation_parent ON observation_parent.parent_observation_fk_id = fo.parent_observation_id
+                LEFT JOIN (
+                    select
+                        pid AS patient_pid
+                        ,uuid AS puuid
+                    FROM patient_data
+                ) patient ON patient.patient_pid = fo.pid
+                LEFT JOIN (
+                    select
+                        encounter AS eid
+                        ,uuid AS euuid
+                    FROM form_encounter
+                ) encounter ON encounter.eid = fo.encounter
+                LEFT JOIN (
                     SELECT
-                        id AS response_id
-                        ,questionnaire_name
-                        ,status AS questionnaire_status
-                        ,create_time AS questionnaire_date
-                        ,uuid AS questionnaire_response_uuid
-                    FROM questionnaire_response
+                        resp.id AS response_id
+                        ,resp.questionnaire_name
+                        ,resp.status AS questionnaire_status
+                        ,resp.create_time AS questionnaire_date
+                        ,resp.uuid AS questionnaire_response_uuid
+                        ,lo.option_id AS screening_category_code
+                        ,lo.title AS screening_category_display
+                    FROM questionnaire_response resp
+                    LEFT JOIN questionnaire_repository quest ON (quest.id = resp.questionnaire_foreign_id)
+                    LEFT JOIN list_options lo ON (lo.option_id = quest.category AND lo.list_id = 'Observation_Types')
                 ) r ON fo.questionnaire_response_id = r.response_id ";
         $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         $sql .= $whereFragment->getFragment();
         // TODO: @adunsulag need to implement pagination and sorting
         $sql .= " ORDER BY fo.date DESC, fo.parent_observation_id, fo.id";
         $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
-        $recordsByObservationId = [];
-        $childRecords = [];
-        if (!empty($records)) {
-            foreach ($records as $index => $rec) {
-                $recordsByObservationId[$rec['id']] = $index;
-                if (!empty($rec['parent_observation_id'])) {
-                    $childRecords[] = $index;
-                }
-            }
-        }
-        // populate children
-        foreach ($childRecords as $childRecordIndex) {
-            $record = $records[$childRecordIndex];
-            if (isset($recordsByObservationId[$record['parent_observation_id']])) {
-                $parentIndex = $recordsByObservationId[$record['parent_observation_id']];
-                if (!isset($records[$parentIndex]['sub_observations'])) {
-                    $records[$parentIndex]['sub_observations'] = [];
-                }
-                $record['parent_observation_uuid'] = $records[$parentIndex]['uuid'] ?? null;
-                $records[$parentIndex]['sub_observations'][] = $record;
-                $records[$childRecordIndex] = null; // clear out child record from main list
-            }
-        }
         $result = new ProcessingResult();
         // make one final pass to create result records
         // child records will now be part of the parent records and set to null so we'll make O(n) passes
@@ -394,7 +462,7 @@ class ObservationService extends BaseService
         // we don't delete the records, we just set the activity to be 0
         QueryUtils::sqlStatementThrowException(
             "UPDATE `form_observation` SET `activity`=0 WHERE (id =? OR parent_observation_id = ?) AND pid = ? AND encounter = ?",
-            array($id, $id, $pid, $encounter)
+            [$id, $id, $pid, $encounter]
         );
     }
 
@@ -421,6 +489,8 @@ class ObservationService extends BaseService
             `description` = ?,
             `table_code`  = ?,
             `ob_type`     = ?,
+            `ob_code`     = ?,
+            `ob_status`   = ?,
             `ob_value`    = ?,
             `ob_unit`     = ?,
             `date`        = ?,
@@ -451,7 +521,13 @@ class ObservationService extends BaseService
                 $userauthorized
             );
         }
-        $sqlBindArray = array(
+        // code needs to match code_type
+        $codeService = $this->getCodeTypesService();
+        $code = $codeService->parseCode($observationData['code']);
+        $observationData['ob_code'] = $code['code'] ?? '';
+        // observations default to LOINC if not specified
+        $observationData['code_type'] = $code['code_type'] ?? 'LOINC';
+        $sqlBindArray = [
             $observationData['form_id'],
             $observationData['uuid'],
             $pid,
@@ -465,6 +541,8 @@ class ObservationService extends BaseService
             $observationData['description'] ?? '',
             $observationData['table_code'] ?? '',
             $observationData['ob_type'] ?? '',
+            $observationData['ob_code'] ?? '',
+            $observationData['ob_status'] ?? '',
             $observationData['ob_value'] ?? '',
             $observationData['ob_unit'] ?? '',
             $observationData['date'] ?? date('Y-m-d H:i:s'),
@@ -475,7 +553,7 @@ class ObservationService extends BaseService
             $observationData['parent_observation_id'] ?? null,
             $observationData['category'] ?? null,
             $observationData['questionnaire_response_id'] ?? null
-        );
+        ];
 
         if (!empty($observationData['id'])) {
             $sql = "UPDATE `form_observation` SET $sets WHERE id = ? AND pid = ? AND encounter = ?";
@@ -500,6 +578,16 @@ class ObservationService extends BaseService
             throw new RuntimeException("Failed to fetch saved observation record for id: " . $observationData['id']);
         }
         return $dbObservation;
+    }
+
+    /**
+     * Get observation types from list options
+     *
+     * @return array
+     */
+    public function getObservationTypes(): array
+    {
+        return QueryUtils::fetchRecords("SELECT `option_id`, `title` FROM `list_options` WHERE `list_id` = 'Observation_Types' ORDER BY `seq`");
     }
 
     /**
@@ -645,7 +733,7 @@ class ObservationService extends BaseService
         $sql = "SELECT * FROM `form_observation`
                 WHERE pid = ? AND encounter = ? AND parent_observation_id IS NULL";
 
-        $params = array($pid, $encounter);
+        $params = [$pid, $encounter];
 
         if (!empty($searchCriteria['form_id'])) {
             $sql .= " AND form_id = ? ";
@@ -689,7 +777,7 @@ class ObservationService extends BaseService
         $sql .= " ORDER BY date DESC, id DESC";
 
         $mainObservations = QueryUtils::fetchRecords($sql, $params);
-        $mainObservations = array_map(fn($rec): array => $this->createResultRecordFromDatabaseResult($rec), $mainObservations ?? []);
+        $mainObservations = array_map($this->createResultRecordFromDatabaseResult(...), $mainObservations ?? []);
 
         // For each main observation, get its sub-observations
         foreach ($mainObservations as &$observation) {

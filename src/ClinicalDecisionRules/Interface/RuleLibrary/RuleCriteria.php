@@ -27,39 +27,39 @@ abstract class RuleCriteria
      *
      * @var boolean
      */
-    var $optional;
+    public $optional;
 
     /**
      * if true, then criteira is an inclusion; exclusion otherwise
      *
      * @var boolean
      */
-    var $inclusion = true;
+    public $inclusion = true;
 
     /**
      * @var string
      */
-    var $interval;
+    public $interval;
 
     /**
      * @var TimeUnit
      */
-    var $intervalType;
+    public $intervalType;
 
     /**
      * uniquely identifies this criteria
      *
      * @var string
      */
-    var $guid;
+    public $guid;
 
     /**
      *
      * @var RuleCriteriaType
      */
-    var $criteriaType;
+    public $criteriaType;
 
-    var $groupId;
+    public $groupId;
 
     function getCharacteristics()
     {
@@ -99,28 +99,15 @@ abstract class RuleCriteria
 
     protected function decodeComparator($comparator)
     {
-        switch ($comparator) {
-            case "eq":
-                return "";
-                break;
-            case "ne":
-                return "!=";
-                break;
-            case "gt":
-                return ">";
-                break;
-            case "lt":
-                return "<";
-                break;
-            case "ge":
-                return ">=";
-                break;
-            case "le":
-                return "<=";
-                break;
-        }
-
-        return "";
+        return match ($comparator) {
+            "eq" => "",
+            "ne" => "!=",
+            "gt" => ">",
+            "lt" => "<",
+            "ge" => ">=",
+            "le" => "<=",
+            default => "",
+        };
     }
 
     /**

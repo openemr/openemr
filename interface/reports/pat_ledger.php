@@ -55,7 +55,7 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
-    $all = array();
+    $all = [];
     if (!$pat) {
         return($all);
     }
@@ -70,7 +70,7 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
       "WHERE " .
       "ar_session.created_time >= ? AND ar_session.created_time <= ? " .
       "AND ar_session.patient_id=?";
-    $result = sqlStatement($sql, array($from_dt, $to_dt, $pat));
+    $result = sqlStatement($sql, [$from_dt, $to_dt, $pat]);
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
         if (!$row['applied']) {
@@ -90,7 +90,7 @@ function User_Id_Look($thisField)
     }
 
     $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
+    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", [$thisField]);
     $rrow = sqlFetchArray($rlist);
     if ($rrow) {
         $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
@@ -112,7 +112,7 @@ function List_Look($thisData, $thisList)
     }
 
     $fres = sqlStatement("SELECT title FROM list_options WHERE list_id = ? " .
-        "AND option_id = ? AND activity = 1", array($thisList, $thisData));
+        "AND option_id = ? AND activity = 1", [$thisList, $thisData]);
     if ($fres) {
         $rret = sqlFetchArray($fres);
         $dispValue = xl_list_label($rret['title']);
@@ -128,7 +128,7 @@ function List_Look($thisData, $thisList)
 
 function GetAllCredits($enc = '', $pat = '')
 {
-    $all = array();
+    $all = [];
     if (!$enc || !$pat) {
         return($all);
     }
@@ -138,7 +138,7 @@ function GetAllCredits($enc = '', $pat = '')
     "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
     "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL " .
     "ORDER BY sequence_no";
-    $result = sqlStatement($sql, array($enc, $pat));
+    $result = sqlStatement($sql, [$enc, $pat]);
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
         $all[$iter] = $row;
@@ -348,13 +348,13 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
-if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
+if (str_starts_with($GLOBALS['ledger_begin_date'], 'Y')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'M') {
+} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'M')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'D') {
+} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'D')) {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
@@ -468,29 +468,29 @@ if ($_REQUEST['form_csvexport']) {
     </script>
     <?php
     if ($type_form == '0') {
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
         'heading_title' => xl('Report') . " - " . xl('Patient Ledger by Date'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array("patient_ledger_report_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["patient_ledger_report_xpd"],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
         'show_help_icon' => false,
         'help_file_name' => ""
-        );
+        ];
     } else {
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
         'heading_title' => xl('Patient Ledger'),
         'include_patient_name' => true,
         'expandable' => true,
-        'expandable_files' => array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
         'show_help_icon' => true,
         'help_file_name' => "ledger_dashboard_help.php"
-        );
+        ];
     }
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
@@ -641,8 +641,8 @@ if ($_REQUEST['form_csvexport']) {
 $from_date = $form_from_date . ' 00:00:00';
 $to_date = $form_to_date . ' 23:59:59';
 if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
-    $rows = array();
-    $sqlBindArray = array();
+    $rows = [];
+    $sqlBindArray = [];
     $query = "select b.code_type, b.code, b.code_text, b.modifier, b.pid, b.provider_id, " .
     "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, " .
     "ins.name, " .
@@ -683,7 +683,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $facility = $facilityService->getById($form_facility);
         }
 
-        $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
+        $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", [$form_patient]);
         $pat_dob = $patient['DOB'] ?? null;
         $pat_name = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
         ?>
@@ -786,7 +786,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $orow = 0;
     $prev_encounter_id = -1;
     $hdr_printed = false;
-    $prev_row = array();
+    $prev_row = [];
     while ($erow = sqlFetchArray($res)) {
         $effectiveInsurances = getEffectiveInsurances($pid, $erow['date']);
         $print = '';

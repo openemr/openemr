@@ -57,10 +57,10 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
             $this->pdf->addPngFromFile("$hcfa_image", 0, 0, 612, 792);
-            $this->pdf->ezText($tmplines, 12, array(
+            $this->pdf->ezText($tmplines, 12, [
                 'justification' => 'left',
                 'leading' => 12
-            ));
+            ]);
         }
     }
 }

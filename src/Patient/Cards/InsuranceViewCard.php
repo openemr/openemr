@@ -28,13 +28,10 @@ class InsuranceViewCard extends CardModel
 
     private const CARD_ID = 'insurance';
 
-    private $pid;
-
     private $policy_types;
 
-    public function __construct($pid, array $opts = [])
+    public function __construct(private $pid, array $opts = [])
     {
-        $this->pid = $pid;
         $this->policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
@@ -84,9 +81,9 @@ class InsuranceViewCard extends CardModel
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
         if ($GLOBALS['insurance_only_one']) {
-            $insurance_array = array('primary');
+            $insurance_array = ['primary'];
         } else {
-            $insurance_array = array('primary', 'secondary', 'tertiary');
+            $insurance_array = ['primary', 'secondary', 'tertiary'];
         }
         return $insurance_array;
     }

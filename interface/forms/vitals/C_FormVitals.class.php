@@ -30,11 +30,9 @@ class C_FormVitals
      */
     public $vitals;
 
-    var $template_dir;
-    var $form_id;
-    var $units_of_measurement;
-    var $template_mod;
-    var $context;
+    public $template_dir;
+    public $form_id;
+    public $units_of_measurement;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -44,13 +42,11 @@ class C_FormVitals
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general", $context = '')
+    public function __construct(public $template_mod = "general", public $context = '')
     {
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
-        $this->context = $context;
     }
 
     public function setFormId($form_id)
@@ -450,7 +446,7 @@ class C_FormVitals
         foreach ($_POST as $varname => $var) {
             $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
+            if ((!(str_starts_with("_", $varname))) && is_callable([$obj,$func])) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);
@@ -469,7 +465,7 @@ class C_FormVitals
         $obj->set_authorized($_SESSION['userauthorized']);
 
         // handle all of the vital details that we need here.
-        $detailsToUpdate = array();
+        $detailsToUpdate = [];
         if (isset($_POST['interpretation'])) {
             $interpretationList = $this->get_interpretation_list_as_hash();
             // grab our default list options

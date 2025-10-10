@@ -2,12 +2,9 @@
 
 class C_PatientFinder extends Controller
 {
-    var $template_mod;
-
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         ///////////////////////////////////
         //// What should this be?????
@@ -64,7 +61,7 @@ class C_PatientFinder extends Controller
         $pos = strpos($search_string, ',');
 
         // get result set into array and pass to array
-        $result_array = array();
+        $result_array = [];
 
         if ($pos === false) {
             //no comma just last name

@@ -34,8 +34,8 @@ class FhirOperationDocRefRestController
     const OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING = "processing";
     const OPERATION_OUTCOME_ISSUE_TYPE_NOT_SUPPORTED = "not-supported";
 
-    private FhirDocRefService $fhirDocRefService;
-    private FhirResourcesService $fhirService;
+    private readonly FhirDocRefService $fhirDocRefService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct(HttpRestRequest $request)
     {
@@ -52,7 +52,7 @@ class FhirOperationDocRefRestController
     {
         try {
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
-            $bundleEntries = array();
+            $bundleEntries = [];
             foreach ($processingResult->getData() as $searchResult) {
                 // we actually need to truncate off the operation
                 $bundleEntry = [
@@ -67,7 +67,7 @@ class FhirOperationDocRefRestController
             $response->getBody()->write(json_encode($bundleSearchResult));
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
-            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);

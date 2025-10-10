@@ -33,7 +33,7 @@ class PatientValidator extends BaseValidator
 
         $result = sqlQuery(
             'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
-            array($uuidLookup)
+            [$uuidLookup]
         );
 
         $existingUuid = $result['uuid'] ?? null;
@@ -59,9 +59,7 @@ class PatientValidator extends BaseValidator
                 $context->required("DOB", 'Date of Birth')->datetime('Y-m-d');
                 // callback functions are not called for optional parameters unless allowEmpty is false
                 $context->optional("email", "Email")
-                ->required(function ($values) {
-                    return array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null;
-                })
+                ->required(fn($values): bool => array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null)
                 ->callback(function ($value) {
                     // Validator->email() does not cover unicode characters in the local part so we use
                     // the OpenEMR email validator for this.

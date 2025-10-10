@@ -26,31 +26,13 @@ use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 class TeleHealthPatientAdminController
 {
     /**
-     * @var TelehealthGlobalConfig
-     */
-    private $globalConfig;
-
-    /**
-     * @var TeleHealthUserRepository
-     */
-    private $userRepository;
-
-    /**
      * @var TelehealthRegistrationCodeService
      */
     private $registrationCodeService;
 
-    /**
-     * @var TeleHealthRemoteRegistrationService
-     */
-    private $remoteRegistrationService;
-
-    public function __construct(TelehealthGlobalConfig $globalConfig, TeleHealthUserRepository $userRepository, TeleHealthRemoteRegistrationService $remoteService)
+    public function __construct(private readonly TelehealthGlobalConfig $globalConfig, private readonly TeleHealthUserRepository $userRepository, private readonly TeleHealthRemoteRegistrationService $remoteRegistrationService)
     {
-        $this->globalConfig = $globalConfig;
-        $this->userRepository = $userRepository;
-        $this->registrationCodeService = new TelehealthRegistrationCodeService($globalConfig, $userRepository);
-        $this->remoteRegistrationService = $remoteService;
+        $this->registrationCodeService = new TelehealthRegistrationCodeService($this->globalConfig, $this->userRepository);
     }
 
     public function subscribeToEvents(EventDispatcher $dispatcher)
@@ -96,7 +78,7 @@ class TeleHealthPatientAdminController
 
         // we need to inject in the actual code if the twig template is the email message
         // if matches message.html.twig, message.text.twig
-        if (strpos($event->getTemplateName(), 'emails/patient/portal_login/message') === 0) {
+        if (str_starts_with($event->getTemplateName(), 'emails/patient/portal_login/message')) {
             $data['comlink_registration_code'] = $registrationCode;
         } else if ($event->getTemplateName() == 'patient/portal_login/print.html.twig') {
             // inject the data needed for the user edit field

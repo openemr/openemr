@@ -28,7 +28,7 @@ class FhirQuestionnaireRestController
     /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct(private readonly SystemLogger $logger, private readonly FhirQuestionnaireService $questionnaireResourceService)
     {
@@ -114,7 +114,7 @@ class FhirQuestionnaireRestController
     private function getAll(array $searchParams, ?string $puuidBind = null): FHIRBundle
     {
         $processingResult = $this->questionnaireResourceService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

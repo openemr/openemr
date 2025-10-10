@@ -30,6 +30,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ReferenceSearchValue;
@@ -44,6 +45,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
+    use VersionedProfileTrait;
 
     // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
     // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
@@ -64,21 +66,17 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
-
-    /**
-     * @var FhirServiceLocator
-     */
-    private $serviceLocator;
-
     /**
      * @var
      */
     private $accessTokenScopes;
 
-    public function __construct($fhirApiURL = null, $serviceLocator = null)
+    /**
+     * @param FhirServiceLocator $serviceLocator
+     */
+    public function __construct($fhirApiURL = null, private $serviceLocator = null)
     {
         parent::__construct($fhirApiURL);
-        $this->serviceLocator = $serviceLocator;
     }
 
     /**
@@ -218,7 +216,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         return $dataRecord; //
     }
@@ -234,7 +232,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
-            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -263,7 +261,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 $this->addAllProvenanceRecordsForService($processingResult, $service, $searchParams, $puuidBind);
             } catch (SearchFieldException $ex) {
                 $systemLogger = new SystemLogger();
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
                     'field' => $ex->getField(), 'trace' => $ex->getTraceAsString()]);
                 // put our exception information here
                 $processingResult->setValidationMessages([$ex->getField() => $ex->getMessage()]);
@@ -271,7 +269,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             } catch (Exception $ex) {
                 $systemLogger = new SystemLogger();
                 $processingResult->addInternalError("Failed to process provenance search");
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
                     'trace' => $ex->getTraceAsString()]);
                 return $processingResult;
             }
@@ -342,9 +340,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     /**
@@ -389,7 +387,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     public function splitSurrogateKeyIntoParts($key)
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
-        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+        if (str_contains($key, self::SURROGATE_KEY_SEPARATOR_V1)) {
             $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
         }
         $parts = explode($delimiter, $key);

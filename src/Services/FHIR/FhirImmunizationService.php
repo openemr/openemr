@@ -8,6 +8,7 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -38,6 +39,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var ImmunizationService
@@ -77,7 +79,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRImmunization
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $immunizationResource = new FHIRImmunization();
 
@@ -138,11 +140,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
         if (!empty($dataRecord['cvx_code'])) {
             $vaccineCode = new FHIRCodeableConcept();
-            $vaccineCode->addCoding(array(
+            $vaccineCode->addCoding([
                 'system' => "http://hl7.org/fhir/sid/cvx",
                 'code' =>  $dataRecord['cvx_code'],
                 'display' => $dataRecord['cvx_code_text']
-            ));
+            ]);
             $immunizationResource->setVaccineCode($vaccineCode);
         }
 
@@ -170,18 +172,18 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         if (!empty($dataRecord['note'])) {
-            $immunizationResource->addNote(array(
+            $immunizationResource->addNote([
                 'text' => $dataRecord['note']
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['administration_site'])) {
             $siteCode = new FHIRCodeableConcept();
-            $siteCode->addCoding(array(
+            $siteCode->addCoding([
                 'system' => "http://terminology.hl7.org/CodeSystem/v3-ActSite",
                 'code' =>  $dataRecord['site_code'],
                 'display' => $dataRecord['site_display']
-            ));
+            ]);
             $immunizationResource->setSite($siteCode);
         }
 
@@ -230,7 +232,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     {
         return $this->immunizationService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRImmunization)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -258,7 +260,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      */
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

@@ -38,12 +38,12 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     $screen = 'new_payment';
 //===============================================================================
 // Initialisations
-$mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
+$mode                    = $_POST['mode'] ?? '';
 $payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
 $request_payment_id      = $payment_id ;
-$hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
-$default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
-$hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hidden_type_code'] : '';
+$hidden_patient_code     = $_REQUEST['hidden_patient_code'] ?? '';
+$default_search_patient  = $_POST['default_search_patient'] ?? '';
+$hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 //===============================================================================
 //ar_session addition code
 //===============================================================================
@@ -292,17 +292,17 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["new_payment_xpd", "search_payments_xpd", "era_payments_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

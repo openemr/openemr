@@ -75,17 +75,11 @@ class TelehealthGlobalConfig
      */
     private $publicWebPath;
 
-    /**
-     * @var Environment $twig
-     */
-    private $twig;
 
-
-    public function __construct($publicWebPath, $moduleDirectoryName, Environment $twig)
+    public function __construct($publicWebPath, $moduleDirectoryName, private readonly Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
-        $this->twig = $twig;
     }
 
     public function getPortalTimeout()
@@ -120,7 +114,7 @@ class TelehealthGlobalConfig
                 if (stripos($site_addr, "index.php") !== false) {
                     $site_addr = dirname($site_addr);
                 }
-                if (substr($site_addr, -1) == '/') {
+                if (str_ends_with($site_addr, '/')) {
                     $site_addr = substr($site_addr, 0, -1);
                 }
             }

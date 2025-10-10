@@ -52,7 +52,7 @@ class PortalPatientReportController
             "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
             "WHERE po.patient_id = ? " .
             "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-            array($pid)
+            [$pid]
         );
         $procedures = [];
         $proceduresById = [];
@@ -150,8 +150,8 @@ class PortalPatientReportController
         $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
         $encountersByDate = [];
         $encountersByEncounter = [];
-        $html_strings = array();
-        $registry_form_name = array();
+        $html_strings = [];
+        $registry_form_name = [];
         while ($result2 = sqlFetchArray($res2)) {
             array_push($registry_form_name, trim($result2['name']));
         }
@@ -200,7 +200,7 @@ class PortalPatientReportController
                 // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
                 if (!$form_name_found_flag) {
                     foreach ($registry_form_name as $var) {
-                        if (strpos($form_name, $var) === 0) {
+                        if (str_starts_with($form_name, $var)) {
                             $form_name = $var;
                         }
                     }
@@ -216,9 +216,7 @@ class PortalPatientReportController
                 ];
             }
         }
-        $encounters = array_map(function ($encounterId) use ($encountersByEncounter) {
-            return $encountersByEncounter[$encounterId];
-        }, $encountersByDate);
+        $encounters = array_map(fn($encounterId): array => $encountersByEncounter[$encounterId], $encountersByDate);
         return $encounters;
     }
 }

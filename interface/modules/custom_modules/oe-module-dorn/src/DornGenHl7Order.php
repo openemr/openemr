@@ -190,7 +190,7 @@ class DornGenHl7Order extends GenHl7OrderBase
                     if (empty($codestring)) {
                         continue;
                     }
-                    list($codetype, $code) = explode(':', $codestring);
+                    [$codetype, $code] = explode(':', $codestring);
                     $desc = lookup_code_descriptions($codestring);
                     $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
                     $hasDiagnosisSegment = true;
@@ -208,7 +208,7 @@ class DornGenHl7Order extends GenHl7OrderBase
                         if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
                         }
-                        list($codetype, $code) = explode(':', $codestring);
+                        [$codetype, $code] = explode(':', $codestring);
                         $desc = lookup_code_descriptions($codestring);
                         $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
                         $hasDiagnosisSegment = true;
@@ -727,7 +727,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             "f.formdir = 'procedure_order' AND " .
             "f.form_id = po.procedure_order_id AND " .
             "pd.pid = f.pid AND " .
-            "u.id = po.provider_id", array($orderId));
+            "u.id = po.provider_id", [$orderId]);
         if (!empty($porow)) {
             $pid = $porow['pid'];
         }
@@ -737,7 +737,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             INNER JOIN mod_dorn_routes AS mdr ON
                 pp.ppid = mdr.ppid
             WHERE pp.ppid = ?";
-        $pprow = sqlQuery($ppSql, array($ppid));
+        $pprow = sqlQuery($ppSql, [$ppid]);
         if (empty($pprow)) {
             return xl('Procedure provider') . " $ppid " . xl('not found');
         }

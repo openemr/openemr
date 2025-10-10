@@ -26,7 +26,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
     global $CPR;
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties($formname, $grparr, '*');
     // Check access control.
     if (!empty($grparr['']['grp_aco_spec'])) {
@@ -38,11 +38,11 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
         }
     }
 
-    $arr = array();
+    $arr = [];
     $shrow = getHistoryData($pid);
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 " .
-    "ORDER BY group_id, seq", array($formname));
+    "ORDER BY group_id, seq", [$formname]);
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
         $currvalue = '';

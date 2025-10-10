@@ -35,7 +35,7 @@ class LayoutsUtils
         if (empty($options) || !isset($test) || $options == "null") {
             return false; // why bother?
         }
-        if (strpos($options, ',') === false) { // not json array of modifiers.
+        if (!str_contains($options, ',')) { // not json array of modifiers.
             // could be string of char's or single element of json ["RO"] or "TP" or "P" e.t.c.
             json_decode($options, true); // test if options json. json_last_error() will return JSON_ERROR_SYNTAX if not.
             // if of form ["RO"] (single modifier) means not legacy so continue on.

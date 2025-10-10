@@ -27,15 +27,15 @@ class Module
 {
     public function getAutoloaderConfig()
     {
-        return array(
+        return [
             // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
             // we need to figure out why that is so we can remove this unnecessary piece.
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            'Laminas\Loader\StandardAutoloader' => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()

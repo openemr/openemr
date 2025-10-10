@@ -19,7 +19,7 @@
  */
 function edih_php_inivals()
 {
-    $ival = array();
+    $ival = [];
     $td = basename(sys_get_temp_dir());
     $ival['maxfsize'] = ini_get('upload_max_filesize');
     $ival['maxfuploads'] = ini_get('max_file_uploads');
@@ -419,7 +419,7 @@ function edih_disp_x12trans()
                 // this claim payment
                 $str_htm .= edih_835_html($fn, '', $clm01, $summary);
             }
-        } elseif (strpos('|f270|f271|f276|f277|f278', $ft)) {
+        } elseif (strpos('|f270|f271|f276|f277|f278', (string) $ft)) {
             if ($fmt == 'seg') {
                 if ($trace && $rsptype) {
                     // 270|276|278|837 claim or request segments
@@ -748,7 +748,7 @@ function edih_disp_era_processed()
     if ($ckno) {
         $srchval = 'ePay - ' . $ckno;
         // reference like '%".$srchval."%'"
-        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", array($srchval));
+        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", [$srchval]);
         if (!empty($row)) {
             $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
             if ($row['global_amount'] === '0' || $row['global_amount'] === '0.00') {

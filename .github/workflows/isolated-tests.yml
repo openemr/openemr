@@ -84,6 +84,13 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
+    - name: Upload JUnit test results
+      if: ${{ success() || failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: junit-isolated-tests-php-${{ matrix.php-version }}
+        path: junit.xml
+
     - name: Check if coverage files exist
       if: ${{ (success() || failure()) }}
       id: check-files

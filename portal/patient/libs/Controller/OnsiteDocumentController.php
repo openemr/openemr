@@ -49,7 +49,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $is_portal = GlobalConfig::$PORTAL;
         $docid = $new_filename = "";
         // get latest help template id
-        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC Limit 1', array('Help'))['id'] ?? 0;
+        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC Limit 1', ['Help'])['id'] ?? 0;
 
         if (isset($_GET['pid'])) {
             $pid = (int)$_GET['pid'];
@@ -150,7 +150,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
-            $output->orderBy = $output->orderBy ? $output->orderBy : 'DenialReason';
+            $output->orderBy = $output->orderBy ?: 'DenialReason';
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
             if ($output->orderBy) {
                 $criteria->SetOrder($output->orderBy, $output->orderDesc);
@@ -351,7 +351,7 @@ class OnsiteDocumentController extends AppBasePortalController
                     // by replacing all inputs, checks and radios tags to their answers.
                     // Thus Enter Comment: <input name="element" value="This is my comment I don't like purifier" />
                     // renders to Enter Comment: 'This is my comment I don't like purifier in document.'
-                    $config->set('URI.AllowedSchemes', array('data' => true));
+                    $config->set('URI.AllowedSchemes', ['data' => true]);
                     $purify = new HTMLPurifier($config);
                     $existing_template = $purify->purify($existing);
                     // since this is a flatten document won't need to track legacy or not.

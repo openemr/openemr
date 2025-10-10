@@ -14,21 +14,18 @@ namespace OpenEMR\Services\FHIR;
 
 class FhirUrlResolver
 {
-    private $fhirBaseURL;
-
     private $baseUrlLength;
 
-    public function __construct($baseURL)
+    public function __construct(private $fhirBaseURL)
     {
-        $this->fhirBaseURL = $baseURL;
-        $this->baseUrlLength = strlen($baseURL);
+        $this->baseUrlLength = strlen($this->fhirBaseURL);
     }
 
     public function getRelativeUrl($url): ?string
     {
         // extracts everything but the resource/:id portion of a URL from the base url.
         // if the URI passed in does not match the base fhir URI we do nothing with it
-        if (strstr($url, $this->fhirBaseURL) === false) {
+        if (!str_contains($url, (string) $this->fhirBaseURL)) {
             return null;
         } else {
             // grab everything from our string onwards...

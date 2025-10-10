@@ -50,11 +50,11 @@ class PatientPortalService
         // ensure both portal and patient data match using portal account id.
         $patient = sqlQuery(
             "Select `pid`, `email`, `email_direct` From `patient_data` Where `pid` = ?",
-            array($pid)
+            [$pid]
         );
         $portal = sqlQuery(
             "Select `pid`, `portal_username` From `patient_access_onsite` Where `pid` = ?",
-            array($patient['pid'])
+            [$patient['pid']]
         );
 
         $patient['valid'] = !empty($portal['portal_username']) && ((int)$pid === (int)$portal['pid']);
@@ -109,7 +109,7 @@ class PatientPortalService
     public function getPatientDetails($id): bool|array
     {
         $query = "SELECT fname, lname, phone_cell as phone, email, hipaa_allowsms, hipaa_allowemail FROM patient_data WHERE pid = ?";
-        $result = sqlQuery($query, array($id));
+        $result = sqlQuery($query, [$id]);
         return $result ?? false;
     }
 
@@ -132,7 +132,7 @@ class PatientPortalService
     {
         $user = $u ?: $_SESSION['authUserID'];
         // test for either id or username
-        return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", array($user, $user))['portal_user'];
+        return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", [$user, $user])['portal_user'];
     }
 
     /**
@@ -252,9 +252,9 @@ class PatientPortalService
 
         return sqlInsert(
             $sql,
-            array(
+            [
                 $setting_patient ?? 0, $setting_label, $setting_value ?? '',
-                $setting_patient ?? 0, $setting_label, $setting_value ?? '')
+                $setting_patient ?? 0, $setting_label, $setting_value ?? '']
         );
     }
 }

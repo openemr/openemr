@@ -50,7 +50,7 @@ function addPortalMailboxMail(
         $datetime = date('Y-m-d H:i:s');
     }
 
-    $user = $_SESSION['portal_username'] ? $_SESSION['portal_username'] : $_SESSION['authUser'];
+    $user = $_SESSION['portal_username'] ?: $_SESSION['authUser'];
     // make inactive if set as Done
     if ($message_status == "Done") {
         $activity = 0;
@@ -79,7 +79,7 @@ function addPortalMailboxMail(
     return sqlInsert(
         "INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
             "authorized, activity, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
-        array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid)
+        [$datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid]
     );
 }
 
@@ -119,10 +119,10 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 	ORDER BY `date` desc
 	$limit
 	";
-    $all = $row = array();
-    $data = array($owner,$owner);
+    $all = $row = [];
+    $data = [$owner,$owner];
     if ($search) {
-        $data = array($owner,$owner,$owner);
+        $data = [$owner,$owner,$owner];
     }
 
     $res = sqlStatement($sql, $data);
@@ -169,10 +169,10 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	ORDER BY `date` desc
 	$limit
 	";
-    $all = $row = array();
-    $data = array($owner,$owner);
+    $all = $row = [];
+    $data = [$owner,$owner];
     if ($search) {
-        $data = array($owner,$owner,$owner);
+        $data = [$owner,$owner,$owner];
     }
 
     $res = sqlStatement($sql, $data);
@@ -220,8 +220,8 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 	ORDER BY `date` desc
 	$limit
 	";
-    $all = $row = array();
-    $res = sqlStatement($sql, array($owner));
+    $all = $row = [];
+    $res = sqlStatement($sql, [$owner]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -269,8 +269,8 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 	ORDER BY `date` desc
 	$limit
 	";
-    $all = $row = array();
-    $res = sqlStatement($sql, array($owner,$owner));
+    $all = $row = [];
+    $res = sqlStatement($sql, [$owner,$owner]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -287,17 +287,17 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 function updatePortalMailMessageStatus($id, $message_status, $owner): void
 {
     if ($message_status == "Done") {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ? and `owner` = ?", array($message_status, $id, $owner));
+        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ? and `owner` = ?", [$message_status, $id, $owner]);
     } elseif ($message_status == "Delete") {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where (mail_chain = ? OR id = ?) and `owner` = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id, $owner));
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where (mail_chain = ? OR id = ?) and `owner` = ?", [$message_status, date('Y-m-d H:i:s'), $id, $id, $owner]);
     } else {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ? and `owner` = ?", array($message_status, $id, $owner));
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ? and `owner` = ?", [$message_status, $id, $owner]);
     }
 
     if ($message_status == "Delete") {
-        $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", array($id, $owner));
-        $by = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['ptName'];
-        $loguser = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['portal_username'];
+        $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", [$id, $owner]);
+        $by = $_SESSION['authUser'] ?: $_SESSION['ptName'];
+        $loguser = $_SESSION['authUser'] ?: $_SESSION['portal_username'];
         $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
         $log_from = '';
         $puser = '';
@@ -341,13 +341,13 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
 
             return $result_sent_notes;
         } elseif ($dotype == "all") {
-            $result = array();
+            $result = [];
             $result_notes = getPortalPatientNotes($owner, '', '0', "OR (p.deleted != 1 AND (p.owner = ?)) ");
             $result_notifications = getPortalPatientNotifications($owner);
             $result = array_merge($result_notes, $result_notifications);
             return $result;
         } elseif ($dotype == "deleted") {
-            $result = array();
+            $result = [];
             $result = getPortalPatientDeleted($owner, '', '0', "OR (p.deleted = 1 AND (p.owner = ?)) ");
             return $result;
         }

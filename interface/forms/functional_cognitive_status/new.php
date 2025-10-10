@@ -24,10 +24,10 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) ($_GET['id'] ?? 0);
 if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
+    $res = sqlStatement($sql, [$formid,$_SESSION["pid"], $_SESSION["encounter"]]);
 
     $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -36,7 +36,7 @@ if ($formid) {
     $check_res = $all;
 }
 
-$check_res = $formid ? $check_res : array();
+$check_res = $formid ? $check_res : [];
 ?>
 <html>
 <head>

@@ -20,12 +20,10 @@ class EligibilityInquiryRequest
     public $payerName;
     public $payerResponsibility;
     public $provider;
-    public $subscriber;
-    public $patient;
     public $industryCode;
     public $serviceTypeCodes;
 
-    public function __construct($subscriber, $patient, $relationship, $payerResponsibility)
+    public function __construct(public $subscriber, public $patient, $relationship, $payerResponsibility)
     {
         if (strtolower($payerResponsibility) == "primary") {
             $this->payerResponsibility = "p";
@@ -43,8 +41,5 @@ class EligibilityInquiryRequest
         } else {
             $this->relationship = "34";
         }
-
-        $this->subscriber = $subscriber;
-        $this->patient = $patient;
     }
 }

@@ -38,10 +38,10 @@ if (!empty($_REQUEST['url'])) {
 
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
-$result = sqlStatement($query, array($_SESSION['authUserID']));
+$result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
-    $$LOCATION = text($prefs['GOVALUE']);
+    ${$LOCATION} = text($prefs['GOVALUE']);
 }
 // These settings are sticky user preferences linked to a given page.
 // Could do ALL preferences this way instead of the modified extract above...
@@ -94,22 +94,22 @@ $query10 = "select  *,form_encounter.date as encounter_date
                     forms.pid=form_eye_locking.pid and
                     forms.form_id =? ";
 
-$encounter_data = sqlQuery($query10, array($id));
+$encounter_data = sqlQuery($query10, [$id]);
 @extract($encounter_data);
 $id = $form_id;
 
-list($ODIOPTARGET,$OSIOPTARGET) = getIOPTARGETS($pid, $id, $provider_id);
+[$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, $id, $provider_id);
 
 $query          = "SELECT * FROM patient_data where pid=?";
-$pat_data       =  sqlQuery($query, array($pid));
+$pat_data       =  sqlQuery($query, [$pid]);
 
 $query          = "SELECT * FROM users where id = ?";
-$prov_data      = sqlQuery($query, array($provider_id));
+$prov_data      = sqlQuery($query, [$provider_id]);
 
 
 $query = "SELECT * FROM users WHERE id=?";
-$pcp_data =  sqlQuery($query, array($pat_data['providerID']));
-$ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
+$pcp_data =  sqlQuery($query, [$pat_data['providerID']]);
+$ref_data =  sqlQuery($query, [$pat_data['ref_providerID']]);
 $insurance_info[1] = getInsuranceData($pid, "primary");
 $insurance_info[2] = getInsuranceData($pid, "secondary");
 $insurance_info[3] = getInsuranceData($pid, "tertiary");
@@ -764,7 +764,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 $RX_count = '1';
 
                 $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
-                $wear = sqlStatement($query, array($pid,$form_id,$encounter));
+                $wear = sqlStatement($query, [$pid,$form_id,$encounter]);
                 while ($wearing = sqlFetchArray($wear)) {
                     if (!empty($count_rx)) {
                         $count_rx++;
@@ -1044,7 +1044,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             $bad = 0;
                         for ($z = 1; $z < 5; $z++) {
                             $ODzone = "ODVF" . $z;
-                            if ($$ODzone == '1') {
+                            if (${$ODzone} == '1') {
                                 $ODVF[$z] = 'checked value=1';
                                 $bad++;
                             } else {
@@ -1052,7 +1052,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             }
 
                             $OSzone = "OSVF" . $z;
-                            if ($$OSzone == "1") {
+                            if (${$OSzone} == "1") {
                                 $OSVF[$z] = 'checked value=1';
                                 $bad++;
                             } else {
@@ -1257,7 +1257,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                           CTLOSVA <> ''
                                         )
                                         ORDER BY id DESC LIMIT 3";
-                                $result = sqlStatement($sql, array($pid, $id));
+                                $result = sqlStatement($sql, [$pid, $id]);
                             while ($visit = sqlFetchArray($result)) {
                                 echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
                             }
@@ -1397,7 +1397,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <td name="W_wide"><input type="text" class="prism" id="BPDD_1" name="BPDD_1" value="<?php echo attr($BPDD_1 ?? ''); ?>" tabindex="138"></td>
                           <td name="W_wide"><input type="text" class="prism" id="BPDN_1" name="BPDN_1" value="<?php echo attr($BPDN_1 ?? ''); ?>" tabindex="140"></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material Options'); ?>" colspan="2"  tabindex="142">
-                            <?php echo generate_select_list("LENS_MATERIAL_1", "Eye_Lens_Material", ($LENS_MATERIAL_1 ?? ''), '', '--Lens Material--', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px')); ?>
+                            <?php echo generate_select_list("LENS_MATERIAL_1", "Eye_Lens_Material", ($LENS_MATERIAL_1 ?? ''), '', '--Lens Material--', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px']); ?>
                           </td>
                         </tr>
                         <tr>
@@ -2013,7 +2013,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="EXT_left_1">
                             <table>
                                 <?php
-                                  list($imaging,$episode) = display($pid, $encounter, "EXT");
+                                  [$imaging, $episode] = display($pid, $encounter, "EXT");
                                   echo $episode;
                                 ?>
                             </table>
@@ -2251,7 +2251,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="ANTSEG_left_1" class="text_clinical">
                         <table>
                             <?php
-                            list($imaging,$episode) = display($pid, $encounter, "ANTSEG");
+                            [$imaging, $episode] = display($pid, $encounter, "ANTSEG");
                             echo $episode;
                             ?>
                         </table>
@@ -2528,7 +2528,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div id="RETINA_left_1" class="text_clinical">
                             <table>
                                 <?php
-                                    list($imaging,$episode) = display($pid, $encounter, "POSTSEG");
+                                    [$imaging, $episode] = display($pid, $encounter, "POSTSEG");
                                     echo $episode;
                                 ?>
                             </table>
@@ -2565,7 +2565,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             <br />
                             <table>
                                 <?php
-                                    list($imaging,$episode) = display($pid, $encounter, "NEURO");
+                                    [$imaging, $episode] = display($pid, $encounter, "NEURO");
                                     echo $episode;
                                 ?>
                             </table>
@@ -3766,7 +3766,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                   $fs_option   = $row['fs_option'];
                                                                   $fs_codes    = $row['fs_codes'];
                                                                   if (!empty($fs_codes)) {
-                                                                      list($code_type_here, $code) = explode("|", $fs_codes);
+                                                                      [$code_type_here, $code] = explode("|", $fs_codes);
                                                                   }
                                                                   if ($fs_category !== $last_category) {
                                                                       $last_category = $fs_category;
@@ -3784,7 +3784,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                     echo "    <option value=''> " . text($prow['title']) . "\n";
                                                                     $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
                                                                       "WHERE superbill = ? AND active = 1 " .
-                                                                      "ORDER BY code_text", array($prow['option_id']));
+                                                                      "ORDER BY code_text", [$prow['option_id']]);
                                                                     while ($row = sqlFetchArray($res)) {
                                                                         $ctkey = $fs->alphaCodeType($row['code_type']);
                                                                         if ($code_types[$ctkey]['nofs']) {
@@ -3835,14 +3835,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                                               $count = '0';
                                                               $arrTESTS = explode("|", $Resource ?? ''); //form_eye_mag:Resource = billable things (not visit code) performed today
                                                               $query = "select * from list_options where list_id=? and activity='1' order by seq";
-                                                              $TODO_data = sqlStatement($query, array("Eye_todo_done_" . $provider_id));
+                                                              $TODO_data = sqlStatement($query, ["Eye_todo_done_" . $provider_id]);
                                                             while ($row = sqlFetchArray($TODO_data)) {
                                                                 if ($row['codes'] === '') {
                                                                     continue;
                                                                 }
-                                                                list($code_type_here,$code) = explode(":", $row['codes']);
+                                                                [$code_type_here, $code] = explode(":", $row['codes']);
                                                                 $codedesc = lookup_code_descriptions($row['codes']);
-                                                                $order   = array("\r\n", "\n","\r");
+                                                                $order   = ["\r\n", "\n","\r"];
                                                                 $codedesc = str_replace($order, '', $codedesc);
                                                                 if ($codedesc == '') {
                                                                     $codedesc = $row['title'];
@@ -3944,16 +3944,16 @@ if ($refresh and $refresh != 'fullscreen') {
                                   *  is also listed as a billable item/TEST in the CODING ENGINE.
                                   */
                                   $query = "select * from list_options where list_id=? and activity='1' order by seq";
-                                  $TODO_data = sqlStatement($query, array("Eye_todo_done_" . $provider_id));
+                                  $TODO_data = sqlStatement($query, ["Eye_todo_done_" . $provider_id]);
                                 if (sqlNumRows($TODO_data) < '1') {
                                     // Provider list is not created yet, or was deleted.
                                     // Create it fom defaults...
                                     $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
-                                    sqlStatement($query, array('Eye_todo_done_' . $provider_id,'Eye Orders ' . $prov_data['lname']));
+                                    sqlStatement($query, ['Eye_todo_done_' . $provider_id,'Eye Orders ' . $prov_data['lname']]);
                                     $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";
                                     $number_rows = 0;
                                     $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
-                                    $TODO_data = sqlStatement($query, array("Eye_todo_done_defaults"));
+                                    $TODO_data = sqlStatement($query, ["Eye_todo_done_defaults"]);
                                     while ($TODO = sqlFetchArray($TODO_data)) {
                                         if ($number_rows > 0) {
                                             $SQL_INSERT .= ",
@@ -3983,7 +3983,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   $count = 0;
                                                   $counter = 0;
                                                   $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
-                                                  $PLAN_results = sqlStatement($query, array($form_id, $pid ));
+                                                  $PLAN_results = sqlStatement($query, [$form_id, $pid ]);
                                                 while ($plan_row = sqlFetchArray($PLAN_results)) {
                                                     $PLAN_arr[] = $plan_row;
                                                 }
@@ -4127,7 +4127,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                     if (($pcp_data['fax'] ?? null) > '') {
                                                         // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-                                                        $FAX_PCP  =  sqlQuery($query, array($pat_data['providerID'],$pid,$encounter));
+                                                        $FAX_PCP  =  sqlQuery($query, [$pat_data['providerID'],$pid,$encounter]);
                                                         if ($FAX_PCP['ID']) { //it is here already, make them print and manually fax it.  Show icon
                                                             ?>
                                                             <span id='pcp_fax'><?php echo text($pcp_data['fax']); ?></span>
@@ -4157,7 +4157,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <?php if (($ref_data['fax'] ?? null) > '') {
                                                       // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-                                                        $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
+                                                        $FAX_REF  =  sqlQuery($query, [$pat_data['ref_providerID'],$pid,$encounter]);
                                                         if ($FAX_REF['ID'] ?? '') { //it is here already, make them print and manually fax it.  Show icon ?>
                                                              <span id='ref_fax'><?php echo text($ref_data['fax']); ?></span>
                                                              <span id='ref_fax_info'>

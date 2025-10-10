@@ -16,14 +16,8 @@ namespace OpenEMR\Reminder;
 
 class BirthdayReminder
 {
-    private $pid;
-
-    private $user_id;
-
-    public function __construct($pid, $user_id)
+    public function __construct(private $pid, private $user_id)
     {
-        $this->pid = $pid;
-        $this->user_id = $user_id;
     }
 
     public function birthdayAlertResponse($turnOff)
@@ -35,14 +29,14 @@ class BirthdayReminder
         }
 
         $sql = "REPLACE INTO `patient_birthday_alert` (`pid`, `user_id`, `turned_off_on`) VALUES (?,?,?)";
-        $res = sqlStatement($sql, array($this->pid, $this->user_id, $date));
+        $res = sqlStatement($sql, [$this->pid, $this->user_id, $date]);
     }
 
     public function isDisplayBirthdayAlert()
     {
         //Collect dob and if deceased for the patient
         $sql = "SELECT `DOB` FROM `patient_data` WHERE `pid` = ?";
-        $res = sqlQuery($sql, array($this->pid));
+        $res = sqlQuery($sql, [$this->pid]);
 
         if (is_patient_deceased($this->pid)) {
             return false;
@@ -86,7 +80,7 @@ class BirthdayReminder
     private function isBirthdayAlertOff()
     {
         $sql = "SELECT `turned_off_on` FROM `patient_birthday_alert` WHERE pid = ? AND user_id = ?";
-        $res = sqlQuery($sql, array($this->pid, $this->user_id));
+        $res = sqlQuery($sql, [$this->pid, $this->user_id]);
         //if there is result
         if (!empty($res['turned_off_on'])) {
             //if the alert has been turned off this year

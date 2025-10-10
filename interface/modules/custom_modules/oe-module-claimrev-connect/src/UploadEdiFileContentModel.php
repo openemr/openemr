@@ -14,15 +14,7 @@
 
 class UploadEdiFileContentModel
 {
-    public $AccountNumber = "";
-    public $EdiFileContent = "";
-    public $FileName = "";
-
-
-    public function __construct($acct, $ediFileContent, $fileName)
+    public function __construct(public $AccountNumber, public $EdiFileContent, public $FileName)
     {
-        $this->AccountNumber = $acct;
-        $this->EdiFileContent = $ediFileContent;
-        $this->FileName = $fileName;
     }
 }

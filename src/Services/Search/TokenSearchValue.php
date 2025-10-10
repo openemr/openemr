@@ -21,20 +21,16 @@ class TokenSearchValue
     private $code;
 
     /**
-     * @var string
+     * @param mixed $code
+     * @param string $system
+     * @param bool $isUuid
      */
-    private $system;
-
-    /**
-     * @var
-     */
-    private $isUuid;
-
-    public function __construct($code, $system = null, $isUuid = false)
-    {
-        $this->isUuid = $isUuid;
+    public function __construct(
+        $code,
+        private $system = null,
+        private $isUuid = false
+    ) {
         $this->setCode($code);
-        $this->system = $system;
     }
 
     /**
@@ -109,6 +105,6 @@ class TokenSearchValue
 
     public function __toString()
     {
-        return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ? $this->getSystem() : "");
+        return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ?: "");
     }
 }

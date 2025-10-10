@@ -39,14 +39,8 @@ class SmartLaunchController
     const CLIENT_APP_REQUIRED_LAUNCH_SCOPE = 'launch';
     const CLIENT_APP_STANDALONE_LAUNCH_SCOPE = 'launch/patient';
 
-    /**
-     * @var EventDispatcher
-     */
-    private $dispatcher;
-
-    public function __construct(?EventDispatcher $dispatcher = null)
+    public function __construct(private readonly ?EventDispatcher $dispatcher = null)
     {
-        $this->dispatcher = $dispatcher;
     }
 
     public function registerContextEvents()

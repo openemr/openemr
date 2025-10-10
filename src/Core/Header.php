@@ -212,16 +212,16 @@ class Header
      * @param array $selectedAssets
      * @return void
      */
-    private static function parseConfigFile($map, $selectedAssets = array())
+    private static function parseConfigFile($map, $selectedAssets = [])
     {
         $foundAssets = [];
         $excludedCount = 0;
         foreach ($map as $k => $opts) {
-            $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
-            $allowNoLoad = (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
-            $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
-            $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
-            $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
+            $autoload = $opts['autoload'] ?? false;
+            $allowNoLoad = $opts['allowNoLoad'] ?? false;
+            $alreadyBuilt = $opts['alreadyBuilt'] ?? false;
+            $loadInFile = $opts['loadInFile'] ?? false;
+            $rtl = $opts['rtl'] ?? false;
 
             if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
                 if ($allowNoLoad === true) {
@@ -279,11 +279,11 @@ class Header
      * @var boolean $alreadyBuilt - This means the path with cache busting segment has already been built
      * @return array Array with `scripts` and `links` keys which contain arrays of elements
      */
-    private static function buildAsset($opts = array(), $alreadyBuilt = false)
+    private static function buildAsset($opts = [], $alreadyBuilt = false)
     {
-        $script = (isset($opts['script'])) ? $opts['script'] : false;
-        $link = (isset($opts['link'])) ? $opts['link'] : false;
-        $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
+        $script = $opts['script'] ?? false;
+        $link = $opts['link'] ?? false;
+        $path = $opts['basePath'] ?? '';
 
         $basePath = self::parsePlaceholders($path);
 
@@ -372,7 +372,7 @@ class Header
      * @param string $type Must be `script` or `link`
      * @return string mixed HTML element
      */
-    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = array())
+    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
     {
         $attrs = '';
         // make sure we clear out any attributes we don't want overriden

@@ -30,11 +30,9 @@ class Criteria
     protected $_map_object_class;
     private $_fieldmaps;
     private $_keymaps;
-    private $_constructor_where;
-    private $_constructor_order;
     private $_set_order;
-    private $_and = array ();
-    private $_or = array ();
+    private $_and =  [];
+    private $_or =  [];
     public $PrimaryKeyField;
     public $PrimaryKeyValue;
 
@@ -43,13 +41,10 @@ class Criteria
      * @var $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
      */
     public $Filters;
-    public function __construct($where = "", $order = "")
+    public function __construct(private $_constructor_where = "", private $_constructor_order = "")
     {
-        $this->_constructor_where = $where;
-        $this->_constructor_order = $order;
-
-        $this->_where = $where;
-        $this->_order = $order;
+        $this->_where = $this->_constructor_where;
+        $this->_order = $this->_constructor_order;
 
         $this->Init();
     }
@@ -63,7 +58,7 @@ class Criteria
      */
     protected function Init()
     {
-        $this->_map_object_class = str_replace("Criteria", "Map", get_class($this));
+        $this->_map_object_class = str_replace("Criteria", "Map", $this::class);
     }
 
     /**
@@ -74,7 +69,7 @@ class Criteria
     public function AddFilter(CriteriaFilter $filter)
     {
         if (! $this->Filters) {
-            $this->Filters = array ();
+            $this->Filters =  [];
         }
 
         $this->Filters [] = $filter;
@@ -195,7 +190,7 @@ class Criteria
     final protected function Prepare()
     {
         if (! $this->_is_prepared) {
-            if (get_class($this) == "Criteria") {
+            if ($this::class == "Criteria") {
                 if ($this->PrimaryKeyField) {
                     // PrimaryKeyField property was specified. this might be coming from $phreezer->Get
                     $this->_where = " " . $this->PrimaryKeyField . " = '" . $this->Escape($this->PrimaryKeyValue) . "'";
@@ -215,75 +210,75 @@ class Criteria
                         // a filter object will take care of generating it's own where statement
 
                         // normalize the input to accept either an individual filter or multiple filters
-                        $filters = (is_array($val)) ? $val : array (
+                        $filters = (is_array($val)) ? $val :  [
                                 $val
-                        );
+                        ];
 
                         foreach ($filters as $filter) {
                             $this->_where .= $this->_where_delim . ' ' . $filter->GetWhere($this);
                             $this->_where_delim = " and";
                         }
-                    } elseif (substr($prop, - 7) == "_Equals" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_Equals") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_Equals", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " = " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 10) == "_NotEquals" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_NotEquals") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_NotEquals", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " != " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 8) == "_IsEmpty" && $this->$prop ?? '') {
+                    } elseif (str_ends_with($prop, "_IsEmpty") && $this->$prop ?? '') {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsEmpty", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " = ''";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 11) == "_IsNotEmpty" && $this->$prop ?? '') {
+                    } elseif (str_ends_with($prop, "_IsNotEmpty") && $this->$prop ?? '') {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsNotEmpty", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " != ''";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 7) == "_IsLike" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_IsLike") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsLike", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " like '%" . $this->Escape($val) . "%'";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 10) == "_IsNotLike" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_IsNotLike") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsNotLike", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " not like '%" . $this->Escape($val) . "%'";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 11) == "_BeginsWith" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_BeginsWith") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BeginsWith", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " like '" . $this->Escape($val) . "%'";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 9) == "_EndsWith" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_EndsWith") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_EndsWith", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " like '%" . $this->Escape($val) . "'";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 12) == "_GreaterThan" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_GreaterThan") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_GreaterThan", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " > " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 19) == "_GreaterThanOrEqual" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_GreaterThanOrEqual") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_GreaterThanOrEqual", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " >= " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 9) == "_LessThan" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_LessThan") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LessThan", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " < " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 16) == "_LessThanOrEqual" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_LessThanOrEqual") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LessThanOrEqual", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " <= " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 10) == "_BitwiseOr" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_BitwiseOr") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BitwiseOr", "", $prop));
                         $this->_where .= $this->_where_delim . " (" . $dbfield . " | '" . $this->Escape($val) . ")";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 11) == "_BitwiseAnd" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_BitwiseAnd") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BitwiseAnd", "", $prop));
                         $this->_where .= $this->_where_delim . " (" . $dbfield . " & " . $this->Escape($val) . ")";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 16) == "_LiteralFunction" && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with($prop, "_LiteralFunction") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LiteralFunction", "", $prop));
                         $this->_where .= $this->_where_delim . " (" . $dbfield . " " . $val . ")";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 3) == "_In" && isset($val)) {
+                    } elseif (str_ends_with($prop, "_In") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
                             $val = explode(',', $val);
@@ -308,7 +303,7 @@ class Criteria
 
                         $this->_where .= ")";
                         $this->_where_delim = " and";
-                    } elseif (substr($prop, - 6) == "_NotIn" && isset($val)) {
+                    } elseif (str_ends_with($prop, "_NotIn") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
                             $val = explode(',', $val);
@@ -421,14 +416,14 @@ class Criteria
             $mapname = $this->_map_object_class;
             $this->IncludeMap($mapname);
 
-            $this->_fieldmaps = call_user_func(array (
+            $this->_fieldmaps = call_user_func([
                     $mapname,
                     "GetFieldMaps"
-            ));
-            $this->_keymaps = call_user_func(array (
+            ]);
+            $this->_keymaps = call_user_func([
                     $mapname,
                     "GetKeyMaps"
-            ));
+            ]);
         }
     }
 
@@ -445,7 +440,7 @@ class Criteria
         try {
             Includer::RequireClass($objectclass, "Model/DAO/");
         } catch (IncludeException $ex) {
-            throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . get_class($this) . ' can implement GetFieldFromProp instead.');
+            throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . $this::class . ' can implement GetFieldFromProp instead.');
         }
     }
     protected function GetFieldMaps()
@@ -460,7 +455,7 @@ class Criteria
     }
     public function GetFieldFromProp($propname)
     {
-        if (get_class($this) == "Criteria") {
+        if ($this::class == "Criteria") {
             throw new Exception("Phreeze is unable to determine field mapping.  The base Criteria class should only be used to query by primary key without sorting");
         }
 
@@ -468,7 +463,7 @@ class Criteria
 
         // make sure this property is defined
         if (! isset($fms [$propname])) {
-            throw new Exception(get_class($this) . " is unable to determine the database column for the property: '$propname'");
+            throw new Exception($this::class . " is unable to determine the database column for the property: '$propname'");
         }
 
         // print_r($this->_fieldmaps);

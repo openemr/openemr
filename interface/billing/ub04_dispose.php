@@ -21,22 +21,22 @@ function ub04_dispose(): void
     $dispose = ($_POST['handler'] ?? null) ? $_POST['handler'] : ($_GET['handler'] ?? null);
     if ($dispose) {
         if ($dispose == "edit_save") {
-            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
+            $pid = $_POST['pid'] ?? $_GET['pid'];
+            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
             $action = $_REQUEST['action'];
             $ub04id = json_decode($ub04id, true);
             saveTemplate($encounter, $pid, $ub04id, $action);
             exit();
         } elseif ($dispose == "payer_save") {
-            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-            $payerid = isset($_POST['payerid']) ? $_POST['payerid'] : $_GET['payerid'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
+            $payerid = $_POST['payerid'] ?? $_GET['payerid'];
             savePayerTemplate($payerid, $ub04id);
             exit("done");
         } elseif ($dispose == "batch_save") {
-            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
-            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
+            $pid = $_POST['pid'] ?? $_GET['pid'];
+            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
@@ -60,21 +60,21 @@ function ub04_dispose(): void
 
 function get_payer_defaults($payerid)
 {
-    $p = sqlQuery("SELECT insurance_companies.* FROM insurance_companies WHERE insurance_companies.id = ?", array($payerid));
+    $p = sqlQuery("SELECT insurance_companies.* FROM insurance_companies WHERE insurance_companies.id = ?", [$payerid]);
     if ($p['claim_template']) {
         return $p['claim_template'];
     } else {
-        return json_encode(array());
+        return json_encode([]);
     }
 }
 
 function savePayerTemplate($payerid, $ub04id): void
 {
     $ub04id = json_encode($ub04id);
-    sqlStatement("update insurance_companies set claim_template = ? where id = ?", array(
+    sqlStatement("update insurance_companies set claim_template = ? where id = ?", [
         $ub04id,
         $payerid
-    ));
+    ]);
 }
 
 function saveTemplate($encounter, $pid, $ub04id, $action = 'form'): void
@@ -84,7 +84,7 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form'): void
         $ub04id = json_encode($ub04id);
         $isAuthorized = true;
         ob_start();
-        require(dirname(__file__) . "/ub04_form.php");
+        require(__DIR__ . "/ub04_form.php");
         $htmlin = ob_get_clean();
         $isAuthorized = false;
         ub04Dispose('download', $htmlin, "ub04_download.pdf", $action);
@@ -132,7 +132,7 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
             if ($form_action == "noform") {
                 $isnotform = true;
             }
-            $options = array(
+            $options = [
                 'margin-top' => $top,
                 'margin-bottom' => '0in',
                 'margin-left' => $side,
@@ -148,7 +148,7 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
                 'orientation' => 'Portrait',
                 'load-media-error-handling' => 'ignore',
                 'load-error-handling' => 'ignore'
-            );
+            ];
 
             $PdfCreator = new PdfCreator();
             $pdfwkout = $PdfCreator->getPdf($htmlin, $options);
@@ -179,10 +179,10 @@ function exist_ub04_claim($pid, $encounter, $flag = false)
 {
     $sql = "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? AND status > 0 AND status < 4 ";
     $sql .= "ORDER BY version DESC LIMIT 1";
-    $row = sqlQuery($sql, array(
+    $row = sqlQuery($sql, [
         $pid,
         $encounter
-    ));
+    ]);
     if ($row) {
         if (!empty($row['submitted_claim'])) {
             if ($flag === false) {
@@ -209,8 +209,8 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $today = time();
     $claim = new Claim($pid, $encounter, false);
 
-    $ub04id = array();
-    $ub04id[0] = array();
+    $ub04id = [];
+    $ub04id[0] = [];
     // $ub04id[0] Is reserved for params
     $ub04id[2] = $claim->billingFacilityName();
     $ub04id[4] = $claim->billingFacilityStreet();
@@ -256,12 +256,12 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
         $getrevcd = $claim->cptCode($tlh);
         $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY revenue_code DESC";
-        $revcode[$tlh] = sqlQuery($sql, array(
+        $revcode[$tlh] = sqlQuery($sql, [
             $tmpcode,
             $getrevcd
-        ));
+        ]);
         if (!empty($revcode[$tlh])) {
-            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ? $claim->procs[$tlh]['revenue_code'] : $revcode[$tlh]['revenue_code'];
+            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ?: $revcode[$tlh]['revenue_code'];
             $revcode2[$tlh] = array_merge($revcode[$tlh], $claim->procs[$tlh]);
         }
     }
@@ -330,7 +330,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     // Diagnosis Should be ICD10
     $ub04id[347] = '0'; /* 66. DIAGNOSIS AND PROCEDURE CODE QUALIFIER (ICD VERSION INDICATOR) */
     $os = 328; /* 67. PRINCIPAL DIAGNOSIS CODE AND POA INDICATOR */
-    $diagnosis = array();
+    $diagnosis = [];
     foreach ($claim->diagArray() as $diag) {
         $diagnosis[] = $diag;
         if (! empty($diag)) {

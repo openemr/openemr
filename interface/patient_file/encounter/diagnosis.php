@@ -31,13 +31,13 @@ $insurance_company = $_REQUEST['insurance_company'];
 $target = '_parent';
 
 // Possible units of measure for NDC drug quantities.
-$ndc_uom_choices = array(
+$ndc_uom_choices = [
   'ML' => 'ML',
   'GR' => 'Grams',
   'ME' => 'Milligrams',
   'F2' => 'I.U.',
   'UN' => 'Units'
-);
+];
 
 if ($payment_method == "insurance") {
     $payment_method = "insurance: " . $insurance_company;
@@ -54,8 +54,8 @@ if (isset($mode)) {
         $tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
             "forms.pid = ? AND forms.encounter = ? AND " .
             "forms.formdir='newpatient' AND users.username = forms.user AND " .
-            "users.authorized = 1", array($pid, $encounter));
-        $provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
+            "users.authorized = 1", [$pid, $encounter]);
+        $provid = $tmp['id'] ?: $_SESSION["authUserID"];
 
         if (strtolower($type) == "copay") {
             BillingUtilities::addBilling(
@@ -89,7 +89,7 @@ if (isset($mode)) {
             if (strtolower($type) == "hcpcs") {
                     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                 "code_type = 'HCPCS' AND code = ? AND ndc_info LIKE 'N4%' " .
-                "ORDER BY date DESC LIMIT 1", array($code));
+                "ORDER BY date DESC LIMIT 1", [$code]);
                 if (!empty($tmp)) {
                     $ndc_info = $tmp['ndc_info'];
                 }
@@ -112,9 +112,9 @@ if (isset($mode)) {
     } elseif ($mode == "justify") {
         $diags = $_POST['code']['diag'];
         $procs = $_POST['code']['proc'];
-        $sql = array();
+        $sql = [];
         if (!empty($procs) && !empty($diags)) {
-            $sql = array();
+            $sql = [];
             foreach ($procs as $proc) {
                 $justify_string = "";
                 foreach ($diags as $diag) {
@@ -144,7 +144,7 @@ if (isset($mode)) {
               sqlStatement("UPDATE billing SET ndc_info = ? WHERE " .
                 "encounter = ? AND " .
                 "pid = ? AND " .
-                "code = ?", array($ndc_info, $_POST['encounter_id'], $_POST['patient_id'], $ndc['code']));
+                "code = ?", [$ndc_info, $_POST['encounter_id'], $_POST['patient_id'], $ndc['code']]);
         }
     }
 }
@@ -209,7 +209,7 @@ function validate(f) {
  $thisauth = AclMain::aclCheckCore('encounters', 'coding_a');
 if (!$thisauth) {
     $erow = sqlQuery("SELECT user FROM forms WHERE " .
-    "encounter = ? AND formdir = 'newpatient' LIMIT 1", array($encounter));
+    "encounter = ? AND formdir = 'newpatient' LIMIT 1", [$encounter]);
     if ($erow['user'] == $_SESSION['authUser']) {
         $thisauth = AclMain::aclCheckCore('encounters', 'coding');
     }
@@ -261,7 +261,7 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
 <table class="table-borderless">
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
-    $billing_html = array();
+    $billing_html = [];
     $total = 0.0;
     $ndclino = 0;
     foreach ($result as $iter) {

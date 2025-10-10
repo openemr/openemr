@@ -211,7 +211,7 @@ trait QuestionnaireTraits
      */
     private function parseAnswer($answer, $display = false)
     {
-        $obv = array();
+        $obv = [];
         $type = key($answer);
         switch ($type) {
             case "valueBoolean":
@@ -247,12 +247,12 @@ trait QuestionnaireTraits
                 $obv['display'] = $answer[$type];
                 break;
             case "valueCoding":
-                $obv = array(
+                $obv = [
                     'type' => 'coding',
                     'system' => $answer[$type]['system'] ?? null,
                     'code' => $answer[$type]['code'],
                     'display' => $answer[$type]['display'],
-                );
+                ];
                 break;
             case "valueQuantity":
                 $obv['type'] = 'quantity';

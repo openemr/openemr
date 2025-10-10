@@ -7,13 +7,13 @@ use OpenEMR\Common\Acl\AclMain;
 
 function find_contraceptive_methods($contraceptive_code)
 {
-    $retval = array();
+    $retval = [];
     $code = "IPPFCM:" . $contraceptive_code;
     $sqlSearch = "SELECT name,drugs.drug_id,related_code, selector FROM drugs, drug_templates"
               . " WHERE related_code like ? "
               . " AND drug_templates.drug_id=drugs.drug_id AND drugs.active = 1 AND drugs.consumable = 0 "
               . " ORDER BY drugs.name, drug_templates.selector, drug_templates.drug_id";
-    $results = sqlStatement($sqlSearch, array("%" . $code . "%"));
+    $results = sqlStatement($sqlSearch, ["%" . $code . "%"]);
     while ($row = sqlFetchArray($results)) {
         if (!isProductSelectable($row['drug_id'])) {
             continue;
@@ -26,7 +26,7 @@ function find_contraceptive_methods($contraceptive_code)
             }
         }
         if ($match) {
-            array_push($retval, array("name" => $row['name'], "drug_id" => $row['drug_id'], "selector" => $row['selector']));
+            array_push($retval, ["name" => $row['name'], "drug_id" => $row['drug_id'], "selector" => $row['selector']]);
         }
     }
     return $retval;
@@ -37,7 +37,7 @@ function get_method_description($contraceptive_code)
     $sqlSearch = " SELECT code_text FROM codes "
                . " WHERE code_type = 32 "
                . " AND code = ? AND active = 1";
-    $results = sqlStatement($sqlSearch, array($contraceptive_code));
+    $results = sqlStatement($sqlSearch, [$contraceptive_code]);
     if ($results) {
         $row = sqlFetchArray($results);
         return $row['code_text'];
@@ -50,13 +50,13 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     return false;
 }
 
-$retval = array();
-$methods_lookup = array();
+$retval = [];
+$methods_lookup = [];
 if (isset($_REQUEST['methods'])) {
     $methods = $_REQUEST['methods'];
     foreach ($methods as $method_code) {
         if (!isset($methods_lookup[$method_code])) {
-            $list = array();
+            $list = [];
             $list['products'] = find_contraceptive_methods($method_code);
             $list['method'] = get_method_description($method_code);
             $methods_lookup[$method_code] = $list;

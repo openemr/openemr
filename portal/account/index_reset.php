@@ -61,9 +61,9 @@ DEFINE("COL_POR_USER", "portal_username");
 DEFINE("COL_POR_LOGINUSER", "portal_login_username");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
-$sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) .
+$sql = "SELECT " . implode(",", [COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) .
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
-$auth = privQuery($sql, array($_SESSION['pid']));
+$auth = privQuery($sql, [$_SESSION['pid']]);
 $password = trim($_POST['pass_current'] ?? '');
 unset($_POST['pass_current']);
 

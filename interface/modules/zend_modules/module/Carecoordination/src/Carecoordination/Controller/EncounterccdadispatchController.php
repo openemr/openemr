@@ -268,7 +268,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $pids = $this->params('pids') ?? $combination;
                     // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
                     // no sense in having this forward piece at all...
-                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type));
+                    $this->forward()->dispatch(EncountermanagerController::class, ['action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type]);
                 } else {
                     die;
                 }
@@ -466,12 +466,12 @@ class EncounterccdadispatchController extends AbstractActionController
             return;
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,
-        ));
+        ]);
         $view->setTerminal(true);
-        return $this->forward()->dispatch('encounterccdadispatch', array('action' => 'index'));
+        return $this->forward()->dispatch('encounterccdadispatch', ['action' => 'index']);
     }
 
     /*
@@ -495,7 +495,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         $view = new ViewModel(
-            array('encounter' => $result, 'listenerObject' => $this->listenerObject)
+            ['encounter' => $result, 'listenerObject' => $this->listenerObject]
         );
         $view->setTerminal(true);
         return $view;

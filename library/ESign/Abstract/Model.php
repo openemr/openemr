@@ -26,7 +26,7 @@ namespace ESign;
 
 abstract class Abstract_Model
 {
-    private $_args = array();
+    private $_args = [];
 
     public function __construct(?array $args = null)
     {

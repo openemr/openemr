@@ -18,7 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $formname = $_GET["formname"];
-$is_lbf = substr($formname, 0, 3) === 'LBF';
+$is_lbf = str_starts_with($formname, 'LBF');
 
 if ($is_lbf) {
   // Determine the default field ID and its title for graphing.
@@ -27,7 +27,7 @@ if ($is_lbf) {
         "SELECT field_id, title FROM layout_options WHERE " .
         "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
         "ORDER BY group_id DESC, seq DESC, title DESC LIMIT 1",
-        array($formname)
+        [$formname]
     );
 }
 

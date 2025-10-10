@@ -475,14 +475,20 @@ exports.socialHistorySection = function (htmlHeader, na) {
                         typeCode: "DRIV"
                     },
                     content: [entryLevel.tribalAffiliationObservation],
-                    dataKey: "social_history"
+                    dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.tribal_affiliation && input.tribal_affiliation.tribal_code;
+                    }
                 }, {
                     key: "entry",
                     attributes: {
                         typeCode: "DRIV"
                     },
                     content: [entryLevel.pregnancyStatusObservation],
-                    dataKey: "social_history"
+                    dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.pregnancy_status && input.pregnancy_status.pregnancy_code;
+                    }
                 }, {
                     key: "entry",
                     content: [
@@ -501,6 +507,9 @@ exports.socialHistorySection = function (htmlHeader, na) {
                         entryLevel.hungerVitalSignsObservation
                     ],
                     dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && input.hunger_vital_signs && input.hunger_vital_signs.risk_status.answer_code;
+                    }
                 }
             ]
         }]
@@ -1488,4 +1497,35 @@ exports.pathologyReportNoteSection = function (htmlHeader, noteData) {
             ]
         }]
     }
+};
+
+exports.advanceDirectivesSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            attributes: condition.isNullFlavorSection('advance_directives'),
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.21.1", "2015-08-01"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.21.1"),
+                fieldLevel.templateCode("AdvanceDirectivesSection"),
+                fieldLevel.templateTitle("AdvanceDirectivesSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("advance_directives")
+                },
+                htmlHeader,
+                {
+                    key: "entry",
+                    attributes: {
+                        "typeCode": "DRIV"
+                    },
+                    content: [
+                        [entryLevel.advanceDirectiveOrganizer, required]
+                    ],
+                    dataKey: "advance_directives"
+                }
+            ]
+        }]
+    };
 };

@@ -36,7 +36,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query);
 
-        $codes      = array();
+        $codes      = [];
         foreach ($result as $row) {
             $codes[] = $row;
         }
@@ -56,7 +56,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
 
         $sqlSelctProvider       = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
-        $resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, array($encounter, $pid));
+        $resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, [$encounter, $pid]);
         foreach ($resultSelctProvider as $resultSelctProvider_row) {
             $provider = $resultSelctProvider_row['provider_id'];
         }
@@ -66,13 +66,13 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			AND authorized = 1
 			ORDER BY lname, fname";
 
-        $result = $appTable->zQuery($query, array());
-        $rows[0] = array (
+        $result = $appTable->zQuery($query, []);
+        $rows[0] =  [
             'value' => '',
             'label' => 'Unassigned',
             'selected' => true,
             'disabled' => false
-        );
+        ];
         $i = 1;
         foreach ($result as $row) {
             if ($row['id'] == ($provider ?? '')) {
@@ -81,11 +81,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
                 $select = false;
             }
 
-            $rows[$i] = array (
+            $rows[$i] =  [
                 'value' => $row['id'],
                 'label' => $row['fname'] . " " . $row['lname'],
                 'selected' => $select,
-            );
+            ];
             $i++;
         }
 
@@ -108,8 +108,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     */
     function fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, $get_count = null)
     {
-        $records = array();
-        $query_string = array();
+        $records = [];
+        $query_string = [];
 
         $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname,l.date AS issuedate, l.id AS issueid,l.title AS issuetitle
 			FROM
@@ -200,8 +200,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     */
     function generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end)
     {
-        $records = array();
-        $query_string = array();
+        $records = [];
+        $query_string = [];
 
         $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,
 			DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address,
@@ -281,7 +281,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         foreach ($result as $r) {
             $fac_name = $race_code = $ethnicity_code = $county_code = '';
             $o_query        = "SELECT * FROM `form_observation` WHERE `encounter` =  ? AND `pid` = ? AND `activity` = ?" ;
-            $o_result       = $appTable->zQuery($o_query, array($r['encounter'],$r['patientid'],1));
+            $o_result       = $appTable->zQuery($o_query, [$r['encounter'],$r['patientid'],1]);
             $fac_name       = preg_replace('/\s+/', '', $r['name']);
             $race_code      = $this->getCodes($r['race'], 'race');
             $ethnicity_code = $this->getCodes($r['ethnicity'], 'ethnicity');
@@ -500,7 +500,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
             //mark if issues generated/sent
             $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) values (?, ?, ?)";
-            $appTable->zQuery($query_insert, array($r['issueid'], $now1, $filename));
+            $appTable->zQuery($query_insert, [$r['issueid'], $now1, $filename]);
         }
 
         //send the header here
@@ -537,7 +537,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             return;
         }
 
-        $format = $format ? $format : 'm/d/y';
+        $format = $format ?: 'm/d/y';
         $temp   = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date   = $temp[0];
         $date   = str_replace('/', '-', $date);
@@ -566,7 +566,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query   = "SELECT notes
                     FROM list_options
                     WHERE list_id=? AND option_id=?";
-            $result  = $appTable->zQuery($query, array($list_id,$option_id));
+            $result  = $appTable->zQuery($query, [$list_id,$option_id]);
             $res_cur = $result->current();
         }
 

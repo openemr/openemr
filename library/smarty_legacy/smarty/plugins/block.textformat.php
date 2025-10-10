@@ -49,17 +49,17 @@ function smarty_block_textformat($params, $content, &$smarty)
             case 'indent_char':
             case 'wrap_char':
             case 'assign':
-                $$_key = (string)$_val;
+                ${$_key} = (string)$_val;
                 break;
 
             case 'indent':
             case 'indent_first':
             case 'wrap':
-                $$_key = (int)$_val;
+                ${$_key} = (int)$_val;
                 break;
 
             case 'wrap_cut':
-                $$_key = (bool)$_val;
+                ${$_key} = (bool)$_val;
                 break;
 
             default:
@@ -80,7 +80,7 @@ function smarty_block_textformat($params, $content, &$smarty)
             continue;
         }
         // convert mult. spaces & special chars to single space
-        $_paragraphs[$_x] = preg_replace(array('!\s+!','!(^\s+)|(\s+$)!'), array(' ',''), $_paragraphs[$_x]);
+        $_paragraphs[$_x] = preg_replace(['!\s+!','!(^\s+)|(\s+$)!'], [' ',''], $_paragraphs[$_x]);
         // indent first line
         if($indent_first > 0) {
             $_paragraphs[$_x] = str_repeat($indent_char, $indent_first) . $_paragraphs[$_x];

@@ -49,22 +49,8 @@ class TeleHealthVideoRegistrationController
      */
     private $logger;
 
-    /**
-     * @var TeleHealthProviderRepository
-     */
-    private $providerRepository;
-
-
-    /**
-     * @var TeleHealthRemoteRegistrationService
-     */
-    private $remoteService;
-
-    public function __construct(TeleHealthRemoteRegistrationService $remoteService, TeleHealthProviderRepository $repo)
+    public function __construct(private readonly TeleHealthRemoteRegistrationService $remoteService, private readonly TeleHealthProviderRepository $providerRepository)
     {
-//        $this->userRepository = new TeleHealthUserRepository();
-        $this->remoteService = $remoteService;
-        $this->providerRepository = $repo;
         $this->logger = new SystemLogger();
     }
 

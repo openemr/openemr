@@ -27,7 +27,8 @@ $_GET['site'] = $siteDefault;
 $ignoreAuth = true;
 // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
 $sessionAllowWrite = true;
-require_once __DIR__ . '/../interface/globals.php';
+$oeGlobals = require_once __DIR__ . '/../interface/globals.php';
 
 $commandRunner = new \OpenEMR\Common\Command\SymfonyCommandRunner();
+$commandRunner->setGlobalsBag($oeGlobals);
 $commandRunner->run();

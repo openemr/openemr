@@ -111,11 +111,7 @@ class Request
 
     public function getParam($key, $default = '')
     {
-        if (isset($this->_params[$key])) {
-            return $this->_params[$key];
-        }
-
-        return $default;
+        return $this->_params[$key] ?? $default;
     }
 
     protected function parseParams()
@@ -128,12 +124,7 @@ class Request
 
 class Response
 {
-    public $status = null;
-    public $message = null;
-
-    public function __construct($status, $message)
+    public function __construct(public $status, public $message)
     {
-        $this->status = $status;
-        $this->message = $message;
     }
 }

@@ -150,17 +150,17 @@ require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery 
 ?>
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Medical Issues'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array("stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd"),//all file names need suffix _xpd
+    'expandable_files' => ["stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd"],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "issues_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
@@ -274,7 +274,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
-                            $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", array($rowid));
+                            $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", [$rowid]);
 
                             // encount is used to toggle the color of the table-row output below
                             ++$encount;
@@ -288,7 +288,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $diags = explode(";", $row['diagnosis']);
                                 foreach ($diags as $diag) {
                                     $codedesc = lookup_code_descriptions($diag);
-                                    list($codetype, $code) = explode(':', $diag);
+                                    [$codetype, $code] = explode(':', $diag);
                                     if ($codetext) {
                                         $codetext .= "<br>";
                                     }
@@ -303,7 +303,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($row['outcome'] == "1" && $row['enddate'] != null) {
                                 // Resolved
                                 $resolved = true;
-                                $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
+                                $statusCompute = generate_display_field(['data_type' => '1','list_id' => 'outcome'], $row['outcome']);
                             } elseif ($row['enddate'] == null) {
                                 $statusCompute = xlt("Active");
                             } else {
@@ -343,7 +343,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php
                                     if ($focustitles[0] == "Allergies") :
-                                        echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
+                                        echo generate_display_field(['data_type' => '1','list_id' => 'reaction'], $row['reaction']);
                                     endif;
                                     ?>
                                 </div>
@@ -386,7 +386,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <div>
                                                 <?php
                                                     $codeListName = (!empty($thistype) && ($thistype == 'medical_problem')) ? 'condition-verification' : 'allergyintolerance-verification';
-                                                    echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
+                                                    echo generate_display_field(['data_type' => '1','list_id' => $codeListName], $row['verification']);
                                                 ?>
                                                 </div>
                                             </div>

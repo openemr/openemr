@@ -61,7 +61,7 @@ $res = sqlStatement($sql);
 $error = false;
 
 $pharmacyService = new PharmacyService();
-$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
+$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
 
 ?>
 

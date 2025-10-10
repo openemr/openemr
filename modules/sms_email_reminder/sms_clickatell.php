@@ -42,61 +42,61 @@ class sms
     * @link http://sourceforge.net/forum/forum.php?thread_id=1005106&forum_id=344522 How to get CLICKATELL API ID?
     * @var integer
     */
-    var $api_id = "YOUR_CLICKATELL_API_NUMBER";
+    public $api_id = "YOUR_CLICKATELL_API_NUMBER";
 
     /**
     * Clickatell username
     * @var mixed
     */
-    var $user = "YOUR_CLICKATELL_USERNAME";
+    public $user = "YOUR_CLICKATELL_USERNAME";
 
     /**
     * Clickatell password
     * @var mixed
     */
-    var $password = "YOUR_CLICKATELL_PASSWORD";
+    public $password = "YOUR_CLICKATELL_PASSWORD";
 
     /**
     * Use SSL (HTTPS) protocol
     * @var bool
     */
-    var $use_ssl = false;
+    public $use_ssl = false;
 
     /**
     * Define SMS balance limit below class will not work
     * @var integer
     */
-    var $balace_limit = 0;
+    public $balance_limit = 0;
 
     /**
     * Gateway command sending method (curl,fopen)
     * @var mixed
     */
-    var $sending_method = "fopen";
+    public $sending_method = "fopen";
 
     /**
     * Does to use facility for delivering Unicode messages
     * @var bool
     */
-    var $unicode = false;
+    public $unicode = false;
 
     /**
     * Optional CURL Proxy
     * @var bool
     */
-    var $curl_use_proxy = false;
+    public $curl_use_proxy = false;
 
     /**
     * Proxy URL and PORT
     * @var mixed
     */
-    var $curl_proxy = "http://127.0.0.1:8080";
+    public $curl_proxy = "http://127.0.0.1:8080";
 
     /**
     * Proxy username and password
     * @var mixed
     */
-    var $curl_proxyuserpwd = "login:secretpass";
+    public $curl_proxyuserpwd = "login:secretpass";
 
     /**
     * Callback
@@ -106,13 +106,13 @@ class sms
     * 3 - Returns both intermediate and final statuses
     * @var integer
     */
-    var $callback = 0;
+    public $callback = 0;
 
     /**
     * Session variable
     * @var mixed
     */
-    var $session;
+    public $session;
 
     /**
     * Class constructor
@@ -167,7 +167,7 @@ class sms
     {
 
         /* Check SMS credits balance */
-        if ($this->getbalance() < $this->balace_limit) {
+        if ($this->getbalance() < $this->balance_limit) {
             die("You have reach the SMS credit limit!");
         };
 
@@ -207,7 +207,7 @@ class sms
         }
 
         /* Reformat $to number */
-        $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
+        $cleanup_chr =  ["+", " ", "(", ")", "\r", "\n", "\r\n"];
         $to = str_replace($cleanup_chr, "", $to);
 
         /* Send SMS now */

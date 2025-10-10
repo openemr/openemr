@@ -8,21 +8,19 @@ require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
  */
 class OFX
 {
-    var $billing_array;
-    var $config;
+    public $config;
     /**
      * Constructor sets all OFX attributes to their default value
      */
-    function __construct($ba = array())
+    function __construct(public $billing_array = [])
     {
-        $this->billing_array = $ba;
         $this->config = $GLOBALS['oer_config']['ofx'];
     }
 
     function get_OFX()
     {
         $string = $this->_ofx_header() . "\n";
-        $trns = array();
+        $trns = [];
         $sum = 0.00;
         $date_start = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));
         $date_end = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));

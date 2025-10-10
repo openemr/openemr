@@ -71,7 +71,7 @@ function report_header_2($stmt, $providerID = '1')
     //We get the service facility from the encounter.  In cases with multiple service facilities
     //OpenEMR sends the correct facility
 
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", [$stmt['fid']]);
     $facility = sqlFetchArray($service_query);
 
     $DOB = oeFormatShortDate($titleres['DOB']);
@@ -139,7 +139,7 @@ function create_HTML_statement($stmt)
     }
 
 // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -147,7 +147,7 @@ function create_HTML_statement($stmt)
 
 
 // Billing location modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = "{$row['name']}";
     $remit_addr = "{$row['street']}";
@@ -158,7 +158,7 @@ function create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
@@ -229,7 +229,7 @@ function create_HTML_statement($stmt)
     $count = 5;
 
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -336,7 +336,7 @@ function create_HTML_statement($stmt)
         // If first bill then make the amount due current and reset aging date
         if ($stmt['dun_count'] == '0') {
             $last_activity_date = date('Y-m-d');
-            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array(date('Y-m-d'), $row['pid'], $row['encounter']));
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", [date('Y-m-d'), $row['pid'], $row['encounter']]);
         }
         $age_in_days = (int) (($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
@@ -589,7 +589,7 @@ function create_statement($stmt)
     // TBD: read this from the facility table
 
     // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -597,7 +597,7 @@ function create_statement($stmt)
 
 
     // Billing location modified by Daniel Pflieger at Growlingflea Software
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = "{$row['name']}";
     $remit_addr = "{$row['street']}";
@@ -708,7 +708,7 @@ function create_statement($stmt)
     //
     $count = 25;
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
@@ -892,7 +892,7 @@ function osp_create_HTML_statement($stmt)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-    " where  service_location=1", array($stmt['pid']));
+    " where  service_location=1", [$stmt['pid']]);
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -910,7 +910,7 @@ function osp_create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
@@ -981,7 +981,7 @@ function osp_create_HTML_statement($stmt)
     //
     $count = 6;
     $num_ages = 4;
-    $aging = array();
+    $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }

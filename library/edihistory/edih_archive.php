@@ -41,7 +41,7 @@ function edih_archive_report($period = '')
     $strdt = '';
     // edih_archive_date returns empty string if no period
     $tper =  edih_archive_date($period);
-    $chkdt = ($tper) ? $tper : 'None';
+    $chkdt = $tper ?: 'None';
     $strdt = ($tper) ? substr($chkdt, 0, 4) . '-' . substr($chkdt, 4, 2) . '-' . substr($chkdt, 6, 2) : 'None';
     //
     csv_edihist_log("edih_archive_report: creating archive report with date $chkdt");
@@ -81,7 +81,7 @@ function edih_archive_report($period = '')
                         continue;
                     }
 
-                    if (substr($fn, 0, 1) == '.') {
+                    if (str_starts_with($fn, '.')) {
                         $dir_ct--;
                         continue;
                     }
@@ -240,7 +240,7 @@ function edih_archive_filenames($csv_ar, $archive_date)
     }
 
     //
-    $fn_ar = array();
+    $fn_ar = [];
     foreach ($csv_ar as $row) {
         if (strcmp($row['Date'], $archive_date) < 0) {
             $fn_ar[] = $row['FileName'];
@@ -284,9 +284,9 @@ function edih_archive_csv_split($csv_ar, $filename_array)
     //
     // if the to be archived file name is in the row,
     // do not copy it to the new csv array
-    $arch_ar = array();
-    $arch_ar['arch'] = array();
-    $arch_ar['keep'] = array();
+    $arch_ar = [];
+    $arch_ar['arch'] = [];
+    $arch_ar['keep'] = [];
     //
     foreach ($csv_ar as $row) {
         if (in_array($row['FileName'], $filename_array)) {
@@ -328,7 +328,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
     $claims_csv_arch = 'arch_' . basename($parameters['claims_csv']);
     //
     $f_max = 200;
-    $fn_ar2 = array();
+    $fn_ar2 = [];
     // to handle possibility of more than 200 files in the archive
     // use the 'chunk' method
     if (count($filename_ar) > $f_max) {
@@ -521,7 +521,7 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
 {
     //
     $str_out = '';
-    $csv_ar = array();
+    $csv_ar = [];
     $tmpdir = csv_edih_tmpdir();
     $tmpcsv = $tmpdir . DS . 'csv';
     //
@@ -582,7 +582,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
 {
     //
     $str_out = '';
-    $hdr_ar = array();
+    $hdr_ar = [];
     $bdir = csv_edih_basedir();
     $tmpdir = csv_edih_tmpdir();
     $tmpcsv = $tmpdir . DS . 'csv';
@@ -592,7 +592,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
     $csv_new_file = $tmpdir . DS . 'cmb_' . $csvtp . '_' . $filetype . '.csv';
     //
     // arrays used to eliminate duplicate rows
-    $dup_ar = $dup_unique = $dup_keys = array();
+    $dup_ar = $dup_unique = $dup_keys = [];
     // combine files by combining arrays and writing a tmp file
     // get the present csv file contents
     $car1 = csv_assoc_array($filetype, $csvtp);
@@ -602,8 +602,8 @@ function edih_archive_csv_combine($filetype, $csvtype)
     }
 
     // possibility of empty arrays if no data rows in a csv file
-    $hdrc1 = (is_array($car1) && count($car1)) ? array_keys($car1[0]) : array();
-    $hdrc2 = (is_array($car2) && count($car2)) ? array_keys($car2[0]) : array();
+    $hdrc1 = (is_array($car1) && count($car1)) ? array_keys($car1[0]) : [];
+    $hdrc2 = (is_array($car2) && count($car2)) ? array_keys($car2[0]) : [];
     if (count($hdrc1) && ($hdrc1 === $hdrc2)) {
         $hdr_ar = $hdrc1;
     } elseif (empty($hdrc1) && count($hdrc2)) {
@@ -1198,8 +1198,8 @@ function edih_archive_main($period)
         $csv_files_ar = csv_assoc_array($ft, 'file');
         $csv_claims_ar = csv_assoc_array($ft, 'claim');
         // get filenames to be archived
-        $fn_ar = array();
-        $tp_ar = array();
+        $fn_ar = [];
+        $tp_ar = [];
         $fn_ar = edih_archive_filenames($csv_files_ar, $archive_date);
         if (count($fn_ar)) {
             // add type to list

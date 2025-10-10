@@ -48,7 +48,7 @@ $this->assign('nav', 'onsitedocuments');
 
 $catname = '';
 if ($category) {
-    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", array($category));
+    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", [$category]);
     $catname = $result['name'] ?: '';
 }
 $catname = $catname ?: xlt("Onsite Portal Reviewed");

@@ -27,7 +27,7 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$id = (int) ($_GET['id'] ?? '');
 $code = $_POST["code"];
 $code_text = $_POST["codetext"];
 $code_date = $_POST["code_date"];
@@ -35,7 +35,7 @@ $code_des = $_POST["description"];
 $code_activity = $_POST["activity1"];
 
 if ($id && $id != 0) {
-    sqlStatement("DELETE FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
+    sqlStatement("DELETE FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?", [$id, $_SESSION["pid"], $_SESSION["encounter"]]);
     $newid = $id;
 } else {
     $res2 = sqlStatement("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");

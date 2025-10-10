@@ -35,11 +35,6 @@ class Bootstrap
 {
     const MODULE_MENU_NAME = "Weno";
 
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
-
     private $moduleDirectoryName;
 
     /**
@@ -59,12 +54,12 @@ class Bootstrap
      */
     private $logger;
 
-    private string $modulePath;
+    private readonly string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private SelectedPatientPharmacy $selectedPatientPharmacy;
+    private readonly SelectedPatientPharmacy $selectedPatientPharmacy;
     public string $installPath;
     /**
      * @var mixed|string
@@ -72,10 +67,13 @@ class Bootstrap
     public mixed $isWenoUser;
     public bool $isAuthorized;
 
-    public function __construct(EventDispatcher $dispatcher)
-    {
+    /**
+     * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     */
+    public function __construct(
+        private readonly EventDispatcher $eventDispatcher
+    ) {
         $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
-        $this->eventDispatcher = $dispatcher;
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);

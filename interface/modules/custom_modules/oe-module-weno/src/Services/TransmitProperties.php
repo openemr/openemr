@@ -36,8 +36,8 @@ class TransmitProperties
     private $cryptoGen;
     private $pharmacy;
     private $encounter;
-    private mixed $wenoProviderID;
-    private string|false $csrf;
+    private readonly mixed $wenoProviderID;
+    private readonly string|false $csrf;
     private mixed $responsibleParty;
     public mixed $wenoLocation;
 
@@ -375,7 +375,7 @@ insurance;
 
     public function getFacilityForWenoId()
     {
-        $record = array();
+        $record = [];
         return sqlQuery("SELECT * from facility where weno_id = ? limit 1", [$this->wenoLocation]);
     }
 
@@ -523,10 +523,10 @@ insurance;
     public function getPharmacy(): string|array
     {
         $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
-        $response = array(
+        $response = [
             "primary" => $data['primary_ncpdp'] ?? '',
             "alternate" => $data['alternate_ncpdp'] ?? ''
-        );
+        ];
         if (empty($data)) {
             $response['errors'] = true;
             // both primary and alternate are empty

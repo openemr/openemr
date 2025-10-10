@@ -23,11 +23,11 @@ $labid = (int) ($_GET['labid'] ?? null);
 //////////////////////////////////////////////////////////////////////
 // The form was submitted with the selected code type.
 if (isset($_GET['typeid'])) {
-    $grporders = array();
+    $grporders = [];
     $typeid = (int) $_GET['typeid'];
     $name = '';
     if ($typeid) {
-        $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", array($typeid));
+        $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", [$typeid]);
         $name = $ptrow['name'];
         $proctype = trim($ptrow['procedure_type']);
         $codes = ($proctype === 'pro') ? '' : $ptrow['related_code'];
@@ -36,7 +36,7 @@ if (isset($_GET['typeid'])) {
         $proctype_name = trim($ptrow['procedure_type_name']);
 
         if ($ptrow['procedure_type'] == 'fgp') {
-            $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", array($typeid));
+            $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", [$typeid]);
             while ($row = sqlFetchArray($res)) {
                 $grporders[] = $row;
             }
@@ -169,7 +169,7 @@ if (isset($_GET['typeid'])) {
                         "activity = 1 AND " .
                         "(procedure_code LIKE ? OR name LIKE ?) " .
                         "ORDER BY seq, procedure_code";
-                    $res = sqlStatement($query, array($labid, $ord, $search_term, $search_term));
+                    $res = sqlStatement($query, [$labid, $ord, $search_term, $search_term]);
 
                     while ($row = sqlFetchArray($res)) {
                         $itertypeid = $row['procedure_type_id'];

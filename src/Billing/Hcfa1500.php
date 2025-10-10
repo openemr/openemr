@@ -87,7 +87,7 @@ class Hcfa1500
      */
     private function processDiagnoses0212($claim, &$log)
     {
-        $hcfa_entries = array();
+        $hcfa_entries = [];
         $diags = $claim->diagArray(false);
         if ($claim->diagtype == 'ICD10') {
             $icd_indicator = '0';
@@ -115,7 +115,7 @@ class Hcfa1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, array('OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo'));
+        usort($hcfa_entries, ['OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo']);
 
         foreach ($hcfa_entries as $hcfa_entry) {
             $this->putHcfa(
@@ -423,7 +423,7 @@ class Hcfa1500
 
         // Box 14. Date of Current Illness/Injury/Pregnancy
         // this will cause onsetDate in Encounter summary to override misc billing so not perfect yet but fine for now
-        $tmp = ($claim->onsetDate()) ? $claim->onsetDate() : $claim->miscOnsetDate();
+        $tmp = $claim->onsetDate() ?: $claim->miscOnsetDate();
         if (!empty($tmp)) {
             $this->putHcfa(32, 2, 2, substr($tmp, 4, 2));
             $this->putHcfa(32, 5, 2, substr($tmp, 6, 2));

@@ -177,7 +177,7 @@ if (!empty($_POST['form_refresh'])) {
 <tbody>
     <?php
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $filter = sanitizeNumber($_REQUEST['filter']);
     $where = "c.active = 1";
     if ($filter) {
@@ -196,7 +196,7 @@ if (!empty($_POST['form_refresh'])) {
     $last_category = '';
     $irow = 0;
     while ($row = sqlFetchArray($res)) {
-        $category = $row['title'] ? $row['title'] : xl('Uncategorized');
+        $category = $row['title'] ?: xl('Uncategorized');
         $disp_category = ' ';
         if ($category !== $last_category) {
             $last_category = $category;
@@ -224,10 +224,10 @@ if (!empty($_POST['form_refresh'])) {
             echo "   <td class='text'>";
             $arel = explode(';', $row['related_code']);
             foreach ($arel as $tmp) {
-                list($reltype, $relcode) = explode(':', $tmp);
+                [$reltype, $relcode] = explode(':', $tmp);
                 $reltype = $code_types[$reltype]['id'];
                 $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
-                "code_type = ? AND code = ? LIMIT 1", array($reltype, $relcode));
+                "code_type = ? AND code = ? LIMIT 1", [$reltype, $relcode]);
                 echo text($relcode) . ' ' . text(trim($relrow['code_text'])) . '<br />';
             }
 
@@ -238,7 +238,7 @@ if (!empty($_POST['form_refresh'])) {
         "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
         "p.pr_id = ? AND p.pr_selector = '' " .
         "AND p.pr_level = lo.option_id " .
-        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($row['id']));
+        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", [$row['id']]);
         while ($prow = sqlFetchArray($pres)) {
             echo "   <td class='text' align='right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
         }

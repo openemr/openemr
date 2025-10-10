@@ -534,7 +534,7 @@ class SQLUpgradeService implements ISQLUpgradeService
       ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
       WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
       AND col.is_nullable = 'NO' AND col.table_schema = ? AND tab.table_type = 'BASE TABLE'",
-                    array($this->databaseName())
+                    [$this->databaseName()]
                 );
                 $skipping = true;
                 while ($item = sqlFetchArray($items_to_convert)) {
@@ -574,9 +574,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             } elseif (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
                 // find MyISAM tables and attempt to convert them
                 //tables that need to skip InnoDB migration (stay at MyISAM for now)
-                $tables_skip_migration = array('form_eye_mag');
+                $tables_skip_migration = ['form_eye_mag'];
 
-                $tables_list = $this->getTablesList(array('engine' => 'MyISAM'));
+                $tables_list = $this->getTablesList(['engine' => 'MyISAM']);
 
                 $skipping = true;
                 foreach ($tables_list as $t) {
@@ -727,7 +727,7 @@ class SQLUpgradeService implements ISQLUpgradeService
 
             $query .= $line;
 
-            if (substr(trim($query), -1) == ';') {
+            if (str_ends_with(trim($query), ';')) {
                 if ($trim) {
                     $query = rtrim($query, ';');
                 } else {
@@ -1000,7 +1000,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function tableHasEngine($tblname, $engine)
     {
-        $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname, $engine));
+        $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
         return (empty($row)) ? false : true;
     }
 
@@ -1012,7 +1012,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function listExists($option_id)
     {
-        $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", array($option_id));
+        $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", [$option_id]);
         if (empty($row)) {
             return false;
         }
@@ -1049,12 +1049,12 @@ class SQLUpgradeService implements ISQLUpgradeService
                 $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
                 if ($parts[0] != $prev) {
                     $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                    SqlStatement($sql1, array('lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List'));
+                    SqlStatement($sql1, ['lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List']);
                     $seq = 10;
                 }
 
                 $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
-                SqlStatement($sql2, array($parts[0] . '_issue_list', $parts[1], $parts[1], $seq));
+                SqlStatement($sql2, [$parts[0] . '_issue_list', $parts[1], $parts[1], $seq]);
                 $seq += 10;
                 $prev = $parts[0];
             }
@@ -1080,7 +1080,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         if (count($records) > 0) {
             $seq = 0;
             foreach ($records as $value) {
-                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq + 10)));
+                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", [$value, $value, ($seq + 10)]);
                 $seq += 10;
             }
         }
@@ -1103,7 +1103,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         if (count($records) > 0) {
             $seq = 0;
             foreach ($records as $value) {
-                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq + 10)));
+                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", [$value, $value, ($seq + 10)]);
                 $seq += 10;
             }
         }
@@ -1124,7 +1124,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         if (count($records) > 0) {
             $seq = 0;
             foreach ($records as $value) {
-                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq + 10)));
+                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", [$value, $value, ($seq + 10)]);
                 $seq += 10;
             }
         }
@@ -1164,9 +1164,9 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param array $arg possible arguments: engine, table_name
      * @return SQLStatement
      */
-    private function getTablesList($arg = array())
+    private function getTablesList($arg = [])
     {
-        $binds = array($this->databaseName());
+        $binds = [$this->databaseName()];
         $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';
 
         if (!empty($arg['engine'])) {
@@ -1181,7 +1181,7 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         $res = sqlStatement($sql, $binds);
 
-        $records = array();
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[$row['table_name']] = $row['table_name'];
         }
@@ -1213,17 +1213,17 @@ class SQLUpgradeService implements ISQLUpgradeService
         $res = sqlStatement("SELECT DISTINCT form_id FROM layout_options ORDER BY form_id");
         while ($row = sqlFetchArray($res)) {
             $form_id = $row['form_id'];
-            $props = array(
+            $props = [
                 'title' => 'Unknown',
                 'mapping' => 'Core',
                 'notes' => '',
                 'activity' => '1',
                 'option_value' => '0',
-            );
-            if (substr($form_id, 0, 3) == 'LBF') {
+            ];
+            if (str_starts_with($form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
-                    array($form_id)
+                    [$form_id]
                 );
                 if (empty($props)) {
                     continue;
@@ -1231,10 +1231,10 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (substr($form_id, 0, 3) == 'LBT') {
+            } elseif (str_starts_with($form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
-                    array($form_id)
+                    [$form_id]
                 );
                 if (empty($props)) {
                     continue;
@@ -1263,7 +1263,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 "grp_mapping = ?, " .
                 "grp_activity = ?, " .
                 "grp_repeats = ?";
-            $sqlvars = array($form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']);
+            $sqlvars = [$form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']];
             if ($props['notes']) {
                 $jobj = json_decode($props['notes'], true);
                 if (isset($jobj['columns'])) {
@@ -1285,24 +1285,24 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (isset($jobj['services'])) {
                     $query .= ", grp_services = ?";
                     // if present but empty, means all services
-                    $sqlvars[] = $jobj['services'] ? $jobj['services'] : '*';
+                    $sqlvars[] = $jobj['services'] ?: '*';
                 }
                 if (isset($jobj['products'])) {
                     $query .= ", grp_products = ?";
                     // if present but empty, means all products
-                    $sqlvars[] = $jobj['products'] ? $jobj['products'] : '*';
+                    $sqlvars[] = $jobj['products'] ?: '*';
                 }
                 if (isset($jobj['diags'])) {
                     $query .= ", grp_diags = ?";
                     // if present but empty, means all diags
-                    $sqlvars[] = $jobj['diags'] ? $jobj['diags'] : '*';
+                    $sqlvars[] = $jobj['diags'] ?: '*';
                 }
             }
             sqlStatement($query, $sqlvars);
 
             $gres = sqlStatement(
                 "SELECT DISTINCT group_name FROM layout_options WHERE form_id = ? ORDER BY group_name",
-                array($form_id)
+                [$form_id]
             );
 
             // For each group within this layout...
@@ -1317,14 +1317,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                 }
                 sqlStatement(
                     "UPDATE layout_options SET group_id = ? WHERE form_id = ? AND group_name = ?",
-                    array($group_id, $form_id, $group_name)
+                    [$group_id, $form_id, $group_name]
                 );
                 $query = "INSERT IGNORE INTO layout_group_properties SET " .
                     "grp_form_id = ?, " .
                     "grp_group_id = ?, " .
                     "grp_title = '" . add_escape_custom($title) . "'";
                 // grp_title not using $sqlvars because of a bug causing '' to become '0'.
-                $sqlvars = array($form_id, $group_id);
+                $sqlvars = [$form_id, $group_id];
                 /****************************************************************
                 if ($props['notes']) {
                 if (isset($jobj['columns'])) {
@@ -1352,7 +1352,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return true;
         }
         $sql = "SELECT `field_id`, `edit_options`, `seq` FROM `layout_options` WHERE `form_id` = ? ";
-        $result = sqlStatementNoLog($sql, array($form_id));
+        $result = sqlStatementNoLog($sql, [$form_id]);
         if (empty(sqlNumRows($result))) {
             $this->echo("<p class='text-danger'>No results returned for " . text($form_id) . ".</p>");
             return true;
@@ -1379,7 +1379,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $new_options = json_encode($options);
                     $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = 'DEM' AND `field_id` = ? AND `seq` = ? ";
                     $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
-                    sqlStatementNoLog($update_sql, array($new_options, $row['field_id'], $row['seq']));
+                    sqlStatementNoLog($update_sql, [$new_options, $row['field_id'], $row['seq']]);
                     $flag = false;
                 }
             }

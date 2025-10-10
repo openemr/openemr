@@ -35,11 +35,11 @@ class PdfCreator
         }
         try {
             $thisos = strtolower(php_uname());
-            if (strpos($thisos, "darwin") !== false) {
+            if (str_contains($thisos, "darwin")) {
                 $wkexe = $binroot . "/osx/wkhtmltopdf" . $bit . "-osx";
-            } elseif (strpos($thisos, "win") !== false) {
+            } elseif (str_contains($thisos, "win")) {
                 $wkexe = $binroot . "/win/wkhtmltopdf" . $bit . ".exe";
-            } elseif (strpos($thisos, "linux") !== false) {
+            } elseif (str_contains($thisos, "linux")) {
                 $wkexe = $binroot . "/linux/wkhtmltopdf" . $bit . "-linux";
             } else {
                 throw new ExceptionHandler(xlt("Can not determine OS!"));

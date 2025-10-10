@@ -17,9 +17,6 @@ require_once("verysimple/Phreeze/IRouter.php");
  */
 class ActionRouter implements IRouter
 {
-    private $_mode;
-    private $_appRoot;
-    private $_defaultRoute;
     protected $stripApi = true;
     protected $delim = '&';
     protected static $_format;
@@ -30,12 +27,9 @@ class ActionRouter implements IRouter
      * @param string $format
      *          sprintf compatible format
      */
-    public function __construct($format = "%s.%s.page?%s", $mode = UrlWriterMode::WEB, $appRoot = '', $defaultRoute = '')
+    public function __construct($format = "%s.%s.page?%s", private $_mode = UrlWriterMode::WEB, private $_appRoot = '', private $_defaultRoute = '')
     {
         self::$_format = $format;
-        $this->_mode = $mode;
-        $this->_appRoot = $appRoot;
-        $this->_defaultRoute = $defaultRoute;
     }
 
     /**
@@ -85,8 +79,8 @@ class ActionRouter implements IRouter
         $url = sprintf($format, $controller, $method, $qs);
 
         // strip off trailing delimiters from the url
-        $url = (substr($url, - 5) == "&amp;") ? substr($url, 0, strlen($url) - 5) : $url;
-        $url = (substr($url, - 1) == "&" || substr($url, - 1) == "?") ? substr($url, 0, strlen($url) - 1) : $url;
+        $url = (str_ends_with($url, "&amp;")) ? substr($url, 0, strlen($url) - 5) : $url;
+        $url = (str_ends_with($url, "&") || str_ends_with($url, "?")) ? substr($url, 0, strlen($url) - 1) : $url;
 
         $api_check = explode("/api/", RequestUtil::GetCurrentUrl());
         if ($this->stripApi && count($api_check) > 1) {
@@ -107,21 +101,21 @@ class ActionRouter implements IRouter
                 $action = $this->_defaultRoute;
             }
 
-            $uri = $action ? $action : RequestUtil::GetCurrentURL();
+            $uri = $action ?: RequestUtil::GetCurrentURL();
         }
 
         // get the action requested
         $params = explode(".", str_replace("/", ".", $uri));
         $controller_param = isset($params [0]) && $params [0] ? $params [0] : "";
-        $controller_param = str_replace(array (
+        $controller_param = str_replace([
                 ".",
                 "/",
                 "\\"
-        ), array (
+        ], [
                 "",
                 "",
                 ""
-        ), $controller_param);
+        ], $controller_param);
 
         if (! $controller_param) {
             throw new Exception("Invalid or missing Controller parameter");
@@ -132,10 +126,10 @@ class ActionRouter implements IRouter
             $method_param = "DefaultAction";
         }
 
-        return array (
+        return  [
                 $controller_param,
                 $method_param
-        );
+        ];
     }
 
     /**
@@ -163,18 +157,9 @@ class ActionRouter implements IRouter
      */
     public function GetAction($url_param = "action", $default_action = "Account.DefaultAction")
     {
-        switch ($this->_mode) {
-            // TODO: Determine mobile/joomla URL action (if different from default)
-            /*
-             * case UrlWriterMode::JOOMLA:
-             * break;
-             * case UrlWriterMode::MOBILE:
-             * break;
-             */
-            default:
-                // default is to return the standard browser-based action=%s.%s&%s:
-                return RequestUtil::Get($url_param, $default_action);
-                break;
-        }
+        return match ($this->_mode) {
+            // default is to return the standard browser-based action=%s.%s&%s:
+            default => RequestUtil::Get($url_param, $default_action),
+        };
     }
 }

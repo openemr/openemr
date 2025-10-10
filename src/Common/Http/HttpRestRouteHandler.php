@@ -1,12 +1,13 @@
 <?php
 
 /**
- * HttpResponseHelper
+ * HttpRestRouteHandler
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,341 +17,184 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use Psr\Http\Message\ResponseInterface;
-use Exception;
+use Throwable;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class HttpRestRouteHandler
 {
-    public static function dispatch(&$routes, HttpRestRequest $restRequest, $return_method = 'standard')
-    {
-        $dispatchRestRequest = clone $restRequest; // don't want to mess with the original request properties.
+    private readonly SystemLogger $logger;
 
-        (new SystemLogger())->debug(
+    private readonly OEGlobalsBag $globalsBag;
+
+    public function __construct(private readonly OEHttpKernel $kernel)
+    {
+        $this->logger = $kernel->getSystemLogger();
+        $this->globalsBag = $this->kernel->getGlobalsBag();
+    }
+
+    public function dispatch(array $routes, HttpRestRequest $dispatchRestRequest): ?ResponseInterface
+    {
+        $logger = $this->logger;
+
+        $logger->debug(
             "HttpRestRouteHandler::dispatch() start request",
-            ['resource' => $restRequest->getResource(), 'method' => $restRequest->getRequestMethod()
-                , 'user' => $restRequest->getRequestUserUUID(), 'role' => $restRequest->getRequestUserRole()
-                , 'client' => $restRequest->getClientId(), 'apiType' => $restRequest->getApiType()
-                , 'route' => $restRequest->getRequestPath()
-                , 'queryParams' => $restRequest->getQueryParams()
+            ['resource' => $dispatchRestRequest->getResource(), 'method' => $dispatchRestRequest->getMethod()
+                , 'user' => $dispatchRestRequest->getRequestUserUUID(), 'role' => $dispatchRestRequest->getRequestUserRole()
+                , 'client' => $dispatchRestRequest->getClientId(), 'apiType' => $dispatchRestRequest->getApiType()
+                , 'route' => $dispatchRestRequest->getRequestPathWithoutSite()
+                , 'queryParams' => $dispatchRestRequest->getQueryParams()
             ]
         );
 
-        if ($dispatchRestRequest->isFhir() && self::isFhirSearchRequest($dispatchRestRequest)) {
-            (new SystemLogger())->debug("HttpRestRouteHandler::dispatch() FHIR POST _search request needs normalization");
-            $dispatchRestRequest = self::normalizeFhirSearchRequest($dispatchRestRequest);
-            (new SystemLogger())->debug(
-                "HttpRestRouteHandler::dispatch() request normalized",
-                ['resource' => $dispatchRestRequest->getResource(), 'method' => $dispatchRestRequest->getRequestMethod()
-                    , 'user' => $dispatchRestRequest->getRequestUserUUID(), 'role' => $dispatchRestRequest->getRequestUserRole()
-                    , 'client' => $dispatchRestRequest->getClientId(), 'apiType' => $dispatchRestRequest->getApiType()
-                    , 'route' => $dispatchRestRequest->getRequestPath()
-                    , 'queryParams' => $dispatchRestRequest->getQueryParams()
-                ]
-            );
-        }
-
-        $route = $dispatchRestRequest->getRequestPath();
-        $request_method = $dispatchRestRequest->getRequestMethod();
-
-        // this is already handled somewhere else.
-        // let's quickly be able to enable our CORS at the PHP level.
-        header("Access-Control-Allow-Credentials: true");
-        header("Access-Control-Allow-Headers: origin, authorization, accept, content-type, content-encoding, x-requested-with");
-        header("Access-Control-Allow-Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS");
-//        header("Access-Control-Allow-Origin: *");
-        // we have already validated the token which authenticates our client_id
-        // we will go ahead and allow the origin
-        $origins = $dispatchRestRequest->getHeader('Origin');
-        if (!empty($origins)) {
-            header("Access-Control-Allow-Origin: " . $origins[0]);
-        }
-
-        if ($request_method === 'OPTIONS') {
-            return true; // for now we just return true if we have the route.
-        }
+        $dispatchRestRequestPath = $dispatchRestRequest->getRequestPathWithoutSite();
+        $dispatchRestRequestMethod = $dispatchRestRequest->getMethod();
 
         try {
             // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
-            $hasRoute = false;
             foreach ($routes as $routePath => $routeCallback) {
-                $parsedRoute = new HttpRestParsedRoute($dispatchRestRequest->getRequestMethod(), $dispatchRestRequest->getRequestPath(), $routePath);
+                $parsedRoute = new HttpRestParsedRoute($dispatchRestRequestMethod, $dispatchRestRequestPath, $routePath);
                 if ($parsedRoute->isValid()) {
+                    // if our requested resource is a patient context ie patient/<resource>.<permission> then
+                    // we want to mark the request as a patient request and make sure we restrict requests
+                    // TODO: @adunsulag this will have problems if there are multiple scope contexts for a resource,
+                    if ($dispatchRestRequest->getScopeContextForResource($parsedRoute->getResource()) == 'patient') {
+                        $dispatchRestRequest->setPatientRequest(true);
+                    }
+                    // TODO: Would it be better to throw a security exception here instead of returning a custom response?
+                    // this will allow us to handle the response in the kernel view event
+                    $response = $this->checkSecurity($this->kernel, $dispatchRestRequest, $parsedRoute);
+                    if ($response instanceof ResponseInterface) {
+                        // if the response is a ResponseInterface then we need to set it on the event
+                        $logger->debug(self::class . "::dispatch() security check failed", ["route" => $routePath]);
+                        return $response;
+                    }
+                    $dispatchRestRequest->attributes->set("_route", $parsedRoute);
                     $dispatchRestRequest->setResource($parsedRoute->getResource());
                     if ($parsedRoute->isOperation()) {
                         $dispatchRestRequest->setOperation($parsedRoute->getOperation());
                     }
-
-
-                    // if our requested resource is a patient context ie patient/<resource>.<permission> then
-                    // we want to mark the request as a patient request and make sure we restrict requests
-                    if ($dispatchRestRequest->getScopeContextForResource($parsedRoute->getResource()) == 'patient') {
-                        $dispatchRestRequest->setPatientRequest(true);
-                    }
-
-                    // make sure our scopes pass the security checks
-                    $securityCheck = self::checkSecurity($dispatchRestRequest);
-                    if ($securityCheck instanceof ResponseInterface) {
-                        (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() security check failed", ["route" => $routePath]);
-                        return $securityCheck;
-                    }
-                    (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
-                    $hasRoute = true;
+                    $logger->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
 
                     // now grab our url parameters and issue the controller callback for the route
+                    // call the function and use array unpacking to make this faster
+
+                    // the controller result can be a Response object but if its not then it gets handled in the kernel view event
+                    // TODO: @adunsulag if we can figure out how to change this out to use the ArgumentResolver then we can
+                    // remove this code and just use the controller callback directly.
                     $routeControllerParameters = $parsedRoute->getRouteParams();
                     $routeControllerParameters[] = $dispatchRestRequest; // add in the request object to everything
-                    // call the function and use array unpacking to make this faster
-                    $result = $routeCallback(...$routeControllerParameters);
+                    $routeControllerParameters[] = $this->globalsBag; // add in the globals bag to everything if they need it
 
-                    // returning responses let's us unit test this way better.
-                    if ($result instanceof ResponseInterface) {
-                        return $result; // we will let the caller output this value
-                    }
-                    if ($return_method === 'standard') {
-                        header('Content-Type: application/json');
-                        // if we fail to encode we WANT an error thrown
-                        // PHP default json_encode will escape forward slash characters '/' so you can embed the JSON
-                        // inside of a <script> tag.  However, since forward slash escaping is optional as part of the
-                        // JSON spec some servers (looking at you ONC FHIR Inferno and your missing data tests) don't
-                        // know how to handle the unescaped slashes so we remove the forward slash escaping.
-                        echo json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-                        break;
-                    }
-                    if ($return_method === 'direct-json') {
-                        return json_encode($result, JSON_THROW_ON_ERROR);
-                    }
-
-                    // $return_method == 'direct'
-                    return $result;
+                    // set the _controller attribute for the kernel to handle, gives other listeners a chance to modify things as needed
+                    $dispatchRestRequest->attributes->set("_controller", fn() => $routeCallback(...$routeControllerParameters));
+                    return null; // return null to let the kernel handle the response
                 }
             }
-            return $hasRoute;
+            throw new HttpException(Response::HTTP_NOT_FOUND, "Route not found");
         } catch (AccessDeniedException $exception) {
-            (new SystemLogger())->error(
-                "HttpRestRouteHandler::dispatch() " . $exception->getMessage(),
+            // TODO: @adunsulag do we want to just let this exception bubble up and let the kernel handle it?
+            $logger->errorLogCaller(
+                $exception->getMessage(),
                 [
-                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getRequiredSection()
-                    , 'clientId' => $restRequest->getClientId()
-                    , 'userUUID' => $restRequest->getRequestUserUUIDString()
-                    , 'userType' => $restRequest->getRequestUserRole()
-                    , 'path' => $restRequest->getRequestURI()
+                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getSubCategory()
+                    , 'clientId' => $dispatchRestRequest->getClientId()
+                    , 'userUUID' => $dispatchRestRequest->getRequestUserUUIDString()
+                    , 'userType' => $dispatchRestRequest->getRequestUserRole()
+                    , 'path' => $dispatchRestRequest->getRequestURI()
+                    , 'innerExceptionTrace' => $exception->getTraceAsString()
                 ]
             );
-            http_response_code(401);
-            exit;
-        } catch (\JsonException $exception) { // intellisense says this is never thrown but the json_encode WILL throw this
-            (new SystemLogger())->error(
-                "HttpRestRouteHandler::dispatch() failed to encode JSON object" . $exception->getMessage(),
+            throw new HttpException(Response::HTTP_UNAUTHORIZED, "Unauthorized", $exception);
+        } catch (Throwable $exception) {
+            $logger->errorLogCaller(
+                $exception->getMessage(),
                 [
-                    'clientId' => $restRequest->getClientId()
-                    , 'userUUID' => $restRequest->getRequestUserUUIDString()
-                    , 'userType' => $restRequest->getRequestUserRole()
-                    , 'path' => $restRequest->getRequestURI()
+                    'clientId' => $dispatchRestRequest->getClientId()
+                    , 'userUUID' => $dispatchRestRequest->getRequestUserUUIDString()
+                    , 'userType' => $dispatchRestRequest->getRequestUserRole()
+                    , 'path' => $dispatchRestRequest->getRequestURI()
+                    ,'trace' => $exception->getTraceAsString()
                 ]
             );
-            http_response_code(500);
-            exit;
-        } catch (Exception $exception) {
-            (new SystemLogger())->error(
-                "HttpRestRouteHandler::dispatch() " . $exception->getMessage(),
-                [
-                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getRequiredSection()
-                    , 'clientId' => $restRequest->getClientId()
-                    , 'userUUID' => $restRequest->getRequestUserUUIDString()
-                    , 'userType' => $restRequest->getRequestUserRole()
-                    , 'path' => $restRequest->getRequestURI()
-                ]
-            );
-            http_response_code(500);
-            exit;
+            if ($exception instanceof HttpException) {
+                // rethrow http exceptions as is
+                throw $exception;
+            } else {
+                throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, "System error occurred", $exception);
+            }
         }
     }
 
     /**
-     * Given a PSR7 response send the response (headers & body) to the HTTP requesting client
-     *
-     * @param ResponseInterface $response The response to send
-     */
-    public static function emitResponse(ResponseInterface $response)
-    {
-        // we don't use the Rest Config response as our http status response is different here
-        foreach ($response->getHeaders() as $k => $values) {
-            foreach ($values as $v) {
-                header(sprintf('%s: %s', $k, $v));
-            }
-        }
-        echo $response->getBody()->getContents();
-    }
-
-    private static function isFhirSearchRequest(HttpRestRequest $dispatchRestRequest): bool
-    {
-        return $dispatchRestRequest->isFhirSearchRequest();
-    }
-
-    private static function normalizeFhirSearchRequest(HttpRestRequest $dispatchRestRequest): HttpRestRequest
-    {
-
-        // in FHIR a POST request to a resource/_search is identical to the equivalent GET request with parameters.
-        // POST requests are application/x-www-form-urlencoded and parameters may appear both in the URL and the request
-        // body. The spec says that putting requests into both the body and query string is the same as repeating the
-        // parameter.  In our case we treat the parameter as a union search if it appears in both the query string and
-        // the post body.
-        $normalizedRequest = clone $dispatchRestRequest;
-        // chop off the back
-        $pos = strripos($dispatchRestRequest->getRequestPath(), "/_search");
-        if ($pos === false) {
-            throw new \BadMethodCallException("Attempted to normalize search request on a path that does not contain search");
-        }
-
-        $requestPath = substr($dispatchRestRequest->getRequestPath(), 0, $pos);
-        $normalizedRequest->setRequestPath($requestPath);
-        $queryVars = $normalizedRequest->getQueryParams();
-        $normalizedRequest->setRequestMethod("GET");
-
-        // grab any post vars and stuff them into our query vars
-        // @see https://www.hl7.org/fhir/http.html#search
-        if (!empty($_POST)) {
-            foreach ($_POST as $key => $value) {
-                if (isset($queryVars[$key])) {
-                    $queryVars[$key] = is_array($queryVars[$key]) ? $queryVars[$key] : [$queryVars[$key]];
-                    $queryVars[$key][] = $value;
-                } else {
-                    $queryVars[$key] = $value;
-                }
-            }
-        }
-        $normalizedRequest->setQueryParams($queryVars);
-        return $normalizedRequest;
-    }
-
-    /**
-     * Security check on the request route against the Access Token scopes.
-     *
+     * Check the security for the request and return a response if the security check fails.
+     * @param OEHttpKernel $kernel
      * @param HttpRestRequest $restRequest
-     * @throws AccessDeniedException If the security check fails
-     * @returns ResponseInterface|bool
+     * @param HttpRestParsedRoute $parsedRoute
+     * @return ResponseInterface|null
+     * @throws AccessDeniedException
      */
-    private static function checkSecurity(HttpRestRequest $restRequest)
+    public function checkSecurity(OEHttpKernel $kernel, HttpRestRequest $restRequest, HttpRestParsedRoute $parsedRoute): ?ResponseInterface
     {
-        $scopeType = 'patient';
-        switch ($restRequest->getRequestUserRole()) {
-            case 'users':
-                $scopeType = 'user';
-                break;
-            case 'patient':
-                $scopeType = 'patient';
-                break;
-            case 'system':
-                $scopeType = 'system';
-                break;
+        if (empty($restRequest->getRequestUserRole())) {
+            $this->logger->error("HttpRestRouteHandler::checkSecurity() - no user role set for request", [
+                'resource' => $restRequest->getResource(),
+                'method' => $restRequest->getMethod(),
+                'user' => $restRequest->getRequestUserUUID(),
+                'client' => $restRequest->getClientId(),
+                'apiType' => $restRequest->getApiType(),
+                'route' => $restRequest->getRequestPath()
+            ]);
+            throw new AccessDeniedException($restRequest->getResource());
         }
-        $resource = $restRequest->getResource();
-        if (!empty($restRequest->getOperation())) {
-            $permission = $restRequest->getOperation();
+        $scopeType = $restRequest->getRequestUserRole() === 'users' ? 'user' : $restRequest->getRequestUserRole();
+
+        $resource = $parsedRoute->getResource();
+        if (!empty($parsedRoute->getOperation())) {
+            $permission = $parsedRoute->getOperation();
             // this only applies to root level permissions, which I don't believe we are granting in the system right
             // now.
             if (empty($resource)) {
                 $resource = "*"; // for our permission check
             }
         } else {
-            $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
+            $permission = match ($restRequest->getMethod()) {
+                // we don't support HEAD requests as a route in the api so will not address that here
+                // TODO: @adunsulag spec says we should return a 405 Method Not Allowed or a 501 ("not implemented") if we don't support head.
+                "GET" =>  $this->getGetRequestPermission($parsedRoute)
+                , "POST" => 'c'
+                , "PUT" => 'u'
+                , "DELETE" => 'd'
+                , default => throw new HttpException(Response::HTTP_NOT_IMPLEMENTED, "Not implemented")
+            };
         }
-
-        $config = $restRequest->getRestConfig();
-        if ($restRequest->isPatientRequest()) {
-            (new SystemLogger())->debug("checkSecurity() - patient specific request, so only allowing access to records to that one patient");
-            if (empty($restRequest->getPatientUUIDString())) { // we MUST have a patient uuid string if its a patient request
-                // need to fail here since this means the downstream patient binding mechanism will be broken
-                (new SystemLogger())->error("checkSecurity() - exited since patient binding mechanism broken");
-                $psrFactory = new Psr17Factory();
-                $config::destroySession();
-                return $psrFactory->createResponse(401);
-            }
-            // if we are a patient only request and we have a patient uuid populated (from session) then we set our scope type to be patient.
-            $scopeType = 'patient';
-        }
-        // let module writers handle there own security checking or bypass the security as needed
-        // this allows experiments to be done on a module basis such as opening up patient write requests if a module
-        // allows that to occur, or more comprehensive in depth permission checks occurring.
         $restApiSecurityCheckEvent = new RestApiSecurityCheckEvent($restRequest);
         $restApiSecurityCheckEvent->setRestRequest($restRequest);
         $restApiSecurityCheckEvent->setScopeType($scopeType);
         $restApiSecurityCheckEvent->setResource($resource);
         $restApiSecurityCheckEvent->setPermission($permission);
-        $checkedRestApiSecurityCheckEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($restApiSecurityCheckEvent, RestApiSecurityCheckEvent::EVENT_HANDLE);
-        if (!$checkedRestApiSecurityCheckEvent instanceof RestApiSecurityCheckEvent) {
-            throw new \RuntimeException("Invalid event object returned as part of dispatch");
-        }
+        // preferred approach is to throw an AccessDeniedException if the security check fails
+        // however, we also allow for a response to be set on the event for custom security message rendering
+        $checkedRestApiSecurityCheckEvent = $kernel->getEventDispatcher()->dispatch($restApiSecurityCheckEvent, RestApiSecurityCheckEvent::EVENT_HANDLE);
         if ($checkedRestApiSecurityCheckEvent->hasSecurityCheckFailedResponse()) {
             return $checkedRestApiSecurityCheckEvent->getSecurityCheckFailedResponse();
-        } elseif ($checkedRestApiSecurityCheckEvent->shouldSkipSecurityCheck()) {
-            return true;
         }
-
-        if ($restRequest->isFhir()) {
-            // don't do any checks on our open fhir resources
-            if (self::fhirRestRequestSkipSecurityCheck($restRequest)) {
-                return true;
-            }
-            // we do NOT want logged in patients writing data at this point so we fail
-            // TODO: when we have better auditing and provider merge/verification mechanisms look at opening up patient write access to data.
-            if ($restRequest->isPatientWriteRequest() && $restRequest->getRequestUserRole() == 'patient') {
-                // not allowing patient userrole write for fhir
-                (new SystemLogger())->debug("checkSecurity() - not allowing patient role write for fhir");
-                $psrFactory = new Psr17Factory();
-                $config::destroySession();
-                return $psrFactory->createResponse(401);
-            }
-        } elseif (($restRequest->getApiType() === 'oemr') || ($restRequest->getApiType() === 'port')) {
-            // don't do any checks on our open non-fhir resources
-            if (
-                $restRequest->getResource() == 'version'
-                || $restRequest->getResource() == 'product'
-                || $restRequest->isLocalApi() // skip security check if it's a local api
-            ) {
-                return true;
-            }
-            // ensure correct user role type for the non-fhir routes
-            if (
-                ($restRequest->getApiType() === 'oemr')
-                && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))
-                && (($restRequest->getRequestUserRole() !== 'system') || ($scopeType !== 'system'))
-            ) {
-                (new SystemLogger())->debug("checkSecurity() - not allowing patient role to access oemr api");
-                $psrFactory = new Psr17Factory();
-                $config::destroySession();
-                return $psrFactory->createResponse(401);
-            }
-            if (($restRequest->getApiType() === 'port') && (($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient'))) {
-                (new SystemLogger())->debug("checkSecurity() - not allowing users role to access port api");
-                $psrFactory = new Psr17Factory();
-                $config::destroySession();
-                return $psrFactory->createResponse(401);
-            }
-        } else {
-            // should never be here
-            (new SystemLogger())->error("checkSecurity() - illegal api type");
-            $psrFactory = new Psr17Factory();
-            $config::destroySession();
-            return $psrFactory->createResponse(401);
-        }
-
-        // handle our scope checks
-        $config::scope_check($scopeType, $resource, $permission);
+        return null; // No response means the security check passed
     }
 
-    public static function fhirRestRequestSkipSecurityCheck(HttpRestRequest $restRequest): bool
+    protected function getGetRequestPermission(HttpRestParsedRoute $parsedRoute): string
     {
-        // if someone is hitting the local api and have a valid CSRF token we skip the security check.
-        // TODO: @adunsulag need to verify this assumption is correct
-        if ($restRequest->isLocalApi()) {
-            return true;
-        }
 
-        $resource = $restRequest->getResource();
-        // capability statement, smart well knowns, and operation definitions are skipped.
-        $skippedChecks = ['metadata', '.well-known', 'OperationDefinition'];
-        return array_search($resource, $skippedChecks) !== false;
+        // this should handle things like /fhir/Patient/{id} or /api/patient/{id}
+        // as well as more complex params
+        if (!empty($parsedRoute->getInstanceIdentifier())) {
+            return 'r'; // read permission for instance level operations
+        } else {
+            return 's'; // anything that is not an instance level operation is a search request
+        }
     }
 }

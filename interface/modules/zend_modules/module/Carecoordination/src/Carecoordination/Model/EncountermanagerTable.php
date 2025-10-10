@@ -33,7 +33,7 @@ class EncountermanagerTable extends AbstractTableGateway
 {
     public function getEncounters($data, $getCount = null)
     {
-        $query_data = array();
+        $query_data = [];
         $query = "SELECT pd.fname, pd.lname, pd.mname, date(fe.date) as date, fe.pid, fe.encounter, pd.date AS 'patient_creation_date',
                         u.fname as doc_fname, u.mname as doc_mname, u.lname as doc_lname, (select count(encounter) from form_encounter where pid=fe.pid) as enc_count,
                         (SELECT DATE(date) FROM form_encounter WHERE pid=fe.pid ORDER BY date DESC LIMIT 1) as last_visit_date,
@@ -128,7 +128,7 @@ class EncountermanagerTable extends AbstractTableGateway
 				LEFT JOIN users AS u ON u.id = cc.user_id
 				WHERE cc.pid in (?) ORDER BY cc.pid, cc.time desc";
         $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($pid));
+        $result = $appTable->zQuery($query, [$pid]);
         return $result;
     }
 
@@ -154,7 +154,7 @@ class EncountermanagerTable extends AbstractTableGateway
             return;
         }
 
-        $format = $format ? $format : 'm/d/y';
+        $format = $format ?: 'm/d/y';
         $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
@@ -172,7 +172,7 @@ class EncountermanagerTable extends AbstractTableGateway
     {
         $query = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where id=?";
         $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($id));
+        $result = $appTable->zQuery($query, [$id]);
         foreach ($result as $row) {
             if ($row['couch_docid'] != '') {
                 $couch = new CouchDB();
@@ -237,7 +237,7 @@ class EncountermanagerTable extends AbstractTableGateway
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    public function transmitCcdToRecipients($data = array())
+    public function transmitCcdToRecipients($data = [])
     {
         $appTable = new ApplicationTable();
         $ccda_combination = $data['ccda_combination'];
@@ -259,11 +259,11 @@ class EncountermanagerTable extends AbstractTableGateway
 
         try {
             foreach ($rec_arr as $recipient) {
-                $elec_sent = array();
+                $elec_sent = [];
                 $arr = explode('|', $ccda_combination);
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
-                    $result = $appTable->zQuery($query, array($value));
+                    $result = $appTable->zQuery($query, [$value]);
                     // wierd foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
@@ -271,7 +271,7 @@ class EncountermanagerTable extends AbstractTableGateway
                         $trans_id = $val['transaction_id'];
                     }
 
-                    $elec_sent[] = array('pid' => $value, 'map_id' => $trans_id);
+                    $elec_sent[] = ['pid' => $value, 'map_id' => $trans_id];
 
                     $documents = \Document::getDocumentsForForeignReferenceId('ccda', $ccda_id);
                     if (empty($documents[0])) {
@@ -340,7 +340,7 @@ class EncountermanagerTable extends AbstractTableGateway
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?
 		    ORDER BY cc.id DESC LIMIT $limit";
-        $res = $appTable->zQuery($query, array($pid));
+        $res = $appTable->zQuery($query, [$pid]);
         foreach ($res as $row) {
             $res_cur[] = $row;
         }
@@ -356,13 +356,13 @@ class EncountermanagerTable extends AbstractTableGateway
     * @param    String      direct address
     *
     */
-    public function AddNewUSer($data = array())
+    public function AddNewUSer($data = [])
     {
         $fname = $data['fname'];
         $lname = $data['lname'];
         $direct_address = $data['direct_address'];
         $appTable = new ApplicationTable();
         $query = "INSERT INTO users SET username = ? ,password = ? ,authorized = ?,fname = ?,lname = ?,email = ?,active = ?,abook_type = ?";
-        $appTable->zQuery($query, array('', '', 0, $fname, $lname, $direct_address, 1, 'emr_direct'));
+        $appTable->zQuery($query, ['', '', 0, $fname, $lname, $direct_address, 1, 'emr_direct']);
     }
 }

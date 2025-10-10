@@ -30,8 +30,6 @@ use Twig\Environment;
 
 class TeleHealthCalendarController
 {
-    private $logger;
-    private $assetPath;
     /**
      * @var The database record if of the currently logged in user
      */
@@ -47,18 +45,22 @@ class TeleHealthCalendarController
      */
     private $apptService;
 
+    private readonly TeleHealthProviderRepository $teleHealthProviderRepository;
+
     /**
-     * @var Environment Twig container
+     * @param TelehealthGlobalConfig $config
+     * @param Environment $twig Twig container
+     * @param SystemLogger $logger
+     * @param mixed $assetPath
+     * @param mixed $loggedInUserId
      */
-    private $twig;
-
-    private TeleHealthProviderRepository $healthProviderRepository;
-
-    public function __construct(TelehealthGlobalConfig $config, Environment $twig, SystemLogger $logger, $assetPath, $loggedInUserId)
-    {
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->assetPath = $assetPath;
+    public function __construct(
+        TelehealthGlobalConfig $config,
+        private readonly Environment $twig,
+        private readonly SystemLogger $logger,
+        private $assetPath,
+        $loggedInUserId
+    ) {
         $this->loggedInUserId = $loggedInUserId;
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();
         $this->teleHealthProviderRepository = new TeleHealthProviderRepository($this->logger, $config);
@@ -147,9 +149,7 @@ class TeleHealthCalendarController
         $categories = $this->calendarEventCategoryRepository->getEventCategories();
         $categoryIds = array_keys($categories);
         $providers = $this->teleHealthProviderRepository->getEnabledProviders();
-        $providerIds = array_map(function ($provider) {
-            return intval($provider->getDbRecordId());
-        }, $providers);
+        $providerIds = array_map(fn($provider): int => intval($provider->getDbRecordId()), $providers);
 
         $jsAppointmentEventNames = [
             'appointmentSetEvent' => AppointmentJavascriptEventNames::APPOINTMENT_PATIENT_SET_EVENT

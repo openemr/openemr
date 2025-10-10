@@ -21,7 +21,7 @@ class X125010837I
         return ('20' . substr($frmdate, 4, 2) . substr($frmdate, 0, 2) . substr($frmdate, 2, 2));
     }
 
-    public $ub04id = array();
+    public $ub04id = [];
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
     {
@@ -647,17 +647,13 @@ class X125010837I
                     $out .= "*" . $diag_type_code . ":" . $ub04id[319];
                     $diag_type_code = 'TC';
                 }
-                if ($i = 1) {
-                    if ($ub04id[322]) {
-                        $out .= "*" . $diag_type_code . ":" . $ub04id[322];
-                        $diag_type_code = 'TC';
-                    }
+                if ($i === 1 && $ub04id[322]) {
+                    $out .= "*" . $diag_type_code . ":" . $ub04id[322];
+                    $diag_type_code = 'TC';
                 }
-                if ($i = 2) {
-                    if ($ub04id[325]) {
-                        $out .= "*" . $diag_type_code . ":" . $ub04id[325];
-                        $diag_type_code = 'TC';
-                    }
+                if ($i === 2 && $ub04id[325]) {
+                    $out .= "*" . $diag_type_code . ":" . $ub04id[325];
+                    $diag_type_code = 'TC';
                 }
 
                 ++$tmp;
@@ -784,7 +780,7 @@ class X125010837I
 
         // 5010 spec says nothing here if NPI was specified.
         //
-        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {
+        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), ['0B', '1G', 'G2', 'LU'])) {
             if ($claim->providerNumber()) {
                 ++$edicount;
                 $out .= "REF" . "*" . $claim->providerNumberType() . "*" . $claim->providerNumber() . "~\n";
@@ -884,7 +880,7 @@ class X125010837I
                 "*" . $claim->insuredRelationship($ins) .
                 "*" . $claim->groupNumber($ins) .
                 "*" . (($claim->groupNumber($ins)) ? '' : $claim->groupName($ins)) .
-                "*" . ($claim->insuredTypeCode($ins) ? $claim->insuredTypeCode($ins) : $tmp2) .
+                "*" . ($claim->insuredTypeCode($ins) ?: $tmp2) .
                 "*" .
                 "*" .
                 "*" .
@@ -1003,10 +999,10 @@ class X125010837I
             }
             $getrevcd = $claim->cptCode($tlh);
             $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY revenue_code DESC";
-            $revcode[$tlh] = sqlQuery($sql, array(
+            $revcode[$tlh] = sqlQuery($sql, [
                 $tmpcode,
                 $getrevcd
-            ));
+            ]);
         }
 
 

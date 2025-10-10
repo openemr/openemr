@@ -8,40 +8,40 @@
 
 class smtp_class
 {
-	var $user="";
-	var $realm="";
-	var $password="";
-	var $workstation="";
-	var $authentication_mechanism="";
-	var $host_name="";
-	var $host_port=25;
-	var $ssl=0;
-	var $localhost="";
-	var $timeout=0;
-	var $data_timeout=0;
-	var $direct_delivery=0;
-	var $error="";
-	var $debug=0;
-	var $html_debug=0;
-	var $esmtp=1;
-	var $esmtp_host="";
-	var $esmtp_extensions=array();
-	var $maximum_piped_recipients=100;
-	var $exclude_address="";
-	var $getmxrr="GetMXRR";
-	var $pop3_auth_host="";
-	var $pop3_auth_port=110;
+	public $user="";
+	public $realm="";
+	public $password="";
+	public $workstation="";
+	public $authentication_mechanism="";
+	public $host_name="";
+	public $host_port=25;
+	public $ssl=0;
+	public $localhost="";
+	public $timeout=0;
+	public $data_timeout=0;
+	public $direct_delivery=0;
+	public $error="";
+	public $debug=0;
+	public $html_debug=0;
+	public $esmtp=1;
+	public $esmtp_host="";
+	public $esmtp_extensions=[];
+	public $maximum_piped_recipients=100;
+	public $exclude_address="";
+	public $getmxrr="GetMXRR";
+	public $pop3_auth_host="";
+	public $pop3_auth_port=110;
 
 	/* private variables - DO NOT ACCESS */
 
-	var $state="Disconnected";
-	var $connection=0;
-	var $pending_recipients=0;
-	var $next_token="";
-	var $direct_sender="";
-	var $connected_domain="";
-	var $result_code;
-	var $disconnected_error=0;
+	public $state="Disconnected";
+	public $connection=0;
+	public $pending_recipients=0;
+	public $next_token="";
+	public $direct_sender="";
+	public $connected_domain="";
+	public $result_code;
+	public $disconnected_error=0;
 
 	/* Private methods - DO NOT CALL */
 
@@ -54,7 +54,7 @@ class smtp_class
 		}
 		for($character=0;$character<strlen($separator);$character++)
 		{
-			if(GetType($position=strpos($string,$separator[$character]))=="integer")
+			if(GetType($position=strpos($string,(string) $separator[$character]))=="integer")
 				$found=(IsSet($found) ? min($found,$position) : $position);
 		}
 		if(IsSet($found))
@@ -151,7 +151,7 @@ class smtp_class
 
 	Function VerifyResultLines($code,&$responses)
 	{
-		$responses=array();
+		$responses=[];
 		Unset($this->result_code);
 		while(strlen($line=$this->GetLine($this->connection)))
 		{
@@ -201,7 +201,7 @@ class smtp_class
 		}
 		for(;$this->pending_recipients;$this->pending_recipients--)
 		{
-			if($this->VerifyResultLines(array("250","251"),$responses)<=0)
+			if($this->VerifyResultLines(["250","251"],$responses)<=0)
 				return(0);
 		}
 		return(1);
@@ -236,20 +236,14 @@ class smtp_class
 		if(($this->connection=($this->timeout ? @fsockopen(($this->ssl ? "ssl://" : "").$ip,$port,$errno,$error,$this->timeout) : @fsockopen(($this->ssl ? "ssl://" : "").$ip,$port))))
 			return("");
 		$error=($this->timeout ? strval($error) : "??");
-		switch($error)
-		{
-			case "-3":
-				return("-3 socket could not be created");
-			case "-4":
-				return("-4 dns lookup on hostname \"".$domain."\" failed");
-			case "-5":
-				return("-5 connection refused or timed out");
-			case "-6":
-				return("-6 fdopen() call failed");
-			case "-7":
-				return("-7 setvbuf() call failed");
-		}
-		return("could not connect to the host \"".$domain."\": ".$error);
+        return match ($error) {
+            "-3" => "-3 socket could not be created",
+            "-4" => "-4 dns lookup on hostname \"".$domain."\" failed",
+            "-5" => "-5 connection refused or timed out",
+            "-6" => "-6 fdopen() call failed",
+            "-7" => "-7 setvbuf() call failed",
+            default => "could not connect to the host \"".$domain."\": ".$error,
+        };
 	}
 
 	Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
@@ -297,7 +291,7 @@ class smtp_class
 				$this->error="Could not send the AUTH command";
 				return(0);
 			}
-			if(!$this->VerifyResultLines(array("235","334"),$responses))
+			if(!$this->VerifyResultLines(["235","334"],$responses))
 				return(0);
 			switch($this->result_code)
 			{
@@ -327,7 +321,7 @@ class smtp_class
 							$this->error="Could not send the authentication step message";
 							return(0);
 						}
-						if(!$this->VerifyResultLines(array("235","334"),$responses))
+						if(!$this->VerifyResultLines(["235","334"],$responses))
 							return(0);
 						switch($this->result_code)
 						{
@@ -364,13 +358,13 @@ class smtp_class
 		$this->disconnected_error=0;
 		$this->error=$error="";
 		$this->esmtp_host="";
-		$this->esmtp_extensions=array();
-		$hosts=array();
+		$this->esmtp_extensions=[];
+		$hosts=[];
 		if($this->direct_delivery)
 		{
 			if(strlen($domain)==0)
 				return(1);
-			$hosts=$weights=$mxhosts=array();
+			$hosts=$weights=$mxhosts=[];
 			$getmxrr=$this->getmxrr;
 			if(function_exists($getmxrr)
 			&& $getmxrr($domain,$hosts,$weights))
@@ -451,7 +445,7 @@ class smtp_class
 			$this->error=$error;
 			return(0);
 		}
-		$timeout=($this->data_timeout ? $this->data_timeout : $this->timeout);
+		$timeout=($this->data_timeout ?: $this->timeout);
 		if($timeout
 		&& function_exists("socket_set_timeout"))
 			socket_set_timeout($this->connection,$timeout,0);
@@ -516,17 +510,17 @@ class smtp_class
 				else
 				{
 					if(strlen($this->authentication_mechanism))
-						$mechanisms=array($this->authentication_mechanism);
+						$mechanisms=[$this->authentication_mechanism];
 					else
 					{
-						$mechanisms=array();
+						$mechanisms=[];
 						for($authentication=$this->Tokenize($this->esmtp_extensions["AUTH"]," ");strlen($authentication);$authentication=$this->Tokenize(" "))
 							$mechanisms[]=$authentication;
 					}
-					$credentials=array(
+					$credentials=[
 						"user"=>$this->user,
 						"password"=>$this->password
-					);
+					];
 					if(strlen($this->realm))
 						$credentials["realm"]=$this->realm;
 					if(strlen($this->workstation))
@@ -539,11 +533,11 @@ class smtp_class
 						 * Author:  Russell Robinson, 25 May 2003, http://www.tectite.com/
 						 * Purpose: Try various AUTH PLAIN authentication methods.
 						 */
-						$mechanisms=array("PLAIN");
-						$credentials=array(
+						$mechanisms=["PLAIN"];
+						$credentials=[
 							"user"=>$this->user,
 							"password"=>$this->password
-						);
+						];
 						if(strlen($this->realm))
 						{
 							/*
@@ -690,7 +684,7 @@ class smtp_class
 		}
 		else
 		{
-			if($this->VerifyResultLines(array("250","251"),$responses)<=0)
+			if($this->VerifyResultLines(["250","251"],$responses)<=0)
 				return(0);
 		}
 		$this->state="RecipientSet";
@@ -722,9 +716,9 @@ class smtp_class
 	{
 		if($preg
 		&& function_exists("preg_replace"))
-			$output=preg_replace(array("/\n\n|\r\r/","/(^|[^\r])\n/","/\r([^\n]|\$)/D","/(^|\n)\\./"),array("\r\n\r\n","\\1\r\n","\r\n\\1","\\1.."),$data);
+			$output=preg_replace(["/\n\n|\r\r/","/(^|[^\r])\n/","/\r([^\n]|\$)/D","/(^|\n)\\./"],["\r\n\r\n","\\1\r\n","\r\n\\1","\\1.."],$data);
 		else
-			$output=ereg_replace("(^|\n)\\.","\\1..",ereg_replace("\r([^\n]|\$)","\r\n\\1",ereg_replace("(^|[^\r])\n","\\1\r\n",ereg_replace("\n\n|\r\r","\r\n\r\n",$data))));
+			$output=preg_replace("#(^|\n)\\.#m","\\1..",preg_replace("#\r([^\n]|\$)#m","\r\n\\1",preg_replace("#(^|[^\r])\n#m","\\1\r\n",preg_replace("#\n\n|\r\r#m","\r\n\r\n",$data))));
 	}
 
 	Function SendData($data)

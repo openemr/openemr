@@ -164,9 +164,7 @@ class UtilsService
     {
         if (method_exists($object, 'getExtension')) {
             $extensions = $object->getExtension();
-            return array_filter($extensions, function ($extension) use ($url) {
-                return $extension->getUrl() == $url;
-            });
+            return array_filter($extensions, fn($extension): bool => $extension->getUrl() == $url);
         }
         return [];
     }
@@ -195,7 +193,7 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_start'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start']);
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start'], true);
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",
@@ -212,7 +210,7 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_end'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end']);
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end'], true);
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",

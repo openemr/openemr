@@ -15,14 +15,8 @@
 ////////////////////////////////////////////////////////////////////
 class sms
 {
-       // init vars
-    var $username = "";
-    var $password = "";
-
-    function __construct($strUser, $strPass)
+    function __construct(public $username, public $password)
     {
-        $this->username = $strUser;
-        $this->password = $strPass;
     }
 
     /**

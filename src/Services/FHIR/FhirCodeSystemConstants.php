@@ -88,4 +88,14 @@ class FhirCodeSystemConstants
     const HL7_SDC_TASK_TEMP = "https://build.fhir.org/ig/HL7/sdc/CodeSystem-temp.html";
 
     const HL7_SDC_TASK_SERVICE_REQUEST = "http://hl7.org/fhir/CodeSystem/task-code";
+
+    /**
+     * CPT4 code sets are owned by the American Medical Association (AMA)
+     */
+    const AMA_CPT = 'http://www.ama-assn.org/go/cpt';
+
+    const HL7_CATEGORY_OBSERVATION = 'http://terminology.hl7.org/CodeSystem/observation-category';
+
+    const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
+    const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
 }

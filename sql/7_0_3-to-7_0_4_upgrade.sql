@@ -684,11 +684,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 #EndIf
 
 -- now we hide the old values
-#IfNotRow3D list_options list_id observation_value_types option_id physical_exam_performed activity 0
+#IfNotRow3D list_options list_id Observation_Types option_id physical_exam_performed activity 0
 UPDATE `list_options` SET `activity`=0 WHERE `list_id`='Observation_Types' AND `option_id`='physical_exam_performed';
 #EndIf
 
-#IfNotRow3D list_options list_id observation_value_types option_id procedure_diagnostic activity 0
+#IfNotRow3D list_options list_id Observation_Types option_id procedure_diagnostic activity 0
 UPDATE `list_options` SET `activity`=0 WHERE `list_id`='Observation_Types' AND `option_id`='procedure_diagnostic';
 #EndIf
 
@@ -853,7 +853,6 @@ ALTER TABLE form_history_sdoh
 -- Lists & Options (grouped; parent first, then options)
 -- =========================
 
-/* -------- Vital Signs Answers -------- */
 #IfNotRow2D list_options list_id lists option_id vital_signs_answers
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
@@ -864,7 +863,6 @@ VALUES ('vital_signs_answers','LA28397-0','Often true',10,'LOINC:LA28397-0',1),
        ('vital_signs_answers','LA28399-6','Never true',30,'LOINC:LA28399-6',1);
 #EndIf
 
-/* -------- Disability Status -------- */
 #IfNotRow2D list_options list_id lists option_id disability_status
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','disability_status','Disability Status',0,1,0,'',1)
@@ -877,7 +875,6 @@ VALUES ('disability_status','im_safe','I''m Safe.',10,'LOINC:LA29242-7',1),
        ('disability_status','im_in_crisis','I''m in crisis.',40,'LOINC:LA29245-0',1);
 #EndIf
 
-/* -------- SDOH Problems (optional catalog) -------- */
 #IfNotRow2D list_options list_id lists option_id sdoh_problems
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
@@ -895,7 +892,6 @@ VALUES ('sdoh_problems','160903007','Lives alone',10,'SNOMED:160903007',1),
        ('sdoh_problems','266944006','Lives in poverty',100,'SNOMED:266944006',1);
 #EndIf
 
-/* -------- SDOH Interventions (optional catalog) -------- */
 #IfNotRow2D list_options list_id lists option_id sdoh_interventions
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
@@ -914,7 +910,6 @@ VALUES ('sdoh_interventions','467681000124101','Referral to food assistance prog
        ('sdoh_interventions','assist_transport','Assistance with transportation',110,'SNOMED:467721000124107',1);
 #EndIf
 
-/* -------- Tribal Affiliations -------- */
 #IfNotRow2D list_options list_id lists option_id tribal_affiliations
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
@@ -934,7 +929,6 @@ VALUES ('tribal_affiliations','coquille','Coquille Indian Tribe',10,'65',1),
        ('tribal_affiliations','other_specify','Other (specify)',120,'000',1);
 #EndIf
 
-/* -------- ODH IndustryODH (optional; used if you capture industry) -------- */
 #IfNotRow2D list_options list_id IndustryODH option_id 541110
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','IndustryODH','ODH Industry',0,0,0,'NAICS-based industry codes from ODH',1);
@@ -958,7 +952,6 @@ VALUES ('IndustryODH','541110','Offices of Lawyers',10,'541110.008099',1),
        ('IndustryODH','UNKNOWN','Unknown',160,'UNKNOWN',1);
 #EndIf
 
-/* -------- ODH OccupationODH -------- */
 #IfNotRow2D list_options list_id OccupationODH option_id 23-1011.00
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','OccupationODH','ODH Occupation',0,0,0,'O*NET-SOC based occupation codes from ODH',1);
@@ -995,7 +988,7 @@ ALTER TABLE `form_care_plan` ADD COLUMN `plan_status` VARCHAR(32) DEFAULT NULL C
 #EndIf
 
 #IfNotIndex form_care_plan idx_status_date
-ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`status`, `date`, `end_date`);
+ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`plan_status`, `date`, `date_end`);
 #EndIf
 
 -- Care plan status list aligned to FHIR R4 CarePlan.status (titles are user-facing)
@@ -1022,4 +1015,285 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_p
 #EndIf
 #IfNotRow2D list_options list_id care_plan_status option_id unknown
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2025-10-01 load_filename icd10orderfiles.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'icd10orderfiles.zip', '781ce6e72697181f1ef0d4230921e902');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2025-10-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '86a5fb7a3269bea68b74565152e4b849');
+#EndIf
+
+#IfMissingColumn questionnaire_repository category
+ALTER TABLE `questionnaire_repository` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
+#EndIf
+
+-- observation values can be codes as well so we need to populate a description field
+#IfMissingColumn form_observation ob_value_code_description
+ALTER TABLE `form_observation` ADD COLUMN `ob_value_code_description` VARCHAR(255) DEFAULT NULL;
+#EndIf
+
+#IfNotRow list_options list_id pregnancy_intent
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','pregnancy_intent','Pregnancy Intent Over Next Year',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1166.22',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
+       ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
+#EndIf
+
+#IfMissingColumn form_history_sdoh pregnancy_intent
+ALTER TABLE `form_history_sdoh` ADD COLUMN `pregnancy_intent` VARCHAR(32) DEFAULT NULL COMMENT 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)';
+#EndIf
+
+#IfNotRow2D list_options list_id personal_relationship option_id FTH
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','FTH','Father','FTH','76');
+#EndIf
+
+UPDATE `layout_options` SET `list_id` = 'OccupationODH', `list_backup_id` = 'Occupation' WHERE `form_id` = 'DEM' AND `field_id` = 'occupation' AND `group_id` = '4';
+UPDATE `layout_options` SET `list_id` = 'IndustryODH', `list_backup_id` = 'Industry' WHERE `form_id` = 'DEM' AND `field_id` = 'industry' AND `group_id` = '4';
+-- ------------------------------------------- 8-1-25 ------------ Have a pleasant snooze ------------------------------------------------------------------
+
+#IfNotRow2D list_options list_id lists option_id specimen_type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_type', 'Specimen Type', 1, 0, 0, '', 'FHIR Specimen.type - SNOMED CT preferred');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+-- Blood specimens
+('specimen_type', '119297000', 'Blood specimen', 10, 1, 0, 'SNOMED-CT:119297000', 'Whole blood'),
+('specimen_type', '122555007', 'Venous blood specimen', 15, 0, 0, 'SNOMED-CT:122555007', 'Venous blood'),
+('specimen_type', '122554006', 'Capillary blood specimen', 20, 0, 0, 'SNOMED-CT:122554006', 'Capillary blood'),
+('specimen_type', '119364003', 'Serum specimen', 30, 0, 0, 'SNOMED-CT:119364003', 'Blood serum'),
+('specimen_type', '119361006', 'Plasma specimen', 40, 0, 0, 'SNOMED-CT:119361006', 'Blood plasma'),
+('specimen_type', '122556008', 'Cord blood specimen', 50, 0, 0, 'SNOMED-CT:122556008', 'Umbilical cord blood'),
+('specimen_type', '122560006', 'Arterial blood specimen', 60, 0, 0, 'SNOMED-CT:122560006', 'Arterial blood'),
+('specimen_type', '258580003', 'Whole blood specimen', 65, 0, 0, 'SNOMED-CT:258580003', 'Whole blood for testing'),
+-- Urine specimens
+('specimen_type', '122575003', 'Urine specimen', 70, 0, 0, 'SNOMED-CT:122575003', 'Urine'),
+('specimen_type', '278020009', 'Spot urine specimen', 75, 0, 0, 'SNOMED-CT:278020009', 'Random/spot urine'),
+('specimen_type', '258574006', 'Midstream urine specimen', 80, 0, 0, 'SNOMED-CT:258574006', 'Midstream catch'),
+('specimen_type', '258566001', '24-hour urine specimen', 85, 0, 0, 'SNOMED-CT:258566001', '24-hour collection'),
+-- Tissue and biopsy
+('specimen_type', '119376003', 'Tissue specimen', 90, 0, 0, 'SNOMED-CT:119376003', 'Tissue'),
+('specimen_type', '119327009', 'Tissue specimen from skin', 95, 0, 0, 'SNOMED-CT:119327009', 'Skin biopsy'),
+('specimen_type', '430268003', 'Bone specimen', 100, 0, 0, 'SNOMED-CT:430268003', 'Bone tissue'),
+('specimen_type', '258415003', 'Biopsy specimen', 105, 0, 0, 'SNOMED-CT:258415003', 'Biopsy'),
+-- Body fluids
+('specimen_type', '309051001', 'Body fluid specimen', 110, 0, 0, 'SNOMED-CT:309051001', 'Body fluid'),
+('specimen_type', '258450006', 'Cerebrospinal fluid specimen', 120, 0, 0, 'SNOMED-CT:258450006', 'CSF'),
+('specimen_type', '119378004', 'Amniotic fluid specimen', 125, 0, 0, 'SNOMED-CT:119378004', 'Amniotic fluid'),
+('specimen_type', '258459008', 'Gastric fluid specimen', 130, 0, 0, 'SNOMED-CT:258459008', 'Gastric aspirate'),
+('specimen_type', '258442002', 'Bile specimen', 135, 0, 0, 'SNOMED-CT:258442002', 'Bile fluid'),
+('specimen_type', '258498002', 'Synovial fluid specimen', 140, 0, 0, 'SNOMED-CT:258498002', 'Joint fluid'),
+('specimen_type', '119323008', 'Pus specimen', 145, 0, 0, 'SNOMED-CT:119323008', 'Pus/purulent drainage'),
+-- Respiratory specimens
+('specimen_type', '119334006', 'Sputum specimen', 150, 0, 0, 'SNOMED-CT:119334006', 'Sputum'),
+('specimen_type', '258603007', 'Respiratory tract specimen', 155, 0, 0, 'SNOMED-CT:258603007', 'Respiratory specimen'),
+('specimen_type', '258500001', 'Nasopharyngeal swab', 160, 0, 0, 'SNOMED-CT:258500001', 'NP swab'),
+('specimen_type', '472901003', 'Swab from nasal sinus', 165, 0, 0, 'SNOMED-CT:472901003', 'Nasal swab'),
+('specimen_type', '258529004', 'Throat swab', 170, 0, 0, 'SNOMED-CT:258529004', 'Throat culture swab'),
+('specimen_type', '258607008', 'Bronchoalveolar lavage fluid specimen', 175, 0, 0, 'SNOMED-CT:258607008', 'BAL fluid'),
+-- Gastrointestinal
+('specimen_type', '119339001', 'Stool specimen', 180, 0, 0, 'SNOMED-CT:119339001', 'Fecal specimen'),
+('specimen_type', '119342007', 'Saliva specimen', 190, 0, 0, 'SNOMED-CT:119342007', 'Saliva'),
+('specimen_type', '258455001', 'Gastric aspirate specimen', 195, 0, 0, 'SNOMED-CT:258455001', 'Gastric contents'),
+-- Swabs and aspirates
+('specimen_type', '119295008', 'Aspirate', 200, 0, 0, 'SNOMED-CT:119295008', 'Specimen obtained by aspiration'),
+-- Genital/reproductive
+('specimen_type', '119396002', 'Specimen from vagina', 210, 0, 0, 'SNOMED-CT:119396002', 'Vaginal specimen'),
+('specimen_type', '119397006', 'Specimen from cervix', 215, 0, 0, 'SNOMED-CT:119397006', 'Cervical specimen'),
+('specimen_type', '119393003', 'Specimen from urethra', 220, 0, 0, 'SNOMED-CT:119393003', 'Urethral specimen'),
+('specimen_type', '119395003', 'Semen specimen', 225, 0, 0, 'SNOMED-CT:119395003', 'Seminal fluid'),
+-- Other
+('specimen_type', '119303007', 'Microbial isolate specimen', 230, 0, 0, 'SNOMED-CT:119303007', 'Microbial culture');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id specimen_location
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_location', 'Specimen Collection Site', 1, 0, 0, '', 'FHIR Specimen.collection.bodySite - SNOMED CT required');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+-- Upper extremity venipuncture sites
+('specimen_location', '368208006', 'Left upper arm structure', 10, 0, 0, 'SNOMED-CT:368208006', 'Left arm'),
+('specimen_location', '368209003', 'Right upper arm structure', 20, 1, 0, 'SNOMED-CT:368209003', 'Right arm'),
+('specimen_location', '16671000205103', 'Structure of left antecubital fossa', 30, 0, 0, 'SNOMED-CT:16671000205103', 'Left AC fossa'),
+('specimen_location', '16681000205101', 'Structure of right antecubital fossa', 40, 0, 0, 'SNOMED-CT:16681000205101', 'Right AC fossa'),
+('specimen_location', '368456002', 'Left forearm structure', 50, 0, 0, 'SNOMED-CT:368456002', 'Left forearm'),
+('specimen_location', '368454004', 'Right forearm structure', 60, 0, 0, 'SNOMED-CT:368454004', 'Right forearm'),
+('specimen_location', '85151006', 'Structure of left hand', 70, 0, 0, 'SNOMED-CT:85151006', 'Left hand'),
+('specimen_location', '78791008', 'Structure of right hand', 80, 0, 0, 'SNOMED-CT:78791008', 'Right hand'),
+('specimen_location', '762101005', 'Structure of left index finger', 85, 0, 0, 'SNOMED-CT:762101005', 'Left index finger'),
+('specimen_location', '762106000', 'Structure of right index finger', 87, 0, 0, 'SNOMED-CT:762106000', 'Right index finger'),
+('specimen_location', '7569003', 'Finger structure', 90, 0, 0, 'SNOMED-CT:7569003', 'Finger (unspecified)'),
+-- Capillary collection sites
+('specimen_location', '76853006', 'Structure of heel', 100, 0, 0, 'SNOMED-CT:76853006', 'Heel stick'),
+('specimen_location', '29707007', 'Structure of toe', 105, 0, 0, 'SNOMED-CT:29707007', 'Toe'),
+('specimen_location', '117590005', 'Structure of ear', 110, 0, 0, 'SNOMED-CT:117590005', 'Ear lobe'),
+-- Respiratory collection sites
+('specimen_location', '45206002', 'Nasal structure', 120, 0, 0, 'SNOMED-CT:45206002', 'Nose/nasal cavity'),
+('specimen_location', '71836000', 'Nasopharyngeal structure', 130, 0, 0, 'SNOMED-CT:71836000', 'Nasopharynx'),
+('specimen_location', '31389004', 'Oropharyngeal structure', 140, 0, 0, 'SNOMED-CT:31389004', 'Oropharynx'),
+('specimen_location', '54066008', 'Pharyngeal structure', 150, 0, 0, 'SNOMED-CT:54066008', 'Throat/pharynx'),
+('specimen_location', '44567001', 'Tracheal structure', 155, 0, 0, 'SNOMED-CT:44567001', 'Trachea'),
+('specimen_location', '39607008', 'Lung structure', 160, 0, 0, 'SNOMED-CT:39607008', 'Lung'),
+-- Genital/urinary sites
+('specimen_location', '13648007', 'Urethral structure', 170, 0, 0, 'SNOMED-CT:13648007', 'Urethra'),
+('specimen_location', '71252005', 'Cervix uteri structure', 180, 0, 0, 'SNOMED-CT:71252005', 'Cervix'),
+('specimen_location', '76784001', 'Vaginal structure', 190, 0, 0, 'SNOMED-CT:76784001', 'Vagina'),
+('specimen_location', '34402009', 'Rectum structure', 200, 0, 0, 'SNOMED-CT:34402009', 'Rectum'),
+('specimen_location', '13024002', 'Male genital structure', 205, 0, 0, 'SNOMED-CT:13024002', 'Male genitalia'),
+-- Wound/lesion sites
+('specimen_location', '416462003', 'Wound', 210, 0, 0, 'SNOMED-CT:416462003', 'Wound site'),
+('specimen_location', '125643001', 'Open wound', 215, 0, 0, 'SNOMED-CT:125643001', 'Open wound'),
+('specimen_location', '39937001', 'Skin structure', 220, 0, 0, 'SNOMED-CT:39937001', 'Skin'),
+('specimen_location', '128477000', 'Abscess', 225, 0, 0, 'SNOMED-CT:128477000', 'Abscess'),
+-- Other anatomical sites
+('specimen_location', '83419000', 'Spinal canal structure', 230, 0, 0, 'SNOMED-CT:83419000', 'CSF collection site'),
+('specimen_location', '39352004', 'Joint structure', 240, 0, 0, 'SNOMED-CT:39352004', 'Joint (arthrocentesis)'),
+('specimen_location', '38266002', 'Entire body', 250, 0, 0, 'SNOMED-CT:38266002', 'Body as a whole'),
+('specimen_location', '113345001', 'Abdominal structure', 255, 0, 0, 'SNOMED-CT:113345001', 'Abdomen'),
+('specimen_location', '69105007', 'Carotid artery structure', 260, 0, 0, 'SNOMED-CT:69105007', 'Carotid artery'),
+('specimen_location', '51185008', 'Radial artery structure', 265, 0, 0, 'SNOMED-CT:51185008', 'Radial artery');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id specimen_condition
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_condition', 'Specimen Condition', 1, 0, 0, '', 'FHIR uses HL7 v2 Table 0493 - specimen condition/state');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_condition', 'AUT', 'Autolyzed', 10, 0, 0, 'HL7V20493:AUT', 'Autolyzed specimen'),
+    ('specimen_condition', 'CLOT', 'Clotted', 20, 0, 0, 'HL7V20493:CLOT', 'Specimen clotted'),
+    ('specimen_condition', 'CON', 'Contaminated', 30, 0, 0, 'HL7V20493:CON', 'Specimen contaminated'),
+    ('specimen_condition', 'COOL', 'Cool', 40, 0, 0, 'HL7V20493:COOL', 'Cooled specimen'),
+    ('specimen_condition', 'FROZ', 'Frozen', 50, 0, 0, 'HL7V20493:FROZ', 'Frozen specimen'),
+    ('specimen_condition', 'HEM', 'Hemolyzed', 60, 0, 0, 'HL7V20493:HEM', 'Hemolyzed specimen'),
+    ('specimen_condition', 'LIVE', 'Live', 70, 0, 0, 'HL7V20493:LIVE', 'Live organism'),
+    ('specimen_condition', 'ROOM', 'Room temperature', 80, 0, 0, 'HL7V20493:ROOM', 'Room temperature'),
+    ('specimen_condition', 'SNR', 'Sample not received', 90, 0, 0, 'HL7V20493:SNR', 'Not received by lab'),
+    ('specimen_condition', 'THAW', 'Thawed', 100, 0, 0, 'HL7V20493:THAW', 'Thawed specimen'),
+    ('specimen_condition', 'UNFZ', 'Unfrozen', 110, 0, 0, 'HL7V20493:UNFZ', 'Unfrozen specimen'),
+    ('specimen_condition', 'WARM', 'Warm', 120, 0, 0, 'HL7V20493:WARM', 'Warmed specimen'),
+    ('specimen_condition', 'WET', 'Wet', 130, 0, 0, 'HL7V20493:WET', 'Wet specimen'),
+    ('specimen_condition', 'DRY', 'Dry', 140, 0, 0, 'HL7V20493:DRY', 'Dry specimen'),
+    ('specimen_condition', 'OTHER', 'Other', 150, 0, 0, 'HL7V20493:OTHER', 'Other condition'),
+    ('specimen_condition', 'acceptable', 'Acceptable', 160, 1, 0, '','Specimen is acceptable for testing'),
+    ('specimen_condition', 'QNS', 'Quantity not sufficient', 170, 0, 0, 'LOCAL:QNS', 'Insufficient volume'),
+    ('specimen_condition', 'HEMOLYZED', 'Hemolyzed', 180, 0, 0, 'LOCAL:HEM', 'Hemolysis detected'),
+    ('specimen_condition', 'LIPEMIC', 'Lipemic', 190, 0, 0, 'LOCAL:LIP', 'Lipemia present'),
+    ('specimen_condition', 'ICTERIC', 'Icteric', 200, 0, 0, 'LOCAL:ICT', 'Icterus/jaundice'),
+    ('specimen_condition', 'EXPIRED', 'Specimen expired', 210, 0, 0, 'LOCAL:EXP', 'Past stability time'),
+    ('specimen_condition', 'MISLABELED', 'Mislabeled', 220, 0, 0, 'LOCAL:MISLAB', 'Labeling error'),
+    ('specimen_condition', 'UNLABELED', 'Unlabeled', 230, 0, 0, 'LOCAL:NOLAB', 'No label present'),
+    ('specimen_condition', 'DAMAGED', 'Container damaged', 240, 0, 0, 'LOCAL:DAM', 'Container leak/break'),
+    ('specimen_condition', 'WRONGTEMP', 'Improper storage temperature', 250, 0, 0, 'LOCAL:TEMP', 'Temperature abuse'),
+    ('specimen_condition', 'WRONGTUBE', 'Wrong collection container', 260, 0, 0, 'LOCAL:TUBE', 'Incorrect tube type');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id specimen_collection_method
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_collection_method', 'Specimen Collection Method', 1, 0, 0, '', 'SNOMED-CT binding');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+-- Core/Common Methods
+('specimen_collection_method', '129316008', 'Aspiration', 10, 0, 0, 'SNOMED-CT:129316008', 'Aspiration procedure'),
+('specimen_collection_method', '129300006', 'Puncture', 20, 0, 0, 'SNOMED-CT:129300006', 'Puncture procedure'),
+('specimen_collection_method', '129314006', 'Biopsy', 30, 0, 0, 'SNOMED-CT:129314006', 'Biopsy procedure'),
+('specimen_collection_method', '129304002', 'Excision', 40, 0, 0, 'SNOMED-CT:129304002', 'Excision procedure'),
+('specimen_collection_method', '129323009', 'Scraping', 50, 0, 0, 'SNOMED-CT:129323009', 'Scraping procedure'),
+('specimen_collection_method', '70777001', 'Swab', 60, 0, 0, 'SNOMED-CT:70777001', 'Swab procedure'),
+('specimen_collection_method', '225113003', 'Timed collection', 70, 0, 0, 'SNOMED-CT:225113003', 'Timed specimen collection'),
+('specimen_collection_method', '386089008', 'Collection of coughed sputum', 80, 0, 0, 'SNOMED-CT:386089008', 'Sputum collection'),
+('specimen_collection_method', '278450005', 'Finger-prick sampling', 90, 0, 0, 'SNOMED-CT:278450005', 'Capillary blood collection'),
+-- Blood Collection Specific
+('specimen_collection_method', '28520004', 'Venipuncture', 100, 1, 0, 'SNOMED-CT:28520004', 'Venous blood draw'),
+('specimen_collection_method', '76499008', 'Arterial puncture', 110, 0, 0, 'SNOMED-CT:76499008', 'Arterial blood draw'),
+-- Urine Collection Specific
+('specimen_collection_method', '258574006', 'Midstream urine', 120, 0, 0, 'SNOMED-CT:258574006', 'Midstream urine collection'),
+('specimen_collection_method', '73416001', 'Urine specimen collection, clean catch', 130, 0, 0, 'SNOMED-CT:73416001', 'Clean catch method'),
+('specimen_collection_method', '386090004', 'Catheter specimen of urine', 140, 0, 0, 'SNOMED-CT:386090004', 'Catheterized urine'),
+('specimen_collection_method', '386091000', 'Suprapubic aspiration of urine', 150, 0, 0, 'SNOMED-CT:386091000', 'Suprapubic tap'),
+-- Respiratory
+('specimen_collection_method', '397394008', 'Bronchoalveolar lavage', 160, 0, 0, 'SNOMED-CT:397394008', 'BAL procedure'),
+('specimen_collection_method', '168138009', 'Nasopharyngeal swab', 170, 0, 0, 'SNOMED-CT:168138009', 'NP swab collection'),
+-- Other
+('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');
+#EndIf
+
+#IfNotTable procedure_specimen
+CREATE TABLE `procedure_specimen` (
+  `procedure_specimen_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'record id',
+  `uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Specimen id',
+  `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'links to procedure_order.procedure_order_id',
+  `procedure_order_seq` INT(11) NOT NULL COMMENT 'links to procedure_order_code.procedure_order_seq (per test line)',
+  `specimen_identifier` VARCHAR(128) DEFAULT NULL COMMENT 'tube/barcode/internal id',
+  `accession_identifier` VARCHAR(128) DEFAULT NULL COMMENT 'lab accession number',
+  `specimen_type_code` VARCHAR(64) DEFAULT NULL COMMENT 'prefer SNOMED CT code',
+  `specimen_type` VARCHAR(255) DEFAULT NULL COMMENT 'display/text',
+  `collection_method_code` VARCHAR(64) DEFAULT NULL,
+  `collection_method` VARCHAR(255) DEFAULT NULL,
+  `specimen_location_code` VARCHAR(64) DEFAULT NULL,
+  `specimen_location` VARCHAR(255) DEFAULT NULL,
+  `collected_date` DATETIME DEFAULT NULL COMMENT 'single instant',
+  `collection_date_low` DATETIME DEFAULT NULL COMMENT 'period start',
+  `collection_date_high` DATETIME DEFAULT NULL COMMENT 'period end',
+  `volume_value` DECIMAL(10,3) DEFAULT NULL,
+  `volume_unit` VARCHAR(32) DEFAULT 'mL',
+  `condition_code` VARCHAR(32) DEFAULT NULL COMMENT 'HL7 v2 0493 (e.g., ACT, HEM)',
+  `specimen_condition` VARCHAR(64) DEFAULT NULL,
+  `comments` TEXT,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT(20) DEFAULT NULL,
+  `updated_by` BIGINT(20) DEFAULT NULL,
+  `deleted` TINYINT(1) DEFAULT 0,
+  PRIMARY KEY (`procedure_specimen_id`),
+  UNIQUE KEY `uuid_unique` (`uuid`),
+  KEY `idx_order_line` (`procedure_order_id`,`procedure_order_seq`),
+  KEY `idx_identifier` (`specimen_identifier`),
+  KEY `idx_accession` (`accession_identifier`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id occupation data_type 26
+UPDATE `layout_options` SET `data_type` = 26 WHERE `form_id` = 'DEM' AND `field_id` = 'occupation';
+-- Migrate existing occupation values to new list (if not already present)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity) SELECT 'OccupationODH', occupations.occupation, occupations.occupation, 0, 0, 0, 'O*NET-SOC based occupation codes from ODH - migrated from patient_data.occupation', 1 FROM ( select distinct occupation from patient_data where occupation is not null and occupation != '' AND occupation NOT IN ( select option_id FROM list_options WHERE list_id='OccupationODH' ) ) AS occupations;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id em_start_date
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='em_country' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='em_country' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
+    ('DEM','em_start_date',@group_id,'Employment Start Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment Start Date',63,'','F',NULL,NULL,'');
+ALTER TABLE `employer_data` ADD `start_date` datetime DEFAULT NULL COMMENT 'Employment start date for patient';
+#Endif
+
+#IfNotRow2D layout_options form_id DEM field_id em_end_date
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='em_start_date' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='em_start_date' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
+('DEM','em_end_date',@group_id,'Employment End Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment End Date',63,'','F',NULL,NULL,'');
+ALTER TABLE `employer_data` ADD `end_date` datetime DEFAULT NULL COMMENT 'Employment end date for patient';
+#Endif
+
+#IfMissingColumn employer_data occupation
+-- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
+-- this may create some performance issues if searching on this field, so consider re-mapping to a shorter code in the future
+ALTER TABLE `employer_data` ADD COLUMN `occupation` longtext COMMENT 'Employment Occupation fk to list_options.option_id where list_id=OccupationODH';
+#EndIf
+
+#IfMissingColumn employer_data industry
+-- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
+-- this may create some performance issues if searching on this field, so consider re-mapping to a shorter code in the future
+ALTER TABLE `employer_data` ADD COLUMN `industry` text COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH';
+#EndIf
+
+#IfMissingColumn employer_data created_by
+ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the employer data';
+#EndIf
+
+#IfMissingColumn employer_data uuid
+ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
 #EndIf

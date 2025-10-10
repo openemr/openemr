@@ -20,15 +20,13 @@ namespace OpenEMR\Common\ORDataObject;
 
 class Address extends ORDataObject implements \JsonSerializable
 {
-    var $id;
-    var $foreign_id;
-    var $line1;
-    var $line2;
-    var $city;
-    var $state;
-    var $zip;
-    var $plus_four;
-    var $country;
+    public $line1;
+    public $line2;
+    public $city;
+    public $state;
+    public $zip;
+    public $plus_four;
+    public $country;
 
     /**
      * @var string The county or district of the address
@@ -38,12 +36,9 @@ class Address extends ORDataObject implements \JsonSerializable
     /**
      * Constructor sets all Address attributes to their default value
      */
-    function __construct($id = "", $foreign_id = "")
+    function __construct(public $id = "", public $foreign_id = "")
     {
         parent::__construct("addresses");
-
-        $this->id = $id;
-        $this->foreign_id = $foreign_id;
         $this->line1 = "";
         $this->line2 = "";
         $this->city = "";
@@ -52,13 +47,13 @@ class Address extends ORDataObject implements \JsonSerializable
         $this->plus_four = "";
         $this->district = "";
         $this->country = "USA";
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
     static function factory_address($foreign_id = "")
     {
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";
@@ -179,7 +174,7 @@ class Address extends ORDataObject implements \JsonSerializable
         // change things up for the USA
         if ($this->country == "USA") {
             // we will parse our inner elements based on our postal codes
-            if (strpos($postalcode, "-") !== false) { // yes I know this is lazy...
+            if (str_contains($postalcode, "-")) { // yes I know this is lazy...
                 $parts = explode("-", $postalcode);
                 $this->zip = $parts[0] ?? "";
                 $this->plus_four = $parts[1] ?? "";
