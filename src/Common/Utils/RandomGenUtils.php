@@ -24,9 +24,6 @@ class RandomGenUtils
     {
         try {
             return random_bytes($length);
-        } catch (Error $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . errorLogEscape($e->getMessage()));
-            return '';
         } catch (Exception $e) {
             error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage()));
             return '';
@@ -49,9 +46,6 @@ class RandomGenUtils
                 $str .= $alphabet[random_int(0, $alphamax)];
             }
             return $str;
-        } catch (Error $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage()));
-            return '';
         } catch (Exception $e) {
             error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage()));
             return '';
