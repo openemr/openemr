@@ -54,18 +54,6 @@ class PdfCreator
         $this->tempPath = $GLOBALS['OE_SITE_DIR'] . "/documents/temp";
     }
 
-    public function getPdfFromFile($files, $options)
-    {
-        try {
-            $pdfwk = new Pdf($this->binaryPath);
-            $pdfwk->setTemporaryFolder($this->tempPath);
-            $pdfwkout = $pdfwk->getOutput($files, $options);
-        } catch (ExceptionHandler $e) {
-            echo xlt($e->xdebug_message);
-        }
-        return $pdfwkout;
-    }
-
     // Can be array of html with each element as a page.
     public function getPdf($htmlin, $options)
     {
@@ -77,13 +65,5 @@ class PdfCreator
             echo xlt($e->getMessage());
         }
         return $pdfwkout;
-    }
-
-    public function write($html_file, $save_to, $options)
-    {
-        $pdfwk = new Pdf($this->binaryPath);
-        $pdfwk->generateFromHtml(file_get_contents($html_file), $save_to);
-
-        return $pdfFilePath;
     }
 }
