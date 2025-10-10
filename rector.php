@@ -55,6 +55,9 @@ use Rector\TypeDeclaration\Rector\ClassMethod\ReturnNeverTypeRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
+    ->withBootstrapFiles([
+        __DIR__ . '/rector-bootstrap.php',
+    ])
     ->withPaths([
         __DIR__ . '/Documentation',
         __DIR__ . '/apis',
