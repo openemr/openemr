@@ -17176,10 +17176,6 @@ parameters:
     identifier: property.notFound
     count: 5
     path: src/Gacl/Gacl.php
-  - message: '#^Instantiated class OpenEMR\\Gacl\\Hashed_Cache_Lite not found\.$#'
-    identifier: class.notFound
-    count: 1
-    path: src/Gacl/Gacl.php
   - message: '#^Variable \$retarr might not be defined\.$#'
     identifier: variable.undefined
     count: 1
