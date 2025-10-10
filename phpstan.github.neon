@@ -14600,10 +14600,6 @@ parameters:
     identifier: constructor.unusedParameter
     count: 1
     path: library/classes/InsuranceNumbers.class.php
-  - message: '#^Class Note referenced with incorrect case\: note\.$#'
-    identifier: class.nameCase
-    count: 1
-    path: library/classes/Note.class.php
   - message: '#^Function NumberToText not found\.$#'
     identifier: function.notFound
     count: 1
