@@ -54,7 +54,7 @@ while ($frow = sqlFetchArray($fres)) {
   // $value     = '';
     $colname   = $field_id;
     $tblname   = 'patient_data';
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with($field_id, 'em_')) {
         $colname = substr($field_id, 3);
         $tblname = 'employer_data';
     }
@@ -77,7 +77,7 @@ if (empty($pid)) {
 }
 setpid($pid);
 if (!$GLOBALS['omit_employers']) {
-    updateEmployerData($pid, $newdata['employer_data'], true);
+    updateEmployerData($pid, $newdata['employer_data'], true, $newdata['patient_data']);
 }
 
 if (!empty($addressFieldsToSave)) {

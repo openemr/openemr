@@ -72,7 +72,7 @@ $parent_enc_id = $_POST['parent_enc_id'] ?? null;
 $encounter_provider = $_POST['provider_id'] ?? null;
 $referring_provider_id = $_POST['referring_provider_id'] ?? null;
 //save therapy group if exist in external_id column
-$external_id = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
+$external_id = $_POST['form_gid'] ?? '';
 $ordering_provider_id = $_POST['ordering_provider_id'] ?? null;
 
 $discharge_disposition = $_POST['discharge_disposition'] ?? null;
@@ -85,8 +85,8 @@ $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-$provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
-$provider_id = $encounter_provider ? $encounter_provider : $provider_id;
+$provider_id = $_SESSION['authUserID'] ?: 0;
+$provider_id = $encounter_provider ?: $provider_id;
 
 $encounter_type = $_POST['encounter_type'] ?? '';
 $encounter_type_code = null;

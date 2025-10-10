@@ -311,7 +311,7 @@ class CarePlanService extends BaseService
     public function splitSurrogateKeyIntoParts($key)
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
-        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+        if (str_contains($key, self::SURROGATE_KEY_SEPARATOR_V1)) {
             $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
         }
         $parts = explode($delimiter, $key);

@@ -87,7 +87,7 @@ function edih_upload_sftp()
 
         if (is_string($fa['name'])) {
             // check for null byte in file name, linux hidden file, directory
-            if (strpos($fa['name'], '.') === 0 || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false) {
+            if (str_starts_with($fa['name'], '.') || str_contains($fa['name'], "\0") || str_contains($fa['name'], "./")) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
                 $fname = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $fa['name']);
                 $f_ar['reject'][] = ['name' => $fname,'comment' => 'null byte, hidden, invalid'];
@@ -315,7 +315,7 @@ if (!$exitcd) {
         $wrk =  explode(':', $sftp_host['remote_host']);
         $sftp_host['remote_host'] = $wrk[0];
         if (!isset($sftp_host['port'])) {
-            $sftp_host['port'] = (isset($wrk[1]) ? $wrk[1] : '22');
+            $sftp_host['port'] = ($wrk[1] ?? '22');
         }
 
         $cn = new \phpseclib3\Net\SFTP($sftp_host['remote_host'], $sftp_host['port']);

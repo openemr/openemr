@@ -42,29 +42,29 @@ class Config_File_Legacy {
     /**
      * Controls whether variables with the same name overwrite each other.
      */
-    var $overwrite        =    true;
+    public $overwrite        =    true;
 
     /**
      * Controls whether config values of on/true/yes and off/false/no get
      * converted to boolean values automatically.
      */
-    var $booleanize        =    true;
+    public $booleanize        =    true;
 
     /**
      * Controls whether hidden config sections/vars are read from the file.
      */
-    var $read_hidden     =    true;
+    public $read_hidden     =    true;
 
     /**
      * Controls whether or not to fix mac or dos formatted newlines.
      * If set to true, \r or \r\n will be changed to \n.
      */
-    var $fix_newlines =    true;
+    public $fix_newlines =    true;
     /**#@-*/
 
     /** @access private */
-    var $_config_path    = "";
-    var $_config_data    = [];
+    public $_config_path    = "";
+    public $_config_data    = [];
     /**#@-*/
 
     /**
@@ -288,9 +288,9 @@ class Config_File_Legacy {
             $line = $lines[$i];
             if (empty($line)) continue;
 
-            if ( substr($line, 0, 1) == '[' && preg_match('!^\[(.*?)\]!', $line, $match) ) {
+            if ( str_starts_with($line, '[') && preg_match('!^\[(.*?)\]!', $line, $match) ) {
                 /* section found */
-                if (substr($match[1], 0, 1) == '.') {
+                if (str_starts_with($match[1], '.')) {
                     /* hidden section */
                     if ($this->read_hidden) {
                         $section_name = substr($match[1], 1);
@@ -312,7 +312,7 @@ class Config_File_Legacy {
             if (preg_match('/^\s*(\.?\w+)\s*=\s*(.*)/s', $line, $match)) {
                 /* variable found */
                 $var_name = rtrim($match[1]);
-                if (strpos($match[2], '"""') === 0) {
+                if (str_starts_with($match[2], '"""')) {
                     /* handle multiline-value */
                     $lines[$i] = substr($match[2], 3);
                     $var_value = '';
@@ -350,7 +350,7 @@ class Config_File_Legacy {
      */
     function _set_config_var(&$container, $var_name, $var_value, $booleanize)
     {
-        if (substr($var_name, 0, 1) == '.') {
+        if (str_starts_with($var_name, '.')) {
             if (!$this->read_hidden)
                 return;
             else

@@ -268,7 +268,7 @@ function write_report_line(&$row): void
     $emptyvalue = $form_action != 'export' ? '&nbsp;' : '';
     $drug_id = (int) $row['drug_id'];
     $on_hand = (int) $row['on_hand'];
-    $warehouse_id = isset($row['warehouse_id']) ? $row['warehouse_id'] : '';
+    $warehouse_id = $row['warehouse_id'] ?? '';
     $facility_id = empty($row['option_value']) ? '0' : $row['option_value'];
     $warnings = '';
 

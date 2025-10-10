@@ -17,34 +17,29 @@ class Tree
     *   This is the name of the table this tree is stored in
     *   @var string
     */
-    var $_table;
+    public $_table;
 
     /*
     *   This is a lookup table so that you can get a node name or parent id from its id
     *   @var array
     */
-    var $_id_name;
+    public $_id_name;
 
     /*
     *   This is a db abstraction object compatible with ADODB
     *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
     */
-    var $_db;
-
-    var $_root;
-    var $_root_type;
-    var $tree;
+    public $_db;
+    public $tree;
 
     /*
     *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
     *   @param mixed $root name or id of desired root node
     *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
     */
-    function __construct($root, $root_type = ROOT_TYPE_ID)
+    function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
         $this->_db = $GLOBALS['adodb']['db'];
-        $this->_root = $root;
-        $this->_root_type = $root_type;
         $this->load_tree();
     }
 

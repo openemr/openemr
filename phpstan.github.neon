@@ -640,10 +640,6 @@ parameters:
     identifier: property.notFound
     count: 2
     path: gacl/profiler.inc.php
-  - message: '#^Function each not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: gacl/profiler.inc.php
   - message: '#^Variable \$config might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3500,10 +3496,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$date on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/billing/sl_eob_process.php
   - message: '#^Variable \$STMT_PRINT_CMD might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3914,7 +3906,7 @@ parameters:
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$fs might not be defined\.$#'
     identifier: variable.undefined
-    count: 16
+    count: 15
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$ignoreAuth_onsite_portal might not be defined\.$#'
     identifier: variable.undefined
@@ -3922,7 +3914,7 @@ parameters:
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$pid might not be defined\.$#'
     identifier: variable.undefined
-    count: 17
+    count: 18
     path: interface/forms/LBF/new.php
   - message: '#^Variable \$rootdir might not be defined\.$#'
     identifier: variable.undefined
@@ -11380,10 +11372,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-comlink-telehealth/public/index.php
-  - message: '#^Access to an undefined property Comlink\\OpenEMR\\Modules\\TeleHealthModule\\Controller\\TeleHealthCalendarController\:\:\$teleHealthProviderRepository\.$#'
-    identifier: property.notFound
-    count: 3
-    path: interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php
   - message: '#^Variable \$user might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -11968,10 +11956,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
-  - message: '#^Variable \$adapter on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php
   - message: '#^Variable \$curr_html_tag might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -14796,10 +14780,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: library/classes/fpdf/fpdf.php
-  - message: '#^Variable \$colspace might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: library/classes/fpdf/fpdf.php
   - message: '#^Variable \$ls might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17484,10 +17464,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Pharmacy/Services/ImportPharmacies.php
-  - message: '#^Access to an undefined property OpenEMR\\RestControllers\\FHIR\\FhirImmunizationRestController\:\:\$fhirValidate\.$#'
-    identifier: property.notFound
-    count: 1
-    path: src/RestControllers/FHIR/FhirImmunizationRestController.php
   - message: '#^Class OpenEMR\\Services\\FHIR\\FhirDocRefService constructor invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
@@ -17768,10 +17744,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Services/FHIR/FhirResourcesService.php
-  - message: '#^Class OpenEMR\\Services\\ProcedureService constructor invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Services/FHIR/Observation/FhirObservationLaboratoryService.php
   - message: '#^Variable \$codeMapping in isset\(\) always exists and is always null\.$#'
     identifier: isset.variable
     count: 1
@@ -17852,10 +17824,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: src/Services/PhoneNumberService.php
-  - message: '#^Variable \$report might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: src/Services/ProcedureService.php
   - message: '#^Variable \$result on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1

@@ -28,13 +28,10 @@ class InsuranceViewCard extends CardModel
 
     private const CARD_ID = 'insurance';
 
-    private $pid;
-
     private $policy_types;
 
-    public function __construct($pid, array $opts = [])
+    public function __construct(private $pid, array $opts = [])
     {
-        $this->pid = $pid;
         $this->policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);

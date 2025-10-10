@@ -263,7 +263,7 @@ if ($form_step == 102.2) {
                     $xtitle = '';
                 }
                 $xdesc = $row['description'];
-                if (substr($xdesc, 0, 1) != '<') {
+                if (!str_starts_with($xdesc, '<')) {
                     $xdesc = xl_layout_label($xdesc);
                 }
                 if ($xdesc === $row['description']) {
@@ -772,7 +772,7 @@ if ($form_step == 102) {
         if (!empty($form_sel_lists)) {
             foreach ($form_sel_lists as $listid) {
                 // skip if have backtic(s)
-                if (strpos($listid, '`') !== false) {
+                if (str_contains($listid, '`')) {
                     echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
                     continue;
                 }
@@ -811,7 +811,7 @@ if ($form_step == 102) {
             $do_demographics_repair = false;
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
                 // skip if have backtic(s)
-                if (strpos($layoutid, '`') !== false) {
+                if (str_contains($layoutid, '`')) {
                     echo xlt("Skipping illegal layout name") . ": " . text($layoutid) . "<br>";
                     continue;
                 }
@@ -852,10 +852,10 @@ if ($form_step == 102) {
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 // History and demographics exports will get special treatment.
-                if (substr($layoutid, 0, 3) == 'HIS') {
+                if (str_starts_with($layoutid, 'HIS')) {
                     $do_history_repair = true;
                 }
-                if (substr($layoutid, 0, 3) == 'DEM') {
+                if (str_starts_with($layoutid, 'DEM')) {
                     $do_demographics_repair = true;
                 }
             }

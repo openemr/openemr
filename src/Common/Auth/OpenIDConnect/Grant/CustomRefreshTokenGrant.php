@@ -35,11 +35,8 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     private $logger;
 
-    private $session;
-
-    public function __construct(SessionInterface $session, RefreshTokenRepositoryInterface $refreshTokenRepository)
+    public function __construct(private readonly SessionInterface $session, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
-        $this->session = $session;
         $this->logger = new SystemLogger();
         parent::__construct($refreshTokenRepository);
     }

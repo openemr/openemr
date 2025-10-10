@@ -18,18 +18,13 @@ class DornLabEvent extends Event
     public const GEN_HL7_ORDER = 'dorn.gen_hl7_order';
     public const GEN_BARCODE = 'dorn.gen_barcode';
     public const SEND_ORDER = 'dorn.send_order';
-
-    private int $ppid;
-    private int $formid;
-    private ?string $hl7;
-    private ?string $reqStr;
+    private readonly ?string $hl7;
+    private readonly ?string $reqStr;
     private array $messages = [];
     private $sendOrderResponse;
 
-    public function __construct($formid, $ppid, ?string &$hl7 = null, ?string &$reqStr = null)
+    public function __construct(private readonly int $formid, private readonly int $ppid, ?string &$hl7 = null, ?string &$reqStr = null)
     {
-        $this->ppid = $ppid;
-        $this->formid = $formid;
         $this->hl7 = &$hl7;
         $this->reqStr = &$reqStr;
     }

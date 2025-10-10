@@ -154,7 +154,7 @@ class EncountermanagerTable extends AbstractTableGateway
             return;
         }
 
-        $format = $format ? $format : 'm/d/y';
+        $format = $format ?: 'm/d/y';
         $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);

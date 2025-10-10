@@ -46,8 +46,8 @@ if (ini_get('register_globals') != 1) {
                             '_GLOBALS' ];
 
     foreach ($supers as $__s) {
-        if ((isset($$__s) == true) && (is_array($$__s) == true)) {
-            extract($$__s, EXTR_OVERWRITE);
+        if ((isset(${$__s}) == true) && (is_array(${$__s}) == true)) {
+            extract(${$__s}, EXTR_OVERWRITE);
         }
     }
 
@@ -381,12 +381,12 @@ function pnVarCleanFromInput()
     $resarray = [];
     foreach (func_get_args() as $var) {
     // Get var
-        global $$var;
+        global ${$var};
         if (empty($var)) {
             return;
         }
 
-        $ourvar = $$var;
+        $ourvar = ${$var};
         if (!isset($ourvar)) {
             array_push($resarray, null);
             continue;
@@ -606,37 +606,22 @@ function pnVarPrepForOS()
 
 /**
  * get base URI for PostNuke
- * @returns string
- * @return base URI for PostNuke
+ *
+ * @return string base URI for PostNuke
  */
-function pnGetBaseURI()
+function pnGetBaseURI(): string
 {
-    global $HTTP_SERVER_VARS;
-
-    // Get the name of this URI
-
     // Start of with REQUEST_URI
-    if (isset($HTTP_SERVER_VARS['REQUEST_URI'])) {
-        $path = $HTTP_SERVER_VARS['REQUEST_URI'];
-    } else {
-        $path = getenv('REQUEST_URI');
-    }
+    $path = $_SERVER['REQUEST_URI'] ?? getenv('REQUEST_URI');
 
-    if (
-        (empty($path)) ||
-        (str_ends_with($path, '/'))
-    ) {
+    if (empty($path) || str_ends_with($path, '/')) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
         $path = getenv('PATH_INFO');
         if (empty($path)) {
             // No luck there either
             // Try SCRIPT_NAME
-            if (isset($HTTP_SERVER_VARS['SCRIPT_NAME'])) {
-                $path = $HTTP_SERVER_VARS['SCRIPT_NAME'];
-            } else {
-                $path = getenv('SCRIPT_NAME');
-            }
+            $path = $_SERVER['SCRIPT_NAME'] ?? getenv('SCRIPT_NAME');
         }
     }
 

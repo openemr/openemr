@@ -34,7 +34,6 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     public const DEFAULT_TYPE = "both"; // both physical and shipping address
     public const DEFAULT_USE = self::ADDRESS_TYPE_HOME;
     public const USE_OLD = "old"; // option_id for 'use' property when the address is no longer used or is incorrect.
-    private $id;
     /**
      * @var int The foreign key to the contact table
      */
@@ -113,12 +112,10 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     /**
      * Constructor sets all Address attributes to their default value
      */
-    public function __construct($id = "")
+    public function __construct(private $id = "")
     {
         parent::__construct("contact_address");
         $this->setThrowExceptionOnError(true);
-        // we set our defaults, populate can override this if  needed.
-        $this->id = $id;
         $this->priority = 0;
         $this->author = $_SESSION['authUser'];
         $this->status = self::STATUS_ACTIVE;
@@ -128,7 +125,7 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
         $this->createdDate = new DateTime();
         $this->periodStart = $this->createdDate;
 
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
             $this->setIsObjectModified(false);
         }

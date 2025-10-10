@@ -984,7 +984,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RS; ++$index) {
                         $here = "PRIOR_MOTILITY_RS_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -992,7 +992,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RI; ++$index) {
                         $here = "PRIOR_MOTILITY_RI_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1000,7 +1000,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LS; ++$index) {
                         $here = "PRIOR_MOTILITY_LS_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1008,7 +1008,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LI; ++$index) {
                         $here = "PRIOR_MOTILITY_LI_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1016,7 +1016,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RRSO; ++$index) {
                         $here = "PRIOR_MOTILITY_RRSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1024,7 +1024,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LRSO; ++$index) {
                         $here = "PRIOR_MOTILITY_LRSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1032,7 +1032,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RLIO; ++$index) {
                         $here = "PRIOR_MOTILITY_RLIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1040,7 +1040,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LLIO; ++$index) {
                         $here = "PRIOR_MOTILITY_LLIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1048,7 +1048,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RLSO; ++$index) {
                         $here = "PRIOR_MOTILITY_RLSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1056,7 +1056,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LLSO; ++$index) {
                         $here = "PRIOR_MOTILITY_LLSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1064,7 +1064,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RRIO; ++$index) {
                         $here = "PRIOR_MOTILITY_RRIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1072,7 +1072,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LRIO; ++$index) {
                         $here = "PRIOR_MOTILITY_LRIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1082,7 +1082,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LR; ++$index) {
                         $here = "PRIOR_MOTILITY_LR_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1090,7 +1090,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LL; ++$index) {
                         $here = "PRIOR_MOTILITY_LL_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1098,7 +1098,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RR; ++$index) {
                         $here = "PRIOR_MOTILITY_RR_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1106,7 +1106,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RL; ++$index) {
                         $here = "PRIOR_MOTILITY_RL_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
                 ?>
@@ -1710,7 +1710,7 @@ function build_PMSFH($pid)
                 $diags = explode(";", $row['diagnosis']);
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
-                    if (strpos($diag, ':') !== false) {
+                    if (str_contains($diag, ':')) {
                         [$codetype, $code] = explode(':', $diag);
                     }
                     $order   = ["\r\n", "\n","\r"];

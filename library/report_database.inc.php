@@ -49,7 +49,7 @@ function listingReportDatabase($start_date = '', $end_date = '')
 {
 
   // set $end_date to today's date if empty
-    $end_date = ($end_date) ? $end_date : date('Y-m-d H:i:s');
+    $end_date = $end_date ?: date('Y-m-d H:i:s');
 
   // Collect pertinent information as a pivot table (ie. converting vertical to horizontal row)
     if (empty($start_date)) {
@@ -260,7 +260,7 @@ function getStatusReportDatabase($report_id)
         // return COMPLETE
         return "COMPLETE";
     } else {
-        $final_array['progress_items'] = ($final_array['progress_items']) ? $final_array['progress_items'] : 0;
+        $final_array['progress_items'] = $final_array['progress_items'] ?: 0;
         return $final_array['progress_items'] . " / " . $final_array['total_items'] . " " . xl("Patients");
     }
 }

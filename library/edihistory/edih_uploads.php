@@ -391,7 +391,7 @@ function edih_upload_files()
 
         if (is_string($fa['name'])) {
             // check for null byte in file name, linux hidden file, directory
-            if (strpos($fa['name'], '.') === 0 || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false) {
+            if (str_starts_with($fa['name'], '.') || str_contains($fa['name'], "\0") || str_contains($fa['name'], "./")) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
                 $fname = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $fa['name']);
                 $f_ar['reject'][] = ['name' => $fname,'comment' => 'null byte, hidden, invalid'];

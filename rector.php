@@ -7,7 +7,10 @@ declare(strict_types=1);
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\Config\RectorConfig;
+use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
+use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
+use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php56\Rector\FuncCall\PowToExpRector;
@@ -15,17 +18,30 @@ use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
 use Rector\Php70\Rector\FuncCall\RandomFunctionRector;
 use Rector\Php70\Rector\If_\IfToSpaceshipRector;
+use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
+use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
+use Rector\Php70\Rector\Variable\WrapVariableVariableNameInCurlyBracesRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\List_\ListToArrayDestructRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
+use Rector\Php72\Rector\While_\WhileEachToForeachRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php73\Rector\FuncCall\SetCookieRector;
+use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
+use Rector\Php80\Rector\Identical\StrStartsWithRector;
+use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
+use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\ReturnNeverTypeRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -55,6 +71,11 @@ return RectorConfig::configure()
         cacheDirectory: '/tmp/rector'
     )
     ->withCodeQualityLevel(5)
+    ->withConfiguredRule(ClassPropertyAssignToConstructorPromotionRector::class, [
+        'allow_model_based_classes' => true,
+        'inline_public' => false,
+        'rename_property' => true,
+    ])
     ->withDeadCodeLevel(5)
     // FIXME rector should pick the php version from composer.json
     // but that doesn't seem to be working, so hard-coding for now.
@@ -67,6 +88,7 @@ return RectorConfig::configure()
         BinaryOpBetweenNumberAndStringRector::class, // one of the withPhpSets rules
         ChangeSwitchToMatchRector::class, // one of the withPhpSets rules
         ClassConstantToSelfClassRector::class, // one of the withPhpSets rules
+        ClassOnObjectRector::class, // one of the withPhpSets rules
         ClosureToArrowFunctionRector::class, // one of the withPhpSets rules
         ConsistentImplodeRector::class, // one of the withPhpSets rules
         CreateFunctionToAnonymousFunctionRector::class, // one of the withPhpSets rules
@@ -80,7 +102,21 @@ return RectorConfig::configure()
         MultiExceptionCatchRector::class, // one of the withPhpSets rules
         PowToExpRector::class, // one of the withPhpSets rules
         RandomFunctionRector::class, // one of the withPhpSets rules
+        ReadOnlyPropertyRector::class, // one of the withPhpSets rules
+        ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
+        ReturnNeverTypeRector::class, // one of the withPhpSets rules
+        SetCookieRector::class, // one of the withPhpSets rules
+        StrContainsRector::class, // one of the withPhpSets rules
         StrEndsWithRector::class, // one of the withPhpSets rules
+        StrStartsWithRector::class, // one of the withPhpSets rules
+        StringifyStrNeedlesRector::class, // one of the withPhpSets rules
+        TernaryToElvisRector::class, // one of the withPhpSets rules
+        TernaryToNullCoalescingRector::class, // one of the withPhpSets rules
+        ThisCallOnStaticMethodToStaticCallRector::class, // one of the withPhpSets rules
+        Utf8DecodeEncodeToMbConvertEncodingRector::class, // one of the withPhpSets rules
+        VarToPublicPropertyRector::class, // one of the withPhpSets rules
+        WhileEachToForeachRector::class, // one of the withPhpSets rules
+        WrapVariableVariableNameInCurlyBracesRector::class, // one of the withPhpSets rules
     ])
     ->withSkip([
         __DIR__ . '/sites/default/documents/smarty'

@@ -43,7 +43,7 @@ function patient_reminder_widget($patient_id, $dateTarget = ''): void
 {
 
   // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
   // Update reminders for patient
     update_reminders($dateTarget, $patient_id);
@@ -207,7 +207,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
     $logging = [];
 
   // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+    $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
   // Collect reminders (note that this function removes redundant and keeps the most distant
   //   reminder (ie. prefers 'past_due' over 'due' over 'soon_due')

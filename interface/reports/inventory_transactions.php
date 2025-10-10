@@ -149,7 +149,7 @@ $form_action = $_POST['form_action'];
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
+$form_trans_type = $_POST['form_trans_type'] ?? '0';
 
 $encount = 0;
 

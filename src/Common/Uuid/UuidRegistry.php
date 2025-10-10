@@ -61,6 +61,7 @@ class UuidRegistry
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
         'procedure_report' => ['table_name' => 'procedure_report', 'table_id' => 'procedure_report_id'],
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
+        'procedure_specimen' => ['table_name' => 'procedure_specimen', 'table_id' => 'procedure_specimen_id'],
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
         'patient_related_persons' => ['table_name' => 'patient_related_persons', 'table_id' => 'pid'],

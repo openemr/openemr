@@ -29,15 +29,8 @@ class RuleCriteriaType
     const custom = "custom";
     const custom_bucket = "custom_bucket";
 
-    var $code;
-    var $lbl;
-    var $method;
-
-    function __construct($code, $lbl, $method)
+    function __construct(public $code, public $lbl, public $method)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
-        $this->method = $method;
     }
 
     /**

@@ -22,7 +22,7 @@ protected $buffer;             // buffer holding in-memory PDF
 protected $pages;              // array containing pages
 protected $state;              // current document state
 protected $compress;           // compression flag
-var $k;                  // scale factor (number of points in user unit)
+public $k;                  // scale factor (number of points in user unit)
 protected $DefOrientation;     // default orientation
 protected $CurOrientation;     // current orientation
 protected $StdPageSizes;       // standard page sizes
@@ -31,7 +31,7 @@ protected $CurPageSize;        // current page size
 protected $CurRotation;        // current page rotation
 protected $PageInfo;           // page-related data
 protected $wPt, $hPt;          // dimensions of current page in points
-var $w, $h;              // dimensions of current page in user unit
+public $w, $h;              // dimensions of current page in user unit
 protected $lMargin;            // left margin
 protected $tMargin;            // top margin
 protected $rMargin;            // right margin
@@ -236,31 +236,31 @@ function SetCompression($compress)
 function SetTitle($title, $isUTF8=false)
 {
 	// Title of document
-	$this->metadata['Title'] = $isUTF8 ? $title : utf8_encode($title);
+	$this->metadata['Title'] = $isUTF8 ? $title : mb_convert_encoding($title, 'UTF-8', 'ISO-8859-1');
 }
 
 function SetAuthor($author, $isUTF8=false)
 {
 	// Author of document
-	$this->metadata['Author'] = $isUTF8 ? $author : utf8_encode($author);
+	$this->metadata['Author'] = $isUTF8 ? $author : mb_convert_encoding($author, 'UTF-8', 'ISO-8859-1');
 }
 
 function SetSubject($subject, $isUTF8=false)
 {
 	// Subject of document
-	$this->metadata['Subject'] = $isUTF8 ? $subject : utf8_encode($subject);
+	$this->metadata['Subject'] = $isUTF8 ? $subject : mb_convert_encoding($subject, 'UTF-8', 'ISO-8859-1');
 }
 
 function SetKeywords($keywords, $isUTF8=false)
 {
 	// Keywords of document
-	$this->metadata['Keywords'] = $isUTF8 ? $keywords : utf8_encode($keywords);
+	$this->metadata['Keywords'] = $isUTF8 ? $keywords : mb_convert_encoding($keywords, 'UTF-8', 'ISO-8859-1');
 }
 
 function SetCreator($creator, $isUTF8=false)
 {
 	// Creator of document
-	$this->metadata['Creator'] = $isUTF8 ? $creator : utf8_encode($creator);
+	$this->metadata['Creator'] = $isUTF8 ? $creator : mb_convert_encoding($creator, 'UTF-8', 'ISO-8859-1');
 }
 
 function AliasNbPages($alias='{nb}')
@@ -269,7 +269,7 @@ function AliasNbPages($alias='{nb}')
 	$this->AliasNbPages = $alias;
 }
 
-function Error($msg)
+function Error($msg): never
 {
 	// Fatal error
 	throw new Exception('FPDF error: '.$msg);
@@ -481,7 +481,7 @@ function SetFont($family, $style='', $size=0)
 	else
 		$family = strtolower($family);
 	$style = strtoupper($style);
-	if(strpos($style,'U')!==false)
+	if(str_contains($style,'U'))
 	{
 		$this->underline = true;
 		$style = str_replace('U','',$style);
@@ -614,13 +614,13 @@ function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link
 	{
 		$x = $this->x;
 		$y = $this->y;
-		if(strpos($border,'L')!==false)
+		if(str_contains($border,'L'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',$x*$k,($this->h-$y)*$k,$x*$k,($this->h-($y+$h))*$k);
-		if(strpos($border,'T')!==false)
+		if(str_contains($border,'T'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',$x*$k,($this->h-$y)*$k,($x+$w)*$k,($this->h-$y)*$k);
-		if(strpos($border,'R')!==false)
+		if(str_contains($border,'R'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',($x+$w)*$k,($this->h-$y)*$k,($x+$w)*$k,($this->h-($y+$h))*$k);
-		if(strpos($border,'B')!==false)
+		if(str_contains($border,'B'))
 			$s .= sprintf('%.2F %.2F m %.2F %.2F l S ',$x*$k,($this->h-($y+$h))*$k,($x+$w)*$k,($this->h-($y+$h))*$k);
 	}
 	if($txt!=='')
@@ -682,11 +682,11 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 		else
 		{
 			$b2 = '';
-			if(strpos($border,'L')!==false)
+			if(str_contains($border,'L'))
 				$b2 .= 'L';
-			if(strpos($border,'R')!==false)
+			if(str_contains($border,'R'))
 				$b2 .= 'R';
-			$b = (strpos($border,'T')!==false) ? $b2.'T' : $b2;
+			$b = (str_contains($border,'T')) ? $b2.'T' : $b2;
 		}
 	}
 	$sep = -1;
@@ -766,7 +766,7 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 		$this->ws = 0;
 		$this->_out('0 Tw');
 	}
-	if($border && strpos($border,'B')!==false)
+	if($border && str_contains($border,'B'))
 		$b .= 'B';
 	$this->Cell($w,$h,substr($s,$j,$i-$j),$b,2,$align,$fill);
 	$this->x = $this->lMargin;
@@ -1139,7 +1139,7 @@ protected function _endpage()
 protected function _loadfont($font)
 {
 	// Load a font definition file from the font directory
-	if(strpos($font,'/')!==false || strpos($font,"\\")!==false)
+	if(str_contains($font,'/') || str_contains($font,"\\"))
 		$this->Error('Incorrect font definition file name: '.$font);
 	include($this->fontpath.$font);
 	if(!isset($name))
@@ -1169,8 +1169,8 @@ protected function _httpencode($param, $value, $isUTF8)
 	if($this->_isascii($value))
 		return $param.'="'.$value.'"';
 	if(!$isUTF8)
-		$value = utf8_encode($value);
-	if(strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false)
+		$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+	if(str_contains($_SERVER['HTTP_USER_AGENT'],'MSIE'))
 		return $param.'="'.rawurlencode($value).'"';
 	else
 		return $param."*=UTF-8''".rawurlencode($value);
@@ -1212,7 +1212,7 @@ protected function _UTF8toUTF16($s)
 protected function _escape($s)
 {
 	// Escape special characters
-	if(strpos($s,'(')!==false || strpos($s,')')!==false || strpos($s,'\\')!==false || strpos($s,"\r")!==false)
+	if(str_contains($s,'(') || str_contains($s,')') || str_contains($s,'\\') || str_contains($s,"\r"))
 		return str_replace(['\\','(',')',"\r"], ['\\\\','\\(','\\)','\\r'], $s);
 	else
 		return $s;
@@ -1249,7 +1249,7 @@ protected function _parsejpg($file)
 		$colspace = 'DeviceCMYK';
 	else
 		$colspace = 'DeviceGray';
-	$bpc = isset($a['bits']) ? $a['bits'] : 8;
+	$bpc = $a['bits'] ?? 8;
 	$data = file_get_contents($file);
 	return ['w'=>$a[0], 'h'=>$a[1], 'cs'=>$colspace, 'bpc'=>$bpc, 'f'=>'DCTDecode', 'data'=>$data];
 }

@@ -42,14 +42,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
-    private EventAuditLogger $auditLogger;
-
-    private OEGlobalsBag $globalsBag;
-
-    public function __construct(OEGlobalsBag $globalsBag, EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
+    public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
     {
-        $this->globalsBag = $globalsBag;
-        $this->auditLogger = $auditLogger;
         if ($logger) {
             $this->setSystemLogger($logger);
         }

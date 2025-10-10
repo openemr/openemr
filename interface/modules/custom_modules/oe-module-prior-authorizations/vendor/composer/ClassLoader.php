@@ -45,9 +45,6 @@ class ClassLoader
     /** @var \Closure(string):void */
     private static $includeFile;
 
-    /** @var string|null */
-    private $vendorDir;
-
     // PSR-4
     /**
      * @var array<string, array<string, int>>
@@ -103,9 +100,8 @@ class ClassLoader
     /**
      * @param string|null $vendorDir
      */
-    public function __construct($vendorDir = null)
+    public function __construct(private $vendorDir = null)
     {
-        $this->vendorDir = $vendorDir;
         self::initializeIncludeClosure();
     }
 
@@ -530,7 +526,7 @@ class ClassLoader
 
         if (isset($this->prefixesPsr0[$first])) {
             foreach ($this->prefixesPsr0[$first] as $prefix => $dirs) {
-                if (0 === strpos($class, $prefix)) {
+                if (str_starts_with($class, $prefix)) {
                     foreach ($dirs as $dir) {
                         if (file_exists($file = $dir . DIRECTORY_SEPARATOR . $logicalPathPsr0)) {
                             return $file;

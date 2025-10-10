@@ -44,17 +44,9 @@ use Twig\TwigFunction;
 
 class C_EncounterVisitForm
 {
-    private Environment $twig;
-    private array $issueTypes;
+    private readonly Environment $twig;
 
-    private string $rootdir;
-
-    /**
-     * @var string $pageName The name to use when firing off any events for this page
-     */
-    private string $pageName;
-
-    private EventDispatcher $eventDispatcher;
+    private readonly EventDispatcher $eventDispatcher;
 
     private string $mode = '';
     private bool $viewmode = false;
@@ -62,21 +54,24 @@ class C_EncounterVisitForm
     /**
      * @param $templatePath
      * @param Kernel $kernel
-     * @param $issueTypes
-     * @param $rootdir
+     * @param array $issueTypes
+     * @param string $rootdir
+     * @param string $pageName The name to use when firing off any events for this page
      * @throws \Exception
      */
-    public function __construct($templatePath, Kernel $kernel, $issueTypes, $rootdir, $pageName = 'newpatient/common.php')
-    {
+    public function __construct(
+        $templatePath,
+        Kernel $kernel,
+        private array $issueTypes,
+        private readonly string $rootdir,
+        private readonly string $pageName = 'newpatient/common.php'
+    ) {
         // Initialize Twig
         $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
-        $this->issueTypes = $issueTypes;
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', [$this, 'displayOption']));
         $this->eventDispatcher = $kernel->getEventDispatcher();
-        $this->rootdir = $rootdir;
-        $this->pageName = $pageName;
         $this->viewmode = false;
         $this->mode = 'edit';
     }
@@ -498,7 +493,7 @@ class C_EncounterVisitForm
         $encounter_followup_id = null;
         $followup_date = null;
         if ($viewmode) {
-            $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
+            $id = $_REQUEST['id'] ?? '';
             $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.

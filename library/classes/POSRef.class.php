@@ -21,7 +21,7 @@
 
 class POSRef
 {
-    var $pos_ref;
+    public $pos_ref;
 
     function __construct($state = "")
     {

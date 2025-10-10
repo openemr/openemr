@@ -18,11 +18,6 @@ namespace OpenEMR\Billing;
 
 class HCFAInfo
 {
-    protected $row;
-    protected $column;
-    protected $width;
-    protected $info;
-
     /**
      *
      * @param type $row    Which row to put this data on
@@ -30,12 +25,8 @@ class HCFAInfo
      * @param type $width  How many characters max to print on
      * @param type $info   The text to print on the form at the specified location
      */
-    public function __construct($row, $column, $width, $info)
+    public function __construct(protected $row, protected $column, protected $width, protected $info)
     {
-        $this->row = $row;
-        $this->column = $column;
-        $this->width = $width;
-        $this->info = $info;
     }
 
     /**

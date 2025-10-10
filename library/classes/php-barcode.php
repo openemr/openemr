@@ -49,7 +49,7 @@ class Barcode
 
         if (is_array($datas)) {
             foreach (['code' => '', 'crc' => true, 'rect' => false] as $v => $def) {
-                $$v = isset($datas[$v]) ? $datas[$v] : $def;
+                ${$v} = $datas[$v] ?? $def;
             }
         } else {
             $code = $datas;
@@ -640,7 +640,7 @@ class Barcode39
         $result = '';
         $intercharacter = '0';
 
-        if (strpos($code, '*') !== false) {
+        if (str_contains($code, '*')) {
             return('');
         }
 
@@ -686,7 +686,7 @@ class Barcode93
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%____*'; // _ => ($), (%), (/) et (+)
         $result = '';
 
-        if (strpos($code, '*') !== false) {
+        if (str_contains($code, '*')) {
             return('');
         }
 
@@ -783,7 +783,7 @@ class Barcode128
         // check each characters
         $len = strlen($code);
         for ($i = 0; $i < $len; $i++) {
-            if (strpos($tableB, $code[$i]) === false) {
+            if (!str_contains($tableB, (string) $code[$i])) {
                 return("");
             }
         }
@@ -828,7 +828,7 @@ class Barcode128
                 $value = intval(substr($code, $i, 2)); // Add two characters (numeric)
                 $i += 2;
             } else {
-                $value = strpos($tableB, $code[$i]); // Add one character
+                $value = strpos($tableB, (string) $code[$i]); // Add one character
                 $i++;
             }
 
@@ -869,7 +869,7 @@ class BarcodeCodabar
 
         $len = strlen($code);
         for ($i = 0; $i < $len; $i++) {
-            $index = strpos($table, $code[$i]);
+            $index = strpos($table, (string) $code[$i]);
             if ($index === false) {
                 return('');
             }

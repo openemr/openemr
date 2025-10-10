@@ -286,7 +286,7 @@ function csv_notes_file($content = '', $open = true)
             csv_edihist_log('csv_notes_file: file error');
         }
 
-        if (substr($ftxt, 0, 5) == 'empty' && strlen($ftxt) == 5) {
+        if (str_starts_with($ftxt, 'empty') && strlen($ftxt) == 5) {
             $ftxt = '## ' . date("F j, Y, g:i a");
         } elseif (!$ftxt) {
             $ftxt = '## ' . date("F j, Y, g:i a");
@@ -300,7 +300,7 @@ function csv_notes_file($content = '', $open = true)
         if (class_exists('finfo')) {
             $finfo = new finfo(FILEINFO_MIME);
             $mimeinfo = $finfo->buffer($content);
-            if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
+            if (!str_starts_with($mimeinfo, 'text/plain; charset=us-ascii')) {
                 csv_edihist_log('csv_notes_file: invalid mime-type ' . $mimeinfo);
                 $str_html = 'csv_notes_file: invalid mime-type <br />' . text($mimeinfo);
                 //
@@ -314,7 +314,7 @@ function csv_notes_file($content = '', $open = true)
             return $str_html;
         }
     } else {
-        $ftxt = ($content) ? $content : 'empty';
+        $ftxt = $content ?: 'empty';
         $saved = file_put_contents($fp, $ftxt);
         $str_html .= ($saved) ? '<p>Save Error with notes file</p>' : '<p>Notes content saved</p>';
     }
@@ -592,7 +592,7 @@ function csv_check_x12_obj($filepath, $type = '')
     //
     if ($fp) {
         $x12obj = new edih_x12_file($fp);
-        if ('edih_x12_file' == get_class($x12obj)) {
+        if ('edih_x12_file' == $x12obj::class) {
             if ($x12obj->edih_valid() == 'ovigs') {
                 $ok = count($x12obj->edih_segments());
                 $ok = ($ok) ?  count($x12obj->edih_envelopes()) : false;
@@ -800,7 +800,7 @@ function csv_table_select_list($outtp = 'json')
             continue;
         }
 
-        if (strpos($csvf, 'old') === 0) {
+        if (str_starts_with($csvf, 'old')) {
             continue;
         }
 
@@ -952,7 +952,7 @@ function csv_processed_files_list($type)
         }
     }
 
-    $csv_col = (isset($csv_col)) ? $csv_col : 1;
+    $csv_col = $csv_col ?? 1;
     $csv_file = $param['files_csv'];
     //if ($tp == 'dpr') {
         //$csv_file = $param['claims_csv'];
@@ -1038,7 +1038,7 @@ function edih_errseg_parse($err_seg, $id = false)
     // note: multiple IK3 segments are allowed in 997/999 x12
     //
     $ret_ar = [];
-    if (!$err_seg || strpos($err_seg, 'IK3') === false) {
+    if (!$err_seg || !str_contains($err_seg, 'IK3')) {
         csv_edihist_log('edih_errseg_parse: invalid argument');
         return $ret_ar;
     }
@@ -1486,7 +1486,7 @@ function csv_assoc_array($file_type, $csv_type)
     $param = csv_parameters($file_type);
     $fcsv = (strpos($csv_type, 'aim')) ? 'claims_csv' : 'files_csv';
     //
-    $fp = (isset($param[$fcsv])) ? $param[$fcsv] : '';
+    $fp = $param[$fcsv] ?? '';
     if (!is_file($fp)) {
         csv_edihist_log('csv_assoc_array; invalid csv file ' . basename($fp));
         return $csv_ar;
@@ -1572,7 +1572,7 @@ function edih_csv_write($csv_data)
     //
     foreach ($csv_data as $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
-        $ft = ( isset($isa['type']) ) ? $isa['type'] : '';
+        $ft = $isa['type'] ?? '';
         if (!$ft) {
             csv_edihist_log('edih_csv_write(): invalid file type');
             continue;
@@ -1785,7 +1785,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
     } else {
         $params = csv_parameters($ft);
         //$fp = isset($params['claims_csv']) ? __DIR__.$params['claims_csv'] : false;
-        $fp = isset($params['claims_csv']) ? $params['claims_csv'] : false;
+        $fp = $params['claims_csv'] ?? false;
         $h_ar = csv_table_header($ft, 'claim');
         $hct = count($h_ar);
         if (!$fp) {
@@ -1796,8 +1796,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
 
     //
     $enct = csv_pid_enctr_parse(strval($clm01));
-    $p = (isset($enct['pid'])) ? $enct['pid'] : '';
-    $e = (isset($enct['enctr'])) ? $enct['enctr'] : '';
+    $p = $enct['pid'] ?? '';
+    $e = $enct['enctr'] ?? '';
     if ($p && $e) {
         $pe = $p . '-' . $e;
         $srchtype = '';
@@ -1819,7 +1819,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         if ($srchtype == 'encounter') {
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 // check for a match
-                if (strpos($data[2], $e)) {
+                if (strpos($data[2], (string) $e)) {
                     $te = substr($data[2], strpos($data[2], '-') + 1);
                     if (strcmp($te, $e) === 0) {
                         for ($i = 0; $i < $hct; $i++) {
@@ -1832,7 +1832,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
             }
         } elseif ($srchtype == 'pid') {
             while (($data = fgetcsv($fh1, 1024, ',')) !== false) {
-                if (strpos($data[2], $p) !== false) {
+                if (str_contains($data[2], (string) $p)) {
                     $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2], '-')) : '';
                     if (strcmp($te, $p) === 0) {
                         for ($i = 0; $i < $hct; $i++) {

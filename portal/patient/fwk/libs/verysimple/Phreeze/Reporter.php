@@ -16,7 +16,6 @@
  */
 abstract class Reporter implements Serializable
 {
-    protected $_phreezer;
     private $_isLoaded;
     private $_isPartiallyLoaded;
     private $_cacheLevel = 0;
@@ -105,13 +104,11 @@ abstract class Reporter implements Serializable
      * constructor
      *
      * @access public
-     * @param Phreezer $phreezer
+     * @param Phreezer $_phreezer
      * @param Array $row
      */
-    final function __construct(&$phreezer, $row = null)
+    final function __construct(protected $_phreezer, $row = null)
     {
-        $this->_phreezer = $phreezer;
-
         if ($row) {
             $this->Load($row);
         }
@@ -179,7 +176,7 @@ abstract class Reporter implements Serializable
      */
     public function GetPublicProperties()
     {
-        $className = get_class($this);
+        $className = $this::class;
 
         if (! property_exists(self::$PublicPropCache, $className)) {
             $props =  [];
@@ -306,7 +303,7 @@ abstract class Reporter implements Serializable
      */
     function GetArray()
     {
-        $fms = $this->_phreezer->GetFieldMaps(get_class($this));
+        $fms = $this->_phreezer->GetFieldMaps($this::class);
         $cols =  [];
 
         foreach ($fms as $fm) {
@@ -325,7 +322,7 @@ abstract class Reporter implements Serializable
      */
     function Load(&$row)
     {
-        $this->_phreezer->Observe("Loading " . get_class($this), OBSERVE_DEBUG);
+        $this->_phreezer->Observe("Loading " . $this::class, OBSERVE_DEBUG);
 
         foreach (array_keys($row) as $prop) {
             $this->$prop = $row [$prop];

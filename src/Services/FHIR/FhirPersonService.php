@@ -246,7 +246,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): never
     {
         // implement this if we want to allow inserts on this resource
         throw new \BadMethodCallException("insert is not supported in this resource");
@@ -260,7 +260,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): never
     {
         // implement this if we want to allow updates on this resource
         throw new \BadMethodCallException("update is not supported in this resource");
@@ -277,7 +277,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     {
         return $this->userService->search($openEMRSearchParameters);
     }
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false): never
     {
         // TODO: If Required in Future
         throw new \BadMethodCallException("provenance record is not supported in this resource");

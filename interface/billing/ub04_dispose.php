@@ -21,22 +21,22 @@ function ub04_dispose(): void
     $dispose = ($_POST['handler'] ?? null) ? $_POST['handler'] : ($_GET['handler'] ?? null);
     if ($dispose) {
         if ($dispose == "edit_save") {
-            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
+            $pid = $_POST['pid'] ?? $_GET['pid'];
+            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
             $action = $_REQUEST['action'];
             $ub04id = json_decode($ub04id, true);
             saveTemplate($encounter, $pid, $ub04id, $action);
             exit();
         } elseif ($dispose == "payer_save") {
-            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-            $payerid = isset($_POST['payerid']) ? $_POST['payerid'] : $_GET['payerid'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
+            $payerid = $_POST['payerid'] ?? $_GET['payerid'];
             savePayerTemplate($payerid, $ub04id);
             exit("done");
         } elseif ($dispose == "batch_save") {
-            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
-            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
+            $pid = $_POST['pid'] ?? $_GET['pid'];
+            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
@@ -261,7 +261,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
             $getrevcd
         ]);
         if (!empty($revcode[$tlh])) {
-            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ? $claim->procs[$tlh]['revenue_code'] : $revcode[$tlh]['revenue_code'];
+            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ?: $revcode[$tlh]['revenue_code'];
             $revcode2[$tlh] = array_merge($revcode[$tlh], $claim->procs[$tlh]);
         }
     }

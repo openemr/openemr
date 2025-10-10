@@ -38,12 +38,12 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     $screen = 'new_payment';
 //===============================================================================
 // Initialisations
-$mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
+$mode                    = $_POST['mode'] ?? '';
 $payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
 $request_payment_id      = $payment_id ;
-$hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
-$default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
-$hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hidden_type_code'] : '';
+$hidden_patient_code     = $_REQUEST['hidden_patient_code'] ?? '';
+$default_search_patient  = $_POST['default_search_patient'] ?? '';
+$hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 //===============================================================================
 //ar_session addition code
 //===============================================================================

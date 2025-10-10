@@ -14,11 +14,8 @@ namespace OpenEMR\Common\Http;
 
 class oeHttpResponse
 {
-    private $response;
-
-    public function __construct($response)
+    public function __construct(private $response)
     {
-        $this->response = $response;
     }
 
     public function body()

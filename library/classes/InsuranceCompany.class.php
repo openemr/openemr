@@ -25,59 +25,57 @@ use OpenEMR\Common\ORDataObject\Address;
 
 class InsuranceCompany extends ORDataObject
 {
-    var $id;
-    var $name;
-    var $phone_numbers;
-    var $attn;
-    var $cms_id;
-    var $alt_cms_id;
-    var $eligibility_id;
-    var $x12_receiver_id;
-    var $x12_default_partner_id;
-    var $x12_default_eligibility_id;
-    var $inactive;
-    var $InsuranceCompany;
+    public $name;
+    public $phone_numbers;
+    public $attn;
+    public $cms_id;
+    public $alt_cms_id;
+    public $eligibility_id;
+    public $x12_receiver_id;
+    public $x12_default_partner_id;
+    public $x12_default_eligibility_id;
+    public $inactive;
+    public $InsuranceCompany;
     /*
     *   OpenEMR can use this value to determine special formatting for the specified type of payer.
     *   It is the key to the array returned by the InsuranceCompanyService
     *   getInsuranceTypes and getInsuranceClaimTypes methods.
     *   @var int Holds constant for type of payer
     */
-    var $ins_type_code;
+    public $ins_type_code;
 
     /*
     *   Array used to populate select dropdowns or other form elements
     *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceTypes() method.
     */
-    var $ins_type_code_array;
+    public $ins_type_code_array;
 
     /*
     *   Array used with electronic claim submissions and
     *   corresponds with $ins_type_code_array
     *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceClaimTypes() method.
     */
-    var $ins_claim_type_array;
+    public $ins_claim_type_array;
 
-    var $address;
+    public $address;
 
-    var $X12Partner;
+    public $X12Partner;
 
     /**
      * @var Integer CQM SOP, Source of Payment, from HL7
      */
-    var $cqm_sop;
+    public $cqm_sop;
 
     /**
      * @var Array contains code and description of above
      */
-    var $cqm_sop_array;
+    public $cqm_sop_array;
 
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    public function __construct($id = "", $prefix = "", ?InsuranceCompanyService $insuranceCompanyService = null)
+    public function __construct(public $id = "", $prefix = "", ?InsuranceCompanyService $insuranceCompanyService = null)
     {
-        $this->id = $id;
         $this->name = "";
         $this->_table = "insurance_companies";
         $phone = new PhoneNumber();
@@ -93,7 +91,7 @@ class InsuranceCompany extends ORDataObject
         }
         $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypesCached();
         $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
 

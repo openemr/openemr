@@ -33,12 +33,6 @@ class GenericRouter implements IRouter
      */
     public $routeMap;
 
-    /** @var string the default action if requested route is empty (typically the application home page) */
-    public $defaultAction = 'Default.Home';
-
-    /** @var string the fully qualified root url for the app. Ex: "https://site.local/" */
-    public $appRootUrl = '';
-
     /** @var string cached URI  */
     private $uri = '';
 
@@ -58,10 +52,8 @@ class GenericRouter implements IRouter
      * @param array $mapping
      *          the
      */
-    public function __construct($appRootUrl, $defaultAction, array $routeMap)
+    public function __construct(public $appRootUrl, public $defaultAction, array $routeMap)
     {
-        $this->defaultAction = $defaultAction;
-        $this->appRootUrl = $appRootUrl;
         $this->routeMap = $routeMap;
         $this->matchedRoute = null;
     }
@@ -113,7 +105,7 @@ class GenericRouter implements IRouter
             $this->matchedRoute =  [
                     "key" => $this->routeMap [$uri],
                     "route" => $this->routeMap [$uri] ["route"],
-                    "params" => isset($this->routeMap [$uri] ["params"]) ? $this->routeMap [$uri] ["params"] :  []
+                    "params" => $this->routeMap [$uri] ["params"] ?? []
             ];
 
             return  [
@@ -158,7 +150,7 @@ class GenericRouter implements IRouter
                 $this->matchedRoute =  [
                         "key" => $unalteredKey,
                         "route" => $value ["route"],
-                        "params" => isset($value ["params"]) ? $value ["params"] :  []
+                        "params" => $value ["params"] ?? []
                 ];
 
                 // expects mapped values to be in the form: Controller.Model
@@ -193,7 +185,7 @@ class GenericRouter implements IRouter
             // if a root folder was provided, then we need to strip that out as well
             if ($this->appRootUrl) {
                 $prefix = str_replace(RequestUtil::GetServerRootUrl(), '/', $this->appRootUrl);
-                if (substr($this->uri, 0, strlen($prefix)) == $prefix) {
+                if (str_starts_with($this->uri, $prefix)) {
                     $this->uri = substr($this->uri, strlen($prefix));
                 }
             }
@@ -220,7 +212,7 @@ class GenericRouter implements IRouter
         }
 
             // The app root url is needed so we can return the fully qualified URL
-        $url = $this->appRootUrl ? $this->appRootUrl : RequestUtil::GetBaseURL();
+        $url = $this->appRootUrl ?: RequestUtil::GetBaseURL();
 
         // normalize the url so that there are no trailing slashes
         $url = rtrim($url, '/');
@@ -272,7 +264,7 @@ class GenericRouter implements IRouter
         }
 
         if (! $found) {
-            throw new Exception('No route found for ' . ($requestMethod ? $requestMethod : '*') . ":$controller.$method" . ($params ? '?' . implode('&', $params) : ''));
+            throw new Exception('No route found for ' . ($requestMethod ?: '*') . ":$controller.$method" . ($params ? '?' . implode('&', $params) : ''));
         }
 
         // if this is the root url then we want to include the trailing slash

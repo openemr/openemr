@@ -39,7 +39,7 @@ function parseZPS($segment)
     // Try to parse composites
     foreach ($composites as $key => $composite) {
         // If it is a composite ...
-        if (!(strpos($composite, '^') === false)) {
+        if (str_contains($composite, '^')) {
             $composites[$key] = explode('^', $composite);
         }
     }
@@ -128,7 +128,7 @@ function rhl7FlushMain(&$amain, $commentdelim = "\n"): void
             unset($ares['obxkey']);
             // If TX result is not over 10 characters, move it from comments to result field.
             if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
-                $i = strpos($ares['comments'], $commentdelim);
+                $i = strpos($ares['comments'], (string) $commentdelim);
                 if ($i && $i <= 10) {
                     $ares['result'] = substr($ares['comments'], 0, $i);
                     $ares['comments'] = substr($ares['comments'], $i);
@@ -685,7 +685,7 @@ function ucname($string)
     $string = ucwords(strtolower($string));
 
     foreach (['-', '\''] as $delimiter) {
-        if (strpos($string, $delimiter) !== false) {
+        if (str_contains($string, $delimiter)) {
             $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
         }
     }
@@ -739,7 +739,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     $rhl7_segnum = 0;
     $obrPerformingOrganization = '';
 
-    if (substr($hl7, 0, 3) != 'MSH') {
+    if (!str_starts_with($hl7, 'MSH')) {
         return rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
     }
 

@@ -26,18 +26,13 @@ class PatientUpdatedEvent extends Event
      */
     const EVENT_HANDLE = 'patient.updated';
 
-    private $dataBeforeUpdate;
-    private $newPatientData;
-
     /**
      * PatientUpdatedEvent constructor.
      * @param $dataBeforeUpdate
      * @param $newPatientData
      */
-    public function __construct($dataBeforeUpdate, $newPatientData)
+    public function __construct(private $dataBeforeUpdate, private $newPatientData)
     {
-        $this->dataBeforeUpdate = $dataBeforeUpdate;
-        $this->newPatientData = $newPatientData;
     }
 
     /**

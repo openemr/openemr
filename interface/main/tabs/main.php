@@ -384,7 +384,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             $visible = "true";
             foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || strpos($_unsafe_url, $fileroot) !== 0) {
+                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, $fileroot)) {
                     unset($_SESSION['default_open_tabs'][$i]);
                     continue;
                 }

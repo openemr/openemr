@@ -41,7 +41,7 @@ function edih_archive_report($period = '')
     $strdt = '';
     // edih_archive_date returns empty string if no period
     $tper =  edih_archive_date($period);
-    $chkdt = ($tper) ? $tper : 'None';
+    $chkdt = $tper ?: 'None';
     $strdt = ($tper) ? substr($chkdt, 0, 4) . '-' . substr($chkdt, 4, 2) . '-' . substr($chkdt, 6, 2) : 'None';
     //
     csv_edihist_log("edih_archive_report: creating archive report with date $chkdt");
@@ -81,7 +81,7 @@ function edih_archive_report($period = '')
                         continue;
                     }
 
-                    if (substr($fn, 0, 1) == '.') {
+                    if (str_starts_with($fn, '.')) {
                         $dir_ct--;
                         continue;
                     }

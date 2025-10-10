@@ -17,7 +17,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleAction;
  */
 class RuleActions
 {
-    var $actions = [];
+    public $actions = [];
 
     function __construct()
     {

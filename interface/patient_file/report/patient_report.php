@@ -433,7 +433,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
                                                 if (!$form_name_found_flag) {
                                                     foreach ($registry_form_name as $var) {
-                                                        if (strpos($form_name, $var) == 0) {
+                                                        if (str_starts_with($form_name, $var)) {
                                                             $form_name = $var;
                                                         }
                                                     }

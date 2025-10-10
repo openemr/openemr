@@ -20,8 +20,6 @@ class LoadEncounterFormFilterEvent extends Event
 {
     const EVENT_NAME = 'encounter.load_form_filter';
     private $formName;
-    private $dir;
-    private $pageName;
     private ?int $pid;
     private ?int $encounter;
     private bool $isLBF = false;
@@ -31,12 +29,8 @@ class LoadEncounterFormFilterEvent extends Event
      * @param string $dir
      * @param string $pageName
      */
-    public function __construct(string $formname, string $dir, string $pageName)
+    public function __construct(string $formname, private string $dir, private string $pageName)
     {
-        // if the directory does not exist in the core filesystem we set the dir initially knowing it will be
-        // incorrect but we will validate it later
-        $this->dir = $dir;
-        $this->pageName = $pageName;
         $this->setFormName($formname);
     }
 
@@ -133,8 +127,8 @@ class LoadEncounterFormFilterEvent extends Event
     {
         $path = realpath($path);
         // for now we will lock this down to just the forms directory or to the modules directory
-        $inModules = strpos($path, $GLOBALS['fileroot'] . '/interface/modules/') === 0;
-        $inForms = strpos($path, $GLOBALS['fileroot'] . '/interface/forms/') === 0;
+        $inModules = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/modules/');
+        $inForms = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/forms/');
         if (!(($inModules || $inForms) && file_exists($path))) {
             throw new \InvalidArgumentException('Invalid path');
         }

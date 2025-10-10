@@ -38,10 +38,10 @@
  */
 class xmltoarray_parser_htmlfix
 {
-    var $values;
-    var $index;
-    var $thearray;
-    var $parser;
+    public $values;
+    public $index;
+    public $thearray;
+    public $parser;
 
     /**
      * Default constructor for xmltoarray_parser_htmlfix.
@@ -95,8 +95,8 @@ class xmltoarray_parser_htmlfix
     function createArray()
     {
         $i = 0;
-        $name = isset($this->values[$i]['tag']) ? $this->values[$i]['tag'] : '';
-        $this->thearray[$name] = isset($this->values[$i]['attributes']) ? $this->values[$i]['attributes'] : '';
+        $name = $this->values[$i]['tag'] ?? '';
+        $this->thearray[$name] = $this->values[$i]['attributes'] ?? '';
         $this->thearray[$name] = $this->_struct_to_array($this->values, $i);
         return $this->thearray;
     }//createArray
@@ -124,7 +124,7 @@ class xmltoarray_parser_htmlfix
                     case 'complete':
                         $name = $values[$i]['tag'];
                         if (!empty($name)) {
-                            $child[$name] = (isset($values[$i]['value'])) ? ($values[$i]['value']) : '';
+                            $child[$name] = $values[$i]['value'] ?? '';
                             if (isset($values[$i]['attributes'])) {
                                 $child[$name] = $values[$i]['attributes'];
                             }

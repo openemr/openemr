@@ -16,16 +16,10 @@
  */
 class ValidationResponse
 {
-    public function __construct($success = false, $message = "", $primaryKey = "", $errors = null)
+    public function __construct(public $Success = false, public $Message = "", public $PrimaryKeyValue = "", $errors = null)
     {
-        $this->Success = $success;
-        $this->Message = $message;
-        $this->Errors = $errors ? $errors :  [];
-        $this->PrimaryKeyValue = $primaryKey;
+        $this->Errors = $errors ?: [];
     }
-    public $PrimaryKeyValue;
-    public $Success = false;
     public $Errors =  [];
-    public $Message = "";
     public $Data;
 }

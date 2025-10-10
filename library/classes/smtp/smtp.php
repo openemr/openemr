@@ -8,40 +8,40 @@
 
 class smtp_class
 {
-	var $user="";
-	var $realm="";
-	var $password="";
-	var $workstation="";
-	var $authentication_mechanism="";
-	var $host_name="";
-	var $host_port=25;
-	var $ssl=0;
-	var $localhost="";
-	var $timeout=0;
-	var $data_timeout=0;
-	var $direct_delivery=0;
-	var $error="";
-	var $debug=0;
-	var $html_debug=0;
-	var $esmtp=1;
-	var $esmtp_host="";
-	var $esmtp_extensions=[];
-	var $maximum_piped_recipients=100;
-	var $exclude_address="";
-	var $getmxrr="GetMXRR";
-	var $pop3_auth_host="";
-	var $pop3_auth_port=110;
+	public $user="";
+	public $realm="";
+	public $password="";
+	public $workstation="";
+	public $authentication_mechanism="";
+	public $host_name="";
+	public $host_port=25;
+	public $ssl=0;
+	public $localhost="";
+	public $timeout=0;
+	public $data_timeout=0;
+	public $direct_delivery=0;
+	public $error="";
+	public $debug=0;
+	public $html_debug=0;
+	public $esmtp=1;
+	public $esmtp_host="";
+	public $esmtp_extensions=[];
+	public $maximum_piped_recipients=100;
+	public $exclude_address="";
+	public $getmxrr="GetMXRR";
+	public $pop3_auth_host="";
+	public $pop3_auth_port=110;
 
 	/* private variables - DO NOT ACCESS */
 
-	var $state="Disconnected";
-	var $connection=0;
-	var $pending_recipients=0;
-	var $next_token="";
-	var $direct_sender="";
-	var $connected_domain="";
-	var $result_code;
-	var $disconnected_error=0;
+	public $state="Disconnected";
+	public $connection=0;
+	public $pending_recipients=0;
+	public $next_token="";
+	public $direct_sender="";
+	public $connected_domain="";
+	public $result_code;
+	public $disconnected_error=0;
 
 	/* Private methods - DO NOT CALL */
 
@@ -54,7 +54,7 @@ class smtp_class
 		}
 		for($character=0;$character<strlen($separator);$character++)
 		{
-			if(GetType($position=strpos($string,$separator[$character]))=="integer")
+			if(GetType($position=strpos($string,(string) $separator[$character]))=="integer")
 				$found=(IsSet($found) ? min($found,$position) : $position);
 		}
 		if(IsSet($found))
@@ -445,7 +445,7 @@ class smtp_class
 			$this->error=$error;
 			return(0);
 		}
-		$timeout=($this->data_timeout ? $this->data_timeout : $this->timeout);
+		$timeout=($this->data_timeout ?: $this->timeout);
 		if($timeout
 		&& function_exists("socket_set_timeout"))
 			socket_set_timeout($this->connection,$timeout,0);

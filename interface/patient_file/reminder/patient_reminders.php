@@ -53,8 +53,8 @@ if (!$thisauth) {
 
 
 <?php
-$patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
-$mode = ($_GET['mode']) ? $_GET['mode'] : "simple";
+$patient_id = $_GET['patient_id'] ?: "";
+$mode = $_GET['mode'] ?: "simple";
 $sortby = $_GET['sortby'] ?? null;
 $sortorder = $_GET['sortorder'] ?? null;
 $begin = $_GET['begin'] ?? null;

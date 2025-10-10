@@ -107,7 +107,7 @@ function endDoctor(&$docrow): void
     $docrow['encounters']  = 0;
 }
 
-$form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility  = $_POST['form_facility'] ?? '';
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 if (!empty($_POST['form_refresh'])) {
@@ -354,7 +354,7 @@ if (!empty($_POST['form_refresh'])) {
         while ($row = sqlFetchArray($res)) {
             $patient_id = $row['pid'];
             $encounter  = $row['encounter'];
-            $docname    = $row['docname'] ? $row['docname'] : xl('Unknown');
+            $docname    = $row['docname'] ?: xl('Unknown');
 
             if ($docname != $docrow['docname']) {
                 endDoctor($docrow);

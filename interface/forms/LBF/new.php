@@ -98,7 +98,7 @@ $from_lbf_edit = $patient_portal ? 1 : $from_lbf_edit;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 $formid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $portalid = isset($_GET['portalid']) ? (int)$_GET['portalid'] : 0;
 // know LBF origin
@@ -228,7 +228,7 @@ if (
         addForm($visitid, $formtitle, $newid, $formname, $pid, $userauthorized);
     }
 
-    $my_form_id = $formid ? $formid : $newid;
+    $my_form_id = $formid ?: $newid;
 
     // If there is an issue ID, update it in the forms table entry.
     if (isset($_POST['form_issue_id'])) {
@@ -247,6 +247,7 @@ if (
     }
 
     $newhistorydata = [];
+    $newPatientData = [];
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -278,11 +279,12 @@ if (
                 // Do not call updateHistoryData() here! That would create multiple rows
                 // in the history_data table for a single form save.
                 $newhistorydata[$field_id] = $value;
-            } elseif (strpos($field_id, 'em_') === 0) {
+            } elseif (str_starts_with($field_id, 'em_')) {
                 $field_id = substr($field_id, 3);
                 $new = [$field_id => $value];
                 updateEmployerData($pid, $new);
             } else {
+                $newPatientData[$field_id] = $value;
                 $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
                 sqlStatement(
                     "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
@@ -337,6 +339,16 @@ if (
     // Save any history data that was collected above.
     if (!empty($newhistorydata)) {
         updateHistoryData($pid, $newhistorydata);
+    }
+    // until more testing can be done to understand impact of sequential field saving (which demographics_save and new_comprehensive_save don't do),
+    // we will handle the employer_data saving this way for now.
+    if (!empty($newPatientData)) {
+        if (!$GLOBALS['omit_employers']) {
+            updateEmployerData($pid, [
+                'occupation' => $newPatientData['occupation']
+                ,'industry' => $newPatientData['industry']
+            ]);
+        }
     }
 
     if ($portalid) {
@@ -1281,7 +1293,7 @@ if (
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -1435,7 +1447,7 @@ if (
                         }
                         echo "</select>&nbsp;&nbsp;\n";
                     }
-                    $tmp_provider_id = $fs->provider_id ? $fs->provider_id : 0;
+                    $tmp_provider_id = $fs->provider_id ?: 0;
                     if (!$tmp_provider_id && $userauthorized) {
                         // Default to the logged-in user if they are a provider.
                         $tmp_provider_id = $_SESSION['authUserID'];
@@ -1746,7 +1758,7 @@ if (
                         echo "  <td class='text linkcolor'>" . text(oeFormatShortDate($refrow['refer_date'])) . "&nbsp;</td>\n";
                         echo "  <td class='text linkcolor'>" . text($refrow['refer_type']) . "&nbsp;</td>\n";
                         echo "  <td class='text linkcolor'>" . text($refrow['body']) . "&nbsp;</td>\n";
-                        echo "  <td class='text linkcolor'>" . text($refrow['organization'] ? $refrow['organization'] : $refrow['referto_name']) . "&nbsp;</td>\n";
+                        echo "  <td class='text linkcolor'>" . text($refrow['organization'] ?: $refrow['referto_name']) . "&nbsp;</td>\n";
                         echo "  <td class='text linkcolor'>" . $svcstring . "&nbsp;</td>\n";
                         echo " </tr>\n";
                     }

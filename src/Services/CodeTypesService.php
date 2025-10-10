@@ -69,6 +69,8 @@ class CodeTypesService
         '2.16.840.1.113883.6.13' => 'CDT',
         '2.16.840.1.113883.18.2' => 'AdministrativeSex',
         '2.16.840.1.113883.5.1' => 'AdministrativeGender',
+        '2.16.840.1.114222.4.11.7900' => 'IndustryODH',
+        '2.16.840.1.114222.4.11.7901' => 'OccupationODH',
         self::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY => 'HealthCareProviderTaxonomy'
     ];
     /**
@@ -82,6 +84,8 @@ class CodeTypesService
     private $cpt4Installed;
     private $rxnormInstalled;
 
+    protected ListService $listService;
+
     public function __construct()
     {
         // currently, our installed code types are
@@ -91,6 +95,19 @@ class CodeTypesService
         $this->snomedInstalled = isset($code_types[self::CODE_TYPE_SNOMED_CT]);
         $this->cpt4Installed = isset($code_types[self::CODE_TYPE_CPT4]);
         $this->rxnormInstalled = isset($code_types[self::CODE_TYPE_RXNORM]);
+    }
+
+    public function setListService(ListService $listService): void
+    {
+        $this->listService = $listService;
+    }
+
+    public function getListService(): ListService
+    {
+        if (!isset($this->listService)) {
+            $this->listService = new ListService();
+        }
+        return $this->listService;
     }
 
     /**
@@ -171,7 +188,7 @@ class CodeTypesService
     {
         $parsedCode = $code;
         $parsedType = null;
-        if (is_string($code) && strpos($code, ":") !== false) {
+        if (is_string($code) && str_contains($code, ":")) {
             $parts = explode(":", $code);
             $parsedCode = $parts[1];
             $parsedType = $parts[0];
@@ -246,17 +263,16 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.4';
             }
         } else {
-            if (self::CODE_TYPE_SNOMED_CT == $codeType) {
-                $system = FhirCodeSystemConstants::SNOMED_CT;
-            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
-                $system = FhirCodeSystemConstants::SNOMED_CT;
-            } elseif (self::CODE_TYPE_NUCC == $codeType) {
-                $system = FhirCodeSystemConstants::NUCC_PROVIDER;
-            } elseif (self::CODE_TYPE_LOINC == $codeType) {
-                $system = FhirCodeSystemConstants::LOINC;
-            } elseif (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
-                $system = FhirCodeSystemConstants::RXNORM;
-            }
+            $system = match ($codeType) {
+                self::CODE_TYPE_SNOMED_CT => FhirCodeSystemConstants::SNOMED_CT,
+                self::CODE_TYPE_SNOMED => FhirCodeSystemConstants::SNOMED_CT,
+                self::CODE_TYPE_NUCC => FhirCodeSystemConstants::NUCC_PROVIDER,
+                self::CODE_TYPE_LOINC => FhirCodeSystemConstants::LOINC,
+                self::CODE_TYPE_RXNORM, self::CODE_TYPE_RXCUI => FhirCodeSystemConstants::RXNORM,
+                self::CODE_TYPE_CPT4, self::CODE_TYPE_CPT => FhirCodeSystemConstants::AMA_CPT,
+                self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10,
+                default => null,
+            };
         }
         if (empty($system)) {
             foreach (self::CODE_TYPE_OID as $oid => $system_code) {
@@ -303,7 +319,7 @@ class CodeTypesService
                 $type = 'CPT4';
                 break;
             default:
-                if (strpos($type, '2.16.840.1.113883.') !== false) {
+                if (str_contains($type, '2.16.840.1.113883.')) {
                     $type = $this->getCodeSystemNameFromSystem($type);
                 }
         }
@@ -351,7 +367,7 @@ class CodeTypesService
 
         // use valueset table if code description not found.
         if (empty($currentCodeText)) {
-            if (strpos($codeType, '2.16.840.1.113883.') !== false) {
+            if (str_contains($codeType, '2.16.840.1.113883.')) {
                 $oid = trim($codeType);
                 $codeType = "";
             }
@@ -400,20 +416,24 @@ class CodeTypesService
 
     public function dischargeOptionIdFromCode($formatted_code)
     {
-        $listService = new ListService();
+        $listService = $this->getListService();
         $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
         return $ret[0]['option_id'] ?? '';
     }
 
     public function dischargeCodeFromOptionId($option_id)
     {
-        $listService = new ListService();
+        $listService = $this->getListService();
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
     }
 
     public function parseCodesIntoCodeableConcepts($codes)
     {
+        if (!is_string($codes) || empty(trim($codes))) {
+            return [];
+        }
         $codes = explode(";", $codes);
+
         $codeableConcepts = [];
         foreach ($codes as $codeItem) {
             $parsedCode = $this->parseCode($codeItem);

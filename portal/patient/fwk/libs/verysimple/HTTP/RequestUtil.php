@@ -202,7 +202,7 @@ class RequestUtil
 
         $headers =  [];
         foreach ($_SERVER as $k => $v) {
-            if (substr($k, 0, 5) == "HTTP_") {
+            if (str_starts_with($k, "HTTP_")) {
                 $k = str_replace('_', ' ', substr($k, 5));
                 $k = str_replace(' ', '-', ucwords(strtolower($k)));
                 $headers [$k] = $v;
@@ -266,7 +266,7 @@ class RequestUtil
 
             $headers =  [];
             foreach ($_SERVER as $key => $value) {
-                if (substr($key, 0, 5) != 'HTTP_') {
+                if (!str_starts_with($key, 'HTTP_')) {
                     continue;
                 }
 
@@ -292,11 +292,11 @@ class RequestUtil
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $server_protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
         } else {
-            $server_protocol = isset($_SERVER ["SERVER_PROTOCOL"]) ? $_SERVER ["SERVER_PROTOCOL"] : "";
+            $server_protocol = $_SERVER ["SERVER_PROTOCOL"] ?? "";
         }
 
-        $http_host = isset($_SERVER ["HTTP_HOST"]) ? $_SERVER ["HTTP_HOST"] : "";
-        $server_port = isset($_SERVER ["SERVER_PORT"]) ? $_SERVER ["SERVER_PORT"] : "";
+        $http_host = $_SERVER ["HTTP_HOST"] ?? "";
+        $server_port = $_SERVER ["SERVER_PORT"] ?? "";
 
         $protocol = substr($server_protocol, 0, strpos($server_protocol, "/")) . (self::IsSSL() ? "S" : "");
         $port = "";
@@ -305,7 +305,7 @@ class RequestUtil
         $domain = $domainport [0];
 
 
-        $port = (isset($domainport [1])) ? $domainport [1] : $server_port;
+        $port = $domainport [1] ?? $server_port;
 
         // ports 80 and 443 are generally not included in the url
         $port = ($port == "" || $port == "80" || $port == "443") ? "" : (":" . $port);
@@ -318,7 +318,7 @@ class RequestUtil
             $qs = isset($pq [1]) ? "?" . $pq [1] : "";
         } else {
             // otherwise use SCRIPT_NAME & QUERY_STRING
-            $path = isset($_SERVER ['SCRIPT_NAME']) ? $_SERVER ['SCRIPT_NAME'] : "";
+            $path = $_SERVER ['SCRIPT_NAME'] ?? "";
             $qs = isset($_SERVER ['QUERY_STRING']) ? "?" . $_SERVER ['QUERY_STRING'] : "";
         }
 
@@ -520,7 +520,7 @@ class RequestUtil
     {
         require_once("verysimple/String/VerySimpleStringUtil.php");
 
-        $val = isset($_REQUEST [$fieldname]) ? $_REQUEST [$fieldname] : '';
+        $val = $_REQUEST [$fieldname] ?? '';
         return VerySimpleStringUtil::EncodeToHTML($val) != $val;
     }
 

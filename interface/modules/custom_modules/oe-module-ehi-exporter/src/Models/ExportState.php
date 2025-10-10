@@ -35,40 +35,29 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDef
 
 class ExportState
 {
-    public \SimpleXMLElement $rootNode;
-    private \SplQueue $queue;
-    private Models\ExportResult $result;
+    private readonly \SplQueue $queue;
+    private readonly Models\ExportResult $result;
     private array $tableDefinitionsMap;
-    private SystemLogger $logger;
 
     // we use this to make sure if we are scheduled to hit an item again
     private $inQueueList = [];
 
-    private ExportTableDataFilterer $dataFilterer;
+    private readonly ExportTableDataFilterer $dataFilterer;
 
     /**
      * @var string the temp directory to use for this export
      */
     private string $tempDir;
 
-    private \SimpleXMLElement $metaNode;
+    private readonly ExportKeyDefinitionFilterer $keyFilterer;
 
-    private ExportKeyDefinitionFilterer $keyFilterer;
-
-    private EhiExportJobTask $jobTask;
-
-    public function __construct(SystemLogger $logger, \SimpleXMLElement $tableNode, \SimpleXMLElement $metaNode, EhiExportJobTask $jobTask)
+    public function __construct(private readonly SystemLogger $logger, public \SimpleXMLElement $rootNode, private readonly \SimpleXMLElement $metaNode, private readonly EhiExportJobTask $jobTask)
     {
-        $this->rootNode = $tableNode;
-        $this->metaNode = $metaNode;
         $this->queue = new \SplQueue();
         $this->result = new Models\ExportResult();
         $this->tableDefinitionsMap = [];
         $this->dataFilterer = new ExportTableDataFilterer();
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
-        $this->jobTask = $jobTask;
-
-        $this->logger = $logger;
     }
 
     public function getTempSysDir()

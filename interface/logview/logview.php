@@ -173,7 +173,7 @@ if (!empty($_GET)) {
                                         </select>
                                     </div>
                                     <?php
-                                    $eventname = isset($_GET['eventname']) ? $_GET['eventname'] : '';
+                                    $eventname = $_GET['eventname'] ?? '';
                                     $res = sqlStatement("select distinct event from log order by event ASC");
                                     $ename_list = [];
                                     $j = 0;

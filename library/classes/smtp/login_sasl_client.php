@@ -13,8 +13,8 @@ define("SASL_LOGIN_STATE_DONE",              3);
 
 class login_sasl_client_class
 {
-	var $credentials=[];
-	var $state=SASL_LOGIN_STATE_START;
+	public $credentials=[];
+	public $state=SASL_LOGIN_STATE_START;
 
 	Function Initialize(&$client)
 	{

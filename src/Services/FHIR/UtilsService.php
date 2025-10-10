@@ -193,7 +193,7 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_start'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start']);
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start'], true);
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",
@@ -210,7 +210,7 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_end'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end']);
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end'], true);
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",

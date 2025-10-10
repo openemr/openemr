@@ -29,16 +29,14 @@ class AppointmentSetEvent extends Event
      */
     const EVENT_HANDLE = 'appointment.set';
 
-    /**
-     * @var
-     */
-    private $post;
-
     public $eid;
 
-    public function __construct($post)
-    {
-        $this->post = $post;
+    /**
+     * @param mixed $post
+     */
+    public function __construct(
+        private $post
+    ) {
     }
 
     /**

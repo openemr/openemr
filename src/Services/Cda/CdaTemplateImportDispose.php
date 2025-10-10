@@ -218,7 +218,7 @@ class CdaTemplateImportDispose
                     $value['list_code_text'],
                     'RXNORM' . ':' . $value['list_code'],
                     $severity_option_id,
-                    $reaction_option_id ? $reaction_option_id : 0,
+                    $reaction_option_id ?: 0,
                     $value['extension'],
                     $pid]);
             }
@@ -1877,7 +1877,7 @@ class CdaTemplateImportDispose
                                       WHERE pid=?
                                       ORDER BY id DESC LIMIT 1", [$pid]);
             $enc_cur = $enc->current();
-            $enc_id = $enc_cur['encounter'] ? $enc_cur['encounter'] : 0;
+            $enc_id = $enc_cur['encounter'] ?: 0;
         } else {
             foreach ($docEnc as $d_enc) {
                 $enc_id = $d_enc['encounter'];

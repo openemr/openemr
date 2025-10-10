@@ -19,20 +19,8 @@ use Psr\Log\LoggerInterface;
 
 class PatientContextSearchController
 {
-    /**
-     * @var PatientService
-     */
-    private $service;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(PatientService $service, LoggerInterface $logger)
+    public function __construct(private readonly PatientService $service, private readonly LoggerInterface $logger)
     {
-        $this->service = $service;
-        $this->logger = $logger;
     }
 
     /**

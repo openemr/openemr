@@ -132,7 +132,7 @@ class EncountermanagerController extends AbstractActionController
                     $pids .= $combination[$i] . '|';
                 }
             }
-            $components = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
+            $components = $request->getPost('components') ?: $request->getQuery()->components;
             $send_params = [
                 'action' => 'index',
                 'pids' => $pids,

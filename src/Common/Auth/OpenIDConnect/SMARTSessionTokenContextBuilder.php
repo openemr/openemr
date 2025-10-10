@@ -31,14 +31,8 @@ class SMARTSessionTokenContextBuilder
 {
     use SystemLoggerAwareTrait;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
-    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $sessionArray)
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session)
     {
-        $this->session = $sessionArray;
-        $this->globalsBag = $globalsBag;
     }
 
     /**

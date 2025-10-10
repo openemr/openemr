@@ -28,7 +28,6 @@ class DataAdapter implements IObservable
     private $_observers =  [];
     private $_dbconn;
     private $_dbopen;
-    private $_driver;
     private $_label;
     private $_transactionInProgress;
     private $_masterAdapter;
@@ -51,19 +50,16 @@ class DataAdapter implements IObservable
      * @access public
      * @param ConnectionSetting $csetting
      * @param Observable $listener
-     * @param
-     *          IDataDriver (optional) if not provided, then DataAdapter will attempt to instantiate one based on ConnectionSetting->Type
-     * @param
-     *          string (optional) a label for the DataAdapter used in debug messages (if empty a random label will be generated)
+     * @param ?IDataDriver $_driver (optional) if not provided, then DataAdapter will attempt to instantiate one based on ConnectionSetting->Type
+     * @param string $label (optional) a label for the DataAdapter used in debug messages (if empty a random label will be generated)
      */
-    function __construct($csetting, $listener = null, ?IDataDriver $driver = null, $label = null)
+    function __construct($csetting, $listener = null, private ?IDataDriver $_driver = null, $label = null)
     {
-        $this->_driver = $driver;
         if ($this->_driver) {
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
         }
 
-        $this->_label = $label ? $label : 'db-' . mt_rand(10000, 99999);
+        $this->_label = $label ?: 'db-' . mt_rand(10000, 99999);
 
         $this->ConnectionSetting = & $csetting;
 
@@ -384,7 +380,7 @@ class DataAdapter implements IObservable
     public function IsCommunicationError($error)
     {
         $msg = is_a($error, 'Exception') ? $error->getMessage() : $error;
-        return strpos(strtolower($msg), 'lost connection') !== false;
+        return str_contains(strtolower($msg), 'lost connection');
     }
 
     /**

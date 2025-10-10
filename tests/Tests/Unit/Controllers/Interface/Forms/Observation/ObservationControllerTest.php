@@ -14,7 +14,10 @@
 
 namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
+use Monolog\Level;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Services\FormService;
@@ -34,6 +37,8 @@ use Twig\Environment;
  */
 class ObservationControllerTest extends TestCase
 {
+    use SystemLoggerAwareTrait;
+
     private ObservationController $controller;
 
     // AI Generated: Mock objects for dependencies
@@ -42,7 +47,8 @@ class ObservationControllerTest extends TestCase
     private MockObject $mockTwig;
     private MockObject $mockPatientService;
 
-    private $globalWebrootBackup;
+    private ?string $globalWebrootBackup;
+    private ?int $globalDateFormat;
     private ?Kernel $globalKernelBackup = null;
 
     private array $sessionBackup = [];
@@ -64,12 +70,16 @@ class ObservationControllerTest extends TestCase
             'authProvider' => 'testprovider',
             'userauthorized' => 1
         ];
+        // setup the csrf so we don't error out
+        CsrfUtils::setupCsrfKey();
 
         // Mock global variables that may be used
         $this->globalWebrootBackup = $GLOBALS['webroot'] ?? null;
         $this->globalKernelBackup = $GLOBALS['kernel'] ?? null;
+        $this->globalDateFormat = $GLOBALS['date_display_format'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
         $GLOBALS['kernel'] = null;
+        $GLOBALS['date_display_format'] = 0; // YYYY-MM-DD
 
         // Create mock dependencies
         $this->mockObservationService = $this->createMock(ObservationService::class);
@@ -94,6 +104,7 @@ class ObservationControllerTest extends TestCase
         $_SESSION = $this->sessionBackup;
         $GLOBALS['webroot'] = $this->globalWebrootBackup;
         $GLOBALS['kernel'] = $this->globalKernelBackup;
+        $GLOBALS['date_display_format'] = $this->globalDateFormat;
         parent::tearDown();
     }
 
@@ -229,6 +240,7 @@ class ObservationControllerTest extends TestCase
             ->with('observation')
             ->willReturn(true);
 
+        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
         $response = $this->controller->deleteAction($request);
 
         $this->assertEquals(Response::HTTP_SEE_OTHER, $response->getStatusCode());
@@ -264,6 +276,7 @@ class ObservationControllerTest extends TestCase
             ->with(1, 123)
             ->willReturn($mockObservation);
 
+        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
         $response = $this->controller->deleteAction($request);
 
         $this->assertEquals(Response::HTTP_SEE_OTHER, $response->getStatusCode());
@@ -284,7 +297,7 @@ class ObservationControllerTest extends TestCase
         $processingResult->method('getData')->willReturn([]);
         $this->mockObservationService
             ->expects($this->once())
-            ->method('search')
+            ->method('searchAndPopulateChildObservations')
             ->willReturn($processingResult);
 
         // Mock the renderReport method (would need to be made public or protected for testing)
@@ -344,7 +357,7 @@ class ObservationControllerTest extends TestCase
             'description' => 'Test observation',
             'ob_value' => '120',
             'ob_unit' => 'mmHg',
-            'date' => '2024-01-01 10:00:00'
+            'date' => '2024-01-01 10:00'
         ];
 
         $mockTemplate = [
@@ -390,7 +403,7 @@ class ObservationControllerTest extends TestCase
             'observation_id' => $observationId,
             'code' => 'TEST001',
             'description' => 'Updated observation',
-            'date' => '2024-01-02 11:00:00'
+            'date' => '2024-01-02 11:00'
         ];
 
         $existingObservation = [
@@ -474,6 +487,7 @@ class ObservationControllerTest extends TestCase
             ->method('getNewObservationTemplate')
             ->willThrowException(new \Exception('Database error'));
 
+        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
         $response = $this->controller->saveAction($request);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());

@@ -66,26 +66,6 @@ class TeleconferenceRoomController
     const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
 
     /**
-     * @var Environment
-     */
-    private Environment $twig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private LoggerInterface $logger;
-
-    /**
-     * @var boolean  Whether we are running as a patient in the portal context
-     */
-    private bool $isPatient;
-
-    /**
-     * @var string The location where the module assets are stored
-     */
-    private string $assetPath;
-
-    /**
      * @var EncounterService
      */
     private EncounterService $encounterService;
@@ -98,69 +78,41 @@ class TeleconferenceRoomController
     /**
      * @var TeleHealthSessionRepository
      */
-    private TeleHealthSessionRepository $sessionRepository;
+    private readonly TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private TeleHealthUserRepository $telehealthUserRepo;
+    private readonly TeleHealthUserRepository $telehealthUserRepo;
 
     /**
-     * @var TeleHealthVideoRegistrationController
+     * @param Environment $twig
+     * @param LoggerInterface $logger
+     * @param TeleHealthVideoRegistrationController $telehealthRegistrationController
+     * @param TeleHealthParticipantInvitationMailerService $mailerService
+     * @param TeleHealthFrontendSettingsController $settingsController
+     * @param TelehealthGlobalConfig $config
+     * @param TeleHealthProvisioningService $provisioningService
+     * @param ParticipantListService $participantListService
+     * @param string $assetPath The location where the module assets are stored
+     * @param bool $isPatient Whether we are running as a patient in the portal context
      */
-    private TeleHealthVideoRegistrationController $telehealthRegistrationController;
-
-    /**
-     * @var TeleHealthParticipantInvitationMailerService
-     */
-    private TeleHealthParticipantInvitationMailerService $mailerService;
-
-    /**
-     * @var TeleHealthFrontendSettingsController
-     */
-    private TeleHealthFrontendSettingsController $settingsController;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private TelehealthGlobalConfig $config;
-
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private TeleHealthProvisioningService $provisioningService;
-
-    /**
-     * @var ParticipantListService
-     */
-    private ParticipantListService $participantListService;
-
     public function __construct(
-        Environment $twig,
-        LoggerInterface $logger,
-        TeleHealthVideoRegistrationController $registrationController,
-        TeleHealthParticipantInvitationMailerService $mailerService,
-        TeleHealthFrontendSettingsController $settingsController,
-        TelehealthGlobalConfig $config,
-        TeleHealthProvisioningService $provisioningService,
-        ParticipantListService $participantListService,
-        $assetPath,
-        $isPatient = false
+        private readonly Environment $twig,
+        private readonly LoggerInterface $logger,
+        private readonly TeleHealthVideoRegistrationController $telehealthRegistrationController,
+        private readonly TeleHealthParticipantInvitationMailerService $mailerService,
+        private readonly TeleHealthFrontendSettingsController $settingsController,
+        private readonly TelehealthGlobalConfig $config,
+        private readonly TeleHealthProvisioningService $provisioningService,
+        private readonly ParticipantListService $participantListService,
+        private readonly string $assetPath,
+        private readonly bool $isPatient = false
     ) {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->isPatient = $isPatient;
         $this->appointmentService = new AppointmentService();
         $this->encounterService = new EncounterService();
         $this->sessionRepository = new TeleHealthSessionRepository();
-        $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
-        $this->mailerService = $mailerService;
-        $this->settingsController = $settingsController;
-        $this->config = $config;
-        $this->provisioningService = $provisioningService;
-        $this->participantListService = $participantListService;
     }
 
     /**

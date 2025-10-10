@@ -40,43 +40,18 @@ class SMARTAuthorizationController
     /**
      * @var SystemLogger
      */
-    private SystemLogger $logger;
-
-    /**
-     * The base URL of the oauth2 url
-     * @var string
-     */
-    private string $authBaseFullURL;
-
-    /**
-     * The oauth2 endpoint url to send to once smart authorization is complete.
-     * @var string
-     */
-    private string $smartFinalRedirectURL;
-
-    /**
-     * The directory that the oauth template files can be included from
-     * @var string
-     */
-    private string $oauthTemplateDir;
-
-    /**
-     * @var Environment The twig template engine
-     */
-    private Environment $twig;
+    private readonly SystemLogger $logger;
 
     /**
      * @var EventDispatcherInterface
      */
-    private EventDispatcherInterface $dispatcher;
-
-    private SessionInterface $session;
+    private readonly EventDispatcherInterface $dispatcher;
 
     private PatientContextSearchController $patientContextSearchController;
 
     private ClientRepository $clientRepository;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     private LogoService $logoService;
 
@@ -99,25 +74,20 @@ class SMARTAuthorizationController
      * TODO: @adunsulag this constructor has a lot of parameters, we should look at refactoring this to use a configuration object or reduce the scope of what this class does.
      * @param SessionInterface $session The session interface to use for storing session data.
      * @param OEHttpKernel $kernel The OpenEMR kernel to use for getting the system logger and event dispatcher.
-     * @param $authBaseFullURL
-     * @param $smartFinalRedirectURL string The URL that should be redirected to once all SMART authorizations are complete.
-     * @param $oauthTemplateDir string The directory that the oauth template files can be included from.
+     * @param string $authBaseFullURL The base URL of the oauth2 url
+     * @param string $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
+     * @param string $oauthTemplateDir The directory that the oauth template files can be included from.
      * @param Environment $twig The twig template engine to use for rendering pages.
- */
+     */
     public function __construct(
-        SessionInterface $session,
+        private readonly SessionInterface $session,
         OEHttpKernel $kernel,
-        $authBaseFullURL,
-        string $smartFinalRedirectURL,
-        string $oauthTemplateDir,
-        Environment $twig
+        private readonly string $authBaseFullURL,
+        private readonly string $smartFinalRedirectURL,
+        private readonly string $oauthTemplateDir,
+        private readonly Environment $twig
     ) {
-        $this->session = $session;
         $this->logger = $kernel->getSystemLogger();
-        $this->authBaseFullURL = $authBaseFullURL;
-        $this->smartFinalRedirectURL = $smartFinalRedirectURL;
-        $this->oauthTemplateDir = $oauthTemplateDir;
-        $this->twig = $twig;
         $this->dispatcher = $kernel->getEventDispatcher();
         $this->globalsBag = $kernel->getGlobalsBag();
     }

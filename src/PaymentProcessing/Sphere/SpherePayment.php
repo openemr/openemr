@@ -22,16 +22,6 @@ class SpherePayment
     /**
      * @var string
      */
-    private $front;
-
-    /**
-     * @var int
-     */
-    private $patientIdCc;
-
-    /**
-     * @var string
-     */
     private $serverSite;
 
     /**
@@ -47,14 +37,8 @@ class SpherePayment
     /**
      * Constructor
      */
-    public function __construct(string $front, int $patientIdCc)
+    public function __construct(private readonly string $front, private readonly int $patientIdCc)
     {
-        // Set if front is 'clinic' (via clinic desk or via clinic phone) or 'patient' (via patient portal)
-        $this->front = $front;
-
-        // Set the patient pid
-        $this->patientIdCc = $patientIdCc;
-
         // Set if in testing mode (or false for production mode)
         $testing = empty($GLOBALS['gateway_mode_production']);
 

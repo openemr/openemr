@@ -28,24 +28,19 @@ class IndividualResult extends AbstractType
 
     public $population_set_key;
 
-    /**
-     * @var Measure
-     */
-    public $measure;
-
     protected $_result;
 
     /**
      * IndividualResult constructor.
      *
      * @param $_result
+     * @param \OpenEMR\Services\Qdm\Measure $measure
      */
-    public function __construct($_result, $measure)
+    public function __construct($_result, public $measure)
     {
         parent::__construct($_result);
         $this->patient_id = PatientService::makeQdmIdentifier('System', PatientService::convertIdFromBSONObjectIdFormat($_result['patient_id'] ?? null));
         $this->_result = $_result;
-        $this->measure = $measure;
     }
 
     public function getInnerResult()

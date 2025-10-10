@@ -36,7 +36,7 @@ if (!empty($_POST)) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility = $_POST['form_facility'] ?? '';
 ?>
 <html>
 <head>

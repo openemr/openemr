@@ -55,7 +55,7 @@ if (isset($mode)) {
             "forms.pid = ? AND forms.encounter = ? AND " .
             "forms.formdir='newpatient' AND users.username = forms.user AND " .
             "users.authorized = 1", [$pid, $encounter]);
-        $provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
+        $provid = $tmp['id'] ?: $_SESSION["authUserID"];
 
         if (strtolower($type) == "copay") {
             BillingUtilities::addBilling(

@@ -20,16 +20,16 @@
 
 /// Enable multiple timers to aid profiling of performance over sections of code
 class Profiler {
-    var $description;
-    var $startTime;
-    var $endTime;
-    var $initTime;
-    var $cur_timer;
-    var $stack;
-    var $trail;
-    var $trace;
-    var $count;
-    var $running;
+    public $description;
+    public $startTime;
+    public $endTime;
+    public $initTime;
+    public $cur_timer;
+    public $stack;
+    public $trail;
+    public $trace;
+    public $count;
+    public $running;
 
     /**
     * Initialise the timer. with the current micro time
@@ -132,7 +132,7 @@ class Profiler {
             echo"============================================================================\n";
             print( "Calls                    Time  Routine\n");
             echo"-----------------------------------------------------------------------------\n";
-            while ([$key, $val] = each ($this->description)) {
+            foreach ($this->description as $key => $val) {
                 $t = $this->elapsedTime($key);
                 $total = $this->running[$key];
                 $count = $this->count[$key];

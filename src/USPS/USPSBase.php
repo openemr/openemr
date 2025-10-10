@@ -28,11 +28,6 @@ use LaLit\XML2Array;
 class USPSBase
 {
     const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
-
-  /**
-   * @var string - the usps username provided by the usps website
-   */
-    protected $username = '';
   /**
    *  the error code if one exists
    * @var integer
@@ -109,9 +104,8 @@ class USPSBase
    * Constructor
    * @param string $username - the usps api username
    */
-    public function __construct($username = '')
+    public function __construct(protected $username = '')
     {
-        $this->username = $username;
     }
   /**
    * set the usps api username we are going to user
@@ -175,7 +169,7 @@ class USPSBase
         $opts[CURLOPT_URL] = $this->getEndpoint();
 
       // Replace 443 with 80 if it's not secured
-        if (strpos($opts[CURLOPT_URL], 'https://') === false) {
+        if (!str_contains($opts[CURLOPT_URL], 'https://')) {
             $opts[CURLOPT_PORT] = 80;
         }
 
@@ -253,7 +247,7 @@ class USPSBase
         }
 
       // Check to see if we have the Error word in the response
-        if (strpos($this->getResponse(), '<Error>') !== false) {
+        if (str_contains($this->getResponse(), '<Error>')) {
             return true;
         }
 

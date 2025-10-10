@@ -26,11 +26,8 @@ use PhpOffice\PhpSpreadsheet\{
 
 class SpreadSheetService extends Spreadsheet
 {
-    private array $arrayData;
-    private string $fileName;
     private array $header;
     private array $row;
-    private array $fields;
 
     /**
      * SpreadSheetService constructor.
@@ -39,15 +36,12 @@ class SpreadSheetService extends Spreadsheet
      * @param array $fields
      * @param string $fileName
      */
-    public function __construct(array $arrayData, array $fields, string $fileName = 'report')
+    public function __construct(private array $arrayData, private array $fields, private readonly string $fileName = 'report')
     {
         if ($this->isCli()) {
             throw new \RuntimeException(self::class . ' should only be run from a Web browser');
         }
         parent::__construct();
-        $this->fileName = $fileName;
-        $this->arrayData = $arrayData;
-        $this->fields = $fields;
     }
 
     /**

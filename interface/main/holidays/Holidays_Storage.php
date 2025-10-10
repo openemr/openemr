@@ -77,7 +77,7 @@ class Holidays_Storage
                 "a:6:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";s:6:\"exdate\";s:0:\"\";}",
                 1,//allday
                 1,//status
-                isset($_SESSION['pc_facility']) ? $_SESSION['pc_facility'] : 0,//facility
+                $_SESSION['pc_facility'] ?? 0,//facility
                 2 //SHARING_PUBLIC
             ];
 

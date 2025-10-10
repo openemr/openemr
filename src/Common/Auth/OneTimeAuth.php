@@ -29,18 +29,16 @@ use RuntimeException;
 
 class OneTimeAuth
 {
-    private $scope;
-    private $context;
-    private $profile;
     private $cryptoGen;
     private $systemLogger;
 
-    public function __construct($context = 'portal', $scope = 'redirect', $profile = 'default')
+    /**
+     * @param string $context context = portal, patient etc.
+     * @param string $scope scope = portal/service tasks (reset, register).
+     * @param string $profile
+     */
+    public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
-        // scope = portal/service tasks (reset, register). context = portal, patient etc.
-        $this->context = $context;
-        $this->scope = $scope;
-        $this->profile = $profile;
         $this->cryptoGen = new CryptoGen();
         $this->systemLogger = new SystemLogger();
     }
@@ -356,7 +354,7 @@ class OneTimeAuth
         $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
         $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-';
-        $_SESSION['providerId'] = $patient['providerID'] ? $patient['providerID'] : 'undefined';
+        $_SESSION['providerId'] = $patient['providerID'] ?: 'undefined';
         $_SESSION['ptName'] = $patient['fname'] . ' ' . $patient['lname'];
         // never set authUserID though authUser is used for ACL!
         $_SESSION['authUser'] = 'portal-user';

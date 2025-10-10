@@ -75,17 +75,11 @@ class TelehealthGlobalConfig
      */
     private $publicWebPath;
 
-    /**
-     * @var Environment $twig
-     */
-    private $twig;
 
-
-    public function __construct($publicWebPath, $moduleDirectoryName, Environment $twig)
+    public function __construct($publicWebPath, $moduleDirectoryName, private readonly Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
-        $this->twig = $twig;
     }
 
     public function getPortalTimeout()

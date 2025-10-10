@@ -65,7 +65,7 @@ function GetPortalAlertCounts(): array
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
         "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
     $qrtn = sqlQueryNoLog($query, [$s_user]);
-    $counts['chatCnt'] = $qrtn['count_chats'] ? $qrtn['count_chats'] : "0";
+    $counts['chatCnt'] = $qrtn['count_chats'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
         "WHERE `m`.status LIKE ? AND `m`.activity = ?";

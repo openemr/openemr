@@ -63,7 +63,7 @@ class Controller extends Smarty
             return true;
     }
 
-    public function function_argument_error()
+    public function function_argument_error(): never
     {
          $this->display($GLOBALS['template_dir'] . "error/" . $this->template_mod . "_function_argument.html");
          exit;
@@ -169,7 +169,7 @@ class Controller extends Smarty
          $link = array_shift($url_parts);
          //print_r($url_parts);
 
-        if (strpos($url_parts[0], "=") === false) {
+        if (!str_contains($url_parts[0], "=")) {
             $inline_arg = $url_parts[0];
             $url_parts[0] = $action;
         } else {

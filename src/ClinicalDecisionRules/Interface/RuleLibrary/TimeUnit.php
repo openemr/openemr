@@ -17,17 +17,12 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
  */
 class TimeUnit
 {
-    var $code;
-    var $lbl;
-
     const Week = "week";
     const Month = "month";
     const Year = "year";
 
-    function __construct($code, $lbl)
+    function __construct(public $code, public $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**

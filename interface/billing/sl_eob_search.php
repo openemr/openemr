@@ -156,7 +156,7 @@ function era_callback(&$out): void
     // $eraname = $out['isa_control_number'];
     // since it's always sent we use isa_sender_id if payer_id is not provided
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
-        '_' . ltrim($out['payer_id'] ? $out['payer_id'] : $out['isa_sender_id'], '0');
+        '_' . ltrim($out['payer_id'] ?: $out['isa_sender_id'], '0');
 
     if (!empty($out['our_claim_id'])) {
         [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
@@ -1113,7 +1113,7 @@ if (
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
-                                if (substr($_REQUEST['form_category'], 0, 3) == 'Due' && !$isdueany) {
+                                if (str_starts_with($_REQUEST['form_category'], 'Due') && !$isdueany) {
                                     continue;
                                 }
                                 if ($_REQUEST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {

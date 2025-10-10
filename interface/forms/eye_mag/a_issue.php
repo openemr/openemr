@@ -97,7 +97,7 @@ $rres = sqlQuery($query, [
     $pid
 ]);
 foreach (explode(',', $given) as $item) {
-    $$item = $rres[$item];
+    ${$item} = $rres[$item];
 }
 ?>
 <html>

@@ -268,7 +268,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $age = '';
         if (!empty($row['DOB'])) {
             $dob = $row['DOB'];
-            $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
+            $tdy = $row['edate'] ?: date('Y-m-d');
             $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
                    (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);

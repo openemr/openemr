@@ -129,7 +129,7 @@ if (!empty($form_to_date)) {
     array_push($sqlBindArray, $form_to_date);
 }
 
-$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : [];
+$form_code = $_POST['form_code'] ?? [];
 if (empty($form_code)) {
     $query_codes = '';
 } else {

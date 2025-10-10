@@ -13,6 +13,7 @@ use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -37,10 +38,12 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
     use FhirBulkExportDomainResourceTrait;
     use MappedServiceTrait;
     use SystemLoggerAwareTrait;
+    use VersionedProfileTrait;
 
     const ORGANIZATION_TYPE_INSURANCE = "Ins";
     const ORGANIZATION_TYPE_PAYER = "Pay";
     const ORGANIZATION_TYPE_PROVIDER = "Prov";
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization';
 
     /**
      * @var FhirOrganizationFacilityService
@@ -215,10 +218,8 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

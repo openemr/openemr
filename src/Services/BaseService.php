@@ -31,11 +31,6 @@ require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
 class BaseService implements BaseServiceInterface
 {
-    /**
-     * Passed in data should be vetted and fully qualified from calling service class
-     * Expect to see some search helpers here as well.
-     */
-    private $table;
     private $fields;
     private $autoIncrements;
 
@@ -63,12 +58,13 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Default constructor.
+     * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
-    public function __construct($table)
-    {
-        $this->table = $table;
-        $this->fields = sqlListFields($table);
-        $this->autoIncrements = self::getAutoIncrements($table);
+    public function __construct(
+        private $table
+    ) {
+        $this->fields = QueryUtils::listTableFields($table);
+        $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }
@@ -220,7 +216,7 @@ class BaseService implements BaseServiceInterface
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
                 // for dates which should be saved as null
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (str_contains($key, 'date'))) {
                     $bind[] = null;
                 } else {
                     $bind[] = ($value === null || $value === false) ? $null_value : $value;
@@ -281,14 +277,14 @@ class BaseService implements BaseServiceInterface
                     $value === null
                     || $value === false
                 )
-                && (strpos($key, 'date') === false)
+                && (!str_contains($key, 'date'))
             ) {
                 // in case unwanted values passed in.
                 continue;
             }
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (str_contains($key, 'date'))) {
                     $bind[] = null;
                 } else {
                     $bind[] = $value;
@@ -343,7 +339,7 @@ class BaseService implements BaseServiceInterface
      * @param $type                 - Type of Exception
      * @throws InvalidValueException
      */
-    public static function throwException($message, $type = "Error")
+    public static function throwException($message, $type = "Error"): never
     {
         throw new InvalidValueException($message, $type);
     }

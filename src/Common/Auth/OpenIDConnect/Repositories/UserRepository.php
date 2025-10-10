@@ -29,14 +29,8 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
 {
     use SystemLoggerAwareTrait;
 
-    private OEGlobalsBag $globalsBag;
-
-    private SessionInterface $session;
-
-    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session)
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session)
     {
-        $this->globalsBag = $globalsBag;
-        $this->session = $session;
     }
 
     public function getUserEntityByIdentifier($identifier)

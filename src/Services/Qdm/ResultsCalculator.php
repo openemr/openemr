@@ -20,22 +20,19 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class ResultsCalculator
 {
-    protected $correlation_id;
     protected $patient_sup_map;
     protected $measure_result_hash;
-    protected $effective_date;
 
-    // @param [Array] patients the list of patients that are included in the aggregate results
-    // @param [String] correlation_id the id used to associate a group of patients
-    // @param [String] effective_date used when generating the query_cache_object for HDS QRDA Cat III export
-    // @param [Hash] options :individual_results are the raw results from CqmExecutionCalc
-    public function __construct(array $patients, $correlation_id, $effective_date)
+    /**
+     * @param array $patients the list of patients that are included in the aggregate results
+     * @param mixed $correlation_id the id used to associate a group of patients
+     * @param mixed $effective_date used when generating the query_cache_object for HDS QRDA Cat III export
+     */
+    public function __construct(array $patients, protected $correlation_id, protected $effective_date)
     {
-        $this->correlation_id = $correlation_id;
         // Hash of patient_id and their supplemental information
         $this->patient_sup_map = [];
         $this->measure_result_hash = [];
-        $this->effective_date = $effective_date;
         foreach ($patients as $patient) {
             $this->add_patient_to_sup_map($patient);
         }

@@ -28,21 +28,14 @@ class edih_271_codes
 //
 //public $code271 = array();
     private $code271 = [];
-    private $ds = '';
-    private $dr = '';
 // the key_match array is a concept of matching code lists to
 // segment elements when diferent segments are looking for the same
 // code or reference lists
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //
-    function __construct($component_separator, $repetition_separator)
+    function __construct(private $ds, private $dr)
     {
-        //
-        // echo "class edih_271_codes ds=$component_separator dr=$repetition_separator".PHP_EOL;
-        //
-        $this->ds = $component_separator;
-        $this->dr = $repetition_separator;
         //
         $this->code271['BHT02'] = [
         '13' => 'Request',
@@ -2394,21 +2387,16 @@ class edih_271_codes
 // end code271  array
 //
     // edih_271_codes
-    public function classname()
-    {
-        return get_class($this);
-    }
-    //
     public function get_271_code($elem, $code)
     {
         //
         $e = (string)$elem;
         $val = '';
-        if (($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false)) {
-            if ($this->ds && strpos($code, $this->ds) !== false) {
+        if (($this->ds && str_contains($code, (string) $this->ds)) || ($this->dr && str_contains($code, (string) $this->dr))) {
+            if ($this->ds && str_contains($code, (string) $this->ds)) {
                 $cdar = explode($this->ds, $code);
                 foreach ($cdar as $cd) {
-                    if ($this->dr && strpos($code, $this->dr) !== false) {
+                    if ($this->dr && str_contains($code, (string) $this->dr)) {
                         $cdar2 = explode($this->dr, $code);
                         foreach ($cdar2 as $cd2) {
                             if (isset($this->code271[$e][$cd2])) {
@@ -2421,14 +2409,14 @@ class edih_271_codes
                         $val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd] . ' ' : "code $cd unknown ";
                     }
                 }
-            } elseif ($this->dr && strpos($code, $this->dr) !== false) {
+            } elseif ($this->dr && str_contains($code, (string) $this->dr)) {
                 $cdar = explode($this->dr, $code);
                 foreach ($cdar as $cd) {
                     $val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd] . '; ' : "code $cd unknown ";
                 }
             }
         } elseif (array_key_exists($e, $this->code271)) {
-            $val = (isset($this->code271[$e][$code]) ) ? $this->code271[$e][$code] : "$elem code $code unknown ";
+            $val = $this->code271[$e][$code] ?? "$elem code $code unknown ";
         } else {
             $val = "$e codes not available ($code) ";
         }

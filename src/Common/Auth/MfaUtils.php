@@ -26,22 +26,20 @@ class MfaUtils
     private $registrations;
     private $var1U2F;
     private $var1TOTP;
-    private $uid; // User Id who try connect
     private $errorMsg = '';
     private $appId;
 
     /**
      * MfaUtils constructor.
      * Load the settings of user from login_mfa_registrations
-     * @param $uid - user Id
+     * @param $uid User Id who try connect
      */
-    public function __construct($uid)
+    public function __construct(private $uid)
     {
-        $this->uid = $uid;
         $res = sqlStatementNoLog(
             "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
             "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-            [$uid]
+            [$this->uid]
         );
         while ($row = sqlFetchArray($res)) {
             if ($row['method'] == 'U2F') {
@@ -61,7 +59,7 @@ class MfaUtils
 
     public function tokenFromRequest($type)
     {
-        $token = isset($_POST['mfa_token']) ? $_POST['mfa_token'] : null;
+        $token = $_POST['mfa_token'] ?? null;
         if (is_null($token)) {
             return null;
         }

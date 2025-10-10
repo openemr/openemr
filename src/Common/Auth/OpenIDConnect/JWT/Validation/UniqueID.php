@@ -19,14 +19,8 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class UniqueID implements Constraint
 {
-    /**
-     * @var JWTRepository
-     */
-    private $jwtRepository;
-
-    public function __construct(JWTRepository $jwtRepository)
+    public function __construct(private readonly JWTRepository $jwtRepository)
     {
-        $this->jwtRepository = $jwtRepository;
     }
 
     /** @throws ConstraintViolation */
@@ -46,7 +40,7 @@ class UniqueID implements Constraint
         $existingJWT = $this->jwtRepository->getJwtGrantHistoryForJTI($jti, $expCheck);
         if (!empty($existingJWT)) {
             (new SystemLogger())->emergency(
-                get_class($this) . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",
+                $this::class . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",
                 ['clientId' => $iss, 'exp' => $exp, 'jti' => $jti]
             );
             throw new ConstraintViolation("jti claim has already been used");

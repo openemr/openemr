@@ -132,7 +132,7 @@ $drug_id = (int)$_REQUEST['drug'];
 $lot_id  = (int)$_REQUEST['lot'];
 $info_msg = "";
 
-$form_trans_type = intval(isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0');
+$form_trans_type = intval($_POST['form_trans_type'] ?? '0');
 
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();

@@ -56,7 +56,7 @@ class GeneratorUB04NoForm extends AbstractGenerator implements GeneratorInterfac
         }
     }
 
-    public function completeToFile(array $context)
+    public function completeToFile(array $context): never
     {
         ub04Dispose('download', $this->template, $this->batch->getBatFilename(), 'noform');
         exit();

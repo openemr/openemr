@@ -25,13 +25,11 @@ class CcrController extends AbstractActionController
 {
     protected $ccrTable;
     protected $listenerObject;
-    private $documentsController;
 
-    public function __construct(CcrTable $ccrTable, DocumentsController $documentsController)
+    public function __construct(CcrTable $ccrTable, private readonly DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
         $this->listenerObject   = new Listener();
-        $this->documentsController = $documentsController;
     }
 
     /*
@@ -255,9 +253,9 @@ class CcrController extends AbstractActionController
     public function revandapproveAction()
     {
         $request            = $this->getRequest();
-        $audit_master_id    = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
-        $pid                = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
-        $document_id        = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
+        $audit_master_id    = $request->getQuery('amid') ?: $request->getPost('amid', null);
+        $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
+        $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
 
         if ($request->getPost('setval') == 'approve') {
             $this->getCcrTable()->insertApprovedData($_REQUEST);

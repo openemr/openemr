@@ -113,7 +113,7 @@ abstract class Phreezable implements Serializable
      */
     public function GetPublicProperties()
     {
-        $className = get_class($this);
+        $className = $this::class;
 
         if (! property_exists(self::$PublicPropCache, $className)) {
             $props =  [];
@@ -275,7 +275,7 @@ abstract class Phreezable implements Serializable
      */
     public function LoadDefaults()
     {
-        $fms = $this->_phreezer->GetFieldMaps(get_class($this));
+        $fms = $this->_phreezer->GetFieldMaps($this::class);
 
         foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
@@ -297,10 +297,10 @@ abstract class Phreezable implements Serializable
     public function LoadFromObject($src)
     {
         $this->IsLoaded(true);
-        $src_cls = get_class($src);
+        $src_cls = $src::class;
 
         foreach (get_object_vars($this) as $key => $val) {
-            if (substr($key, 0, 1) != "_") {
+            if (!str_starts_with($key, "_")) {
                 if (property_exists($src_cls, $key)) {
                     $this->$key = $src->$key;
                     $this->IsPartiallyLoaded(true);
@@ -330,7 +330,7 @@ abstract class Phreezable implements Serializable
         // if validation fails, remove this object from the cache otherwise invalid values can
         // hang around and cause troubles.
         if (! $is_valid) {
-            $this->_phreezer->DeleteCache(get_class($this), $this->GetPrimaryKeyValue());
+            $this->_phreezer->DeleteCache($this::class, $this->GetPrimaryKeyValue());
         }
 
         return $is_valid;
@@ -391,7 +391,7 @@ abstract class Phreezable implements Serializable
         $lenfunction = $this->_phreezer->DataAdapter->ConnectionSetting->Multibyte ? 'mb_strlen' : 'strlen';
 
         if (! $this->_base_validation_complete) {
-            $fms = $this->_phreezer->GetFieldMaps(get_class($this));
+            $fms = $this->_phreezer->GetFieldMaps($this::class);
 
             foreach ($fms as $fm) {
                 $prop = $fm->PropertyName;
@@ -509,7 +509,7 @@ abstract class Phreezable implements Serializable
      */
     function GetPrimaryKeyName()
     {
-        $fms = $this->_phreezer->GetFieldMaps(get_class($this));
+        $fms = $this->_phreezer->GetFieldMaps($this::class);
         foreach ($fms as $fm) {
             if ($fm->IsPrimaryKey) {
                 return $fm->PropertyName;
@@ -527,7 +527,7 @@ abstract class Phreezable implements Serializable
          * die();
          */
 
-        throw new Exception("No Primary Key found for " . get_class($this));
+        throw new Exception("No Primary Key found for " . $this::class);
     }
 
     /**
@@ -552,7 +552,7 @@ abstract class Phreezable implements Serializable
      */
     function GetArray()
     {
-        $fms = $this->_phreezer->GetFieldMaps(get_class($this));
+        $fms = $this->_phreezer->GetFieldMaps($this::class);
         $cols =  [];
 
         foreach ($fms as $fm) {
@@ -595,8 +595,8 @@ abstract class Phreezable implements Serializable
      */
     function Load(&$row)
     {
-        $fms = $this->_phreezer->GetFieldMaps(get_class($this));
-        $this->_phreezer->Observe("Loading " . get_class($this), OBSERVE_DEBUG);
+        $fms = $this->_phreezer->GetFieldMaps($this::class);
+        $this->_phreezer->Observe("Loading " . $this::class, OBSERVE_DEBUG);
 
         $this->IsLoaded(true); // assume true until fail occurs
         $this->IsPartiallyLoaded(false); // at least we tried
@@ -628,14 +628,14 @@ abstract class Phreezable implements Serializable
                 $this->$prop = $rowlocal [$fm->ColumnName];
             } else {
                 // there is a required column missing from this $row array - mark as partially loaded
-                $this->_phreezer->Observe("Missing column '" . $fm->ColumnName . "' while loading " . get_class($this), OBSERVE_WARN);
+                $this->_phreezer->Observe("Missing column '" . $fm->ColumnName . "' while loading " . $this::class, OBSERVE_WARN);
                 $this->IsLoaded(false);
                 $this->IsPartiallyLoaded(true);
             }
         }
 
         // now look for any eagerly loaded children - their fields should be available in this query
-        $kms = $this->_phreezer->GetKeyMaps(get_class($this));
+        $kms = $this->_phreezer->GetKeyMaps($this::class);
 
         foreach ($kms as $km) {
             if ($km->LoadType == KM_LOAD_EAGER || $km->LoadType == KM_LOAD_INNER) {
@@ -649,7 +649,7 @@ abstract class Phreezable implements Serializable
             }
         }
 
-        $this->_phreezer->Observe("Firing " . get_class($this) . "->OnLoad()", OBSERVE_DEBUG);
+        $this->_phreezer->Observe("Firing " . $this::class . "->OnLoad()", OBSERVE_DEBUG);
         $this->OnLoad();
     }
 

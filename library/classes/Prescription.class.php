@@ -101,53 +101,53 @@ class Prescription extends ORDataObject
      *
      * static
      */
-    var $form_array;
-    var $unit_array;
-    var $route_array;
-    var $interval_array;
-    var $substitute_array;
-    var $medication_array;
-    var $refills_array;
+    public $form_array;
+    public $unit_array;
+    public $route_array;
+    public $interval_array;
+    public $substitute_array;
+    public $medication_array;
+    public $refills_array;
 
     /**
      *
      * @access private
      */
 
-    var $id;
-    var $patient = '';
-    var $pharmacist = '';
-    var $date_added;
-    var $txDate;
-    var $date_modified;
-    var $pharmacy = '';
-    var $start_date;
-    var $filled_date;
-    var $provider = '';
-    var $note = '';
-    var $drug = '';
-    var $rxnorm_drugcode = '';
-    var $form = '';
-    var $dosage = '';
-    var $quantity;
-    var $size = '';
-    var $unit;
-    var $route;
-    var $interval = '';
-    var $substitute;
-    var $refills;
-    var $per_refill;
-    var $medication;
+    public $id;
+    public $patient = '';
+    public $pharmacist = '';
+    public $date_added;
+    public $txDate;
+    public $date_modified;
+    public $pharmacy = '';
+    public $start_date;
+    public $filled_date;
+    public $provider = '';
+    public $note = '';
+    public $drug = '';
+    public $rxnorm_drugcode = '';
+    public $form = '';
+    public $dosage = '';
+    public $quantity;
+    public $size = '';
+    public $unit;
+    public $route;
+    public $interval = '';
+    public $substitute;
+    public $refills;
+    public $per_refill;
+    public $medication;
 
-    var $drug_id;
-    var $active;
-    var $ntx;
+    public $drug_id;
+    public $active;
+    public $ntx;
 
-    var $encounter;
+    public $encounter;
 
-    var $created_by;
+    public $created_by;
 
-    var $updated_by;
+    public $updated_by;
 
     private string $erx_source;
 
@@ -520,7 +520,7 @@ class Prescription extends ORDataObject
 
     function set_provider($pobj)
     {
-        if (get_class($pobj) == "provider") {
+        if ($pobj::class == "provider") {
             $this->provider = $pobj;
         }
     }

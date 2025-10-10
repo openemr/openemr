@@ -25,7 +25,7 @@
  */
 class thumbnail
 {
-    var $allowableTypes =  [
+    public $allowableTypes =  [
             IMAGETYPE_GIF,
             IMAGETYPE_JPEG,
             IMAGETYPE_PNG

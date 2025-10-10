@@ -21,7 +21,7 @@ class ModuleLoadEvents extends Event
      * getters for the modules loaded and any that failed to load.
      */
     public const MODULES_LOADED = 'modules.loaded';
-    private array $modules;
+    private readonly array $modules;
     public function __construct($modules, $bootstrapFailures = [])
     {
         $modules = array_merge($modules, $bootstrapFailures);

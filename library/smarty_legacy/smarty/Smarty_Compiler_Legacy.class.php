@@ -41,48 +41,48 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     /**#@+
      * @access private
      */
-    var $_folded_blocks         =   [];    // keeps folded template blocks
-    var $_current_file          =   null;       // the current template being compiled
-    var $_current_line_no       =   1;          // line number for error messages
-    var $_capture_stack         =   [];    // keeps track of nested capture buffers
-    var $_plugin_info           =   [];    // keeps track of plugins to load
-    var $_init_smarty_vars      =   false;
-    var $_permitted_tokens      =   ['true','false','yes','no','on','off','null'];
-    var $_db_qstr_regexp        =   null;        // regexps are setup in the constructor
-    var $_si_qstr_regexp        =   null;
-    var $_qstr_regexp           =   null;
-    var $_func_regexp           =   null;
-    var $_reg_obj_regexp        =   null;
-    var $_var_bracket_regexp    =   null;
-    var $_num_const_regexp      =   null;
-    var $_dvar_guts_regexp      =   null;
-    var $_dvar_regexp           =   null;
-    var $_cvar_regexp           =   null;
-    var $_svar_regexp           =   null;
-    var $_avar_regexp           =   null;
-    var $_mod_regexp            =   null;
-    var $_var_regexp            =   null;
-    var $_parenth_param_regexp  =   null;
-    var $_func_call_regexp      =   null;
-    var $_obj_ext_regexp        =   null;
-    var $_obj_start_regexp      =   null;
-    var $_obj_params_regexp     =   null;
-    var $_obj_call_regexp       =   null;
-    var $_cacheable_state       =   0;
-    var $_cache_attrs_count     =   0;
-    var $_nocache_count         =   0;
-    var $_cache_serial          =   null;
-    var $_cache_include         =   null;
+    public $_folded_blocks         =   [];    // keeps folded template blocks
+    public $_current_file          =   null;       // the current template being compiled
+    public $_current_line_no       =   1;          // line number for error messages
+    public $_capture_stack         =   [];    // keeps track of nested capture buffers
+    public $_plugin_info           =   [];    // keeps track of plugins to load
+    public $_init_smarty_vars      =   false;
+    public $_permitted_tokens      =   ['true','false','yes','no','on','off','null'];
+    public $_db_qstr_regexp        =   null;        // regexps are setup in the constructor
+    public $_si_qstr_regexp        =   null;
+    public $_qstr_regexp           =   null;
+    public $_func_regexp           =   null;
+    public $_reg_obj_regexp        =   null;
+    public $_var_bracket_regexp    =   null;
+    public $_num_const_regexp      =   null;
+    public $_dvar_guts_regexp      =   null;
+    public $_dvar_regexp           =   null;
+    public $_cvar_regexp           =   null;
+    public $_svar_regexp           =   null;
+    public $_avar_regexp           =   null;
+    public $_mod_regexp            =   null;
+    public $_var_regexp            =   null;
+    public $_parenth_param_regexp  =   null;
+    public $_func_call_regexp      =   null;
+    public $_obj_ext_regexp        =   null;
+    public $_obj_start_regexp      =   null;
+    public $_obj_params_regexp     =   null;
+    public $_obj_call_regexp       =   null;
+    public $_cacheable_state       =   0;
+    public $_cache_attrs_count     =   0;
+    public $_nocache_count         =   0;
+    public $_cache_serial          =   null;
+    public $_cache_include         =   null;
 
-    var $_strip_depth           =   0;
-    var $_additional_newline    =   "\n";
+    public $_strip_depth           =   0;
+    public $_additional_newline    =   "\n";
 
-    var $_dvar_math_regexp;
-    var $_dvar_math_var_regexp;
-    var $_obj_restricted_param_regexp;
-    var $_obj_single_param_regexp;
-    var $_param_regexp;
-    var $_plugins_code;
+    public $_dvar_math_regexp;
+    public $_dvar_math_var_regexp;
+    public $_obj_restricted_param_regexp;
+    public $_obj_single_param_regexp;
+    public $_param_regexp;
+    public $_plugins_code;
 
     /**#@-*/
     /**
@@ -440,7 +440,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     function _compile_tag($template_tag)
     {
         /* Matched comment. */
-        if (substr($template_tag, 0, 1) == '*' && str_ends_with($template_tag, '*'))
+        if (str_starts_with($template_tag, '*') && str_ends_with($template_tag, '*'))
             return '';
 
         /* Split tag into two three parts: command, command modifiers and the arguments. */
@@ -452,8 +452,8 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         }
 
         $tag_command = $match[1];
-        $tag_modifier = isset($match[2]) ? $match[2] : null;
-        $tag_args = isset($match[3]) ? $match[3] : null;
+        $tag_modifier = $match[2] ?? null;
+        $tag_args = $match[3] ?? null;
 
         if (preg_match('~^' . $this->_num_const_regexp . '|' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '$~', $tag_command)) {
             /* tag name is a variable or object */
@@ -544,7 +544,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             case 'strip':
             case '/strip':
-                if (substr($tag_command, 0, 1)=='/') {
+                if (str_starts_with($tag_command, '/')) {
                     $this->_pop_tag('strip');
                     if (--$this->_strip_depth==0) { /* outermost closing {/strip} */
                         $this->_additional_newline = "\n";
@@ -679,7 +679,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      */
     function _compile_block_tag($tag_command, $tag_args, $tag_modifier, &$output)
     {
-        if (substr($tag_command, 0, 1) == '/') {
+        if (str_starts_with($tag_command, '/')) {
             $start_tag = false;
             $tag_command = substr($tag_command, 1);
         } else
@@ -848,7 +848,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      */
     function _compile_registered_object_tag($tag_command, $attrs, $tag_modifier)
     {
-        if (substr($tag_command, 0, 1) == '/') {
+        if (str_starts_with($tag_command, '/')) {
             $start_tag = false;
             $tag_command = substr($tag_command, 1);
         } else {
@@ -1232,9 +1232,9 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         $attrs = $this->_parse_attrs($tag_args);
 
         if ($start) {
-            $buffer = isset($attrs['name']) ? $attrs['name'] : "'default'";
-            $assign = isset($attrs['assign']) ? $attrs['assign'] : null;
-            $append = isset($attrs['append']) ? $attrs['append'] : null;
+            $buffer = $attrs['name'] ?? "'default'";
+            $assign = $attrs['assign'] ?? null;
+            $append = $attrs['append'] ?? null;
 
             $output = "<?php ob_start(); ?>";
             $this->_capture_stack[] = [$buffer, $assign, $append];
@@ -1408,7 +1408,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                                !in_array($token, $this->security_settings['IF_FUNCS'])) {
                                 $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
                             }
-                    } elseif(preg_match('~^' . $this->_var_regexp . '$~', $token) && (strpos('+-*/^%&|', substr($token, -1)) === false) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
+                    } elseif(preg_match('~^' . $this->_var_regexp . '$~', $token) && (!str_contains('+-*/^%&|', substr($token, -1))) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
                         // variable function call
                         $this->_syntax_error("variable function call '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
                     } elseif(preg_match('~^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . '*)$~', $token)) {
@@ -1800,12 +1800,12 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             }
 
             foreach ($_indexes as $_index) {
-                if (substr($_index, 0, 1) == '[') {
+                if (str_starts_with($_index, '[')) {
                     $_index = substr($_index, 1, -1);
                     if (is_numeric($_index)) {
                         $_output .= "[$_index]";
-                    } elseif (substr($_index, 0, 1) == '$') {
-                        if (strpos($_index, '.') !== false) {
+                    } elseif (str_starts_with($_index, '$')) {
+                        if (str_contains($_index, '.')) {
                             $_output .= '[' . $this->_parse_var($_index) . ']';
                         } else {
                             $_output .= "[\$this->_tpl_vars['" . substr($_index, 1) . "']]";
@@ -1813,15 +1813,15 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     } else {
                         $_var_parts = explode('.', $_index);
                         $_var_section = $_var_parts[0];
-                        $_var_section_prop = isset($_var_parts[1]) ? $_var_parts[1] : 'index';
+                        $_var_section_prop = $_var_parts[1] ?? 'index';
                         $_output .= "[\$this->_sections['$_var_section']['$_var_section_prop']]";
                     }
-                } else if (substr($_index, 0, 1) == '.') {
+                } else if (str_starts_with($_index, '.')) {
                     if (substr($_index, 1, 1) == '$')
                         $_output .= "[\$this->_tpl_vars['" . substr($_index, 2) . "']]";
                     else
                         $_output .= "['" . substr($_index, 1) . "']";
-                } else if (substr($_index,0,2) == '->') {
+                } else if (str_starts_with($_index, '->')) {
                     if(substr($_index,2,2) == '__') {
                         $this->_syntax_error('call to internal object members is not allowed', E_USER_ERROR, __FILE__, __LINE__);
                     } elseif($this->security && substr($_index, 2, 1) == '_') {
@@ -1835,7 +1835,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     } else {
                         $_output .= $_index;
                     }
-                } elseif (substr($_index, 0, 1) == '(') {
+                } elseif (str_starts_with($_index, '(')) {
                     $_index = $this->_parse_parenth_args($_index);
                     $_output .= $_index;
                 } else {
@@ -1874,7 +1874,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     {
         $parts = explode('|', $conf_var_expr, 2);
         $var_ref = $parts[0];
-        $modifiers = isset($parts[1]) ? $parts[1] : '';
+        $modifiers = $parts[1] ?? '';
 
         $var_name = substr($var_ref, 1, -1);
 
@@ -1895,7 +1895,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     {
         $parts = explode('|', $section_prop_expr, 2);
         $var_ref = $parts[0];
-        $modifiers = isset($parts[1]) ? $parts[1] : '';
+        $modifiers = $parts[1] ?? '';
 
         preg_match('!%(\w+)\.(\w+)%!', $var_ref, $match);
         $section_name = $match[1];
@@ -1932,7 +1932,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             preg_match_all('~:(' . $this->_qstr_regexp . '|[^:]+)~', $modifier_arg_strings[$_i], $_match);
             $_modifier_args = $_match[1];
 
-            if (substr($_modifier_name, 0, 1) == '@') {
+            if (str_starts_with($_modifier_name, '@')) {
                 $_map_array = false;
                 $_modifier_name = substr($_modifier_name, 1);
             } else {
@@ -1954,10 +1954,10 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             if($_modifier_name == 'default') {
                 // supress notifications of default modifier vars and args
-                if(substr($output, 0, 1) == '$') {
+                if(str_starts_with($output, '$')) {
                     $output = '@' . $output;
                 }
-                if(isset($_modifier_args[0]) && substr($_modifier_args[0], 0, 1) == '$') {
+                if(isset($_modifier_args[0]) && str_starts_with($_modifier_args[0], '$')) {
                     $_modifier_args[0] = '@' . $_modifier_args[0];
                 }
             }
@@ -2009,7 +2009,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         /* Extract the reference name. */
         $_ref = substr($indexes[0], 1);
         foreach($indexes as $_index_no=>$_index) {
-            if (substr($_index, 0, 1) != '.' && $_index_no<2 || !preg_match('~^(\.|\[|->)~', $_index)) {
+            if (!str_starts_with($_index, '.') && $_index_no<2 || !preg_match('~^(\.|\[|->)~', $_index)) {
                 $this->_syntax_error('$smarty' . implode('', array_slice($indexes, 0, 2)) . ' is an invalid reference', E_USER_ERROR, __FILE__, __LINE__);
             }
         }

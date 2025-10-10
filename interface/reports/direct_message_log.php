@@ -33,7 +33,7 @@ if (!empty($_POST)) {
 
 <head>
 <?php
-$logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
+$logstart = $_POST['logstart'] ?? 0;
 if (isset($_POST['lognext']) && $_POST['lognext']) {
     $logtop = $logstart + $_POST['lognext'];
 } else {

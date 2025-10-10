@@ -34,15 +34,8 @@ require_once $GLOBALS['srcdir'] . '/ESign/Form/Log.php';
 
 class Form_Factory implements FactoryIF
 {
-    protected $_formId = null;
-    protected $_formDir = null;
-    protected $_encounterId = null;
-
-    public function __construct($formId, $formDir, $encounterId)
+    public function __construct(protected $_formId, protected $_formDir, protected $_encounterId)
     {
-        $this->_formId = $formId;
-        $this->_formDir = $formDir;
-        $this->_encounterId = $encounterId;
     }
 
     public function createConfiguration()
@@ -53,7 +46,7 @@ class Form_Factory implements FactoryIF
     public function createSignable()
     {
         $signable = null;
-        if (strpos($this->_formDir, 'LBF') === 0) {
+        if (str_starts_with($this->_formDir, 'LBF')) {
             $signable = new Form_LBF_Signable($this->_formId, $this->_formDir, $this->_encounterId);
         } else {
             $signable = new Form_Signable($this->_formId, $this->_formDir, $this->_encounterId);

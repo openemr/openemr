@@ -39,7 +39,7 @@ class SendtoController extends AbstractActionController
         $required_butons = $this->params()->fromQuery('required_butons');
         $selected_cform = $this->params()->fromQuery('selected_form');
         $default_send_via = $this->params()->fromQuery('default_send_via');
-        $default_send_via = $default_send_via ? $default_send_via : 'printer';
+        $default_send_via = $default_send_via ?: 'printer';
         $encounter = $GLOBALS['encounter'];
         $faxRecievers = $this->getSendtoTable()->getFaxRecievers();
         $ccda_sections = $this->getSendtoTable()->getCCDAComponents(0);

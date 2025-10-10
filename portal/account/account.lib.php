@@ -183,7 +183,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         // create $encoded_link
         $site_addr = $GLOBALS['portal_onsite_two_address'];
         $site_id = $_SESSION['site_id'];
-        if (stripos($site_addr, $site_id) === false) {
+        if (stripos($site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $_SESSION['site_id']
@@ -405,7 +405,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     }
     $site_addr = $GLOBALS['portal_onsite_two_address'];
     $site_id = $_SESSION['site_id'];
-    if (stripos($site_addr, $site_id) === false) {
+    if (stripos($site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
             'site' => $_SESSION['site_id']

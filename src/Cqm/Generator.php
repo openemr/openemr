@@ -79,9 +79,9 @@ class Generator
                 $attribute_name = (string)$attribute->attributes()->name;
 
                 // Grab the type of this QDM datatype attribute
-                $attribute_type = (string)$attribute->attributes()->type ? (string)$attribute->attributes()->type : 'System.Any';
+                $attribute_type = (string)$attribute->attributes()->type ?: 'System.Any';
 
-                if (empty($attribute_name) || empty($attribute_type)) {
+                if (empty($attribute_name)) {
                     continue;
                 }
 

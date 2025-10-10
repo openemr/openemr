@@ -166,7 +166,7 @@ function getFormsByCategory($state = '1', $lbfonly = false)
     );
     while ($lrow = sqlFetchArray($lres)) {
         $rrow = [];
-        $rrow['category']  = $lrow['grp_mapping'] ? $lrow['grp_mapping'] : 'Clinical';
+        $rrow['category']  = $lrow['grp_mapping'] ?: 'Clinical';
         $rrow['name']      = $lrow['grp_title'];
         $rrow['nickname']  = $lrow['grp_title'];
         $rrow['directory'] = $lrow['grp_form_id']; // should start with LBF
@@ -182,8 +182,8 @@ function getFormsByCategory($state = '1', $lbfonly = false)
         if ($a['category'] == $b['category']) {
             if ($a['priority'] == $b['priority']) {
                 if ($a['LBF'] == $b['LBF']) {
-                    $name1 = $a['nickname'] ? $a['nickname'] : $a['name'];
-                    $name2 = $b['nickname'] ? $b['nickname'] : $b['name'];
+                    $name1 = $a['nickname'] ?: $a['name'];
+                    $name2 = $b['nickname'] ?: $b['name'];
                     if ($name1 == $name2) {
                         return 0;
                     }

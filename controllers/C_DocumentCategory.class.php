@@ -8,17 +8,15 @@ use OpenEMR\Services\CodeTypesService;
 
 class C_DocumentCategory extends Controller
 {
-    var $template_mod;
-    var $document_categories;
-    var $tree;
-    var $link;
-    var $_last_node;
+    public $document_categories;
+    public $tree;
+    public $link;
+    public $_last_node;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
         $this->document_categories = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&document_category&");
         $this->link = $GLOBALS['webroot'] . "/controller.php?" . "document_category&";

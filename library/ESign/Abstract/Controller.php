@@ -124,12 +124,7 @@ class Request
 
 class Response
 {
-    public $status = null;
-    public $message = null;
-
-    public function __construct($status, $message)
+    public function __construct(public $status, public $message)
     {
-        $this->status = $status;
-        $this->message = $message;
     }
 }

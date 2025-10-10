@@ -23,11 +23,9 @@ class CurlRequest
     private $cookies = [];
     private $response = '';
     private $handle;
-    private $sessionFile;
 
-    public function __construct($sessionFile)
+    public function __construct(private $sessionFile)
     {
-        $this->sessionFile = $sessionFile;
         $this->restoreSession();
     }
 
@@ -109,13 +107,11 @@ class CurlRequest
 
 class Base
 {
-    protected $MedEx;
     protected $curl;
 
-    public function __construct($MedEx)
+    public function __construct(protected $MedEx)
     {
-        $this->MedEx = $MedEx;
-        $this->curl = $MedEx->curl;
+        $this->curl = $this->MedEx->curl;
     }
 }
 
@@ -1862,13 +1858,13 @@ class Display extends base
         $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
-        if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+        if (str_starts_with($GLOBALS['ptkr_end_date'], 'Y')) {
             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+        } elseif (str_starts_with($GLOBALS['ptkr_end_date'], 'M')) {
             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+        } elseif (str_starts_with($GLOBALS['ptkr_end_date'], 'D')) {
              $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
         }

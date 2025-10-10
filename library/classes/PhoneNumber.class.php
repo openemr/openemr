@@ -28,28 +28,24 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class PhoneNumber extends ORDataObject
 {
-    var $id;
-    var $foreign_id;
-    var $country_code;
-    var $area_code;
-    var $prefix;
-    var $number;
-    var $type;
-    var $type_array = ["","Home", "Work", "Cell" , "Emergency" , "Fax"];
+    public $country_code;
+    public $area_code;
+    public $prefix;
+    public $number;
+    public $type;
+    public $type_array = ["","Home", "Work", "Cell" , "Emergency" , "Fax"];
 
     /**
      * Constructor sets all attributes to their default value
      */
-    function __construct($id = "", $foreign_id = "")
+    function __construct(public $id = "", public $foreign_id = "")
     {
-        $this->id = $id;
-        $this->foreign_id = $foreign_id;
         $this->country_code = "+1";
         $this->prefix = "";
         $this->number = "";
         $this->type = TYPE_HOME;
         $this->_table = "phone_numbers";
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
@@ -171,7 +167,7 @@ class PhoneNumber extends ORDataObject
                 $this->prefix = $nums[1];
                 $this->number = $nums[2];
             }
-        } elseif (strlen($num) == 14 && substr($num, 0, 1) == "(") {
+        } elseif (strlen($num) == 14 && str_starts_with($num, "(")) {
             $nums[0] = substr($num, 1, 3);
             $nums[1] = substr($num, 6, 3);
             $nums[2] = substr($num, 10, 4);

@@ -21,7 +21,6 @@ require_once("DBKey.php");
  */
 class DBTable
 {
-    public $Schema;
     public $Name;
     public $Engine;
     public $Comment;
@@ -40,12 +39,11 @@ class DBTable
      * Instantiate new DBTable
      *
      * @access public
-     * @param DBSchema $schema
+     * @param DBSchema $Schema
      * @return Array $row array that is result from "show tables" statement
      */
-    function __construct($schema, $row)
+    function __construct(public $Schema, $row)
     {
-        $this->Schema = $schema;
         $this->Name = $row ["Tables_in_" . $this->Schema->Name];
         $this->Columns =  [];
         $this->PrimaryKeys =  [];
@@ -154,7 +152,7 @@ class DBTable
 
             if ($prev_prefix == "") {
                 // first time through the loop
-                $prev_prefix = $curr_prefix ? $curr_prefix : "#NONE#";
+                $prev_prefix = $curr_prefix ?: "#NONE#";
             } elseif ($prev_prefix != $curr_prefix) {
                 $has_prefix = false;
             }
@@ -258,18 +256,18 @@ class DBTable
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (substr($line, 0, 11) == "PRIMARY KEY") {
+            if (str_starts_with($line, "PRIMARY KEY")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->PrimaryKeys [$matches [1] [0]] = new DBKey($this, "PRIMARY KEY", $matches [0] [0]);
-            } elseif (substr($line, 0, 3) == "KEY") {
+            } elseif (str_starts_with($line, "KEY")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->ForeignKeys [$matches [1] [0]] = new DBKey($this, $matches [1] [0], $matches [1] [1]);
 
                 // Add keys to the column for convenience
                 $this->Columns [$matches [1] [1]]->Keys [] = $matches [1] [0];
-            } elseif (substr($line, 0, 10) == "CONSTRAINT") {
+            } elseif (str_starts_with($line, "CONSTRAINT")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->Constraints [$matches [1] [0]] = new DBConstraint($this, $matches [1]);
@@ -292,7 +290,7 @@ class DBTable
                 $comment = str_replace("''", "'", $comment);
                 $this->Columns [$column]->Comment = $comment;
 
-                if ($this->Columns [$column]->Default == "" && substr($comment, 0, 8) == "default=") {
+                if ($this->Columns [$column]->Default == "" && str_starts_with($comment, "default=")) {
                     $this->Columns [$column]->Default = substr($comment, 9, strlen($comment) - 10);
                 }
 

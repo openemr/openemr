@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 set_time_limit(0);
 
 // If report_id, then just going to show the report log
-$report_id = ($_GET['report_id']) ? $_GET['report_id'] : "";
+$report_id = $_GET['report_id'] ?: "";
 
 // Set the "nice" level of the process for this script when. When the "nice" level
 // is increased, this cpu intensive script will have less affect on the performance

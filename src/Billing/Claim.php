@@ -1,6 +1,7 @@
 <?php
 
-/* Claim Class
+/**
+ * Claim Class
  *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
@@ -25,8 +26,6 @@ class Claim
     public const X12_VERSION = '005010X222A1';
     public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
 
-    public $pid;               // patient id
-    public $encounter_id;      // encounter id
     public $procs;             // array of procedure rows from billing table
     public $diags;             // array of icd codes from billing table
     public $diagtype = "ICD10"; // diagnosis code_type; safe to assume ICD10 now
@@ -53,10 +52,13 @@ class Claim
     public $using_modifiers;
 
 
-    public function __construct($pid, $encounter_id, $x12_partner_id)
+    /**
+     * @param $pid patient id
+     * @param $encounter_id encounter id
+     * @param $x12_partner_id
+     */
+    public function __construct(public $pid, public $encounter_id, $x12_partner_id)
     {
-        $this->pid = $pid;
-        $this->encounter_id = $encounter_id;
         $this->encounterService = new EncounterService();
         $this->encounter = $this->encounterService->getOneByPidEid($this->pid, $this->encounter_id);
         $this->getProcsAndDiags($this->pid, $this->encounter_id);
@@ -375,7 +377,7 @@ class Claim
                     }
                 }
 
-                $msp = isset($value['msp']) ? $value['msp'] : null; // record the reason for adjustment
+                $msp = $value['msp'] ?? null; // record the reason for adjustment
             }
 
             if ($ptresp < 0) {
