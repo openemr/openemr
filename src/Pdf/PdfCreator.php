@@ -57,13 +57,8 @@ class PdfCreator
     // Can be array of html with each element as a page.
     public function getPdf($htmlin, $options)
     {
-        try {
-            $pdfwk = new Pdf($this->binaryPath);
-            $pdfwk->setTemporaryFolder($this->tempPath);
-            $pdfwkout = $pdfwk->getOutputFromHtml($htmlin, $options);
-        } catch (Exception $e) {
-            echo xlt($e->getMessage());
-        }
-        return $pdfwkout;
+        $pdfwk = new Pdf($this->binaryPath);
+        $pdfwk->setTemporaryFolder($this->tempPath);
+        return $pdfwk->getOutputFromHtml($htmlin, $options);
     }
 }
