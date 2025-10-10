@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Common\Utils;
 
+use Exception;
+
 class RandomGenUtils
 {
     /**
