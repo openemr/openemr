@@ -111,6 +111,7 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
+        "maglnet/composer-require-checker": "^4.16",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
