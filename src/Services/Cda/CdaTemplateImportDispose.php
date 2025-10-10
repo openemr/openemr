@@ -598,7 +598,7 @@ class CdaTemplateImportDispose
         foreach ($enc_array as $value) {
             $encounter_id = $appTable->generateSequenceID();
 
-            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, [$value['provider_npi'], $value['provider_name'], $value['provider_family']]);
@@ -840,7 +840,7 @@ class CdaTemplateImportDispose
 
         foreach ($imm_array as $value) {
             //provider
-            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, [$value['provider_npi'], $value['provider_name'], $value['provider_family']]);
@@ -1129,7 +1129,7 @@ class CdaTemplateImportDispose
                 $value['begdate'] = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             }
 
-            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_fname']) && !empty($value['provider_lname']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, [$value['provider_npi'], $value['provider_fname'], $value['provider_lname']]);
@@ -1615,7 +1615,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         foreach ($lab_results as $value) {
             $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
-            $value['proc_text'] = $value['proc_text'] ?? (xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date'])));
+            $value['proc_text'] ??= xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date']));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
             $result_pro = $appTable->zQuery($query_select_pro, [$pro_name]);
             if ($result_pro->count() == 0) {

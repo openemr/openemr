@@ -67,10 +67,10 @@ class InvoiceSummary
                 $code .= ':' . $row['modifier'];
             }
 
-            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] += $amount;
 
-            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] += $amount;
 
             // Pass the code type, code and code_text fields
@@ -153,14 +153,14 @@ class InvoiceSummary
             }
 
             $ins_id = (int) $row['payer_id'];
-            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] -= $row['pay_amount'];
             $codes[$code]['bal'] -= $row['adj_amount'];
 
-            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] -= $row['adj_amount'];
 
-            $codes[$code]['adj'] = $codes[$code]['adj'] ?? null;
+            $codes[$code]['adj'] ??= null;
             $codes[$code]['adj'] += $row['adj_amount'];
             if ($ins_id) {
                 $codes[$code]['ins'] = $ins_id;

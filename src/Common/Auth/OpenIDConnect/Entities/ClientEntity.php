@@ -173,7 +173,7 @@ class ClientEntity implements ClientEntityInterface
      */
     public function getLaunchUri($launchParams = '')
     {
-        $launchParams = $launchParams ?? '';
+        $launchParams ??= '';
         return $this->launchUri . $launchParams;
     }
 

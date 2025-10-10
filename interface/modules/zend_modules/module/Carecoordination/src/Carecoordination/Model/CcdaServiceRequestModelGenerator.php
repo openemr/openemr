@@ -52,7 +52,7 @@ class CcdaServiceRequestModelGenerator
     {
         $start = $date_options['date_start'];
         $end = $date_options['date_end'];
-        $document_type = $document_type ?? "ccd"; // default to ccd
+        $document_type ??= "ccd"; // default to ccd
         if ($document_type == 'referral') {
             // we are basing things on a single encounter so we need to try and grab our encounter date
             if (!empty($encounter)) {

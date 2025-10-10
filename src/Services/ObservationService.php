@@ -252,7 +252,7 @@ class ObservationService extends BaseService
      */
     protected function createResultRecordFromDatabaseResult($row): array
     {
-        $row['parent_observation_uuid'] = $row['parent_observation_uuid'] ?? null;
+        $row['parent_observation_uuid'] ??= null;
         $record = (array)parent::createResultRecordFromDatabaseResult($row); // setup any uuid fields
         if (empty($record['ob_status'])) {
             $record['ob_status'] = self::DEFAULT_OB_STATUS; // default value

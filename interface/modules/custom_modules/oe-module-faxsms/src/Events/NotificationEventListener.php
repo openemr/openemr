@@ -311,7 +311,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $id = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($id);
-        $data['recipient_phone'] = $data['recipient_phone'] ?? null;
+        $data['recipient_phone'] ??= null;
         $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $status = '';
 
