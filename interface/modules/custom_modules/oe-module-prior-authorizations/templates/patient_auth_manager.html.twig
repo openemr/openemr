@@ -1,0 +1,345 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'Patient Authorization Manager' | xlt }}{% endblock %}
+
+{% block page_header %}
+<div class="pa-card mb-4">
+    <div class="pa-card-header">
+        <h1 class="pa-card-title">
+            <i class="fas fa-clipboard-check"></i>
+            {{ 'Prior Authorization Manager' | xlt }}
+        </h1>
+        <div class="d-flex gap-2">
+            <a href="../../../../patient_file/summary/demographics.php" 
+               onclick="top.restoreSession()"
+               class="pa-btn pa-btn-outline"
+               title="{{ 'Go Back' | xla }}">
+                <i class="fas fa-arrow-left"></i>
+                {{ 'Back to Chart' | xlt }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if not pid %}
+    <div class="pa-card">
+        <div class="pa-card-body text-center">
+            <div class="pa-alert pa-alert-warning">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                <h4>{{ 'Patient Required' | xlt }}</h4>
+                <p>{{ 'You must be in a patient\'s chart to manage prior authorizations.' | xlt }}</p>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <!-- Authorization Entry Form -->
+    <div class="pa-card mb-4">
+        <div class="pa-card-header">
+            <h3 class="pa-card-title">
+                <i class="fas fa-plus-circle"></i>
+                {{ 'Add New Authorization' | xlt }}
+            </h3>
+        </div>
+        <div class="pa-card-body">
+            <form id="authForm" method="post" action="patient_auth_manager.php" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" name="token" value="{{ csrf_token }}">
+                <input type="hidden" id="recordId" name="id" value="">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="pa-form-floating">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="authorization" 
+                                   name="authorization" 
+                                   placeholder=" "
+                                   required>
+                            <label for="authorization">{{ 'Authorization Number' | xlt }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="pa-form-floating">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="units" 
+                                   name="units" 
+                                   placeholder=" "
+                                   min="1"
+                                   required>
+                            <label for="units">{{ 'Initial Units' | xlt }}</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="pa-form-floating">
+                            <input type="text" 
+                                   class="form-control datepicker" 
+                                   id="start_date" 
+                                   name="start_date" 
+                                   placeholder=" "
+                                   readonly>
+                            <label for="start_date">{{ 'Start Date' | xlt }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="pa-form-floating">
+                            <input type="text" 
+                                   class="form-control datepicker" 
+                                   id="end_date" 
+                                   name="end_date" 
+                                   placeholder=" "
+                                   readonly>
+                            <label for="end_date">{{ 'End Date' | xlt }}</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="pa-form-floating">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="cpts" 
+                                   name="cpts" 
+                                   placeholder=" ">
+                            <label for="cpts">{{ 'CPT Codes (comma separated)' | xlt }}</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="button" class="pa-btn pa-btn-outline" onclick="clearForm()">
+                        <i class="fas fa-eraser"></i>
+                        {{ 'Clear Form' | xlt }}
+                    </button>
+                    <button type="submit" class="pa-btn pa-btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i>
+                        <span id="submitText">{{ 'Save Authorization' | xlt }}</span>
+                        <div class="pa-loading" id="submitSpinner" style="display: none;"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Authorizations List -->
+    <div class="pa-card">
+        <div class="pa-card-header">
+            <h3 class="pa-card-title">
+                <i class="fas fa-list"></i>
+                {{ 'Current Authorizations' | xlt }}
+            </h3>
+            <div class="text-muted">
+                {{ authorizations | length }} {{ 'authorization(s) found' | xlt }}
+            </div>
+        </div>
+        <div class="pa-card-body p-0">
+            {% if authorizations | length > 0 %}
+                <div class="pa-table-container">
+                    <table class="table pa-table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    <i class="fas fa-key text-primary me-1"></i>
+                                    {{ 'Authorization' | xlt }}
+                                </th>
+                                <th scope="col" class="text-center">
+                                    <i class="fas fa-chart-bar text-primary me-1"></i>
+                                    {{ 'Units' | xlt }}
+                                </th>
+                                <th scope="col" class="text-center">
+                                    <i class="fas fa-percentage text-primary me-1"></i>
+                                    {{ 'Usage' | xlt }}
+                                </th>
+                                <th scope="col">
+                                    <i class="fas fa-calendar-alt text-primary me-1"></i>
+                                    {{ 'Dates' | xlt }}
+                                </th>
+                                <th scope="col">
+                                    <i class="fas fa-code text-primary me-1"></i>
+                                    {{ 'CPT' | xlt }}
+                                </th>
+                                <th scope="col" class="text-center">
+                                    <i class="fas fa-cogs text-primary me-1"></i>
+                                    {{ 'Actions' | xlt }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for auth in authorizations %}
+                                <tr data-auth-id="{{ auth.id }}">
+                                    <td>
+                                        <div class="fw-bold">{{ auth.auth_num | e }}</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="badge bg-primary mb-1">{{ auth.init_units | e }}</span>
+                                            <small class="text-muted">{{ 'remaining' | xlt }}: {{ auth.remaining_units | e }}</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="pa-progress-container mx-auto" style="width: 120px;">
+                                            <div class="pa-progress-bar" 
+                                                 style="background-color: {{ auth.bar_color | e }}; width: {{ auth.percent_remaining | e }}%;">
+                                            </div>
+                                            <div class="pa-progress-text">{{ auth.percent_remaining | e }}%</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small">
+                                            <div><strong>{{ 'Start' | xlt }}:</strong> {{ auth.start_date | e }}</div>
+                                            {% if auth.end_date != '0000-00-00' %}
+                                                <div><strong>{{ 'End' | xlt }}:</strong> {{ auth.end_date | e }}</div>
+                                            {% else %}
+                                                <div class="text-muted">{{ 'No end date' | xlt }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ auth.cpt | e }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" 
+                                                    class="pa-btn pa-btn-outline btn-sm" 
+                                                    onclick="editAuthorization({{ auth.id }})"
+                                                    title="{{ 'Edit Authorization' | xla }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="pa-btn pa-btn-danger btn-sm" 
+                                                    onclick="deleteAuthorization({{ auth.id }})"
+                                                    title="{{ 'Delete Authorization' | xla }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" 
+                                               id="auth-data-{{ auth.id }}" 
+                                               value="{{ auth.edit_data | e('html_attr') }}">
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard-list text-muted fa-4x mb-3"></i>
+                    <h4 class="text-muted">{{ 'No Authorizations Found' | xlt }}</h4>
+                    <p class="text-muted">{{ 'Add your first authorization using the form above.' | xlt }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function() {
+    // Initialize datepickers with modern styling
+    $('.datepicker').datetimepicker({
+        timepicker: false,
+        showseconds: false,
+        formatInput: true,
+        format: 'Y-m-d',
+        theme: 'modern'
+    });
+});
+
+function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitText.textContent = '{{ 'Saving...' | xlt }}';
+    submitSpinner.style.display = 'inline-block';
+    
+    // Submit form
+    event.target.submit();
+}
+
+function clearForm() {
+    document.getElementById('authForm').reset();
+    document.getElementById('recordId').value = '';
+    document.getElementById('submitText').textContent = '{{ 'Save Authorization' | xlt }}';
+    
+    // Clear floating label states
+    document.querySelectorAll('.pa-form-floating .form-control').forEach(input => {
+        if (input.value === '') {
+            input.classList.remove('filled');
+        }
+    });
+}
+
+function editAuthorization(id) {
+    const dataElement = document.getElementById('auth-data-' + id);
+    const authData = JSON.parse(dataElement.value);
+    
+    // Populate form
+    document.getElementById('recordId').value = authData.id;
+    document.getElementById('authorization').value = authData.auth_num;
+    document.getElementById('units').value = authData.init_units;
+    document.getElementById('start_date').value = authData.start_date;
+    document.getElementById('end_date').value = authData.end_date;
+    document.getElementById('cpts').value = authData.cpt;
+    
+    // Update submit button text
+    document.getElementById('submitText').textContent = '{{ 'Update Authorization' | xlt }}';
+    
+    // Scroll to form
+    document.querySelector('.pa-card').scrollIntoView({ behavior: 'smooth' });
+    
+    // Focus first field
+    document.getElementById('authorization').focus();
+}
+
+function deleteAuthorization(id) {
+    const url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form={{ csrf_token_delete | e('js') }}';
+    
+    dlgopen(url, '_blank', 400, 300, '', '{{ 'Delete Authorization' | xlt }}', {
+        buttons: [
+            {text: '{{ 'Done' | xlj }}', style: 'danger btn-sm', close: true}
+        ],
+        onClosed: 'refreshPage'
+    });
+}
+
+function refreshPage() {
+    top.restoreSession();
+    location.reload();
+}
+
+// Add floating label support
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.pa-form-floating .form-control').forEach(input => {
+        // Check initial state
+        if (input.value !== '') {
+            input.classList.add('filled');
+        }
+        
+        // Handle focus/blur events
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+            if (this.value !== '') {
+                this.classList.add('filled');
+            } else {
+                this.classList.remove('filled');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

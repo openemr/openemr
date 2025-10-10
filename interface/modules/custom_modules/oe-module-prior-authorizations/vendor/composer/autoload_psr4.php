@@ -5,6 +5,6 @@
 $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
-return [
-    'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => [$baseDir . '/src'],
-];
+return array(
+    'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\' => array($baseDir . '/src'),
+);
