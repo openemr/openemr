@@ -205,6 +205,7 @@
         }
     },
     "scripts": {
+        "analyse": "php -d memory_limit=-1 vendor/bin/phpstan analyse",
         "check-requirements": "php -d memory_limit=-1 vendor/bin/composer-require-checker check composer.json",
         "checks": [
             "composer validate",
