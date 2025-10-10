@@ -13,7 +13,7 @@
 namespace OpenEMR\Pdf;
 
 use Knp\Snappy\Pdf;
-use Symfony\Component\Debug\ExceptionHandler;
+use Exception;
 
 class PdfCreator
 {
@@ -38,11 +38,11 @@ class PdfCreator
             } elseif (str_contains($thisos, "linux")) {
                 $wkexe = $binroot . "/linux/wkhtmltopdf" . $bit . "-linux";
             } else {
-                throw new ExceptionHandler(xlt("Can not determine OS!"));
+                throw new Exception(xlt("Can not determine OS!"));
             }
             chmod($wkexe, octdec(755));
             return $wkexe;
-        } catch (ExceptionHandler $e) {
+        } catch (Exception $e) {
             die($e->getMessage());
         }
     }
@@ -73,8 +73,8 @@ class PdfCreator
             $pdfwk = new Pdf($this->binaryPath);
             $pdfwk->setTemporaryFolder($this->tempPath);
             $pdfwkout = $pdfwk->getOutputFromHtml($htmlin, $options);
-        } catch (ExceptionHandler $e) {
-            echo xlt($e->xdebug_message);
+        } catch (Exception $e) {
+            echo xlt($e->getMessage());
         }
         return $pdfwkout;
     }
