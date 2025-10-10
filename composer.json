@@ -202,5 +202,11 @@
             "indent-size": 4,
             "indent-style": "space"
         }
+    },
+    "scripts": {
+        "checks": [
+            "composer validate",
+            "composer normalize --dry-run"
+        ]
     }
 }
