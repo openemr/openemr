@@ -65,7 +65,7 @@ use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
 //   to only see the data of the one patient)
-return array(
+return [
     /**
      *  @OA\Get(
      *      path="/fhir/AllergyIntolerance",
@@ -3651,17 +3651,17 @@ return array(
      *  )
      */
     "GET /fhir/Specimen" => function (HttpRestRequest $request) {
-    $getParams = $request->getQueryParams();
-    if ($request->isPatientRequest()) {
-        // only allow access to data of binded patient
-        $return = (new FhirSpecimenRestController())->getAll($getParams, $request->getPatientUUIDString());
-    } else {
-        RestConfig::request_authorization_check($request, "admin", "super");
-        $return = (new FhirSpecimenRestController())->getAll($getParams);
-    }
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirSpecimenRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "admin", "super");
+            $return = (new FhirSpecimenRestController())->getAll($getParams);
+        }
 
-    return $return;
-},
+        return $return;
+    },
 
     /**
      *  @OA\Get(
@@ -3771,16 +3771,16 @@ return array(
      *  )
      */
     "GET /fhir/Specimen/:uuid" => function ($uuid, HttpRestRequest $request) {
-    if ($request->isPatientRequest()) {
-        // only allow access to data of binded patient
-        $return = (new FhirSpecimenRestController())->getOne($uuid, $request->getPatientUUIDString());
-    } else {
-        RestConfig::request_authorization_check($request, "admin", "super");
-        $return = (new FhirSpecimenRestController())->getOne($uuid);
-    }
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirSpecimenRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "admin", "super");
+            $return = (new FhirSpecimenRestController())->getOne($uuid);
+        }
 
-    return $return;
-},
+        return $return;
+    },
 
     /**
      *  @OA\Post(
@@ -6682,4 +6682,4 @@ return array(
 
         return $return;
     },
-);
+];

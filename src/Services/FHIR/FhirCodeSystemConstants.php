@@ -97,5 +97,8 @@ class FhirCodeSystemConstants
     const HL7_CATEGORY_OBSERVATION = 'http://terminology.hl7.org/CodeSystem/observation-category';
 
     const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
+
     const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
+
+    const SPECIMEN_IDENTIFIER = "http://terminology.hl7.org/CodeSystem/v2-0203";
 }
