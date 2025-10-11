@@ -28,7 +28,8 @@ class ConditionFixtureManager
     private $createdRecords = [];
     private PatientIssuesService $patientIssuesService;
 
-    public function createTestUser(): array {
+    public function createTestUser(): array
+    {
         $sql = "INSERT INTO users (username, password, active, npi) VALUES (?, ?, ?, ?)";
         $bind = ['testuser', 'NoLongerUsed', 1, '1234567890'];
         $userId = QueryUtils::sqlInsert($sql, $bind);
@@ -159,8 +160,13 @@ class ConditionFixtureManager
         $conditionData = $this->createTestCondition($patientData, $options);
         $patientIssuesService = $this->getPatientIssuesService();
         // Link it to the encounter via issue_encounter table
-        $uuid = $patientIssuesService->linkIssueToEncounter($patientData['pid'], $encounterData['encounter']
-            , $conditionData['id'], $testUser['id'], 0);
+        $uuid = $patientIssuesService->linkIssueToEncounter(
+            $patientData['pid'],
+            $encounterData['encounter'],
+            $conditionData['id'],
+            $testUser['id'],
+            0
+        );
         $this->createdRecords['issue_encounters'][] = [
             'pid' => $patientData['pid'],
             'list_id' => $conditionData['id'],

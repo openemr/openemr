@@ -316,22 +316,6 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
      * @param FHIRCondition $conditionResource
      * @return void
      */
-    private function populateRecordedDate($dataRecord, FHIRCondition $conditionResource): void
-    {
-        // Use encounter date as recorded date for encounter diagnoses
-        $recordedDate = $dataRecord['date'] ?? $dataRecord['encounter_date'] ?? $dataRecord['begdate'];
-        if ($recordedDate) {
-            $conditionResource->setRecordedDate(UtilsService::getLocalDateAsUTC($recordedDate));
-        }
-    }
-    // end AI Generated
-
-    /**
-     *  AI Generated
-     * @param $dataRecord
-     * @param FHIRCondition $conditionResource
-     * @return void
-     */
     private function populateNote($dataRecord, FHIRCondition $conditionResource): void
     {
         if (!empty($dataRecord['comments'])) {

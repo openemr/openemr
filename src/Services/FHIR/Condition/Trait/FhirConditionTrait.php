@@ -66,11 +66,15 @@ trait FhirConditionTrait
      * @param FhirConditionCategory $conditionCategory
      * @return void
      */
-    protected function populateCategory(array $dataRecord, FHIRCondition $conditionResource, FhirConditionCategory $category)
-    {
+    protected function populateCategory(
+        array $dataRecord,
+        FHIRCondition $conditionResource,
+        FhirConditionCategory $category,
+        string $defaultSystem = FhirCodeSystemConstants::HL7_CONDITION_CATEGORY
+    ) {
         $conditionResource->addCategory(UtilsService::createCodeableConcept([
             $category->value => [
-                'system' => FhirCodeSystemConstants::HL7_CONDITION_CATEGORY,
+                'system' => $defaultSystem,
                 'code' => $category->value,
                 'description' => $category->display()->value
             ]
@@ -156,6 +160,25 @@ trait FhirConditionTrait
         ]));
     }
 
+
+    /**
+     *  AI Generated
+     * @param $dataRecord
+     * @param FHIRCondition $conditionResource
+     * @return void
+     */
+    protected function populateRecordedDate($dataRecord, FHIRCondition $conditionResource): void
+    {
+        // Use encounter date as recorded date for encounter diagnoses
+        $recordedDate = $dataRecord['date'] ?? $dataRecord['begdate'];
+        if ($recordedDate) {
+            $conditionResource->setRecordedDate(UtilsService::getLocalDateAsUTC($recordedDate));
+        }
+    }
+    // end AI Generated
+
+
+
     protected function populateOnsetDateTime($dataRecord, FHIRCondition $conditionResource)
     {
         if (!empty($dataRecord['begdate'])) {
@@ -163,7 +186,8 @@ trait FhirConditionTrait
         }
     }
 
-    protected function populateAssertedDate($dataRecord, FHIRCondition $conditionResource) {
+    protected function populateAssertedDate($dataRecord, FHIRCondition $conditionResource)
+    {
         if (!empty($dataRecord['date'])) { // created date
             $fhirExtension = new FHIRExtension();
             $fhirExtension->setUrl('http://hl7.org/fhir/StructureDefinition/condition-assertedDate');

@@ -60,7 +60,8 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertConditionHasBaseRequirements($record, $fhirResource, 'active');
     }
 
-    public function testParseWithResolvedRecord() {
+    public function testParseWithResolvedRecord()
+    {
         $record = $this->getDefaultOpenEMRRecord();
         $record['resolved'] = 1;
         $diagnosticService = new FhirConditionEncounterDiagnosisService();
@@ -70,10 +71,10 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         // when the condition is resolved, abatementDateTime should be set
         $this->assertNotEmpty($fhirResource->getAbatementDateTime(), "Expected abatementDateTime to be set in FHIRCondition resource.");
         $this->assertEquals(UtilsService::getLocalDateAsUTC($record['enddate']), $fhirResource->getAbatementDateTime(), "Expected abatementDateTime to match OpenEMR endate.");
-
     }
 
-    protected function assertConditionHasBaseRequirements($record, $fhirResource, string $clinicalStatus) {
+    protected function assertConditionHasBaseRequirements($record, $fhirResource, string $clinicalStatus)
+    {
         $this->assertInstanceOf(FHIRCondition::class, $fhirResource, "Expected FHIRCondition instance from parseOpenEMRRecord.");
 
         $this->assertEquals('condition-uuid-12345', $fhirResource->getId(), "Expected FHIRCondition ID to match OpenEMR condition UUID.");

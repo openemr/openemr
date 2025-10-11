@@ -265,7 +265,7 @@ class PatientIssuesService extends BaseService
      * @param int|null $userCreatorId The user id of the user creating the linkages, defaults to the current user if null
      * @return void
      */
-    public function replacePatientEncounterIssues(int $pid, array $encountersByListId, ?int $userCreatorId=null): void
+    public function replacePatientEncounterIssues(int $pid, array $encountersByListId, ?int $userCreatorId = null): void
     {
         // get all the issues
         // loop through each issue, if it has encounters in encountersByListId then call replaceIssuesForEncounter

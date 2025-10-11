@@ -207,12 +207,15 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
         // Required elements for US Core Problems and Health Concerns
         // TODO: @adunsulag will need to differentiate between problem list items and health concerns
         $this->populateCategory($dataRecord, $conditionResource, FhirConditionCategory::PROBLEM_LIST_ITEM);
+        $this->populateCategory($dataRecord, $conditionResource, FhirConditionCategory::PROBLEM_LIST_ITEM);
         $this->populateCode($dataRecord, $conditionResource, 'Problem');
         $this->populateSubject($dataRecord, $conditionResource);
         $this->populateClinicalStatus($dataRecord, $conditionResource);
 
         // Must Support elements
         $this->populateVerificationStatus($dataRecord, $conditionResource);
+        $this->populateRecordedDate($dataRecord, $conditionResource);
+        $this->populateAssertedDate($dataRecord, $conditionResource);
 
         // Optional elements
         $this->populateOnsetDateTime($dataRecord, $conditionResource);
@@ -226,6 +229,11 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
         }
     }
     // end AI Generated
+
+    public function getSupportedVersions()
+    {
+        return [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1,'6.1.0', self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0];
+    }
 
     /**
      * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
