@@ -7,4 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return [
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\Controller\\AuthorizationService' => $baseDir . '/src/Controller/AuthorizationService.php',
+    'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\Controller\\ListAuthorizations' => $baseDir . '/src/Controller/ListAuthorizations.php',
 ];

@@ -121,7 +121,7 @@ const TABLE_TD = "</td><td>";
                 </div>
                 <div class="form-row">
                     <div class="col my-1">
-                        <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPTs') ?>">
+                        <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPT') ?>">
                     </div>
                 </div>
                 <div class="form-row">
@@ -140,7 +140,8 @@ const TABLE_TD = "</td><td>";
                     <th scope="col"><?php echo xlt('Remaining Units'); ?></th>
                     <th scope="col"><?php echo xlt('Start Date'); ?></th>
                     <th scope="col"><?php echo xlt('End Date'); ?></th>
-                    <th scope="col"><?php echo xlt('CPTs'); ?></th>
+                    <th scope="col"><?php echo xlt('CPT'); ?></th>
+                    <th scope="col">%</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
                 </tr>
@@ -150,22 +151,44 @@ const TABLE_TD = "</td><td>";
                         $editData = json_encode($iter);
                         $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);
                         $remaining = $iter['init_units'] - $used;
-                        print "<tr><td>";
-                        print text($iter['auth_num']);
-                        print TABLE_TD . text($iter['init_units']);
-                        print TABLE_TD . text($remaining);
-                        print TABLE_TD . text($iter['start_date']);
+                        echo "<tr><td>";
+                        echo text($iter['auth_num']);
+                        echo TABLE_TD . text($iter['init_units']);
+                        echo TABLE_TD . text($remaining);
+                        echo TABLE_TD . text($iter['start_date']);
                         if ($iter['end_date'] == '0000-00-00') {
-                            print TABLE_TD;
+                            echo TABLE_TD;
                         } else {
-                            print TABLE_TD . text($iter['end_date']);
+                            echo TABLE_TD . text($iter['end_date']);
                         }
-                        print TABLE_TD . text($iter['cpt']);
-                        print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
-                        <input type='hidden' id='" . attr_js($iter['id']) . "' value='" . attr($editData) . "' ></td>";
-                        print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";
+                        echo TABLE_TD . text($iter['cpt']);
 
-                        print "</tr>";
+                        $initialUnits = (int)$iter['init_units'];
+
+                        if ($initialUnits > 0) {
+                            $percentRemaining = round(($remaining / $initialUnits) * 100);
+                        } else {
+                            $percentRemaining = 0;
+                        }
+
+                        $barColor = match (true) {
+                            ($percentRemaining <= 33) => '#dc3545', // Red: Empty
+                            ($percentRemaining <= 66) => '#ffc107', // Yellow: Getting low
+                            default => '#4CAF50', // Green: Full/Plenty remaining
+                        };
+
+                        echo TABLE_TD;
+                        echo "<div style='background-color:#eee; height:20px; width:100px; border:1px solid #ccc; position:relative;'>";
+                        echo "<div style='background-color:" . attr($barColor) . "; height:100%; width:" . attr($percentRemaining) . "%; position:absolute;'></div>";
+                        echo "<div style='position:absolute; top:0; width:100%; text-align:center; line-height:20px; color:#000; font-weight:bold; font-size:12px;'>" . text($percentRemaining) . "%</div>";
+                        echo "</div>";
+                        echo "</td>";
+
+                        echo TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
+                        <input type='hidden' id='" . attr_js($iter['id']) . "' value='" . attr($editData) . "' ></td>";
+                        echo "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";
+
+                        echo "</tr>";
                     }
                 }
                 ?>

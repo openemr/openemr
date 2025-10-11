@@ -22,6 +22,8 @@ class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
 
     public static $classMap =  [
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\Controller\\AuthorizationService' => __DIR__ . '/../..' . '/src/Controller/AuthorizationService.php',
+        'Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\Controller\\ListAuthorizations' => __DIR__ . '/../..' . '/src/Controller/ListAuthorizations.php',
     ];
 
     public static function getInitializer(ClassLoader $loader)
@@ -30,7 +32,6 @@ class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
             $loader->prefixLengthsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$classMap;
-
         }, null, ClassLoader::class);
     }
 }

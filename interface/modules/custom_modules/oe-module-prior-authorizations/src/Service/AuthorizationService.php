@@ -8,7 +8,7 @@
  *  All Rights Reserved
  */
 
-namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller;
+namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Service;
 
 use OpenEMR\Common\Database\QueryUtils;
 

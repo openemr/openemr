@@ -4,38 +4,30 @@
  *  package OpenEMR
  *  link    https://www.open-emr.org
  *  author  Sherwin Gaddis <sherwingaddis@gmail.com>
- *  Copyright (c) 2022.
+ *  Copyright (c) 2022-2024.
+ *  All Rights Reserved
  *  license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Acl\AclMain;
-
 require_once dirname(__FILE__, 5) . '/globals.php';
 
-if (!AclMain::aclCheckCore('admin', 'practice')) {
-    echo xlt('Unauthorized');
-    die;
+use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\DeleteController;
+
+// Create controller instance
+$controller = new DeleteController();
+
+// Execute delete action and render response
+try {
+    echo $controller->deleteAction();
+} catch (Exception $e) {
+    error_log("Error in deleter.php: " . $e->getMessage());
+    // Fallback error response for modal
+    echo "<!DOCTYPE html><html><head><title>" . xlt('Error') . "</title></head><body>";
+    echo "<div class='container-fluid text-center p-4'>";
+    echo "<div class='alert alert-danger'>";
+    echo "<i class='fas fa-exclamation-triangle fa-2x mb-3'></i>";
+    echo "<h5>" . xlt('System Error') . "</h5>";
+    echo "<p>" . xlt('An unexpected system error occurred. Please try again later.') . "</p>";
+    echo "<p class='mt-3'><small class='text-muted'>" . xlt('Please click "Done" to close this window.') . "</small></p>";
+    echo "</div></div></body></html>";
 }
-
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'])) {
-    CsrfUtils::csrfNotVerified();
-}
-sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id']]);
-
-?>
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title><?php echo xlt('Delete Record') ?></title>
-</head>
-<body>
-    <p><?php echo "<br> <br>" .  xlt("If you are seeing this message the record was deleted. Click done, pls"); ?></p>
-</body>
-</html>
-
-
