@@ -7,6 +7,8 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Public Domain for most of this file marked as AI Generated which were created with the assistance of Claude.AI and Microsoft Copilot
+ *            Minor additions were made by Stephen Nielson
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -15,8 +17,8 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
 use OpenEMR\Services\FHIR\FhirConditionService;
-use OpenEMR\Services\ConditionService;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 
@@ -26,6 +28,7 @@ use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
  * This test class validates that the FhirConditionService correctly implements
  * the US Core Condition Profile version 3.1.1 requirements as defined in:
  * http://hl7.org/fhir/us/core/STU3.1.1/StructureDefinition-us-core-condition.html
+ * This class was generated with the assistance of Claude.AI and Microsoft Copilot
  */
 class FhirConditionService3_1_1Test extends TestCase
 {
@@ -42,7 +45,8 @@ class FhirConditionService3_1_1Test extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->fhirConditionService = new FhirConditionService();
+        // the 3_1_1 profile was based on problem-list-item, so we use that service
+        $this->fhirConditionService = new FhirConditionProblemsHealthConcernService();
         $this->fixtureManager = new ConditionFixtureManager();
     }
 
@@ -107,8 +111,10 @@ class FhirConditionService3_1_1Test extends TestCase
             $this->assertNotNull($clinicalStatus);
 
             $coding = $clinicalStatus->getCoding()[0];
-            $this->assertEquals('http://terminology.hl7.org/CodeSystem/condition-clinical',
-                $coding->getSystem());
+            $this->assertEquals(
+                'http://terminology.hl7.org/CodeSystem/condition-clinical',
+                $coding->getSystem()
+            );
             $this->assertContains($coding->getCode(), $validClinicalStatuses);
         }
     }
@@ -133,8 +139,10 @@ class FhirConditionService3_1_1Test extends TestCase
             $this->assertNotNull($verificationStatus);
 
             $coding = $verificationStatus->getCoding()[0];
-            $this->assertEquals('http://terminology.hl7.org/CodeSystem/condition-ver-status',
-                $coding->getSystem());
+            $this->assertEquals(
+                'http://terminology.hl7.org/CodeSystem/condition-ver-status',
+                $coding->getSystem()
+            );
             $this->assertContains($coding->getCode(), $validVerificationStatuses);
         }
     }
@@ -160,8 +168,10 @@ class FhirConditionService3_1_1Test extends TestCase
             $this->assertGreaterThan(0, count($categories));
 
             $coding = $categories[0]->getCoding()[0];
-            $this->assertEquals('http://terminology.hl7.org/CodeSystem/condition-category',
-                $coding->getSystem());
+            $this->assertEquals(
+                'http://terminology.hl7.org/CodeSystem/condition-category',
+                $coding->getSystem()
+            );
             $this->assertContains($coding->getCode(), $usCoreCategories);
         }
     }
@@ -237,9 +247,11 @@ class FhirConditionService3_1_1Test extends TestCase
 
             // Assert
             $clinicalStatus = $fhirCondition->getClinicalStatus();
-            $this->assertEquals($case['expected'],
+            $this->assertEquals(
+                $case['expected'],
                 $clinicalStatus->getCoding()[0]->getCode(),
-                "Clinical status mapping failed for case: " . json_encode($case));
+                "Clinical status mapping failed for case: " . json_encode($case)
+            );
         }
     }
 
@@ -263,7 +275,7 @@ class FhirConditionService3_1_1Test extends TestCase
         $this->assertGreaterThan(0, count($profiles));
 
         // Should include US Core 3.1.1 profile URL
-        $profileUrls = array_map(function($profile) {
+        $profileUrls = array_map(function ($profile) {
             return $profile;
         }, $profiles);
 
@@ -343,7 +355,6 @@ class FhirConditionService3_1_1Test extends TestCase
         $categories = $fhirCondition->getCategory();
         $categoryCode = $categories[0]->getCoding()[0]->getCode();
         $this->assertEquals('problem-list-item', $categoryCode);
-
     }
 
     /**

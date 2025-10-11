@@ -149,6 +149,7 @@ class PatientIssuesService extends BaseService
         }
     }
 
+    // TODO: @adunsulag can this be merged with the search in ConditionService or move things to a common base class?
     public function search($search, $isAndCondition = true)
     {
         $sql = "SELECT lists.*
@@ -208,12 +209,85 @@ class PatientIssuesService extends BaseService
 
     public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues)
     {
-        sqlStatement("DELETE FROM issue_encounter WHERE " .
-            "pid = ? AND encounter = ?", [$pid, $encounter]);
-        if (!empty($issues)) {
-            foreach ($issues as $issue) {
-                $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
-                sqlStatement($query, [$pid, $issue, $encounter]);
+        $issues = array_combine($issues, $issues);
+        $records = QueryUtils::fetchRecords("SELECT * FROM issue_encounter WHERE "
+            . "pid = ? AND encounter = ?", [$pid, $encounter]);
+        foreach ($records as $record) {
+            if (!isset($issues[$record['list_id']])) {
+                // issue no longer linked to this encounter, so remove it
+                $this->unlinkIssueFromEncounter($pid, $encounter, $record['list_id']);
+            }
+            unset($issues[$record['list_id']]);
+        }
+        // now add any remaining issues
+        foreach ($issues as $issue) {
+            $this->linkIssueToEncounter($pid, $encounter, $issue);
+        }
+    }
+
+    /**
+     * Link an issue to an encounter.  If the linkage already exists, do nothing but return the linkage uuid.
+     * @param string $pid The patient pid from patient_data.pid
+     * @param string $encounter The encounter id from form_encounter.encounter
+     * @param string $issueId The issue id from lists.id
+     * @param int $resolved Optional resolved flag, defaults to 0 (whether the issue was resolved during this encounter)
+     * @return string The UUID of the created linkage, or the uuid of the linkage if the linkage already exists
+     */
+    public function linkIssueToEncounter(string $pid, string $encounter, string $issueId, int $resolved = 0): string
+    {
+        $uuid = QueryUtils::fetchSingleValue("SELECT uuid AS count FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ? AND list_id = ?", 'uuid', [$pid, $encounter, $issueId]);
+        if (!empty($uuid)) {
+            return $uuid; // already connected
+        }
+        $uuid = UuidRegistry::getRegistryForTable("issue_encounter")->createUuid();
+        $query = "INSERT INTO issue_encounter ( `uuid`, pid, list_id, encounter, resolved) VALUES (?,?,?,?,?)";
+        QueryUtils::sqlInsert($query, [$uuid, $pid, $issueId, $encounter, $resolved]);
+        return $uuid;
+    }
+
+    public function unlinkIssueFromEncounter(string $pid, string $encounter, string $issueId)
+    {
+        // TODO: @adunsulag should we actually have a status flag on the linkage and set it to inactive instead of deleting the linkage?
+        // this would preserve historical data, and we could have a purge job to remove old inactive linkages after some time period if needed
+        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ? AND list_id = ?)", [$pid, $encounter, $issueId]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ? AND list_id = ?", [$pid, $encounter, $issueId]);
+    }
+
+    /**
+     * Replace all the patient encounter issues for a patient.
+     * @param int $pid The patient pid from patient_data.pid
+     * @param array $encountersByListId An associative array where the key is the issue id and the value is an array of encounter ids that need to be linked to the issue
+     * @return void
+     */
+    public function replacePatientEncounterIssues(int $pid, array $encountersByListId): void
+    {
+        // get all the issues
+        // loop through each issue, if it has encounters in encountersByListId then call replaceIssuesForEncounter
+        // otherwise call replaceIssuesForEncounter with empty array to clear out any existing linkages
+        // existing linkages not in encountersByListId will be removed
+        $encounterIssues = QueryUtils::fetchRecords("SELECT list_id,encounter,pid FROM issue_encounter WHERE pid = ?", [$pid]);
+        foreach ($encounterIssues as $issue) {
+            $issueId = $issue['list_id'];
+            if (!isset($encountersByListId[$issueId])) {
+                $this->unlinkIssueFromEncounter($pid, $issue['encounter'], $issue['list_id']);
+            } else {
+                $index = array_search($issue['encounter'], $encountersByListId[$issueId]);
+                if ($index !== false) {
+                    $encountersByListId[$issueId][$index] = null; // empty it out
+                } else {
+                    $this->unlinkIssueFromEncounter($pid, $issue['encounter'], $issue['list_id']);
+                }
+            }
+        }
+        // add any remaining encounters for each issue
+        foreach ($encountersByListId as $listId => $encounters) {
+            foreach ($encounters as $encounter) {
+                if (!empty($encounter)) {
+                    $this->linkIssueToEncounter($pid, $encounter, $listId);
+                }
             }
         }
     }

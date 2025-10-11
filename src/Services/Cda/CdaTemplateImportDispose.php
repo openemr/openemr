@@ -24,6 +24,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientIssuesService;
 
 require_once __DIR__ . '/../../../library/forms.inc.php';
 
@@ -704,6 +705,7 @@ class CdaTemplateImportDispose
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, [$value['extension'], $pid]);
             }
             if (empty($value['extension']) || $res_q_sel_encounter->count() === 0) {
+                $patientIssuesService = new PatientIssuesService();
                 $query_insert1 = "INSERT INTO form_encounter
                            (
                             pid,
@@ -803,8 +805,7 @@ class CdaTemplateImportDispose
                     $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
                     $res_sel_iss_enc = $appTable->zQuery($q_sel_iss_enc, [$pid, $list_id, $encounter_id]);
                     if ($res_sel_iss_enc->count() === 0) {
-                        $insert = "INSERT INTO issue_encounter(pid,list_id,encounter,resolved) VALUES (?,?,?,?)";
-                        $appTable->zQuery($insert, [$pid, $list_id, $encounter_id, 0]);
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter_id, $list_id, 0);
                     }
                 }
             }

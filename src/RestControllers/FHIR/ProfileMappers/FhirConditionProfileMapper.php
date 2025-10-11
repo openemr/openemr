@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirConditionProfileMapper.php
  * @package openemr
@@ -15,8 +16,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\Services\FHIR\UtilsService;
 
 // TODO: @adunsulag after playing around with the profiling logic, it seems like this class is not needed
-class FhirConditionProfileMapper {
-
+class FhirConditionProfileMapper
+{
     public function profileResource(FHIRCondition $unProfiledResource, string $fhirProfile): FHIRCondition
     {
         // This is a placeholder for the actual profiling logic.
@@ -24,8 +25,7 @@ class FhirConditionProfileMapper {
         // to conform to the specified $fhirProfile.
 
         // For now, we will just return the unprofiled resource as is.
-        return match($fhirProfile) {
-
+        return match ($fhirProfile) {
             'http://hl7.org/fhir/StructureDefinition/Condition|7.0' => $this->getUsCore7ProfiledResource($unProfiledResource),
             'http://hl7.org/fhir/StructureDefinition/Condition|7.0' => $this->getUsCore7ProfiledResource($unProfiledResource),
             'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition' => $this->getUsCore3ProfiledResource($unProfiledResource),

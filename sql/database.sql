@@ -3312,11 +3312,14 @@ CREATE TABLE `ip_tracking` (
 
 DROP TABLE IF EXISTS `issue_encounter`;
 CREATE TABLE `issue_encounter` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this issue encounter record, for data exchange purposes',
   `pid` bigint(20) NOT NULL,
   `list_id` int(11) NOT NULL,
   `encounter` int(11) NOT NULL,
   `resolved` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`pid`,`list_id`,`encounter`)
+  UNIQUE KEY `uniq_issue_key`(`pid`,`list_id`,`encounter`),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

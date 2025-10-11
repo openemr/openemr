@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientIssuesService;
 
 $patdata = getPatientData($pid, "fname,lname,squad");
 
@@ -54,19 +55,18 @@ if (!empty($_POST['form_save'])) {
 
     preg_match_all($pattern, $form_pelist, $matches);
     $numsets = count($matches[1]);
-
-    $query = "DELETE FROM issue_encounter WHERE pid = ?";
-    sqlQuery($query, [$form_pid]);
+    $patientIssuesService = new PatientIssuesService();
+    $encountersByListId = [];
     for ($i = 0; $i < $numsets; ++$i) {
         $list_id   = $matches[1][$i];
         $encounter = $matches[2][$i];
-        $query = "INSERT INTO issue_encounter ( " .
-            "pid, list_id, encounter" .
-            ") VALUES ( " .
-            " ?, ?, ?" .
-            ")";
-        sqlQuery($query, [$form_pid, $list_id, $encounter]);
+        if (!isset($encountersByListId[$list_id])) {
+            $encountersByListId[$list_id] = [];
+        }
+        $encountersByListId[$list_id][] = $encounter;
     }
+    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId);
+
 
     echo "<html><body>"
     . "<script type=\"text/javascript\" src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"

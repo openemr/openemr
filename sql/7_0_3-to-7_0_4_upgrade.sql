@@ -1297,3 +1297,14 @@ ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk
 #IfMissingColumn employer_data uuid
 ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
 #EndIf
+
+#IfMissingColumn issue_encounter uuid
+ALTER TABLE `issue_encounter` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this issue encounter record, for data exchange purposes';
+#EndIf
+
+#IfMissingColumn issue_encounter id
+-- we
+ALTER TABLE `issue_encounter` ADD UNIQUE INDEX `uniq_issue_key`(`pid`,`list_id`,`encounter`);
+ALTER TABLE `issue_encounter` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT FIRST;
+ALTER TABLE `issue_encounter` DROP PRIMARY KEY;
+#EndIf

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * MappedServiceCategoryTrait.php
  * @package openemr
@@ -15,7 +16,8 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 
-trait MappedServiceCategoryTrait {
+trait MappedServiceCategoryTrait
+{
     use MappedServiceTrait;
 
     public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase

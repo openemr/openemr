@@ -98,4 +98,6 @@ class FhirCodeSystemConstants
 
     const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
     const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
+
+    const HL7_CONDITION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/condition-category';
 }

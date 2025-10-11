@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirConditionProblemsHealthConcernServiceTest.php
  * @package openemr
@@ -17,14 +18,14 @@ use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use PHPUnit\Framework\TestCase;
 
-class FhirConditionProblemsHealthConcernServiceTest extends TestCase {
-
+class FhirConditionProblemsHealthConcernServiceTest extends TestCase
+{
     public function testSupportsCategory()
     {
-
     }
 
-    private function getDefaultOpenEMRRecord() {
+    private function getDefaultOpenEMRRecord()
+    {
         return [
             'id' => '12345'
             ,'uuid' => 'condition-uuid-12345'
@@ -96,16 +97,16 @@ class FhirConditionProblemsHealthConcernServiceTest extends TestCase {
         $this->assertNotEmpty($fhirResource->getAbatementDateTime(), "Expected abatementDateTime to be set in FHIRCondition resource.");
         $this->assertEquals('2025-01-02T00:00:00Z', $fhirResource->getAbatementDateTime()->getValue(), "Expected abatementDateTime to match OpenEMR endate.");
 
-        // 	Date record was first recorded
+        //  Date record was first recorded
         $this->assertNotEmpty($fhirResource->getRecordedDate(), "Expected recordedDate to be set in FHIRCondition resource.");
         $this->assertEquals('2025-01-01T01:00:00Z', $fhirResource->getRecordedDate()->getValue(), "Expected recordedDate to match OpenEMR date.");
 
         // US Core 7.0 Profile required items
-        $this->assertContains(FhirConditionProblemsHealthConcernService::USCDI_PROFILE ."|7.0.0", $profileValues, "Expected FHIRCondition to have US Core 7.0.0 profile.");
+        $this->assertContains(FhirConditionProblemsHealthConcernService::USCDI_PROFILE . "|7.0.0", $profileValues, "Expected FHIRCondition to have US Core 7.0.0 profile.");
         $this->assertEquals('2025-01-02T30:00:00Z', $fhirResource->getMeta()->getLastUpdated()->getValue(), "Expected lastUpdated to match OpenEMR last updated time.");
 
         // Note US Core 7.0 profile added in assertedDate as an extension
-        // check that assertedDate is there (only valid for 7.0 profile) - 	Date the condition was first asserted
+        // check that assertedDate is there (only valid for 7.0 profile) -  Date the condition was first asserted
         $assertedDateExtension = $fhirResource->getExtension()[0];
         $this->assertEquals('http://hl7.org/fhir/StructureDefinition/condition-assertedDate', $assertedDateExtension->getUrl(), "Expected assertedDate extension URL to match FHIR definition.");
         $this->assertEquals('2025-01-01T01:00:00Z', $assertedDateExtension->getValueDateTime()->getValue(), "Expected assertedDate to match OpenEMR date.");
