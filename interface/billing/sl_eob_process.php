@@ -43,6 +43,8 @@ $last_code = '';
 $invoice_total = 0.00;
 /** @var array<string, int> $InsertionId last inserted ID of */
 $InsertionId = [];
+/** @var string $StringToEcho a manual buffer */
+$StringToEcho = '';
 
 ///////////////////////// Assorted Functions /////////////////////////
 
@@ -201,8 +203,7 @@ function getOldDetail(array &$prev, string $ptname, string $invnumber, string $d
     }
 }
 
-    // This is called back by ParseERA::parseERA() once per claim.
-    //
+// This is called back by ParseERA::parseERA() once per claim.
 
 // TODO: Sort colors here for Bootstrap themes
 /**
@@ -215,7 +216,7 @@ function era_callback_check(array &$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
-    global $StringToEcho,$debug;
+    global $StringToEcho, $debug;
 
     if (!empty($_GET['original']) && $_GET['original'] === 'original') {
         $StringToEcho .= "<table class='table'>";
@@ -450,10 +451,10 @@ function era_callback(array &$out): void
             $prev = $codes[$codekey] ?? '';
             // However sometimes a secondary insurance doesn't return the modifier that was on the service item
             // that was processed by the primary payer so try to deal with that
-            if (!$prev && !$svc['mod'] && in_array($svc['code'], $cpts ?? [])) {
+            if (!$prev && !$svc['mod'] && in_array($svc['code'], $cpts)) {
                 foreach ($cpts as $v) {
-                    if ($v === $codekey) {
-                        $codekey = $cpt . ':' . implode(':', $mods[$v] ?? []);
+                    if ($v === $svc['code']) {
+                        $codekey = $v . ':' . implode(':', $mods[$v] ?? []);
                     }
                 }
                 $prev = $codes[$codekey] ?? '';
@@ -474,7 +475,7 @@ function era_callback(array &$out): void
                 echo implode('', $oldDetails);
                 // Check for sanity in amount charged.
                 $prevchg = sprintf("%.2f", $prev['chg'] + ($prev['adj'] ?? null));
-                if ($prevchg !== abs($svc['chg'])) {
+                if ($prevchg !== sprintf("%.2f", abs($svc['chg']))) {
                     echo getMessageLine(
                         $bgcolor,
                         'errdetail',
@@ -507,8 +508,7 @@ function era_callback(array &$out): void
                         code: $codekey,
                         description: $description,
                         debug: $debug,
-                        time: '',
-                        codetype: $codetype ?? ''
+                        codetype: $codetype
                     );
                     $invoice_total += $svc['chg'];
                 }
@@ -595,7 +595,7 @@ function era_callback(array &$out): void
                     // adjustments to retain the note without crediting the claim.
                     if ($primary) {
                         // Reasons should be 25 chars or less.
-                        $reason = match($adj['reason_code']) {
+                        $reason = match ($adj['reason_code']) {
                             '1' => "$inslabel dedbl: ",
                             '2' => "$inslabel coins: ",
                             '3' => "$inslabel copay: ",
@@ -650,7 +650,7 @@ function era_callback(array &$out): void
                         reason: "Adjust code " . $adj['reason_code'],
                         debug: $debug,
                         time: '',
-                        codetype: $codetype ?? '',
+                        codetype: $codetype,
                         // Note: $out['payer_claim_id'] was being passed but function only has 10 params
                     );
                     $invoice_total -= $adj['amount'];
@@ -740,18 +740,21 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$eraname = $_GET['eraname'];
+$eraname = $_REQUEST['eraname'];
 
-if (! $eraname) {
+if (!$eraname) {
     die(xlt("You cannot access this page directly."));
 }
 
-    // Open the output file early so that in case it fails, we do not post a
-    // bunch of stuff without saving the report.  Also be sure to retain any old
-    // report files.  Do not save the report if this is a no-update situation.
-    //
+// Open the output file early so that in case it fails, we do not post a
+// bunch of stuff without saving the report.  Also be sure to retain any old
+// report files.  Do not save the report if this is a no-update situation.
+
+// Common path used by parseERAForCheck() calls
+$nameprefix = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname";
+$era_file_path = $nameprefix . '.edi';
+
 if (!$debug) {
-    $nameprefix = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname";
     $namesuffix = '';
     for ($i = 1; is_file("$nameprefix$namesuffix.html"); ++$i) {
         $namesuffix = "_$i";
@@ -811,7 +814,7 @@ if (!$debug) {
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] === 'original') {
-    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parseERAForCheck($era_file_path);
     echo $StringToEcho;
 } else {
     ?>
@@ -844,9 +847,7 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
     <?php
     global $InsertionId;
 
-    $eraname = $_REQUEST['eraname'];
-    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
-    $alertmsg = ParseERA::parseERA($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parseERA($era_file_path, 'era_callback');
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';
@@ -905,11 +906,10 @@ function checkAll(checked) {
 </body>
 </html>
 <?php
-    // Save all of this script's output to a report file.
+// Save all of this script's output to a report file.
 if (!$debug) {
     fwrite($fhreport, ob_get_contents());
     fclose($fhreport);
 }
 
-    ob_end_flush();
-?>
+ob_end_flush();
