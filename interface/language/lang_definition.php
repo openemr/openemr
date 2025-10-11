@@ -78,7 +78,7 @@ if (!$thisauth) {
 
           // collect the default selected language id, and then display list
             $tempLangID = $_POST['language_select'] ?? $mainLangID;
-            while ($row = SqlFetchArray($res)) {
+            while ($row = sqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
                     echo "<option value='" . attr($row['lang_id']) . "' selected>" .
                         text($row['lang_description']) . "</option>";
@@ -134,10 +134,10 @@ if (!empty($_POST['load'])) {
             // insert each entry into the log table - to allow persistant customizations
             $sql = "SELECT lang_description, lang_code FROM lang_languages WHERE lang_id=? LIMIT 1";
             $res = sqlStatement($sql, [$_POST['lang_id']]);
-            $row_l = SqlFetchArray($res);
+            $row_l = sqlFetchArray($res);
             $sql = "SELECT constant_name FROM lang_constants WHERE cons_id=? LIMIT 1";
             $res = sqlStatement($sql, [$key]);
-            $row_c = SqlFetchArray($res);
+            $row_c = sqlFetchArray($res);
             insert_language_log($row_l['lang_description'], $row_l['lang_code'], $row_c['constant_name'], $value);
 
             $go = 'yes';
@@ -153,7 +153,7 @@ if (!empty($_POST['load'])) {
             // only continue if the definition is new
             $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";
             $res_test = sqlStatement($sql, [$key, $value]);
-            if (!SqlFetchArray($res_test)) {
+            if (!sqlFetchArray($res_test)) {
                 // insert into the main language tables
                 $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
                 sqlStatement($sql, [$value, $key]);
@@ -164,7 +164,7 @@ if (!empty($_POST['load'])) {
                 $sql .= "WHERE ld.def_id=? ";
                 $sql .= "AND ll.lang_id = ld.lang_id AND lc.cons_id = ld.cons_id LIMIT 1";
                 $res = sqlStatement($sql, [$key]);
-                $row = SqlFetchArray($res);
+                $row = sqlFetchArray($res);
                 insert_language_log($row['lang_description'], $row['lang_code'], $row['constant_name'], $value);
 
                 $go = 'yes';
@@ -206,7 +206,7 @@ if (!empty($_POST['edit'])) {
         $sql .= "OR ll.lang_id=? ";
         $what = "SELECT * from lang_languages where lang_id=? LIMIT 1";
         $res = sqlStatement($what, [$lang_id]);
-        $row = SqlFetchArray($res);
+        $row = sqlFetchArray($res);
         $lang_name = $row['lang_description'];
     }
 
@@ -221,7 +221,7 @@ if (!empty($_POST['edit'])) {
     echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
     // only english definitions
     if ($lang_id == 1) {
-        while ($row = SqlFetchArray($res)) {
+        while ($row = sqlFetchArray($res)) {
                 $isShow = false; //flag if passes the definition filter
                 $stringTemp = '<tr><td>' . text($row['constant_name']) . '</td>';
             // if there is no definition
@@ -236,7 +236,7 @@ if (!empty($_POST['edit'])) {
                 $cons_name = "def_id[" . $row['def_id'] . "]";
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
                     $res2 = sqlStatement($sql, [$row['def_id'], $lang_filter_def]);
-                if (SqlFetchArray($res2)) {
+                if (sqlFetchArray($res2)) {
                     $isShow = true;
                 }
             }
@@ -254,7 +254,7 @@ if (!empty($_POST['edit'])) {
         echo ('<input type="hidden" name="lang_id" value="' . attr($lang_id) . '">');
     // english plus the other
     } else {
-        while ($row = SqlFetchArray($res)) {
+        while ($row = sqlFetchArray($res)) {
             if (!empty($row['lang_id']) && $row['lang_id'] != '1') {
                     // This should not happen, if it does that must mean that this
                     // constant has more than one definition for the same language!
@@ -266,7 +266,7 @@ if (!empty($_POST['edit'])) {
             $def = ($row['definition'] == '' or $row['definition'] == 'NULL') ? " " : $row['definition'];
 
             $stringTemp .= '<td>' . text($def) . '</td>';
-            $row = SqlFetchArray($res); // jump one to get the second language selected
+            $row = sqlFetchArray($res); // jump one to get the second language selected
             if ($row['def_id'] == '' or $row['def_id'] == 'NULL') {
                 $cons_name = "cons_id[" . $row['cons_id'] . "]";
                 if ($lang_filter_def == '%') {
@@ -279,7 +279,7 @@ if (!empty($_POST['edit'])) {
                 ;
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
                     $res2 = sqlStatement($sql, [$row['def_id'], $lang_filter_def]);
-                if (SqlFetchArray($res2)) {
+                if (sqlFetchArray($res2)) {
                     $isShow = true;
                 }
             }

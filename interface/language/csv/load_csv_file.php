@@ -60,7 +60,7 @@ while ($row = sqlFetchArray($resLanguages)) {
             $res = sqlStatement($sql, [$mainLangID]);
             // collect the default selected language id, and then display list
             $tempLangID = $_POST['language_id'] ?? $mainLangID;
-            while ($row = SqlFetchArray($res)) {
+            while ($row = sqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
                     echo "<option value='" . attr($row['lang_id']) . "' selected>" .
                         text($row['lang_description']) . "</option>";

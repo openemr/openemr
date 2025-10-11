@@ -57,14 +57,14 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     $sql = "SELECT lang_description FROM lang_languages";
     $res = sqlStatement($sql);
     $row_main = [];
-    while ($row = SqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         $row_main[] = $row['lang_description'];
     }
 
     $sql = "SELECT lang_description FROM lang_custom";
     $res = sqlStatement($sql);
     $row_custom = [];
-    while ($row = SqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         $row_custom[] = $row['lang_description'];
     }
 
@@ -79,7 +79,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
             // add the new language (first collect the language code)
             $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description " . $case_sensitive_collation . " =? LIMIT 1";
             $res = sqlStatement($sql, [$var]);
-            $row = SqlFetchArray($res);
+            $row = sqlFetchArray($res);
             $sql = "INSERT INTO lang_languages SET lang_code=?, lang_description=?";
             sqlStatement($sql, [$row['lang_code'], $var]);
             echo xlt('Synchronized new custom language:') . " " . text($var) . "<br><br>";
@@ -94,14 +94,14 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     $sql = "SELECT constant_name FROM lang_constants";
     $res = sqlStatement($sql);
     $row_main = [];
-    while ($row = SqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         $row_main[] = $row['constant_name'];
     }
 
     $sql = "SELECT constant_name FROM lang_custom";
     $res = sqlStatement($sql);
     $row_custom = [];
-    while ($row = SqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         $row_custom[] = $row['constant_name'];
     }
 
@@ -127,30 +127,30 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
   //
     $sql = "SELECT lang_description, lang_code, constant_name, definition FROM lang_custom WHERE lang_description != '' AND constant_name != ''";
     $res = sqlStatement($sql);
-    while ($row = SqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         // collect language id
         $sql = "SELECT lang_id FROM lang_languages WHERE lang_description " . $case_sensitive_collation . " =? LIMIT 1";
         $res2 = sqlStatement($sql, [$row['lang_description']]);
-        $row2 = SqlFetchArray($res2);
+        $row2 = sqlFetchArray($res2);
         $language_id = $row2['lang_id'];
 
         // collect constant id
         $sql = "SELECT cons_id FROM lang_constants WHERE constant_name " . $case_sensitive_collation . " =? LIMIT 1";
         $res2 = sqlStatement($sql, [$row['constant_name']]);
-        $row2 = SqlFetchArray($res2);
+        $row2 = sqlFetchArray($res2);
         $constant_id = $row2['cons_id'];
 
         // collect definition id (if it exists)
         $sql = "SELECT def_id FROM lang_definitions WHERE cons_id=? AND lang_id=? LIMIT 1";
         $res2 = sqlStatement($sql, [$constant_id, $language_id]);
-        $row2 = SqlFetchArray($res2);
+        $row2 = sqlFetchArray($res2);
         $def_id = $row2['def_id'];
 
         if ($def_id) {
             //definition exist, so check to see if different
             $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";
             $res_test = sqlStatement($sql, [$def_id, $row['definition']]);
-            if (SqlFetchArray($res_test)) {
+            if (sqlFetchArray($res_test)) {
             //definition not different
                 continue;
             } else {
