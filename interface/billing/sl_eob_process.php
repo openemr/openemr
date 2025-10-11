@@ -573,16 +573,15 @@ function era_callback(&$out): void
                     $error = true;
                 } elseif (!$error && !$debug) {
                     SLEOB::arPostAdjustment(
-                        $pid,
-                        $encounter,
-                        $InsertionId[$out['check_number']],
-                        $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
-                        $codekey,
-                        substr($inslabel, 3),
-                        "Adjust code " . $adj['reason_code'],
-                        $debug,
-                        '',
-                        $codetype ?? ''
+                        patient_id: $pid,
+                        encounter_id: $encounter,
+                        session_id: $InsertionId[$out['check_number']],
+                        amount: $adj['amount'],
+                        code: $codekey,
+                        payer_type: substr($inslabel, 3),
+                        reason: "Adjust code " . $adj['reason_code'],
+                        debug: $debug,
+                        codetype: $codetype,
                     );
                     $invoice_total -= $adj['amount'];
                 }
