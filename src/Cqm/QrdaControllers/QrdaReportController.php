@@ -43,7 +43,7 @@ class QrdaReportController
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
-        $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved, $options);
+        $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
         if (empty($document)) {
             return '';
         }

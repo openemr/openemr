@@ -985,7 +985,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
         $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
-        $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this, 0);
+        $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master

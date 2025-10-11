@@ -153,7 +153,7 @@ class smtp_class
 	{
 		$responses=[];
 		Unset($this->result_code);
-		while(strlen((string) $line=$this->GetLine($this->connection)))
+		while(strlen((string) $line=$this->GetLine()))
 		{
 			if(IsSet($this->result_code))
 			{

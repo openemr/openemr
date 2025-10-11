@@ -539,7 +539,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n");
+                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>');
                         $this->flush_echo();
                     }
                     if (!empty($item['column_comment'])) {
@@ -581,7 +581,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>', "\n");
+                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>');
                         $this->flush_echo();
                     }
 
