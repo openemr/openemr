@@ -413,7 +413,7 @@ class ApplicationTable extends AbstractTableGateway
         } else {
             try {
                 $dateObj = new DateTime($input_date);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 return false;
             }
         }

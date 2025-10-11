@@ -132,7 +132,7 @@ trait VoiceFunctionsTrait
             $endpoint = "/restapi/v1.0/account/~/extension/~/message-store/{$messageId}/content";
             $response = $this->platform->get($endpoint);
             return $response->raw(); // binary content for WAV/MP3
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

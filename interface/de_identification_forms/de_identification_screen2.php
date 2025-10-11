@@ -253,7 +253,7 @@ if ($deIdentificationStatus == 0) {
                 }
             }
         }
-    } catch (Exception $e) {
+    } catch (Exception) {
         //error status
         $query = "update de_identification_status set status = 3";
         $res = sqlStatement($query);
