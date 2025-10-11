@@ -137,7 +137,8 @@
             "OpenEMR\\": "src"
         },
         "classmap": [
-            "library/classes"
+            "library/classes",
+            "gacl/Cache_Lite"
         ],
         "files": [
             "library/htmlspecialchars.inc.php",
