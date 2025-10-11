@@ -27,8 +27,13 @@ use Laminas\Mvc\I18n\TranslatorFactory;
 use Interop\Container\ContainerInterface;
 use OpenEmr\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Application\Plugin\CommonPlugin;
+use Application\Plugin\Phimail;
+use Carecoordination\Controller\EncounterccdadispatchController;
+use Application\Helper\Javascript;
+use Application\Helper\TranslatorViewHelper;
+use Application\Helper\SendToHieHelper;
 
-//
 return [
     'router' => [
         'routes' => [
@@ -109,15 +114,15 @@ return [
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     ,'controller_plugins' => [
         'factories' => [
-            'CommonPlugin' => fn(ContainerInterface $container, $requestedName): \Application\Plugin\CommonPlugin => new Plugin\CommonPlugin($container)
-            ,'Phimail' => fn(ContainerInterface $container): \Application\Plugin\Phimail => new Plugin\Phimail($container)
+            'CommonPlugin' => fn(ContainerInterface $container, $requestedName): CommonPlugin => new CommonPlugin($container)
+            ,'Phimail' => fn(ContainerInterface $container): Phimail => new Phimail($container)
         ]
     ]
     ,'controllers' => [
         'factories' => [
-            IndexController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\IndexController => new IndexController($container->get(ApplicationTable::class)),
-            SoapController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SoapController => new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class)),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class))
+            IndexController::class => fn(ContainerInterface $container, $requestedName): IndexController => new IndexController($container->get(ApplicationTable::class)),
+            SoapController::class => fn(ContainerInterface $container, $requestedName): SoapController => new SoapController($container->get(EncounterccdadispatchController::class)),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class))
         ]
     ],
     'service_manager' => [
@@ -128,8 +133,8 @@ return [
                 $table = new ApplicationTable();
                 return $table;
             },
-            SendtoTable::class => fn(ContainerInterface $container, $requestedName): \Application\Model\SendtoTable => new SendtoTable(),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
+            SendtoTable::class => fn(ContainerInterface $container, $requestedName): SendtoTable => new SendtoTable(),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
             ModuleMenuSubscriber::class => InvokableFactory::class
         ],
     ],
@@ -151,14 +156,14 @@ return [
     ],
     'view_helpers' => [
         'invokables' => [
-            'javascriptGlobals' => \Application\Helper\Javascript::class,
+            'javascriptGlobals' => Javascript::class,
         ],
         'factories' => [
-            'translate' => fn(\Interop\Container\ContainerInterface $container, $requestedName): \Application\Helper\TranslatorViewHelper =>
+            'translate' => fn(ContainerInterface $container, $requestedName): TranslatorViewHelper =>
                 // TODO: we should look at renaming this to be TranslatorAdapter
-                new \Application\Helper\TranslatorViewHelper()
+                new TranslatorViewHelper()
             // TODO: this used to be the Getvariables functionality.. the whole thing has a leaky abstraction and should be refactored into services instead of jumping to a controller view
-            , 'sendToHie'      => fn(\Interop\Container\ContainerInterface $container, $requestedName): \Application\Helper\SendToHieHelper => new \Application\Helper\SendToHieHelper($container->get(SendtoController::class))
+            , 'sendToHie'      => fn(ContainerInterface $container, $requestedName): SendToHieHelper => new SendToHieHelper($container->get(SendtoController::class))
         ]
     ],
 ];
