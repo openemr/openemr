@@ -17560,10 +17560,6 @@ parameters:
     identifier: empty.variable
     count: 1
     path: src/Services/FHIR/UtilsService.php
-  - message: '#^Instantiated class OpenEMR\\Pdf\\MpdfGenericPdfCreator not found\.$#'
-    identifier: class.notFound
-    count: 1
-    path: src/Services/ImageUtilities/HandleImageService.php
   - message: '#^Variable \$image might not be defined\.$#'
     identifier: variable.undefined
     count: 1
