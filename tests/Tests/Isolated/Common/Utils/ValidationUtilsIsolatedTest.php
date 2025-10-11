@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated;
+namespace OpenEMR\Tests\Isolated\Common\Utils;
 
 use OpenEMR\Common\Utils\ValidationUtils;
 use PHPUnit\Framework\TestCase;
