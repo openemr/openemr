@@ -32,17 +32,17 @@ use xmltoarray_parser_htmlfix;
 class CarecoordinationController extends AbstractActionController
 {
     /**
-     * @var Carecoordination\Model\CarecoordinationTable
+     * @var CarecoordinationTable
      */
     private $carecoordinationTable;
 
     /**
-     * @var Documents\Controller\DocumentsController
+     * @var DocumentsController
      */
     private $documentsController;
 
     /**
-     * @var Application\Listener\Listener
+     * @var Listener
      */
     private $listenerObject;
 
