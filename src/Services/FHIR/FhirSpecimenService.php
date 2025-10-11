@@ -119,11 +119,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         $translatedValues = [];
 
         foreach ($values as $tokenValue) {
-            if (method_exists($tokenValue, 'getCode')) {
-                $code = $tokenValue->getCode();
-            } else {
-                $code = (string)$tokenValue;
-            }
+            $code = method_exists($tokenValue, 'getCode') ? $tokenValue->getCode() : (string)$tokenValue;
 
             // Translate FHIR status to database deleted flag
             switch ($code) {
