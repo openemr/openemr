@@ -4218,7 +4218,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 </item>';
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Optional: error_log('CCDA SDOH error: ' . $e->getMessage());
         }
 

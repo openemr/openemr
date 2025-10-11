@@ -582,7 +582,7 @@ class Phreezer extends Observable
                     $val = $obj->$prop;
                     try {
                         $sql .= $delim . "`" . $fm->ColumnName . "` = " . $this->GetQuotedSql($val);
-                    } catch (Exception $ex) {
+                    } catch (Exception) {
                         throw new Exception("Error escaping property '$prop'. value could not be converted to string");
                     }
 
@@ -621,7 +621,7 @@ class Phreezer extends Observable
                         $val = $obj->$prop;
                         try {
                             $sql .= $delim . ' ' . $this->GetQuotedSql($val);
-                        } catch (Exception $ex) {
+                        } catch (Exception) {
                             throw new Exception("Error escaping property '$prop'. value could not be converted to string");
                         }
 

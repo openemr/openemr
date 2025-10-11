@@ -1443,7 +1443,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
