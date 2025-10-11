@@ -1304,8 +1304,8 @@ ALTER TABLE `issue_encounter` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 
 
 #IfMissingColumn issue_encounter id
 ALTER TABLE `issue_encounter` ADD UNIQUE INDEX `uniq_issue_key`(`pid`,`list_id`,`encounter`);
-ALTER TABLE `issue_encounter` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT FIRST;
-ALTER TABLE `issue_encounter` DROP PRIMARY KEY, ADD PRIMARY KEY (`id`);
+ALTER TABLE `issue_encounter` DROP PRIMARY KEY;
+ALTER TABLE `issue_encounter` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
 #IfNotIndex issue_encounter uuid_unique
