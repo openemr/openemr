@@ -21,5 +21,5 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 $c = new C_FormVitals();
-echo $c->default_action_process($_POST);
+echo $c->default_action_process();
 @formJump();
