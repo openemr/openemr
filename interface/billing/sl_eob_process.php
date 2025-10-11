@@ -431,8 +431,7 @@ function era_callback(&$out): void
                         $codekey,
                         $description,
                         $debug,
-                        '',
-                        $codetype ?? ''
+                        ''
                     );
                     $invoice_total += $svc['chg'];
                 }
@@ -554,8 +553,7 @@ function era_callback(&$out): void
                             $reason,
                             $debug,
                             '',
-                            $codetype,
-                            $out['payer_claim_id']
+                            $codetype
                         );
                     }
 
@@ -584,8 +582,7 @@ function era_callback(&$out): void
                         "Adjust code " . $adj['reason_code'],
                         $debug,
                         '',
-                        $codetype ?? '',
-                        $out['payer_claim_id']
+                        $codetype ?? ''
                     );
                     $invoice_total -= $adj['amount'];
                 }
@@ -737,7 +734,7 @@ if (!$debug) {
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] == 'original') {
-    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
     echo $StringToEcho;
 } else {
     ?>

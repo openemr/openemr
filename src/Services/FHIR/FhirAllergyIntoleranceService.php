@@ -268,7 +268,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->allergyIntoleranceService->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->allergyIntoleranceService->search($openEMRSearchParameters, true);
     }
 
     public function getProfileURIs(): array

@@ -366,11 +366,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     error_log("in the labcorp");
                     require_once(__DIR__ . "/../../procedure_tools/labcorp/ereq_form.php");
                     require_once(__DIR__ . "/../../procedure_tools/labcorp/gen_hl7_order.inc.php");
-                    $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
+                    $alertmsg = gen_hl7_order($formid, $hl7);
                 } elseif ($gbl_lab === 'quest') {
                     error_log("in the quest");
                     require_once(__DIR__ . "/../../procedure_tools/quest/gen_hl7_order.inc.php");
-                    $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
+                    $alertmsg = gen_hl7_order($formid, $hl7);
                 } else {
                     // Default lab. Add more labs here.
                     error_log("in the default lab");
@@ -427,8 +427,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     }
                     if ($gbl_lab === 'quest' && $isDorn === false) {
                         $order_log .= xlt("Transmitting order to Quest");
-                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT, 10);
-                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD, 10);
+                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT);
+                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD);
                     }
 
                     if ($_POST['form_order_psc']) {

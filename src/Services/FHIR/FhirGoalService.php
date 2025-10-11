@@ -358,7 +358,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->service->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->service->search($openEMRSearchParameters, true);
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)

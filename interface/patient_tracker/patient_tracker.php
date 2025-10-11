@@ -327,7 +327,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     $appointments = [];
     $datetime = date("Y-m-d H:i:s");
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
-    $appointments = sortAppointments($appointments, 'date', 'time');
+    $appointments = sortAppointments($appointments, 'date');
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
