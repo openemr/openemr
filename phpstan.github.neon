@@ -176,10 +176,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: contrib/util/chart_review_pids.php
-  - message: '#^Function sqlClose invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: contrib/util/de_identification_upgrade.php
   - message: '#^Variable \$sqlconf might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -403,10 +399,6 @@ parameters:
   - message: '#^Function set_magic_quotes_runtime not found\.$#'
     identifier: function.notFound
     count: 2
-    path: gacl/Cache_Lite/Lite.php
-  - message: '#^Method Cache_Lite\:\:_read\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
     path: gacl/Cache_Lite/Lite.php
   - message: '#^Variable \$gacl_api might not be defined\.$#'
     identifier: variable.undefined
@@ -3620,10 +3612,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/eRxSOAP.php
-  - message: '#^Method eRxXMLBuilder\:\:createElementText\(\) invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/eRxXMLBuilder.php
   - message: '#^Undefined variable\: \$jasonzip$#'
     identifier: variable.undefined
     count: 2
@@ -11512,10 +11500,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php
-  - message: '#^Method OpenEMR\\Modules\\FaxSMS\\Controller\\TwilioSMSClient\:\:_getPending\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php
   - message: '#^Variable \$responseMsgs in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 1
@@ -12596,10 +12580,6 @@ parameters:
     identifier: function.notFound
     count: 1
     path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Function oeFormatMoney invoked with 3 parameters, 1\-2 required\.$#'
-    identifier: arguments.count
-    count: 5
-    path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Variable \$arates in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 2
@@ -13332,10 +13312,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/void_dialog.php
-  - message: '#^Function sortAppointments invoked with 3 parameters, 1\-2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/patient_tracker/patient_tracker.php
   - message: '#^Variable \$MedEx might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -13452,10 +13428,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/procedure_tools/quest/gen_hl7_order.inc.php
-  - message: '#^Function formatPatientReportData invoked with 6 parameters, 3\-4 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/amc_full_report.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -13712,14 +13684,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/ippf_daily.php
-  - message: '#^Function genAnyCell invoked with 4 parameters, 1\-3 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/reports/ippf_statistics.php
-  - message: '#^Function genHeadCell invoked with 3 parameters, 1\-2 required\.$#'
-    identifier: arguments.count
-    count: 4
-    path: interface/reports/ippf_statistics.php
   - message: '#^Variable \$arr_report in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
     count: 1
@@ -14264,16 +14228,8 @@ parameters:
     identifier: property.notFound
     count: 1
     path: library/ESign/Encounter/Controller.php
-  - message: '#^Static method OpenEMR\\Common\\Auth\\AuthUtils\:\:verifyGoogleSignIn\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/ESign/Encounter/Controller.php
   - message: '#^Access to an undefined property ESign\\Form_Controller\:\:\$_view\.$#'
     identifier: property.notFound
-    count: 1
-    path: library/ESign/Form/Controller.php
-  - message: '#^Static method OpenEMR\\Common\\Auth\\AuthUtils\:\:verifyGoogleSignIn\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
     count: 1
     path: library/ESign/Form/Controller.php
   - message: '#^Variable \$this might not be defined\.$#'
@@ -14592,10 +14548,6 @@ parameters:
     identifier: constructor.unusedParameter
     count: 1
     path: library/classes/InsuranceCompany.class.php
-  - message: '#^Method InsuranceCompany\:\:populate\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/classes/InsuranceCompany.class.php
   - message: '#^Constructor of class InsuranceNumbers has an unused parameter \$prefix\.$#'
     identifier: constructor.unusedParameter
     count: 1
@@ -14618,10 +14570,6 @@ parameters:
     path: library/classes/Person.class.php
   - message: '#^Constructor of class Pharmacy has an unused parameter \$prefix\.$#'
     identifier: constructor.unusedParameter
-    count: 1
-    path: library/classes/Pharmacy.class.php
-  - message: '#^Method Pharmacy\:\:populate\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
     count: 1
     path: library/classes/Pharmacy.class.php
   - message: '#^Variable \$arr might not be defined\.$#'
@@ -14674,10 +14622,6 @@ parameters:
     path: library/classes/smtp/smtp.php
   - message: '#^Constant SASL_PLAIN_EXIM_MODE not found\.$#'
     identifier: constant.notFound
-    count: 1
-    path: library/classes/smtp/smtp.php
-  - message: '#^Method smtp_class\:\:GetLine\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
     count: 1
     path: library/classes/smtp/smtp.php
   - message: '#^Access to an undefined property Thumbnail\:\:\$max_size\.$#'
@@ -15152,18 +15096,10 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: library/edihistory/edih_segments.php
-  - message: '#^Function edih_upload_match_file invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/edihistory/edih_uploads.php
   - message: '#^Undefined variable\: \$err$#'
     identifier: variable.undefined
     count: 1
     path: library/edihistory/edih_uploads.php
-  - message: '#^Method edih_x12_file\:\:edih_message\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/edihistory/edih_x12file_class.php
   - message: '#^Undefined variable\: \$segment_ar$#'
     identifier: variable.undefined
     count: 2
@@ -15404,10 +15340,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: library/js/xl/jquery-datetimepicker-2-5-4.js.php
-  - message: '#^Function genLabResultsTextItem invoked with 7 parameters, 5\-6 required\.$#'
-    identifier: arguments.count
-    count: 3
-    path: library/options.inc.php
   - message: '#^Undefined variable\: \$disabled$#'
     identifier: variable.undefined
     count: 1
@@ -15760,10 +15692,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: modules/sms_email_reminder/batch_phone_notification.php
-  - message: '#^Function cron_GetAlertPatientData invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: modules/sms_email_reminder/cron_email_notification.php
   - message: '#^Variable \$EMAIL_NOTIFICATION_HOUR might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -15785,10 +15713,6 @@ parameters:
     count: 1
     path: modules/sms_email_reminder/cron_functions.php
   - message: '#^Class sms constructor invoked with 3 parameters, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: modules/sms_email_reminder/cron_sms_notification.php
-  - message: '#^Function cron_GetAlertPatientData invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
     path: modules/sms_email_reminder/cron_sms_notification.php
@@ -17052,18 +16976,10 @@ parameters:
     identifier: empty.variable
     count: 1
     path: src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php
-  - message: '#^Static method League\\OAuth2\\Server\\Exception\\UniqueTokenIdentifierConstraintViolationException\:\:create\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Common/Auth/OpenIDConnect/Repositories/AccessTokenRepository.php
   - message: '#^Variable \$clients in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 1
     path: src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php
-  - message: '#^Static method League\\OAuth2\\Server\\Exception\\UniqueTokenIdentifierConstraintViolationException\:\:create\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Common/Auth/OpenIDConnect/Repositories/RefreshTokenRepository.php
   - message: '#^Variable \$result on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 2
@@ -17232,10 +17148,6 @@ parameters:
     identifier: variable.undefined
     count: 4
     path: src/OeUI/OemrUI.php
-  - message: '#^Function isEnforceSigninEmailPortal invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Patient/Cards/PortalCard.php
   - message: '#^Variable \$frontSpecificRetail might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17260,10 +17172,6 @@ parameters:
     identifier: arguments.count
     count: 1
     path: src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php
-  - message: '#^Method OpenEMR\\RestControllers\\FHIR\\Operations\\FhirOperationExportRestController\:\:getExportTimeoutExportError\(\) invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php
   - message: '#^Variable \$exportWriter might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -17516,10 +17424,6 @@ parameters:
     identifier: isset.variable
     count: 1
     path: src/Services/DrugService.php
-  - message: '#^Method OpenEMR\\Services\\FHIR\\FhirDocRefService\:\:getMostCurrentCCDReference\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Services/FHIR/FhirDocRefService.php
   - message: '#^Variable \$code might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17552,10 +17456,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Services/InsuranceCompanyService.php
-  - message: '#^Method OpenEMR\\Services\\InsuranceService\:\:getOne\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Services/InsuranceService.php
   - message: '#^Variable \$return might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17636,10 +17536,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Services/QuestionnaireService.php
-  - message: '#^Method OpenEMR\\Services\\Search\\FHIRSearchFieldFactory\:\:buildSearchField\(\) invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: src/Services/Search/FHIRSearchFieldFactory.php
   - message: '#^Variable \$DateValue on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 1
@@ -17648,10 +17544,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: src/Services/Utils/DateFormatterUtils.php
-  - message: '#^Method OpenEMR\\Services\\Utils\\SQLUpgradeService\:\:echo\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: src/Services/Utils/SQLUpgradeService.php
   - message: '#^Variable \$records might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17744,10 +17636,6 @@ parameters:
     identifier: class.notFound
     count: 1
     path: tests/Tests/E2e/BbCreateStaffTest.php
-  - message: '#^Method OpenEMR\\Tests\\Fixtures\\BaseFixtureManager\:\:installFixtures\(\) invoked with 2 parameters, 0 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: tests/Tests/Fixtures/FacilityFixtureManager.php
   - message: '#^Class OpenEMR\\ClinicalDecisionRules\\Interface\\ActionRouter constructor invoked with 3 parameters, 2 required\.$#'
     identifier: arguments.count
     count: 3
