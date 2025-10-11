@@ -16,30 +16,33 @@ use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\AbstractPluginManager;
 use Laminas\Db\ResultSet\ResultSet;
+use Installer\Controller\InstallerController;
 use Installer\Model\InstModule;
+use Installer\Model\InstModuleTable;
+use Installer\Model\InstModuleTableGateway;
 use Laminas\Db\Adapter\Adapter;
 
 return [
     'controllers' => [
         'factories' => [
-            Installer\Controller\InstallerController::class => function (ContainerInterface $container, $requestedName) {
+            InstallerController::class => function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get(Adapter::class);
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new InstModule());
-                $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-                $InstModuleTable = new Installer\Model\InstModuleTable($tableGateway, $container);
-                return new Installer\Controller\InstallerController($InstModuleTable);
+                $tableGateway = new InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
+                $InstModuleTable = new InstModuleTable($tableGateway, $container);
+                return new InstallerController($InstModuleTable);
             },
         ]
     ],
     'service_manager' => [
         'factories' => [
-            Installer\Model\InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
+            InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
                 $dbAdapter = $container->get(Adapter::class);
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new InstModule());
-                $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-                return new Installer\Model\InstModuleTable($tableGateway, $container);
+                $tableGateway = new InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
+                return new InstModuleTable($tableGateway, $container);
             },
         ]
     ],
@@ -54,7 +57,7 @@ return [
                         'id'     => '[0-9]+',
                     ],
                     'defaults' => [
-                        'controller' => Installer\Controller\InstallerController::class,
+                        'controller' => InstallerController::class,
                         'action'     => 'index',
                     ],
                 ],
