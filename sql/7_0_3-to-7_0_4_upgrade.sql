@@ -1303,8 +1303,28 @@ ALTER TABLE `issue_encounter` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 
 #EndIf
 
 #IfMissingColumn issue_encounter id
--- we
 ALTER TABLE `issue_encounter` ADD UNIQUE INDEX `uniq_issue_key`(`pid`,`list_id`,`encounter`);
 ALTER TABLE `issue_encounter` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT FIRST;
-ALTER TABLE `issue_encounter` DROP PRIMARY KEY;
+ALTER TABLE `issue_encounter` DROP PRIMARY KEY, ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex issue_encounter uuid_unique
+ALTER TABLE `issue_encounter` ADD UNIQUE KEY `uuid_unique` (`uuid`);
+#EndIf
+
+#IfNotIndex employer_data uuid_unique
+ALTER TABLE `employer_data` ADD UNIQUE KEY `uuid_unique` (`uuid`);
+#EndIf
+
+#IfMissingColumn issue_encounter created_by
+ALTER TABLE `issue_encounter` ADD COLUMN `created_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the issue encounter data';
+#EndIf
+#IfMissingColumn issue_encounter updated_by
+ALTER TABLE `issue_encounter` ADD COLUMN `updated_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that last updated the issue encounter data';
+#EndIf
+#IfMissingColumn issue_encounter created_at
+ALTER TABLE `issue_encounter` ADD COLUMN `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was created';
+#EndIf
+#IfMissingColumn issue_encounter updated_at
+ALTER TABLE `issue_encounter` ADD COLUMN `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated';
 #EndIf

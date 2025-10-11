@@ -1587,7 +1587,8 @@ CREATE TABLE `employer_data` (
   `industry` text COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH',
   `created_by` int DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the employer data',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid_unique` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3318,8 +3319,13 @@ CREATE TABLE `issue_encounter` (
   `list_id` int(11) NOT NULL,
   `encounter` int(11) NOT NULL,
   `resolved` tinyint(1) NOT NULL,
+  `created_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the issue encounter data',
+  `updated_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that last updated the issue encounter data',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was created',
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated',
   UNIQUE KEY `uniq_issue_key`(`pid`,`list_id`,`encounter`),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid_unique` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
