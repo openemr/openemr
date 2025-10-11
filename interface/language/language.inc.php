@@ -41,37 +41,37 @@ function insert_language_log($lang_desc, $lang_code, $cons_name, $def): void
         // NEW LANGUAGE
         // (ensure not a repeat log entry)
         $sql = "SELECT * FROM lang_custom WHERE constant_name='' AND lang_description " . $case_sensitive_collation . " =?";
-        $res_test = SqlStatement($sql, [$lang_desc]);
+        $res_test = sqlStatement($sql, [$lang_desc]);
         if (!SqlFetchArray($res_test)) {
             $sql = "INSERT INTO lang_custom SET lang_code=?, lang_description=?";
-            SqlStatement($sql, [$lang_code, $lang_desc]);
+            sqlStatement($sql, [$lang_code, $lang_desc]);
         }
     } elseif ($lang_desc == '') {
         // NEW CONSTANT
         // (ensure not a repeat entry)
         $sql = "SELECT * FROM lang_custom WHERE lang_description='' AND constant_name " . $case_sensitive_collation . " =?";
-        $res_test = SqlStatement($sql, [$cons_name]);
+        $res_test = sqlStatement($sql, [$cons_name]);
         if (!SqlFetchArray($res_test)) {
             $sql = "INSERT INTO lang_custom SET constant_name=?";
-            SqlStatement($sql, [$cons_name]);
+            sqlStatement($sql, [$cons_name]);
         }
     } else {
         // FULL ENTRY
         // (ensure not a repeat log entry)
         $sql = "SELECT * FROM lang_custom WHERE lang_description " . $case_sensitive_collation . " =? AND constant_name " . $case_sensitive_collation . " =? AND definition " . $case_sensitive_collation . " =?";
-        $res_test = SqlStatement($sql, [$lang_desc, $cons_name, $def]);
+        $res_test = sqlStatement($sql, [$lang_desc, $cons_name, $def]);
         if (!SqlFetchArray($res_test)) {
             // either modify already existing log entry or create a new one
             $sql = "SELECT * FROM lang_custom WHERE lang_description " . $case_sensitive_collation . " =? AND constant_name " . $case_sensitive_collation . " =?";
-            $res_test2 = SqlStatement($sql, [$lang_desc, $cons_name]);
+            $res_test2 = sqlStatement($sql, [$lang_desc, $cons_name]);
             if (SqlFetchArray($res_test2)) {
                 // modify existing log entry(s)
                 $sql = "UPDATE lang_custom SET definition=? WHERE lang_description " . $case_sensitive_collation . " =? AND constant_name " . $case_sensitive_collation . " =?";
-                SqlStatement($sql, [$def, $lang_desc, $cons_name]);
+                sqlStatement($sql, [$def, $lang_desc, $cons_name]);
             } else {
                 // create new log entry
                 $sql = "INSERT INTO lang_custom (lang_description,lang_code,constant_name,definition) VALUES (?,?,?,?)";
-                SqlStatement($sql, [$lang_desc, $lang_code, $cons_name, $def]);
+                sqlStatement($sql, [$lang_desc, $lang_code, $cons_name, $def]);
             }
         }
     }
