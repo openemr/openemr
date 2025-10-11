@@ -17036,10 +17036,6 @@ parameters:
     identifier: class.notFound
     count: 1
     path: src/Common/Auth/Exception/OneTimeAuthExpiredException.php
-  - message: '#^Caught class OpenEMR\\Common\\Auth\\u2flib_server\\Error not found\.$#'
-    identifier: class.notFound
-    count: 1
-    path: src/Common/Auth/MfaUtils.php
   - message: '#^Method OpenEMR\\Common\\Auth\\MfaUtils\:\:checkU2F\(\) should return bool but return statement is missing\.$#'
     identifier: return.missing
     count: 1
