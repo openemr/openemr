@@ -17,7 +17,7 @@ use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\XmlRpc\Generator;
 use DOMDocument;
-use DOMXpath;
+use DOMXPath;
 use Document;
 use CouchDB;
 
@@ -172,7 +172,7 @@ class CcrTable extends AbstractTableGateway
         $res    = [];
         $xml    = new DOMDocument();
         $xml->loadXML($content);
-        $xpath  = new DOMXpath($xml);
+        $xpath  = new DOMXPath($xml);
         $rootNamespace = $xml->lookupNamespaceUri($xml->namespaceURI);
         $xpath->registerNamespace('x', $rootNamespace);
         foreach ($field_mapping as $skey => $sval) {
