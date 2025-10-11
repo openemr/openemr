@@ -400,10 +400,6 @@ parameters:
     identifier: property.notFound
     count: 1
     path: gacl/Cache_Lite/Lite.php
-  - message: '#^Function set_magic_quotes_runtime not found\.$#'
-    identifier: function.notFound
-    count: 2
-    path: gacl/Cache_Lite/Lite.php
   - message: '#^Method Cache_Lite\:\:_read\(\) invoked with 1 parameter, 0 required\.$#'
     identifier: arguments.count
     count: 1
