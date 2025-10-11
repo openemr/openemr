@@ -14,7 +14,6 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use http\Exception\InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -120,19 +119,6 @@ class FhirDocumentRestController
             );
             return $response;
         }
-    }
-
-    /**
-     * Adds a mime type handler that knows how to process and download the given mime type.
-     * @param $mimeType
-     * @param IDocumentDownloader $handler
-     */
-    public function addMimeTypeHandler($mimeType, IDocumentDownloader $handler)
-    {
-        if (!is_string($mimeType)) {
-            throw new InvalidArgumentException("invalid mime type");
-        }
-        $this->mimeTypeHandlers[$mimeType] = $handler;
     }
 
     private function findDocumentForDocumentId(string $documentId)
