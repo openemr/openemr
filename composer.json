@@ -138,7 +138,8 @@
         },
         "classmap": [
             "library/classes",
-            "gacl/Cache_Lite"
+            "gacl/Cache_Lite",
+            "controllers"
         ],
         "files": [
             "library/htmlspecialchars.inc.php",
