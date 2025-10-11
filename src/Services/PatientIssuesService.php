@@ -207,7 +207,7 @@ class PatientIssuesService extends BaseService
         return $record;
     }
 
-    public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues)
+    public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues, ?int $userCreatorId = null): void
     {
         $issues = array_combine($issues, $issues);
         $records = QueryUtils::fetchRecords("SELECT * FROM issue_encounter WHERE "
@@ -221,7 +221,7 @@ class PatientIssuesService extends BaseService
         }
         // now add any remaining issues
         foreach ($issues as $issue) {
-            $this->linkIssueToEncounter($pid, $encounter, $issue);
+            $this->linkIssueToEncounter($pid, $encounter, $issue, $userCreatorId);
         }
     }
 
@@ -230,19 +230,21 @@ class PatientIssuesService extends BaseService
      * @param string $pid The patient pid from patient_data.pid
      * @param string $encounter The encounter id from form_encounter.encounter
      * @param string $issueId The issue id from lists.id
+     * @param int|null $userCreatorId The user id of the user creating the linkage, defaults to the current user if null
      * @param int $resolved Optional resolved flag, defaults to 0 (whether the issue was resolved during this encounter)
      * @return string The UUID of the created linkage, or the uuid of the linkage if the linkage already exists
      */
-    public function linkIssueToEncounter(string $pid, string $encounter, string $issueId, int $resolved = 0): string
+    public function linkIssueToEncounter(string $pid, string $encounter, string $issueId, ?int $userCreatorId = null, int $resolved = 0): string
     {
         $uuid = QueryUtils::fetchSingleValue("SELECT uuid AS count FROM issue_encounter WHERE " .
             "pid = ? AND encounter = ? AND list_id = ?", 'uuid', [$pid, $encounter, $issueId]);
         if (!empty($uuid)) {
             return $uuid; // already connected
         }
+        $userCreatorId ??= $_SESSION['authUserID'];
         $uuid = UuidRegistry::getRegistryForTable("issue_encounter")->createUuid();
-        $query = "INSERT INTO issue_encounter ( `uuid`, pid, list_id, encounter, resolved) VALUES (?,?,?,?,?)";
-        QueryUtils::sqlInsert($query, [$uuid, $pid, $issueId, $encounter, $resolved]);
+        $query = "INSERT INTO issue_encounter ( `uuid`, pid, list_id, encounter, resolved, created_by, updated_by) VALUES (?,?,?,?,?,?,?)";
+        QueryUtils::sqlInsert($query, [$uuid, $pid, $issueId, $encounter, $resolved,$userCreatorId,$userCreatorId]);
         return $uuid;
     }
 
@@ -260,9 +262,10 @@ class PatientIssuesService extends BaseService
      * Replace all the patient encounter issues for a patient.
      * @param int $pid The patient pid from patient_data.pid
      * @param array $encountersByListId An associative array where the key is the issue id and the value is an array of encounter ids that need to be linked to the issue
+     * @param int|null $userCreatorId The user id of the user creating the linkages, defaults to the current user if null
      * @return void
      */
-    public function replacePatientEncounterIssues(int $pid, array $encountersByListId): void
+    public function replacePatientEncounterIssues(int $pid, array $encountersByListId, ?int $userCreatorId=null): void
     {
         // get all the issues
         // loop through each issue, if it has encounters in encountersByListId then call replaceIssuesForEncounter
@@ -286,7 +289,7 @@ class PatientIssuesService extends BaseService
         foreach ($encountersByListId as $listId => $encounters) {
             foreach ($encounters as $encounter) {
                 if (!empty($encounter)) {
-                    $this->linkIssueToEncounter($pid, $encounter, $listId);
+                    $this->linkIssueToEncounter($pid, $encounter, $listId, $userCreatorId);
                 }
             }
         }

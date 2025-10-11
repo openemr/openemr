@@ -805,7 +805,7 @@ class CdaTemplateImportDispose
                     $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
                     $res_sel_iss_enc = $appTable->zQuery($q_sel_iss_enc, [$pid, $list_id, $encounter_id]);
                     if ($res_sel_iss_enc->count() === 0) {
-                        $patientIssuesService->linkIssueToEncounter($pid, $encounter_id, $list_id, 0);
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter_id, $list_id,  $_SESSION['authUserID'], 0);
                     }
                 }
             }

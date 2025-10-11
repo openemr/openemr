@@ -87,7 +87,7 @@ function update_issues($pid, $encounter, $diags): void
             // We found a problem corresponding to this diagnosis
             $encounter_params[$idx_list_id] = $list_id;
             // link the issue, Idempotent if its already linked
-            $patientIssuesService->linkIssueToEncounter($pid, $encounter, $list_id);
+            $patientIssuesService->linkIssueToEncounter($pid, $encounter, $list_id, $_SESSION['authUserID']);
 
             // Check the description in the problem
             sqlStatement($sqlUpdateIssueDescription, [$diags->description,$list_id,$diags->description]);
@@ -101,7 +101,7 @@ function update_issues($pid, $encounter, $diags): void
                 if (sqlNumRows($newProblem) > 0) {
                     $list_id = $newProblem->fields['id'];
                     if ($list_id > 0) {
-                        $patientIssuesService->linkIssueToEncounter($pid, $list_id, $encounter);
+                        $patientIssuesService->linkIssueToEncounter($pid, $list_id, $encounter, $_SESSION['authUserID']);
                     }
                 }
 

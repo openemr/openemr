@@ -15,6 +15,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -71,7 +72,7 @@ trait FhirConditionTrait
             $category->value => [
                 'system' => FhirCodeSystemConstants::HL7_CONDITION_CATEGORY,
                 'code' => $category->value,
-                'display' => $category->display()->value
+                'description' => $category->display()->value
             ]
         ]));
     }
@@ -100,7 +101,7 @@ trait FhirConditionTrait
 
     protected function populateCode($dataRecord, FHIRCondition $conditionResource, string $defaultText)
     {
-        if (!empty($dataRecord['diagnosis'])) {
+        if (!empty($dataRecord['diagnosis']) && is_array($dataRecord['diagnosis'])) {
             $diagnosisCoding = new FHIRCoding();
             $diagnosisCode = new FHIRCodeableConcept();
 
@@ -138,7 +139,7 @@ trait FhirConditionTrait
             $clinicalStatus => [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-clinical",
                 'code' => $clinicalStatus,
-                'display' => ucwords($clinicalStatus),
+                'description' => ucwords($clinicalStatus),
             ]
         ]));
     }
@@ -150,7 +151,7 @@ trait FhirConditionTrait
             $verificationStatus => [
                 'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
                 'code' => $verificationStatus,
-                'display' => ucwords(str_replace('-', ' ', $verificationStatus)),
+                'description' => ucwords(str_replace('-', ' ', $verificationStatus)),
             ]
         ]));
     }
@@ -159,6 +160,15 @@ trait FhirConditionTrait
     {
         if (!empty($dataRecord['begdate'])) {
             $conditionResource->setOnsetDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate']));
+        }
+    }
+
+    protected function populateAssertedDate($dataRecord, FHIRCondition $conditionResource) {
+        if (!empty($dataRecord['date'])) { // created date
+            $fhirExtension = new FHIRExtension();
+            $fhirExtension->setUrl('http://hl7.org/fhir/StructureDefinition/condition-assertedDate');
+            $fhirExtension->setValueDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $conditionResource->addExtension($fhirExtension);
         }
     }
 

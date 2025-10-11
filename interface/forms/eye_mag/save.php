@@ -737,7 +737,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     // we always link them, automatically.
                     if ($encounter) {
                         $patientIssuesService = new PatientIssuesService();
-                        $patientIssuesService->linkIssueToEncounter($pid, $encounter, $issue);
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter, $issue, $_SESSION['authUserID']);
                     }
                 }
 

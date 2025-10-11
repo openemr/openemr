@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Fixtures;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\UserService;
 
 /**
  * Manages test fixtures for condition-related unit tests
@@ -26,6 +27,17 @@ class ConditionFixtureManager
 {
     private $createdRecords = [];
     private PatientIssuesService $patientIssuesService;
+
+    public function createTestUser(): array {
+        $sql = "INSERT INTO users (username, password, active, npi) VALUES (?, ?, ?, ?)";
+        $bind = ['testuser', 'NoLongerUsed', 1, '1234567890'];
+        $userId = QueryUtils::sqlInsert($sql, $bind);
+        $this->createdRecords['users'][] = [
+            'id' => $userId,
+            'username' => 'testuser',
+        ];
+        return ['id' => $userId, 'username' => 'testuser'];
+    }
 
     /**
      * Create a test patient record
@@ -143,10 +155,12 @@ class ConditionFixtureManager
     public function createTestEncounterCondition(array $patientData, array $encounterData, array $options = []): array
     {
         // Create the condition first
+        $testUser = $this->createTestUser();
         $conditionData = $this->createTestCondition($patientData, $options);
         $patientIssuesService = $this->getPatientIssuesService();
         // Link it to the encounter via issue_encounter table
-        $uuid = $patientIssuesService->linkIssueToEncounter($patientData['pid'], $encounterData['encounter'], $conditionData['id'], 0);
+        $uuid = $patientIssuesService->linkIssueToEncounter($patientData['pid'], $encounterData['encounter']
+            , $conditionData['id'], $testUser['id'], 0);
         $this->createdRecords['issue_encounters'][] = [
             'pid' => $patientData['pid'],
             'list_id' => $conditionData['id'],
@@ -214,6 +228,13 @@ class ConditionFixtureManager
                 foreach ($this->createdRecords['patients'] as $pid) {
                     $sql = "DELETE FROM patient_data WHERE pid = ?";
                     QueryUtils::sqlStatementThrowException($sql, [$pid]);
+                }
+            }
+            // Remove user records
+            if (isset($this->createdRecords['users'])) {
+                foreach ($this->createdRecords['users'] as $user) {
+                    $sql = "DELETE FROM users WHERE id = ?";
+                    QueryUtils::sqlStatementThrowException($sql, [$user['id']]);
                 }
             }
         } catch (\Exception $e) {

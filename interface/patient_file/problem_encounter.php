@@ -65,7 +65,7 @@ if (!empty($_POST['form_save'])) {
         }
         $encountersByListId[$list_id][] = $encounter;
     }
-    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId);
+    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId,  $_SESSION['authUserID']);
 
 
     echo "<html><body>"
