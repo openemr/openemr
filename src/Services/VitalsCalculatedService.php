@@ -179,9 +179,7 @@ class VitalsCalculatedService extends BaseService
 
         // Sort components by component_order for each record
         foreach ($groupedRecords as &$record) {
-            usort($record['components'], function ($a, $b) {
-                return $a['component_order'] <=> $b['component_order'];
-            });
+            usort($record['components'], fn($a, $b): int => $a['component_order'] <=> $b['component_order']);
         }
         return array_values($groupedRecords);
     }

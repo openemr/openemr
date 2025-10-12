@@ -41,19 +41,19 @@ class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
     public function onServicePostSaveEvent(ServiceSaveEvent $event, $eventName)
     {
         $service = $event->getService();
-        $serviceClass = get_class($service);
+        $serviceClass = $service::class;
         match ($serviceClass) {
             VitalsService::class => $this->createVitalCalculatedRecords($event->getSaveData()),
             default => null
         };
     }
-    public function createVitalCalculatedRecords(array $vitalRecord): void {
+    public function createVitalCalculatedRecords(array $vitalRecord): void
+    {
         try {
             $vitalRecord['encounter'] = intval($vitalRecord['eid'] ?? 0);
             $vitalCalculations = new VitalsCalculatedService();
             $vitalCalculations->saveCalculatedVitalsForRecord($vitalRecord);
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             (new SystemLogger())->errorLogCaller("Failed to save calculated record ", ['exception' => $exception->getMessage(),
                 'trace' => $exception->getTraceAsString(), 'form_vitals.id' => $vitalRecord['id']]);
         }
