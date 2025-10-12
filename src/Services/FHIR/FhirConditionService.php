@@ -56,7 +56,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     {
         parent::__construct();
         $this->addMappedService(new FhirConditionEncounterDiagnosisService());
-        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
+//        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
         $this->conditionService = new ConditionService();
     }
 
