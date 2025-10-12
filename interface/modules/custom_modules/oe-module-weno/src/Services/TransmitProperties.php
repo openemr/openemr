@@ -262,13 +262,33 @@ class TransmitProperties
      */
     private function getResponsibleParty(): mixed
     {
-        $guardian = <<<guardian
-select guardiansname as ResponsiblePartyLastName, guardiansname as ResponsiblePartyFirstName, guardianaddress as ResponsiblePartyAddressLine1, guardianpostalcode as ResponsiblePartyPostalCode, guardiancity as ResponsiblePartyCity, guardianstate as ResponsiblePartyState, guardianphone as ResponsiblePartyPrimaryPhone from patient_data where pid = ?;
-guardian;
+        $guardian = <<<SQL
+            SELECT guardiansname AS ResponsiblePartyLastName,
+                   guardiansname AS ResponsiblePartyFirstName,
+                   guardianaddress AS ResponsiblePartyAddressLine1,
+                   guardianpostalcode AS ResponsiblePartyPostalCode,
+                   guardiancity AS ResponsiblePartyCity,
+                   guardianstate AS ResponsiblePartyState,
+                   guardianphone AS ResponsiblePartyPrimaryPhone
+              FROM patient_data
+             WHERE pid = ?;
+        SQL;
 
-        $insurance = <<<insurance
-select subscriber_lname as ResponsiblePartyLastName, subscriber_fname as ResponsiblePartyFirstName, subscriber_street as ResponsiblePartyAddressLine1, subscriber_postal_code as ResponsiblePartyPostalCode, subscriber_city as ResponsiblePartyCity, subscriber_state as ResponsiblePartyState, subscriber_phone as ResponsiblePartyPrimaryPhone, subscriber_street_line_2 as ResponsiblePartyAddressLine2 from insurance_data where pid = ? and subscriber_relationship > '' and subscriber_relationship != 'self' and type = 'primary'
-insurance;
+        $insurance = <<<SQL
+        select subscriber_lname AS ResponsiblePartyLastName,
+               subscriber_fname AS ResponsiblePartyFirstName,
+               subscriber_street AS ResponsiblePartyAddressLine1,
+               subscriber_postal_code AS ResponsiblePartyPostalCode,
+               subscriber_city AS ResponsiblePartyCity,
+               subscriber_state AS ResponsiblePartyState,
+               subscriber_phone AS ResponsiblePartyPrimaryPhone,
+               subscriber_street_line_2 AS ResponsiblePartyAddressLine2
+          FROM insurance_data
+         WHERE pid = ?
+           AND subscriber_relationship > ''
+           AND subscriber_relationship != 'self'
+           AND type = 'primary'
+        SQL;
 
         $relation = sqlQuery($guardian, [$_SESSION['pid']]);
         // if no guardian then check for primary insurance subscriber
