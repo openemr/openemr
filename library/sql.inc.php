@@ -834,11 +834,7 @@ function getPrivDB()
  */
 function privStatement($sql, $params = null)
 {
-    if (is_array($params)) {
-        $recordset = getPrivDB()->ExecuteNoLog($sql, $params);
-    } else {
-        $recordset = getPrivDB()->ExecuteNoLog($sql);
-    }
+    $recordset = is_array($params) ? getPrivDB()->ExecuteNoLog($sql, $params) : getPrivDB()->ExecuteNoLog($sql);
 
     if ($recordset === false) {
         // These error messages are explictly NOT run through xl() because we still

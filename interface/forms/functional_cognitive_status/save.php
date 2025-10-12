@@ -40,11 +40,7 @@ if ($id && $id != 0) {
 } else {
     $res2 = sqlStatement("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
     $getMaxid = sqlFetchArray($res2);
-    if ($getMaxid['largestId']) {
-        $newid = $getMaxid['largestId'] + 1;
-    } else {
-        $newid = 1;
-    }
+    $newid = $getMaxid['largestId'] ? $getMaxid['largestId'] + 1 : 1;
 
     addForm($encounter, "Functional and Cognitive Status Form", $newid, "functional_cognitive_status", $_SESSION["pid"], $userauthorized);
 }

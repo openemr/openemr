@@ -634,11 +634,7 @@ abstract class AppDispatch
                 $mail->MsgHTML(text($htmlContent));
                 $mail->IsHTML(true);
             }
-            if ($mail->Send()) {
-                $status = xlt("Email successfully sent.");
-            } else {
-                $status = xlt("Error: Email failed") . text($mail->ErrorInfo);
-            }
+            $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $status = 'Error: ' . $message;
@@ -662,11 +658,7 @@ abstract class AppDispatch
     {
         // this is U.S. only. need E-164
         $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
-            $n = '+' . $n;
-        } else {
-            $n = '+1' . $n;
-        }
+        $n = stripos($n, '1') === 0 ? '+' . $n : '+1' . $n;
         return $n;
     }
 

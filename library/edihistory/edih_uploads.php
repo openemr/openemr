@@ -26,11 +26,7 @@ function edih_upload_reindex(array $_files, $top = true)
 
      $files = [];
     foreach ($_files as $name => $file) {
-        if ($top) {
-            $sub_name = $file['name'];
-        } else {
-            $sub_name = $name;
-        }
+        $sub_name = $top ? $file['name'] : $name;
 
         if (is_array($sub_name)) {
             foreach (array_keys($sub_name) as $key) {

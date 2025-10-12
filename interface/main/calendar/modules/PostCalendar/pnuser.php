@@ -403,18 +403,10 @@ function postcalendar_user_search()
         // the ajax_search form has form parameters for 'start' and 'end' already built in
         // so use them if available
         $tmpDate = pnVarCleanFromInput("start");
-        if (isset($tmpDate) && $tmpDate != "") {
-            $searchargs['start'] = pnVarCleanFromInput("start");
-        } else {
-            $searchargs['start'] = "//";
-        }
+        $searchargs['start'] = isset($tmpDate) && $tmpDate != "" ? pnVarCleanFromInput("start") : "//";
 
         $tmpDate = pnVarCleanFromInput("end");
-        if (isset($tmpDate) && $tmpDate != "") {
-            $searchargs['end'] = pnVarCleanFromInput("end");
-        } else {
-            $searchargs['end'] = "//";
-        }
+        $searchargs['end'] = isset($tmpDate) && $tmpDate != "" ? pnVarCleanFromInput("end") : "//";
 
         // we can limit our search by provider -- JRM March 2008
         if (isset($ProviderID) && $ProviderID != "") { // && $ProviderID != "_ALL_") {

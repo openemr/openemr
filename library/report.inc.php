@@ -410,7 +410,7 @@ function getRecEmployerData($pid)
             } else {
                 $curdate = $result["date"];
 
-                $arcount[$key] = $arcount[$key] ?? null;
+                $arcount[$key] ??= null;
                 if (empty($retar[$key][$arcount[$key]]["value"]) || ($retar[$key][$arcount[$key]]["value"] != $val)) {
                     $arcount[$key]++;
                     $retar[$key][$arcount[$key]]["value"] = $val;
@@ -439,7 +439,7 @@ function getRecPatientData($pid)
                 continue;
             } else {
                 $curdate = $result["date"];
-                $arcount[$key] = $arcount[$key] ?? null;
+                $arcount[$key] ??= null;
                 if (($retar[$key][$arcount[$key]]["value"] ?? '') != $val) {
                     $arcount[$key] = (!empty($arcount[$key])) ? ($arcount[$key] + 1) : 1;
                     $retar[$key][$arcount[$key]]["value"] = $val ?? '';
@@ -468,7 +468,7 @@ function getRecInsuranceData($pid, $ins_type)
                 continue;
             } else {
                 $curdate = $result["date"];
-                $arcount[$key] = $arcount[$key] ?? null;
+                $arcount[$key] ??= null;
                 if (($retar[$key][$arcount[$key]]["value"] ?? '') != $val) {
                     $arcount[$key] = (!empty($arcount[$key])) ? ($arcount[$key] + 1) : 1;
                     $retar[$key][$arcount[$key]]["value"] = $val ?? '';

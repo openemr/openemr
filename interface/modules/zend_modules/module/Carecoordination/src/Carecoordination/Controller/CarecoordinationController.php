@@ -185,11 +185,7 @@ class CarecoordinationController extends AbstractActionController
                     $why = xlt('Match DOB');
                 }
                 if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
-                    if ($f) {
-                        $why = xlt('Matched Demographic and DOB');
-                    } else {
-                        $why = xlt('Matched Demographic');
-                    }
+                    $why = $f ? xlt('Matched Demographic and DOB') : xlt('Matched Demographic');
                     if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
                         $why .= ' ' . xlt('with Mismatched Components');
                     }
@@ -452,11 +448,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($allergies_audit['lists2'] as $val) {
                         $severity_option_id = $this->getCarecoordinationTable()->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $val['severity_al']);
                         $severity_text = $this->getCarecoordinationTable()->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $val['severity_al']);
-                        if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                            $status = 'completed';
-                        } else {
-                            $status = 'active';
-                        }
+                        $status = $val['enddate'] != 0 && $val['enddate'] != '' ? 'completed' : 'active';
 
                         $temp .= '<tr class="narr_tr">
             <td>' . CommonPlugin::escape($val['list_code_text']) . '</td>
@@ -485,11 +477,7 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($medications_audit['lists3'] as $val) {
-                        if ($val['enddate'] && $val['enddate'] != 0) {
-                            $active = 'completed';
-                        } else {
-                            $active = 'active';
-                        }
+                        $active = $val['enddate'] && $val['enddate'] != 0 ? 'completed' : 'active';
 
                         $temp .= '<tr class="narr_tr">
                 <td>' . CommonPlugin::escape($val['drug_text']) . '</td>
@@ -512,11 +500,7 @@ class CarecoordinationController extends AbstractActionController
                     $temp .= '<div><ul>';
                     $i = 1;
                     foreach ($problems_audit['lists1'] as $val) {
-                        if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                            $status = 'Resolved';
-                        } else {
-                            $status = 'Active';
-                        }
+                        $status = $val['enddate'] != 0 && $val['enddate'] != '' ? 'Resolved' : 'Active';
 
                         $temp .= '<li>' . $i . '. ' . CommonPlugin::escape($val['list_code_text']) . ',' . substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2) . ', ' . Listener::z_xlt('Status') . ' :' . Listener::z_xlt($status) . '</li>';
                         $i++;
@@ -746,11 +730,7 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($encounter_audit['encounter'] as $val) {
-                        if (!empty($val['code_text'])) {
-                            $encounter_activity = 'Active';
-                        } else {
-                            $encounter_activity = '';
-                        }
+                        $encounter_activity = !empty($val['code_text']) ? 'Active' : '';
 
                         $enc_date = substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2);
                         $temp .= '<tr class="narr_tr">
@@ -825,11 +805,7 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                 foreach ($discharge_medication_audit['discharge_medication'] as $val) {
-                    if ($val['enddate'] && $val['enddate'] != 0) {
-                        $active = 'completed';
-                    } else {
-                        $active = 'active';
-                    }
+                    $active = $val['enddate'] && $val['enddate'] != 0 ? 'completed' : 'active';
 
                     $temp .= '<tr class="narr_tr">
                 <td>' . CommonPlugin::escape($val['drug_text']) . '</td>
@@ -923,7 +899,7 @@ class CarecoordinationController extends AbstractActionController
             } elseif ($componentCount == ($patientNameIndex + 1)) {
                 // if they have more than maxDocuments in ccd files we need to break out of someone trying to directory
                 // bomb the file system
-                $patientCountHash[$patientNameIndex] = $patientCountHash[$patientNameIndex] ?? 0;
+                $patientCountHash[$patientNameIndex] ??= 0;
 
                 // let's check for ccda
                 if ($patientCount > $maxPatients) {

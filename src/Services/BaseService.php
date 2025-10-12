@@ -159,11 +159,7 @@ class BaseService implements BaseServiceInterface
      */
     public function queryFields($map = null, $data = null)
     {
-        if ($data == null || $data == "*" || $data == "all") {
-            $value = "*";
-        } else {
-            $value = implode(", ", $data);
-        }
+        $value = $data == null || $data == "*" || $data == "all" ? "*" : implode(", ", $data);
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
     }
@@ -284,11 +280,7 @@ class BaseService implements BaseServiceInterface
             }
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-                if (empty($value) && (str_contains($key, 'date'))) {
-                    $bind[] = null;
-                } else {
-                    $bind[] = $value;
-                }
+                $bind[] = empty($value) && str_contains($key, 'date') ? null : $value;
             }
         }
 

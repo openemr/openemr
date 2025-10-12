@@ -43,17 +43,9 @@ function oeFormatTime($time, $format = "global", $seconds = false)
 
 
     if ($format == 1) {
-        if ($seconds) {
-            $formatted = date("g:i:s a", strtotime($time));
-        } else {
-            $formatted = date("g:i a", strtotime($time));
-        }
+        $formatted = $seconds ? date("g:i:s a", strtotime($time)) : date("g:i a", strtotime($time));
     } else { // ($format == 0)
-        if ($seconds) {
-            $formatted = date("H:i:s", strtotime($time));
-        } else {
-            $formatted = date("H:i", strtotime($time));
-        }
+        $formatted = $seconds ? date("H:i:s", strtotime($time)) : date("H:i", strtotime($time));
     }
 
     return $formatted;

@@ -245,11 +245,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_care_plan`");
         foreach ($res as $val) {
-            if ($val['largestId']) {
-                $newid = $val['largestId'] + 1;
-            } else {
-                $newid = 1;
-            }
+            $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
 
         foreach ($care_plan_array as $value) {
@@ -283,11 +279,7 @@ class CdaTemplateImportDispose
                 if (!isset($forms_encounters[$encounter_for_forms])) {
                     $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_care_plan`");
                     foreach ($res as $val) {
-                        if ($val['largestId']) {
-                            $newid = $val['largestId'] + 1;
-                        } else {
-                            $newid = 1;
-                        }
+                        $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
                     }
                 } else {
                     $newid = $forms_encounters[$encounter_for_forms]['form_id'];
@@ -327,11 +319,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(form_id) as largestId FROM `form_clinical_notes`");
         foreach ($res as $val) {
-            if ($val['largestId']) {
-                $newid = $val['largestId'] + 1;
-            } else {
-                $newid = 1;
-            }
+            $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
         foreach ($clinical_note_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
@@ -599,7 +587,7 @@ class CdaTemplateImportDispose
         foreach ($enc_array as $value) {
             $encounter_id = $appTable->generateSequenceID();
 
-            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, [$value['provider_npi'], $value['provider_name'], $value['provider_family']]);
@@ -841,7 +829,7 @@ class CdaTemplateImportDispose
 
         foreach ($imm_array as $value) {
             //provider
-            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, [$value['provider_npi'], $value['provider_name'], $value['provider_family']]);
@@ -1130,7 +1118,7 @@ class CdaTemplateImportDispose
                 $value['begdate'] = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             }
 
-            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_fname']) && !empty($value['provider_lname']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, [$value['provider_npi'], $value['provider_fname'], $value['provider_lname']]);
@@ -1616,7 +1604,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         foreach ($lab_results as $value) {
             $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
-            $value['proc_text'] = $value['proc_text'] ?? (xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date'])));
+            $value['proc_text'] ??= xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date']));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
             $result_pro = $appTable->zQuery($query_select_pro, [$pro_name]);
             if ($result_pro->count() == 0) {
@@ -1725,19 +1713,11 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
         foreach ($res as $val) {
-            if ($val['largestId']) {
-                $newid = $val['largestId'] + 1;
-            } else {
-                $newid = 1;
-            }
+            $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
 
         foreach ($functional_cognitive_status_array as $value) {
-            if ($value['date'] != '') {
-                $date = $carecoordinationTable->formatDate($value['date']);
-            } else {
-                $date = date('Y-m-d');
-            }
+            $date = $value['date'] != '' ? $carecoordinationTable->formatDate($value['date']) : date('Y-m-d');
 
             $query_sel_enc = "SELECT encounter
                             FROM form_encounter
@@ -1777,11 +1757,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
         foreach ($res as $val) {
-            if ($val['largestId']) {
-                $newid = $val['largestId'] + 1;
-            } else {
-                $newid = 1;
-            }
+            $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
         foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
@@ -1814,11 +1790,7 @@ class CdaTemplateImportDispose
                 if (!isset($forms_encounters[$encounter_for_forms])) {
                     $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
                     foreach ($res as $val) {
-                        if ($val['largestId']) {
-                            $newid = $val['largestId'] + 1;
-                        } else {
-                            $newid = 1;
-                        }
+                        $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
                     }
                 } else {
                     $newid = $forms_encounters[$encounter_for_forms]['form_id'];
@@ -2097,11 +2069,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery('SELECT MAX(form_id) as largestId FROM `form_observation`');
         foreach ($res as $val) {
-            if ($val['largestId']) {
-                $newid = $val['largestId'] + 1;
-            } else {
-                $newid = 1;
-            }
+            $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
 
         foreach ($observation_preformed_array as $key => $value) {

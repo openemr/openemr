@@ -16,7 +16,7 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Services\Search\SearchFieldType;
 
-class CompositeSearchField implements ISearchField
+class CompositeSearchField implements ISearchField, \Stringable
 {
     /**
      * @var string
@@ -120,7 +120,7 @@ class CompositeSearchField implements ISearchField
      * Useful for debugging, you can echo the object to see its values.
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $values = $this->getValues ?? [];
         $children = $this->getChildren() ?? [];

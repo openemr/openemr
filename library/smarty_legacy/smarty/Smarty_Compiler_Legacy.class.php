@@ -951,11 +951,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             return $this->_syntax_error("'insert: 'name' must be an insert function name", E_USER_ERROR, __FILE__, __LINE__);
         }
 
-        if (!empty($attrs['script'])) {
-            $delayed_loading = true;
-        } else {
-            $delayed_loading = false;
-        }
+        $delayed_loading = !empty($attrs['script']) ? true : false;
 
         foreach ($attrs as $arg_name => $arg_value) {
             if (is_bool($arg_value))
@@ -1195,11 +1191,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $key_part = '';
         }
 
-        if (isset($attrs['name'])) {
-            $name = $attrs['name'];
-        } else {
-            $name = null;
-        }
+        $name = $attrs['name'] ?? null;
 
         $output = '<?php ';
         $output .= "\$_from = $from; if ((\$_from instanceof StdClass) || (!is_array(\$_from) && !is_object(\$_from))) { settype(\$_from, 'array'); }";
@@ -1761,10 +1753,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         }
 
         // prevent cutting of first digit in the number (we _definitly_ got a number if the first char is a digit)
-        if(is_numeric(substr($var_expr, 0, 1)))
-            $_var_ref = $var_expr;
-        else
-            $_var_ref = substr($var_expr, 1);
+        $_var_ref = is_numeric(substr($var_expr, 0, 1)) ? $var_expr : substr($var_expr, 1);
 
         if(!$_has_math) {
 
@@ -1961,10 +1950,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     $_modifier_args[0] = '@' . $_modifier_args[0];
                 }
             }
-            if (count($_modifier_args) > 0)
-                $_modifier_args = ', '.implode(', ', $_modifier_args);
-            else
-                $_modifier_args = '';
+            $_modifier_args = count($_modifier_args) > 0 ? ', '.implode(', ', $_modifier_args) : '';
 
             if ($_map_array) {
                 $output = "((is_array(\$_tmp=$output)) ? \$this->_run_mod_handler('$_modifier_name', true, \$_tmp$_modifier_args) : " . $this->_compile_plugin_call('modifier', $_modifier_name) . "(\$_tmp$_modifier_args))";

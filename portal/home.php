@@ -122,11 +122,7 @@ if ($appts) {
             }
         }
 
-        if ($row['pc_hometext'] != '') {
-            $etitle = xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n";
-        } else {
-            $etitle = '';
-        }
+        $etitle = $row['pc_hometext'] != '' ? xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n" : '';
 
         $formattedRecord = [
             'appointmentDate' => $dayname . ', ' . oeFormatShortDate($row['pc_eventDate']) . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
@@ -160,11 +156,7 @@ if ($past_appts) {
             }
         }
 
-        if ($row['pc_hometext'] != '') {
-            $etitle = xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n";
-        } else {
-            $etitle = '';
-        }
+        $etitle = $row['pc_hometext'] != '' ? xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n" : '';
 
         $formattedRecord = [
             'appointmentDate' => $dayname . ', ' . oeFormatShortDate($row['pc_eventDate']) . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,

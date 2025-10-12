@@ -206,11 +206,7 @@ function getAttendanceStatus($status)
 function largest_id_plus_one($table)
 {
     $maxId = largest_id($table);
-    if ($maxId) {
-        $newid = $maxId + 1;
-    } else {
-        $newid = 1;
-    }
+    $newid = $maxId ? $maxId + 1 : 1;
 
     return $newid;
 }

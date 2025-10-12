@@ -30,23 +30,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-if (!empty($_POST['showOnlyWithCount'])) {
-    $showOnlyWithCount = true;
-} else {
-    $showOnlyWithCount = false;
-}
+$showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;
 
-if (!empty($_POST['showOnlyManuallyBlocked'])) {
-    $showOnlyManuallyBlocked = true;
-} else {
-    $showOnlyManuallyBlocked = false;
-}
+$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']) ? true : false;
 
-if (!empty($_POST['showOnlyAutoBlocked'])) {
-    $showOnlyAutoBlocked = true;
-} else {
-    $showOnlyAutoBlocked = false;
-}
+$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
 
 ?>
 <html>

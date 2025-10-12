@@ -131,11 +131,7 @@ class QrdaReportController
         $pids = is_array($pids) ? $pids : [$pids];
         if (!$bypid) {
             foreach ($measures as $measure) {
-                if (is_array($measure)) {
-                    $dir_measure = $measure['measure_id'];
-                } else {
-                    $dir_measure = $measure;
-                }
+                $dir_measure = is_array($measure) ? $measure['measure_id'] : $measure;
                 $measure_directory = $zip_directory . "/" . $dir_measure;
                 $local_directory = $directory . "/" . $dir_measure;
                 if (!is_dir($measure_directory)) {
@@ -296,11 +292,7 @@ class QrdaReportController
 
         // Generate files for each measure
         foreach ($measures as $measure) {
-            if (is_array($measure)) {
-                $measure_id = $measure['measure_id'];
-            } else {
-                $measure_id = $measure;
-            }
+            $measure_id = is_array($measure) ? $measure['measure_id'] : $measure;
 
             $xml = $this->getCategoryIIIReport($pids, $measure_id, $options);
 
@@ -334,11 +326,7 @@ class QrdaReportController
         // Create zip filename
         $zip_measure = 'measures';
         if (count($measures) === 1) {
-            if (is_array($measures[0])) {
-                $zip_measure = $measures[0]['measure_id'];
-            } else {
-                $zip_measure = $measures[0];
-            }
+            $zip_measure = is_array($measures[0]) ? $measures[0]['measure_id'] : $measures[0];
         }
         $zip_name = "QRDA3_" . $zip_measure . "_" . time() . ".zip";
         $zip_path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $zip_name;

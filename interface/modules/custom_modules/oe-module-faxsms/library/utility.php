@@ -63,11 +63,7 @@ if ($_POST['form_create'] ?? null) {
     if ($pid == null) {
         $pid = 0;
     }
-    if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
-        $mypubpid = $_POST["pubpid"] ?? '';
-    } else {
-        $mypubpid = $pid;
-    }
+    $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));
     $form_lname = ucwords(trim($_POST["lname"] ?? ''));

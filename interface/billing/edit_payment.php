@@ -627,11 +627,7 @@ $ResultSearchSub = sqlStatement(
         }
         ?>
         <?php
-        if (empty($payment_id)) {
-            $onclick = "top.restoreSession();return SavePayment();";
-        } else {
-            $onclick = "return false;";
-        }
+        $onclick = empty($payment_id) ? "top.restoreSession();return SavePayment();" : "return false;";
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
             <?php
@@ -730,11 +726,7 @@ $ResultSearchSub = sqlStatement(
                                     $Codetype = $RowSearch['code_type'];
                                     $Code = $RowSearch['code'];
                                     $Modifier = $RowSearch['modifier'];
-                                    if ($Modifier != '') {
-                                        $ModifierString = ", $Modifier";
-                                    } else {
-                                        $ModifierString = "";
-                                    }
+                                    $ModifierString = $Modifier != '' ? ", $Modifier" : "";
                                     $Fee = $RowSearch['fee'];
                                     $Encounter = $RowSearch['encounter'];
 
@@ -937,11 +929,7 @@ $ResultSearchSub = sqlStatement(
                                     $rowPayment = sqlFetchArray($resPayment);
                                     $ReasonCodeDB = $rowPayment['reason_code'];
 
-                                    if ($Ins == 1) {
-                                        $AllowedDB = number_format($Fee - floatval($AdjAmountDB), 2);
-                                    } else {
-                                        $AllowedDB = 0;
-                                    }
+                                    $AllowedDB = $Ins == 1 ? number_format($Fee - floatval($AdjAmountDB), 2) : 0;
 
                                     if ($Ins == 1) {
                                         $bgcolor = '#ddddff';

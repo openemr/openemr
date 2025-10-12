@@ -42,11 +42,7 @@ class FileUpload
     {
         $sxo = new SimpleXMLElement($xml);
 
-        if ($sxo->encoding == "base64") {
-            $this->Data = base64_decode($sxo->data);
-        } else {
-            $this->Data = $sxo->data;
-        }
+        $this->Data = $sxo->encoding == "base64" ? base64_decode($sxo->data) : $sxo->data;
 
         $this->Name = $attachment->name;
         $this->Type = $attachment->type;

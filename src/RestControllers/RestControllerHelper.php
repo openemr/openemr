@@ -453,11 +453,7 @@ class RestControllerHelper
 
         // now setup our interaction types
         if (strcmp($reqMethod, "GET") == 0) {
-            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
-                $code = "read";
-            } else {
-                $code = "search-type";
-            }
+            $code = !empty(preg_match('/:/', $items[$numberItems - 1])) ? "read" : "search-type";
         } elseif (strcmp($reqMethod, "POST") == 0) {
             $code = "create";
         } elseif (strcmp($reqMethod, "PUT") == 0) {

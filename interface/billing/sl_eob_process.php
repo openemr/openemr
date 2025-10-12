@@ -172,11 +172,7 @@ function era_callback_check(&$out): void
         $StringToEcho .= "<tbody>";
         $WarningFlag = false;
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
-            if ($check_count % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $check_count % 2 == 1 ? '#ddddff' : '#ffdddd';
 
             $rs = sqlQ("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
 

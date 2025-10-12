@@ -244,11 +244,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
     private function getRuleBeginDateForPatient(AmcPatient $patient)
     {
-        if (empty($this->_beginMeasurement)) {
-            $tempBeginMeasurement = $patient->dob;
-        } else {
-            $tempBeginMeasurement = $this->_beginMeasurement;
-        }
+        $tempBeginMeasurement = empty($this->_beginMeasurement) ? $patient->dob : $this->_beginMeasurement;
         return $tempBeginMeasurement;
     }
 

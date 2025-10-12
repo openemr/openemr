@@ -475,11 +475,7 @@ if (
             #If you use the field in demographics layout called
             #guardiansname this will allow you to send statements to the parent
             #of a child or a guardian etc
-            if (empty($row['guardiansname'])) {
-                $stmt['to'] = [$row['fname'] . ' ' . $row['lname']];
-            } else {
-                $stmt['to'] = [$row['guardiansname']];
-            }
+            $stmt['to'] = empty($row['guardiansname']) ? [$row['fname'] . ' ' . $row['lname']] : [$row['guardiansname']];
 
             if ($row['street']) {
                 $stmt['to'][] = $row['street'];

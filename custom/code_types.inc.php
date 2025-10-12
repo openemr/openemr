@@ -527,11 +527,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
     }
 
     if ($form_code_type == 'PROD') { // Search for products/drugs
-        if ($count) {
-            $query = "SELECT count(dt.drug_id) as count ";
-        } else {
-            $query = "SELECT dt.drug_id, dt.selector, d.name ";
-        }
+        $query = $count ? "SELECT count(dt.drug_id) as count " : "SELECT dt.drug_id, dt.selector, d.name ";
 
          $query .= "FROM drug_templates AS dt, drugs AS d WHERE " .
                  "( d.name LIKE ? OR " .

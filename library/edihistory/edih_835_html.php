@@ -540,11 +540,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $nm1_str = "";
                 //
                 if (isset($sar[1]) && $sar[1]) {
-                    if (strpos('|IL|QC|72', $sar[1])) {
-                        $cls = 'sbr';
-                    } else {
-                        $cls = 'clp';
-                    }
+                    $cls = strpos('|IL|QC|72', $sar[1]) ? 'sbr' : 'clp';
 
                     $descr = $cd27x->get_271_code('NM101', $sar[1]);
                 } else {

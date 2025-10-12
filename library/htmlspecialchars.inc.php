@@ -180,11 +180,7 @@ function textArray(array $arr, $depth = 0)
 
     $newArray = [];
     foreach ($arr as $key => $value) {
-        if (is_array($value)) {
-            $newArray[text($key)] = textArray($value, $depth + 1);
-        } else {
-            $newArray[text($key)] = text($value);
-        }
+        $newArray[text($key)] = is_array($value) ? textArray($value, $depth + 1) : text($value);
     }
     return $newArray;
 }

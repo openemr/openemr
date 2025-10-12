@@ -83,24 +83,12 @@ class UuidRegistry
     public function __construct($associations = [])
     {
         $this->table_name = $associations['table_name'] ?? '';
-        if (!empty($this->table_name)) {
-            $this->table_id = $associations['table_id'] ?? 'id';
-        } else {
-            $this->table_id = '';
-        }
+        $this->table_id = !empty($this->table_name) ? $associations['table_id'] ?? 'id' : '';
         $this->table_vertical = $associations['table_vertical'] ?? false;
         $this->disable_tracker = $associations['disable_tracker'] ?? false;
         $this->couchdb = $associations['couchdb'] ?? '';
-        if (!empty($associations['document_drive']) && $associations['document_drive'] === true) {
-            $this->document_drive = 1;
-        } else {
-            $this->document_drive = 0;
-        }
-        if (!empty($associations['mapped']) && $associations['mapped'] === true) {
-            $this->mapped = 1;
-        } else {
-            $this->mapped = 0;
-        }
+        $this->document_drive = !empty($associations['document_drive']) && $associations['document_drive'] === true ? 1 : 0;
+        $this->mapped = !empty($associations['mapped']) && $associations['mapped'] === true ? 1 : 0;
     }
 
     /**

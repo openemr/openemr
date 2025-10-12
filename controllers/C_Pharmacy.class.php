@@ -66,11 +66,7 @@ class C_Pharmacy extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->pharmacies[0] = new Pharmacy($_POST['id']);
-        } else {
-            $this->pharmacies[0] = new Pharmacy();
-        }
+        $this->pharmacies[0] = is_numeric($_POST['id']) ? new Pharmacy($_POST['id']) : new Pharmacy();
 
         parent::populate_object($this->pharmacies[0]);
         //print_r($this->pharmacies[0]);

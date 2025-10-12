@@ -163,11 +163,7 @@ class EDI270
             $NM1[6] = "";                       // Data Element not required.
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "PI";                     // 5010 no longer uses "46"
-            if ($GLOBALS['enable_eligibility_requests']) {
-                $payerId = $row['eligibility_id'];
-            } else {
-                $payerId = $row['cms_id'];
-            }
+            $payerId = $GLOBALS['enable_eligibility_requests'] ? $row['eligibility_id'] : $row['cms_id'];
             $NM1[9] = $payerId; // Application Sender's ID
         } elseif ($nm1Cast == 'FA') {
             $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]

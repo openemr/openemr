@@ -84,11 +84,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     //Gets validation rules from Page Validation list.
     //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
     $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
-    if (empty($collectthis)) {
-         $collectthis = "undefined";
-    } else {
-         $collectthis = json_sanitize($collectthis["new-encounter-form"]["rules"]);
-    }
+    $collectthis = empty($collectthis) ? "undefined" : json_sanitize($collectthis["new-encounter-form"]["rules"]);
     ?>
  var collectvalidation = <?php echo $collectthis; ?>;
  $(function () {

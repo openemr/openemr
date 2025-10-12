@@ -63,6 +63,7 @@ jobs:
             selenium_template=$(yq '.x-includes.selenium-template' "ci/${docker_dir}/docker-compose.yml")
             webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
             database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
+            mailpit_template=$(yq '.x-includes.mailpit-template' "ci/${docker_dir}/docker-compose.yml")
 
             # If docker_dir ends with "_no-e2e", we want to skip the e2e tests for this configuration.
             [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
@@ -102,6 +103,7 @@ jobs:
                 "db": "%s",
                 "docker_dir": "%s",
                 "e2e_enabled": "%s",
+                "mailpit_template": "%s",
                 "node_version": "%s",
                 "openemr_dir": "%s",
                 "php": "%s",
@@ -115,6 +117,7 @@ jobs:
                  "$db" \
                  "$docker_dir" \
                  "$e2e_enabled" \
+                 "$mailpit_template" \
                  "$node_version" \
                  "$openemr_dir" \
                  "$php" \
@@ -142,7 +145,7 @@ jobs:
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
       # Note that the first entry in the COMPOSE_FILE needs to be in ci/ (if it has a subdirectory then it breaks things)
-      COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
+      COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.mailpit_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
     - name: Checkout Code
       uses: actions/checkout@v5
@@ -310,6 +313,12 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ steps.collect-junit-files.outputs.files }}
 
+    - name: Email testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test email
+
     - name: Upload JUnit test results
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
       uses: actions/upload-artifact@v4
@@ -317,27 +326,37 @@ jobs:
         name: junit-test-results-${{ matrix.configurations.docker_dir }}
         path: junit-*.xml
 
+    - name: Upload Email test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
     - name: Combine coverage
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
       run: |
         . ci/ciLibrary.source
         merge_coverage
+
     - name: Check if coverage files exist
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
       id: check-files
       run: |
         echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
         echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
     - uses: actions/upload-artifact@v4
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
+
     - uses: actions/upload-artifact@v4
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
       with:
         name: htmlcov
         path: ./htmlcov/
+
     - name: Upload coverage reports to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
       uses: codecov/codecov-action@v5

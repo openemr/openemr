@@ -1459,11 +1459,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
             $str = $unit . " " . Listener::z_xlt($row['route']) . " " . $row['dosage'] . " " . Listener::z_xlt($row['form'] . " " . $row['interval']);
 
-            if ($row['active'] > 0) {
-                $active = 'active';
-            } else {
-                $active = 'completed';
-            }
+            $active = $row['active'] > 0 ? 'active' : 'completed';
 
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
@@ -2071,11 +2067,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $code_type = str_replace('-', ' ', $tmp[0]);
 
                     $encounter_activity = '';
-                    if ($issue['enddate'] !== '') {
-                        $encounter_activity = 'Completed';
-                    } else {
-                        $encounter_activity = 'Active';
-                    }
+                    $encounter_activity = $issue['enddate'] !== '' ? 'Completed' : 'Active';
                     $issue_ext = base64_encode($_SESSION['site_id'] . $issue['list_id']);
                     $issue_codes .= "
                     <problem>
@@ -3647,7 +3639,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $content = base64_decode($content);
         $document = new \Document();
-        $document_type = $document_type ?? '';
+        $document_type ??= '';
 
         // we need to populate the category id based upon the document_type
         // TOC -> CCDA folder

@@ -357,11 +357,7 @@ class Events extends Base
                 if (($today == "Sunday") || ($today == "Saturday")) {
                     continue;
                 }
-                if ($today == "Friday") {
-                    $timing2 = ($timing + 3) . ":0:1";
-                } else {
-                    $timing2 = ($timing + 1) . ":1:1";
-                }
+                $timing2 = $today == "Friday" ? ($timing + 3) . ":0:1" : ($timing + 1) . ":1:1";
 
                 if (!empty($prefs['ME_facilities'])) {
                     $places = str_replace("|", ",", $prefs['ME_facilities']);
@@ -439,11 +435,7 @@ class Events extends Base
                     }
                 }
             } elseif ($event['M_group'] == 'RECALL') {
-                if ($event['time_order'] > '0') {
-                    $interval = "+";
-                } else {
-                    $interval = '-';
-                }
+                $interval = $event['time_order'] > '0' ? "+" : '-';
                 $timing = $event['E_fire_time'];
 
                 $query  = "SELECT * FROM medex_recalls AS recall

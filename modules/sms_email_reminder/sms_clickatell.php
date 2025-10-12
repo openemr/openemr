@@ -179,22 +179,14 @@ class sms
             }
 
             /* Does message need to be concatenate */
-            if (mb_strlen($text) > 70) {
-                $concat = "&concat=3";
-            } else {
-                $concat = "";
-            }
+            $concat = mb_strlen($text) > 70 ? "&concat=3" : "";
         } else {
             if (strlen($text) > 459) {
                 die("Your message is too long! (Current lenght=" . strlen($text) . ")");
             }
 
             /* Does message need to be concatenate */
-            if (strlen($text) > 160) {
-                $concat = "&concat=3";
-            } else {
-                $concat = "";
-            }
+            $concat = strlen($text) > 160 ? "&concat=3" : "";
         }
 
         /* Check $to and $from is not empty */

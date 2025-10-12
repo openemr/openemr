@@ -414,6 +414,7 @@ class ProcedureService extends BaseService
                     ,condition_code
                     ,specimen_condition
                     ,comments AS specimen_comments
+                    ,deleted
                 FROM procedure_specimen
                 WHERE procedure_order_id = ? AND procedure_order_seq = ?
                 ORDER BY procedure_specimen_id";
@@ -440,6 +441,7 @@ class ProcedureService extends BaseService
                             ,'condition_code' => $specimenRow['condition_code']
                             ,'specimen_condition' => $specimenRow['specimen_condition']
                             ,'comments' => $specimenRow['specimen_comments']
+                            ,'deleted' => $specimenRow['deleted']
                         ];
                     }
 
@@ -481,7 +483,7 @@ class ProcedureService extends BaseService
                JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id
                     AND pr.`procedure_order_seq`=poc.`procedure_order_seq`
                JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
-               WHERE po.`patient_id` = ? AND prs.`result` NOT IN ('DNR','TNP') AND po.`activity` = '1' ";// active orders only
+               WHERE po.`patient_id` = ? AND prs.`result` NOT IN ('DNR','TNP')";// active orders only
     }
 
     /**
@@ -667,7 +669,7 @@ class ProcedureService extends BaseService
                 ON encounter.encounter = porder.encounter_id
                 LEFT JOIN users AS practitioner
                 ON practitioner.id = porder.provider_id
-                WHERE porder.activity = '1' AND porder.uuid = ?";
+                WHERE porder.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlBindArray = [$uuidBinary];

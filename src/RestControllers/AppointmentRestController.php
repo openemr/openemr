@@ -50,11 +50,7 @@ class AppointmentRestController
     {
         $patientService = new PatientService();
         $result = ProcessingResult::extractDataArray($patientService->getOne($puuid));
-        if (!empty($result)) {
-            $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
-        } else {
-            $serviceResult = [];
-        }
+        $serviceResult = !empty($result) ? $this->appointmentService->getAppointmentsForPatient($result[0]['pid']) : [];
 
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }

@@ -271,11 +271,7 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument = new OnsiteDocument($this->Phreezer);
 
             // only allow patient to add to themselves
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
-            } else {
-                $onsitedocument->Pid = $this->SafeGetVal($json, 'pid');
-            }
+            $onsitedocument->Pid = !empty($GLOBALS['bootstrap_pid']) ? $GLOBALS['bootstrap_pid'] : $this->SafeGetVal($json, 'pid');
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');

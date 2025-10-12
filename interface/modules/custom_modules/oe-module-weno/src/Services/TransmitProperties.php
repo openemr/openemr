@@ -75,11 +75,7 @@ class TransmitProperties
         $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
         $this->provider_pass = $this->getProviderPassword();
-        if (!empty($this->wenoLocation)) {
-            $this->locid = $this->getFacilityForWenoId();
-        } else {
-            $this->locid = $this->getFacilityInfo();
-        }
+        $this->locid = !empty($this->wenoLocation) ? $this->getFacilityForWenoId() : $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
         // check if patient is under 19 years old
@@ -202,11 +198,7 @@ class TransmitProperties
     {
         //default is testing mode
         $testing = isset($GLOBALS['weno_rx_enable_test']);
-        if ($testing) {
-            $mode = 'Y';
-        } else {
-            $mode = 'N';
-        }
+        $mode = $testing ? 'Y' : 'N';
         $gender = $this->patient['sex'];
         $heightDate = explode(" ", $this->vitals['date'] ?? '');
         $phonePrimary = $this->formatPhoneNumber($this->patient['phone_cell']);
@@ -437,11 +429,7 @@ insurance;
      */
     public static function echoError($errors): void
     {
-        if (is_array($errors)) {
-            $error = $errors['errors'] . $errors['warnings'] . $errors['info'];
-        } else {
-            $error = $errors;
-        }
+        $error = is_array($errors) ? $errors['errors'] . $errors['warnings'] . $errors['info'] : $errors;
         $log = self::styleErrors($error);
         echo($log);
     }
@@ -512,7 +500,7 @@ insurance;
     private function getSubscriber(): mixed
     {
         $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
-        $relation = $relation ?? ['subscriber_relationship' => ''];
+        $relation ??= ['subscriber_relationship' => ''];
 
         return $relation['subscriber_relationship'] ?? '';
     }
@@ -547,7 +535,7 @@ insurance;
     public function getProviderName(): string
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
-        $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
 
@@ -557,7 +545,7 @@ insurance;
     public function getPatientName(): string
     {
         $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
-        $patient_info = $patient_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $patient_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 

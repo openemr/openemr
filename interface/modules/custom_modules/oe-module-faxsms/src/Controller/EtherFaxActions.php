@@ -763,7 +763,7 @@ class EtherFaxActions extends AppDispatch
         $fax = $this->fetchFaxFromQueue($docId);
         $mime = $fax->DocumentParams->Type;
         $ext = $mime == 'application/pdf' ? '.pdf' : ($mime == 'image/tiff' || $mime == 'image/tif' ? '.tiff' : '.txt');
-        $fileName = $fileName ?? xlt("fax") . '_' . text($docId) . $ext;
+        $fileName ??= xlt("fax") . '_' . text($docId) . $ext;
         $content = base64_decode($fax->FaxImage);
         $document = new Document();
 

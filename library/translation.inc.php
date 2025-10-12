@@ -17,11 +17,7 @@ if (!(function_exists('xl'))) {
         }
 
         // set language id
-        if (!empty($_SESSION['language_choice'])) {
-             $lang_id = $_SESSION['language_choice'];
-        } else {
-             $lang_id = 1;
-        }
+        $lang_id = !empty($_SESSION['language_choice']) ? $_SESSION['language_choice'] : 1;
 
         // TRANSLATE
         // first, clean lines
@@ -211,11 +207,7 @@ function getLanguageTitle($val)
 {
 
  // validate language id
-    if (!empty($val)) {
-         $lang_id = $val;
-    } else {
-         $lang_id = 1;
-    }
+    $lang_id = !empty($val) ? $val : 1;
 
  // get language title
     $res = sqlStatement("select lang_description from lang_languages where lang_id =?", [$lang_id]);

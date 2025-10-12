@@ -34,35 +34,15 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 
 //global variables:
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -85,52 +65,24 @@ if (!isset($_GET["mode"])) {
 <br />
 
 <?php
-if ($my_authorized === 'on') {
-    $my_authorized = true;
-} else {
-    $my_authorized = '%';
-}
+$my_authorized = $my_authorized === 'on' ? true : '%';
 
-if ($unbilled === 'on') {
-    $unbilled = '0';
-} else {
-    $unbilled = '%';
-}
+$unbilled = $unbilled === 'on' ? '0' : '%';
 
 if ($code_type === 'all') {
     $code_type = '%';
 }
 
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -139,17 +91,9 @@ if (!isset($_GET["mode"])) {
     $my_authorized = $_GET["authorized"];
 }
 
-if ($my_authorized === 'on') {
-    $my_authorized = true;
-} else {
-    $my_authorized = '%';
-}
+$my_authorized = $my_authorized === 'on' ? true : '%';
 
-if ($unbilled === 'on') {
-    $unbilled = '0';
-} else {
-    $unbilled = '%';
-}
+$unbilled = $unbilled === 'on' ? '0' : '%';
 
 if ($code_type === 'all') {
     $code_type = '%';

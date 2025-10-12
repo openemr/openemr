@@ -918,11 +918,7 @@ class Document extends ORDataObject
             $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
-            if (!is_null($tmpfile)) {
-                $has_thumbnail = $thumbnail_class->file_support_thumbnail($tmpfile);
-            } else {
-                $has_thumbnail = false;
-            }
+            $has_thumbnail = !is_null($tmpfile) ? $thumbnail_class->file_support_thumbnail($tmpfile) : false;
 
             if ($has_thumbnail) {
                 $thumbnail_resource = $thumbnail_class->create_thumbnail(null, $data);
@@ -1037,11 +1033,7 @@ class Document extends ORDataObject
             }
 
             // Store the file.
-            if ($GLOBALS['drive_encryption']) {
-                $storedData = $cryptoGen->encryptStandard($data, null, 'database');
-            } else {
-                $storedData = $data;
-            }
+            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, 'database') : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";

@@ -227,10 +227,7 @@ function SetDisplayMode($zoom, $layout='default')
 function SetCompression($compress)
 {
 	// Set page compression
-	if(function_exists('gzcompress'))
-		$this->compress = $compress;
-	else
-		$this->compress = false;
+	$this->compress = function_exists('gzcompress') ? $compress : false;
 }
 
 function SetTitle($title, $isUTF8=false)
@@ -476,10 +473,7 @@ function AddFont($family, $style='', $file='')
 function SetFont($family, $style='', $size=0)
 {
 	// Select a font; size given in points
-	if($family=='')
-		$family = $this->FontFamily;
-	else
-		$family = strtolower($family);
+	$family = $family == '' ? $this->FontFamily : strtolower($family);
 	$style = strtoupper($style);
 	if(str_contains($style,'U'))
 	{
@@ -951,10 +945,7 @@ function GetX()
 function SetX($x)
 {
 	// Set x position
-	if($x>=0)
-		$this->x = $x;
-	else
-		$this->x = $this->w+$x;
+	$this->x = $x >= 0 ? $x : $this->w+$x;
 }
 
 function GetY()
@@ -966,10 +957,7 @@ function GetY()
 function SetY($y, $resetX=true)
 {
 	// Set y position and optionally reset x
-	if($y>=0)
-		$this->y = $y;
-	else
-		$this->y = $this->h+$y;
+	$this->y = $y >= 0 ? $y : $this->h+$y;
 	if($resetX)
 		$this->x = $this->lMargin;
 }
@@ -1093,14 +1081,8 @@ protected function _beginpage($orientation, $size, $rotation)
 	$this->y = $this->tMargin;
 	$this->FontFamily = '';
 	// Check page size and orientation
-	if($orientation=='')
-		$orientation = $this->DefOrientation;
-	else
-		$orientation = strtoupper($orientation[0]);
-	if($size=='')
-		$size = $this->DefPageSize;
-	else
-		$size = $this->_getpagesize($size);
+	$orientation = $orientation == '' ? $this->DefOrientation : strtoupper($orientation[0]);
+	$size = $size == '' ? $this->DefPageSize : $this->_getpagesize($size);
 	if($orientation!=$this->CurOrientation || $size[0]!=$this->CurPageSize[0] || $size[1]!=$this->CurPageSize[1])
 	{
 		// New size or orientation
@@ -1606,10 +1588,7 @@ protected function _putfonts()
 		// ToUnicode CMap
 		if(isset($font['uv']))
 		{
-			if(isset($font['enc']))
-				$cmapkey = $font['enc'];
-			else
-				$cmapkey = $font['name'];
+			$cmapkey = $font['enc'] ?? $font['name'];
 			if(!isset($this->cmaps[$cmapkey]))
 			{
 				$cmap = $this->_tounicodecmap($font['uv']);

@@ -369,11 +369,7 @@ class CdaTemplateParse
         }
         $parser = new CdaTextParser($this->conditionedXmlContent, "Imported Encounter Notes.");
         $note = $parser->parseSectionByCode("46240-8");
-        if (!empty($note)) {
-            $note_text = $parser->generateConsolidatedTextNote($note);
-        } else {
-            $note_text = '';
-        }
+        $note_text = !empty($note) ? $parser->generateConsolidatedTextNote($note) : '';
 
         // TODO: ensure all entryRelationships are handled. These describe the various actions or codes.
         if (!empty($entry['encounter']['effectiveTime']['value']) || !empty($entry['encounter']['effectiveTime']['low']['value'])) {

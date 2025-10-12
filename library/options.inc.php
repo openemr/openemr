@@ -1718,11 +1718,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     // (see alternative code below).
     if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
         if (empty($fld_length)) {
-            if ($list_id == 'titles') {
-                $fld_length = 3;
-            } else {
-                $fld_length = 10;
-            }
+            $fld_length = $list_id == 'titles' ? 3 : 10;
         }
 
         $tmp = '';
@@ -1767,11 +1763,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             }
         }
 
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
         echo $tmp;
     } elseif ($data_type == 2 || $data_type == BillingCodeType::OPTIONS_TYPE_INDEX) { // simple text field
         if ($currescaped === '') {
@@ -1817,11 +1809,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
                     $tmp = "($currvalue)";
                 }
             }
-            if ($tmp === '') {
-                $tmp = '&nbsp;';
-            } else {
-                $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-            }
+            $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             echo $tmp;
         }
@@ -1842,11 +1830,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
                 $tmp = "($currvalue)";
             }
         }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             echo $tmp;
     } elseif ($data_type == 13) { // squads
@@ -1865,11 +1849,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
                 $tmp = "($currvalue)";
             }
         }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             echo $tmp;
     } elseif ($data_type == 14) { // Address book.
@@ -1887,11 +1867,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
                 $tmp = "($currvalue)";
             }
         }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             echo $tmp;
     } elseif ($data_type == 16) { // insurance company list
@@ -1909,11 +1885,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             }
         }
 
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
         echo $tmp;
     } elseif ($data_type == 17) { // issue types
@@ -1930,11 +1902,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             }
         }
 
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
         echo $tmp;
     } elseif ($data_type == 18) { // Visit categories.
@@ -1951,11 +1919,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             }
         }
 
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             echo $tmp;
     } elseif ($data_type == 21) { // a single checkbox or set of labeled checkboxes
@@ -2273,11 +2237,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         echo empty($urow['id']) ? '&nbsp;' : text($urow['name']);
     } elseif ($data_type == 36) { //Multi-select. Supports backup lists.
         if (empty($fld_length)) {
-            if ($list_id == 'titles') {
-                $fld_length = 3;
-            } else {
-                $fld_length = 10;
-            }
+            $fld_length = $list_id == 'titles' ? 3 : 10;
         }
 
         $tmp = '';
@@ -2302,11 +2262,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
                 }
             }
 
-            if ($tmp === '') {
-                $tmp = '&nbsp;';
-            } else {
-                $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-            }
+            $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             if ($i != 0 && $tmp != '&nbsp;') {
                 echo ",";
@@ -2349,11 +2305,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
                 $tmp = $lrow['name'];
             }
 
-            if ($tmp === '') {
-                $tmp = '&nbsp;';
-            } else {
-                $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-            }
+            $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             if ($i != 0 && $tmp != '&nbsp;') {
                 echo ",";
@@ -2390,11 +2342,7 @@ function generate_list_map($list_id, $translate = false)
     $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
     $map = [];
     while ($row = sqlFetchArray($result)) {
-        if ($translate === true) {
-            $title = xl_list_label($row['title']);
-        } else {
-            $title = $row['title'];
-        }
+        $title = $translate === true ? xl_list_label($row['title']) : $row['title'];
         $map[$row['option_id']] = $title;
     }
 
@@ -2822,11 +2770,7 @@ function generate_display_field($frow, $currvalue)
             }
 
             $title = $lrow['title'] ?? '';
-            if ($i > 0) {
-                  $s = $s . ", " . text(xl_list_label($title));
-            } else {
-                $s = text(xl_list_label($title));
-            }
+            $s = $i > 0 ? $s . ", " . text(xl_list_label($title)) : text(xl_list_label($title));
 
             $i++;
         }
@@ -2857,11 +2801,7 @@ function generate_display_field($frow, $currvalue)
             if ($data_type == 45) {
                 $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", [$value]);
             }
-            if ($i > 0) {
-                  $s = $s . ", " . htmlspecialchars($lrow['name'], ENT_NOQUOTES);
-            } else {
-                $s = text($lrow['name'] ?? '');
-            }
+            $s = $i > 0 ? $s . ", " . htmlspecialchars($lrow['name'], ENT_NOQUOTES) : text($lrow['name'] ?? '');
             $i++;
         }
 
@@ -2955,11 +2895,7 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $billingCodeType->buildPlaintextView($frow, $currvalue);
     } elseif ($data_type == 4) { // date
         $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-        if (!$modtmp) {
-            $s = text(oeFormatShortDate($currvalue));
-        } else {
-            $s = text(oeFormatDateTime($currvalue));
-        }
+        $s = !$modtmp ? text(oeFormatShortDate($currvalue)) : text(oeFormatDateTime($currvalue));
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';
         // Optional display of age or gestational age.
@@ -3207,11 +3143,7 @@ function generate_plaintext_field($frow, $currvalue)
                     "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$value]);
             }
 
-            if ($i > 0) {
-                  $s = $s . ", " . xl_list_label($lrow['title']);
-            } else {
-                $s = xl_list_label($lrow['title']);
-            }
+            $s = $i > 0 ? $s . ", " . xl_list_label($lrow['title']) : xl_list_label($lrow['title']);
 
             $i++;
         }
@@ -3231,11 +3163,7 @@ function generate_plaintext_field($frow, $currvalue)
                 $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", [$value]);
             }
 
-            if ($i > 0) {
-                $s = $s . ", " . $lrow['name'];
-            } else {
-                $s = $lrow['name'];
-            }
+            $s = $i > 0 ? $s . ", " . $lrow['name'] : $lrow['name'];
 
             $i++;
         }
@@ -3454,11 +3382,7 @@ function isSkipped(&$frow, $currvalue)
             $srcvalue = '';
             foreach ($tmp as $tmp2) {
                 if (str_starts_with($tmp2, "$itemid:")) {
-                    if ($datatype == 22) {
-                        $srcvalue = substr($tmp2, strlen($itemid) + 1);
-                    } else {
-                        $srcvalue = substr($tmp2, strlen($itemid) + 1, 1);
-                    }
+                    $srcvalue = $datatype == 22 ? substr($tmp2, strlen($itemid) + 1) : substr($tmp2, strlen($itemid) + 1, 1);
                 }
             }
         }
@@ -4343,11 +4267,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             $value_array = $_POST["form_$field_id"];
             $i = 0;
             foreach ($value_array as $valueofkey) {
-                if ($i == 0) {
-                    $value = $valueofkey;
-                } else {
-                    $value =  $value . "|" . $valueofkey;
-                }
+                $value = $i == 0 ? $valueofkey : $value . "|" . $valueofkey;
 
                 $i++;
             }
@@ -4363,11 +4283,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             $value_array = $_POST["form_$field_id"];
             $i = 0;
             foreach ($value_array as $valueofkey) {
-                if ($i == 0) {
-                    $value = $valueofkey;
-                } else {
-                    $value =  $value . "|" . $valueofkey;
-                }
+                $value = $i == 0 ? $valueofkey : $value . "|" . $valueofkey;
 
                 $i++;
             }
@@ -4648,11 +4564,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     if ($auth) {
         // show button, since authorized
         // first prepare class string
-        if ($buttonClass) {
-            $class_string = "btn btn-primary btn-sm " . $buttonClass;
-        } else {
-            $class_string = "btn btn-primary btn-sm";
-        }
+        $class_string = $buttonClass ? "btn btn-primary btn-sm " . $buttonClass : "btn btn-primary btn-sm";
 
         // next, create the link
         if ($linkMethod == "javascript") {
@@ -4675,7 +4587,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $indicatorTag = "style='display: none'";
     }
 
-    $indicatorTag = $indicatorTag ?? "";
+    $indicatorTag ??= "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
         attr_js($label . "_ps_expand") . ")'><span class='text font-weight-bold'>";
     echo text($title) . "</span>";
