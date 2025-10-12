@@ -81,7 +81,8 @@ ko.bindingHandlers.location={
                 } else {
                     // need to cancel the loading if we are on another domain
                     // setting the title will hide the spinner and remove the Loading... text
-                    tabData.title(xl("Unknown"));
+                    var isErxPage = tabData.url() && tabData.url().indexOf('/interface/eRx.php') !== -1;
+                    tabData.title(isErxPage ? 'unknown' : xl("Ensora eRx"));
                 }
             } ,true
         );
