@@ -42,11 +42,7 @@ if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-        if (!empty($_POST['form_save'])) {
-            $pageTitle = xl("Receipt for Payment");
-        } else {
-            $pageTitle = xl("Record Payment");
-        }
+        $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
         echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
         exit;
     }

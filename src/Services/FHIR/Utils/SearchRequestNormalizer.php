@@ -33,11 +33,7 @@ class SearchRequestNormalizer
         // grab any post vars and stuff them into our query vars
         // @see https://www.hl7.org/fhir/http.html#search
         $queryVars = $dispatchRestRequest->getQueryParams();
-        if ($dispatchRestRequest->getMethod() !== 'GET') {
-            $postParams = $dispatchRestRequest->request->all();
-        } else {
-            $postParams = [];
-        }
+        $postParams = $dispatchRestRequest->getMethod() !== 'GET' ? $dispatchRestRequest->request->all() : [];
 
         if (!empty($postParams)) {
             foreach ($postParams as $key => $value) {

@@ -61,11 +61,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    if ($option == '2') {
-        $forced_reset_disable = $_POST['forced_reset_disable'] ?? 0;
-    } else {
-        $forced_reset_disable = $option;
-    }
+    $forced_reset_disable = $option == '2' ? $_POST['forced_reset_disable'] ?? 0 : $option;
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
     $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {

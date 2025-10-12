@@ -242,11 +242,7 @@ class AclExtended
 
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
-        if (checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin") {
-            $gacl_protect = true;
-        } else {
-            $gacl_protect = false;
-        }
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin" ? true : false;
 
         //get array of all available group ID numbers
         $parent_id = $gacl->get_root_group_id();
@@ -270,11 +266,7 @@ class AclExtended
                 if ($middle_name) {
                     $full_name = $first_name . " " . $middle_name . " " . $last_name;
                 } else {
-                    if ($last_name) {
-                        $full_name = $first_name . " " . $last_name;
-                    } else {
-                        $full_name = $first_name;
-                    }
+                    $full_name = $last_name ? $first_name . " " . $last_name : $first_name;
                 }
 
                 //If this is not the first group to be added, then will skip below

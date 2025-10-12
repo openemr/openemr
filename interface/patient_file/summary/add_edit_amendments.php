@@ -107,7 +107,7 @@ if (isset($_POST['mode'])) {
     exit;
 }
 
-$amendment_id = $amendment_id ?? ($_REQUEST['id'] ?? '');
+$amendment_id ??= $_REQUEST['id'] ?? '';
 if (!empty($amendment_id)) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
     $resultSet = sqlQuery($query, [$amendment_id]);

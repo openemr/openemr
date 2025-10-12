@@ -543,7 +543,7 @@ class TeleconferenceRoomController
         $pwd = $patientAccessService->getRandomPortalPassword();
         $uname = $patientData['fname'] . $patientData['id'];
         $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
-        $login_uname = $login_uname ?? $uname;
+        $login_uname ??= $uname;
         $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
 
         // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this
@@ -670,11 +670,7 @@ class TeleconferenceRoomController
         try {
             // grab the settings, grab the waiting room & grab the conference room
             $waitingRoom = $this->renderWaitingRoom($queryVars);
-            if ($this->isPatient) {
-                $settings = $this->getPatientSettings($queryVars);
-            } else {
-                $settings = $this->getProviderSettings($queryVars);
-            }
+            $settings = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
             $conferenceRoom = $this->renderConferenceRoom($queryVars);
 
             $result = [
@@ -866,7 +862,7 @@ class TeleconferenceRoomController
             ]);
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo text($jsonSettings);
-        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException $exception) {
+        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException) {
             $jsonSettings = text(json_encode(['errorCode' => self::REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE
                 , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
@@ -1210,11 +1206,7 @@ class TeleconferenceRoomController
      */
     public function renderConferenceRoom($queryVars)
     {
-        if ($this->isPatient) {
-            $data = $this->getPatientSettings($queryVars);
-        } else {
-            $data = $this->getProviderSettings($queryVars);
-        }
+        $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
 //        $statuses = $apptRepo->getAppointmentStatuses();
         $statuses = $this->getAppointmentStatuses();

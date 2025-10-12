@@ -89,11 +89,7 @@ class Hcfa1500
     {
         $hcfa_entries = [];
         $diags = $claim->diagArray(false);
-        if ($claim->diagtype == 'ICD10') {
-            $icd_indicator = '0';
-        } else {
-            $icd_indicator = '9';
-        }
+        $icd_indicator = $claim->diagtype == 'ICD10' ? '0' : '9';
 
         $hcfa_entries[] = new HCFAInfo(37, 42, 1, $icd_indicator);
 

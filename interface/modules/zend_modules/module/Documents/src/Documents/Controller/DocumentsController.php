@@ -194,11 +194,7 @@ class DocumentsController extends AbstractActionController
                 $skip_headers = true;
             }
         } else {
-            if ($doEncryption) {
-                $contentType = "application/octet-stream";
-            } else {
-                $contentType = $result['mimetype'];
-            }
+            $contentType = $doEncryption ? "application/octet-stream" : $result['mimetype'];
         }
 
         if (!$skip_headers) {

@@ -301,11 +301,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set supervisor_id = ? where id = ? ", [(int)$_POST["supervisor_id"], $_POST["id"]]);
         }
         if (isset($_POST["google_signin_email"])) {
-            if (empty($_POST["google_signin_email"])) {
-                $googleSigninEmail = null;
-            } else {
-                $googleSigninEmail = $_POST["google_signin_email"];
-            }
+            $googleSigninEmail = empty($_POST["google_signin_email"]) ? null : $_POST["google_signin_email"];
             sqlStatement("update users set google_signin_email = ? where id = ? ", [$googleSigninEmail, $_POST["id"]]);
         }
 
@@ -669,22 +665,14 @@ function resetCounter(username) {
                                 continue;
                             }
 
-                            if ($iter["authorized"]) {
-                                $iter["authorized"] = xl('yes');
-                            } else {
-                                $iter["authorized"] = xl('no');
-                            }
+                            $iter["authorized"] = $iter["authorized"] ? xl('yes') : xl('no');
 
                             $mfa = sqlQuery(
                                 "SELECT `method` FROM `login_mfa_registrations` " .
                                 "WHERE `user_id` = ? AND (`method` = 'TOTP' OR `method` = 'U2F')",
                                 [$iter['id']]
                             );
-                            if (!empty($mfa['method'])) {
-                                $isMfa = xl('yes');
-                            } else {
-                                $isMfa = xl('no');
-                            }
+                            $isMfa = !empty($mfa['method']) ? xl('yes') : xl('no');
 
                             if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");

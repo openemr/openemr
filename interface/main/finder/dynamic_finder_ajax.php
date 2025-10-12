@@ -104,8 +104,8 @@ function dateSearch($sSearch)
     if (preg_match('/[^0-9]/', $sSearch)) {
         // Delimiter found. Separate it all into year, month and day components.
         $parts = preg_split('/[^0-9]/', $sSearch);
-        $parts[1] = $parts[1] ?? '';
-        $parts[2] = $parts[2] ?? '';
+        $parts[1] ??= '';
+        $parts[2] ??= '';
         // If the first part is more than 2 digits then assume y/m/d format.
         // Otherwise assume MDY or DMY format as appropriate.
         if (strlen($parts[0]) <= 2) {
@@ -233,11 +233,7 @@ $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
 //
-if (empty($where)) {
-    $where = $customWhere;
-} else {
-    $where = "$customWhere AND ( $where )";
-}
+$where = empty($where) ? $customWhere : "$customWhere AND ( $where )";
 $row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];
 

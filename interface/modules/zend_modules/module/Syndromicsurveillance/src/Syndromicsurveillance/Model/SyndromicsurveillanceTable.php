@@ -75,11 +75,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         ];
         $i = 1;
         foreach ($result as $row) {
-            if ($row['id'] == ($provider ?? '')) {
-                $select =  true;
-            } else {
-                $select = false;
-            }
+            $select = $row['id'] == ($provider ?? '') ? true : false;
 
             $rows[$i] =  [
                 'value' => $row['id'],

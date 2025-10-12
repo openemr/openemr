@@ -1410,7 +1410,7 @@ function edih_271_csv_data($obj270)
 
                 // for 271 eligibility response
                 if (strncmp($seg, 'EB' . $de, 3) === 0) {
-                    $status = $status ?? '';
+                    $status ??= '';
                     //
                     if (strpos($ret_ar[$icn]['claim'][$cdx]['Status'], 'tive')) {
                         continue;

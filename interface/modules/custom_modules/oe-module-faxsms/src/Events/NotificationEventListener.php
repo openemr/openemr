@@ -311,7 +311,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $id = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($id);
-        $data['recipient_phone'] = $data['recipient_phone'] ?? null;
+        $data['recipient_phone'] ??= null;
         $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $status = '';
 
@@ -359,11 +359,7 @@ class NotificationEventListener implements EventSubscriberInterface
                 return 'Error: ' . xlt("Mail was not sent. A SMTP client is not set up in Config Notifications!.");
             }
             $isHtml = (stripos($content, '<html') !== false) || (stripos($content, '<body') !== false);
-            if (!$isHtml) {
-                $html = "<html><body><div class='wrapper'>" . nl2br($content) . "</div></body></html>";
-            } else {
-                $html = $content;
-            }
+            $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br($content) . "</div></body></html>" : $content;
             $from_name = text($from_name);
             $from = $GLOBALS["practice_return_email_path"];
             $mail->addReplyTo($from, $from_name);

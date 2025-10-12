@@ -232,7 +232,7 @@ class ModuleService
     public function getProviderName(): string
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
-        $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
 }

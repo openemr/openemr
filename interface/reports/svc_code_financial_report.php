@@ -308,11 +308,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $print = '';
         $csv = '';
 
-        if ($row['financial_reporting']) {
-            $bgcolor = "#FFFFDD";
-        } else {
-            $bgcolor = "#FFDDDD";
-        }
+        $bgcolor = $row['financial_reporting'] ? "#FFFFDD" : "#FFDDDD";
 
         $print = "<tr bgcolor='" . attr($bgcolor) . "'><td class='detail'>" . text($row['Procedure codes']) . "</td><td class='detail'>" . text($row['Units']) . "</td><td class='detail'>" . text(oeFormatMoney($row['Amt Billed'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Paid Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Adjustment Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Balance Amt'])) . "</td>";
 

@@ -31,11 +31,7 @@ class Utils_Verification implements VerificationIF
     public function hash($data, $algo = 'sha3-512')
     {
         $string = "";
-        if (is_array($data)) {
-            $string = $this->stringifyArray($data);
-        } else {
-            $string = $data;
-        }
+        $string = is_array($data) ? $this->stringifyArray($data) : $data;
 
         if ($algo == 'sha1') {
             // support backward compatibility of prior hashes in sha1

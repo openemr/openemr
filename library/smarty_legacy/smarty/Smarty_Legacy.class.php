@@ -1815,11 +1815,7 @@ class Smarty_Legacy
     function _trigger_fatal_error($error_msg, $tpl_file = null, $tpl_line = null,
             $file = null, $line = null, $error_type = E_USER_ERROR)
     {
-        if(isset($file) && isset($line)) {
-            $info = ' ('.basename($file).", line $line)";
-        } else {
-            $info = '';
-        }
+        $info = isset($file) && isset($line) ? ' ('.basename($file).", line $line)" : '';
         if (isset($tpl_line) && isset($tpl_file)) {
             $this->trigger_error('[in ' . $tpl_file . ' line ' . $tpl_line . "]: $error_msg$info", $error_type);
         } else {

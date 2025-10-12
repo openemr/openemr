@@ -69,11 +69,7 @@ class C_X12Partner extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->x12_partners[0] = new X12Partner($_POST['id']);
-        } else {
-            $this->x12_partners[0] = new X12Partner();
-        }
+        $this->x12_partners[0] = is_numeric($_POST['id']) ? new X12Partner($_POST['id']) : new X12Partner();
 
         parent::populate_object($this->x12_partners[0]);
 

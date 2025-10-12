@@ -998,18 +998,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
                                 $action_status = '';
                                 if ($next_due > 1) {
-                                    if ($audit_status['denial_reason'] === 'In Review') {
-                                        $action_status = xl('Scheduled but Needs Review');
-                                    } else {
-                                        $action_status = xl('Scheduled');
-                                    }
+                                    $action_status = $audit_status['denial_reason'] === 'In Review' ? xl('Scheduled but Needs Review') : xl('Scheduled');
                                     $next_due = date('m/d/Y', $next_due);
                                 } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
-                                    if ($audit_status['denial_reason'] === 'In Review') {
-                                        $action_status = xl('In audit. Needs Review');
-                                    } else {
-                                        $action_status = xl('Recurring');
-                                    }
+                                    $action_status = $audit_status['denial_reason'] === 'In Review' ? xl('In audit. Needs Review') : xl('Recurring');
                                     $next_due = xl('Active');
                                 } elseif ($next_due === 0) {
                                     $action_status = xl('Completed');

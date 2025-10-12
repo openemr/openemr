@@ -1509,18 +1509,10 @@ class Claim
                         $this->diagtype = $code_data[0];
 
                         //code is in the second part of the $code_data array.
-                        if ($strip_periods == true) {
-                            $diag = str_replace('.', '', $code_data[1]);
-                        } else {
-                            $diag = $code_data[1];
-                        }
+                        $diag = $strip_periods == true ? str_replace('.', '', $code_data[1]) : $code_data[1];
                     } else {
                         //No prepended code type label
-                        if ($strip_periods) {
-                            $diag = str_replace('.', '', $code_data[0]);
-                        } else {
-                            $diag = $code_data[0];
-                        }
+                        $diag = $strip_periods ? str_replace('.', '', $code_data[0]) : $code_data[0];
                     }
 
                     $diag = trim($diag);

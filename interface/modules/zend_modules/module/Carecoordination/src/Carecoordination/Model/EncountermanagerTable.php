@@ -251,11 +251,7 @@ class EncountermanagerTable extends AbstractTableGateway
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
-            $verifyMessageReceivedChecked = true;
-        } else {
-            $verifyMessageReceivedChecked = false;
-        }
+        $verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? true : false;
 
         try {
             foreach ($rec_arr as $recipient) {

@@ -53,11 +53,7 @@ $patients = $data->listPatientAuths();
                 $count = 0;
                 $name = '';
                 while ($iter = sqlFetchArray($patients)) {
-                    if (!empty($iter['pid'])) {
-                        $pid = $iter['pid'];
-                    } else {
-                        $pid = $iter['mrn'];
-                    }
+                    $pid = !empty($iter['pid']) ? $iter['pid'] : $iter['mrn'];
 
             // This part requires custom form and custom table to function
             /*

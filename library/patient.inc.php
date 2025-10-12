@@ -507,11 +507,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 
     foreach ($names as $key => $val) {
         if (!empty($val)) {
-            if ((strlen($val) > 1) && ($names[$key][0] != strtoupper($names[$key][0]))) {
-                $names[$key] = '%' . $val . '%';
-            } else {
-                $names[$key] = $val . '%';
-            }
+            $names[$key] = strlen($val) > 1 && $names[$key][0] != strtoupper($names[$key][0]) ? '%' . $val . '%' : $val . '%';
         }
     }
 

@@ -71,7 +71,7 @@ trait EmailTestingTrait
         try {
             $response = $this->httpClient->get("/api/v1/message/{$id}");
             return json_decode($response->getBody()->getContents(), true);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -112,7 +112,7 @@ trait EmailTestingTrait
         try {
             $this->httpClient->delete("/api/v1/messages");
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }

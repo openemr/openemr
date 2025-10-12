@@ -280,7 +280,7 @@ class FhirOperationExportRestController
             }
             $this->fhirExportJobService->deleteJob($job);
             $response = (new Psr17Factory())->createResponse(StatusCode::ACCEPTED);
-        } catch (\InvalidArgumentException $ex) {
+        } catch (\InvalidArgumentException) {
             $this->logger->error(
                 "FhirExportRestController->processDeleteExportForJob failed to delete job for nonexistant job id",
                 ['job' => $jobUuidString]

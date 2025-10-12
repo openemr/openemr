@@ -327,7 +327,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     $processingResult->addProcessingResult($results);
                 }
             }
-        } catch (Exception $exception) {
+        } catch (Exception) {
             $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $id);
         }
         return $processingResult;

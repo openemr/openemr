@@ -353,11 +353,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     $P[70] = $vitals['height'];
     $P[88] = $vitals['bps'] . '^' . $vitals['bpd'];
     $P[89] = $vitals['waist_circ'];
-    if (!empty($porow['date_collected'])) {
-        $C[17] = hl7Date(date("Ymd", strtotime($porow['date_collected'])));
-    } else {
-        $C[17] = '';
-    }
+    $C[17] = !empty($porow['date_collected']) ? hl7Date(date("Ymd", strtotime($porow['date_collected']))) : '';
     if (empty($porow['account'])) {
         return "ERROR! Missing this orders facility location account code (Facility Id) in Facility!";
     }

@@ -81,11 +81,7 @@ class C_InsuranceCompany extends Controller
             return;
         }
 
-        if (is_numeric($_POST['id'])) {
-            $this->icompanies[0] = new InsuranceCompany($_POST['id']);
-        } else {
-            $this->icompanies[0] = new InsuranceCompany();
-        }
+        $this->icompanies[0] = is_numeric($_POST['id']) ? new InsuranceCompany($_POST['id']) : new InsuranceCompany();
 
         self::populate_object($this->icompanies[0]);
 

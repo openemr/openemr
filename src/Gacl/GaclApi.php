@@ -345,11 +345,7 @@ class GaclApi extends Gacl {
 				LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON a.id=arg.acl_id
 				LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON arg.group_id=rg.id';
 
-			if ($aro_group_name == NULL) {
-				$where_query[] = '(rg.name IS NULL)';
-			} else {
-				$where_query[] = '(rg.name='. $this->db->quote($aro_group_name) .')';
-			}
+			$where_query[] = $aro_group_name == NULL ? '(rg.name IS NULL)' : '(rg.name='. $this->db->quote($aro_group_name) .')';
 		}
 
 		// AXO Group
@@ -358,11 +354,7 @@ class GaclApi extends Gacl {
 				LEFT JOIN	'. $this->_db_table_prefix .'axo_groups_map axg ON a.id=axg.acl_id
 				LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON axg.group_id=xg.id';
 
-			if ($axo_group_name == NULL) {
-				$where_query[] = '(xg.name IS NULL)';
-			} else {
-				$where_query[] = '(xg.name='. $this->db->quote($axo_group_name) .')';
-			}
+			$where_query[] = $axo_group_name == NULL ? '(xg.name IS NULL)' : '(xg.name='. $this->db->quote($axo_group_name) .')';
 		}
 		if ($return_value != FALSE) {
 			if ($return_value == NULL) {

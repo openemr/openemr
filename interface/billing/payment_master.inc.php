@@ -158,11 +158,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
             <div class="pl-0">
                 <?php
-                if ($PaymentMethod == '' && $screen == 'edit_payment') {
-                    $blankValue = ' ';
-                } else {
-                    $blankValue = '';
-                }
+                $blankValue = $PaymentMethod == '' && $screen == 'edit_payment' ? ' ' : '';
                 echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "", 'CheckVisible("yes")');
                 ?>
             </div>
@@ -190,22 +186,14 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         <div class="forms col-3">
             <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
             <?php
-            if ($PaymentType == '' && $screen == 'edit_payment') {
-                $blankValue = ' ';
-            } else {
-                $blankValue = '';
-            }
+            $blankValue = $PaymentType == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "form-control", 'PayingEntityAction()');
             ?>
         </div>
         <div class="forms col-3">
             <label class="control-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
             <?php
-            if ($AdjustmentCode == '' && $screen == 'edit_payment') {
-                $blankValue = ' ';
-            } else {
-                $blankValue = '';
-            }
+            $blankValue = $AdjustmentCode == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_list_payment_category(
                 "adjustment_code",
                 "payment_adjustment_code",

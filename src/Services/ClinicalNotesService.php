@@ -226,11 +226,7 @@ class ClinicalNotesService extends BaseService
     {
         $largestId = QueryUtils::fetchSingleValue("SELECT COALESCE(MAX(form_id), 0) as largestId FROM `form_clinical_notes`", 'largestId');
 
-        if ($largestId > 0) {
-            $form_id = $largestId + 1;
-        } else {
-            $form_id = 1;
-        }
+        $form_id = $largestId > 0 ? $largestId + 1 : 1;
 
         addForm($encounter, "Clinical Notes Form", $form_id, "clinical_notes", $pid, $userauthorized);
         return $form_id;
@@ -259,11 +255,7 @@ class ClinicalNotesService extends BaseService
         if (empty($form_id)) {
             $largestId = QueryUtils::fetchSingleValue("SELECT COALESCE(MAX(form_id), 0) as largestId FROM `form_clinical_notes`", 'largestId');
 
-            if ($largestId > 0) {
-                $record['form_id'] = $largestId + 1;
-            } else {
-                $record['form_id'] = 1;
-            }
+            $record['form_id'] = $largestId > 0 ? $largestId + 1 : 1;
 
             addForm($encounter, "Clinical Notes Form", $record['form_id'], "clinical_notes", $pid, $userauthorized);
         }

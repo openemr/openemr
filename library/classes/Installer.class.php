@@ -1443,7 +1443,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
@@ -1787,11 +1787,7 @@ $config = 1; /////////////
      */
     protected function get_backup_filename(): string
     {
-        if (stristr(PHP_OS, 'WIN')) {
-            $backup_file = 'C:/windows/temp/setup_dump.sql';
-        } else {
-            $backup_file = '/tmp/setup_dump.sql';
-        }
+        $backup_file = stristr(PHP_OS, 'WIN') ? 'C:/windows/temp/setup_dump.sql' : '/tmp/setup_dump.sql';
 
         return $backup_file;
     }

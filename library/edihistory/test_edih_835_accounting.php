@@ -447,11 +447,7 @@ if ($chk) {
 
     // try a little accounting
 if ($chk) {
-    if ($acctng['pmt'] == ($acctng['clmpmt'] + $acctng['prvadj'])) {
-        $bal = 'Balanced';
-    } else {
-        $bal = 'Not Balanced';
-    }
+    $bal = $acctng['pmt'] == $acctng['clmpmt'] + $acctng['prvadj'] ? 'Balanced' : 'Not Balanced';
 
     $pmt_html .= "<tr class='pmt'><td colspan=4>Accounting " . text($bal) . "</td></tr>" . PHP_EOL;
     $pmt_html .= "<tr class='pmt'><td>Fee " . text($acctng['fee']) . "</td><td>Adj " . text($acctng['clmadj']) . "</td><td>PtRsp " . text($acctng['ptrsp']) . "</td></tr>" . PHP_EOL;

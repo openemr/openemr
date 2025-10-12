@@ -130,11 +130,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     $results = json_decode($prefs['status'], true);
     $logged_in = $results;
     $logged_in = $results;
-    if (!empty($logged_in['token'])) {
-        $current_events = xlt("On-line");
-    } else {
-        $current_events = xlt("Currently off-line");
-    }
+    $current_events = !empty($logged_in['token']) ? xlt("On-line") : xlt("Currently off-line");
 }
 
 if (!($_REQUEST['flb_table'] ?? null)) {

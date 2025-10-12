@@ -52,11 +52,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $criteria = new OnsitePortalActivityCriteria();
 
             // only allow patient to see their own activity
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                $pid = $GLOBALS['bootstrap_pid'];
-            } else {
-                $pid = RequestUtil::Get('patientId');
-            }
+            $pid = !empty($GLOBALS['bootstrap_pid']) ? $GLOBALS['bootstrap_pid'] : RequestUtil::Get('patientId');
 
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');

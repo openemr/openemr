@@ -21,17 +21,9 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 require_once('gacl_admin.inc.php');
 
 // GET takes precedence.
-if (empty($_GET['group_type'])) {
-	$group_type = $_POST['group_type'];
-} else {
-	$group_type = $_GET['group_type'];
-}
+$group_type = empty($_GET['group_type']) ? $_POST['group_type'] : $_GET['group_type'];
 
-if (empty($_GET['return_page'])) {
-	$return_page = $_POST['return_page'];
-} else {
-	$return_page = $_GET['return_page'];
-}
+$return_page = empty($_GET['return_page']) ? $_POST['return_page'] : $_GET['return_page'];
 
 switch(strtolower(trim($group_type))) {
 	case 'axo':
@@ -74,11 +66,7 @@ switch ($postAction) {
 	case 'Submit':
 		$gacl_api->debug_text('Submit');
 
-		if (empty($_POST['parent_id'])) {
-			$parent_id = 0;
-		} else {
-			$parent_id = $_POST['parent_id'];
-		}
+		$parent_id = empty($_POST['parent_id']) ? 0 : $_POST['parent_id'];
 
 		//Make sure we're not reparenting to ourself.
 		if (!empty($_POST['group_id']) AND $parent_id == $_POST['group_id']) {

@@ -347,11 +347,7 @@ class pnHTML
     function EndPage()
     {
         global $index;
-        if (pnVarCleanFromInput('module')) {
-            $index = 0;
-        } else {
-            $index = 1;
-        }
+        $index = pnVarCleanFromInput('module') ? 0 : 1;
 
         ob_start();
         print '</td></tr></table>';

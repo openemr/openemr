@@ -86,11 +86,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 <?php
 if (isset($_GET['set_pid'])) {
-    if (!isset($_POST['insurance'])) {
-        $insurance = "primary";
-    } else {
-        $insurance = $_POST['insurance'];
-    }
+    $insurance = !isset($_POST['insurance']) ? "primary" : $_POST['insurance'];
 
     $result = getPatientData($_GET['set_pid']);
   // $result2 = getEmployerData($_GET['set_pid']); // not used!

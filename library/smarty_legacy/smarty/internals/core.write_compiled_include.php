@@ -61,11 +61,7 @@ function smarty_core_write_compiled_include($params, &$smarty)
 
             for ($i=0, $count = count($tokens); $i < $count; $i++) {
                 if (is_array($tokens[$i])) {
-                    if ($tokens[$i][0] == T_VARIABLE && $tokens[$i][1] == '$this') {
-                        $tokens[$i] = '$' . $this_varname;
-                    } else {
-                        $tokens[$i] = $tokens[$i][1];
-                    }
+                    $tokens[$i] = $tokens[$i][0] == T_VARIABLE && $tokens[$i][1] == '$this' ? '$' . $this_varname : $tokens[$i][1];
                 }
             }
             $source = implode('', $tokens);

@@ -21,11 +21,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     return false;
 }
 
-if (isset($_REQUEST['pricelevel'])) {
-    $pricelevel = $_REQUEST['pricelevel'];
-} else {
-    $pricelevel = 'standard';
-}
+$pricelevel = $_REQUEST['pricelevel'] ?? 'standard';
 
 $fso = load_fee_sheet_options($pricelevel);
 $retval = [];

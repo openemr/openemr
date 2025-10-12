@@ -13,7 +13,7 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-class ReferenceSearchValue
+class ReferenceSearchValue implements \Stringable
 {
     /**
      * @var string|number
@@ -87,12 +87,12 @@ class ReferenceSearchValue
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->getResource()) {
             return $this->getResource() . "/" . $this->getHumanReadableId();
         } else {
-            return $this->getHumanReadableId();
+            return (string) $this->getHumanReadableId();
         }
     }
 }

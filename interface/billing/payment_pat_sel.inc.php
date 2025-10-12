@@ -147,11 +147,7 @@ if (isset($_POST["mode"])) {
                             $Codetype = $RowSearch['code_type'];
                             $Code = $RowSearch['code'];
                             $Modifier = $RowSearch['modifier'];
-                            if ($Modifier != '') {
-                                $ModifierString = ", $Modifier";
-                            } else {
-                                $ModifierString = "";
-                            }
+                            $ModifierString = $Modifier != '' ? ", $Modifier" : "";
                             $Fee = $RowSearch['fee'];
                             $Encounter = $RowSearch['encounter'];
 

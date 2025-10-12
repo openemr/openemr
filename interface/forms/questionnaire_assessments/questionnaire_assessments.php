@@ -151,17 +151,9 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    if (stripos($GLOBALS['portal_css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos($GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
 } else {
-    if (stripos($GLOBALS['css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos($GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
 }
 
 if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {

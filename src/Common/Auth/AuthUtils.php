@@ -474,11 +474,7 @@ class AuthUtils
         }
         if ($this->loginAuth) {
             // Specialized code for login auth (not api auth)
-            if (!empty($newHash)) {
-                $hash = $newHash;
-            } else {
-                $hash = $userSecure['password'];
-            }
+            $hash = !empty($newHash) ? $newHash : $userSecure['password'];
 
             // If $hash is empty, then something is very wrong
             if (empty($hash)) {
@@ -1183,11 +1179,7 @@ class AuthUtils
                 self::resetLoginFailedCounter($user);
                 return ['pass' => true, 'email_notification' => null];
             }
-            if (empty($query['auto_block_emailed'])) {
-                $emailNotification = true;
-            } else {
-                $emailNotification = false;
-            }
+            $emailNotification = empty($query['auto_block_emailed']) ? true : false;
             return ['pass' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'email_notification' => null];
@@ -1230,11 +1222,7 @@ class AuthUtils
                 $this->resetIpLoginFailedCounter($ipString);
                 return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
             }
-            if (empty($query['ip_auto_block_emailed'])) {
-                $emailNotification = true;
-            } else {
-                $emailNotification = false;
-            }
+            $emailNotification = empty($query['ip_auto_block_emailed']) ? true : false;
             return ['pass' => false, 'force_block' => false, 'skip_timing_attack' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];

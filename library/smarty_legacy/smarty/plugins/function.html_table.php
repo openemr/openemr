@@ -162,11 +162,7 @@ function smarty_function_html_table($params, &$smarty)
 }
 
 function smarty_function_html_table_cycle($name, $var, $no) {
-    if(!is_array($var)) {
-        $ret = $var;
-    } else {
-        $ret = $var[$no % count($var)];
-    }
+    $ret = !is_array($var) ? $var : $var[$no % count($var)];
 
     return ($ret) ? ' '.$ret : '';
 }

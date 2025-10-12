@@ -848,45 +848,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             <input name='to_date' type='hidden' value="<?php echo attr($to_date); ?>" />
             <input name='from_date' type='hidden' value="<?php echo attr($from_date); ?>" />
             <?php
-            if ($my_authorized == "on") {
-                $my_authorized = "1";
-            } else {
-                $my_authorized = "%";
-            }
-            if ($unbilled == "on") {
-                $unbilled = "0";
-            } else {
-                $unbilled = "%";
-            }
+            $my_authorized = $my_authorized == "on" ? "1" : "%";
+            $unbilled = $unbilled == "on" ? "0" : "%";
             $list = BillingReport::getBillsListBetween("%");
             // don't query the whole encounter table if no criteria selected
 
             if (!isset($_POST["mode"])) {
-                if (!isset($_POST["from_date"])) {
-                    $from_date = date("Y-m-d");
-                } else {
-                    $from_date = $_POST["from_date"];
-                }
-                if (empty($_POST["to_date"])) {
-                    $to_date = '';
-                } else {
-                    $to_date = $_POST["to_date"];
-                }
-                if (!isset($_POST["code_type"])) {
-                    $code_type = "all";
-                } else {
-                    $code_type = $_POST["code_type"];
-                }
-                if (!isset($_POST["unbilled"])) {
-                    $unbilled = "on";
-                } else {
-                    $unbilled = $_POST["unbilled"];
-                }
-                if (!isset($_POST["authorized"])) {
-                    $my_authorized = "on";
-                } else {
-                    $my_authorized = $_POST["authorized"];
-                }
+                $from_date = !isset($_POST["from_date"]) ? date("Y-m-d") : $_POST["from_date"];
+                $to_date = empty($_POST["to_date"]) ? '' : $_POST["to_date"];
+                $code_type = !isset($_POST["code_type"]) ? "all" : $_POST["code_type"];
+                $unbilled = !isset($_POST["unbilled"]) ? "on" : $_POST["unbilled"];
+                $my_authorized = !isset($_POST["authorized"]) ? "on" : $_POST["authorized"];
             } else {
                 $from_date = $_POST["from_date"] ?? null;
                 $to_date = $_POST["to_date"] ?? null;
@@ -895,17 +867,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 $my_authorized = $_POST["authorized"] ?? null;
             }
 
-            if ($my_authorized == "on") {
-                $my_authorized = "1";
-            } else {
-                $my_authorized = "%";
-            }
+            $my_authorized = $my_authorized == "on" ? "1" : "%";
 
-            if ($unbilled == "on") {
-                $unbilled = "0";
-            } else {
-                $unbilled = "%";
-            }
+            $unbilled = $unbilled == "on" ? "0" : "%";
 
             if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
                 BillingReport::billCodesList($list);

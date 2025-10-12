@@ -808,7 +808,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

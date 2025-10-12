@@ -432,11 +432,7 @@ class UtilsService
         $parts = parse_url($reference->getReference());
 
         // if all we have is a path then we skip the host check
-        if (isset($parts['host'])) {
-            $parsed_reference['localResource'] = $parts['host'] == $oauthHost;
-        } else {
-            $parsed_reference['localResource'] = true;
-        }
+        $parsed_reference['localResource'] = isset($parts['host']) ? $parts['host'] == $oauthHost : true;
         $splitParts = explode("/", $parts['path']);
         if (count($splitParts) >= 2) {
             $parsed_reference['uuid'] = array_pop($splitParts);

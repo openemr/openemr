@@ -828,11 +828,7 @@ class ReceiveHl7Results
                     // The first line of comments is reserved for such things.
                     $ares['result_data_type'] = 'L';
                     $ares['result'] = '';
-                    if (empty($a[5])) {
-                        $vTx = $this->rhl7Text(str_replace('^', ' ', $a[3]));
-                    } else {
-                        $vTx = $this->rhl7Text($a[5]);
-                    }
+                    $vTx = empty($a[5]) ? $this->rhl7Text(str_replace('^', ' ', $a[3])) : $this->rhl7Text($a[5]);
                     $ares['comments'] = $vTx . $commentdelim;
                 } else {
                     $ares['result'] = $this->rhl7Text($a[5]);
@@ -1166,11 +1162,7 @@ class ReceiveHl7Results
         $s = str_replace('\\T\\', '&', $s);
         $s = str_replace('\\X0d\\', "\r", $s);
         $s = str_replace('\\E\\', '\\', $s);
-        if ($allow_newlines) {
-            $s = str_replace('\\.br\\', "\n", $s);
-        } else {
-            $s = str_replace('\\.br\\', '~', $s);
-        }
+        $s = $allow_newlines ? str_replace('\\.br\\', "\n", $s) : str_replace('\\.br\\', '~', $s);
 
         return $s;
     }

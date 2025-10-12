@@ -59,11 +59,7 @@ if (!empty($_POST)) {
 
         //lets add/update to the new dorn route table
         $isLabSetup = LabRouteSetup::createDornRoute($apiResponse->labName, $apiResponse->routeGuid, $apiResponse->labGuid, $ppid, $uid, $labData->textLineBreakCharacter, $routeData->labAccountNumber);
-        if ($isLabSetup) {
-            $message = "Lab has been setup";
-        } else {
-            $message = "Failure creating route!";
-        }
+        $message = $isLabSetup ? "Lab has been setup" : "Failure creating route!";
     } else {
         if ($apiResponse->responseMessage) {
             $message = $apiResponse->responseMessage;
