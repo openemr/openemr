@@ -86,7 +86,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             // we search both the old database and the new one for backwards compatability
             // TODO: @adunsulag - eventually we will want to phase out the lists_uuid search, or have a smarter search that will filter based on the uuid_registry.table_name
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('lists_uuid', ServiceField::TYPE_UUID)], [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('lists_uuid', ServiceField::TYPE_UUID), new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
             // TODO: @adunsulag - implement clinical-status and verification-status search properly
 //            'clinical-status' => new FhirSearchParameterDefinition('clinical-status', SearchFieldType::TOKEN, ['clinical_status']),
@@ -116,7 +116,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
             SELECT
                 l.id,
                 ie.uuid,
-                l.uuid AS lists_uuid,
+                l.lists_uuid,
                 l.pid,
                 l.modifydate,
                 l.type,
@@ -139,8 +139,27 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
                 ie.updator_npi,
                 ie.resolved,
                 pd.puuid,
-                COALESCE(l.modifydate, l.date) as last_updated_time
-            FROM lists l
+                l.last_updated_time
+            FROM (
+                SELECT
+                    l.id,
+                    l.date,
+                    l.modifydate,
+                    COALESCE(l.modifydate, l.date) as last_updated_time,
+                    l.uuid AS lists_uuid,
+                    l.pid,
+                    l.type,
+                    l.title,
+                    l.begdate,
+                    l.enddate,
+                    l.diagnosis,
+                    l.activity,
+                    l.comments,
+                    l.occurrence,
+                    l.outcome,
+                    l.verification
+                FROM lists l
+            ) l
             INNER JOIN (
                 SELECT issue_encounter.uuid,
                        issue_encounter.list_id,
