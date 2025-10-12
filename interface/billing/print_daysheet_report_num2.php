@@ -132,7 +132,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 // sort array in assending order
     sort($final_list);
 
-    $all4 = array_natsort($ret, pid, fulname, asc);
+    $all4 = array_natsort($ret, \PID, \FULNAME, \ASC);
 
     if ($_POST['end_of_day_totals_only'] == 1) {
         $totals_only = 1;

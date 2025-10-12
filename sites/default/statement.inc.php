@@ -425,7 +425,7 @@ function create_HTML_statement($stmt)
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
             $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            if (strlen(\UMNAME) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
@@ -847,7 +847,7 @@ function create_statement($stmt)
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
             $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            if (strlen(\UMNAME) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
                     ' ' .  $events[$j]['ulname'];
             } else {
@@ -1113,7 +1113,7 @@ function osp_create_HTML_statement($stmt)
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
             $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
+            if (strlen(\UMNAME) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];

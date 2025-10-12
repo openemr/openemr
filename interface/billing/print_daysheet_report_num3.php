@@ -134,7 +134,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 // sort array in assending order
     sort($final_list);
 
-    $all4 = array_natsort($ret, pid, fulname, asc);
+    $all4 = array_natsort($ret, \PID, \FULNAME, \ASC);
     if ($_POST['end_of_day_totals_only'] == 1) {
         $totals_only = 1;
     }
@@ -736,11 +736,11 @@ for ($i = 1; $i < $k;) {
     Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Adj") . '. ' . "</center></strong><center>" . "%1\$.2f", text($user_info['patadj'][$i])) . "</center>";
     Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Payments") . ' ' . "</center></strong><center>" . "%1\$.2f", text($user_info['patpay'][$i])) . "</center>";
 
-    $gtotal_fee += $user_info[fee][$i];
-    $gtotal_insadj += $user_info[insadj][$i];
-    $gtotal_inspay += $user_info[inspay][$i];
-    $gtotal_patadj += $user_info[patadj][$i];
-    $gtotal_patpay += $user_info[patpay][$i];
+    $gtotal_fee += $user_info[\FEE][$i];
+    $gtotal_insadj += $user_info[\INSADJ][$i];
+    $gtotal_inspay += $user_info[\INSPAY][$i];
+    $gtotal_patadj += $user_info[\PATADJ][$i];
+    $gtotal_patpay += $user_info[\PATPAY][$i];
 
     ++$i;
 

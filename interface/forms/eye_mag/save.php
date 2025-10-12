@@ -708,7 +708,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         "subtype = '" . $subtype . "' " .
                         "WHERE id = '" . add_escape_custom($issue) . "'";
                     sqlStatement($query);
-                    if ($text_type == "medication" && enddate != '') {
+                    if ($text_type == "medication" && \ENDDATE != '') {
                         sqlStatement('UPDATE prescriptions SET '
                             . 'medication = 0 where patient_id = ? '
                             . " and upper(trim(drug)) = ? "
