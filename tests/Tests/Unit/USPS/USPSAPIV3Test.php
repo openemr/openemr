@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// AI is used to help generate tests
 namespace OpenEMR\Tests\Unit\USPS;
 
 use PHPUnit\Framework\TestCase;
