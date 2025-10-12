@@ -33,7 +33,7 @@ class CommonPlugin extends AbstractPlugin
     {
         // TODO: this is crazy... why do we grab the service locator so we can load the db adapter?
         // is there some db related state that is being loaded here in a global type of way that we aren't aware of?? Or can we just remove this line?
-        $container->get('Laminas\Db\Adapter\Adapter');
+        $container->get(\Laminas\Db\Adapter\Adapter::class);
         $this->application = new ApplicationTable();
         $this->listenerObject = new Listener();
     }

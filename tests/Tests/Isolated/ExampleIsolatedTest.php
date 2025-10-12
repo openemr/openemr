@@ -42,7 +42,7 @@ class ExampleIsolatedTest extends TestCase
     public function testComposerAutoloadWorks(): void
     {
         // Test that we can instantiate classes from vendor
-        $this->assertTrue(class_exists('PHPUnit\Framework\TestCase'));
+        $this->assertTrue(class_exists(\PHPUnit\Framework\TestCase::class));
     }
 
     private function addNumbers(int $a, int $b): int

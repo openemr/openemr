@@ -51,7 +51,7 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 
 // Sets default factory using the default database
 $factories = [
-    'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
+    \Laminas\Db\Adapter\Adapter::class => function ($containerInterface, $requestedName) {
         $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
         \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
