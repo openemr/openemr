@@ -23,9 +23,6 @@ class FhirConditionRestController
     private FhirConditionService $fhirConditionService;
     private $fhirService;
 
-    // base unversioned profile
-    private string $fhirProfile = FhirConditionService::USCGI_PROFILE_URI;
-
     public function __construct()
     {
         $this->fhirConditionService = new FhirConditionService();
@@ -63,11 +60,11 @@ class FhirConditionRestController
     {
         $processingResult = $this->fhirConditionService->getAll($searchParams, $puuidBind);
         $bundleEntries = [];
-        $profileMapper = new FhirConditionProfileMapper();
+//        $profileMapper = new FhirConditionProfileMapper();
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
-                'resource' => $profileMapper->profileResource($searchResult)
+                'resource' => $searchResult // $profileMapper->profileResource($searchResult)
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
             array_push($bundleEntries, $fhirBundleEntry);
