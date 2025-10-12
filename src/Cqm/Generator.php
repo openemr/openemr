@@ -242,7 +242,7 @@ class Generator
             }
 
             if ($datatype == 'QDMBaseType') {
-                $class->setExtendedClass('\\OpenEMR\\Cqm\\Qdm\\BaseTypes\\DataElement');
+                $class->setExtendedClass(\OpenEMR\Cqm\Qdm\BaseTypes\DataElement::class);
             }
 
             $file = FileGenerator::fromArray([

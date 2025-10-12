@@ -2065,7 +2065,7 @@ SETHLP;
      */
     protected function cryptoGenClassExists(): bool
     {
-        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
+        return class_exists(\OpenEMR\Common\Crypto\CryptoGen::class);
     }
 
     /**

@@ -111,7 +111,7 @@ class Hcfa1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, ['OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo']);
+        usort($hcfa_entries, [\OpenEMR\Billing\HCFAInfo::class, 'cmpHcfaInfo']);
 
         foreach ($hcfa_entries as $hcfa_entry) {
             $this->putHcfa(
