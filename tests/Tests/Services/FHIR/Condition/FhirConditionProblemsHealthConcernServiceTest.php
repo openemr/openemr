@@ -51,7 +51,7 @@ class FhirConditionProblemsHealthConcernServiceTest extends TestCase
             ,'occurrence' => 0
         ];
     }
-    public function testParseOpenEMRRecord()
+    public function testParseOpenEMRRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
         $conditionService = new FhirConditionProblemsHealthConcernService();

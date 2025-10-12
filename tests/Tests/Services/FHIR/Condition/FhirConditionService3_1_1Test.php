@@ -60,7 +60,7 @@ class FhirConditionService3_1_1Test extends TestCase
      * Test that the service correctly populates all Must Support elements
      * Required by US Core 3.1.1: clinicalStatus, verificationStatus, category, code, subject
      */
-    public function testMustSupportElementsArePopulated()
+    public function testMustSupportElementsArePopulated(): void
     {
         // Arrange
         $conditionData = $this->createValidConditionRecord();
@@ -95,7 +95,7 @@ class FhirConditionService3_1_1Test extends TestCase
      * Test clinical status values conform to required value set
      * http://hl7.org/fhir/ValueSet/condition-clinical (required binding)
      */
-    public function testClinicalStatusUsesRequiredValueSet()
+    public function testClinicalStatusUsesRequiredValueSet(): void
     {
         $validClinicalStatuses = ['active', 'recurrence', 'relapse', 'inactive', 'remission', 'resolved'];
 
@@ -123,7 +123,7 @@ class FhirConditionService3_1_1Test extends TestCase
      * Test verification status values conform to required value set
      * http://hl7.org/fhir/ValueSet/condition-ver-status (required binding)
      */
-    public function testVerificationStatusUsesRequiredValueSet()
+    public function testVerificationStatusUsesRequiredValueSet(): void
     {
         $validVerificationStatuses = ['unconfirmed', 'provisional', 'differential', 'confirmed', 'refuted', 'entered-in-error'];
 
@@ -151,7 +151,7 @@ class FhirConditionService3_1_1Test extends TestCase
      * Test category values conform to extensible US Core value set
      * US Core 3.1.1 categories: problem-list-item, encounter-diagnosis, health-concern
      */
-    public function testCategoryUsesUSCoreValueSet()
+    public function testCategoryUsesUSCoreValueSet(): void
     {
         $usCoreCategories = ['problem-list-item', 'encounter-diagnosis', 'health-concern'];
 
@@ -180,7 +180,7 @@ class FhirConditionService3_1_1Test extends TestCase
      * Test that condition code uses extensible US Core condition code value set
      * http://hl7.org/fhir/us/core/ValueSet/us-core-condition-code
      */
-    public function testConditionCodeUsesUSCoreValueSet()
+    public function testConditionCodeUsesUSCoreValueSet(): void
     {
         // Arrange - Create condition with ICD-10 code (part of US Core value set)
         $conditionData = $this->createConditionWithCode('I25.10', 'Atherosclerotic heart disease', 'http://hl7.org/fhir/sid/icd-10-cm');
@@ -201,7 +201,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test subject references US Core Patient Profile
      */
-    public function testSubjectReferencesUSCorePatient()
+    public function testSubjectReferencesUSCorePatient(): void
     {
         // Arrange
         $conditionData = $this->createValidConditionRecord();
@@ -224,7 +224,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test clinical status mapping from OpenEMR data
      */
-    public function testClinicalStatusMapping()
+    public function testClinicalStatusMapping(): void
     {
         $testCases = [
             // [OpenEMR data, expected FHIR clinical status]
@@ -258,7 +258,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test profile conformance in meta.profile
      */
-    public function testProfileConformance()
+    public function testProfileConformance(): void
     {
         // Arrange
         $conditionData = $this->createValidConditionRecord();
@@ -275,9 +275,7 @@ class FhirConditionService3_1_1Test extends TestCase
         $this->assertGreaterThan(0, count($profiles));
 
         // Should include US Core 3.1.1 profile URL
-        $profileUrls = array_map(function ($profile) {
-            return $profile;
-        }, $profiles);
+        $profileUrls = array_map(fn($profile): \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical => $profile, $profiles);
 
         $this->assertContains('http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition', $profileUrls);
     }
@@ -285,7 +283,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test resource ID is properly set
      */
-    public function testResourceIdIsSet()
+    public function testResourceIdIsSet(): void
     {
         // Arrange
         $conditionData = $this->createValidConditionRecord();
@@ -303,7 +301,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test meta.lastUpdated is populated
      */
-    public function testLastUpdatedIsPopulated()
+    public function testLastUpdatedIsPopulated(): void
     {
         // Arrange
         $conditionData = $this->createValidConditionRecord();
@@ -324,7 +322,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test search parameters are properly defined
      */
-    public function testSearchParametersAreValid()
+    public function testSearchParametersAreValid(): void
     {
         // Act
         $searchParams = $this->fhirConditionService->getSearchParams();
@@ -344,7 +342,7 @@ class FhirConditionService3_1_1Test extends TestCase
     /**
      * Test constraint us-core-1: Category should be from US Core value set
      */
-    public function testUSCore1Constraint()
+    public function testUSCore1Constraint(): void
     {
         // original implementation only supported problem-list-item even though the value set had encounter-diagnosis and health-concern
         // Act & Assert - Should not throw exception

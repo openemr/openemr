@@ -13,8 +13,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Services\FHIR;
+namespace OpenEMR\Tests\Services\FHIR\Condition;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirConditionService;
@@ -36,22 +37,22 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * @var FhirConditionService
      */
-    private $fhirConditionService;
+    private FhirConditionService $fhirConditionService;
 
     /**
      * @var FhirConditionEncounterDiagnosisService
      */
-    private $encounterDiagnosisService;
+    private FhirConditionEncounterDiagnosisService $encounterDiagnosisService;
 
     /**
      * @var FhirConditionProblemsHealthConcernService
      */
-    private $problemsHealthConcernService;
+    private FhirConditionProblemsHealthConcernService $problemsHealthConcernService;
 
     /**
      * @var ConditionFixtureManager
      */
-    private $fixtureManager;
+    private ConditionFixtureManager $fixtureManager;
 
     protected function setUp(): void
     {
@@ -71,7 +72,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test that encounter diagnosis service correctly identifies encounter-linked conditions
      */
-    public function testEncounterDiagnosisServiceHandlesEncounterLinkedConditions()
+    public function testEncounterDiagnosisServiceHandlesEncounterLinkedConditions(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -101,7 +102,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test that problems/health concerns service handles non-encounter conditions
      */
-    public function testProblemsHealthConcernServiceHandlesNonEncounterConditions()
+    public function testProblemsHealthConcernServiceHandlesNonEncounterConditions(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -132,7 +133,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test synthetic UUID generation for encounter diagnoses (post-cutover)
      */
-    public function testSyntheticUUIDGenerationForNewEncounterDiagnoses()
+    public function testSyntheticUUIDGenerationForNewEncounterDiagnoses(): void
     {
         // Arrange - Create condition after cutover date
         $patientData = $this->fixtureManager->createTestPatient();
@@ -163,7 +164,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test original UUID preservation for historical data (pre-cutover)
      */
-    public function testOriginalUUIDPreservationForHistoricalData()
+    public function testOriginalUUIDPreservationForHistoricalData(): void
     {
         // Arrange - Create condition before cutover date
         $patientData = $this->fixtureManager->createTestPatient();
@@ -190,7 +191,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test clinical status mapping from resolved flag in issue_encounter
      */
-    public function testClinicalStatusMappingFromResolvedFlag()
+    public function testClinicalStatusMappingFromResolvedFlag(): void
     {
         $testCases = [
             ['resolved' => 0, 'expected' => 'active'],
@@ -220,7 +221,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test that both services are properly registered in main FhirConditionService
      */
-    public function testMappedServicesAreRegistered()
+    public function testMappedServicesAreRegistered(): void
     {
         // This test would need to be adjusted based on the actual implementation
         // of how mapped services are accessed
@@ -244,7 +245,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test encounter diagnosis profile conformance
      */
-    public function testEncounterDiagnosisProfileConformance()
+    public function testEncounterDiagnosisProfileConformance(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -270,7 +271,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test problems and health concerns profile conformance
      */
-    public function testProblemsHealthConcernProfileConformance()
+    public function testProblemsHealthConcernProfileConformance(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -294,7 +295,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test recorded date population for encounter diagnoses
      */
-    public function testRecordedDatePopulationForEncounterDiagnoses()
+    public function testRecordedDatePopulationForEncounterDiagnoses(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -313,7 +314,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test that multiple encounters for same condition generate unique resources
      */
-    public function testMultipleEncountersGenerateUniqueResources()
+    public function testMultipleEncountersGenerateUniqueResources(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -360,7 +361,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test verification status defaults for encounter diagnoses vs problems
      */
-    public function testVerificationStatusDefaults()
+    public function testVerificationStatusDefaults(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -390,7 +391,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test search parameters for encounter filtering
      */
-    public function testEncounterSearchParameter()
+    public function testEncounterSearchParameter(): void
     {
         // Act
         $searchParams = $this->encounterDiagnosisService->getSearchParams();
@@ -409,7 +410,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test backwards compatibility - 3.1.1 profile still supported
      */
-    public function testBackwardsCompatibilityWith3_1_1Profile()
+    public function testBackwardsCompatibilityWith3_1_1Profile(): void
     {
         // Act
         $profileUris = $this->fhirConditionService->getProfileURIs();
@@ -425,7 +426,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test that service routing works correctly based on category
      */
-    public function testServiceRoutingBasedOnCategory()
+    public function testServiceRoutingBasedOnCategory(): void
     {
         // This would test the mapped service architecture's routing logic
         // The specific implementation would depend on how the main service delegates to sub-services
@@ -441,7 +442,7 @@ class FhirConditionService8_0_0Test extends TestCase
     /**
      * Test error handling for encounter diagnosis without encounter reference
      */
-    public function testEncounterDiagnosisRequiresEncounterReference()
+    public function testEncounterDiagnosisRequiresEncounterReference(): void
     {
         // Arrange
         $patientData = $this->fixtureManager->createTestPatient();
@@ -449,7 +450,7 @@ class FhirConditionService8_0_0Test extends TestCase
         // Don't link to encounter
 
         // Act & Assert
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('EncounterDiagnosis must have valid encounter reference');
 
         $this->encounterDiagnosisService->parseOpenEMRRecord($conditionData);

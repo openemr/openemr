@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 
 class FhirConditionEncounterDiagnosisServiceTest extends TestCase
 {
-    private function getDefaultOpenEMRRecord()
+    private function getDefaultOpenEMRRecord(): array
     {
         return [
             'id' => '12345'
@@ -52,7 +52,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'occurrence' => 0
         ];
     }
-    public function testParseOpenEMRRecord()
+    public function testParseOpenEMRRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
         $diagnosticService = new FhirConditionEncounterDiagnosisService();
@@ -60,7 +60,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertConditionHasBaseRequirements($record, $fhirResource, 'active');
     }
 
-    public function testParseWithResolvedRecord()
+    public function testParseWithResolvedRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
         $record['resolved'] = 1;
@@ -73,7 +73,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertEquals(UtilsService::getLocalDateAsUTC($record['enddate']), $fhirResource->getAbatementDateTime(), "Expected abatementDateTime to match OpenEMR endate.");
     }
 
-    protected function assertConditionHasBaseRequirements($record, $fhirResource, string $clinicalStatus)
+    protected function assertConditionHasBaseRequirements($record, $fhirResource, string $clinicalStatus): void
     {
         $this->assertInstanceOf(FHIRCondition::class, $fhirResource, "Expected FHIRCondition instance from parseOpenEMRRecord.");
 
