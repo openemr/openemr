@@ -13432,8 +13432,7 @@ CREATE TABLE `form_vitals_calculation_components` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `unq_fvc_component` (`fvc_uuid`, `vitals_column`),
     KEY `idx_vitals_column` (`vitals_column`),
-    KEY `idx_component_order` (`fvc_uuid`, `component_order`),
-    CONSTRAINT `fk_fvcc_fvc_uuid` FOREIGN KEY (`fvc_uuid`) REFERENCES `form_vitals_calculation` (`uuid`) ON DELETE CASCADE
+    KEY `idx_component_order` (`fvc_uuid`, `component_order`)
 ) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
 #EndIf
 
@@ -13441,9 +13440,7 @@ CREATE TABLE `form_vitals_calculation_components` (
 CREATE TABLE `form_vitals_calculation_form_vitals` (
    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
    `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
-   PRIMARY KEY (`fvc_uuid`, `vitals_id`),
-   CONSTRAINT `fk_fvc_uuid` FOREIGN KEY (`fvc_uuid`) REFERENCES `form_vitals_calculation` (`uuid`) ON DELETE CASCADE,
-   CONSTRAINT `fk_vitals_id` FOREIGN KEY (`vitals_id`) REFERENCES `form_vitals` (`id`) ON DELETE CASCADE
+   PRIMARY KEY (`fvc_uuid`, `vitals_id`)
 ) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
 
 DROP TABLE IF EXISTS `jwt_grant_history`;
