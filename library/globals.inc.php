@@ -3700,7 +3700,21 @@ $GLOBALS_METADATA = [
             xl('USPS Web Tools API Username'),
             'text',                           // data type
             '',
-            xl('USPS Web Tools API Username')
+            xl('USPS Web Tools Username (legacy, deprecated)')
+        ],
+
+        'usps_webtools_client_id' => [
+            xl('USPS API Client ID'),
+            'text',
+            '',
+            xl('Client ID for USPS API v3')
+        ],
+
+        'usps_webtools_client_secret' => [
+            xl('USPS API Client Secret'),
+            'encrypted',
+            '',
+            xl('Client Secret for USPS API v3')
         ],
 
         'ccda_validation_disable' => [

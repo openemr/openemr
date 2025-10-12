@@ -28,6 +28,8 @@ use LaLit\XML2Array;
 class USPSBase
 {
     const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
+    const LIVE_API_V3_URL = 'https://api.usps.com/addresses/v3';
+    const OAUTH_TOKEN_URL = 'https://api.usps.com/oauth2/v3/token';
   /**
    *  the error code if one exists
    * @var integer
@@ -68,6 +70,26 @@ class USPSBase
    */
     public static $testMode = false;
   /**
+   * @var string - client ID for v3 API
+   */
+    protected $clientId = '';
+  /**
+   * @var string - client secret for v3 API
+   */
+    protected $clientSecret = '';
+  /**
+   * @var string - access token for v3 API
+   */
+    protected $accessToken = '';
+  /**
+   * @var int - token expiration time
+   */
+    protected $tokenExpiry = 0;
+  /**
+   * @var boolean - use v3 API or legacy
+   */
+    protected $useV3 = false;
+  /**
    * @var array - different kind of supported api calls by this wrapper
    */
     protected $apiCodes = [
@@ -102,10 +124,17 @@ class USPSBase
     ];
   /**
    * Constructor
-   * @param string $username - the usps api username
+   * @param string $username - legacy API username
+   * @param string $clientId - v3 API client ID
+   * @param string $clientSecret - v3 API client secret
    */
-    public function __construct(protected $username = '')
+    public function __construct(protected $username = '', $clientId = '', $clientSecret = '')
     {
+        $this->clientId = $clientId;
+        $this->clientSecret = $clientSecret;
+
+        // use v3 if we have client credentials, otherwise legacy
+        $this->useV3 = !empty($clientId) && !empty($clientSecret);
     }
   /**
    * set the usps api username we are going to user
@@ -208,7 +237,130 @@ class USPSBase
 
     public function getEndpoint()
     {
+        if ($this->useV3) {
+            return self::LIVE_API_V3_URL;
+        }
         return self::$testMode ? self::TEST_API_URL : self::LIVE_API_URL;
+    }
+
+  /**
+   * Get access token (fetches new one if expired)
+   * @return string|false
+   */
+    protected function getAccessToken()
+    {
+        if (!empty($this->accessToken) && time() < $this->tokenExpiry) {
+            return $this->accessToken;
+        }
+
+        return $this->fetchAccessToken();
+    }
+
+  /**
+   * Fetch new access token
+   * @return string|false
+   */
+    protected function fetchAccessToken()
+    {
+        $ch = curl_init(self::OAUTH_TOKEN_URL);
+
+        $postData = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+            'scope' => 'addresses'
+        ];
+
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($postData),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+            CURLOPT_TIMEOUT => 30,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || !$response) {
+            $this->setErrorCode($httpCode);
+            $this->setErrorMessage('Failed to get access token');
+            return false;
+        }
+
+        $tokenData = json_decode($response, true);
+
+        if (isset($tokenData['access_token'])) {
+            $this->accessToken = $tokenData['access_token'];
+            // cache with 60sec buffer
+            $expiresIn = $tokenData['expires_in'] ?? 3600;
+            $this->tokenExpiry = time() + $expiresIn - 60;
+            return $this->accessToken;
+        }
+
+        $this->setErrorMessage('Invalid token response');
+        return false;
+    }
+
+  /**
+   * Make v3 API request
+   * @param string $endpoint
+   * @param array $params
+   * @return string
+   */
+    protected function doRequestV3($endpoint, $params = [])
+    {
+        $accessToken = $this->getAccessToken();
+        if (!$accessToken) {
+            return '';
+        }
+
+        $url = $this->getEndpoint() . $endpoint;
+        if (!empty($params)) {
+            $url .= '?' . http_build_query($params);
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $accessToken,
+                'Accept: application/json',
+            ],
+        ]);
+
+        $response = curl_exec($ch);
+        $this->setHeaders(curl_getinfo($ch));
+        $this->setErrorCode(curl_errno($ch));
+        $this->setErrorMessage(curl_error($ch));
+
+        $this->setResponse($response);
+
+        if ($response) {
+            $jsonData = json_decode($response, true);
+            if ($jsonData !== null) {
+                $this->setArrayResponse($jsonData);
+            } else {
+                $this->setErrorMessage('Failed to parse JSON: ' . json_last_error_msg());
+            }
+        } else {
+            $this->setErrorMessage('Empty response');
+        }
+
+        if ($this->isError()) {
+            $arrayResponse = $this->getArrayResponse();
+            if (isset($arrayResponse['error'])) {
+                $this->setErrorCode($arrayResponse['error']['code'] ?? 0);
+                $this->setErrorMessage($arrayResponse['error']['message'] ?? 'Unknown error');
+            }
+        }
+
+        curl_close($ch);
+
+        return $this->getResponse();
     }
 
   /**
@@ -236,18 +388,28 @@ class USPSBase
     {
         $headers = $this->getHeaders();
         $response = $this->getArrayResponse();
+
       // First make sure we got a valid response
-        if ($headers['http_code'] != 200) {
+        if (is_array($headers) && isset($headers['http_code']) && $headers['http_code'] != 200) {
             return true;
         }
 
-      // Make sure the response does not have error in it
-        if (isset($response['Error'])) {
-            return true;
+      // Check for errors in array response
+        if (is_array($response)) {
+            // legacy XML format
+            if (isset($response['Error'])) {
+                return true;
+            }
+
+            // v3 JSON format
+            if (isset($response['error'])) {
+                return true;
+            }
         }
 
-      // Check to see if we have the Error word in the response
-        if (str_contains($this->getResponse(), '<Error>')) {
+      // Check to see if we have the Error word in the response string
+        $responseText = $this->getResponse();
+        if (is_string($responseText) && str_contains($responseText, '<Error>')) {
             return true;
         }
 

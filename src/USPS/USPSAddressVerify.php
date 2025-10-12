@@ -41,7 +41,51 @@ class USPSAddressVerify extends USPSBase
    */
     public function verify()
     {
+        if ($this->useV3) {
+            return $this->verifyV3();
+        }
         return $this->doRequest();
+    }
+
+  /**
+   * Verify address using v3 API
+   * @return string
+   */
+    protected function verifyV3()
+    {
+        // v3 only does one address at a time
+        if (empty($this->addresses['Address'])) {
+            $this->setErrorMessage('No address to verify');
+            return '';
+        }
+
+        $address = $this->addresses['Address'][0];
+
+        $params = [];
+
+        if (isset($address['FirmName'])) {
+            $params['firm'] = $address['FirmName'];
+        }
+        if (isset($address['Address1'])) {
+            $params['secondaryAddress'] = $address['Address1'];
+        }
+        if (isset($address['Address2'])) {
+            $params['streetAddress'] = $address['Address2'];
+        }
+        if (isset($address['City'])) {
+            $params['city'] = $address['City'];
+        }
+        if (isset($address['State'])) {
+            $params['state'] = $address['State'];
+        }
+        if (isset($address['Zip5'])) {
+            $params['ZIPCode'] = $address['Zip5'];
+        }
+        if (isset($address['Zip4'])) {
+            $params['ZIPPlus4'] = $address['Zip4'];
+        }
+
+        return $this->doRequestV3('/address', $params);
     }
   /**
    * returns array of all addresses added so far
