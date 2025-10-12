@@ -203,7 +203,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[0];
             ?>
   </div>
-            <?php print $sigline[$_GET[\SIGLINE]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -234,7 +234,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
                 print $camos_content[1];
             ?>
   </div>
-            <?php print $sigline[$_GET[\SIGLINE]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -265,7 +265,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[2];
             ?>
   </div>
-            <?php print $sigline[$_GET[\SIGLINE]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -296,7 +296,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[3];
             ?>
   </div>
-            <?php print $sigline[$_GET[\SIGLINE]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
