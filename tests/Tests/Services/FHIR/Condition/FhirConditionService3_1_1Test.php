@@ -275,9 +275,8 @@ class FhirConditionService3_1_1Test extends TestCase
         $this->assertGreaterThan(0, count($profiles));
 
         // Should include US Core 3.1.1 profile URL
-        $profileUrls = array_map(fn($profile): \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical => $profile, $profiles);
 
-        $this->assertContains('http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition', $profileUrls);
+        $this->assertContains('http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition', $profiles);
     }
 
     /**

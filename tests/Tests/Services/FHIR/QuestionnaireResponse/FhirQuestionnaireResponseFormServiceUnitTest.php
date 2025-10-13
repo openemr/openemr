@@ -13,6 +13,7 @@
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
 use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;

@@ -26,11 +26,11 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         return [
             'id' => '12345'
             ,'uuid' => 'condition-uuid-12345'
-            ,'date' => '2025-01-01T01:00:00Z'
+            ,'date' => '2025-01-01 01:00:00'
             ,'type' => 'medical_problem'
             ,'title' => 'Test Condition'
-            ,'begdate' => '2025-01-01T02:00:00Z'
-            ,'enddate' => date('Y-m-d\TH:i:s\Z', strtotime("+1 HOUR"))
+            ,'begdate' => '2025-01-01 02:00:00'
+            ,'enddate' => date('Y-m-d H:i:s', strtotime("+1 HOUR"))
             ,'diagnosis' => [
                 'A01.1' => [
                     'code' => 'A01.1',
@@ -43,7 +43,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'puuid' => 'patient-uuid-12345'
             ,'condition_uuid' => 'condition-uuid-12345'
             ,'encounter_uuid' => 'encounter-uuid-12345'
-            ,'last_updated_time' => '2025-01-02T12:00:00Z'
+            ,'last_updated_time' => '2025-01-02 12:00:00'
             ,'verification_title' => ''
             ,'creator_npi' => '1234567890'
             ,'creator_uuid' => 'provider-uuid-12345'

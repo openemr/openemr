@@ -16,6 +16,8 @@
 namespace OpenEMR\Tests\Services\FHIR\Condition;
 
 use InvalidArgumentException;
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirConditionService;
@@ -59,7 +61,9 @@ class FhirConditionService8_0_0Test extends TestCase
         parent::setUp();
         $this->fhirConditionService = new FhirConditionService();
         $this->encounterDiagnosisService = new FhirConditionEncounterDiagnosisService();
+        $this->encounterDiagnosisService->setSystemLogger(new SystemLogger(Level::Critical));
         $this->problemsHealthConcernService = new FhirConditionProblemsHealthConcernService();
+        $this->problemsHealthConcernService->setSystemLogger(new SystemLogger(Level::Critical));
         $this->fixtureManager = new ConditionFixtureManager();
     }
 
@@ -235,11 +239,12 @@ class FhirConditionService8_0_0Test extends TestCase
             $profileUris,
             'Encounter diagnosis profile should be supported'
         );
-        $this->assertContains(
-            FhirConditionProblemsHealthConcernService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI,
-            $profileUris,
-            'Problems and health concerns profile should be supported'
-        );
+        // TODO: @adunsulag when we bring in problems and health concerns, re-enable this test
+//        $this->assertContains(
+//            FhirConditionProblemsHealthConcernService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI,
+//            $profileUris,
+//            'Problems and health concerns profile should be supported'
+//        );
     }
 
     /**
@@ -413,7 +418,7 @@ class FhirConditionService8_0_0Test extends TestCase
     public function testBackwardsCompatibilityWith3_1_1Profile(): void
     {
         // Act
-        $profileUris = $this->fhirConditionService->getProfileURIs();
+        $profileUris = $this->problemsHealthConcernService->getProfileURIs();
 
         // Assert - Should still support legacy 3.1.1 profile for backwards compatibility
         $this->assertContains(

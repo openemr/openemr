@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;

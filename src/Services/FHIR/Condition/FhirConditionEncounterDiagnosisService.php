@@ -21,7 +21,6 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
 use OpenEMR\Services\FHIR\Condition\Trait\FhirConditionTrait;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -31,7 +30,6 @@ use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCategoryTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
-use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -262,8 +260,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
         if ($dataRecord['resolved'] == 1) {
             return 'resolved';
         }
-        // Check if condition has ended based on enddate
-        if (!empty($dataRecord['enddate']) && strtotime($dataRecord['enddate']) < strtotime("now")) {
+        if ($this->isClinicalStatusInactive($dataRecord)) {
             return 'inactive';
         }
 
@@ -357,7 +354,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
 
     public function getSupportedVersions()
     {
-        return [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1,'6.1.0', self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0];
+        return [self::PROFILE_VERSION_NONE, '6.1.0', self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0];
     }
 
     /**

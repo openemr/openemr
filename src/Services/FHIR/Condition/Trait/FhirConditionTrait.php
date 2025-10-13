@@ -12,7 +12,6 @@
 namespace OpenEMR\Services\FHIR\Condition\Trait;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
@@ -20,12 +19,13 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
-use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
-use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategoryDisplay;
+use Exception;
+use DateTime;
+use DateTimeZone;
 
 trait FhirConditionTrait
 {
@@ -88,7 +88,7 @@ trait FhirConditionTrait
     protected function computeClinicalStatus($dataRecord): string
     {
         // Check if condition has ended based on enddate
-        if (!empty($dataRecord['enddate']) && strtotime($dataRecord['enddate']) < strtotime("now")) {
+        if ($this->isClinicalStatusInactive($dataRecord)) {
             return 'inactive';
         }
 
@@ -101,6 +101,22 @@ trait FhirConditionTrait
 
         // Default to active for ongoing problems
         return 'active';
+    }
+
+    protected function isClinicalStatusInactive(array $dataRecord): bool {
+
+        try {
+            if (!empty($dataRecord['enddate'])) {
+                $date = new DateTime($dataRecord['enddate'], new DateTimeZone(date('P')));
+                $now = new DateTime('now', new DateTimeZone(date('P')));
+                if ($date < $now) {
+                    return true;
+                }
+            }
+        }
+        catch (Exception $e) {
+        }
+        return false;
     }
 
     protected function populateCode($dataRecord, FHIRCondition $conditionResource, string $defaultText)
