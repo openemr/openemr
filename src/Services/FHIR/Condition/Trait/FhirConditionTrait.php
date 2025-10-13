@@ -103,7 +103,8 @@ trait FhirConditionTrait
         return 'active';
     }
 
-    protected function isClinicalStatusInactive(array $dataRecord): bool {
+    protected function isClinicalStatusInactive(array $dataRecord): bool
+    {
 
         try {
             if (!empty($dataRecord['enddate'])) {
@@ -113,8 +114,7 @@ trait FhirConditionTrait
                     return true;
                 }
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
         }
         return false;
     }
