@@ -1322,13 +1322,14 @@ ALTER TABLE `procedure_order`
     ADD INDEX IF NOT EXISTS `idx_order_intent` (`order_intent`),
     ADD INDEX IF NOT EXISTS `idx_location_id` (`location_id`);
 #EndIf
+
 #IfNotRow2D list_options list_id ord_priority option_id routine
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
 VALUES
-    ('ord_priority', 'routine', 'Routine', 40, 1, 0, 'Normal priority order', 1),
-    ('ord_priority', 'urgent', 'Urgent', 50, 0, 0, 'Urgent priority order', 1),
-    ('ord_priority', 'asap', 'ASAP', 60, 0, 0, 'As soon as possible', 1),
-    ('ord_priority', 'stat', 'STAT', 70, 0, 0, 'Immediate/emergency', 1);
+    ('ord_priority', 'routine', 'Routine', 45, 1, 0, 'Normal priority order', 1),
+    ('ord_priority', 'urgent', 'Urgent', 55, 0, 0, 'Urgent priority order', 1),
+    ('ord_priority', 'asap', 'ASAP', 65, 0, 0, 'As soon as possible', 1),
+    ('ord_priority', 'stat', 'STAT', 75, 0, 0, 'Immediate/emergency', 1);
 #EndIf
 #IfNotRow2D list_options list_id lists option_id order_intent
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
