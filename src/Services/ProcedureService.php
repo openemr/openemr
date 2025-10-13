@@ -36,7 +36,7 @@ class ProcedureService extends BaseService
     private const PROCEDURE_REPORT_TABLE = "procedure_report";
     private const PROCEDURE_RESULT_TABLE = "procedure_result";
     private const PROCEDURE_SPECIMEN_TABLE = "procedure_specimen";
-    private ProcedureOrderRelationshipService $relationshipService;
+    private readonly ProcedureOrderRelationshipService $relationshipService;
 
     public function __construct()
     {
@@ -78,175 +78,211 @@ class ProcedureService extends BaseService
         // and LEFT JOIN all related data so orders without reports/results still appear
 
         $sql = "SELECT
-            porder.order_uuid
-            ,porder.order_uuid AS uuid
-            ,porder.procedure_order_id
-            ,porder.order_provider_id
-            ,porder.order_activity
-            ,porder.order_activity AS activity
-            ,porder.order_diagnosis
-            ,porder.order_encounter_id
-            ,porder.order_lab_id
-            ,porder.order_patient_id
-            ,porder.provider_id
-            ,porder.date_ordered
-            ,porder.order_status
-            ,porder.order_priority
-            ,porder.patient_instructions
-            ,porder.clinical_hx
+        porder.order_uuid
+        ,porder.order_uuid AS uuid
+        ,porder.procedure_order_id
+        ,porder.order_provider_id
+        ,porder.order_activity
+        ,porder.order_activity AS activity
+        ,porder.order_diagnosis
+        ,porder.order_encounter_id
+        ,porder.order_lab_id
+        ,porder.order_patient_id
+        ,porder.provider_id
+        ,porder.date_ordered
+        ,porder.date_collected
+        ,porder.order_status
+        ,porder.order_priority
+        ,porder.patient_instructions
+        ,porder.clinical_hx
+        ,porder.procedure_order_type
+        ,porder.scheduled_date
+        ,porder.scheduled_start
+        ,porder.scheduled_end
+        ,porder.performer_type
+        ,porder.order_intent
+        ,porder.location_id
+        ,porder.specimen_type
+        ,porder.specimen_location
+        ,porder.specimen_volume
+        ,porder.specimen_fasting
 
-            ,preport.report_date
-            ,preport.procedure_report_id
-            ,preport.report_uuid
-            ,preport.report_notes
-            ,preport.procedure_order_seq
+        ,preport.report_date
+        ,preport.procedure_report_id
+        ,preport.report_uuid
+        ,preport.report_notes
+        ,preport.procedure_order_seq
 
-            ,presult.procedure_result_id
-            ,presult.result_uuid
-            ,presult.result_code
-            ,presult.result_text
-            ,presult.result_units
-            ,presult.result_result
-            ,presult.result_range
-            ,presult.result_abnormal
-            ,presult.result_comments
-            ,presult.result_status
+        ,presult.procedure_result_id
+        ,presult.result_uuid
+        ,presult.result_code
+        ,presult.result_text
+        ,presult.result_units
+        ,presult.result_result
+        ,presult.result_range
+        ,presult.result_abnormal
+        ,presult.result_comments
+        ,presult.result_status
 
-            ,order_codes.procedure_name
-            ,order_codes.procedure_code
-            ,order_codes.procedure_type
-            ,order_codes.procedure_order_seq AS order_code_seq
+        ,order_codes.procedure_name
+        ,order_codes.procedure_code
+        ,order_codes.procedure_type
+        ,order_codes.procedure_order_seq AS order_code_seq
+        ,order_codes.diagnoses
 
-            ,pcode_types.standard_code
+        ,pcode_types.standard_code
 
-            ,labs.lab_id
-            ,labs.lab_uuid
-            ,labs.lab_npi
-            ,labs.lab_name
+        ,labs.lab_id
+        ,labs.lab_uuid
+        ,labs.lab_npi
+        ,labs.lab_name
 
-            ,patients.puuid
-            ,patients.pid
+        ,patients.puuid
+        ,patients.pid
+        ,patients.pid AS patient_id
 
-            ,encounters.eid
-            ,encounters.euuid
-            ,encounters.encounter_date
+        ,encounters.eid
+        ,encounters.euuid
+        ,encounters.encounter_date
 
-            ,docs.doc_id
-            ,docs.doc_uuid
+        ,docs.doc_id
+        ,docs.doc_uuid
 
-            ,provider.provider_uuid
-            ,provider.provider_id
-            ,provider.provider_fname
-            ,provider.provider_mname
-            ,provider.provider_lname
-            ,provider.provider_npi
-        FROM (
-            SELECT
-                procedure_order_id
-                ,uuid AS order_uuid
-                ,provider_id AS order_provider_id
-                ,encounter_id AS order_encounter_id
-                ,activity AS order_activity
-                ,order_diagnosis
-                ,order_status
-                ,order_priority
-                ,patient_instructions
-                ,clinical_hx
-                ,lab_id as order_lab_id
-                ,patient_id AS order_patient_id
-                ,provider_id
-                ,date_ordered
-                ,date_collected
-            FROM procedure_order
-            WHERE activity = 1
-        ) porder
-        LEFT JOIN (
-            SELECT
-                procedure_order_id
-                ,procedure_order_seq
-                ,procedure_code
-                ,procedure_name
-                ,procedure_order_title AS procedure_type
-            FROM procedure_order_code
-        ) order_codes ON order_codes.procedure_order_id = porder.procedure_order_id
-        LEFT JOIN (
-            SELECT
-                date_report AS report_date
-                ,procedure_report_id
-                ,procedure_order_id
-                ,procedure_order_seq
-                ,uuid AS report_uuid
-                ,report_notes
-            FROM procedure_report
-        ) preport ON preport.procedure_order_id = porder.procedure_order_id
-            AND preport.procedure_order_seq = order_codes.procedure_order_seq
-        LEFT JOIN (
-            SELECT
-                procedure_result_id
-                ,procedure_report_id
-                ,uuid AS result_uuid
-                ,result AS result_quantity
-                ,result AS result_string
-                ,result AS result_result
-                ,units AS result_units
-                ,result_status
-                ,result_code
-                ,result_text
-                ,result_data_type
-                ,`range` AS result_range
-                ,`abnormal` AS result_abnormal
-                ,`comments` AS result_comments
-                ,`document_id` AS result_document_id
-            FROM `procedure_result`
-        ) presult ON presult.procedure_report_id = preport.procedure_report_id
-        LEFT JOIN (
-            SELECT
-                standard_code,
-                procedure_code AS proc_code
-            FROM procedure_type
-        ) pcode_types ON order_codes.procedure_code = pcode_types.proc_code
-        LEFT JOIN (
-            SELECT
-                encounter AS eid
-                ,uuid AS euuid
-                ,`date` AS encounter_date
-            FROM form_encounter
-        ) encounters ON porder.order_encounter_id = encounters.eid
-        LEFT JOIN (
-            SELECT
-                ppid AS lab_id
-                ,uuid AS lab_uuid
-                ,npi AS lab_npi
-                ,`name` AS lab_name
-                ,`active` AS lab_active
-            FROM procedure_providers
-        ) labs ON labs.lab_id = porder.order_lab_id
-        LEFT JOIN (
-            SELECT
-                pid
-                ,uuid AS puuid
-            FROM patient_data
-        ) patients ON patients.pid = porder.order_patient_id
-        LEFT JOIN (
-            SELECT
-               id AS doc_id
-               ,uuid AS doc_uuid
-            FROM documents
-        ) docs ON presult.result_document_id = docs.doc_id
-        LEFT JOIN (
-            SELECT
-                users.uuid AS provider_uuid
-                ,users.id AS provider_id
-                ,users.fname AS provider_fname
-                ,users.mname AS provider_mname
-                ,users.lname AS provider_lname
-                ,users.npi AS provider_npi
-            FROM users
-            WHERE npi IS NOT NULL AND npi != ''
-        ) provider ON provider.provider_id = porder.provider_id ";
+        ,provider.provider_uuid
+        ,provider.provider_id
+        ,provider.provider_fname
+        ,provider.provider_mname
+        ,provider.provider_lname
+        ,provider.provider_npi
+
+        ,location.location_id
+        ,location.location_uuid
+        ,location.location_name
+    FROM (
+        SELECT
+            procedure_order_id
+            ,uuid AS order_uuid
+            ,provider_id AS order_provider_id
+            ,encounter_id AS order_encounter_id
+            ,activity AS order_activity
+            ,order_diagnosis
+            ,order_status
+            ,order_priority
+            ,patient_instructions
+            ,clinical_hx
+            ,lab_id as order_lab_id
+            ,patient_id AS order_patient_id
+            ,provider_id
+            ,date_ordered
+            ,date_collected
+            ,procedure_order_type
+            ,scheduled_date
+            ,scheduled_start
+            ,scheduled_end
+            ,performer_type
+            ,order_intent
+            ,location_id
+            ,specimen_type
+            ,specimen_location
+            ,specimen_volume
+            ,specimen_fasting
+        FROM procedure_order
+        WHERE activity = 1
+    ) porder
+    LEFT JOIN (
+        SELECT
+            procedure_order_id
+            ,procedure_order_seq
+            ,procedure_code
+            ,procedure_name
+            ,procedure_order_title AS procedure_type
+            ,diagnoses
+        FROM procedure_order_code
+    ) order_codes ON order_codes.procedure_order_id = porder.procedure_order_id
+    LEFT JOIN (
+        SELECT
+            date_report AS report_date
+            ,procedure_report_id
+            ,procedure_order_id
+            ,procedure_order_seq
+            ,uuid AS report_uuid
+            ,report_notes
+        FROM procedure_report
+    ) preport ON preport.procedure_order_id = porder.procedure_order_id
+        AND preport.procedure_order_seq = order_codes.procedure_order_seq
+    LEFT JOIN (
+        SELECT
+            procedure_result_id
+            ,procedure_report_id
+            ,uuid AS result_uuid
+            ,result AS result_quantity
+            ,result AS result_string
+            ,result AS result_result
+            ,units AS result_units
+            ,result_status
+            ,result_code
+            ,result_text
+            ,result_data_type
+            ,`range` AS result_range
+            ,`abnormal` AS result_abnormal
+            ,`comments` AS result_comments
+            ,`document_id` AS result_document_id
+        FROM `procedure_result`
+    ) presult ON presult.procedure_report_id = preport.procedure_report_id
+    LEFT JOIN (
+        SELECT
+            standard_code,
+            procedure_code AS proc_code
+        FROM procedure_type
+    ) pcode_types ON order_codes.procedure_code = pcode_types.proc_code
+    LEFT JOIN (
+        SELECT
+            encounter AS eid
+            ,uuid AS euuid
+            ,`date` AS encounter_date
+        FROM form_encounter
+    ) encounters ON porder.order_encounter_id = encounters.eid
+    LEFT JOIN (
+        SELECT
+            ppid AS lab_id
+            ,uuid AS lab_uuid
+            ,npi AS lab_npi
+            ,`name` AS lab_name
+            ,`active` AS lab_active
+        FROM procedure_providers
+    ) labs ON labs.lab_id = porder.order_lab_id
+    LEFT JOIN (
+        SELECT
+            pid
+            ,uuid AS puuid
+        FROM patient_data
+    ) patients ON patients.pid = porder.order_patient_id
+    LEFT JOIN (
+        SELECT
+           id AS doc_id
+           ,uuid AS doc_uuid
+        FROM documents
+    ) docs ON presult.result_document_id = docs.doc_id
+    LEFT JOIN (
+        SELECT
+            users.uuid AS provider_uuid
+            ,users.id AS provider_id
+            ,users.fname AS provider_fname
+            ,users.mname AS provider_mname
+            ,users.lname AS provider_lname
+            ,users.npi AS provider_npi
+        FROM users
+        WHERE npi IS NOT NULL AND npi != ''
+    ) provider ON provider.provider_id = porder.provider_id
+    LEFT JOIN (
+        SELECT
+            id AS location_id
+            ,uuid AS location_uuid
+            ,name AS location_name
+        FROM facility
+    ) location ON location.location_id = porder.location_id";
 
         // Build WHERE clause from search parameters
-        // Note: Only apply result_string filter when explicitly searching for results
         $modifiedSearch = $search;
 
         // Don't filter out orders without results when doing a direct UUID lookup
@@ -301,41 +337,61 @@ class ProcedureService extends BaseService
                 $procedure = [
                     'name' => $record['procedure_name'] ?? null
                     ,'uuid' => $record['order_uuid']
-                    ,'order_uuid' => $record['order_uuid']  // Explicit for clarity
+                    ,'order_uuid' => $record['order_uuid']
                     ,'procedure_order_id' => $record['procedure_order_id']
                     ,'code' => $record['procedure_code'] ?? null
+                    ,'procedure_code' => $record['procedure_code'] ?? null
+                    ,'procedure_name' => $record['procedure_name'] ?? null
+                    ,'procedure_order_type' => $record['procedure_order_type'] ?? null
                     ,'standard_code' => $record['standard_code'] ?? null
                     ,'diagnosis' => $record['order_diagnosis'] ?? null
+                    ,'order_diagnosis' => $record['order_diagnosis'] ?? null
+                    ,'diagnoses' => $record['diagnoses'] ?? null
                     ,'activity' => $record['order_activity']
                     ,'status' => $record['order_status'] ?? null
+                    ,'order_status' => $record['order_status'] ?? null
                     ,'priority' => $record['order_priority'] ?? null
+                    ,'order_priority' => $record['order_priority'] ?? null
                     ,'patient_instructions' => $record['patient_instructions'] ?? null
                     ,'clinical_hx' => $record['clinical_hx'] ?? null
                     ,'date_ordered' => $record['date_ordered'] ?? null
+                    ,'date_collected' => $record['date_collected'] ?? null
+                    ,'scheduled_date' => $record['scheduled_date'] ?? null
+                    ,'scheduled_start' => $record['scheduled_start'] ?? null
+                    ,'scheduled_end' => $record['scheduled_end'] ?? null
+                    ,'performer_type' => $record['performer_type'] ?? null
+                    ,'order_intent' => $record['order_intent'] ?? null
+                    ,'specimen_type' => $record['specimen_type'] ?? null
+                    ,'specimen_location' => $record['specimen_location'] ?? null
+                    ,'specimen_volume' => $record['specimen_volume'] ?? null
+                    ,'specimen_fasting' => $record['specimen_fasting'] ?? null
                     ,'reports' => []
                 ];
 
                 if (!empty($record['provider_id'])) {
+                    $procedure['provider_id'] = $record['provider_id'];
                     $procedure['provider'] = [
                         'id' => $record['provider_id']
                         ,'uuid' => $record['provider_uuid']
-                        ,'fname' => $record['provider_fname']
-                        ,'mname' => $record['provider_mname']
-                        ,'lname' => $record['provider_lname']
+                        , 'fname' => $record['provider_fname']
+                        , 'mname' => $record['provider_mname']
+                        , 'lname' => $record['provider_lname']
                         ,'npi' => $record['provider_npi']
                     ];
                 }
 
                 if (!empty($record['lab_id'])) {
+                    $procedure['lab_id'] = $record['lab_id'];
                     $procedure['lab'] = [
                         'id' => $record['lab_id']
                         ,'uuid' => $record['lab_uuid']
-                        ,'name' => $record['lab_name']
+                        , 'name' => $record['lab_name']
                         ,'npi' => $record['lab_npi']
                     ];
                 }
 
                 if (!empty($record['pid'])) {
+                    $procedure['patient_id'] = $record['patient_id'];
                     $procedure['patient'] = [
                         'pid' => $record['pid']
                         ,'uuid' => $record['puuid']
@@ -343,10 +399,20 @@ class ProcedureService extends BaseService
                 }
 
                 if (!empty($record['eid'])) {
+                    $procedure['encounter_id'] = $record['eid'];
                     $procedure['encounter'] = [
                         'id' => $record['eid']
                         ,'uuid' => $record['euuid']
                         ,'date' => $record['encounter_date']
+                    ];
+                }
+
+                if (!empty($record['location_id']) && !empty($record['location_uuid'])) {
+                    $procedure['location_id'] = $record['location_id'];
+                    $procedure['location'] = [
+                        'id' => $record['location_id']
+                        ,'uuid' => UuidRegistry::uuidToString($record['location_uuid'])  // CONVERT BINARY!
+                        ,'name' => $record['location_name']
                     ];
                 }
 
@@ -364,7 +430,7 @@ class ProcedureService extends BaseService
                         'date' => $record['report_date']
                         ,'id' => $record['procedure_report_id']
                         ,'uuid' => $record['report_uuid']
-                        ,'notes' => $record['report_notes']
+                        , 'notes' => $record['report_notes']
                         ,'order_seq' => $record['procedure_order_seq']
                         ,'results' => []
                     ];
@@ -381,12 +447,12 @@ class ProcedureService extends BaseService
                         'id' => $record['procedure_result_id']
                         ,'uuid' => $record['result_uuid']
                         ,'code' => $record['result_code']
-                        ,'text' => $record['result_text']
+                        , 'text' => $record['result_text']
                         ,'units' => $record['result_units']
-                        ,'result' => $record['result_result']
+                        , 'result' => $record['result_result']
                         ,'range' => $record['result_range']
                         ,'abnormal' => $record['result_abnormal']
-                        ,'comments' => $record['result_comments']
+                        , 'comments' => $record['result_comments']
                         ,'document_id' => $record['doc_id']
                         ,'status' => $record['result_status']
                     ];
@@ -407,27 +473,27 @@ class ProcedureService extends BaseService
 
                 if ($orderId) {
                     $specimenSql = "SELECT
-                    uuid AS specimen_uuid
-                    ,specimen_identifier
-                    ,accession_identifier
-                    ,specimen_type_code
-                    ,specimen_type
-                    ,collection_method_code
-                    ,collection_method
-                    ,specimen_location_code
-                    ,specimen_location
-                    ,collected_date
-                    ,collection_date_low
-                    ,collection_date_high
-                    ,volume_value
-                    ,volume_unit
-                    ,condition_code
-                    ,specimen_condition
-                    ,comments AS specimen_comments
-                    ,deleted
-                FROM procedure_specimen
-                WHERE procedure_order_id = ? AND procedure_order_seq = ?
-                ORDER BY procedure_specimen_id";
+                uuid AS specimen_uuid
+                ,specimen_identifier
+                ,accession_identifier
+                ,specimen_type_code
+                ,specimen_type
+                ,collection_method_code
+                ,collection_method
+                ,specimen_location_code
+                ,specimen_location
+                ,collected_date
+                ,collection_date_low
+                ,collection_date_high
+                ,volume_value
+                ,volume_unit
+                ,condition_code
+                ,specimen_condition
+                ,comments AS specimen_comments
+                ,deleted
+            FROM procedure_specimen
+            WHERE procedure_order_id = ? AND procedure_order_seq = ?
+            ORDER BY procedure_specimen_id";
 
                     $specimenResults = sqlStatement($specimenSql, [$orderId, $report['order_seq']]);
                     $specimens = [];
@@ -435,22 +501,22 @@ class ProcedureService extends BaseService
                     while ($specimenRow = sqlFetchArray($specimenResults)) {
                         $specimens[] = [
                             'uuid' => UuidRegistry::uuidToString($specimenRow['specimen_uuid'])
-                            ,'identifier' => $specimenRow['specimen_identifier']
-                            ,'accession' => $specimenRow['accession_identifier']
+                            , 'identifier' => $specimenRow['specimen_identifier']
+                            , 'accession' => $specimenRow['accession_identifier']
                             ,'type_code' => $specimenRow['specimen_type_code']
-                            ,'type' => $specimenRow['specimen_type']
+                            , 'type' => $specimenRow['specimen_type']
                             ,'method_code' => $specimenRow['collection_method_code']
-                            ,'method' => $specimenRow['collection_method']
+                            , 'method' => $specimenRow['collection_method']
                             ,'location_code' => $specimenRow['specimen_location_code']
-                            ,'location' => $specimenRow['specimen_location']
+                            , 'location' => $specimenRow['specimen_location']
                             ,'collected_date' => $specimenRow['collected_date']
                             ,'collection_start' => $specimenRow['collection_date_low']
                             ,'collection_end' => $specimenRow['collection_date_high']
                             ,'volume' => $specimenRow['volume_value']
                             ,'volume_unit' => $specimenRow['volume_unit']
                             ,'condition_code' => $specimenRow['condition_code']
-                            ,'specimen_condition' => $specimenRow['specimen_condition']
-                            ,'comments' => $specimenRow['specimen_comments']
+                            , 'specimen_condition' => $specimenRow['specimen_condition']
+                            , 'comments' => $specimenRow['specimen_comments']
                             ,'deleted' => $specimenRow['deleted']
                         ];
                     }

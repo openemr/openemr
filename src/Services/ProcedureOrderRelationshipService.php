@@ -265,13 +265,13 @@ class ProcedureOrderRelationshipService
      *
      * @return int Number of records deleted
      */
-    public function cleanupOrphanedRecords()
+    public function cleanupOrphanedRecords(): int
     {
         $sql = "DELETE por FROM procedure_order_relationships por
                 LEFT JOIN procedure_order po ON por.procedure_order_id = po.procedure_order_id
                 WHERE po.procedure_order_id IS NULL OR po.activity = 0";
 
-        sqlStatement($sql);
+        return sqlStatement($sql);
     }
 
     /**

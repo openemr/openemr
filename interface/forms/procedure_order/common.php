@@ -1333,7 +1333,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                 <fieldset class="container-xl clearfix">
                     <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">
                         <i class="fa fa-plus"></i>
-                        <?php echo xlt('Select Options for Current Order Id') . ' ' . (text($formid) ? text($formid) : 'New Order') ?>
+                        <?php echo xlt('Select Options for Current Order Id') . ' ' . (text($formid) ?: 'New Order') ?>
                     </legend>
                     <div class="col-md-12 collapse show" id="orderOptions">
                         <div class="form-group form-row">
