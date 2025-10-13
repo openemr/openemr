@@ -33,11 +33,7 @@ class Contact extends ORDataObject
      */
     private $foreign_id;
 
-
-    const CONTACT_TYPE_PATIENT = 'Patient';
-    const CONTACT_TYPES = [self::CONTACT_TYPE_PATIENT];
-
-    public function __construct($id)
+    public function __construct($id = "")
     {
         parent::__construct("contact");
         $this->id = $id;
@@ -76,7 +72,7 @@ class Contact extends ORDataObject
     /**
      * @return int
      */
-    public function get_id(): ?int
+    public function get_id()
     {
         return $this->id;
     }
