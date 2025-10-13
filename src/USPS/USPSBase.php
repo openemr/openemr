@@ -70,14 +70,6 @@ class USPSBase
    */
     public static $testMode = false;
   /**
-   * @var string - client ID for v3 API
-   */
-    protected $clientId = '';
-  /**
-   * @var string - client secret for v3 API
-   */
-    protected $clientSecret = '';
-  /**
    * @var string - access token for v3 API
    */
     protected $accessToken = '';
@@ -128,13 +120,10 @@ class USPSBase
    * @param string $clientId - v3 API client ID
    * @param string $clientSecret - v3 API client secret
    */
-    public function __construct(protected $username = '', $clientId = '', $clientSecret = '')
+    public function __construct(protected $username = '', protected $clientId = '', protected $clientSecret = '')
     {
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-
         // use v3 if we have client credentials, otherwise legacy
-        $this->useV3 = !empty($clientId) && !empty($clientSecret);
+        $this->useV3 = !empty($this->clientId) && !empty($this->clientSecret);
     }
   /**
    * set the usps api username we are going to user

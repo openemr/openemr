@@ -10,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// AI is used to help generate tests
 namespace OpenEMR\Tests\Unit\USPS;
 
 use PHPUnit\Framework\TestCase;
@@ -21,7 +20,7 @@ use OpenEMR\USPS\USPSBase;
 class USPSAPIV3Test extends TestCase
 {
     // Test API version detection logic
-    public function testAPIVersionDetection()
+    public function testAPIVersionDetection(): void
     {
         // legacy only
         $legacyAPI = new USPSAddressVerify('username123', '', '');
@@ -39,19 +38,19 @@ class USPSAPIV3Test extends TestCase
         $this->assertTrue($property->getValue($bothAPI));
     }
 
-    public function testAPIV3Endpoint()
+    public function testAPIV3Endpoint(): void
     {
         $api = new USPSAddressVerify('', 'client_id', 'client_secret');
         $this->assertEquals('https://api.usps.com/addresses/v3', $api->getEndpoint());
     }
 
-    public function testLegacyEndpoint()
+    public function testLegacyEndpoint(): void
     {
         $api = new USPSAddressVerify('username123', '', '');
         $this->assertEquals('https://secure.shippingapis.com/ShippingAPI.dll', $api->getEndpoint());
     }
 
-    public function testAddressCreation()
+    public function testAddressCreation(): void
     {
         $address = new USPSAddress();
         $address->setAddress('6406 Ivy Lane');
@@ -71,7 +70,7 @@ class USPSAPIV3Test extends TestCase
         $this->assertEquals('1441', $info['Zip4']);
     }
 
-    public function testAddAddressToVerify()
+    public function testAddAddressToVerify(): void
     {
         $verify = new USPSAddressVerify('', 'client_id', 'client_secret');
         $address = new USPSAddress();
@@ -88,7 +87,7 @@ class USPSAPIV3Test extends TestCase
         $this->assertEquals('1600 Pennsylvania Ave NW', $fields['Address'][0]['Address2']);
     }
 
-    public function testAddMultipleAddresses()
+    public function testAddMultipleAddresses(): void
     {
         $verify = new USPSAddressVerify('username123', '', '');
 
@@ -109,7 +108,7 @@ class USPSAPIV3Test extends TestCase
     }
 
     // Check that address fields map correctly
-    public function testV3ParameterMapping()
+    public function testV3ParameterMapping(): void
     {
         $verify = new USPSAddressVerify('', 'client_id', 'client_secret');
         $address = new USPSAddress();
@@ -132,7 +131,7 @@ class USPSAPIV3Test extends TestCase
         $this->assertEquals('62701', $data['Zip5']);
     }
 
-    public function testConstructorBackwardCompatibility()
+    public function testConstructorBackwardCompatibility(): void
     {
         // old style still works
         $legacy = new USPSAddressVerify('myusername');
@@ -147,7 +146,7 @@ class USPSAPIV3Test extends TestCase
         $this->assertInstanceOf(USPSAddressVerify::class, $mixed);
     }
 
-    public function testErrorHandling()
+    public function testErrorHandling(): void
     {
         $verify = new USPSAddressVerify('', 'bad_id', 'bad_secret');
 
@@ -161,7 +160,7 @@ class USPSAPIV3Test extends TestCase
         $this->assertNotEmpty($verify->getErrorMessage());
     }
 
-    public function testResponseFormatDetection()
+    public function testResponseFormatDetection(): void
     {
         $verify = new USPSAddressVerify('', 'client_id', 'client_secret');
 
@@ -182,7 +181,7 @@ class USPSAPIV3Test extends TestCase
         $this->assertEquals('6406 IVY LN', $resp['address']['streetAddress']);
     }
 
-    public function testVerifyRoutesCorrectly()
+    public function testVerifyRoutesCorrectly(): void
     {
         $mock = $this->getMockBuilder(USPSAddressVerify::class)
             ->setConstructorArgs(['username', '', ''])
