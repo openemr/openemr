@@ -618,7 +618,214 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
        ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
        ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
 #EndIf
+
+
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- relatedperson
+-- https://build.fhir.org/relatedperson.html
+
+
+#IfNotTable person
+CREATE TABLE `person` (
+    `id`  BIGINT(20) NOT NULL auto_increment,
+    `firstname`    VARCHAR(63)  DEFAULT NULL,
+    `lastname`     VARCHAR(63)  DEFAULT NULL,
+    `gender`          VARCHAR(31)  DEFAULT NULL,
+    `birth_date`      DATE  DEFAULT NULL,
+    `death_date`      DATE  DEFAULT NULL,
+    `phone`         VARCHAR(25)  DEFAULT NULL,
+    `work_phone`    VARCHAR(25)  DEFAULT NULL,
+    `email`        VARCHAR(254) DEFAULT NULL,
+    `photo`         LONGBLOB DEFAULT NULL,
+    `communication` VARCHAR(254) DEFAULT NULL,
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY (`pid`)
+) ENGINE = InnoDB;
+#EndIf
+
+
+
+#IfNotTable contact_relation
+CREATE TABLE `contact_relation` (
+    `id`  BIGINT(20) NOT NULL auto_increment,
+    `contact_id`  BIGINT(20) NOT NULL,
+    `uuid`      binary(16)   DEFAULT NULL,
+    `related_foreign_table_name`  VARCHAR(255) NOT NULL DEFAULT '',
+    `related_foreign_table_id`  BIGINT(20) NOT NULL,
+    `active` BOOLEAN DEFAULT TRUE,
+    `role` VARCHAR(63)  DEFAULT NULL,
+    `relationship` VARCHAR(63)  DEFAULT NULL,
+    `contact_priority` INT DEFAULT 1, -- 1 = highest priority
+    `is_primary_contact` BOOLEAN DEFAULT FALSE,
+    `is_emergency_contact` BOOLEAN DEFAULT FALSE,
+    `can_make_medical_decisions` BOOLEAN DEFAULT FALSE,
+    `can_receive_medical_info` BOOLEAN DEFAULT FALSE,
+    `start_date` DATE
+    `end_date` DATE,
+    `notes` TEXT,
+   PRIMARY KEY (`id`),
+   KEY (`pid`)
+) ENGINE = InnoDB;
+#EndIf
+
+
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- relatedperson-relationshiptype Valuesets
+-- https://terminology.hl7.org/6.5.0/ValueSet-v3-PersonalRelationshipRoleType.html
+
+#IfNotRow2D list_options list_id lists option_id related_person-relationships
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+    VALUES ('lists','related_person-relationship','Related Person Relationships',0, 1, 0);
+
+INSERT INTO list_options
+    (list_id,option_id,title,seq,is_default,activity)
+VALUES
+    ('related_person-relationship','FAMMEMB','Family Member',10,0,1)
+    ('related_person-relationship','CHILD','Child',10,0,1)
+    ('related_person-relationship','DAUC','daughter',10,0,1)
+    ('related_person-relationship','SONC','son',10,0,1)
+    ('related_person-relationship','NCHILD','natural child',10,0,1)
+    ('related_person-relationship','DAU','natural daughter',10,0,1)
+    ('related_person-relationship','SON','natural son',10,0,1)
+    ('related_person-relationship','STPCHLD','step child',10,0,1)
+    ('related_person-relationship','STPDAU','stepdaughter',10,0,1)
+    ('related_person-relationship','STPSON','stepson',10,0,1)
+    ('related_person-relationship','CHLDADOPT','Adopted Child',10,0,1)
+    ('related_person-relationship','DAUADOPT','Adopted Daughter',10,0,1)
+    ('related_person-relationship','SONADOPT','Adopted Son',10,0,1)
+    ('related_person-relationship','CHLDFOST','Foster Child',10,0,1);
+    ('related_person-relationship','DAUFOST','foster daughter',10,0,1)
+    ('related_person-relationship','SONFOST','foster son',10,0,1)
+    ('related_person-relationship','EXT','extended family member',10,0,1)
+    ('related_person-relationship','AUNT','aunt',10,0,1)
+    ('related_person-relationship','MAUNT','maternal aunt',10,0,1)
+    ('related_person-relationship','PAUNT','paternal aunt',10,0,1)
+    ('related_person-relationship','COUSN','maternal cousin',10,0,1)
+
+
+
+
+
+    ('related_person-relationship','NBOR','neighbor',10,0,1)
+    ('related_person-relationship','NBRO','natural brother',10,0,1)
+    ('related_person-relationship','NEPHEW','nephew',10,0,1)
+    ('related_person-relationship','NFTH','natural father',10,0,1)
+    ('related_person-relationship','NIECE','niece',10,0,1)
+    ('related_person-relationship','NMTH','natural mother',10,0,1)
+    ('related_person-relationship','ADOPTF','adoptive father',10,0,1)
+    ('related_person-relationship','ADOPTM','adoptive mother',10,0,1)
+    ('related_person-relationship','BRO','brother',10,0,1)
+    ('related_person-relationship','BROINLAW','brother-in-law',10,0,1)
+    ('related_person-relationship','DAUINLAW','daughter in-law',10,0,1)
+    ('related_person-relationship','DOMPART','domestic partner',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+    ('related_person-relationship','','',10,0,1)
+#Endif
+
+
+
+
+
+
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- relatedperson-relationshiptype Valuesets
+-- https://build.fhir.org/valueset-relatedperson-relationshiptype.html
+
+#IfNotRow2D list_options list_id lists option_id related_person-role
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+    VALUES ('lists','related_person-role','Related Person Role',0, 1, 0);
+
+INSERT INTO list_options
+    (list_id,option_id,title,seq,is_default,activity)
+VALUES
+    ('related_person-role','ECON','Emergency Contact',10,0,1),
+    ('related_person-role','NOK','Next of Kin',20,0,1),
+    ('related_person-role','GUARD','Guardian',30,0,1),
+    ('related_person-role','DEPEN','Dependent',40,0,1),
+    ('related_person-role','CON','contact',40,0,1),
+    ('related_person-role','EMP','Employee',50,0,1),
+    ('related_person-role','GUAR','Guarantor',60,0,1),
+    ('related_person-role','CAREGIVER','Caregiver',70,0,1),
+    ('related_person-role','POWATT','Power of Attorney',80,0,1),
+    ('related_person-role','DPOWATT','Durable Power of Attorney',90,0,1),
+    ('related_person-role','HPOWATT','Healthcare Power of Attorney',100,0,1),
+    ('related_person-role','BILL','Billing Contact',110,0,1),
+    ('related_person-role','E','Employer',120,0,1),
+    ('related_person-role','POLHOLD','Policy Holder',130,0,1),
+    ('related_person-role','PAYEE','Payee',140,0,1),
+    ('related_person-role','NOT','Notary Public',150,0,1),
+    ('related_person-role','PROV','Healthcare Provider',160,0,1),
+    ('related_person-role','WIT','Witness',170,0,1),
+    ('related_person-role','O','Other',180,0,1),
+    ('related_person-role','U','Unknown',190,0,1);
+#EndIf
+
+
+
+#IfRow2D layout_group_properties grp_form_id DEM grp_title Guardian
+UPDATE layout_group_properties
+SET grp_title = 'Related'
+WHERE grp_title = 'Guardian'
+  AND grp_form_id = 'DEM'
+  AND grp_group_id = @grp_group_id;
+
+#Elseif
+    #IfNotRow2D layout_group_properties grp_form_id DEM grp_title Related
+    INSERT INTO layout_group_properties
+        (grp_form_id, grp_group_id, grp_title, grp_mapping)
+    VALUES
+        ('DEM', @newgrp, 'Related','');
+    #Endif
+#Endif
+
+
+#IfNotRow2D layout_options form_id DEM field_id related_persons
+
+    #IfRow2D layout_options form_id DEM field_id guardianemail
+    SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='guardianemail' AND form_id='DEM');
+    SET @seq_add_to = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
+    INSERT INTO `layout_options`
+        (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+    VALUES
+        ('DEM','related_persons',@group_id,'',@seq_add_to+1,55,1,0,0,'',4,4,'','','Related Persons',0);
+    #Elseif
+    SET @group_id = (SELECT `group_id` FROM layout_options WHERE grp_title='related_persons' AND form_id='DEM');
+    INSERT INTO `layout_options`
+        (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+    VALUES
+        ('DEM','related_persons',@group_id,'',1,55,1,0,0,'',4,4,'','','Related Persons',0);
+    #Endif
+
+#Endif
+
+
+
+
+
 
 -- Observation Form Changes
 

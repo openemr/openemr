@@ -1,196 +1,455 @@
 <?php
 
 /**
- * Contact Service
+ * Contact Service - Clean Design with 1:1 Entity Relationship
+ * Manages Contact entities with a 1:1 relationship to foreign entities
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    David <  >
- * @copyright Copyright (c) 2022 David <  >
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
-use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\System\System;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\Utils\DateFormatterUtils;
+use OpenEMR\Validators\ProcessingResult;
 
 class ContactService extends BaseService
 {
     public const TABLE_NAME = 'contact';
-
-    private const CONTACT_ADDRESS_TABLE = "contact_address";
-
+    
     /**
      * Default constructor.
      */
     public function __construct($base_table = null)
     {
         parent::__construct($base_table ?? self::TABLE_NAME);
-        //$this->patientValidator = new PatientValidator();
     }
-
-    // TODO: @adunsulag do we want this service so tightly coupled to the interface widget data format?  Should we genericize this more?
-    // for now, following KISS, but we may want to add some more complexity, just so this is a more generic service we can use.
-    public function saveContactsForPatient($pid, $contactData)
+    
+    /**
+     * Get or create a contact for an entity (ensures 1:1 relationship)
+     * 
+     * @param string $foreignTable The table this contact relates to
+     * @param int $foreignId The ID in the foreign table
+     * @return Contact
+     */
+    public function getOrCreateForEntity(string $foreignTable, int $foreignId): Contact
     {
-        (new SystemLogger())->debug("Saving contact for patient pid ", ['pid' => $pid, 'contactData' => $contactData]);
-
+        // First try to find existing contact
+        $sql = "SELECT * FROM contact 
+                WHERE foreign_table_name = ? 
+                AND foreign_id = ?
+                LIMIT 1";
+        
+        $result = sqlQuery($sql, [$foreignTable, $foreignId]);
+        
+        if ($result) {
+            $contact = new Contact();
+            $contact->populate_array($result);
+            return $contact;
+        }
+        
+        // Create new contact if none exists
+        $contact = new Contact();
+        $contact->setContactRecord($foreignTable, $foreignId);
+        $contact->persist();
+        
+        $this->getLogger()->debug("Contact created for entity", [
+            'id' => $contact->get_id(),
+            'foreign_table' => $foreignTable,
+            'foreign_id' => $foreignId
+        ]);
+        
+        return $contact;
+    }
+    
+    /**
+     * Get a contact by ID
+     * 
+     * @param int $contactId
+     * @return Contact|null
+     */
+    public function get(int $contactId): ?Contact
+    {
+        $contact = new Contact($contactId);
+        
+        if (empty($contact->get_id())) {
+            return null;
+        }
+        
+        return $contact;
+    }
+    
+    /**
+     * Get contact for a specific entity
+     * 
+     * @param string $foreignTable
+     * @param int $foreignId
+     * @return Contact|null
+     */
+    public function getForEntity(string $foreignTable, int $foreignId): ?Contact
+    {
+        $sql = "SELECT * FROM contact 
+                WHERE foreign_table_name = ? 
+                AND foreign_id = ?
+                LIMIT 1";
+        
+        $result = sqlQuery($sql, [$foreignTable, $foreignId]);
+        
+        if (!$result) {
+            return null;
+        }
+        
+        $contact = new Contact();
+        $contact->populate_array($result);
+        return $contact;
+    }
+    
+    /**
+     * Check if an entity has a contact
+     * 
+     * @param string $foreignTable
+     * @param int $foreignId
+     * @return bool
+     */
+    public function entityHasContact(string $foreignTable, int $foreignId): bool
+    {
+        $sql = "SELECT id FROM contact 
+                WHERE foreign_table_name = ? 
+                AND foreign_id = ?
+                LIMIT 1";
+        
+        $result = sqlQuery($sql, [$foreignTable, $foreignId]);
+        
+        return !empty($result);
+    }
+    
+    /**
+     * Delete a contact (checks for dependent records first)
+     * 
+     * @param int $contactId
+     * @return ProcessingResult
+     */
+    public function delete(int $contactId): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+        
         try {
-            // due to contention on the sequences table with connection pooling and the sequences table locking everytime
-            // a new sequence value is updated we've disabled the transactions for now until we can figure out what is
-            // going on.
-
-            // wrap the entire thing in a transaction so we are idempotent.
-//            \sqlBeginTrans();
-
-            $preppedData = $this->convertArraysToRecords($pid, $contactData);
-
-            // save off our data
-            foreach ($preppedData as $record) {
-                $record->persist();
+            // Check for dependent records
+            $dependents = $this->getDependentRecords($contactId);
+            
+            if (!empty($dependents)) {
+                $processingResult->addProcessingError(
+                    "Cannot delete contact with dependent records: " . 
+                    implode(", ", array_keys($dependents))
+                );
+                return $processingResult;
             }
-
-            // grab all of the NEW records and insert them in as address records for the given patient
-//            \sqlCommitTrans();
-        } catch (\Exception) {
-            // TODO: @adunsulag handle exception
-//            \sqlRollbackTrans();
+            
+            $sql = "DELETE FROM contact WHERE id = ?";
+            sqlStatement($sql, [$contactId]);
+            
+            $this->getLogger()->info("Contact deleted", ['id' => $contactId]);
+            $processingResult->addData(['deleted' => true, 'id' => $contactId]);
+            
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error deleting contact", [
+                'id' => $contactId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addProcessingError($e->getMessage());
         }
-
-        // then we return
-        return $preppedData;
+        
+        return $processingResult;
     }
-
+    
     /**
-     * @param $pid
-     * @param $contactData
-     * @return ContactAddress[]
+     * Delete contact for a specific entity
+     * 
+     * @param string $foreignTable
+     * @param int $foreignId
+     * @return ProcessingResult
      */
-    public function convertArraysToRecords($pid, $contactData)
+    public function deleteForEntity(string $foreignTable, int $foreignId): ProcessingResult
     {
-        $records = [];
-        $count = count($contactData['data_action'] ?? []);
-        if ($count <= 0) {
-            return $records;
+        $contact = $this->getForEntity($foreignTable, $foreignId);
+        
+        if (!$contact) {
+            $processingResult = new ProcessingResult();
+            $processingResult->addProcessingError("No contact found for entity");
+            return $processingResult;
         }
-        $listService = new ListService();
-        $types = $listService->getOptionsByListName('address-types');
-        $typesHash = array_reduce($types, function ($map, $item) {
-            $map[$item['option_id']] = $item['option_id'];
-            return $map;
-        }, []);
-        $uses = $listService->getOptionsByListName('address-uses');
-        $usesHash = array_reduce($uses, function ($map, $item) {
-            $map[$item['option_id']] = $item['option_id'];
-            return $map;
-        }, []);
-
-
-        for ($i = 0; $i < $count; $i++) {
-            // empty data that we don't need to deal with as we can't do anything meaningful without an id
-            if ($contactData['data_action'][$i] != 'ADD' && empty($contactData['id'][$i])) {
-                continue;
+        
+        return $this->delete($contact->get_id());
+    }
+    
+    /**
+     * Get dependent records for a contact
+     * 
+     * @param int $contactId
+     * @return array Array of table names with counts
+     */
+    public function getDependentRecords(int $contactId): array
+    {
+        $dependents = [];
+        
+        // Check contact_address table
+        $sql = "SELECT COUNT(*) as count FROM contact_address WHERE contact_id = ?";
+        $result = sqlQuery($sql, [$contactId]);
+        if ($result['count'] > 0) {
+            $dependents['contact_address'] = $result['count'];
+        }
+        
+        // Check relationship table
+        $sql = "SELECT COUNT(*) as count FROM relationship WHERE contact_id = ?";
+        $result = sqlQuery($sql, [$contactId]);
+        if ($result['count'] > 0) {
+            $dependents['relationship'] = $result['count'];
+        }
+        
+        // Future: Add checks for contact_telephone, contact_email, etc.
+        
+        return $dependents;
+    }
+    
+    /**
+     * Validate that a contact exists and belongs to a specific entity
+     * 
+     * @param int $contactId
+     * @param string $foreignTable
+     * @param int $foreignId
+     * @return bool
+     */
+    public function validateOwnership(int $contactId, string $foreignTable, int $foreignId): bool
+    {
+        $sql = "SELECT id FROM contact 
+                WHERE id = ? 
+                AND foreign_table_name = ? 
+                AND foreign_id = ?";
+        
+        $result = sqlQuery($sql, [$contactId, $foreignTable, $foreignId]);
+        
+        return !empty($result);
+    }
+    
+    /**
+     * Transfer a contact from one entity to another
+     * 
+     * @param int $contactId
+     * @param string $newForeignTable
+     * @param int $newForeignId
+     * @return ProcessingResult
+     */
+    public function transferContact(int $contactId, string $newForeignTable, int $newForeignId): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+        
+        try {
+            // Check if destination already has a contact
+            if ($this->entityHasContact($newForeignTable, $newForeignId)) {
+                $processingResult->addProcessingError(
+                    "Destination entity already has a contact. Delete it first or merge the contacts."
+                );
+                return $processingResult;
             }
-            $contactAddress = new ContactAddress($contactData['id'][$i] ?? null);
-
-            $type = $contactData['type'][$i] ?? 'home';
-            if (isset($typesHash[$type])) {
-                $contactAddress->set_type($type);
+            
+            // Get the contact
+            $contact = $this->get($contactId);
+            if (!$contact) {
+                $processingResult->addProcessingError("Contact not found");
+                return $processingResult;
+            }
+            
+            // Update the contact
+            $contact->setContactRecord($newForeignTable, $newForeignId);
+            $contact->persist();
+            
+            $this->getLogger()->info("Contact transferred", [
+                'contact_id' => $contactId,
+                'new_table' => $newForeignTable,
+                'new_id' => $newForeignId
+            ]);
+            
+            $processingResult->addData($contact->toArray());
+            
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error transferring contact", ['error' => $e->getMessage()]);
+            $processingResult->addProcessingError($e->getMessage());
+        }
+        
+        return $processingResult;
+    }
+    
+    /**
+     * Merge two contacts (useful when consolidating duplicate entities)
+     * 
+     * @param int $sourceContactId Contact to merge from
+     * @param int $targetContactId Contact to merge into
+     * @return ProcessingResult
+     */
+    public function mergeContacts(int $sourceContactId, int $targetContactId): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+        
+        try {
+            if ($sourceContactId === $targetContactId) {
+                $processingResult->addProcessingError("Cannot merge a contact with itself");
+                return $processingResult;
+            }
+            
+            // Update all dependent records to point to target contact
+            $tables = [
+                'contact_address',
+                'relationship',
+                // Add future tables here: contact_telephone, contact_email, etc.
+            ];
+            
+            foreach ($tables as $table) {
+                $sql = "UPDATE $table SET contact_id = ? WHERE contact_id = ?";
+                sqlStatement($sql, [$targetContactId, $sourceContactId]);
+            }
+            
+            // Delete the source contact
+            $sql = "DELETE FROM contact WHERE id = ?";
+            sqlStatement($sql, [$sourceContactId]);
+            
+            $this->getLogger()->info("Contacts merged", [
+                'source_id' => $sourceContactId,
+                'target_id' => $targetContactId
+            ]);
+            
+            $processingResult->addData([
+                'merged' => true,
+                'source_id' => $sourceContactId,
+                'target_id' => $targetContactId
+            ]);
+            
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error merging contacts", ['error' => $e->getMessage()]);
+            $processingResult->addProcessingError($e->getMessage());
+        }
+        
+        return $processingResult;
+    }
+    
+    /**
+     * Find contacts by foreign table type
+     * 
+     * @param string $foreignTable
+     * @param int $limit
+     * @param int $offset
+     * @return array
+     */
+    public function findByForeignTable(string $foreignTable, int $limit = 100, int $offset = 0): array
+    {
+        $sql = "SELECT c.*, 
+                (SELECT COUNT(*) FROM contact_address WHERE contact_id = c.id) as address_count,
+                (SELECT COUNT(*) FROM relationship WHERE contact_id = c.id) as relationship_count
+                FROM contact c
+                WHERE c.foreign_table_name = ?
+                ORDER BY c.id ASC
+                LIMIT ? OFFSET ?";
+        
+        return QueryUtils::fetchRecords($sql, [$foreignTable, $limit, $offset]) ?? [];
+    }
+    
+    /**
+     * Get statistics about contacts
+     * 
+     * @return array
+     */
+    public function getStatistics(): array
+    {
+        $stats = [];
+        
+        // Total contacts
+        $sql = "SELECT COUNT(*) as total FROM contact";
+        $result = sqlQuery($sql);
+        $stats['total_contacts'] = (int)$result['total'];
+        
+        // Contacts by foreign table
+        $sql = "SELECT foreign_table_name, COUNT(*) as count 
+                FROM contact 
+                GROUP BY foreign_table_name";
+        $results = QueryUtils::fetchRecords($sql) ?? [];
+        
+        $stats['by_table'] = [];
+        foreach ($results as $row) {
+            $stats['by_table'][$row['foreign_table_name']] = (int)$row['count'];
+        }
+        
+        // Contacts with addresses
+        $sql = "SELECT COUNT(DISTINCT c.id) as count
+                FROM contact c
+                JOIN contact_address ca ON ca.contact_id = c.id
+                WHERE ca.status = 'A'";
+        $result = sqlQuery($sql);
+        $stats['with_active_addresses'] = (int)$result['count'];
+        
+        // Contacts in relationships
+        $sql = "SELECT COUNT(DISTINCT contact_id) as count 
+                FROM relationship 
+                WHERE active = 1";
+        $result = sqlQuery($sql);
+        $stats['in_active_relationships'] = (int)$result['count'];
+        
+        // Orphaned contacts (no addresses, no relationships)
+        $sql = "SELECT COUNT(*) as count FROM contact c
+                WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
+                AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
+        $result = sqlQuery($sql);
+        $stats['orphaned_contacts'] = (int)$result['count'];
+        
+        return $stats;
+    }
+    
+    /**
+     * Clean up orphaned contacts (contacts with no dependent records)
+     * 
+     * @param bool $dryRun If true, only returns what would be deleted
+     * @return ProcessingResult
+     */
+    public function cleanupOrphaned(bool $dryRun = true): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+        
+        try {
+            $sql = "SELECT c.* FROM contact c
+                    WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
+                    AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
+            
+            $orphaned = QueryUtils::fetchRecords($sql) ?? [];
+            
+            if ($dryRun) {
+                $processingResult->addData([
+                    'dry_run' => true,
+                    'orphaned_count' => count($orphaned),
+                    'orphaned_contacts' => $orphaned
+                ]);
             } else {
-                (new SystemLogger())->errorLogCaller("address type does not exist in list_options address-types", ['type' => $type]);
-            }
-            $use = $contactData['use'][$i] ?? 'physical';
-            if (isset($usesHash[$use])) {
-                $contactAddress->set_use($use);
-            } else {
-                (new SystemLogger())->errorLogCaller("address use does not exist in list_options address-uses", ['use' => $use]);
-            }
-
-            $periodStart = DateFormatterUtils::dateStringToDateTime($contactData['period_start'][$i] ?? '', true);
-            if ($periodStart !== false) {
-                $contactAddress->set_period_start($periodStart);
-            } else {
-                (new SystemLogger())->errorLogCaller("Skipping save of period_start as it was in invalid date format", ['period_start' => $contactData['period_start'][$i]]);
-            }
-
-            $contactAddress->set_period_end(null);
-            if (!empty($contactData['period_end'][$i])) {
-                $date = DateFormatterUtils::dateStringToDateTime($contactData['period_end'][$i], true);
-                if ($date !== false) {
-                    $contactAddress->set_period_end($date);
-                } else {
-                    (new SystemLogger())->errorLogCaller("Skipping period_end as it was in invalid date format", ['period_end' => $contactData['period_end'][$i]]);
+                $deletedCount = 0;
+                foreach ($orphaned as $contact) {
+                    $sql = "DELETE FROM contact WHERE id = ?";
+                    sqlStatement($sql, [$contact['id']]);
+                    $deletedCount++;
                 }
+                
+                $this->getLogger()->info("Orphaned contacts cleaned up", ['count' => $deletedCount]);
+                
+                $processingResult->addData([
+                    'dry_run' => false,
+                    'deleted_count' => $deletedCount
+                ]);
             }
-
-            // TODO: Add the following three fields to the user interface when we can
-            $contactAddress->set_notes($contactData['notes'][$i] ?? '');
-            $contactAddress->set_priority($contactData['priority'][$i] ?? 0);
-            $contactAddress->set_inactivated_reason($contactData['inactivated_reason'][$i] ?? '');
-
-            $address = $contactAddress->getAddress();
-            $address->set_line1($contactData['line_1'][$i] ?? '');
-            $address->set_line2($contactData['line_2'][$i] ?? '');
-            $address->set_city($contactData['city'][$i] ?? '');
-            $address->set_district($contactData['district'][$i] ?? '');
-            $address->set_state($contactData['state'][$i] ?? '');
-            $address->set_country($contactData['country'][$i] ?? '');
-            $address->set_postalcode($contactData['postalcode'][$i] ?? '');
-            $address->set_foreign_id(null);
-
-            $contact = $contactAddress->getContact();
-            // then we will create our contacts record as well
-            $contact->setContactRecord('patient_data', $pid);
-
-            // here we can handle all of our data actions
-            if ($contactData['data_action'][$i] == 'INACTIVATE') {
-                $contactAddress->deactivate();
-            }
-
-            // now we fill in any of our ContactAddress information if we have it
-            $records[] = $contactAddress;
+            
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error cleaning up orphaned contacts", ['error' => $e->getMessage()]);
+            $processingResult->addProcessingError($e->getMessage());
         }
-        return $records;
-    }
-
-
-    /**
-     * Returns all of our contact address information for a patient
-     * @param $pid
-     * @return ContactAddress[]
-     */
-    public function getContactsForPatient($pid, $includeInactive = false): array
-    {
-        if (empty($pid)) {
-            return [];
-        }
-
-        $sql = "SELECT ca.* FROM contact_address ca JOIN contact c ON ca.contact_id = c.id AND c.foreign_table_name = 'patient_data' AND c.foreign_id = ?";
-        if ($includeInactive !== true) {
-            $sql .= " WHERE ca.status = 'A'";
-        }
-        $contactData = QueryUtils::fetchRecords($sql, [$pid]) ?? [];
-//
-//       // does an O(n) fetch from the db, could be optimized later to use populate_array on the record.
-        // for single patient pid access this is just fine as very few patients have more than 4-5 addresses
-        // TODO: if we need bulk export on patients we should rewrite this method.
-        $resultSet = [];
-        foreach ($contactData as $record) {
-            $contactAddress = new ContactAddress();
-            $contactAddress->populate_array($record);
-            $address = $contactAddress->getAddress();
-            $arrAddress = $address->toArray();
-            // overwrite any duplicate values in address with the contact data (the id property will be contact data)
-            $arrAddress = array_merge($arrAddress, $contactAddress->toArray());
-            $resultSet[] = $arrAddress;
-        }
-        return $resultSet;
+        
+        return $processingResult;
     }
 }

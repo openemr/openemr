@@ -1656,6 +1656,7 @@ function generate_form_field($frow, $currvalue): void
         }
         echo "</select>";
         echo "<button type='button' class='btn btn-primary btn-sm' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
+
     // Patient Encounter List Field
     } elseif ($data_type == 53) {
         global $pid;
@@ -1676,9 +1677,17 @@ function generate_form_field($frow, $currvalue): void
             }
         }
         echo "</select>";
+    
+    // Address List Field
     } elseif ($data_type == 54) {
-        include "templates/address_list_form.php";
+        include "templates/address_form.php";
+
+    // Address List Field    
     }
+    elseif ($data_type == 55) {
+        include "templates/related_person_form.php";
+    }
+
 }
 
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
@@ -2836,7 +2845,7 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 54) {
-        include "templates/address_list_display.php";
+        include "templates/address_display.php";
     }
 
     return $s;

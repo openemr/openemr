@@ -35,7 +35,7 @@ class Contact extends ORDataObject
     /**
      * @param int $id
      */
-    public function __construct(private $id)
+    public function __construct(private $id = 0)
     {
         parent::__construct("contact");
 
