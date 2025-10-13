@@ -13400,6 +13400,7 @@ KEY `fk_form_id` (`form_id`),
 KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
 ) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
 
+DROP TABLE IF EXISTS `form_vitals_calculation`;
 CREATE TABLE `form_vitals_calculation` (
    `id` int NOT NULL AUTO_INCREMENT,
    `uuid` binary(16) DEFAULT NULL,
@@ -13418,9 +13419,8 @@ CREATE TABLE `form_vitals_calculation` (
    KEY `idx_encounter` (`encounter`),
    KEY `idx_calculation_id` (`calculation_id`)
 ) ENGINE=InnoDB COMMENT = 'Main calculation records - one per logical calculation (e.g., average BP)';
-#EndIf
 
-#IfNotTable form_vitals_calculation_components
+DROP TABLE IF EXISTS `form_vitals_calculation_components`;
 CREATE TABLE `form_vitals_calculation_components` (
     `id` int NOT NULL AUTO_INCREMENT,
     `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
@@ -13434,9 +13434,8 @@ CREATE TABLE `form_vitals_calculation_components` (
     KEY `idx_vitals_column` (`vitals_column`),
     KEY `idx_component_order` (`fvc_uuid`, `component_order`)
 ) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
-#EndIf
 
-#IfMissingTable form_vitals_calculation_form_vitals
+DROP TABLE IF EXISTS `form_vitals_calculation_form_vitals`;
 CREATE TABLE `form_vitals_calculation_form_vitals` (
    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
    `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
