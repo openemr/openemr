@@ -138,11 +138,7 @@ if (isset($_REQUEST['evdur'])) {
     // if the event duration is less than or equal to zero, use the global calander interval
     // if the global calendar interval is less than or equal to zero, use 10 mins
     if (intval($_REQUEST['evdur']) <= 0) {
-        if (intval($GLOBALS['calendar_interval']) <= 0) {
-                $_REQUEST['evdur'] = 10;
-        } else {
-            $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
-        }
+        $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']) <= 0 ? 10 : intval($GLOBALS['calendar_interval']);
     }
 
     $evslots = 60 * $_REQUEST['evdur'];

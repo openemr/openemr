@@ -34,11 +34,7 @@ if (!empty($_POST)) {
 <head>
 <?php
 $logstart = $_POST['logstart'] ?? 0;
-if (isset($_POST['lognext']) && $_POST['lognext']) {
-    $logtop = $logstart + $_POST['lognext'];
-} else {
-    $logtop = 0;
-}
+$logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lognext'] : 0;
 ?>
 
 <?php Header::setupHeader(); ?>

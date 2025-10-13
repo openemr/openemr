@@ -516,11 +516,7 @@ input[type="radio"] {
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
 <?php
-if (count($_GET) > 0) {
-    $ar = $_GET;
-} else {
-    $ar = $_POST;
-}
+$ar = count($_GET) > 0 ? $_GET : $_POST;
 
 if ($printable) {
   /*******************************************************************
@@ -833,7 +829,7 @@ foreach ($ar as $key => $val) {
                                 $itpl = $pdf->importPage($i + 1);
                                 $pdf->useTemplate($itpl);
                             }
-                        } catch (Exception $e) {
+                        } catch (Exception) {
                             // chances are PDF is > v1.4 and compression level not supported.
                             // regardless, we're here so lets dispose in different way.
                             //

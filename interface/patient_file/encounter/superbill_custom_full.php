@@ -115,7 +115,7 @@ if (isset($mode) && $thisauthwrite) {
 
             if (!$alertmsg) {
                 foreach ($_POST['fee'] as $key => $value) {
-                    $value = $value ?? 0;
+                    $value ??= 0;
                     if ($value) {
                         sqlStatement("INSERT INTO prices ( " .
                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .

@@ -15,11 +15,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 require_once('gacl_admin.inc.php');
 
 //GET takes precedence.
-if ($_GET['group_type'] != '') {
-	$group_type = $_GET['group_type'];
-} else {
-	$group_type = $_POST['group_type'];
-}
+$group_type = $_GET['group_type'] != '' ? $_GET['group_type'] : $_POST['group_type'];
 
 switch(strtolower(trim($group_type))) {
 	case 'axo':

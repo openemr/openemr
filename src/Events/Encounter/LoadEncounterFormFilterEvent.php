@@ -20,8 +20,8 @@ class LoadEncounterFormFilterEvent extends Event
 {
     const EVENT_NAME = 'encounter.load_form_filter';
     private $formName;
-    private ?int $pid;
-    private ?int $encounter;
+    private ?int $pid = null;
+    private ?int $encounter = null;
     private bool $isLBF = false;
 
     /**

@@ -160,11 +160,7 @@ class DocumentService extends BaseService
     {
         $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
 
-        if (empty($filenameSql['name'])) {
-            $filename = "unknownName";
-        } else {
-            $filename = $filenameSql['name'];
-        }
+        $filename = empty($filenameSql['name']) ? "unknownName" : $filenameSql['name'];
 
         $obj = new \C_Document();
         $obj->onReturnRetrieveKey();

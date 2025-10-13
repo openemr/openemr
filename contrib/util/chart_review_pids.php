@@ -65,7 +65,7 @@ foreach ($encs_result as $key => $value) {
         $result[$key] = $value;
     }
 }
-$output = $output ?? '';
+$output ??= '';
 foreach ($result as $value) {
     $output .= ($value ?? '') . ", ";
 }

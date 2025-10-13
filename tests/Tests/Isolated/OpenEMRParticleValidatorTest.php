@@ -51,7 +51,6 @@ class OpenEMRParticleValidatorTest extends TestCase
         // Use reflection to test the protected buildChain method
         $reflection = new \ReflectionClass($this->validator);
         $buildChainMethod = $reflection->getMethod('buildChain');
-        $buildChainMethod->setAccessible(true);
 
         $chain = $buildChainMethod->invoke(
             $this->validator,
@@ -69,7 +68,6 @@ class OpenEMRParticleValidatorTest extends TestCase
         // Use reflection to test parameter passing
         $reflection = new \ReflectionClass($this->validator);
         $buildChainMethod = $reflection->getMethod('buildChain');
-        $buildChainMethod->setAccessible(true);
 
         // Test with different parameter combinations
         $chain1 = $buildChainMethod->invoke(

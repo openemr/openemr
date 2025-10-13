@@ -228,11 +228,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 <td colspan="2">
                                     <?php
                                     $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
-                                    if ($form_title_file) {
-                                            $form_title = $form_title_file[0];
-                                    } else {
-                                        $form_title = $fname;
-                                    }
+                                    $form_title = $form_title_file ? $form_title_file[0] : $fname;
                                     $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
                                     <?php

@@ -224,8 +224,16 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         "account = ?, " .
         "account_facility = ?, " .
         "collector_id = ?, " .
-        "procedure_order_type = ?";
+        "procedure_order_type = ?, " .
+        // NEW US Core 8.0 fields
+        "order_intent = ?, " .
+        "scheduled_date = ?, " .
+        "scheduled_start = ?, " .
+        "scheduled_end = ?, " .
+        "performer_type = ?, " .
+        "location_id = ?";
 
+    // REPLACE THE $set_array variable with this updated version:
     $set_array = [
         QuotedOrNull($_POST['form_date_ordered']),
         (int)$_POST['form_provider_id'],
@@ -247,6 +255,13 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         (int)$_POST['form_account_facility'],
         (int)$_POST['form_collector_id'],
         trim($_POST['procedure_type_names']),
+        // NEW US Core 8.0 fields
+        trim($_POST['form_order_intent'] ?? 'order'),
+        QuotedOrNull($_POST['form_scheduled_date']),
+        QuotedOrNull($_POST['form_scheduled_start']),
+        QuotedOrNull($_POST['form_scheduled_end']),
+        trim($_POST['form_performer_type'] ?? ''),
+        (int)($_POST['form_location_id'] ?? 0),
     ];
 
     require_once(__DIR__ . "/procedure_order_save_functions.php");
@@ -573,7 +588,7 @@ if (!empty($row['lab_id'])) {
                 return;
             }
 
-            if (!confirm(<?php echo xlj("Confirm to remove item") ?> + "\n" + target)) {
+            if (!confirm(<?php echo xlj("Confirm to remove item") ?> +"\n" + target)) {
                 return;
             }
 
@@ -587,7 +602,7 @@ if (!empty($row['lab_id'])) {
                 let orderSeq = orderSeqInput.val();
 
                 $.ajax({
-                    url: top.webroot_url +  '/interface/forms/procedure_order/handle_deletions.php',
+                    url: top.webroot_url + '/interface/forms/procedure_order/handle_deletions.php',
                     type: 'POST',
                     data: {
                         action: 'delete_procedure',
@@ -595,7 +610,7 @@ if (!empty($row['lab_id'])) {
                         order_seq: orderSeq,
                         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             $procTable.remove();
 
@@ -605,10 +620,10 @@ if (!empty($row['lab_id'])) {
                                 location.reload();
                             }
                         } else {
-                            alert(<?php echo xlj('Error deleting procedure:'); ?> + ' ' + (response.error || 'Unknown error'));
+                            alert(<?php echo xlj('Error deleting procedure:'); ?> +' ' + (response.error || 'Unknown error'));
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert(<?php echo xlj('Failed to delete procedure. Please try again.'); ?>);
                     }
                 });
@@ -619,7 +634,7 @@ if (!empty($row['lab_id'])) {
         }
 
         // Specimen row removal with AJAX
-        $(document).on('click', '.remove-specimen-row', function(e) {
+        $(document).on('click', '.remove-specimen-row', function (e) {
             e.preventDefault();
 
             let $row = $(this).closest('tr');
@@ -627,7 +642,7 @@ if (!empty($row['lab_id'])) {
 
             // Check if any fields in this row have data
             let hasData = false;
-            $row.find('input, select').each(function() {
+            $row.find('input, select').each(function () {
                 if ($(this).val() && $(this).attr('name') !== specimenIdInput.attr('name')) {
                     hasData = true;
                     return false; // break
@@ -643,21 +658,21 @@ if (!empty($row['lab_id'])) {
                 let specimenId = specimenIdInput.val();
 
                 $.ajax({
-                    url: top.webroot_url +  '/interface/forms/procedure_order/handle_deletions.php',
+                    url: top.webroot_url + '/interface/forms/procedure_order/handle_deletions.php',
                     type: 'POST',
                     data: {
                         action: 'delete_specimen',
                         specimen_id: specimenId,
                         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             $row.remove();
                         } else {
-                            alert(<?php echo xlj('Error deleting specimen:'); ?> + ' ' + (response.error || 'Unknown error'));
+                            alert(<?php echo xlj('Error deleting specimen:'); ?> +' ' + (response.error || 'Unknown error'));
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert(<?php echo xlj('Failed to delete specimen. Please try again.'); ?>);
                     }
                 });
@@ -668,7 +683,7 @@ if (!empty($row['lab_id'])) {
         });
 
         // Save form before adding specimen if procedure is new
-        $(document).on('click', '.add-specimen-row', function(e) {
+        $(document).on('click', '.add-specimen-row', function (e) {
             const procIndex = this.getAttribute('data-specimen-line');
             const $procTable = $(this).closest('.proc-table');
             const orderSeqInput = $procTable.find("input[name='form_proc_order_seq[" + procIndex + "]']");
@@ -713,6 +728,7 @@ if (!empty($row['lab_id'])) {
                 deleteRow(event);
             });
         }
+
         // end deletion
 
         function processSubmit(od) { // not used yet
@@ -1351,6 +1367,105 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
+                        <!-- Order Intent & Status & Priority -->
+                        <div class="form-group form-row">
+                            <label for="form_order_intent" class="col-form-label col-md-2"><?php echo xlt('Order Intent'); ?></label>
+                            <div class="col-md-2">
+                                <?php
+                                generate_form_field([
+                                    'data_type' => 1,
+                                    'field_id' => 'order_intent',
+                                    'list_id' => 'order_intent'
+                                ], $row['order_intent'] ?? 'order');
+                                ?>
+                            </div>
+                            <label for="form_order_status" class="col-form-label col-md-2"><?php echo xlt('Status'); ?></label>
+                            <div class="col-md-2">
+                                <?php
+                                generate_form_field([
+                                    'data_type' => 1,
+                                    'field_id' => 'order_status',
+                                    'list_id' => 'ord_status'
+                                ], $row['order_status'] ?? '');
+                                ?>
+                            </div>
+
+                            <label for="form_order_priority"
+                                class="col-form-label col-md-2"><?php echo xlt('Priority'); ?></label>
+                            <div class="col-md-2">
+                                <?php
+                                generate_form_field(['data_type' => 1, 'field_id' => 'order_priority',
+                                    'list_id' => 'ord_priority'], $row['order_priority'] ?? '');
+                                ?>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <!--  Service Details todo sjp lot into collapse -->
+                        <div class="form-group form-row">
+                            <label for="form_performer_type" class="col-form-label col-md-2"><?php echo xlt('Performer Type'); ?></label>
+                            <div class="col-md-2">
+                                <?php
+                                generate_form_field([
+                                    'data_type' => 1,
+                                    'field_id' => 'performer_type',
+                                    'list_id' => 'performer_type'
+                                ], $row['performer_type'] ?? '');
+                                ?>
+                            </div>
+                            <label for="form_location_id" class="col-form-label col-md-2"><?php echo xlt('Service Location'); ?></label>
+                            <div class="col-md-2">
+                                <select name='form_location_id' id='form_location_id' class='form-control'>
+                                    <option value=""><?php echo xlt('Select Location'); ?></option>
+                                    <?php
+                                    $locres = sqlStatement("SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name");
+                                    while ($locrow = sqlFetchArray($locres)) {
+                                        echo "<option value='" . attr($locrow['id']) . "'";
+                                        if ($locrow['id'] == ($row['location_id'] ?? '')) {
+                                            echo " selected";
+                                        }
+                                        echo ">" . text($locrow['name']) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <!-- Scheduling Information -->
+                        <div class="form-group form-row bg-light py-2 my-2">
+                            <div class="col-md-12">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fa fa-calendar mr-2"></i><?php echo xlt('Scheduling Information'); ?>
+                                </h6>
+                            </div>
+                            <label for="form_scheduled_date" class="col-form-label col-md-2"><?php echo xlt('Scheduled Date'); ?></label>
+                            <div class="col-md-2">
+                                <input type='text' class='datepicker form-control'
+                                    name='form_scheduled_date'
+                                    id='form_scheduled_date'
+                                    value="<?php echo attr($row['scheduled_date'] ?? ''); ?>"
+                                    placeholder="<?php echo xla('When service should occur'); ?>"
+                                    title="<?php echo xla('Date when service should be performed'); ?>" />
+                            </div>
+                            <label for="form_scheduled_start" class="col-form-label col-md-2"><?php echo xlt('Start Time'); ?></label>
+                            <div class="col-md-2">
+                                <input type='text' class='datetimepicker form-control'
+                                    name='form_scheduled_start'
+                                    id='form_scheduled_start'
+                                    value="<?php echo attr($row['scheduled_start'] ?? ''); ?>"
+                                    placeholder="<?php echo xla('Optional start time'); ?>"
+                                    title="<?php echo xla('Scheduled start time for procedure'); ?>" />
+                            </div>
+                            <label for="form_scheduled_end" class="col-form-label col-md-2"><?php echo xlt('End Time'); ?></label>
+                            <div class="col-md-2">
+                                <input type='text' class='datetimepicker form-control'
+                                    name='form_scheduled_end'
+                                    id='form_scheduled_end'
+                                    value="<?php echo attr($row['scheduled_end'] ?? ''); ?>"
+                                    placeholder="<?php echo xla('Optional end time'); ?>"
+                                    title="<?php echo xla('Scheduled end time for procedure'); ?>" />
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
                         <div class="form-group form-row">
                             <label for="form_order_psc" class="col-form-label col-md-2"><?php echo xlt('PSC Hold Order'); ?></label>
                             <div class="col-md-2">
@@ -1366,17 +1481,19 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
-                                    <option value="required" <?php echo $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
-                                    <option value="signed" <?php echo $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
+                                    <option value="not_required" <?php echo $row['order_abn'] == 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php echo $row['order_abn'] == 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php echo $row['order_abn'] == 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
                                 </select>
                             </div>
-                            <label for="form_billing_type"
-                                class="col-form-label col-md-2"><?php echo xlt('Billing'); ?></label>
+                            <label for="form_billing_type" class="col-form-label col-md-2"><?php echo xlt('Billing'); ?></label>
                             <div class="col-md-2">
                                 <?php
-                                generate_form_field(['data_type' => 1, 'field_id' => 'billing_type',
-                                    'list_id' => 'procedure_billing'], $row['billing_type'] ?? '');
+                                generate_form_field([
+                                    'data_type' => 1,
+                                    'field_id' => 'billing_type',
+                                    'list_id' => 'procedure_billing'
+                                ], $row['billing_type'] ?? '');
                                 ?>
                             </div>
                             <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php echo xlt('Sending From'); ?></label>
@@ -1418,25 +1535,18 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <div class="col-md-2">
                                 <?php generate_form_field(['data_type' => 10, 'field_id' => 'collector_id'], $row['collector_id'] ?? ''); ?>
                             </div>
-                            <div class="clearfix"></div>
-                            <label for="form_order_priority"
-                                class="col-form-label col-md-2"><?php echo xlt('Priority'); ?></label>
+                            <label for="form_date_collected" class="col-form-label col-md-2"><?php echo xlt('Time Collected'); ?></label>
                             <div class="col-md-2">
-                                <?php
-                                generate_form_field(['data_type' => 1, 'field_id' => 'order_priority',
-                                    'list_id' => 'ord_priority'], $row['order_priority'] ?? '');
-                                ?>
+                                <input class='datetimepicker form-control'
+                                    type='text'
+                                    name='form_date_collected'
+                                    id='form_date_collected'
+                                    value="<?php echo attr(substr($row['date_collected'] ?? '', 0, 16)); ?>"
+                                    title="<?php echo xla('Date and time that the sample was collected'); ?>" />
                             </div>
+                            <div class="clearfix"></div>
                         </div>
                         <div class="form-group form-row">
-                            <label for="form_order_status"
-                                class="col-form-label col-md-2"><?php echo xlt('Status'); ?></label>
-                            <div class="col-md-2">
-                                <?php
-                                generate_form_field(['data_type' => 1, 'field_id' => 'order_status',
-                                    'list_id' => 'ord_status'], $row['order_status'] ?? '');
-                                ?>
-                            </div>
                             <label for="form_history_order"
                                 class="col-form-label col-md-2"><?php echo xlt('History Order'); ?></label>
                             <div class="col-md-2">
@@ -1457,9 +1567,11 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     name="form_clinical_hx" id="form_clinical_hx"><?php echo text($row['clinical_hx'] ?? ''); ?></textarea>
                             </div>
                             <div class="col-md-6">
-                                <label for='form_data_ordered' class='col-form-label'><?php echo xlt('Patient Instructions'); ?></label>
+                                <label for='form_patient_instructions' class='col-form-label'><?php echo xlt('Patient Instructions'); ?></label>
                                 <textarea class='form-control text' rows='2' cols="60" wrap="hard" id='form_patient_instructions'
-                                    name='form_patient_instructions'><?php echo text($row['patient_instructions'] ?? '') ?></textarea>
+                                    name='form_patient_instructions'
+                                    title='<?php echo xla('Instructions for patient preparation (fasting, etc.)'); ?>'
+                                    placeholder='<?php echo xla('Example: Fast for 12 hours before test'); ?>'><?php echo text($row['patient_instructions'] ?? '') ?></textarea>
                             </div>
                         </div>
                         <div class="form-group form-row bg-dark text-light my-2 py-1">

@@ -217,11 +217,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     <div class="container">
         <div id="report_custom w-100">  <!-- large outer DIV -->
             <?php
-            if (count($_GET) > 0) {
-                $ar = $_GET;
-            } else {
-                $ar = $_POST;
-            }
+            $ar = count($_GET) > 0 ? $_GET : $_POST;
 
             if ($printable) {
                 /*******************************************************************
@@ -636,7 +632,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                             $itpl = $pdf->importPage($i + 1);
                                             $pdf->useTemplate($itpl);
                                         }
-                                    } catch (Exception $e) {
+                                    } catch (Exception) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
                                         //

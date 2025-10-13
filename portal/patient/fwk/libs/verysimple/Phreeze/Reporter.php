@@ -128,7 +128,6 @@ abstract class Reporter implements Serializable
 
             if (! in_array($propname, self::$NoCacheProperties)) {
                 if (method_exists($rp, "setAccessible")) {
-                    $rp->setAccessible(true);
                     $propvals [$propname] = $rp->getValue($this);
                 } elseif (! $rp->isPrivate()) {
                     // if < php 5.3 we can't serialize private vars
@@ -156,7 +155,6 @@ abstract class Reporter implements Serializable
             $propname = $rp->name;
             if (array_key_exists($propname, $propvals)) {
                 if (method_exists($rp, "setAccessible")) {
-                    $rp->setAccessible(true);
                     $rp->setValue($this, $propvals [$propname]);
                 } elseif (! $rp->isPrivate()) {
                     // if < php 5.3 we can't serialize private vars

@@ -81,11 +81,7 @@ function issue_ippf_gcac_form($issue, $thispid): void
 
     $shrow = getHistoryData($thispid);
 
-    if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$issue]);
-    } else {
-        $pprow = [];
-    }
+    $pprow = $issue ? sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$issue]) : [];
 
     echo "<div id='ippf_gcac' style='display:none'>\n";
 
@@ -227,11 +223,7 @@ function issue_ippf_con_form($issue, $thispid): void
 
     $shrow = getHistoryData($thispid);
 
-    if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$issue]);
-    } else {
-        $pprow = [];
-    }
+    $pprow = $issue ? sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$issue]) : [];
 
     echo "<div id='ippf_con' style='display:none'>\n";
 

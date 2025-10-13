@@ -318,16 +318,8 @@ if (!empty($_GET)) {
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
                                                 $replace = [xl('success'), xl('failure'), xl('encounter', '', ' ')];
 
-                                                if (!empty($iter['encrypt'])) {
-                                                    $commentEncrStatus = $iter['encrypt'];
-                                                } else {
-                                                    $commentEncrStatus = "No";
-                                                }
-                                                if (!empty($iter['version'])) {
-                                                    $encryptVersion = $iter['version'];
-                                                } else {
-                                                    $encryptVersion = 0;
-                                                }
+                                                $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
+                                                $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
                                                 // Decrypt comment data if encrypted
                                                 if ($commentEncrStatus == "Yes") {

@@ -169,11 +169,7 @@ function checkBackgroundServices(): void
                         [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            if (empty(trim($_POST["form_$i"]))) {
-                                $fldvalue = '';
-                            } else {
-                                $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
-                            }
+                            $fldvalue = empty(trim($_POST["form_$i"])) ? '' : $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
                         } elseif ($fldtype == "encrypted_hash") {
                             $tmpValue = trim($_POST["form_$i"]);
                             if (empty($tmpValue)) {
@@ -257,18 +253,10 @@ function checkBackgroundServices(): void
                     }
                 } else {
                     /* check value of single field. Don't update if the database holds the same value */
-                    if (isset($_POST["form_$i"])) {
-                        $fldvalue = trim($_POST["form_$i"]);
-                    } else {
-                        $fldvalue = "";
-                    }
+                    $fldvalue = isset($_POST["form_$i"]) ? trim($_POST["form_$i"]) : "";
 
                     if ($fldtype == 'encrypted') {
-                        if (empty(trim($fldvalue))) {
-                            $fldvalue = '';
-                        } else {
-                            $fldvalue = $cryptoGen->encryptStandard($fldvalue);
-                        }
+                        $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptStandard($fldvalue);
                     } elseif ($fldtype == 'encrypted_hash') {
                         $tmpValue = trim($fldvalue);
                         if (empty($tmpValue)) {
@@ -412,11 +400,7 @@ function checkBackgroundServices(): void
                             </div>
                             <div class="input-group col-sm-4 oe-pull-away p-0">
                                 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
-                                if (!$userMode) {
-                                    $placeholder = xla('Search configuration');
-                                } else {
-                                    $placeholder = xla('Search user settings');
-                                }
+                                $placeholder = !$userMode ? xla('Search configuration') : xla('Search user settings');
                                 ?>
                                 <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo(!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
                                 <span class="input-group-append">
@@ -538,11 +522,7 @@ function checkBackgroundServices(): void
                                                     echo "  </select>\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
                                                     if ($userMode) {
-                                                        if ($globalValue == 1) {
-                                                            $globalTitle = xlt('Checked');
-                                                        } else {
-                                                            $globalTitle = xlt('Not Checked');
-                                                        }
+                                                        $globalTitle = $globalValue == 1 ? xlt('Checked') : xlt('Not Checked');
                                                     }
                                                     echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
                                                     if ($fldvalue) {

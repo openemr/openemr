@@ -216,11 +216,7 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        if (!empty($GLOBALS['webroot'])) {
-            $normalized = preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path);
-        } else {
-            $normalized = $path;
-        }
+        $normalized = !empty($GLOBALS['webroot']) ? preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 

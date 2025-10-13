@@ -2340,18 +2340,6 @@ parameters:
     identifier: variable.undefined
     count: 17
     path: interface/billing/print_daysheet_report_num1.php
-  - message: '#^Constant asc not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant fulname not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant pid not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
   - message: '#^Variable \$catch_user might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -2876,38 +2864,6 @@ parameters:
     identifier: variable.undefined
     count: 11
     path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant asc not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant fee not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant fulname not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant insadj not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant inspay not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant patadj not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant patpay not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant pid not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
   - message: '#^Variable \$catch_user might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3856,10 +3812,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/CAMOS/print.php
-  - message: '#^Constant sigline not found\.$#'
-    identifier: constant.notFound
-    count: 4
-    path: interface/forms/CAMOS/rx_print.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -7204,10 +7156,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/report.php
-  - message: '#^Constant enddate not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/forms/eye_mag/save.php
   - message: '#^Variable \$DOCS might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -10204,10 +10152,6 @@ parameters:
     identifier: constant.notFound
     count: 1
     path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
-  - message: '#^Constant name not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
   - message: '#^Variable \$catoptions might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -11664,22 +11608,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/modules/custom_modules/oe-module-weno/src/Services/LogImportBuild.php
-  - message: '#^Variable \$provider_info on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/modules/custom_modules/oe-module-weno/src/Services/ModuleService.php
-  - message: '#^Variable \$patient_info on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php
-  - message: '#^Variable \$provider_info on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php
-  - message: '#^Variable \$relation on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php
   - message: '#^Variable \$newKey in empty\(\) always exists and is always falsy\.$#'
     identifier: empty.variable
     count: 1
@@ -14810,7 +14738,7 @@ parameters:
     path: library/classes/smtp/smtp.php
   - message: '#^Access to an undefined property Thumbnail\:\:\$max_size\.$#'
     identifier: property.notFound
-    count: 5
+    count: 4
     path: library/classes/thumbnail/Thumbnail.class.php
   - message: '#^Variable \$new_file might not be defined\.$#'
     identifier: variable.undefined
@@ -15322,7 +15250,7 @@ parameters:
     path: library/edihistory/edih_x12file_class.php
   - message: '#^Variable \$gs_ct might not be defined\.$#'
     identifier: variable.undefined
-    count: 6
+    count: 5
     path: library/edihistory/edih_x12file_class.php
   - message: '#^Variable \$gs_fid might not be defined\.$#'
     identifier: variable.undefined
@@ -15604,10 +15532,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: library/registry.inc.php
-  - message: '#^Variable \$category on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: library/registry.inc.php
   - message: '#^Function fetch_reminders invoked with 1 parameter, 2 required\.$#'
     identifier: arguments.count
     count: 4
@@ -15868,10 +15792,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: library/standard_tables_capture.inc.php
-  - message: '#^Variable \$addresses on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: library/templates/address_list_form.php
   - message: '#^Variable \$smallform on left side of \?\? always exists and is not nullable\.$#'
     identifier: nullCoalesce.variable
     count: 11
@@ -17036,10 +16956,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: sites/default/LBF/LBFvbf.plugin.php
-  - message: '#^Constant umname not found\.$#'
-    identifier: constant.notFound
-    count: 3
-    path: sites/default/statement.inc.php
   - message: '#^Variable \$desc might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17992,3 +17908,27 @@ parameters:
     identifier: phpunit.mockMethod
     count: 1
     path: tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php
+  - message: '#^Variable \$provider_info on left side of \?\?\= always exists and is not nullable\.$#'
+    identifier: nullCoalesce.variable
+    count: 1
+    path: interface/modules/custom_modules/oe-module-weno/src/Services/ModuleService.php
+  - message: '#^Variable \$patient_info on left side of \?\?\= always exists and is not nullable\.$#'
+    identifier: nullCoalesce.variable
+    count: 1
+    path: interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php
+  - message: '#^Variable \$provider_info on left side of \?\?\= always exists and is not nullable\.$#'
+    identifier: nullCoalesce.variable
+    count: 1
+    path: interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php
+  - message: '#^Variable \$relation on left side of \?\?\= always exists and is not nullable\.$#'
+    identifier: nullCoalesce.variable
+    count: 1
+    path: interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php
+  - message: '#^Variable \$category on left side of \?\?\= is never defined\.$#'
+    identifier: nullCoalesce.variable
+    count: 1
+    path: library/registry.inc.php
+  - message: '#^Variable \$addresses on left side of \?\?\= always exists and is not nullable\.$#'
+    identifier: nullCoalesce.variable
+    count: 1
+    path: library/templates/address_list_form.php

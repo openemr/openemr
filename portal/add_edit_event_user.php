@@ -86,11 +86,7 @@ if (!empty($_POST['form_pid'])) {
     }
 }
 
-if ($date) {
-    $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-} else {
-    $date = date("Y-m-d");
-}
+$date = $date ? substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6) : date("Y-m-d");
 // internationalize the date
 $date = oeFormatShortDate($date);
 
@@ -379,11 +375,7 @@ if (($_POST['form_action'] ?? null) == "save") {
           // multi providers EOS
             ==========================================*/
         } elseif (!$row['pc_multiple']) {
-            if ($GLOBALS['select_multi_providers']) {
-                $prov = $_POST['form_provider_ae'][0];
-            } else {
-                $prov = $_POST['form_provider_ae'];
-            }
+            $prov = $GLOBALS['select_multi_providers'] ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
             $insert = false;
             // simple provider case
             sqlStatement("UPDATE openemr_postcalendar_events SET " .

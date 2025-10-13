@@ -49,11 +49,7 @@ function edih_997_sbmtfile($icn, $filetype)
         $bticn = $icn;
     }
 
-    if (is_numeric($filetype)) {
-        $ftp = 'f' . $filetype;
-    } else {
-        $ftp = $filetype;
-    }
+    $ftp = is_numeric($filetype) ? 'f' . $filetype : $filetype;
 
     //
     $btfn = csv_file_by_controlnum($ftp, $bticn);

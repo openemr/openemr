@@ -111,11 +111,7 @@ class QrdaReportService
             'performance_period_start' => $this->effectiveDate,
             'performance_period_end' => $this->effectiveDateEnd
         ];
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
-            $request = new QdmRequestAll();
-        }
+        $request = $pid ? new QdmRequestOne($pid) : new QdmRequestAll();
 
         $exportService = new ExportCat1Service($this->builder, $request);
         $xml = $exportService->export($measures, $options);
@@ -130,11 +126,7 @@ class QrdaReportService
      */
     public function qualifyPatientMeasure($pid, $measures): bool
     {
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
-            $request = new QdmRequestAll();
-        }
+        $request = $pid ? new QdmRequestOne($pid) : new QdmRequestAll();
 
         $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
         $result = $exportService->export($measures, true);

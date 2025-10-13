@@ -187,11 +187,7 @@ class C_Document extends Controller
             $doDecryption = true;
         }
 
-        if (is_numeric($_POST['category_id'])) {
-            $category_id = $_POST['category_id'];
-        } else {
-            $category_id = 1;
-        }
+        $category_id = is_numeric($_POST['category_id']) ? $_POST['category_id'] : 1;
 
         $patient_id = 0;
         if (isset($_GET['patient_id']) && !$couchDB) {
@@ -663,11 +659,7 @@ class C_Document extends Controller
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($couch_docid);
             //Take thumbnail file when is not null and file is presented online
-            if (!$as_file && !is_null($th_url) && !$show_original) {
-                $content = $resp->th_data;
-            } else {
-                $content = $resp->data;
-            }
+            $content = !$as_file && !is_null($th_url) && !$show_original ? $resp->th_data : $resp->data;
             if ($content == '' && $GLOBALS['couchdb_log'] == 1) {
                 $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
                 $log_content = date('Y-m-d H:i:s') . " ==> URL: " . $url . "\r\n";
@@ -1090,11 +1082,7 @@ class C_Document extends Controller
                 $messages .= xl('Document successfully renamed.') . "\n";
             }
 
-            if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
-                $docdate = "$docdate";
-            } else {
-                $docdate = "NULL";
-            }
+            $docdate = preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate) ? "$docdate" : "NULL";
             if (!is_numeric($issue_id)) {
                 $issue_id = 0;
             }

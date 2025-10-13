@@ -23,7 +23,7 @@ use OpenEMR\Telemetry\TelemetryService;
 /**
  * @gloal $incdir the include directory
  */
-$incdir = $incdir ?? "";
+$incdir ??= "";
 
 $pageName = "new.php";
 if (!str_starts_with($_GET["formname"], 'LBF')) {

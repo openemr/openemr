@@ -147,7 +147,7 @@ function execute_background_service_calls(): void
         //use try/catch in case service functions throw an unexpected Exception
         try {
             $service['function']();
-        } catch (Exception $e) {
+        } catch (Exception) {
           //do nothing
         }
 

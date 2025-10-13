@@ -64,11 +64,7 @@ class AMC_315g_7_Denominator implements AmcFilterIF, IAmcItemizedReport
         $result = new AmcItemizedActionData();
         foreach ($actionData as $key => $data) {
             if ($key == self::ACTION_LABEL) {
-                if (!empty($data['created'])) {
-                    $details = xl('Referral Date') . ':' . $data['created'];
-                } else {
-                    $details = '';
-                }
+                $details = !empty($data['created']) ? xl('Referral Date') . ':' . $data['created'] : '';
                 $result->addDenominatorActionData($key, $data['value'] ?? false, $details, $label);
             }
         }

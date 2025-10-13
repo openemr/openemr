@@ -96,11 +96,7 @@ class ControllerLog extends BaseController
 
             //Prepare the targets
             $all_alerts = json_decode($row['value'], true);
-            if (!empty($row['new_value'])) {
-                $new_alerts = json_decode($row['new_value'], true);
-            } else {
-                $new_alerts = [];
-            }
+            $new_alerts = !empty($row['new_value']) ? json_decode($row['new_value'], true) : [];
             $row['category_title'] = $category_title;
             $row['all_alerts'] = $all_alerts;
             $row['new_alerts'] = $new_alerts;

@@ -487,11 +487,7 @@ class edih_x12_file
     {
         //
         $delim_ar = [];
-        if (!$isa_str110 && $this->text) {
-            $isa_str = substr($this->text, 0, 106);
-        } else {
-            $isa_str = trim($isa_str110);
-        }
+        $isa_str = !$isa_str110 && $this->text ? substr($this->text, 0, 106) : trim($isa_str110);
 
         $isalen = strlen($isa_str);
         if ($isalen >= 106) {
@@ -794,11 +790,7 @@ class edih_x12_file
 
                     $env_ar['ST'][$st_ct]['trace'] = $seg_ar[2] ?? "";
                     // to match OpenEMR billing parse file name
-                    if (isset($seg_ar[4])) {
-                        $env_ar['GS'][$gs_ct]['srcid'] = $seg_ar[4];
-                    } else {
-                        $env_ar['GS'][$gs_ct]['srcid'] = $seg_ar[3] ?? "";
-                    }
+                    $env_ar['GS'][$gs_ct]['srcid'] = $seg_ar[4] ?? $seg_ar[3] ?? "";
 
                     //
                     continue;

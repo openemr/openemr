@@ -274,16 +274,8 @@ $check_sum = isset($_GET['check_sum']);
                 $logType = xl('API');
             }
 
-            if (!empty($iter['encrypt'])) {
-                $commentEncrStatus = $iter['encrypt'];
-            } else {
-                $commentEncrStatus = "No";
-            }
-            if (!empty($iter['version'])) {
-                $encryptVersion = $iter['version'];
-            } else {
-                $encryptVersion = 0;
-            }
+            $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
+            $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
             if ($commentEncrStatus == "Yes") {
                 if ($encryptVersion >= 3) {

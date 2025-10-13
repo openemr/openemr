@@ -85,10 +85,6 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $this->type = $lifestyle;
 
-        if ($matchType == "any") {
-            $this->matchValue = null;
-        } else {
-            $this->matchValue = $value;
-        }
+        $this->matchValue = $matchType == "any" ? null : $value;
     }
 }

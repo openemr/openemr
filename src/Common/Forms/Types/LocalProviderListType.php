@@ -77,11 +77,7 @@ class LocalProviderListType
                 $tmp = "($currvalue)";
             }
         }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
         echo $tmp;
     }

@@ -295,7 +295,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

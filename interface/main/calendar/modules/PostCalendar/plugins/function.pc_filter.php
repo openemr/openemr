@@ -105,7 +105,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $catoptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_CATEGORY . "</option>";
         foreach ($categories as $c) {
             $sel = $category == $c['id'] ? 'selected="selected"' : '';
-            $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c[name]) . "</option>";
+            $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c['name']) . "</option>";
         }
 
         $catoptions .= '</select>';

@@ -80,17 +80,9 @@ if (($data['mode'] ?? null) === 'fetch_info') {
     $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as ptName From patient_data Where pid = ?";
     $pt_result = sqlQuery($stmt, [$req_pid]) ?: [];
     $signature = [];
-    if ($pt_result) {
-        $info_query = array_merge($pt_result, $user_result, $signature);
-    } else {
-        $info_query = array_merge($user_result, $signature);
-    }
+    $info_query = $pt_result ? array_merge($pt_result, $user_result, $signature) : array_merge($user_result, $signature);
 
-    if ($isAdmin) {
-        $signer = $user_result['userName'];
-    } else {
-        $signer = $pt_result['ptName'];
-    }
+    $signer = $isAdmin ? $user_result['userName'] : $pt_result['ptName'];
     if (!$signer) {
         echo js_escape("error");
         exit();

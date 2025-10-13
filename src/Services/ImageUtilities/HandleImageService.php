@@ -258,11 +258,7 @@ class HandleImageService
     {
         $content = '';
 
-        if (is_file($imageData)) {
-            $imageContent = file_get_contents($imageData);
-        } else {
-            $imageContent = $imageData;
-        }
+        $imageContent = is_file($imageData) ? file_get_contents($imageData) : $imageData;
         // Check for extension availability
         $usingImagick =  $this->isImagickAvailable() && $useExt === 'imagick';
         $usingGd =  $this->isGdAvailable() && $useExt === 'gd' && !$usingImagick;

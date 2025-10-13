@@ -321,7 +321,7 @@ function create_and_download_certificates(): void
         if (ini_get('zlib.output_compression')) {
             ini_set('zlib.output_compression', 'Off');
         }
-    } catch (Exception $e) {
+    } catch (Exception) {
         SessionUtil::setSession('zip_error', xl("Error, Could not create file archive"));
         return;
     }

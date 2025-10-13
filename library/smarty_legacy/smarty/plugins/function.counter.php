@@ -46,17 +46,9 @@ function smarty_function_counter($params, &$smarty)
         $smarty->assign($counter['assign'], $counter['count']);
     }
 
-    if (isset($params['print'])) {
-        $print = (bool)$params['print'];
-    } else {
-        $print = empty($counter['assign']);
-    }
+    $print = isset($params['print']) ? (bool)$params['print'] : empty($counter['assign']);
 
-    if ($print) {
-        $retval = $counter['count'];
-    } else {
-        $retval = null;
-    }
+    $retval = $print ? $counter['count'] : null;
 
     if (isset($params['skip'])) {
         $counter['skip'] = $params['skip'];

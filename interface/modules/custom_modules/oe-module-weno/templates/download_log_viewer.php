@@ -143,11 +143,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         if ($backGroundTask ?? false) {
             echo '<h6 class="mb-2">';
             while ($task = sqlFetchArray($backGroundTask)) {
-                if ($task['name'] === 'WenoExchangePharmacies') {
-                    $title = xlt("Pharmacy Directory");
-                } else {
-                    $title = xlt("Sync Report");
-                }
+                $title = $task['name'] === 'WenoExchangePharmacies' ? xlt("Pharmacy Directory") : xlt("Sync Report");
                 $nextRun = $task['next_run'];
                 echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }

@@ -215,11 +215,7 @@ function postcalendar_userapi_buildView($args)
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 0, $the_year));
                 $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day - 1, $the_year));
                 $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if ($end_dow != 0) {
-                    $the_last_day = $last_day + (7 - $end_dow);
-                } else {
-                    $the_last_day = $last_day;
-                }
+                $the_last_day = $end_dow != 0 ? $last_day + (7 - $end_dow) : $last_day;
                 break;
             case _IS_SATURDAY:
                 $pc_array_pos = 6;
@@ -240,11 +236,7 @@ function postcalendar_userapi_buildView($args)
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 1, $the_year));
                 $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day, $the_year));
                 $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if ($end_dow != 6) {
-                    $the_last_day = $last_day + (6 - $end_dow);
-                } else {
-                    $the_last_day = $last_day;
-                }
+                $the_last_day = $end_dow != 6 ? $last_day + (6 - $end_dow) : $last_day;
                 break;
         }
 
@@ -865,11 +857,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $ruserid = -1;
         } else {
             $user = (new UserService())->getIdByUsername($pc_username);
-            if ($user) {
-                $ruserid = $user;
-            } else {
-                $ruserid = -1;
-            }
+            $ruserid = $user ?: -1;
         }
     }
 
@@ -1083,11 +1071,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
         // get the user id of event's author
-        if (!empty($nuke_users)) {
-            $cuserid = @$nuke_users[strtolower($tmp['uname'])];
-        } else {
-            $cuserid = '';
-        }
+        $cuserid = !empty($nuke_users) ? @$nuke_users[strtolower($tmp['uname'])] : '';
         // check the current event's permissions
         // the user does not have permission to view this event
         // if any of the following evaluate as false
@@ -1276,7 +1260,7 @@ function &postcalendar_userapi_pcGetEvents($args)
             $s_keywords = '';
         }
 
-        $providerID = $providerID ?? '';
+        $providerID ??= '';
 
         $a = ['start' => $start_date,'end' => $end_date,'s_keywords' => $s_keywords,'s_category' => $s_category,'s_topic' => $s_topic,'viewtype' => ($viewtype ?? null), "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id];
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
@@ -1393,11 +1377,7 @@ function calculateEvents($days, $events, $viewtype)
             case REPEAT:
             case REPEAT_DAYS:
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
-                if ($last_date > $event['endDate']) {
-                    $stop = $event['endDate'];
-                } else {
-                    $stop = $last_date;
-                }
+                $stop = $last_date > $event['endDate'] ? $event['endDate'] : $last_date;
 
                 [$esY, $esM, $esD] = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
@@ -1464,11 +1444,7 @@ function calculateEvents($days, $events, $viewtype)
             //==============================================================
             case REPEAT_ON:
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
-                if ($last_date > $event['endDate']) {
-                    $stop = $event['endDate'];
-                } else {
-                    $stop = $last_date;
-                }
+                $stop = $last_date > $event['endDate'] ? $event['endDate'] : $last_date;
 
                 [$esY, $esM, $esD] = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);

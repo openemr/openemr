@@ -97,11 +97,7 @@ function bookmarkReportDatabase()
 
   // Retrieve a new report id
     $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
-    if (empty($query)) {
-        $new_report_id = 1;
-    } else {
-        $new_report_id = $query['max_report_id'] + 1;
-    }
+    $new_report_id = empty($query) ? 1 : $query['max_report_id'] + 1;
 
   // Set the bookmark token
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", [$new_report_id,"bookmark",1]);
@@ -123,11 +119,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
   // Retrieve a new report id, if needed.
     if (empty($report_id)) {
         $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
-        if (empty($query)) {
-            $new_report_id = 1;
-        } else {
-            $new_report_id = $query['max_report_id'] + 1;
-        }
+        $new_report_id = empty($query) ? 1 : $query['max_report_id'] + 1;
     } else {
         $new_report_id = $report_id;
     }
@@ -313,11 +305,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
             } else if (isset($row['is_provider'])) {
                 $provider_label = ' ' . xlt('Provider') . ': ' . text($row['prov_fname']) . ',' . text($row['prov_lname'])
                     . ' ( ' . xlt('NPI') . ' ' . text($row['npi']) . ' ) ';
-                if (isset($row['is_provider_in_group'])) {
-                    $group_provider_label = $group_label . ' ' . $provider_label;
-                } else {
-                    $group_provider_label = $provider_label;
-                }
+                $group_provider_label = isset($row['is_provider_in_group']) ? $group_label . ' ' . $provider_label : $provider_label;
             }
         }
 
@@ -492,7 +480,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
-        $row['total_patients'] = $row['total_patients'] ?? 0;
+        $row['total_patients'] ??= 0;
         $failed_items = null;
         $displayFieldSubHeader = "";
 

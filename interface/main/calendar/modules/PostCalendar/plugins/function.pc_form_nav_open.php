@@ -30,11 +30,7 @@ function smarty_function_pc_form_nav_open($args = []): void
     extract($args);
     unset($args);
     $viewtype = strtolower(pnVarCleanFromInput('viewtype'));
-    if (_SETTING_OPEN_NEW_WINDOW && $viewtype == 'details') {
-        $target = 'target="csCalendar"';
-    } else {
-        $target = '';
-    }
+    $target = _SETTING_OPEN_NEW_WINDOW && $viewtype == 'details' ? 'target="csCalendar"' : '';
 
     $fstart = '<form action="' . pnModURL(__POSTCALENDAR__, 'user', 'view') . '"'
             . ' method="post"'

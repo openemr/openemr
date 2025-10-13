@@ -82,7 +82,7 @@ trait BaseTrait
                     $alert = $driver->switchTo()->alert();
                     $alert->accept();
                     return true; // Alert is present and has been cleared
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return false; // Alert is not present
                 }
             });

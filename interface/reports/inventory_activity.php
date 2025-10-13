@@ -687,11 +687,7 @@ if ($form_action) { // if submit or export
         if ($row['sale_id']) {
             if ($row['xfer_inventory_id']) {
                 // A transfer sale item will appear twice, once with each lot.
-                if ($row['inventory_id'] == $row['xfer_inventory_id']) {
-                    $qtys[3] = $row['quantity'];
-                } else {
-                    $qtys[3] = 0 - $row['quantity'];
-                }
+                $qtys[3] = $row['inventory_id'] == $row['xfer_inventory_id'] ? $row['quantity'] : 0 - $row['quantity'];
             } elseif ($row['pid']) {
                 $qtys[0] = 0 - $row['quantity'];
             } elseif ($row['distributor_id']) {

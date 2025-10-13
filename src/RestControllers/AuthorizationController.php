@@ -1024,8 +1024,8 @@ class AuthorizationController
         $uuidToUser = $this->getUuidUserAccount($session->get('user_id', ''));
         $userRole = $uuidToUser->getUserRole();
         $userAccount = $uuidToUser->getUserAccount();
-        $scopeString = $scopeString ?? "";
-        $userRole = $userRole ?? UuidUserAccount::USER_ROLE_PATIENT;
+        $scopeString ??= "";
+        $userRole ??= UuidUserAccount::USER_ROLE_PATIENT;
         $scopesByResource = [];
         $otherScopes = [];
         $hiddenScopes = [];
@@ -1047,7 +1047,7 @@ class AuthorizationController
             $resource = $resourcePermParts[0];
 
             if (!empty($resource)) {
-                $scopesByResource[$resource] = $scopesByResource[$resource] ?? ['permissions' => []];
+                $scopesByResource[$resource] ??= ['permissions' => []];
 
                 $scopesByResource[$resource]['permissions'][$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }

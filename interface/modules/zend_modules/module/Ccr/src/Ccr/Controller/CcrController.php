@@ -191,11 +191,7 @@ class CcrController extends AbstractActionController
                             $var['entry_identification_array']['misc_address_book'][$cnt] = $cnt;
                         } else {
                             if ($sections == 'lists1' && $key == 'activity') {
-                                if ($val == 'Active') {
-                                    $val = 1;
-                                } else {
-                                    $val = 0;
-                                }
+                                $val = $val == 'Active' ? 1 : 0;
                             }
 
                             if ($sections == 'lists2' && $key == 'type') {
@@ -208,11 +204,7 @@ class CcrController extends AbstractActionController
                             }
 
                             if ($sections == 'prescriptions' && $key == 'active') {
-                                if ($val == 'Active') {
-                                    $val = 1;
-                                } else {
-                                    $val = 0;
-                                }
+                                $val = $val == 'Active' ? 1 : 0;
                             }
 
                             $var['field_name_value_array'][$sections][$cnt][$key] = $val;

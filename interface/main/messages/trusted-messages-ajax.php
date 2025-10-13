@@ -74,7 +74,7 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
         }
         $verifyMessageReceived = intval($_REQUEST['verifyMessageReceived'] ?? 0) == 1;
         $isValid = true;
-    } catch (AccessDeniedException $exception) {
+    } catch (AccessDeniedException) {
         http_response_code(401);
         $result['errorCode'] = 'permissionDenied';
         $isValid = false;

@@ -47,11 +47,7 @@ function validateUsingPageRules($fileNamePath): void
 
     $path = '';
 
-    if ($GLOBALS['webroot'] != '') {
-        $path = str_replace($GLOBALS['webroot'], '', $fileNamePath);
-    } else {
-        $path = $fileNamePath;
-    }
+    $path = $GLOBALS['webroot'] != '' ? str_replace($GLOBALS['webroot'], '', $fileNamePath) : $fileNamePath;
 
     print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a

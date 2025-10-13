@@ -206,11 +206,7 @@ class PatientController extends AppBasePortalController
 
             // get new pid
             $result = sqlQueryNoLog("select max(`pid`)+1 as `pid` from `patient_data`");
-            if (empty($result['pid'])) {
-                $pidRegistration = 1;
-            } else {
-                $pidRegistration = $result['pid'];
-            }
+            $pidRegistration = empty($result['pid']) ? 1 : $result['pid'];
             // store the pid so can use for other registration elements inserted later (such as insurance)
             sqlStatementNoLog("UPDATE `verify_email` SET `pid_holder` = ? WHERE `id` = ?", [$pidRegistration , $_SESSION['token_id_holder']]);
 

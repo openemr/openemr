@@ -38,11 +38,7 @@ function smarty_function_pc_url($args): void
         $action = _SETTING_DEFAULT_VIEW;
     }
 
-    if (empty($print)) {
-        $print = false;
-    } else {
-        $print = true;
-    }
+    $print = empty($print) ? false : true;
 
     $starth = "";
     if ($setdeftime == 1) {
@@ -65,11 +61,7 @@ function smarty_function_pc_url($args): void
     $category = pnVarCleanFromInput('pc_category');
     $topic = pnVarCleanFromInput('pc_topic');
     $popup = pnVarCleanFromInput('popup');
-    if (!isset($date)) {
-        $Date = postcalendar_getDate();
-    } else {
-        $Date = $date;
-    }
+    $Date = !isset($date) ? postcalendar_getDate() : $date;
 
     // some extra cleanup if necessary
     $Date = str_replace('-', '', $Date);

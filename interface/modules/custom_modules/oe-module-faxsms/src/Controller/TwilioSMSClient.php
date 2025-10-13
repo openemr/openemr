@@ -90,11 +90,7 @@ class TwilioSMSClient extends AppDispatch
         $from = $from ?: $this->getRequest('from');
         $message = $message ?: $this->getRequest('comments');
 
-        if (empty($from)) {
-            $from = $this->formatPhone($this->credentials['smsNumber']);
-        } else {
-            $from = $this->formatPhone($from);
-        }
+        $from = empty($from) ? $this->formatPhone($this->credentials['smsNumber']) : $this->formatPhone($from);
         $toPhone = $this->formatPhone($toPhone);
         try {
             $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
@@ -120,11 +116,7 @@ class TwilioSMSClient extends AppDispatch
     {
         // this is u.s only. need E-164
         $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
-            $n = '+' . $n;
-        } else {
-            $n = '+1' . $n;
-        }
+        $n = stripos($n, '1') === 0 ? '+' . $n : '+1' . $n;
         return $n;
     }
 

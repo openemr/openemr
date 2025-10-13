@@ -405,11 +405,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // If either check exist, then will skip
                     $firstCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
                     $secondCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
-                    if ($firstCheck || $secondCheck) {
-                        $skipping = true;
-                    } else {
-                        $skipping = false;
-                    }
+                    $skipping = $firstCheck || $secondCheck ? true : false;
                 } else {
                     // If no such table then the row is deemed not "missing".
                     $skipping = true;

@@ -48,11 +48,7 @@ function smarty_core_get_php_resource(&$params, &$smarty)
     /*
      * Set the error function, depending on which class calls us.
      */
-    if (method_exists($smarty, '_syntax_error')) {
-        $_error_funcc = '_syntax_error';
-    } else {
-        $_error_funcc = 'trigger_error';
-    }
+    $_error_funcc = method_exists($smarty, '_syntax_error') ? '_syntax_error' : 'trigger_error';
 
     if ($_readable) {
         if ($smarty->security) {
@@ -67,11 +63,7 @@ function smarty_core_get_php_resource(&$params, &$smarty)
         return false;
     }
 
-    if ($params['resource_type'] == 'file') {
-        $params['php_resource'] = $params['resource_name'];
-    } else {
-        $params['php_resource'] = $_template_source;
-    }
+    $params['php_resource'] = $params['resource_type'] == 'file' ? $params['resource_name'] : $_template_source;
     return true;
 }
 

@@ -466,11 +466,7 @@ function restoreSession() {
                                     ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 }
 
-                                if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-                                    $checked = "checked";
-                                } else {
-                                    $checked = "";
-                                }
+                                $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                                 // highlight the row if it's been selected for updating
                                 if (!empty($_REQUEST['noteid']) && ($_REQUEST['noteid'] == $row_note_id)) {
@@ -631,11 +627,7 @@ function restoreSession() {
                         }
 
                         $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-                            $checked = "checked";
-                        } else {
-                            $checked = "";
-                        }
+                        $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                         // highlight the row if it's been selected for updating
                         if ($_REQUEST['noteid'] == $row_note_id) {
