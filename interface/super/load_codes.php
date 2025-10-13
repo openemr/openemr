@@ -19,6 +19,7 @@ require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
@@ -101,48 +102,44 @@ if (!empty($_POST['bn_upload'])) {
 
 
         // Settings to drastically speed up import with InnoDB
-        sqlStatementNoLog("SET autocommit=0");
-        sqlStatementNoLog("START TRANSACTION");
-        while (($line = fgets($eres)) !== false) {
-            if ($code_type == 'RXCUI') {
-                $a = explode('|', $line);
-                if (count($a) < 18) {
-                    continue;
-                }
-
-                if ($a[17] != '4096') {
-                    continue;
-                }
-
-                if ($a[11] != 'RXNORM') {
-                    continue;
-                }
-
-                $code = $a[0];
-                if (isset($seen_codes[$code])) {
-                    continue;
-                }
-
-                $seen_codes[$code] = 1;
-                if (!$form_replace) {
-                    $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", [$code_type_id, $code]);
-                    if (!empty($tmp)) {
-                        sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", [$a[14], $code_type_id, $code]);
-                        ++$repcount;
+        QueryUtils::atomic(function () use ($eres, $code_type, $code_type_id, $form_replace, &$seen_codes, &$inscount, &$repcount): void {
+            while (($line = fgets($eres)) !== false) {
+                if ($code_type == 'RXCUI') {
+                    $a = explode('|', $line);
+                    if (count($a) < 18) {
                         continue;
                     }
+
+                    if ($a[17] != '4096') {
+                        continue;
+                    }
+
+                    if ($a[11] != 'RXNORM') {
+                        continue;
+                    }
+
+                    $code = $a[0];
+                    if (isset($seen_codes[$code])) {
+                        continue;
+                    }
+
+                    $seen_codes[$code] = 1;
+                    if (!$form_replace) {
+                        $tmp = QueryUtils::querySingleRow("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", [$code_type_id, $code]);
+                        if (!empty($tmp)) {
+                            sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", [$a[14], $code_type_id, $code]);
+                            ++$repcount;
+                            continue;
+                        }
+                    }
+
+                    sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", [$code_type_id, $code, $a[14]]);
+                    ++$inscount;
                 }
 
-                sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", [$code_type_id, $code, $a[14]]);
-                ++$inscount;
+                // TBD: Clone/adapt the above for each new code type.
             }
-
-            // TBD: Clone/adapt the above for each new code type.
-        }
-
-        // Settings to drastically speed up import with InnoDB
-        sqlStatementNoLog("COMMIT");
-        sqlStatementNoLog("SET autocommit=1");
+        });
 
         fclose($eres);
         // Cannot close ZIP object if not initialised, catch and do nothing

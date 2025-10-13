@@ -13,6 +13,7 @@
 namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\QuestionnaireService;
 use RuntimeException;
 
@@ -336,10 +337,8 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function savePatientGroupsByProfile($profile_groups): bool
     {
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-
-        try {
+        $rtn = 0;
+        QueryUtils::atomic(function () use ($profile_groups, &$rtn): void {
             sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
             $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
 
@@ -348,13 +347,9 @@ class DocumentTemplateService extends QuestionnaireService
                     $rtn = sqlInsert($sql, [$profile, $_SESSION['authUserID'] ?? null, $group['group'] ?? '', $group['active']]);
                 }
             }
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
 
-        return $rtn ?? 0;
+        return (bool) $rtn;
     }
 
     /**
@@ -363,18 +358,13 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function updateGroupsInPatients($patients): bool
     {
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
+        $rtn = false;
+        QueryUtils::atomic(function () use ($patients, &$rtn): void {
             $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', [null, 0]);
             foreach ($patients as $id => $groups) {
                 $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', [$groups, $id]);
             }
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
         return !$rtn;
     }
 
@@ -589,7 +579,7 @@ class DocumentTemplateService extends QuestionnaireService
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE `pid` = ?, `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW(), `mime` = ?";
 
-        return sqlInsert($sql, [$pid, ($_SESSION['authUserID'] ?? null), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen($content), $mimetype, $pid, ($_SESSION['authUserID'] ?? null), $content, strlen($content), $mimetype]);
+        return QueryUtils::sqlInsert($sql, [$pid, ($_SESSION['authUserID'] ?? null), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen($content), $mimetype, $pid, ($_SESSION['authUserID'] ?? null), $content, strlen($content), $mimetype]);
     }
 
     /**
@@ -625,10 +615,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function sendProfileWithGroups($profiles): int
     {
         $result = 0;
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        $results = [];
-        try {
+        QueryUtils::atomic(function () use ($profiles, &$result): void {
             foreach ($profiles as $profile) {
                 $sql = 'Select pd.pid, ptd.profile, ptd.member_of, tpl.* From `patient_data` pd ' .
                     "Join `document_template_profiles` as ptd On pd.patient_groups LIKE CONCAT('%',ptd.member_of, '%') And ptd.profile = ? " .
@@ -650,11 +637,7 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                 }
             }
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
         return $result;
     }
 
@@ -667,9 +650,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function sendTemplate($pids, $templates, $category = null): int
     {
         $result = 0;
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
+        QueryUtils::atomic(function () use ($pids, $templates, $category, &$result): void {
             foreach ($templates as $id => $profile) {
                 $template = $this->fetchTemplate($id);
                 $destination_category = $template['category'];
@@ -682,11 +663,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $result = $this->insertTemplate($pid, $destination_category, $name, $content, $template['mime'], $profile);
                 }
             }
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
         return $result;
     }
 
@@ -738,17 +715,15 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function saveAllProfileTemplates($profiles_array)
     {
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
+        $rtn = false;
+        QueryUtils::atomic(function () use ($profiles_array, &$rtn): void {
             sqlQuery("DELETE FROM `document_template_profiles` WHERE `template_id` > 0");
-            $rtn = false;
             foreach ($profiles_array as $profile_array) {
                 $form_data = [];
                 foreach ($profile_array['form'] as $form) {
                     $form_data[$form['name']] = trim($form['value'] ?? '');
                 }
-                $rtn = sqlInsert(
+                $rtn = QueryUtils::sqlInsert(
                     "INSERT INTO `document_template_profiles`
             (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`, `notify_trigger`, `notify_period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [$profile_array['id'], $profile_array['profile'],
@@ -756,11 +731,7 @@ class DocumentTemplateService extends QuestionnaireService
                         $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
                 );
             }
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
         return $rtn;
     }
 
