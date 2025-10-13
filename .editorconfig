@@ -7,6 +7,9 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
+[api-scope-listing]
+insert_final_newline = false
+
 [*.{json,jsn,sh,yaml,yml}]
 indent_size = 2
 
