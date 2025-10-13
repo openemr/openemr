@@ -295,7 +295,6 @@ class CoverageValidatorStub extends CoverageValidator
         // Use reflection to access private method
         $reflection = new \ReflectionClass($this);
         $method = $reflection->getMethod('isValidContext');
-        $method->setAccessible(true);
         return $method->invoke($this, $context);
     }
 

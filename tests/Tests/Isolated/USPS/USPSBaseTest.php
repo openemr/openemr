@@ -218,7 +218,6 @@ class USPSBaseTest extends TestCase
         // Using reflection to access protected property for testing
         $reflection = new \ReflectionClass($this->uspsBase);
         $apiCodesProperty = $reflection->getProperty('apiCodes');
-        $apiCodesProperty->setAccessible(true);
         $apiCodes = $apiCodesProperty->getValue($this->uspsBase);
 
         $this->assertIsArray($apiCodes);
