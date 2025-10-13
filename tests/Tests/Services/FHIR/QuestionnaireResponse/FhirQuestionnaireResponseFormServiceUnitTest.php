@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
+use Monolog\Level;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
@@ -29,6 +30,7 @@ class FhirQuestionnaireResponseFormServiceUnitTest extends TestCase
     {
         parent::setUp();
         $this->service = new FhirQuestionnaireResponseFormService();
+        $this->service->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     /**

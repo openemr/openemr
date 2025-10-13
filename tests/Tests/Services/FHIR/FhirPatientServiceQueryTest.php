@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
@@ -39,6 +41,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installPatientFixtures();
         $this->fhirPatientService = new FhirPatientService();
+        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void
