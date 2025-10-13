@@ -110,7 +110,7 @@ abstract class BaseValidator
         if ($isUuid) {
             try {
                 $lookupId = UuidRegistry::uuidToBytes($lookupId);
-            } catch (InvalidUuidStringException $e) {
+            } catch (InvalidUuidStringException) {
                 return $validationResult;
             }
         } elseif (!is_int(intval($lookupId))) {

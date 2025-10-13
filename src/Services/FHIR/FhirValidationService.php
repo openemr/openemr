@@ -25,7 +25,7 @@ class FhirValidationService
             } catch (\InvalidArgumentException $e) {
                 return $this->
                 operationOutcomeResourceService('fatal', 'invalid', $e->getMessage());
-            } catch (\Error $e) {
+            } catch (\Error) {
                 return $this->
                 operationOutcomeResourceService('fatal', 'invalid', 'resourceType Not Found');
             }

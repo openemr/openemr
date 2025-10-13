@@ -900,7 +900,7 @@ class Events extends Base
                                 ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 try {
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     $this->MedEx->logging->log_this($sql_GOGREEN);
                     exit;
                 }

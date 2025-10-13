@@ -185,7 +185,7 @@ class QueryUtils
                 unset($statement); // free the resource
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // do nothing as we know the table doesn't exist
         }
         return false;

@@ -438,7 +438,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test delete operations that should trigger the specific delete case handling
         $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
@@ -463,7 +462,6 @@ final class EventAuditLoggerTest extends TestCase
         // Inject mock CryptoGen
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionProperty = $reflectionClass->getProperty('cryptoGen');
-        $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($this->eventAuditLogger, $this->cryptoGenMock);
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -593,7 +591,6 @@ final class EventAuditLoggerTest extends TestCase
         // Inject the mock CryptoGen
         $reflection = new \ReflectionClass($this->eventAuditLogger);
         $cryptoProperty = $reflection->getProperty('cryptoGen');
-        $cryptoProperty->setAccessible(true);
         $cryptoProperty->setValue($this->eventAuditLogger, $cryptoMock);
 
         // Call recordLogItem with API data - this should execute the encryption code:
@@ -704,7 +701,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('determineRFC3881EventActionCode');
-        $reflectionMethod->setAccessible(true);
 
         $this->assertEquals('C', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-create'));
         $this->assertEquals('C', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-insert'));
@@ -722,7 +718,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('determineRFC3881EventIdDisplayName');
-        $reflectionMethod->setAccessible(true);
 
         $this->assertEquals('Patient Record', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-record'));
         $this->assertEquals('Patient Record', $reflectionMethod->invoke($this->eventAuditLogger, 'view'));
@@ -740,7 +735,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('createRfc3881Msg');
-        $reflectionMethod->setAccessible(true);
 
         $message = $reflectionMethod->invoke(
             $this->eventAuditLogger,
@@ -807,7 +801,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test various table categories
         $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "INSERT INTO lists (type) VALUES ('medical_problem')", 'patient-record', 'lists'));
@@ -827,7 +820,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test delete operations with lists: prefix for special list categories
         $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
@@ -848,7 +840,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test additional table categories for comprehensive coverage
         $this->assertEquals('Social and Family History', $reflectionMethod->invoke($this->eventAuditLogger, 'UPDATE history_data SET smoking = ?', 'patient-record', 'history_data'));
@@ -882,7 +873,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-        $reflectionMethod->setAccessible(true);
 
         // Test with empty user
         $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, ''));
@@ -898,7 +888,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-        $reflectionMethod->setAccessible(true);
 
         // Test when sqlQueryNoLog returns a non-empty result
         // Since we can't easily mock sqlQueryNoLog, we'll test the property setting logic
@@ -906,7 +895,6 @@ final class EventAuditLoggerTest extends TestCase
 
         // Access the private breakglassUser property
         $breakglassProperty = $reflectionClass->getProperty('breakglassUser');
-        $breakglassProperty->setAccessible(true);
 
         // Test the caching behavior: first set the property to true
         $breakglassProperty->setValue($this->eventAuditLogger, true);
@@ -966,7 +954,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('createTlsConn');
-        $reflectionMethod->setAccessible(true);
 
         // Test with invalid host (should return false)
         $result = $reflectionMethod->invoke($this->eventAuditLogger, 'invalid.host', 9999, '', '');
@@ -1757,7 +1744,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
-        $reflectionMethod->setAccessible(true);
 
         // Test additional table mappings for complete coverage
         $this->assertEquals('Immunization', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM immunizations', 'select', 'immunizations'));
@@ -1782,7 +1768,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         $reflectionClass = new ReflectionClass($this->eventAuditLogger);
         $reflectionMethod = $reflectionClass->getMethod('createRFC3881Msg');
-        $reflectionMethod->setAccessible(true);
 
         // Test with different event types and parameters
         $result1 = $reflectionMethod->invoke($this->eventAuditLogger, 'testuser', 'providers', 'login', 1, 'Login successful', null, 'Security');
@@ -2525,7 +2510,6 @@ final class EventAuditLoggerTest extends TestCase
         // Use reflection to make the private method accessible
         $reflection = new \ReflectionClass(EventAuditLogger::class);
         $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-        $createTlsConnMethod->setAccessible(true);
 
         // Test with invalid host (should return false)
         $result = $createTlsConnMethod->invoke(
@@ -2566,7 +2550,6 @@ final class EventAuditLoggerTest extends TestCase
         // Use reflection to make the private method accessible
         $reflection = new \ReflectionClass(EventAuditLogger::class);
         $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-        $createRfc3881MsgMethod->setAccessible(true);
 
         // Test message creation with various parameters
         $result = $createRfc3881MsgMethod->invoke(
@@ -2652,7 +2635,6 @@ final class EventAuditLoggerTest extends TestCase
         // Test createTlsConn returns appropriate result for invalid host
         $reflection = new \ReflectionClass(EventAuditLogger::class);
         $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-        $createTlsConnMethod->setAccessible(true);
 
         $connResult = $createTlsConnMethod->invoke(
             $this->eventAuditLogger,
@@ -2671,7 +2653,6 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['atna_audit_host'] = 'test.audit.host';
 
         $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-        $createRfc3881MsgMethod->setAccessible(true);
 
         $msgResult = $createRfc3881MsgMethod->invoke(
             $this->eventAuditLogger,
@@ -2713,7 +2694,6 @@ final class EventAuditLoggerTest extends TestCase
 
         // Test createRfc3881Msg private method
         $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-        $createRfc3881MsgMethod->setAccessible(true);
 
         $msgResult = $createRfc3881MsgMethod->invoke(
             $this->eventAuditLogger,

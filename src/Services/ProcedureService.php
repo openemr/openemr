@@ -36,10 +36,12 @@ class ProcedureService extends BaseService
     private const PROCEDURE_REPORT_TABLE = "procedure_report";
     private const PROCEDURE_RESULT_TABLE = "procedure_result";
     private const PROCEDURE_SPECIMEN_TABLE = "procedure_specimen";
+    private readonly ProcedureOrderRelationshipService $relationshipService;
 
     public function __construct()
     {
         parent::__construct(self::PROCEDURE_TABLE);
+        $this->relationshipService = new ProcedureOrderRelationshipService();
         UuidRegistry::createMissingUuidsForTables([
             self::PROCEDURE_TABLE,
             self::PATIENT_TABLE,
@@ -57,7 +59,7 @@ class ProcedureService extends BaseService
      */
     public function getUuidFields(): array
     {
-        return ['result_uuid','report_uuid', 'lab_uuid','puuid', 'order_uuid', 'euuid', 'provider_uuid', 'specimen_uuid'];
+        return ['order_uuid', 'result_uuid', 'report_uuid', 'lab_uuid', 'puuid', 'euuid', 'provider_uuid', 'specimen_uuid'];
     }
 
     /**
@@ -65,205 +67,248 @@ class ProcedureService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param  $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *                         payload.
      */
     public function search($search, $isAndCondition = true)
     {
-        // note that these are Laboratory tests & values/results as mapped in USCDI Data elements v1
-        // @see https://www.healthit.gov/isa/sites/isa/files/2020-07/USCDI-Version-1-July-2020-Errata-Final.pdf
-        // To see the mappings you can see here: https://www.hl7.org/fhir/us/core/general-guidance.html
+        // Query structure: Start from procedure_order (the ServiceRequest)
+        // and LEFT JOIN all related data so orders without reports/results still appear
+
         $sql = "SELECT
-                porder.order_uuid
-                ,porder.order_provider_id
-                ,porder.order_activity
-                ,porder.order_diagnosis
-                ,porder.order_encounter_id
-                ,porder.order_lab_id
+        porder.order_uuid
+        ,porder.order_uuid AS uuid
+        ,porder.procedure_order_id
+        ,porder.order_provider_id
+        ,porder.order_activity
+        ,porder.order_activity AS activity
+        ,porder.order_diagnosis
+        ,porder.order_encounter_id
+        ,porder.order_lab_id
+        ,porder.order_patient_id
+        ,porder.provider_id
+        ,porder.date_ordered
+        ,porder.date_collected
+        ,porder.order_status
+        ,porder.order_priority
+        ,porder.patient_instructions
+        ,porder.clinical_hx
+        ,porder.procedure_order_type
+        ,porder.scheduled_date
+        ,porder.scheduled_start
+        ,porder.scheduled_end
+        ,porder.performer_type
+        ,porder.order_intent
+        ,porder.location_id
+        ,porder.specimen_type
+        ,porder.specimen_location
+        ,porder.specimen_volume
+        ,porder.specimen_fasting
 
-                ,preport.report_date
-                ,preport.procedure_report_id
-                ,preport.report_uuid
-                ,preport.report_notes
-                ,preport.procedure_order_seq
+        ,preport.report_date
+        ,preport.procedure_report_id
+        ,preport.report_uuid
+        ,preport.report_notes
+        ,preport.procedure_order_seq
 
-                ,presult.procedure_result_id
-                ,presult.result_uuid
-                ,presult.result_code
-                ,presult.result_text
-                ,presult.result_units
-                ,presult.result_result
-                ,presult.result_range
-                ,presult.result_abnormal
-                ,presult.result_comments
-                ,presult.result_status
+        ,presult.procedure_result_id
+        ,presult.result_uuid
+        ,presult.result_code
+        ,presult.result_text
+        ,presult.result_units
+        ,presult.result_result
+        ,presult.result_range
+        ,presult.result_abnormal
+        ,presult.result_comments
+        ,presult.result_status
 
-                ,order_codes.procedure_name
-                ,order_codes.procedure_code
-                ,order_codes.procedure_type
+        ,order_codes.procedure_name
+        ,order_codes.procedure_code
+        ,order_codes.procedure_type
+        ,order_codes.procedure_order_seq AS order_code_seq
+        ,order_codes.diagnoses
 
-                ,pcode_types.standard_code
+        ,pcode_types.standard_code
 
-                ,labs.lab_id
-                ,labs.lab_uuid
-                ,labs.lab_npi
-                ,labs.lab_name
+        ,labs.lab_id
+        ,labs.lab_uuid
+        ,labs.lab_npi
+        ,labs.lab_name
 
-                ,patients.puuid
-                ,patients.pid
+        ,patients.puuid
+        ,patients.pid
+        ,patients.pid AS patient_id
 
-                ,encounters.eid
-                ,encounters.euuid
-                ,encounters.encounter_date
+        ,encounters.eid
+        ,encounters.euuid
+        ,encounters.encounter_date
 
-                ,docs.doc_id
-                ,docs.doc_uuid
+        ,docs.doc_id
+        ,docs.doc_uuid
 
-                ,provider.provider_uuid
-                ,provider.provider_id
-                ,provider.provider_fname
-                ,provider.provider_mname
-                ,provider.provider_lname
-                ,provider.provider_npi
-            FROM (
-                SELECT
-                    date_report AS report_date
-                    ,procedure_report_id
-                    ,procedure_order_id
-                    ,procedure_order_seq
-                    ,uuid AS report_uuid
-                    ,report_notes
-                FROM
-                procedure_report
-            ) preport
-            LEFT JOIN (
-                SELECT
-                    procedure_result_id
-                     ,procedure_report_id
-                     ,uuid AS result_uuid
-                    ,result AS result_quantity
-                    ,result AS result_string
-                    ,result AS result_result
-                    ,units AS result_units
-                    ,result_status
-                    ,result_code
-                    ,result_text
-                    ,result_data_type
-                    ,`range` AS result_range
-                    ,`abnormal` AS result_abnormal
-                    ,`comments` AS result_comments
-                    ,`document_id` AS result_document_id
-                FROM
-                    `procedure_result`
-            ) presult
-            ON preport.procedure_report_id = presult.procedure_report_id
-            
-            LEFT JOIN (
-                SELECT
-                    procedure_order_id
-                    ,uuid AS order_uuid
-                    ,provider_id AS order_provider_id
-                    ,encounter_id AS order_encounter_id
-                    ,activity AS order_activity
-                    ,order_diagnosis
-                    ,lab_id as order_lab_id
-                    ,procedure_order_id AS order_id
-                    ,patient_id AS order_patient_id
-                    ,provider_id
-                FROM
-                    procedure_order
-            ) porder
-            ON porder.procedure_order_id = preport.procedure_order_id
-            
-            LEFT JOIN (
-                SELECT
-                    encounter AS eid
-                    ,uuid AS euuid
-                    ,`date` AS encounter_date
-                FROM
-                    form_encounter
-            ) encounters ON porder.order_encounter_id = encounters.eid
-            
-            LEFT JOIN (
-                    SELECT
-                           ppid AS lab_id
-                           ,uuid AS lab_uuid
-                           ,npi AS lab_npi
-                           ,`name` AS lab_name
-                           ,`active` AS lab_active
-                    FROM
-                         procedure_providers
-                ) labs
-            ON labs.lab_id = porder.order_lab_id
-            
-            LEFT JOIN (
-                SELECT
-                        procedure_order_id
-                    ,procedure_order_seq
-                    ,procedure_code
-                    ,procedure_name
-                    ,procedure_order_title AS procedure_type
-                    FROM procedure_order_code
-            ) order_codes
-            ON order_codes.procedure_order_id = porder.procedure_order_id 
-               AND order_codes.procedure_order_seq = preport.procedure_order_seq
-            
-            LEFT JOIN (
-                SELECT
-                    standard_code,
-                    procedure_code AS proc_code
-                FROM procedure_type
-            ) pcode_types ON order_codes.procedure_code = pcode_types.proc_code
-            
-            LEFT JOIN (
-                SELECT
-                    pid
-                    ,uuid AS puuid
-                FROM
-                    patient_data
-            ) patients
-            ON patients.pid = porder.order_patient_id
+        ,provider.provider_uuid
+        ,provider.provider_id
+        ,provider.provider_fname
+        ,provider.provider_mname
+        ,provider.provider_lname
+        ,provider.provider_npi
 
-            LEFT JOIN (
-                SELECT
-                   id AS doc_id
-                   ,uuid AS doc_uuid
-                FROM
-                    documents
-            ) docs ON presult.result_document_id = docs.doc_id
-            
-            LEFT JOIN (
-                SELECT
-                    users.uuid AS provider_uuid
-                    ,users.id AS provider_id
-                    ,users.fname AS provider_fname
-                    ,users.mname AS provider_mname
-                    ,users.lname AS provider_lname
-                    ,users.npi AS provider_npi
-                FROM users
-                WHERE npi IS NOT NULL AND npi != ''
-            ) provider ON provider.provider_id = porder.provider_id ";
+        ,location.location_id
+        ,location.location_uuid
+        ,location.location_name
+    FROM (
+        SELECT
+            procedure_order_id
+            ,uuid AS order_uuid
+            ,provider_id AS order_provider_id
+            ,encounter_id AS order_encounter_id
+            ,activity AS order_activity
+            ,order_diagnosis
+            ,order_status
+            ,order_priority
+            ,patient_instructions
+            ,clinical_hx
+            ,lab_id as order_lab_id
+            ,patient_id AS order_patient_id
+            ,provider_id
+            ,date_ordered
+            ,date_collected
+            ,procedure_order_type
+            ,scheduled_date
+            ,scheduled_start
+            ,scheduled_end
+            ,performer_type
+            ,order_intent
+            ,location_id
+            ,specimen_type
+            ,specimen_location
+            ,specimen_volume
+            ,specimen_fasting
+        FROM procedure_order
+        WHERE activity = 1
+    ) porder
+    LEFT JOIN (
+        SELECT
+            procedure_order_id
+            ,procedure_order_seq
+            ,procedure_code
+            ,procedure_name
+            ,procedure_order_title AS procedure_type
+            ,diagnoses
+        FROM procedure_order_code
+    ) order_codes ON order_codes.procedure_order_id = porder.procedure_order_id
+    LEFT JOIN (
+        SELECT
+            date_report AS report_date
+            ,procedure_report_id
+            ,procedure_order_id
+            ,procedure_order_seq
+            ,uuid AS report_uuid
+            ,report_notes
+        FROM procedure_report
+    ) preport ON preport.procedure_order_id = porder.procedure_order_id
+        AND preport.procedure_order_seq = order_codes.procedure_order_seq
+    LEFT JOIN (
+        SELECT
+            procedure_result_id
+            ,procedure_report_id
+            ,uuid AS result_uuid
+            ,result AS result_quantity
+            ,result AS result_string
+            ,result AS result_result
+            ,units AS result_units
+            ,result_status
+            ,result_code
+            ,result_text
+            ,result_data_type
+            ,`range` AS result_range
+            ,`abnormal` AS result_abnormal
+            ,`comments` AS result_comments
+            ,`document_id` AS result_document_id
+        FROM `procedure_result`
+    ) presult ON presult.procedure_report_id = preport.procedure_report_id
+    LEFT JOIN (
+        SELECT
+            standard_code,
+            procedure_code AS proc_code
+        FROM procedure_type
+    ) pcode_types ON order_codes.procedure_code = pcode_types.proc_code
+    LEFT JOIN (
+        SELECT
+            encounter AS eid
+            ,uuid AS euuid
+            ,`date` AS encounter_date
+        FROM form_encounter
+    ) encounters ON porder.order_encounter_id = encounters.eid
+    LEFT JOIN (
+        SELECT
+            ppid AS lab_id
+            ,uuid AS lab_uuid
+            ,npi AS lab_npi
+            ,`name` AS lab_name
+            ,`active` AS lab_active
+        FROM procedure_providers
+    ) labs ON labs.lab_id = porder.order_lab_id
+    LEFT JOIN (
+        SELECT
+            pid
+            ,uuid AS puuid
+        FROM patient_data
+    ) patients ON patients.pid = porder.order_patient_id
+    LEFT JOIN (
+        SELECT
+           id AS doc_id
+           ,uuid AS doc_uuid
+        FROM documents
+    ) docs ON presult.result_document_id = docs.doc_id
+    LEFT JOIN (
+        SELECT
+            users.uuid AS provider_uuid
+            ,users.id AS provider_id
+            ,users.fname AS provider_fname
+            ,users.mname AS provider_mname
+            ,users.lname AS provider_lname
+            ,users.npi AS provider_npi
+        FROM users
+        WHERE npi IS NOT NULL AND npi != ''
+    ) provider ON provider.provider_id = porder.provider_id
+    LEFT JOIN (
+        SELECT
+            id AS location_id
+            ,uuid AS location_uuid
+            ,name AS location_name
+        FROM facility
+    ) location ON location.location_id = porder.location_id";
 
-        $excludeDNR_TNP = new StringSearchField('result_string', ['DNR','TNP'], SearchModifier::NOT_EQUALS_EXACT, true);
-        if (isset($search['result_string']) && $search['result_string'] instanceof ISearchField) {
-            $compoundColumn = new CompositeSearchField('result_string', [], true);
-            $compoundColumn->addChild($search['result_string']);
-        } else {
-            $compoundColumn = new CompositeSearchField('result_string', [], false);
-            $resultIsNull = new TokenSearchField('result_string', [new TokenSearchValue(true)]);
-            $resultIsNull->setModifier(SearchModifier::MISSING);
-            $compoundColumn->addChild($resultIsNull);
+        // Build WHERE clause from search parameters
+        $modifiedSearch = $search;
+
+        // Don't filter out orders without results when doing a direct UUID lookup
+        $isDirectUuidLookup = isset($search['order_uuid']) && count($search) == 1;
+
+        if (!$isDirectUuidLookup) {
+            // For general searches, apply the DNR/TNP filter
+            $excludeDNR_TNP = new StringSearchField('result_string', ['DNR', 'TNP'], SearchModifier::NOT_EQUALS_EXACT, true);
+            if (isset($modifiedSearch['result_string']) && $modifiedSearch['result_string'] instanceof ISearchField) {
+                $compoundColumn = new CompositeSearchField('result_string', [], true);
+                $compoundColumn->addChild($modifiedSearch['result_string']);
+            } else {
+                $compoundColumn = new CompositeSearchField('result_string', [], false);
+                $resultIsNull = new TokenSearchField('result_string', [new TokenSearchValue(true)]);
+                $resultIsNull->setModifier(SearchModifier::MISSING);
+                $compoundColumn->addChild($resultIsNull);
+            }
+            $compoundColumn->addChild($excludeDNR_TNP);
+            $modifiedSearch['result_string'] = $compoundColumn;
         }
-        $compoundColumn->addChild($excludeDNR_TNP);
-        $search['result_string'] = $compoundColumn;
 
-        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+        $whereClause = FhirSearchWhereClauseBuilder::build($modifiedSearch, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
         return $processingResult;
@@ -283,43 +328,70 @@ class ProcedureService extends BaseService
         $reportsByUuid = [];
         $procedures = [];
 
-        // First pass: build the structure without specimens
+        // First pass: build the structure
         while ($row = sqlFetchArray($queryResource)) {
             $record = $this->createResultRecordFromDatabaseResult($row);
             $procedureUuid = $record['order_uuid'];
 
             if (!isset($procedureByUuid[$procedureUuid])) {
                 $procedure = [
-                    'name' => $record['procedure_name']
+                    'name' => $record['procedure_name'] ?? null
                     ,'uuid' => $record['order_uuid']
-                    , 'code' => $record['procedure_code']
-                    , 'standard_code' => $record['standard_code']
-                    , 'diagnosis' => $record['order_diagnosis']
-                    , 'activity' => $record['order_activity']
-                    , 'reports' => []
+                    ,'order_uuid' => $record['order_uuid']
+                    ,'procedure_order_id' => $record['procedure_order_id']
+                    ,'code' => $record['procedure_code'] ?? null
+                    ,'procedure_code' => $record['procedure_code'] ?? null
+                    ,'procedure_name' => $record['procedure_name'] ?? null
+                    ,'procedure_order_type' => $record['procedure_order_type'] ?? null
+                    ,'standard_code' => $record['standard_code'] ?? null
+                    ,'diagnosis' => $record['order_diagnosis'] ?? null
+                    ,'order_diagnosis' => $record['order_diagnosis'] ?? null
+                    ,'diagnoses' => $record['diagnoses'] ?? null
+                    ,'activity' => $record['order_activity']
+                    ,'status' => $record['order_status'] ?? null
+                    ,'order_status' => $record['order_status'] ?? null
+                    ,'priority' => $record['order_priority'] ?? null
+                    ,'order_priority' => $record['order_priority'] ?? null
+                    ,'patient_instructions' => $record['patient_instructions'] ?? null
+                    ,'clinical_hx' => $record['clinical_hx'] ?? null
+                    ,'date_ordered' => $record['date_ordered'] ?? null
+                    ,'date_collected' => $record['date_collected'] ?? null
+                    ,'scheduled_date' => $record['scheduled_date'] ?? null
+                    ,'scheduled_start' => $record['scheduled_start'] ?? null
+                    ,'scheduled_end' => $record['scheduled_end'] ?? null
+                    ,'performer_type' => $record['performer_type'] ?? null
+                    ,'order_intent' => $record['order_intent'] ?? null
+                    ,'specimen_type' => $record['specimen_type'] ?? null
+                    ,'specimen_location' => $record['specimen_location'] ?? null
+                    ,'specimen_volume' => $record['specimen_volume'] ?? null
+                    ,'specimen_fasting' => $record['specimen_fasting'] ?? null
+                    ,'reports' => []
                 ];
 
                 if (!empty($record['provider_id'])) {
+                    $procedure['provider_id'] = $record['provider_id'];
                     $procedure['provider'] = [
                         'id' => $record['provider_id']
                         ,'uuid' => $record['provider_uuid']
-                        ,'fname' => $record['provider_fname']
-                        ,'mname' => $record['provider_mname']
-                        ,'lname' => $record['provider_lname']
+                        , 'fname' => $record['provider_fname']
+                        , 'mname' => $record['provider_mname']
+                        , 'lname' => $record['provider_lname']
                         ,'npi' => $record['provider_npi']
                     ];
                 }
 
                 if (!empty($record['lab_id'])) {
+                    $procedure['lab_id'] = $record['lab_id'];
                     $procedure['lab'] = [
-                        'id' => $record['lab_id'] ?? null
-                        ,'uuid' => $record['lab_uuid'] ?? null
-                        ,'name' => $record['lab_name'] ?? null
-                        ,'npi' => $record['lab_npi'] ?? null
+                        'id' => $record['lab_id']
+                        ,'uuid' => $record['lab_uuid']
+                        , 'name' => $record['lab_name']
+                        ,'npi' => $record['lab_npi']
                     ];
                 }
 
                 if (!empty($record['pid'])) {
+                    $procedure['patient_id'] = $record['patient_id'];
                     $procedure['patient'] = [
                         'pid' => $record['pid']
                         ,'uuid' => $record['puuid']
@@ -327,97 +399,101 @@ class ProcedureService extends BaseService
                 }
 
                 if (!empty($record['eid'])) {
+                    $procedure['encounter_id'] = $record['eid'];
                     $procedure['encounter'] = [
                         'id' => $record['eid']
                         ,'uuid' => $record['euuid']
                         ,'date' => $record['encounter_date']
                     ];
                 }
+
+                if (!empty($record['location_id']) && !empty($record['location_uuid'])) {
+                    $procedure['location_id'] = $record['location_id'];
+                    $procedure['location'] = [
+                        'id' => $record['location_id']
+                        ,'uuid' => UuidRegistry::uuidToString($record['location_uuid'])  // CONVERT BINARY!
+                        ,'name' => $record['location_name']
+                    ];
+                }
+
                 $procedures[] = $procedureUuid;
+                $procedureByUuid[$procedureUuid] = $procedure;
             } else {
                 $procedure = $procedureByUuid[$procedureUuid];
             }
 
-            $reportUuid = $record['report_uuid'];
-            if (!isset($reportsByUuid[$reportUuid])) {
-                $report = [
-                    'date' => $record['report_date']
-                    , 'id' => $record['procedure_report_id']
-                    , 'uuid' => $record['report_uuid']
-                    , 'notes' => $record['report_notes']
-                    , 'order_seq' => $record['procedure_order_seq']
-                    , 'results' => []
-                ];
+            // Only add reports if they exist
+            $reportUuid = $record['report_uuid'] ?? null;
+            if (!empty($reportUuid)) {
+                if (!isset($reportsByUuid[$reportUuid])) {
+                    $report = [
+                        'date' => $record['report_date']
+                        ,'id' => $record['procedure_report_id']
+                        ,'uuid' => $record['report_uuid']
+                        , 'notes' => $record['report_notes']
+                        ,'order_seq' => $record['procedure_order_seq']
+                        ,'results' => []
+                    ];
 
-                $procedure['reports'][] = $reportUuid;
-            } else {
-                $report = $reportsByUuid[$reportUuid];
-            }
-
-            // Add result
-            if (!empty($record['procedure_result_id'])) {
-                $result = [
-                    'id' => $record['procedure_result_id']
-                    , 'uuid' => $record['result_uuid']
-                    , 'code' => $record['result_code']
-                    , 'text' => $record['result_text']
-                    , 'units' => $record['result_units']
-                    , 'result' => $record['result_result']
-                    , 'range' => $record['result_range']
-                    , 'abnormal' => $record['result_abnormal']
-                    , 'comments' => $record['result_comments']
-                    , 'document_id' => $record['doc_id']
-                    , 'status' => $record['result_status']
-                ];
-                $report['results'][] = $result;
-            }
-
-            // Store back
-            $reportsByUuid[$reportUuid] = $report;
-            $procedureByUuid[$procedureUuid] = $procedure;
-        }
-
-        // Second pass: fetch specimens for each report's order_seq
-        foreach ($reportsByUuid as $reportUuid => $report) {
-            if (!empty($report['order_seq'])) {
-                // Find the procedure order_id for this report
-                $orderId = null;
-                foreach ($procedureByUuid as $procedure) {
-                    foreach ($procedure['reports'] as $rUuid) {
-                        if ($rUuid === $reportUuid) {
-                            // Get order_id from the procedure
-                            $orderIdSql = "SELECT procedure_order_id FROM procedure_report WHERE uuid = ?";
-                            $orderIdResult = sqlQuery($orderIdSql, [UuidRegistry::uuidToBytes($reportUuid)]);
-                            $orderId = $orderIdResult['procedure_order_id'] ?? null;
-                            break 2;
-                        }
-                    }
+                    $procedure['reports'][] = $reportUuid;
+                    $reportsByUuid[$reportUuid] = $report;
+                } else {
+                    $report = $reportsByUuid[$reportUuid];
                 }
 
+                // Add result if it exists
+                if (!empty($record['procedure_result_id'])) {
+                    $result = [
+                        'id' => $record['procedure_result_id']
+                        ,'uuid' => $record['result_uuid']
+                        ,'code' => $record['result_code']
+                        , 'text' => $record['result_text']
+                        ,'units' => $record['result_units']
+                        , 'result' => $record['result_result']
+                        ,'range' => $record['result_range']
+                        ,'abnormal' => $record['result_abnormal']
+                        , 'comments' => $record['result_comments']
+                        ,'document_id' => $record['doc_id']
+                        ,'status' => $record['result_status']
+                    ];
+                    $report['results'][] = $result;
+                }
+
+                $reportsByUuid[$reportUuid] = $report;
+                $procedureByUuid[$procedureUuid] = $procedure;
+            }
+        }
+
+        // Second pass: fetch specimens for reports that have them
+        foreach ($reportsByUuid as $reportUuid => $report) {
+            if (!empty($report['order_seq'])) {
+                $orderIdSql = "SELECT procedure_order_id FROM procedure_report WHERE uuid = ?";
+                $orderIdResult = sqlQuery($orderIdSql, [UuidRegistry::uuidToBytes($reportUuid)]);
+                $orderId = $orderIdResult['procedure_order_id'] ?? null;
+
                 if ($orderId) {
-                    // Fetch ALL specimens for this order_seq
                     $specimenSql = "SELECT
-                    uuid AS specimen_uuid
-                    ,specimen_identifier
-                    ,accession_identifier
-                    ,specimen_type_code
-                    ,specimen_type
-                    ,collection_method_code
-                    ,collection_method
-                    ,specimen_location_code
-                    ,specimen_location
-                    ,collected_date
-                    ,collection_date_low
-                    ,collection_date_high
-                    ,volume_value
-                    ,volume_unit
-                    ,condition_code
-                    ,specimen_condition
-                    ,comments AS specimen_comments
-                    ,deleted
-                FROM procedure_specimen
-                WHERE procedure_order_id = ? AND procedure_order_seq = ?
-                ORDER BY procedure_specimen_id";
+                uuid AS specimen_uuid
+                ,specimen_identifier
+                ,accession_identifier
+                ,specimen_type_code
+                ,specimen_type
+                ,collection_method_code
+                ,collection_method
+                ,specimen_location_code
+                ,specimen_location
+                ,collected_date
+                ,collection_date_low
+                ,collection_date_high
+                ,volume_value
+                ,volume_unit
+                ,condition_code
+                ,specimen_condition
+                ,comments AS specimen_comments
+                ,deleted
+            FROM procedure_specimen
+            WHERE procedure_order_id = ? AND procedure_order_seq = ?
+            ORDER BY procedure_specimen_id";
 
                     $specimenResults = sqlStatement($specimenSql, [$orderId, $report['order_seq']]);
                     $specimens = [];
@@ -425,28 +501,29 @@ class ProcedureService extends BaseService
                     while ($specimenRow = sqlFetchArray($specimenResults)) {
                         $specimens[] = [
                             'uuid' => UuidRegistry::uuidToString($specimenRow['specimen_uuid'])
-                            ,'identifier' => $specimenRow['specimen_identifier']
-                            ,'accession' => $specimenRow['accession_identifier']
+                            , 'identifier' => $specimenRow['specimen_identifier']
+                            , 'accession' => $specimenRow['accession_identifier']
                             ,'type_code' => $specimenRow['specimen_type_code']
-                            ,'type' => $specimenRow['specimen_type']
+                            , 'type' => $specimenRow['specimen_type']
                             ,'method_code' => $specimenRow['collection_method_code']
-                            ,'method' => $specimenRow['collection_method']
+                            , 'method' => $specimenRow['collection_method']
                             ,'location_code' => $specimenRow['specimen_location_code']
-                            ,'location' => $specimenRow['specimen_location']
+                            , 'location' => $specimenRow['specimen_location']
                             ,'collected_date' => $specimenRow['collected_date']
                             ,'collection_start' => $specimenRow['collection_date_low']
                             ,'collection_end' => $specimenRow['collection_date_high']
                             ,'volume' => $specimenRow['volume_value']
                             ,'volume_unit' => $specimenRow['volume_unit']
                             ,'condition_code' => $specimenRow['condition_code']
-                            ,'specimen_condition' => $specimenRow['specimen_condition']
-                            ,'comments' => $specimenRow['specimen_comments']
+                            , 'specimen_condition' => $specimenRow['specimen_condition']
+                            , 'comments' => $specimenRow['specimen_comments']
                             ,'deleted' => $specimenRow['deleted']
                         ];
                     }
 
-                    // Add specimens array to report (can be empty array if no specimens)
-                    $reportsByUuid[$reportUuid]['specimens'] = $specimens;
+                    if (!empty($specimens)) {
+                        $reportsByUuid[$reportUuid]['specimens'] = $specimens;
+                    }
                 }
             }
         }
@@ -454,7 +531,12 @@ class ProcedureService extends BaseService
         // Final assembly
         foreach ($procedures as $uuid) {
             $procedure = $procedureByUuid[$uuid];
-            $procedure['reports'] = array_map(fn($reportUuid): array => $reportsByUuid[$reportUuid], $procedure['reports']);
+            if (!empty($procedure['reports'])) {
+                $procedure['reports'] = array_map(
+                    fn($reportUuid): array => $reportsByUuid[$reportUuid],
+                    $procedure['reports']
+                );
+            }
             $processingResult->addData($procedure);
         }
 
@@ -500,11 +582,11 @@ class ProcedureService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param  $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *                         payload.
      */
     public function getAll($search = [], $isAndCondition = true, $puuidBind = null): ProcessingResult
     {
@@ -524,7 +606,6 @@ class ProcedureService extends BaseService
         }
 
         if (!empty($puuidBind)) {
-            // code to support patient binding
             $isValidPatient = BaseValidator::validateId(
                 'uuid',
                 self::PATIENT_TABLE,
@@ -536,73 +617,177 @@ class ProcedureService extends BaseService
             }
         }
 
-        $sql = "SELECT porder.*,
-                pcode.diagnoses,
-                pcode.procedure_order_title,
-                pcode.procedure_name,
-                pcode.procedure_code,
-                presult.result_status,
-                presult.result_code,
-                presult.result_text,
-                presult.date,
-                presult.facility,
-                presult.units,
-                presult.result,
+        // Query to get unique procedure orders with their basic info
+        $sql = "SELECT DISTINCT
+                porder.uuid,
+                porder.procedure_order_id,
+                porder.provider_id,
+                porder.patient_id,
+                porder.encounter_id,
+                porder.date_ordered,
+                porder.order_status,
+                porder.order_priority,
+                porder.order_diagnosis,
+                porder.activity,
+                porder.control_id,
+                porder.lab_id,
+                porder.clinical_hx,
+                porder.patient_instructions,
                 patient.uuid AS puuid,
                 encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid
-                FROM procedure_order AS porder
-                LEFT JOIN procedure_order_code AS pcode
-                ON porder.procedure_order_id = pcode.procedure_order_id
-                LEFT JOIN procedure_report AS preport
-                ON preport.procedure_order_id = porder.procedure_order_id
-                LEFT JOIN procedure_result AS presult
-                ON presult.procedure_report_id = preport.procedure_report_id
-                LEFT JOIN patient_data AS patient
+                practitioner.uuid AS pruuid,
+                lab.uuid AS lab_uuid,
+                lab.name AS lab_name
+            FROM procedure_order AS porder
+            LEFT JOIN patient_data AS patient
                 ON patient.pid = porder.patient_id
-                LEFT JOIN form_encounter AS encounter
+            LEFT JOIN form_encounter AS encounter
                 ON encounter.encounter = porder.encounter_id
-                LEFT JOIN users AS practitioner
-                ON practitioner.id = porder.provider_id";
+            LEFT JOIN users AS practitioner
+                ON practitioner.id = porder.provider_id
+            LEFT JOIN procedure_providers AS lab
+                ON lab.ppid = porder.lab_id
+            WHERE porder.activity = 1";
 
         if (!empty($search)) {
-            $sql .= ' WHERE ';
             if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= '(';
+                $sql .= ' AND (';
             }
             $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
-                array_push($whereClauses, $fieldName . ' = ?');
+                if ($fieldName === 'patient.uuid') {
+                    array_push($whereClauses, 'patient.uuid = ?');
+                } else {
+                    array_push($whereClauses, 'porder.' . $fieldName . ' = ?');
+                }
                 array_push($sqlBindArray, $fieldValue);
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+            $sql .= ' AND ' . implode(' ' . $sqlCondition . ' ', $whereClauses);
             if (!empty($puuidBind)) {
-                // code to support patient binding
                 $sql .= ") AND `patient`.`uuid` = ?";
                 $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
             }
         } elseif (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " WHERE `patient`.`uuid` = ?";
+            $sql .= " AND `patient`.`uuid` = ?";
             $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
+
+        $sql .= " ORDER BY porder.date_ordered DESC";
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
+
         while ($row = sqlFetchArray($statementResults)) {
+            $procedureOrderId = $row['procedure_order_id'];
+
+            // Convert main UUIDs
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-            $row['euuid'] = UuidRegistry::uuidToString($row['euuid']);
-            $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-            if ($row['order_diagnosis'] != "") {
+            $row['order_uuid'] = $row['uuid']; // Primary identifier
+
+            if (!empty($row['puuid'])) {
+                $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
+            }
+            if (!empty($row['euuid'])) {
+                $row['euuid'] = UuidRegistry::uuidToString($row['euuid']);
+            }
+            if (!empty($row['pruuid'])) {
+                $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
+            }
+            if (!empty($row['lab_uuid'])) {
+                $row['lab_uuid'] = UuidRegistry::uuidToString($row['lab_uuid']);
+            }
+
+            // Get all order codes for this order
+            $codesSql = "SELECT 
+                        procedure_order_seq,
+                        procedure_code,
+                        procedure_name,
+                        procedure_order_title,
+                        diagnoses
+                     FROM procedure_order_code
+                     WHERE procedure_order_id = ?
+                     ORDER BY procedure_order_seq";
+            $codesResult = sqlStatement($codesSql, [$procedureOrderId]);
+            $orderCodes = [];
+            while ($codeRow = sqlFetchArray($codesResult)) {
+                $orderCodes[] = $codeRow;
+            }
+            $row['order_codes'] = $orderCodes;
+
+            // Get all reports for this order
+            $reportsSql = "SELECT 
+                          procedure_report_id,
+                          procedure_order_seq,
+                          uuid AS report_uuid,
+                          date_report,
+                          report_notes
+                       FROM procedure_report
+                       WHERE procedure_order_id = ?
+                       ORDER BY procedure_order_seq, date_report DESC";
+            $reportsResult = sqlStatement($reportsSql, [$procedureOrderId]);
+            $reports = [];
+            while ($reportRow = sqlFetchArray($reportsResult)) {
+                $reportRow['report_uuid'] = UuidRegistry::uuidToString($reportRow['report_uuid']);
+
+                // Get results for this report
+                $resultsSql = "SELECT 
+                              uuid AS result_uuid,
+                              result_status,
+                              result_code,
+                              result_text,
+                              date,
+                              facility,
+                              units,
+                              result
+                           FROM procedure_result
+                           WHERE procedure_report_id = ?";
+                $resultsResult = sqlStatement($resultsSql, [$reportRow['procedure_report_id']]);
+                $results = [];
+                while ($resultRow = sqlFetchArray($resultsResult)) {
+                    $resultRow['result_uuid'] = UuidRegistry::uuidToString($resultRow['result_uuid']);
+                    $results[] = $resultRow;
+                }
+                $reportRow['results'] = $results;
+                $reports[] = $reportRow;
+            }
+            $row['reports'] = $reports;
+
+            // Process diagnosis
+            if (!empty($row['order_diagnosis']) && $row['order_diagnosis'] != "") {
                 $row['order_diagnosis'] = $this->addDiagnosis($row['order_diagnosis']);
             }
-            if ($row['diagnoses'] != "") {
-                $row['diagnoses'] = $this->addDiagnosis($row['diagnoses']);
+
+            // Add diagnosis from order codes
+            if (!empty($orderCodes)) {
+                foreach ($orderCodes as &$code) {
+                    if (!empty($code['diagnoses']) && $code['diagnoses'] != "") {
+                        $code['diagnoses'] = $this->addDiagnosis($code['diagnoses']);
+                    }
+                }
+                // Set the first code's info as the primary (for backward compatibility)
+                $row['procedure_name'] = $orderCodes[0]['procedure_name'] ?? null;
+                $row['procedure_code'] = $orderCodes[0]['procedure_code'] ?? null;
+                $row['procedure_order_title'] = $orderCodes[0]['procedure_order_title'] ?? null;
+                if (!empty($orderCodes[0]['diagnoses'])) {
+                    $row['diagnoses'] = $orderCodes[0]['diagnoses'];
+                }
             }
+
+            // Set result info from first result for backward compatibility
+            if (!empty($reports) && !empty($reports[0]['results'])) {
+                $firstResult = $reports[0]['results'][0];
+                $row['result_status'] = $firstResult['result_status'] ?? null;
+                $row['result_code'] = $firstResult['result_code'] ?? null;
+                $row['result_text'] = $firstResult['result_text'] ?? null;
+                $row['date'] = $firstResult['date'] ?? null;
+                $row['facility'] = $firstResult['facility'] ?? null;
+                $row['units'] = $firstResult['units'] ?? null;
+                $row['result'] = $firstResult['result'] ?? null;
+                $row['result_uuid'] = $firstResult['result_uuid'] ?? null;
+            }
+
             $processingResult->addData($row);
         }
 
@@ -611,10 +796,11 @@ class ProcedureService extends BaseService
 
     /**
      * Returns a single procedure record by id.
-     * @param $uuid - The procedure uuid identifier in string format.
+     *
+     * @param $uuid      - The procedure uuid identifier in string format.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *                   payload.
      */
     public function getOne($uuid, $puuidBind = null): ProcessingResult
     {
@@ -630,7 +816,6 @@ class ProcedureService extends BaseService
         }
 
         if (!empty($puuidBind)) {
-            // code to support patient binding
             $isValid = BaseValidator::validateId("uuid", self::PATIENT_TABLE, $puuidBind, true);
             if ($isValid !== true) {
                 $validationMessages = [
@@ -641,59 +826,122 @@ class ProcedureService extends BaseService
             }
         }
 
-        $sql = "SELECT porder.*,
-                pcode.diagnoses,
-                pcode.procedure_order_title,
-                pcode.procedure_name,
-                pcode.procedure_code,
-                presult.result_status,
-                presult.result_code,
-                presult.result_text,
-                presult.date,
-                presult.facility,
-                presult.units,
-                presult.result,
+        // Get the main order record
+        $sql = "SELECT 
+                porder.uuid,
+                porder.procedure_order_id,
+                porder.provider_id,
+                porder.patient_id,
+                porder.encounter_id,
+                porder.date_ordered,
+                porder.order_status,
+                porder.order_priority,
+                porder.order_diagnosis,
+                porder.activity,
+                porder.control_id,
+                porder.lab_id,
+                porder.clinical_hx,
+                porder.patient_instructions,
                 patient.uuid AS puuid,
                 encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid
-                FROM procedure_order AS porder
-                LEFT JOIN procedure_order_code AS pcode
-                ON porder.procedure_order_id = pcode.procedure_order_id
-                LEFT JOIN procedure_report AS preport
-                ON preport.procedure_order_id = porder.procedure_order_id
-                LEFT JOIN procedure_result AS presult
-                ON presult.procedure_report_id = preport.procedure_report_id
-                LEFT JOIN patient_data AS patient
+                practitioner.uuid AS pruuid,
+                lab.uuid AS lab_uuid,
+                lab.name AS lab_name
+            FROM procedure_order AS porder
+            LEFT JOIN patient_data AS patient
                 ON patient.pid = porder.patient_id
-                LEFT JOIN form_encounter AS encounter
+            LEFT JOIN form_encounter AS encounter
                 ON encounter.encounter = porder.encounter_id
-                LEFT JOIN users AS practitioner
+            LEFT JOIN users AS practitioner
                 ON practitioner.id = porder.provider_id
-                WHERE porder.uuid = ?";
+            LEFT JOIN procedure_providers AS lab
+                ON lab.ppid = porder.lab_id
+            WHERE porder.uuid = ? AND porder.activity = 1";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlBindArray = [$uuidBinary];
 
         if (!empty($puuidBind)) {
-            // code to support patient binding
             $sql .= " AND `patient`.`uuid` = ?";
             $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
 
         $sqlResult = sqlQuery($sql, $sqlBindArray);
+
         if (!empty($sqlResult)) {
+            $procedureOrderId = $sqlResult['procedure_order_id'];
+
+            // Convert UUIDs
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-            $sqlResult['euuid'] = UuidRegistry::uuidToString($sqlResult['euuid']);
-            $sqlResult['pruuid'] = UuidRegistry::uuidToString($sqlResult['pruuid']);
-            if ($sqlResult['order_diagnosis'] != "") {
+            $sqlResult['order_uuid'] = $sqlResult['uuid'];
+
+            if (!empty($sqlResult['puuid'])) {
+                $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
+            }
+            if (!empty($sqlResult['euuid'])) {
+                $sqlResult['euuid'] = UuidRegistry::uuidToString($sqlResult['euuid']);
+            }
+            if (!empty($sqlResult['pruuid'])) {
+                $sqlResult['pruuid'] = UuidRegistry::uuidToString($sqlResult['pruuid']);
+            }
+            if (!empty($sqlResult['lab_uuid'])) {
+                $sqlResult['lab_uuid'] = UuidRegistry::uuidToString($sqlResult['lab_uuid']);
+            }
+
+            // Get order codes (tests within this order)
+            $codesSql = "SELECT * FROM procedure_order_code WHERE procedure_order_id = ? ORDER BY procedure_order_seq";
+            $codesResult = sqlStatement($codesSql, [$procedureOrderId]);
+            $orderCodes = [];
+            while ($codeRow = sqlFetchArray($codesResult)) {
+                if (!empty($codeRow['diagnoses']) && $codeRow['diagnoses'] != "") {
+                    $codeRow['diagnoses'] = $this->addDiagnosis($codeRow['diagnoses']);
+                }
+                $orderCodes[] = $codeRow;
+            }
+            $sqlResult['order_codes'] = $orderCodes;
+
+            // Get reports and results
+            $reportsSql = "SELECT * FROM procedure_report WHERE procedure_order_id = ? ORDER BY procedure_order_seq, date_report DESC";
+            $reportsResult = sqlStatement($reportsSql, [$procedureOrderId]);
+            $reports = [];
+            while ($reportRow = sqlFetchArray($reportsResult)) {
+                $reportRow['report_uuid'] = UuidRegistry::uuidToString($reportRow['uuid']);
+
+                $resultsSql = "SELECT * FROM procedure_result WHERE procedure_report_id = ?";
+                $resultsResult = sqlStatement($resultsSql, [$reportRow['procedure_report_id']]);
+                $results = [];
+                while ($resultRow = sqlFetchArray($resultsResult)) {
+                    $resultRow['result_uuid'] = UuidRegistry::uuidToString($resultRow['uuid']);
+                    $results[] = $resultRow;
+                }
+                $reportRow['results'] = $results;
+                $reports[] = $reportRow;
+            }
+            $sqlResult['reports'] = $reports;
+
+            // Set primary fields for backward compatibility
+            if (!empty($orderCodes)) {
+                $sqlResult['procedure_name'] = $orderCodes[0]['procedure_name'] ?? null;
+                $sqlResult['procedure_code'] = $orderCodes[0]['procedure_code'] ?? null;
+                $sqlResult['procedure_order_title'] = $orderCodes[0]['procedure_order_title'] ?? null;
+                $sqlResult['diagnoses'] = $orderCodes[0]['diagnoses'] ?? null;
+            }
+
+            if (!empty($reports) && !empty($reports[0]['results'])) {
+                $firstResult = $reports[0]['results'][0];
+                $sqlResult['result_status'] = $firstResult['result_status'] ?? null;
+                $sqlResult['result_code'] = $firstResult['result_code'] ?? null;
+                $sqlResult['result_text'] = $firstResult['result_text'] ?? null;
+                $sqlResult['result_uuid'] = $firstResult['result_uuid'] ?? null;
+            }
+
+            if (!empty($sqlResult['order_diagnosis']) && $sqlResult['order_diagnosis'] != "") {
                 $sqlResult['order_diagnosis'] = $this->addDiagnosis($sqlResult['order_diagnosis']);
             }
-            if ($sqlResult['diagnoses'] != "") {
-                $sqlResult['diagnoses'] = $this->addDiagnosis($sqlResult['diagnoses']);
-            }
+
             $processingResult->addData($sqlResult);
         }
+
         return $processingResult;
     }
 
@@ -1030,6 +1278,89 @@ class ProcedureService extends BaseService
         );
 
         return true;
+    }
+
+    public function delete($uuid): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        // Validate UUID first
+        $isValid = BaseValidator::validateId("uuid", self::PROCEDURE_TABLE, $uuid, true);
+        if ($isValid !== true) {
+            $validationMessages = [
+                'uuid' => ["invalid or nonexisting value" => " value " . $uuid]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+
+        // Get the procedure_order_id before soft-deleting (need it for relationship cleanup)
+        $sql = "SELECT procedure_order_id FROM procedure_order WHERE uuid = ?";
+        $result = sqlQuery($sql, [$uuidBinary]);
+
+        if (empty($result)) {
+            $processingResult->addInternalError("Procedure order not found");
+            return $processingResult;
+        }
+
+        $procedureOrderId = $result['procedure_order_id'];
+
+        // Delete all relationships for this order
+        try {
+            $deletedCount = $this->relationshipService->deleteRelationshipsByOrderId($procedureOrderId);
+
+            // Optional: Log the cleanup
+            if ($deletedCount > 0) {
+                error_log("Deleted $deletedCount relationships for procedure_order_id: $procedureOrderId");
+            }
+        } catch (\Exception $e) {
+            error_log("Error deleting relationships for procedure_order_id $procedureOrderId: " . $e->getMessage());
+        }
+
+        // Soft delete the order (set activity = 0)
+        $updateSql = "UPDATE procedure_order SET activity = 0 WHERE uuid = ?";
+        sqlStatement($updateSql, [$uuidBinary]);
+
+        $processingResult->addData(['deleted' => true, 'uuid' => $uuid]);
+
+        return $processingResult;
+    }
+
+    /**
+     * Cleanup orphaned relationships for all procedure orders
+     * This can be called from a cron job or maintenance script
+     *
+     * @return int Number of orphaned records deleted
+     */
+    public function cleanupOrphanedRelationships(): int
+    {
+        try {
+            return $this->relationshipService->cleanupOrphanedRecords();
+        } catch (\Exception $e) {
+            error_log("Error cleaning up orphaned relationships: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get relationship statistics
+     * Useful for monitoring and debugging
+     *
+     * @return array Statistics about relationships
+     */
+    public function getRelationshipStatistics(): array
+    {
+        try {
+            return $this->relationshipService->getStatistics();
+        } catch (\Exception $e) {
+            error_log("Error getting relationship statistics: " . $e->getMessage());
+            return [
+                'error' => $e->getMessage(),
+                'total_relationships' => 0
+            ];
+        }
     }
 
     /**

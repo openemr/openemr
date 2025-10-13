@@ -30,13 +30,16 @@ use Rector\Php71\Rector\List_\ListToArrayDestructRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
 use Rector\Php72\Rector\While_\WhileEachToForeachRector;
+use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
 use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
+use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
 use Rector\Php74\Rector\Assign\NullCoalescingOperatorRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
+use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Php80\Rector\Class_\StringableForToStringRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
@@ -44,6 +47,7 @@ use Rector\Php80\Rector\Identical\StrEndsWithRector;
 use Rector\Php80\Rector\Identical\StrStartsWithRector;
 use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Php81\Rector\MethodCall\RemoveReflectionSetAccessibleCallsRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnNeverTypeRector;
@@ -110,9 +114,13 @@ return RectorConfig::configure()
         RandomFunctionRector::class, // one of the withPhpSets rules
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
         RemoveParentCallWithoutParentRector::class, // one of the withPhpSets rules
+        RemoveReflectionSetAccessibleCallsRector::class, // one of the withPhpSets rules
+        RemoveUnusedVariableInCatchRector::class, // one of the withPhpSets rules
         ReplaceHttpServerVarsByServerRector::class, // one of the withPhpSets rules
         RestoreDefaultNullToNullableTypePropertyRector::class, // one of the withPhpSets rules
         ReturnNeverTypeRector::class, // one of the withPhpSets rules
+        SensitiveConstantNameRector::class, // one of the withPhpSets rules
+        SensitiveHereNowDocRector::class, // one of the withPhpSets rules
         SetCookieRector::class, // one of the withPhpSets rules
         SimplifyIfElseToTernaryRector::class,
         StrContainsRector::class, // one of the withPhpSets rules

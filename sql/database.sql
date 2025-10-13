@@ -9628,10 +9628,20 @@ CREATE TABLE `procedure_order` (
   `account_facility`       int(11)          DEFAULT NULL,
   `provider_number`        varchar(30)      DEFAULT NULL,
   `procedure_order_type`   varchar(32)      NOT NULL DEFAULT 'laboratory_test',
+  `scheduled_date` datetime DEFAULT NULL COMMENT 'Scheduled date for service (FHIR occurrence[x])',
+  `scheduled_start` datetime DEFAULT NULL COMMENT 'Scheduled start time (FHIR occurrencePeriod.start)',
+  `scheduled_end` datetime DEFAULT NULL COMMENT 'Scheduled end time (FHIR occurrencePeriod.end)',
+  `performer_type` varchar(50) DEFAULT NULL COMMENT 'Type of performer: laboratory, radiology, pathology (SNOMED CT)',
+  `order_intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR intent: order, plan, directive, proposal',
+  `location_id` int(11) DEFAULT NULL COMMENT 'References facility.id for service location (FHIR locationReference)',
   PRIMARY KEY (`procedure_order_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `datepid` (`date_ordered`,`patient_id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  KEY `idx_specimen_type` (`specimen_type`),
+  KEY `idx_scheduled_date` (`scheduled_date`),
+  KEY `idx_order_intent` (`order_intent`),
+  KEY `idx_location_id` (`location_id`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -9772,6 +9782,26 @@ CREATE TABLE `procedure_specimen` (
   KEY `idx_identifier` (`specimen_identifier`),
   KEY `idx_accession` (`accession_identifier`)
 ) ENGINE=InnoDB;
+
+-- ------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_order_relationships`
+--
+
+DROP TABLE IF EXISTS `procedure_order_relationships`;
+CREATE TABLE `procedure_order_relationships` (
+ `id` INT AUTO_INCREMENT PRIMARY KEY,
+ `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'Links to procedure_order.procedure_order_id',
+ `resource_type` VARCHAR(50) NOT NULL COMMENT 'FHIR resource type (Observation, Condition, etc.)',
+ `resource_uuid` BINARY(16) NOT NULL COMMENT 'UUID of the related resource',
+ `relationship` VARCHAR(50) DEFAULT NULL COMMENT 'Type of relationship',
+ `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ `created_by` BIGINT(20) DEFAULT NULL COMMENT 'User who created this link',
+ INDEX `idx_order_id` (`procedure_order_id`),
+ INDEX `idx_resource` (`resource_type`, `resource_uuid`),
+ INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links ServiceRequests to supporting clinical information';
 
 -- -----------------------------------------------------------------------------------
 
@@ -14663,3 +14693,31 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
     ('specimen_collection_method', '397394008', 'Bronchoalveolar lavage', 160, 0, 0, 'SNOMED-CT:397394008', 'BAL procedure'),
     ('specimen_collection_method', '168138009', 'Nasopharyngeal swab', 170, 0, 0, 'SNOMED-CT:168138009', 'NP swab collection'),
     ('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');
+
+-- Intentional missing create list. Appends
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('ord_priority', 'routine', 'Routine', 45, 1, 0, 'Normal priority order', 1),
+    ('ord_priority', 'urgent', 'Urgent', 55, 0, 0, 'Urgent priority order', 1),
+    ('ord_priority', 'asap', 'ASAP', 65, 0, 0, 'As soon as possible', 1),
+    ('ord_priority', 'stat', 'STAT', 75, 0, 0, 'Immediate/emergency', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES ('lists', 'order_intent', 'Order Intent', 1, 0, 0, 'FHIR ServiceRequest intent values', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('order_intent', 'order', 'Order', 10, 1, 0, 'Request for action to occur as specified', 1),
+    ('order_intent', 'plan', 'Plan', 20, 0, 0, 'Intention to perform an action', 1),
+    ('order_intent', 'directive', 'Directive', 30, 0, 0, 'Request with legal standing', 1),
+    ('order_intent', 'proposal', 'Proposal', 40, 0, 0, 'Suggestion for action', 1),
+    ('order_intent', 'option', 'Option', 50, 0, 0, 'Option for consideration', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES ('lists', 'performer_type', 'Performer Type', 1, 0, 0, 'FHIR ServiceRequest performer type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `codes`)
+VALUES
+    ('performer_type', 'laboratory', 'Laboratory', 10, 1, 0, 'Laboratory technician', 'SNOMED:159001'),
+    ('performer_type', 'radiology', 'Radiology', 20, 0, 0, 'Radiologist', 'SNOMED:66862007'),
+    ('performer_type', 'pathology', 'Pathology', 30, 0, 0, 'Pathologist', 'SNOMED:61207006'),
+    ('performer_type', 'cardiology', 'Cardiology', 40, 0, 0, 'Cardiologist', ''),
+    ('performer_type', 'pharmacy', 'Pharmacy', 50, 0, 0, 'Pharmacist', '');

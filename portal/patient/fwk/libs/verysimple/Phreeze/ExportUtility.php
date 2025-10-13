@@ -72,7 +72,7 @@ class ExportUtility
 
                 // these are the columns we'll use for enumeration from here on
                 $columns = array_keys($fields);
-            } catch (Exception $ex) {
+            } catch (Exception) {
                 // no fieldmaps exist, so use the reflection class instead
                 $reflect = new ReflectionClass($objects [0]);
                 $publicAttributes = $reflect->getProperties(ReflectionProperty::IS_PUBLIC);

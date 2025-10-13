@@ -632,7 +632,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                             $itpl = $pdf->importPage($i + 1);
                                             $pdf->useTemplate($itpl);
                                         }
-                                    } catch (Exception $e) {
+                                    } catch (Exception) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
                                         //

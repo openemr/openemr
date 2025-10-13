@@ -2340,18 +2340,6 @@ parameters:
     identifier: variable.undefined
     count: 17
     path: interface/billing/print_daysheet_report_num1.php
-  - message: '#^Constant asc not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant fulname not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant pid not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
   - message: '#^Variable \$catch_user might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -2876,38 +2864,6 @@ parameters:
     identifier: variable.undefined
     count: 11
     path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant asc not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant fee not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant fulname not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant insadj not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant inspay not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant patadj not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant patpay not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant pid not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
   - message: '#^Variable \$catch_user might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3856,10 +3812,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/CAMOS/print.php
-  - message: '#^Constant sigline not found\.$#'
-    identifier: constant.notFound
-    count: 4
-    path: interface/forms/CAMOS/rx_print.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -7204,10 +7156,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/report.php
-  - message: '#^Constant enddate not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/forms/eye_mag/save.php
   - message: '#^Variable \$DOCS might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -10201,10 +10149,6 @@ parameters:
     count: 1
     path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
   - message: '#^Constant _SETTING_TEMPLATE not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
-  - message: '#^Constant name not found\.$#'
     identifier: constant.notFound
     count: 1
     path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
@@ -17008,10 +16952,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: sites/default/LBF/LBFvbf.plugin.php
-  - message: '#^Constant umname not found\.$#'
-    identifier: constant.notFound
-    count: 3
-    path: sites/default/statement.inc.php
   - message: '#^Variable \$desc might not be defined\.$#'
     identifier: variable.undefined
     count: 1

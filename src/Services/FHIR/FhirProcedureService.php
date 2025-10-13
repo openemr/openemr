@@ -72,7 +72,7 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('order_uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
     }

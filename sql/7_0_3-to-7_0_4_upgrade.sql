@@ -1297,6 +1297,92 @@ ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk
 #IfMissingColumn employer_data uuid
 ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
 #EndIf
+-- ------------------------------------------------------------------- 10-10-2025 sjp-----------------------------------------------------------------------------
+-- =====================================================================
+-- US Core 8.0 ServiceRequest Database Migration
+-- For ONC 2025 USCDI v5 Compliance
+-- =====================================================================
+--
+#IfMissingColumn procedure_order scheduled_date
+ALTER TABLE `procedure_order`
+    ADD COLUMN `scheduled_date` DATETIME DEFAULT NULL
+        COMMENT 'Scheduled date for service (FHIR occurrence[x])',
+    ADD COLUMN `scheduled_start` DATETIME DEFAULT NULL
+        COMMENT 'Scheduled start time (FHIR occurrencePeriod.start)',
+    ADD COLUMN `scheduled_end` DATETIME DEFAULT NULL
+        COMMENT 'Scheduled end time (FHIR occurrencePeriod.end)',
+    ADD COLUMN `performer_type` VARCHAR(50) DEFAULT NULL
+        COMMENT 'Type of performer: laboratory, radiology, pathology (SNOMED CT)',
+    ADD COLUMN `order_intent` VARCHAR(31) NOT NULL DEFAULT 'order'
+        COMMENT 'FHIR intent: order, plan, directive, proposal',
+    ADD COLUMN `location_id` INT DEFAULT NULL
+        COMMENT 'References facility.id for service location (FHIR locationReference)';
+ALTER TABLE `procedure_order`
+    ADD INDEX IF NOT EXISTS `idx_scheduled_date` (`scheduled_date`),
+    ADD INDEX IF NOT EXISTS `idx_order_intent` (`order_intent`),
+    ADD INDEX IF NOT EXISTS `idx_location_id` (`location_id`);
+#EndIf
+
+#IfNotRow2D list_options list_id ord_priority option_id routine
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('ord_priority', 'routine', 'Routine', 45, 1, 0, 'Normal priority order', 1),
+    ('ord_priority', 'urgent', 'Urgent', 55, 0, 0, 'Urgent priority order', 1),
+    ('ord_priority', 'asap', 'ASAP', 65, 0, 0, 'As soon as possible', 1),
+    ('ord_priority', 'stat', 'STAT', 75, 0, 0, 'Immediate/emergency', 1);
+#EndIf
+#IfNotRow2D list_options list_id lists option_id order_intent
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+    VALUES ('lists', 'order_intent', 'Order Intent', 1, 0, 0, 'FHIR ServiceRequest intent values', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('order_intent', 'order', 'Order', 10, 1, 0, 'Request for action to occur as specified', 1),
+    ('order_intent', 'plan', 'Plan', 20, 0, 0, 'Intention to perform an action', 1),
+    ('order_intent', 'directive', 'Directive', 30, 0, 0, 'Request with legal standing', 1),
+    ('order_intent', 'proposal', 'Proposal', 40, 0, 0, 'Suggestion for action', 1),
+    ('order_intent', 'option', 'Option', 50, 0, 0, 'Option for consideration', 1);
+#EndIf
+#IfNotRow2D list_options list_id lists option_id performer_type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+    VALUES ('lists', 'performer_type', 'Performer Type', 1, 0, 0, 'FHIR ServiceRequest performer type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `codes`)
+VALUES
+    ('performer_type', 'laboratory', 'Laboratory', 10, 1, 0, 'Laboratory technician', 'SNOMED:159001'),
+    ('performer_type', 'radiology', 'Radiology', 20, 0, 0, 'Radiologist', 'SNOMED:66862007'),
+    ('performer_type', 'pathology', 'Pathology', 30, 0, 0, 'Pathologist', 'SNOMED:61207006'),
+    ('performer_type', 'cardiology', 'Cardiology', 40, 0, 0, 'Cardiologist', ''),
+    ('performer_type', 'pharmacy', 'Pharmacy', 50, 0, 0, 'Pharmacist', '');
+#EndIf
+
+#IfNotTable procedure_order_relationships
+CREATE TABLE `procedure_order_relationships` (
+     `id` INT AUTO_INCREMENT PRIMARY KEY,
+     `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'Links to procedure_order.procedure_order_id',
+     `resource_type` VARCHAR(50) NOT NULL COMMENT 'FHIR resource type (Observation, Condition, etc.)',
+     `resource_uuid` BINARY(16) NOT NULL COMMENT 'UUID of the related resource',
+     `relationship` VARCHAR(50) DEFAULT NULL COMMENT 'Type of relationship',
+     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     `created_by` BIGINT(20) DEFAULT NULL COMMENT 'User who created this link',
+     INDEX `idx_order_id` (`procedure_order_id`),
+     INDEX `idx_resource` (`resource_type`, `resource_uuid`),
+     INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links ServiceRequests to supporting clinical information';
+
+-- --------------------------- Migrate existing data ---------------------------------------------------------------
+-- Set order_intent default for existing orders
+UPDATE `procedure_order` SET `order_intent` = 'order' WHERE `order_intent` IS NULL OR `order_intent` = '';
+-- Set default priority if empty (and not already set)
+UPDATE `procedure_order` SET `order_priority` = 'routine' WHERE (`order_priority` IS NULL OR `order_priority` = '') AND `date_ordered` IS NOT NULL;
+-- Infer performer_type from procedure_order_type for existing orders
+UPDATE `procedure_order`
+SET `performer_type` = CASE
+   WHEN `procedure_order_type` = 'laboratory_test' THEN 'laboratory'
+   WHEN `procedure_order_type` = 'imaging' THEN 'radiology'
+   WHEN `procedure_order_type` = 'clinical_test' THEN 'laboratory'
+   WHEN `procedure_order_type` = 'procedure' THEN NULL END WHERE `performer_type` IS NULL AND `procedure_order_type` IS NOT NULL;
+-- Copy date_collected to scheduled_date where appropriate
+UPDATE `procedure_order` SET `scheduled_date` = `date_collected` WHERE `scheduled_date` IS NULL AND `date_collected` IS NOT NULL AND `date_collected` > NOW();
+#EndIf
 
 #IfMissingColumn issue_encounter uuid
 ALTER TABLE `issue_encounter` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this issue encounter record, for data exchange purposes';
