@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -97,6 +98,11 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     private $relationshipService;
 
+    /**
+     * @var bool Enable strict US Core validation (throws errors on missing required fields)
+     */
+    private $strictValidation = false;
+
     public function __construct()
     {
         parent::__construct();
@@ -144,6 +150,53 @@ class FhirServiceRequestService extends FhirServiceBase implements
     }
 
     /**
+     * Validate that data record meets US Core 8.0 requirements
+     *
+     * @param array $dataRecord The source data
+     * @return array Array of validation warnings/errors
+     */
+    private function validateUSCoreRequirements($dataRecord)
+    {
+        $errors = [];
+        $warnings = [];
+
+        // Required: category
+        if (empty($dataRecord['procedure_order_type'])) {
+            $errors[] = "procedure_order_type is required for ServiceRequest.category (USCDI v5 requirement)";
+        }
+
+        // Required: code
+        if (empty($dataRecord['procedure_code']) && empty($dataRecord['procedure_name'])) {
+            $errors[] = "procedure_code or procedure_name required for ServiceRequest.code";
+        }
+
+        // Required: subject (patient)
+        if (empty($dataRecord['patient_id']) || empty($dataRecord['patient']['uuid'])) {
+            $errors[] = "patient_id and patient.uuid are required for ServiceRequest.subject";
+        }
+
+        // Required: occurrence[x] OR authoredOn (at least one must be present)
+        $hasOccurrence = !empty($dataRecord['date_collected']) ||
+            !empty($dataRecord['scheduled_date']) ||
+            (!empty($dataRecord['scheduled_start']) && !empty($dataRecord['scheduled_end']));
+        $hasAuthored = !empty($dataRecord['date_ordered']);
+
+        if (!$hasOccurrence && !$hasAuthored) {
+            $warnings[] = "Either occurrence date (date_collected/scheduled_date/scheduled_start+end) or authoredOn (date_ordered) is recommended";
+        }
+
+        // Must Support: requester
+        if (empty($dataRecord['provider_id']) || empty($dataRecord['provider']['uuid'])) {
+            $warnings[] = "provider_id and provider.uuid recommended for ServiceRequest.requester (Must Support element)";
+        }
+
+        return [
+            'errors' => $errors,
+            'warnings' => $warnings
+        ];
+    }
+
+    /**
      * Parses an OpenEMR procedure_order record into a FHIR ServiceRequest resource
      *
      * @param array $dataRecord The source OpenEMR data record from procedure_order + procedure_order_code
@@ -152,6 +205,25 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
+        // Validate US Core 8.0 requirements
+        $validation = $this->validateUSCoreRequirements($dataRecord);
+
+        // Log validation issues
+        if (!empty($validation['errors'])) {
+            $errorMsg = "US Core 8.0 validation errors: " . implode("; ", $validation['errors']);
+            (new SystemLogger())->errorLogCaller($errorMsg, ['dataRecord_keys' => array_keys($dataRecord)]);
+
+            // In strict mode, throw exception
+            if ($this->strictValidation) {
+                throw new \RuntimeException($errorMsg);
+            }
+        }
+
+        if (!empty($validation['warnings'])) {
+            $warningMsg = "US Core 8.0 validation warnings: " . implode("; ", $validation['warnings']);
+            (new SystemLogger())->debug($warningMsg);
+        }
+
         $serviceRequest = new FHIRServiceRequest();
 
         // Meta - US Core 8.0 profile
@@ -183,25 +255,38 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $serviceRequest->setIntent($intent);
 
         // Category - REQUIRED - USCDI v5 requirement from procedure_order_type
-        $category = $this->mapOrderTypeToCategory($dataRecord['procedure_order_type'] ?? '');
-        if ($category) {
-            $serviceRequest->addCategory($category);
+        if (!empty($dataRecord['procedure_order_type'])) {
+            $category = $this->mapOrderTypeToCategory($dataRecord['procedure_order_type']);
+            if ($category) {
+                $serviceRequest->addCategory($category);
+            }
+        } else {
+            // Use default category if missing
+            $category = $this->mapOrderTypeToCategory('');
+            if ($category) {
+                $serviceRequest->addCategory($category);
+            }
         }
 
         // Code - REQUIRED - from procedure_order_code table
-        // Note: If multiple procedure_order_code records exist, this gets the primary one
         $code = $this->buildOrderCode($dataRecord);
-        $serviceRequest->setCode($code);
+        if ($code) {
+            $serviceRequest->setCode($code);
+        }
 
         // Subject (patient) - REQUIRED
-        if (!empty($dataRecord['patient_id'])) {
-            if (!empty($dataRecord['patient']['uuid'])) {
-                $serviceRequest->setSubject(
-                    UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid'])
-                );
-            } else {
-                $serviceRequest->setSubject(UtilsService::createDataMissingExtension());
-            }
+        if (!empty($dataRecord['patient_id']) && !empty($dataRecord['patient']['uuid'])) {
+            $serviceRequest->setSubject(
+                UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid'])
+            );
+        } elseif (!empty($dataRecord['puuid'])) {
+            // Fallback to puuid if patient array not populated
+            $serviceRequest->setSubject(
+                UtilsService::createRelativeReference('Patient', $dataRecord['puuid'])
+            );
+        } else {
+            // Last resort: use data missing extension (not ideal for US Core but prevents crash)
+            $serviceRequest->setSubject(UtilsService::createDataMissingExtension());
         }
 
         // Encounter context
@@ -209,7 +294,15 @@ class FhirServiceRequestService extends FhirServiceBase implements
             $serviceRequest->setEncounter(
                 UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid'])
             );
+        } elseif (!empty($dataRecord['euuid'])) {
+            // Fallback to euuid
+            $serviceRequest->setEncounter(
+                UtilsService::createRelativeReference('Encounter', $dataRecord['euuid'])
+            );
         }
+
+        // Track whether we set occurrence[x]
+        $hasOccurrence = false;
 
         // OccurrenceDateTime - when specimen should be collected or service performed
         // Use date_collected if available, or scheduled_date
@@ -217,10 +310,12 @@ class FhirServiceRequestService extends FhirServiceBase implements
             $serviceRequest->setOccurrenceDateTime(
                 new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_collected']))
             );
+            $hasOccurrence = true;
         } elseif (!empty($dataRecord['scheduled_date'])) {
             $serviceRequest->setOccurrenceDateTime(
                 new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_date']))
             );
+            $hasOccurrence = true;
         }
 
         // OccurrencePeriod - for procedures with specific start and end times
@@ -229,31 +324,44 @@ class FhirServiceRequestService extends FhirServiceBase implements
             $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_start'])));
             $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_end'])));
             $serviceRequest->setOccurrencePeriod($period);
+            $hasOccurrence = true;
         }
 
         // Authored date - REQUIRED if occurrence[x] not present - when order was created
+        // US Core 8.0: Must have occurrence[x] OR authoredOn (at least one)
         if (!empty($dataRecord['date_ordered'])) {
             $serviceRequest->setAuthoredOn(
                 new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']))
             );
+        } elseif (!$hasOccurrence) {
+            // Fallback: Use current timestamp if no temporal data exists
+            $serviceRequest->setAuthoredOn(
+                new FHIRDateTime(UtilsService::getDateFormattedAsUTC())
+            );
         }
 
-        // Requester - REQUIRED - the provider who ordered (provider_id)
-        if (!empty($dataRecord['provider_id'])) {
-            if (!empty($dataRecord['provider']['uuid'])) {
-                $serviceRequest->setRequester(
-                    UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid'])
-                );
-            }
+        // Requester - MUST SUPPORT - the provider who ordered (provider_id)
+        if (!empty($dataRecord['provider_id']) && !empty($dataRecord['provider']['uuid'])) {
+            $serviceRequest->setRequester(
+                UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid'])
+            );
+        } elseif (!empty($dataRecord['prov_uuid'])) {
+            // Fallback to prov_uuid
+            $serviceRequest->setRequester(
+                UtilsService::createRelativeReference('Practitioner', $dataRecord['prov_uuid'])
+            );
         }
 
-        // Performer - who will perform the service (lab_id references procedure_providers)
-        if (!empty($dataRecord['lab_id'])) {
-            if (!empty($dataRecord['lab']['uuid'])) {
-                $serviceRequest->addPerformer(
-                    UtilsService::createRelativeReference('Organization', $dataRecord['lab']['uuid'])
-                );
-            }
+        // Performer - MUST SUPPORT - who will perform the service (lab_id references procedure_providers)
+        if (!empty($dataRecord['lab_id']) && !empty($dataRecord['lab']['uuid'])) {
+            $serviceRequest->addPerformer(
+                UtilsService::createRelativeReference('Organization', $dataRecord['lab']['uuid'])
+            );
+        } elseif (!empty($dataRecord['lab_uuid'])) {
+            // Fallback to lab_uuid
+            $serviceRequest->addPerformer(
+                UtilsService::createRelativeReference('Organization', $dataRecord['lab_uuid'])
+            );
         }
 
         // PerformerType - type of performer (from new field or inferred from order type)
@@ -262,21 +370,19 @@ class FhirServiceRequestService extends FhirServiceBase implements
             if ($performerType) {
                 $serviceRequest->setPerformerType($performerType);
             }
-        } else {
+        } elseif (!empty($dataRecord['procedure_order_type'])) {
             // Infer from order type if not specified
-            $performerType = $this->inferPerformerTypeFromCategory($dataRecord['procedure_order_type'] ?? '');
+            $performerType = $this->inferPerformerTypeFromCategory($dataRecord['procedure_order_type']);
             if ($performerType) {
                 $serviceRequest->setPerformerType($performerType);
             }
         }
 
         // LocationReference - where service should be performed
-        if (!empty($dataRecord['location_id'])) {
-            if (!empty($dataRecord['location']['uuid'])) {
-                $serviceRequest->addLocationReference(
-                    UtilsService::createRelativeReference('Location', $dataRecord['location']['uuid'])
-                );
-            }
+        if (!empty($dataRecord['location_id']) && !empty($dataRecord['location']['uuid'])) {
+            $serviceRequest->addLocationReference(
+                UtilsService::createRelativeReference('Location', $dataRecord['location']['uuid'])
+            );
         }
 
         // Priority - MUST SUPPORT - from order_priority field
@@ -544,6 +650,9 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * Build the code element for the ServiceRequest
      * Uses procedure_code from procedure_order_code table
      * US Core 8.0: Codes should be from LOINC, SNOMED CT, CPT, or HCPCS
+     *
+     * @param array $dataRecord
+     * @return FHIRCodeableConcept|null
      */
     private function buildOrderCode($dataRecord)
     {
@@ -576,13 +685,10 @@ class FhirServiceRequestService extends FhirServiceBase implements
             $codeableConcept->setText($dataRecord['procedure_name']);
         }
 
-        // If no codes, use text only or data absent
-        if (empty($codeableConcept->getCoding())) {
-            if (!empty($dataRecord['procedure_name'])) {
-                $codeableConcept->setText($dataRecord['procedure_name']);
-            } else {
-                return UtilsService::createDataAbsentUnknownCodeableConcept();
-            }
+        // US Core 8.0: Code is REQUIRED
+        // If no coded values and no text, return data-absent
+        if (empty($codeableConcept->getCoding()) && empty($codeableConcept->getText())) {
+            return UtilsService::createDataAbsentUnknownCodeableConcept();
         }
 
         return $codeableConcept;
