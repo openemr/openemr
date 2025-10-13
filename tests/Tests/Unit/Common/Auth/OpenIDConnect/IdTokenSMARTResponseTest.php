@@ -175,7 +175,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getBuilder');
-        $method->setAccessible(true);
 
         $builder = $method->invoke($this->idTokenResponse, $accessToken, $userEntity);
 
@@ -203,7 +202,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getBuilder');
-        $method->setAccessible(true);
 
         $builder = $method->invoke($this->idTokenResponse, $accessToken, $userEntity);
 
@@ -225,7 +223,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $params = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -249,7 +246,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $params = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -305,7 +301,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to set the protected accessToken property
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $property = $reflection->getProperty('accessToken');
-        $property->setAccessible(true);
         $property->setValue($this->idTokenResponse, $accessToken);
     }
 
@@ -319,7 +314,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to test private method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('hasScope');
-        $method->setAccessible(true);
 
         $hasOpenId = $method->invoke($this->idTokenResponse, $scopes, 'openid');
         $hasPatient = $method->invoke($this->idTokenResponse, $scopes, 'patient/*.read');
@@ -342,7 +336,6 @@ class IdTokenSMARTResponseTest extends TestCase
         // Use reflection to test private method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getScopeString');
-        $method->setAccessible(true);
 
         $scopeString = $method->invoke($this->idTokenResponse, $scopes);
 
