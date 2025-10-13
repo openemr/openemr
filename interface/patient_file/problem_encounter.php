@@ -24,6 +24,10 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientIssuesService;
 
+/**
+ * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here
+ */
+$pid = $pid ?? null;
 $patdata = getPatientData($pid, "fname,lname,squad");
 
 $thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
@@ -65,7 +69,7 @@ if (!empty($_POST['form_save'])) {
         }
         $encountersByListId[$list_id][] = $encounter;
     }
-    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId,  $_SESSION['authUserID']);
+    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $_SESSION['authUserID']);
 
 
     echo "<html><body>"

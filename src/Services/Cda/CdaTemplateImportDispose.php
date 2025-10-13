@@ -693,7 +693,6 @@ class CdaTemplateImportDispose
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, [$value['extension'], $pid]);
             }
             if (empty($value['extension']) || $res_q_sel_encounter->count() === 0) {
-                $patientIssuesService = new PatientIssuesService();
                 $query_insert1 = "INSERT INTO form_encounter
                            (
                             pid,
@@ -774,6 +773,7 @@ class CdaTemplateImportDispose
                 $dcode = explode('|', $value['encounter_diagnosis_code']);
                 $dissue = explode('|', $value['encounter_diagnosis_issue']);
                 $ddate = explode('|', $value['encounter_diagnosis_date']);
+                $patientIssuesService = new PatientIssuesService();
                 foreach ($dcode as $k => $code) {
                     $diag_date = !empty($ddate[$k]) ? date("Y-m-d H:i:s", $this->str_to_time($ddate[$k])) : null;
                     $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
