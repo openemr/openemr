@@ -1,10 +1,34 @@
 /** @type {import('jest').Config} */
 const config = {
+    // Use different test environments based on file location
+    projects: [
+        // Frontend tests with jsdom environment
+        {
+            displayName: 'Frontend Tests',
+            testMatch: ['<rootDir>/tests/frontend/**/*.test.js'],
+            testEnvironment: 'jsdom',
+            setupFiles: ['<rootDir>/tests/frontend/polyfills.js'],
+            setupFilesAfterEnv: ['<rootDir>/tests/frontend/setup.js'],
+            coverageDirectory: 'coverage/frontend',
+            moduleNameMapper: {
+                '^jquery$': '<rootDir>/tests/frontend/__mocks__/jquery.js',
+                '^angular$': '<rootDir>/tests/frontend/__mocks__/angular.js',
+                '^bootstrap$': '<rootDir>/tests/frontend/__mocks__/bootstrap.js'
+            }
+        },
+        // Existing tests with node environment
+        {
+            displayName: 'Node Tests',
+            testMatch: ['<rootDir>/**/*.{test,spec}.js'],
+            testPathIgnorePatterns: ['<rootDir>/tests/frontend/'],
+            testEnvironment: 'node',
+            coverageDirectory: 'coverage/js-unit'
+        }
+    ],
     modulePathIgnorePatterns: [
         'public/assets',
         'vendor'
     ],
-    coverageDirectory: 'coverage/js-unit',
     collectCoverageFrom: ['**/*.js'],
     coveragePathIgnorePatterns: [
         'gulpfile.js',

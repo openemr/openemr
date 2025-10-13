@@ -1,0 +1,99 @@
+##
+# Frontend Tests Workflow
+# Runs Jest-based frontend tests for portal messaging functionality
+# These tests verify JavaScript dependencies and detect breaking changes
+# when Node.js packages are updated.
+
+name: Frontend Tests
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+    # Also run on dependency-related file changes
+    paths:
+    - 'package.json'
+    - 'package-lock.json'
+    - 'jest.config*.js'
+    - 'tests/frontend/**'
+    - 'portal/messaging/**'
+    - 'portal/patient/scripts/**'
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    # Also run on dependency-related file changes
+    paths:
+    - 'package.json'
+    - 'package-lock.json'
+    - 'jest.config*.js'
+    - 'tests/frontend/**'
+    - 'portal/messaging/**'
+    - 'portal/patient/scripts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-tests:
+    name: Frontend Tests (Node.js ${{ matrix.node-version }})
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run frontend tests only
+      run: npx jest --selectProjects="Frontend Tests"
+
+    - name: Run all tests with coverage
+      if: matrix.node-version == 22
+      run: npm run test:js-coverage
+
+    - name: Check for dependency vulnerabilities
+      if: matrix.node-version == 22
+      run: npm audit --audit-level moderate
+      continue-on-error: true
+
+    - name: Check for outdated dependencies
+      if: matrix.node-version == 22
+      run: npm outdated
+      continue-on-error: true
+
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: test-results/frontend/junit.xml
+
+    - name: Upload coverage reports to Codecov
+      if: matrix.node-version == 22 && (success() || failure())
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage/frontend/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+    - name: Upload coverage artifacts
+      if: matrix.node-version == 22 && (success() || failure())
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-coverage-reports
+        path: |
+          coverage/frontend/
