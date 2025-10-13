@@ -27,7 +27,7 @@ use OpenEMR\Services\PatientIssuesService;
 /**
  * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here
  */
-$pid = $pid ?? null;
+$pid ??= null;
 $patdata = getPatientData($pid, "fname,lname,squad");
 
 $thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
