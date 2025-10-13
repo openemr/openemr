@@ -14,8 +14,135 @@
 
 namespace OpenEMR\Common\Database;
 
+use Webmozart\Assert\InvalidArgumentException;
+use Webmozart\Assert\Assert;
+
 class QueryUtils
 {
+    /**
+     * Usage:
+     *   $adminsPasswordHash = QueryUtils::getSingleScalarResultBy('users', 'password', ['username' => 'admin']);
+     *
+     * @throws InvalidArgumentException
+     * @throws SqlQueryException
+     */
+    public static function getSingleScalarResultBy(string $table, string $column, array $condition = []): null|string|int
+    {
+        Assert::notEmpty($condition);
+
+        return self::fetchSingleValue(
+            sprintf(
+                'SELECT %s FROM %s WHERE %s',
+                \add_escape_custom($column),
+                self::escapeTableName($table),
+                implode(' AND ', array_map(
+                    static fn (string $field, int|string|null $value): string => sprintf('%s = ?', \add_escape_custom($field)),
+                    array_keys($condition),
+                    array_values($condition)
+                )),
+            ),
+            $column,
+            array_values($condition),
+        );
+    }
+
+    /**
+     * Usage:
+     *   $nursesCount = QueryUtils::countBy('users', ['specialty' => 'Nursing']);
+     *
+     * @throws InvalidArgumentException
+     * @throws SqlQueryException
+     */
+    public static function countBy(string $table, array $condition = []): int
+    {
+        Assert::notEmpty($condition);
+
+        return (int) self::fetchSingleValue(
+            sprintf(
+                'SELECT COUNT(*) AS cnt FROM %s WHERE %s',
+                self::escapeTableName($table),
+                implode(' AND ', array_map(
+                    static fn (string $field, int|string|null $value): string => sprintf('%s = ?', \add_escape_custom($field)),
+                    array_keys($condition),
+                    array_values($condition)
+                )),
+            ),
+            'cnt',
+            array_values($condition),
+        );
+    }
+
+    /**
+     * Usage:
+     *   $user_id = QueryUtils::insertOne('users', ['uuid' => $uuid, 'fname' => 'Igor', 'lname' => 'Mukhin', ...]);
+     *
+     * @throws InvalidArgumentException
+     * @throws SqlQueryException
+     */
+    public static function insertOne(string $table, array $data): int
+    {
+        Assert::minCount($data, 1);
+
+        return self::sqlInsert(
+            sprintf(
+                'INSERT INTO %s SET %s',
+                self::escapeTableName($table),
+                implode(', ', array_map(
+                    static fn (string $field, int|string|null $value): string => sprintf('%s = ?', \add_escape_custom($field)),
+                    array_keys($data),
+                    array_values($data)
+                )),
+            ),
+            array_values($data),
+        );
+    }
+
+    /**
+     * Usage:
+     *   $affected = QueryUtils::removeBy('users', ['uuid' => $uuid]);
+     *   $affected = QueryUtils::removeBy('users', ['fname' => 'Igor', 'lname' => 'Mukhin']);
+     *
+     * @throws InvalidArgumentException
+     * @throws SqlQueryException
+     */
+    public static function removeBy(string $table, array $condition): int
+    {
+        Assert::notEmpty($condition);
+
+        $statement = sprintf(
+            'DELETE FROM %s WHERE %s',
+            self::escapeTableName($table),
+            implode(' AND ', array_map(
+                static fn (string $field, int|string|null $value): string => sprintf('%s = ?', \add_escape_custom($field)),
+                array_keys($condition),
+                array_values($condition)
+            )),
+        );
+
+        $recordset = $GLOBALS['adodb']['db']->Execute(
+            $statement,
+            array_values($condition)
+        );
+
+        if ($recordset === false) {
+            throw new SqlQueryException($statement, "Remove failed. SQL error " . getSqlLastError() . " Query: " . $statement);
+        }
+
+        return self::getAffectedRows();
+    }
+
+    /**
+     * Usage:
+     *   $affected = QueryUtils::removeById('users', $id);
+     *
+     * @throws InvalidArgumentException
+     * @throws SqlQueryException
+     */
+    public static function removeById(string $table, int $id): int
+    {
+        return self::removeBy($table, ['id' => $id]);
+    }
+
     /**
      * Function that will return an array listing
      * of columns that exist in a table.
@@ -208,7 +335,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert($statement, $binds = [])
+    public static function sqlInsert($statement, $binds = []): int
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -223,9 +350,7 @@ class QueryUtils
             throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError() . " Query: " . $statement);
         }
 
-        // Return the correct last id generated using function
-        //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return self::getLastInsertId();
     }
 
     /**
@@ -291,9 +416,14 @@ class QueryUtils
         \sqlRollbackTrans();
     }
 
-    public static function getLastInsertId()
+    public static function getLastInsertId(): int
     {
         return \sqlGetLastInsertId();
+    }
+
+    public static function getAffectedRows(): int
+    {
+        return \generic_sql_affected_rows();
     }
 
     public static function querySingleRow(string $sql, array $params)

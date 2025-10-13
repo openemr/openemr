@@ -3,7 +3,9 @@
   <description>PSR-12</description>
   <arg name="tab-width" value="4" />
   <!-- PHP code MUST use only UTF-8 without BOM. -->
-  <rule ref="PSR12" />
+  <rule ref="PSR12">
+    <exclude name="PSR12.Files.FileHeader"/>
+  </rule>
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>

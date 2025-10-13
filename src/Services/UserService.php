@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * UserService
  *
@@ -8,6 +10,8 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Igor Mukhin <igor.mukhin@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -16,13 +20,23 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Auth\Password\RandomPasswordGenerator;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Validators\UserValidator;
 
 class UserService
 {
+    private UserValidator $userValidator;
+
+    private RandomPasswordGenerator $randomPasswordGenerator;
+
+    private AuthHash $authHash;
+
     private $_includeUsername;
 
     /**
@@ -35,6 +49,9 @@ class UserService
      */
     public function __construct()
     {
+        $this->userValidator = new UserValidator();
+        $this->randomPasswordGenerator = new RandomPasswordGenerator();
+        $this->authHash = new AuthHash();
         $this->_includeUsername = false;
     }
 
@@ -379,5 +396,46 @@ class UserService
             }
         }
         return $row;
+    }
+
+    /**
+     * Inserts a new user record.
+     *
+     * @param array $data The user fields (array) to insert.
+     *
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        $processingResult = $this->userValidator->validate($data, BaseValidator::DATABASE_INSERT_CONTEXT);
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $password = $data['password'] ?: $this->randomPasswordGenerator->generatePassword();
+
+        $uuid = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+        $data['id'] = QueryUtils::insertOne('users', array_merge($data, [
+            'uuid' => $uuid,
+            'password' => 'NoLongerUsed',
+            'authorized' => 1,
+            'date_created' => date('Y-m-d H:i:s'),
+            'last_updated' => date('Y-m-d H:i:s'),
+        ]));
+
+        QueryUtils::insertOne('users_secure', [
+            'id' => $data['id'],
+            'username' => $data['username'],
+            'password' => $this->authHash->passwordHash($password),
+        ]);
+
+        $processingResult->addData([
+            'id' => $data['id'],
+            'uuid' => UuidRegistry::uuidToString($uuid),
+            'password' => $password,
+        ]);
+
+        return $processingResult;
     }
 }

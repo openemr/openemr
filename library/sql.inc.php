@@ -188,9 +188,8 @@ function sqlStatementThrowException($statement, $binds = false)
 
 /**
  * Return the last inserted sql id for a query.
- * @return int
  */
-function sqlGetLastInsertId()
+function sqlGetLastInsertId(): int
 {
     // Return the correct last id generated using function
     //   that is safe with the audit engine.

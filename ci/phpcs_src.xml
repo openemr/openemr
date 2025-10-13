@@ -4,6 +4,7 @@
     <arg name="tab-width" value="4" />
     <rule ref="PSR12">
         <!-- Can insert excludes here like in phpcs.xml. -->
+        <exclude name="PSR12.Files.FileHeader"/>
     </rule>
 
     <!-- Checks that the opening PHP tag is the first content in a file. -->
