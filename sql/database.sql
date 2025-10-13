@@ -7588,7 +7588,7 @@ CREATE TABLE `patient_data` (
   `status` varchar(255) NOT NULL default '',
   `contact_relationship` varchar(255) NOT NULL default '',
   `date` datetime default NULL,
-  `sex` varchar(255) NOT NULL default '',
+  `sex` varchar(255) NOT NULL default '' COMMENT 'Sex at birth',
   `referrer` varchar(255) NOT NULL default '',
   `referrerID` varchar(255) NOT NULL default '',
   `providerID` int(11) default NULL,
@@ -7691,6 +7691,7 @@ CREATE TABLE `patient_data` (
   `nationality_country` TINYTEXT,
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tribal_affiliations` TEXT,
+  `sex_identified` TEXT COMMENT 'Patient reported current sex',
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)

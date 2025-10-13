@@ -1297,3 +1297,6 @@ ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk
 #IfMissingColumn employer_data uuid
 ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
 #EndIf
+
+#IfMissingColumn patient_data sex_identified
+ALTER TABLE `sex_identified` TEXT COMMENT 'Patient reported current sex',
