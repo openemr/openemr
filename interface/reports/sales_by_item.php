@@ -63,7 +63,7 @@ function display_desc($desc)
  *
  * @param int $patient_id
  * @param int $encounter_id
- * @param string|null $rowcat
+ * @param string $rowcat
  * @param string $description
  * @param string $transdate
  * @param int $qty
