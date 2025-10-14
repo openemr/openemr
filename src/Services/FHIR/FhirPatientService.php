@@ -101,7 +101,15 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private ?array $searchParameters = null;
 
+    /**
+     * @var array <string,array>  Cache of list options keyed by list_id then option_id for faster lookup
+     */
     private array $cachedListOptions = [];
+
+    /**
+     * @var array <string,array>  Cache of list options keyed by list_id then code for faster lookup.  Codes are treated as unique within a given list_id
+     */
+    private array $cachedListOptionsByCode = [];
 
     public function __construct()
     {
@@ -198,6 +206,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($profile);
+        }
         $patientResource->setMeta($meta);
 
         $patientResource->setActive(true);
@@ -210,13 +221,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $this->parseOpenEMRPatientAddress($patientResource, $dataRecord);
         $this->parseOpenEMRPatientTelecom($patientResource, $dataRecord);
 
-        $this->parseOpenEMRDateOfBirth($patientResource, $dataRecord['DOB']);
-        $this->parseOpenEMRGenderAndBirthSex($patientResource, $dataRecord['sex']);
-        $this->parseOpenEMRRaceRecord($patientResource, $dataRecord['race']);
-        $this->parseOpenEMREthnicityRecord($patientResource, $dataRecord['ethnicity']);
-        $this->parseOpenEMRSocialSecurityRecord($patientResource, $dataRecord['ss']);
-        $this->parseOpenEMRPublicPatientIdentifier($patientResource, $dataRecord['pubpid']);
-        $this->parseOpenEMRCommunicationRecord($patientResource, $dataRecord['language']);
+        $this->parseOpenEMRDateOfBirth($patientResource, $dataRecord['DOB'] ?? null);
+        $this->parseOpenEMRGenderAndBirthSex($patientResource, $dataRecord['sex'] ?? 'Unknown');
+        $this->parseOpenEMRRaceRecord($patientResource, $dataRecord['race'] ?? '');
+        $this->parseOpenEMREthnicityRecord($patientResource, $dataRecord['ethnicity'] ?? '');
+        $this->parseOpenEMRSocialSecurityRecord($patientResource, $dataRecord['ss'] ?? null);
+        $this->parseOpenEMRPublicPatientIdentifier($patientResource, $dataRecord['pubpid'] ?? null);
+        $this->parseOpenEMRCommunicationRecord($patientResource, $dataRecord['language'] ?? null);
         $this->parseOpenEMRGeneralPractitioner($patientResource, $dataRecord);
 
         // US Core 6.1.1 Extensions
@@ -476,6 +487,27 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
+    protected function getCachedListOptionByCode($list_id, $code): ?array
+    {
+        // TODO: str_contains works for now but if a code is a subset of another code this will fail...
+        // we may need to do parseCode and do another cached list by codes to make this accurate.
+        if (!isset($this->cachedListOptionsByCode[$list_id])) {
+            if (!isset($this->cachedListOptions[$list_id])) {
+                $options = $this->getListService()->getOptionsByListName($list_id);
+                foreach ($options as $option) {
+                    $this->cachedListOptions[$list_id][$option['option_id']] = $option;
+                    $parsedCode = $this->getCodeTypesService()->parseCode($option['codes']);
+                    $this->cachedListOptionsByCode[$list_id][$parsedCode['code']] = $option;
+                }
+            } else {
+                foreach ($this->cachedListOptions[$list_id] as $option) {
+                    $parsedCode = $this->getCodeTypesService()->parseCode($option['codes']);
+                    $this->cachedListOptionsByCode[$list_id][$parsedCode['code']] = $option;
+                }
+            }
+        }
+        return $this->cachedListOptionsByCode[$list_id][$code] ?? null;
+    }
     protected function getCachedListOption($list_id, $option_id): ?array
     {
         if (!isset($this->cachedListOptions[$list_id])) {
@@ -658,7 +690,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $display = "Unknown";
         // per spec we can implement in patient profile OR in the encounter.. we are implementing in profile here.
         if (isset($dataRecord['interpreter_needed'])) {
-            $record = $this->getCachedListOption('yes_no_unknowns', $dataRecord['interpreter_needed']);
+            $record = $this->getCachedListOption('yes_no_unknown', $dataRecord['interpreter_needed']);
             if (!empty($record)) { // valid entry so we can set the value
                 $parsedCode = $this->getCodeTypesService()->parseCode($record['codes']);
                 $code = $parsedCode['code'];
@@ -757,8 +789,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $addresses = $fhirResource->getAddress();
         if (!empty($addresses)) {
             $activeAddress = $addresses[0];
-            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
+            $mostRecentPeriods = $activeAddress->getPeriod() !== null ? UtilsService::getPeriodTimestamps($activeAddress->getPeriod()) : [];
             foreach ($fhirResource->getAddress() as $address) {
+                if ($address->getPeriod() === null) {
+                    // if we have no period, we can't determine if it is more recent than our current one
+                    $this->getSystemLogger()->warning("FHIR Address has no period, skipping for active address determination", ['puuid' => $data['uuid']]);
+                    continue;
+                }
                 $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
                 if (empty($addressPeriod['end'])) {
                     $activeAddress = $address;
@@ -802,15 +839,28 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $data['DOB'] = (string)$fhirResource->getBirthDate();
         $data['sex'] = (string)$fhirResource->getGender();
 
+        foreach ($fhirResource->getExtension() as $extension) {
+            $url = $extension->getUrl();
+            match ($url) {
+                'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex' => $data['sex'] = $this->extractBirthSex($extension),
+                'http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex' => $data['sex_identified'] = $this->extractSex($extension),
+                'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation' => $data['tribal_affiliations'] = $this->extractTribalAffiliation($extension),
+                'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed' => $data['interpreter_needed'] = $this->extractInterpreterNeeded($extension),
+//                'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race' => $data['race'] = $this->extractRace($extension),
+//                'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity' => $data['ethnicity'] = $this->extractEthnicity($extension),
+                default => null
+            };
+        }
+
         foreach ($fhirResource->getIdentifier() as $identifier) {
             $type = $identifier->getType();
             $validCodes = ['SS' => 'ss', 'PT' => 'pubpid'];
             $coding = $type->getCoding() ?? [];
             foreach ($coding as $codingItem) {
                 $codingCode = (string)$codingItem->getCode();
-
+                $value = is_string($identifier->getValue()) ? $identifier->getValue() : $identifier->getValue()->getValue();
                 if (isset($validCodes[$codingCode])) {
-                    $data[$validCodes[$codingCode]] = $identifier->getValue() ?? null;
+                    $data[$validCodes[$codingCode]] = $value;
                 }
             }
         }
@@ -920,57 +970,94 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]);
     }
 
-    /**
-     * Maps OpenEMR administrative sex values to FHIR codes
-     */
-    private function mapAdministrativeSexToCode($sexValue)
-    {
-        $mapping = [
-            'Male' => 'M',
-            'Female' => 'F',
-            'male' => 'M',
-            'female' => 'F',
-            'M' => 'M',
-            'F' => 'F',
-            'Unknown' => 'U',
-            'unknown' => 'U',
-            'Ambiguous' => 'A',
-            'ambiguous' => 'A',
-            'Not applicable' => 'N',
-            'not applicable' => 'N'
-        ];
-
-        return $mapping[$sexValue] ?? 'U';
-    }
-
-    /**
-     * Maps OpenEMR administrative sex values to FHIR display values
-     */
-    private function mapAdministrativeSexToDisplay($sexValue)
-    {
-        $mapping = [
-            'Male' => 'Male',
-            'Female' => 'Female',
-            'male' => 'Male',
-            'female' => 'Female',
-            'M' => 'Male',
-            'F' => 'Female',
-            'Unknown' => 'Unknown',
-            'unknown' => 'Unknown',
-            'Ambiguous' => 'Ambiguous',
-            'ambiguous' => 'Ambiguous',
-            'Not applicable' => 'Not applicable',
-            'not applicable' => 'Not applicable'
-        ];
-
-        return $mapping[$sexValue] ?? 'Unknown';
-    }
-
     public function getCodeTypesService(): CodeTypesService
     {
         if (!isset($this->codeTypesService)) {
             $this->codeTypesService = new CodeTypesService();
         }
         return $this->codeTypesService;
+    }
+
+    private function extractTribalAffiliation(FHIRExtension $extension): ?string
+    {
+        // for now we just handle a single tribal affiliation
+
+        $value = null;
+        foreach ($extension->getExtension() as $subExtension) {
+            if ($subExtension->getUrl() === 'tribalAffiliation') {
+                $value = $subExtension->getValueCodeableConcept();
+                if ($value !== null) {
+                    $coding = $value->getCoding();
+                    if (!empty($coding)) {
+                        $value = (string)$coding[0]->getCode();
+                        break;
+                    }
+                }
+            }
+        }
+        if (!empty($value)) {
+            $record = $this->getCachedListOption('tribal_affiliations', $value);
+            if (empty($record)) {
+                $this->getSystemLogger()->error("Tribal affiliations not found for codes", ['codes' => $value]);
+                $value = null;
+            }
+        }
+        return $value;
+    }
+
+    private function extractInterpreterNeeded(FHIRExtension $extension): ?string
+    {
+        $value = null;
+        if ($extension->getValueCoding() !== null) {
+            $coding = $extension->getValueCoding();
+            $value = (string)$coding->getCode();
+        } elseif ($extension->getValueCode() !== null) {
+            $value = (string)$extension->getValueCode();
+        }
+        if (!empty($value)) {
+            $record = $this->getCachedListOptionByCode('yes_no_unknown', $value);
+            if (empty($record)) {
+                $this->getSystemLogger()->error("Interpreter needed value not found for codes", ['codes' => $value]);
+                $value = null;
+            } else {
+                $value = $record['option_id'];
+            }
+        }
+        return $value;
+    }
+
+    private function extractBirthSex(FHIRExtension $extension): string
+    {
+        $value = null;
+        if ($extension->getValueCode() !== null) {
+            $value = (string)$extension->getValueCode();
+        } elseif ($extension->getValueCoding() !== null) {
+            $value = (string)$extension->getValueCoding()->getCode();
+        }
+        $mapping = [
+            'M' => 'Male',
+            'F' => 'Female',
+            'U' => 'Unknown',
+        ];
+        return $mapping[$value] ?? 'Unknown';
+    }
+    private function extractSex(FHIRExtension $extension): ?string
+    {
+        $value = null;
+        if ($extension->getValueCode() !== null) {
+            $value = (string)$extension->getValueCode();
+        } elseif ($extension->getValueCoding() !== null) {
+            $value = (string)$extension->getValueCoding()->getCode();
+        }
+        if (!empty($value)) {
+            $record = $this->getCachedListOptionByCode('administrative_sex', $value);
+            if (empty($record)) {
+                $this->getSystemLogger()->error("Administrative Sex not found for codes", ['code' => $value]);
+                $value = null;
+            } else {
+                $value = $record['option_id'];
+            }
+        }
+        return $value;
     }
 }
