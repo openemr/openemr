@@ -1,4 +1,5 @@
 <?php
+
 /*
  * GlobalConnectorsEnum.php  Holds the list of Connectors settings in Globals that are found in /library/globals.inc.php
  * This allows constants to be type checked and autocompleted in IDEs when used in code
@@ -12,7 +13,8 @@
 
 namespace OpenEMR\Services\Globals;
 
-enum GlobalConnectorsEnum: string {
+enum GlobalConnectorsEnum: string
+{
     case SITE_ADDRESS_OAUTH = 'site_addr_oath';
     case REST_FHIR_API = 'rest_fhir_api';
     case REST_SYSTEM_SCOPES_API = 'rest_system_scopes_api';

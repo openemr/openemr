@@ -898,7 +898,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
         $highestVersion = $this->getHighestCompatibleUSCoreProfileVersion();
         // Version 8.0.0 and version 7.0.0 are backwards compatible with 3.1.1 and none but ARE not backwards compatible with each other
-        return match($highestVersion) {
+        return match ($highestVersion) {
             self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
             self::PROFILE_VERSION_7_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_7_0_0],
             self::PROFILE_VERSION_8_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0],
