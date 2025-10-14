@@ -82,9 +82,9 @@ class CurlRequest
             return;
         }
 
-        if (!file_exists(dirname($this->sessionFile))) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            mkdir(dirname($this->sessionFile, 0755, true));
+        $sessionFileDir = dirname($this->sessionFile);
+        if (!file_exists($sessionFileDir)) {
+            mkdir($sessionFileDir, 0755, true);
         }
 
         file_put_contents($this->sessionFile, json_encode($this->cookies));
