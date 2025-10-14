@@ -667,7 +667,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 $display = $record['title'];
             }
         }
-        $coding = UtilsService::createCoding($code, $system, $display);
+        $coding = UtilsService::createCoding($code, $display, $system);
         $interpreterExtension->setValueCoding($coding);
         $patientResource->addExtension($interpreterExtension);
     }
