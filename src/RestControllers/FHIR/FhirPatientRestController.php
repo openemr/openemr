@@ -14,12 +14,14 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,15 +32,47 @@ class FhirPatientRestController
 {
     use SystemLoggerAwareTrait;
 
-    private $fhirPatientService;
+    private ?FhirPatientService $fhirPatientService;
     private $fhirService;
     private $fhirValidate;
+
+    private ?OEGlobalsBag $oeGlobalsBag;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
-        $this->fhirPatientService = new FhirPatientService();
         $this->fhirValidate = new FhirValidationService();
+    }
+    public function getOEGlobals(): OEGlobalsBag
+    {
+        if (!isset($this->oeGlobalsBag)) {
+            $this->oeGlobalsBag = new OEGlobalsBag();
+        }
+        return $this->oeGlobalsBag;
+    }
+
+    public function setOEGlobals(OEGlobalsBag $oeGlobals): void
+    {
+        $this->oeGlobalsBag = $oeGlobals;
+    }
+
+    public function getFhirPatientService(): FhirPatientService
+    {
+        if (!isset($this->fhirPatientService)) {
+            $this->fhirPatientService = new FhirPatientService();
+            $globals = $this->getOEGlobals();
+            $defaultVersion = $globals->getString(GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, FhirPatientService::PROFILE_VERSION_8_0_0);
+            $this->fhirPatientService->setHighestCompatibleUSCoreProfileVersion($defaultVersion);
+            if (isset($this->systemLogger)) {
+                $this->fhirPatientService->setSystemLogger($this->systemLogger);
+            }
+        }
+        return $this->fhirPatientService;
+    }
+
+    public function setFhirPatientService(FhirPatientService $fhirPatientService): void
+    {
+        $this->fhirPatientService = $fhirPatientService;
     }
 
     public function setSystemLogger(SystemLogger $systemLogger): void
@@ -61,7 +95,7 @@ class FhirPatientRestController
 
         $object = FhirPatientSerializer::deserialize($fhirJson);
 
-        $processingResult = $this->fhirPatientService->insert($object);
+        $processingResult = $this->getFhirPatientService()->insert($object);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
@@ -79,7 +113,7 @@ class FhirPatientRestController
         }
         $object = FhirPatientSerializer::deserialize($fhirJson);
 
-        $processingResult = $this->fhirPatientService->update($fhirId, $object);
+        $processingResult = $this->getFhirPatientService()->update($fhirId, $object);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -90,7 +124,7 @@ class FhirPatientRestController
      */
     public function getOne(string $fhirId): Response
     {
-        $processingResult = $this->fhirPatientService->getOne($fhirId);
+        $processingResult = $this->getFhirPatientService()->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -114,7 +148,7 @@ class FhirPatientRestController
      */
     public function getAll(array $searchParams, ?string $puuidBind = null): Response
     {
-        $processingResult = $this->fhirPatientService->getAll($searchParams, $puuidBind);
+        $processingResult = $this->getFhirPatientService()->getAll($searchParams, $puuidBind);
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

@@ -583,6 +583,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     protected function parseOpenEMRPatientSexExtension(FHIRPatient $patientResource, array $dataRecord)
     {
+        // we have two different implementations based upon the highest US Core version we are supporting.
+        // US Core 8.0.0 implemented a breaking change by switching from using a Code datatype to a Coding datatype.
+
         $sexExtension = new FHIRExtension();
         $sexExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex');
         $code = UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT;
@@ -598,9 +601,15 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             }
         }
 
-        $coding = UtilsService::createCoding($code, $display, $system);
-        $sexExtension->setValueCoding($coding);
-        $patientResource->addExtension($sexExtension);
+        if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_8_0_0) {
+            $coding = UtilsService::createCoding($code, $display, $system);
+            $sexExtension->setValueCoding($coding);
+            $patientResource->addExtension($sexExtension);
+        } else {
+            $fhirCode = new FHIRCode();
+            $fhirCode->setValue($code);
+            $sexExtension->setValueCode($fhirCode);
+        }
     }
 
     /**
@@ -880,6 +889,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
         $provenanceService = new FhirProvenanceService();
         return $provenanceService->createProvenanceForDomainResource($dataRecord);
+    }
+
+    public function getSupportedVersions()
+    {
+        $highestVersion = $this->getHighestCompatibleUSCoreProfileVersion();
+        // Version 8.0.0 and version 7.0.0 are backwards compatible with 3.1.1 and none but ARE not backwards compatible with each other
+        return match($highestVersion) {
+            self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
+            self::PROFILE_VERSION_7_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_7_0_0],
+            self::PROFILE_VERSION_8_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0],
+            default => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0]
+        };
     }
 
     /**
