@@ -32,11 +32,11 @@ class FhirPatientRestController
 {
     use SystemLoggerAwareTrait;
 
-    private ?FhirPatientService $fhirPatientService;
+    private ?FhirPatientService $fhirPatientService = null;
     private $fhirService;
     private $fhirValidate;
 
-    private ?OEGlobalsBag $oeGlobalsBag;
+    private ?OEGlobalsBag $oeGlobalsBag = null;
 
     public function __construct()
     {
@@ -77,7 +77,7 @@ class FhirPatientRestController
 
     public function setSystemLogger(SystemLogger $systemLogger): void
     {
-        $this->fhirPatientService->setSystemLogger($systemLogger);
+        $this->getFhirPatientService()->setSystemLogger($systemLogger);
         $this->systemLogger = $systemLogger;
     }
 

@@ -3288,7 +3288,7 @@ $GLOBALS_METADATA = [
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ],
 
-        GlobalConnectorsEnum::REST_FHIR_API->value => [
+        GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => [
             xl('Enable OpenEMR FHIR System Scopes (Turn on only if you know what you are doing)'),
             'bool',
             '0',
