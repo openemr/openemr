@@ -309,8 +309,8 @@ if (!empty($_POST['form_save'])) {
 
     // If requested, link the issue to a specified encounter.
     if ($thisenc) {
-        $sql = "INSERT INTO issue_encounter(pid, list_id, encounter) VALUES (?, ?, ?)";
-        sqlStatement($sql, [$thispid, $issue, $thisenc]);
+        $patientIssuesService = new PatientIssuesService();
+        $patientIssuesService->linkIssueToEncounter($thispid, $thisenc, $issue, $_SESSION['authUserID']);
     }
 
     $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " . substr($_POST['form_title'], 0, 40);

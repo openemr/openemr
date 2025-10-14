@@ -19,6 +19,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 trait MappedServiceCodeTrait
 {
     use MappedServiceTrait;
+    use MappedServiceCategoryTrait;
 
     public function getServiceListForCategory(TokenSearchField $field)
     {

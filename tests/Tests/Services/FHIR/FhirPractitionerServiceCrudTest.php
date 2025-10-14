@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
@@ -42,6 +44,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();
         $this->fhirPractitionerFixture = FhirPractitionerSerializer::deserialize($fixture);
         $this->fhirPractitionerService = new FhirPractitionerService();
+        $this->fhirPractitionerService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void

@@ -12736,10 +12736,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/patient_file/problem_encounter.php
-  - message: '#^Variable \$pid might not be defined\.$#'
-    identifier: variable.undefined
-    count: 6
-    path: interface/patient_file/problem_encounter.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
     count: 2

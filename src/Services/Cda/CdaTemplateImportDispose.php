@@ -24,6 +24,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientIssuesService;
 
 require_once __DIR__ . '/../../../library/forms.inc.php';
 
@@ -772,6 +773,7 @@ class CdaTemplateImportDispose
                 $dcode = explode('|', $value['encounter_diagnosis_code']);
                 $dissue = explode('|', $value['encounter_diagnosis_issue']);
                 $ddate = explode('|', $value['encounter_diagnosis_date']);
+                $patientIssuesService = new PatientIssuesService();
                 foreach ($dcode as $k => $code) {
                     $diag_date = !empty($ddate[$k]) ? date("Y-m-d H:i:s", $this->str_to_time($ddate[$k])) : null;
                     $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
@@ -791,8 +793,7 @@ class CdaTemplateImportDispose
                     $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
                     $res_sel_iss_enc = $appTable->zQuery($q_sel_iss_enc, [$pid, $list_id, $encounter_id]);
                     if ($res_sel_iss_enc->count() === 0) {
-                        $insert = "INSERT INTO issue_encounter(pid,list_id,encounter,resolved) VALUES (?,?,?,?)";
-                        $appTable->zQuery($insert, [$pid, $list_id, $encounter_id, 0]);
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter_id, $list_id, $_SESSION['authUserID'], 0);
                     }
                 }
             }

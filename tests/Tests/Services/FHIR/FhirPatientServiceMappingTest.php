@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
@@ -47,6 +49,7 @@ class FhirPatientServiceMappingTest extends TestCase
 //        var_dump($this->fhirPatientFixture);
 //        die();
         $this->fhirPatientService = new FhirPatientService();
+        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     /**
