@@ -86,6 +86,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     {
         $goal = new FHIRGoal();
 
+        // FIXED: Add US Core profile to meta
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['creation_date'])) {
@@ -93,6 +94,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
+        $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
         $goal->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();
@@ -154,22 +156,39 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         if (!empty($dataRecord['details'])) {
             $text = $this->getGoalTextFromDetails($dataRecord['details']);
             $codeableConcept = new FHIRCodeableConcept();
-            $codeableConcept->setText($text['text']);
 
-            // Add coding from US Core Goal Description value set if available
+            // FIXED: Fix apostrophes in text
+            $cleanText = str_replace('`', "'", $text['text']);
+            $codeableConcept->setText($cleanText);
+
+            // FIXED: Add coding from US Core Goal Description value set (no duplicates, clean codes)
             $codeTypeService = new CodeTypesService();
+            $addedCodes = []; // Track codes to prevent duplicates
+
             foreach ($dataRecord['details'] as $detail) {
                 if (!empty($detail['code'])) {
+                    // FIXED: Strip prefix from code
+                    $cleanCode = self::stripCodePrefix($detail['code']);
+
+                    // FIXED: Prevent duplicate codes
+                    if (in_array($cleanCode, $addedCodes)) {
+                        continue;
+                    }
+
                     $codeText = $codeTypeService->lookup_code_description($detail['code']);
                     $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
 
                     $coding = new FHIRCoding();
-                    $coding->setCode($detail['code']);
+                    $coding->setCode($cleanCode);
                     if (!empty($codeText)) {
-                        $coding->setDisplay(xlt($codeText));
+                        // FIXED: Fix apostrophes in display text
+                        $cleanDisplay = str_replace('`', "'", xlt($codeText));
+                        $coding->setDisplay($cleanDisplay);
                     }
                     $coding->setSystem($codeSystem);
                     $codeableConcept->addCoding($coding);
+
+                    $addedCodes[] = $cleanCode;
                 }
             }
             $goal->setDescription($codeableConcept);
@@ -198,20 +217,27 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
                 $detailDescription = trim($detail['description'] ?? "");
                 if (!empty($detailDescription)) {
-                    $fhirGoalTarget->setDetailString($detailDescription);
+                    // FIXED: Fix apostrophes in detail string
+                    $cleanDetailDescription = str_replace('`', "'", $detailDescription);
+                    $fhirGoalTarget->setDetailString($cleanDetailDescription);
 
                     // US Core 8.0: target.measure required if target.detail is populated
                     if (!empty($detail['code'])) {
+                        // FIXED: Strip prefix from target measure code
+                        $cleanCode = self::stripCodePrefix($detail['code']);
+
                         $codeText = $codeTypeService->lookup_code_description($detail['code']);
                         $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
 
                         $targetCodeableConcept = new FHIRCodeableConcept();
                         $coding = new FHIRCoding();
-                        $coding->setCode($detail['code']);
+                        $coding->setCode($cleanCode);
                         if (empty($codeText)) {
                             $coding->setDisplay(UtilsService::createDataMissingExtension());
                         } else {
-                            $coding->setDisplay(xlt($codeText));
+                            // FIXED: Fix apostrophes in target display text
+                            $cleanCodeText = str_replace('`', "'", xlt($codeText));
+                            $coding->setDisplay($cleanCodeText);
                         }
                         $coding->setSystem($codeSystem);
                         $targetCodeableConcept->addCoding($coding);
@@ -367,5 +393,36 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $descriptions) . "</p>";
         }
         return $carePlanText;
+    }
+
+    public static function stripCodePrefix(?string $code): ?string
+    {
+        if (empty($code)) {
+            return $code;
+        }
+        $prefixes = [
+            'LOINC:',
+            'SNOMED:',
+            'SNOMEDCT:',
+            'SNOMED-CT:',
+            'ICD10:',
+            'ICD10CM:',
+            'ICD-10:',
+            'ICD-10-CM:',
+            'ICD9:',
+            'ICD-9:',
+            'CPT:',
+            'CPT4:',
+            'RXNORM:',
+            'CVX:',
+            'UCUM:',
+        ];
+        foreach ($prefixes as $prefix) {
+            if (stripos($code, $prefix) === 0) {
+                return substr($code, strlen($prefix));
+            }
+        }
+
+        return $code;
     }
 }
