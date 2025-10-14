@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use InvalidArgumentException;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 
 trait VersionedProfileTrait
