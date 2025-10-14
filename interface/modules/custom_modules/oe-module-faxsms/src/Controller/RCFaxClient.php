@@ -304,7 +304,7 @@ class RCFaxClient extends AppDispatch
             try {
                 self::emailDocument($email, $comments, $file, $user);
                 $error = false;
-            } catch (\PHPMailer\PHPMailer\Exception $e) {
+            } catch (\PHPMailer\PHPMailer\Exception) {
                 $error = true;
             }
         }

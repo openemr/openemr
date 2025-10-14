@@ -396,7 +396,7 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION
                 ,'default' => ''
                 ,'options' => [
-                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => [$this, 'renderFooterBox']
+                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => $this->renderFooterBox(...)
                 ]
             ]
 //            ,self::VERIFY_SETTINGS_BUTTON => [

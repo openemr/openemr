@@ -862,7 +862,7 @@ class TeleconferenceRoomController
             ]);
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo text($jsonSettings);
-        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException $exception) {
+        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException) {
             $jsonSettings = text(json_encode(['errorCode' => self::REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE
                 , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);

@@ -224,7 +224,6 @@ class BaseValidatorTestStub extends BaseValidator
         // Use reflection to access private method
         $reflection = new \ReflectionClass($this);
         $method = $reflection->getMethod('isValidContext');
-        $method->setAccessible(true);
         return $method->invoke($this, $context);
     }
 
@@ -328,7 +327,6 @@ class BaseValidatorCustomStub extends BaseValidator
         // Use reflection to access private method
         $reflection = new \ReflectionClass($this);
         $method = $reflection->getMethod('isValidContext');
-        $method->setAccessible(true);
         return $method->invoke($this, $context);
     }
 }

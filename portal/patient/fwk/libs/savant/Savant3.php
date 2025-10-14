@@ -628,10 +628,7 @@ class Savant3 implements \Stringable
             echo $this->escape($value);
         } else {
             $args = func_get_args();
-            echo call_user_func_array([
-                    $this,
-                    'escape'
-            ], $args);
+            echo call_user_func_array($this->escape(...), $args);
         }
     }
 

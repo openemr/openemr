@@ -152,7 +152,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Use reflection to test the protected getExtraParams method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -196,7 +195,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Use reflection to test the protected getExtraParams method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -344,7 +342,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Use reflection to set the protected accessToken property
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $property = $reflection->getProperty('accessToken');
-        $property->setAccessible(true);
         $property->setValue($this->idTokenResponse, $accessToken);
     }
 
@@ -401,7 +398,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Test the complete flow through getExtraParams
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -468,7 +464,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Test the complete flow
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -523,7 +518,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
 
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 

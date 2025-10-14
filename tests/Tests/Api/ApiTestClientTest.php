@@ -69,7 +69,7 @@ class ApiTestClientTest extends TestCase
         try {
             $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, ["foo" => "bar"]);
             $this->assertFalse(true, "expected InvalidArgumentException");
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $this->assertTrue(true);
         }
 
@@ -78,7 +78,7 @@ class ApiTestClientTest extends TestCase
         try {
             $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, ["username" => "bar"]);
             $this->assertFalse(true, "expected InvalidArgumentException");
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $this->assertTrue(true);
         }
 

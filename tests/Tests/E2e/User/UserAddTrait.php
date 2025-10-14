@@ -159,7 +159,7 @@ trait UserAddTrait
                 if ($value === UserTestData::PASSWORD) {
                     return; // Success!
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Field not found or other error
             }
 

@@ -75,14 +75,14 @@ class NotificationEventListener implements EventSubscriberInterface
      */
     public function subscribeToEvents(): void
     {
-        $this->eventDispatcher->addListener('sendNotification.send', [$this, 'onNotifySendEvent']);
-        $this->eventDispatcher->addListener('sendNotification.service.onetime', [$this, 'onNotifyDocumentRenderOneTime']);
-        $this->eventDispatcher->addListener('sendNotification.service.universal.onetime', [$this, 'onNotifyUniversalOneTime']);
-        $this->eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, [$this, 'notificationButton']);
-        $this->eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, [$this, 'notificationDialogFunction']);
+        $this->eventDispatcher->addListener('sendNotification.send', $this->onNotifySendEvent(...));
+        $this->eventDispatcher->addListener('sendNotification.service.onetime', $this->onNotifyDocumentRenderOneTime(...));
+        $this->eventDispatcher->addListener('sendNotification.service.universal.onetime', $this->onNotifyUniversalOneTime(...));
+        $this->eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, $this->notificationButton(...));
+        $this->eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, $this->notificationDialogFunction(...));
         if ($this->isVoiceEnabled) {
-            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_NAV, [$this, 'renderPhoneButton']);
-            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderPhoneWidget']);
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_NAV, $this->renderPhoneButton(...));
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, $this->renderPhoneWidget(...));
         }
     }
 

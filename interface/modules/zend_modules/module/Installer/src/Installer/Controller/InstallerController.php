@@ -300,7 +300,7 @@ class InstallerController extends AbstractActionController
                 // Call the module manager action method and return the result
                 // This method is expected to return the current status of the module unless module wishes to override it.
                 // In that case, new text of result will display as alert in UI.
-                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId, $currentStatus);
+                return call_user_func($instance->moduleManagerAction(...), $methodName, $modId, $currentStatus);
             } catch (Exception $e) {
                 error_log('Error calling module manager action: ' . $e->getMessage());
                 return $currentStatus;

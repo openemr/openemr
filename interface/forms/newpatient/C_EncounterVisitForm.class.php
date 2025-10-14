@@ -70,7 +70,7 @@ class C_EncounterVisitForm
         $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
-        $this->twig->addFunction(new TwigFunction('displayOptionClass', [$this, 'displayOption']));
+        $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
         $this->eventDispatcher = $kernel->getEventDispatcher();
         $this->viewmode = false;
         $this->mode = 'edit';
@@ -245,7 +245,7 @@ class C_EncounterVisitForm
             return [];
         }
 
-        usort($sensitivities, [$this, "sensitivity_compare"]);
+        usort($sensitivities, $this->sensitivity_compare(...));
 
         $options = [];
         foreach ($sensitivities as $value) {

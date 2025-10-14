@@ -45,6 +45,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\PatientIssuesService;
 
 $returnurl = 'encounter_top.php';
 
@@ -684,7 +685,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 }
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
-                    // TODO: @adunsulag do we need to have the eye-form use the PatientIssuesService?
+                    // TODO: @adunsulag at some point update eye_mag to use PatientIssuesService for all lists management
                     $query = "UPDATE lists SET " .
                         "type = '" . add_escape_custom($form_type) . "', " .
                         "title = '" . add_escape_custom($_REQUEST['form_title']) . "', " .
@@ -708,7 +709,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         "subtype = '" . $subtype . "' " .
                         "WHERE id = '" . add_escape_custom($issue) . "'";
                     sqlStatement($query);
-                    if ($text_type == "medication" && enddate != '') {
+                    if ($text_type == "medication" && $form_end != '') {
                         sqlStatement('UPDATE prescriptions SET '
                             . 'medication = 0 where patient_id = ? '
                             . " and upper(trim(drug)) = ? "
@@ -735,10 +736,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     // If requested, link the issue to a specified encounter.
                     // we always link them, automatically.
                     if ($encounter) {
-                        $query = "INSERT INTO issue_encounter ( " .
-                            "pid, list_id, encounter " .
-                            ") VALUES ( ?,?,? )";
-                        sqlStatement($query, [$pid, $issue, $encounter]);
+                        $patientIssuesService = new PatientIssuesService();
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter, $issue, $_SESSION['authUserID']);
                     }
                 }
 
