@@ -16,11 +16,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    use DatabaseQueryTrait;
+
     public array $custom_globals;
     public array $dumpfiles;
     public mysqli|false $dbh;
@@ -451,7 +453,7 @@ class Installer
 
         // Settings to drastically speed up installation with InnoDB
         try {
-            QueryUtils::atomic(function () use ($fd, &$query, &$line): void {
+            $this->atomic(function () use ($fd, &$query, &$line): void {
                 while (!$this->atEndOfFile($fd)) {
                     $line = $this->getLine($fd, 1024);
                     $line = rtrim($line);
