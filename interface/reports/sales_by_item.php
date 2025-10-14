@@ -63,7 +63,7 @@ function display_desc($desc)
  *
  * @param int $patient_id
  * @param int $encounter_id
- * @param string $rowcat
+ * @param string|null $rowcat
  * @param string $description
  * @param string $transdate
  * @param int $qty
@@ -71,7 +71,7 @@ function display_desc($desc)
  * @param string $irnumber
  * @return void
  */
-function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat, string $description, string $transdate, int $qty, float $amount, string $irnumber = ''): void
+function salesByItemLineItem(int $patient_id, int $encounter_id, ?string $rowcat, string $description, string $transdate, int $qty, float $amount, string $irnumber = ''): void
 {
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
@@ -585,7 +585,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['title'],
+            $row['title'] ?? '',
             $row['code'] . ' ' . $row['code_text'],
             substr($row['date'], 0, 10),
             $row['units'] ?? 1,
