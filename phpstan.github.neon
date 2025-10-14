@@ -11580,10 +11580,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 2
     path: interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php
-  - message: '#^Parameter \$parser of method Composer\\InstalledVersions\:\:satisfies\(\) has invalid type Composer\\Semver\\VersionParser\.$#'
-    identifier: class.notFound
-    count: 1
-    path: interface/modules/custom_modules/oe-module-prior-authorizations/vendor/composer/InstalledVersions.php
   - message: '#^Variable \$classLoader might not be defined\.$#'
     identifier: variable.undefined
     count: 1
