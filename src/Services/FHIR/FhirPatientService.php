@@ -655,7 +655,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $interpreterExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed');
         // default to unknown
         $code = UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT;
-        $system = CodeTypesService::CODE_TYPE_DATE_ABSENT_REASON;
+        $system = FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM;
         $display = "Unknown";
         // per spec we can implement in patient profile OR in the encounter.. we are implementing in profile here.
         if (isset($dataRecord['interpreter_needed'])) {
