@@ -308,14 +308,14 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             $codetext = strtolower($detail['codetext'] ?? '');
 
             foreach ($sdohKeywords as $keyword) {
-                if (strpos($description, $keyword) !== false || strpos($codetext, $keyword) !== false) {
+                if (str_contains($description, $keyword) || str_contains($codetext, $keyword)) {
                     return true;
                 }
             }
 
             // Check if code is from SDOH code system
             $code = $detail['code'] ?? '';
-            if (strpos($code, 'SDOH') !== false || strpos($code, '96777') !== false) {
+            if (str_contains($code, 'SDOH') || str_contains($code, '96777')) {
                 return true;
             }
         }
