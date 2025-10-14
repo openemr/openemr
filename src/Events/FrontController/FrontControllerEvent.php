@@ -37,35 +37,26 @@ class FrontControllerEvent extends Event
     public const EVENT_LATE = 'front_controller.late';
 
     /**
-     * The route being processed
-     * @var string
-     */
-    private $route;
-
-    /**
-     * The site ID (multisite identifier)
-     * @var string
-     */
-    private $siteId;
-
-    /**
-     * Context data for the event
-     * @var array
-     */
-    private $context;
-
-    /**
      * FrontControllerEvent constructor.
      *
      * @param string $route The route being processed
      * @param string $siteId The multisite identifier
      * @param array $context Additional context data
      */
-    public function __construct(string $route = '', string $siteId = 'default', array $context = [])
-    {
-        $this->route = $route;
-        $this->siteId = $siteId;
-        $this->context = $context;
+    public function __construct(
+        /**
+         * The route being processed
+         */
+        private readonly string $route = '',
+        /**
+         * The site ID (multisite identifier)
+         */
+        private readonly string $siteId = 'default',
+        /**
+         * Context data for the event
+         */
+        private array $context = []
+    ) {
     }
 
     /**

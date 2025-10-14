@@ -19,10 +19,10 @@ namespace OpenCoreEMR\FrontController;
 
 class Router
 {
-    private string $baseDir;
+    private readonly string $baseDir;
     private string $route;
     private string $siteId;
-    private RouteConfigInterface $config;
+    private readonly RouteConfigInterface $config;
 
     public function __construct(string $baseDir, ?RouteConfigInterface $config = null)
     {
