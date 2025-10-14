@@ -25,9 +25,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// prevent UI redressing
+// prevent UI redressing and set security headers
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
+Header("X-Content-Type-Options: nosniff");
+Header("X-XSS-Protection: 1; mode=block");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\Core\TemplatePageEvent;

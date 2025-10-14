@@ -165,17 +165,26 @@ class CompatibilityTest extends TestCase
      */
     public function testPatientFileWorkflow(): void
     {
-        // This would require authentication, so we expect redirect to login
+        // This would require authentication, so we expect a response with JS redirect
         $response = self::$client->get('/interface/patient_file/summary/demographics.php', [
             'allow_redirects' => false
         ]);
         $httpCode = $response->getStatusCode();
+        $body = (string) $response->getBody();
 
-        // Should redirect to login (302) since not authenticated
+        // OpenEMR uses JavaScript redirect in auth.inc.php, not HTTP 302
+        // Should return 200 with JavaScript redirect to login
         $this->assertEquals(
-            302,
+            200,
             $httpCode,
-            'Patient file should redirect to login when not authenticated'
+            'Patient file should return 200 (with JS redirect to login) when not authenticated'
+        );
+
+        // Verify the response contains the login redirect script
+        $this->assertStringContainsString(
+            'login',
+            strtolower($body),
+            'Response should contain login redirect'
         );
     }
 
@@ -269,11 +278,12 @@ class CompatibilityTest extends TestCase
         ]);
         $httpCode = $response->getStatusCode();
 
-        // Should redirect to login (302) or show the form (200)
-        $this->assertContains(
+        // Should return 200 (either with form or JS redirect to login)
+        // OpenEMR uses JavaScript redirect in auth.inc.php, not HTTP 302
+        $this->assertEquals(
+            200,
             $httpCode,
-            [200, 302],
-            'File upload paths should be accessible'
+            'File upload paths should be accessible (200 with either form or login redirect)'
         );
     }
 

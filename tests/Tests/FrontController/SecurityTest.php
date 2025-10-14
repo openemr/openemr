@@ -209,7 +209,14 @@ class SecurityTest extends TestCase
      */
     public function testSecurityHeadersPresent(): void
     {
-        $response = self::$client->head('/index.php');
+        // Use a non-redirecting client to check headers on actual response
+        $client = new Client([
+            'base_uri' => self::$baseUrl,
+            'http_errors' => false,
+            'allow_redirects' => false, // Don't follow redirects to check headers on initial response
+        ]);
+
+        $response = $client->head('/index.php');
 
         $this->assertTrue(
             $response->hasHeader('X-Content-Type-Options'),
