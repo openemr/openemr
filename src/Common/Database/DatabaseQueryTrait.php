@@ -120,4 +120,9 @@ trait DatabaseQueryTrait
     {
         return QueryUtils::escapeLimit($limit);
     }
+
+    protected function atomic(callable $func, string ...$bind): void
+    {
+        QueryUtils::atomic($func, ...$bind);
+    }
 }

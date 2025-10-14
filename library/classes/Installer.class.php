@@ -16,10 +16,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    use DatabaseQueryTrait;
+
     public array $custom_globals;
     public array $dumpfiles;
     public mysqli|false $dbh;
@@ -449,39 +452,28 @@ class Installer
         $line = "";
 
         // Settings to drastically speed up installation with InnoDB
-        if (! $this->execute_sql("SET autocommit=0;")) {
-            return false;
-        }
+        try {
+            $this->atomic(function () use ($fd, &$query, &$line): void {
+                while (!$this->atEndOfFile($fd)) {
+                    $line = $this->getLine($fd, 1024);
+                    $line = rtrim($line);
+                    if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
+                        continue;
+                    }
 
-        if (! $this->execute_sql("START TRANSACTION;")) {
-            return false;
-        }
+                    $query .= $line;          // Check for full query
+                    $chr = substr($query, strlen($query) - 1, 1);
+                    if ($chr == ";") { // valid query, execute
+                        $query = rtrim($query, ";");
+                        if (! $this->execute_sql($query)) {
+                            throw new \Exception("SQL execution failed: $query");
+                        }
 
-        while (!$this->atEndOfFile($fd)) {
-            $line = $this->getLine($fd, 1024);
-            $line = rtrim($line);
-            if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
-                continue;
-            }
-
-            $query .= $line;          // Check for full query
-            $chr = substr($query, strlen($query) - 1, 1);
-            if ($chr == ";") { // valid query, execute
-                $query = rtrim($query, ";");
-                if (! $this->execute_sql($query)) {
-                    return false;
+                        $query = "";
+                    }
                 }
-
-                $query = "";
-            }
-        }
-
-        // Settings to drastically speed up installation with InnoDB
-        if (! $this->execute_sql("COMMIT;")) {
-            return false;
-        }
-
-        if (! $this->execute_sql("SET autocommit=1;")) {
+            });
+        } catch (\Exception) {
             return false;
         }
 

@@ -789,7 +789,7 @@ class InstallerTest extends TestCase
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
             ]])
-            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
+            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile', 'atomic'])
             ->getMock();
 
         $mockResource = fopen('php://memory', 'w+');
@@ -815,7 +815,7 @@ class InstallerTest extends TestCase
                 "INSERT INTO users VALUES (1, 'admin');"
             );
 
-        $mockInstaller->expects($this->exactly(6))
+        $mockInstaller->expects($this->exactly(2))
             ->method('execute_sql')
             ->willReturn(true);
 
@@ -823,6 +823,12 @@ class InstallerTest extends TestCase
             ->method('closeFile')
             ->with($mockResource)
             ->willReturn(true);
+
+        $mockInstaller->expects($this->once())
+            ->method('atomic')
+            ->willReturnCallback(function ($callback): void {
+                $callback();
+            });
 
         $result = $mockInstaller->load_file('/path/to/test.sql', 'Test Database');
 
@@ -868,7 +874,7 @@ class InstallerTest extends TestCase
                 'pass' => 'openemr',
                 'dbname' => 'openemr'
             ]])
-            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql'])
+            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'atomic'])
             ->getMock();
 
         $mockResource = fopen('php://memory', 'w+');
@@ -887,9 +893,15 @@ class InstallerTest extends TestCase
             ->with($mockResource, 1024)
             ->willReturn("CREATE TABLE users;");
 
-        $mockInstaller->expects($this->exactly(3))
+        $mockInstaller->expects($this->once())
             ->method('execute_sql')
-            ->willReturnOnConsecutiveCalls(true, true, false);
+            ->willReturn(false);
+
+        $mockInstaller->expects($this->once())
+            ->method('atomic')
+            ->willReturnCallback(function ($callback): void {
+                $callback();
+            });
 
         $result = $mockInstaller->load_file('/path/to/test.sql', 'Test Database');
 

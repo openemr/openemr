@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
 // Function to copy a package to temp
@@ -135,27 +136,23 @@ function rxnorm_import($is_windows_flag)
 
 
     // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
-    $data = explode(";", $data_load);
-    foreach ($data as $val) {
-        foreach ($rx_info as $value) {
-            $file_name = $value['origin'];
-            $replacement = $dir . "/" . $file_name;
+    QueryUtils::atomic(function () use ($data_load, $rx_info, $dir): void {
+        $data = explode(";", $data_load);
+        foreach ($data as $val) {
+            foreach ($rx_info as $value) {
+                $file_name = $value['origin'];
+                $replacement = $dir . "/" . $file_name;
 
-            $pattern = '/' . $file_name . '/';
-            if (str_contains($val, $file_name)) {
-                $val1 = str_replace($file_name, $replacement, $val);
-                if (trim($val1) != '') {
-                    sqlStatementNoLog($val1);
+                $pattern = '/' . $file_name . '/';
+                if (str_contains($val, $file_name)) {
+                    $val1 = str_replace($file_name, $replacement, $val);
+                    if (trim($val1) != '') {
+                        sqlStatementNoLog($val1);
+                    }
                 }
             }
         }
-    }
-
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("COMMIT");
-    sqlStatementNoLog("SET autocommit=1");
+    });
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
@@ -528,56 +525,52 @@ function icd_import($type)
     ];
 
     // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
-
-    // first inactivate older set(s)
-    sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
-    sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
-
     if (is_dir($dir) && $handle = opendir($dir)) {
-        while (false !== ($filename = readdir($handle))) {
-            // bypass unwanted entries
-            if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
-                continue;
-            }
+        QueryUtils::atomic(function () use ($incoming, $handle, $dir): void {
+            // first inactivate older set(s)
+            sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
+            sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
 
-            $keys = array_keys($incoming);
-            while ($this_key = array_pop($keys)) {
-                if (stripos($filename, $this_key) !== false) {
-                    $generator = getFileData($dir . $filename);
-                    foreach ($generator as $value) {
-                        $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
-                        $sql_place = "(";
-                        $sql_values = [];
-                        foreach (range(1, 4) as $field) {
-                            $fld = "FLD" . $field;
-                            $nxtfld = "FLD" . ($field + 1);
-                            $pos = "POS" . $field;
-                            $len = "LEN" . $field;
-                            $run_sql .= $incoming[$this_key][$fld] . ", ";
-                            $sql_place .= "?, ";
-                            // concat this fields template in the sql string
-                            array_push($sql_values, substr($value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
-                            if (!array_key_exists($nxtfld, $incoming[$this_key])) {
-                                $run_sql .= "active, revision) VALUES ";
-                                $sql_place .= "?, ?)";
-                                array_push($sql_values, 1);
-                                array_push($sql_values, $incoming[$this_key]['REV']);
-                                sqlStatementNoLog($run_sql . $sql_place, $sql_values);
-                                break;
-                            } else {
-                                $run_sql .= " ";
-                                $sql_place .= " ";
+            while (false !== ($filename = readdir($handle))) {
+                // bypass unwanted entries
+                if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
+                    continue;
+                }
+
+                $keys = array_keys($incoming);
+                while ($this_key = array_pop($keys)) {
+                    if (stripos($filename, $this_key) !== false) {
+                        $generator = getFileData($dir . $filename);
+                        foreach ($generator as $value) {
+                            $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
+                            $sql_place = "(";
+                            $sql_values = [];
+                            foreach (range(1, 4) as $field) {
+                                $fld = "FLD" . $field;
+                                $nxtfld = "FLD" . ($field + 1);
+                                $pos = "POS" . $field;
+                                $len = "LEN" . $field;
+                                $run_sql .= $incoming[$this_key][$fld] . ", ";
+                                $sql_place .= "?, ";
+                                // concat this fields template in the sql string
+                                array_push($sql_values, substr($value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
+                                if (!array_key_exists($nxtfld, $incoming[$this_key])) {
+                                    $run_sql .= "active, revision) VALUES ";
+                                    $sql_place .= "?, ?)";
+                                    array_push($sql_values, 1);
+                                    array_push($sql_values, $incoming[$this_key]['REV']);
+                                    sqlStatementNoLog($run_sql . $sql_place, $sql_values);
+                                    break;
+                                } else {
+                                    $run_sql .= " ";
+                                    $sql_place .= " ";
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        // Settings to drastically speed up import with InnoDB
-        sqlStatementNoLog("COMMIT");
-        sqlStatementNoLog("SET autocommit=1");
+        });
         closedir($handle);
     } else {
         echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
@@ -611,69 +604,65 @@ function valueset_import($type)
     $dir = str_replace('\\', '/', $dir_valueset);
 
     // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
     if (is_dir($dir) && $handle = opendir($dir)) {
-        while (false !== ($filename = readdir($handle))) {
-            // skip the zip file that's in the tmp file dir
-            if (stripos($filename, ".zip")) {
-                continue;
-            }
-            if (stripos($filename, ".xml")) {
-                    $abs_path = $dir . $filename;
-                    $xml  = simplexml_load_file($abs_path, null, 0, 'ns0', true);
-                foreach ($xml->DescribedValueSet as $vset) {
-                    $vset_attr = $vset->attributes();
-                    $nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
-                    foreach ($vset->ConceptList as $cp) {
-                        foreach ($nqf as $nqf_code) {
-                            foreach ($cp->Concept as $con) {
-                                $con_attr = $con->attributes();
-                                sqlStatementNoLog(
-                                    "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE
-                                    code_system = values(code_system),
-                                    description = values(description),
-                                    valueset_name = values(valueset_name)",
-                                    [
-                                        (string) $nqf_code,
-                                        (string) $con_attr->code,
-                                        (string) $con_attr->codeSystem,
-                                        (string) $con_attr->codeSystemName,
-                                        (string) $vset_attr->ID,
-                                        (string) $con_attr->displayName,
-                                        (string) $vset_attr->displayName
-                                    ]
-                                );
-                                sqlStatementNoLog(
-                                    "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE
-                                    code_system = values(code_system),
-                                    description = values(description),
-                                    valueset_name = values(valueset_name)",
-                                    [
-                                        (string) $nqf_code,
-                                        (string) $vset_attr->ID,
-                                        (string) $con_attr->codeSystem,
-                                         'OID',
-                                        (string) $vset_attr->ID,
-                                        (string) $vset_attr->displayName,
-                                        (string) $vset_attr->displayName
-                                    ]
-                                );
+        QueryUtils::atomic(function () use ($handle, $dir): void {
+            while (false !== ($filename = readdir($handle))) {
+                // skip the zip file that's in the tmp file dir
+                if (stripos($filename, ".zip")) {
+                    continue;
+                }
+                if (stripos($filename, ".xml")) {
+                        $abs_path = $dir . $filename;
+                        $xml  = simplexml_load_file($abs_path, null, 0, 'ns0', true);
+                    foreach ($xml->DescribedValueSet as $vset) {
+                        $vset_attr = $vset->attributes();
+                        $nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
+                        foreach ($vset->ConceptList as $cp) {
+                            foreach ($nqf as $nqf_code) {
+                                foreach ($cp->Concept as $con) {
+                                    $con_attr = $con->attributes();
+                                    sqlStatementNoLog(
+                                        "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE
+                                        code_system = values(code_system),
+                                        description = values(description),
+                                        valueset_name = values(valueset_name)",
+                                        [
+                                            (string) $nqf_code,
+                                            (string) $con_attr->code,
+                                            (string) $con_attr->codeSystem,
+                                            (string) $con_attr->codeSystemName,
+                                            (string) $vset_attr->ID,
+                                            (string) $con_attr->displayName,
+                                            (string) $vset_attr->displayName
+                                        ]
+                                    );
+                                    sqlStatementNoLog(
+                                        "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE
+                                        code_system = values(code_system),
+                                        description = values(description),
+                                        valueset_name = values(valueset_name)",
+                                        [
+                                            (string) $nqf_code,
+                                            (string) $vset_attr->ID,
+                                            (string) $con_attr->codeSystem,
+                                             'OID',
+                                            (string) $vset_attr->ID,
+                                            (string) $vset_attr->displayName,
+                                            (string) $vset_attr->displayName
+                                        ]
+                                    );
+                                }
                             }
                         }
                     }
+
+                    sqlStatementNoLog("UPDATE valueset set code_type='SNOMED CT' where code_type='SNOMEDCT'");
+                    sqlStatementNoLog("UPDATE valueset set code_type='ICD9' where code_type='ICD9CM'");
+                    sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");
                 }
-
-                sqlStatementNoLog("UPDATE valueset set code_type='SNOMED CT' where code_type='SNOMEDCT'");
-                sqlStatementNoLog("UPDATE valueset set code_type='ICD9' where code_type='ICD9CM'");
-                sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");
             }
-        }
+        });
     }
-
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("COMMIT");
-    sqlStatementNoLog("SET autocommit=1");
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.

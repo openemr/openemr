@@ -318,4 +318,48 @@ class QueryUtils
     {
         return \escape_limit($limit);
     }
+
+    /**
+     * Execute a SQL statement without binds and without logging.
+     *
+     * This is a convenience wrapper for sqlStatementThrowException that automatically
+     * passes empty binds and enables noLog. Useful for transaction control statements
+     * like START TRANSACTION, COMMIT, ROLLBACK, etc.
+     *
+     * @param  string  $statement  SQL query to execute
+     * @throws SqlQueryException Thrown if there is an error in the database executing the statement
+     * @return recordset
+     */
+    private static function sqlStatementNoBindsNoLog(string $statement)
+    {
+        return self::sqlStatementThrowException($statement, [], true);
+    }
+
+    /**
+     * Run a callback in a transaction.
+     *
+     * Executes the provided callback function within a database transaction. If the callback
+     * executes successfully, the transaction is committed. If an exception is thrown, the
+     * transaction is rolled back. Autocommit is temporarily disabled and restored afterward.
+     *
+     * @param callable $func The callback function to execute within the transaction.
+     *                       The callback receives any additional parameters passed to atomic().
+     * @param string ...$bind Optional parameters to pass to the callback function
+     * @throws SqlQueryException If there is a database error during transaction management
+     * @return void
+     */
+    public static function atomic(callable $func, string ...$bind): void
+    {
+        self::sqlStatementNoBindsNoLog('SET autocommit=0');
+        self::sqlStatementNoBindsNoLog('START TRANSACTION');
+        try {
+            $func(...$bind);
+            self::sqlStatementNoBindsNoLog('COMMIT');
+        } catch (\Exception $e) {
+            self::sqlStatementNoBindsNoLog('ROLLBACK');
+            throw $e;
+        } finally {
+            self::sqlStatementNoBindsNoLog('SET autocommit=1');
+        }
+    }
 }
