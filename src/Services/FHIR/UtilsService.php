@@ -318,6 +318,13 @@ class UtilsService
         );
     }
 
+    public static function createDataAbsentUnknownCode(): FHIRCode
+    {
+        $code = new FHIRCode();
+        $code->setValue(self::UNKNOWNABLE_CODE_NULL_FLAVOR);
+        return $code;
+    }
+
     /**
      * Given a FHIRPeriod object return an array containing the timestamp in milliseconds of the start and end points
      * of the period.  If the passed in object is null it will return null values for the 'start' and 'end' properties.

@@ -57,12 +57,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     /**
      * @var PatientService
      */
-    private $patientService;
+    private PatientService $patientService;
 
     /**
-     * @var ListService
+     * @var ?ListService
      */
-    private $listService;
+    private ?ListService $listService;
 
     /**
      * @var CodeTypesService
@@ -100,6 +100,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     const FIELD_NAME_GENDER = 'sex';
 
     private ?array $searchParameters = null;
+
+    private array $cachedListOptions = [];
 
     public function __construct()
     {
@@ -159,6 +161,20 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         ];
     }
 
+    public function getListService(): ListService
+    {
+        if (!isset($this->listService)) {
+            $this->listService = new ListService();
+        }
+        return $this->listService;
+    }
+
+    public function setListService(ListService $listService): void
+    {
+        $this->listService = $listService;
+    }
+
+
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
@@ -216,13 +232,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         // US Core 8.0.0 Extensions
         // drops genderIdentity,birthSex, adds interpreterRequired
-
-
         $this->parseOpenEMRPatientInterpreterNeededExtension($patientResource, $dataRecord);
 
         // Deceased date
         $this->parseOpenEMRPatientDeceasedDateTime($patientResource, $dataRecord);
-
 
         if ($encode) {
             return json_encode($patientResource);
@@ -386,7 +399,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $ombCategoryCoding = new FHIRCoding();
 
         if (!empty($race)) {
-            $record = $this->listService->getListOption('race', $race);
+            $record = $this->getCachedListOption('race', $race);
             if ($race === 'declne_to_specfy') { // TODO: we should rename this mispelled value in the database
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
@@ -423,9 +436,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $textExtension = new FHIRExtension();
             $textExtension->setUrl("text");
 
-
-
-            $record = $this->listService->getListOption('ethnicity', $ethnicity);
+            $record = $this->getCachedListOption('ethnicity', $ethnicity);
             if (!empty($record)) {
                 $textExtension->setValueString($record['title']);
                 // the only possible options for ombCategory are hispanic or not hispanic
@@ -466,6 +477,20 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
+    protected function getCachedListOption($list_id, $option_id): ?array
+    {
+        if (!isset($this->cachedListOptions[$list_id])) {
+            $this->cachedListOptions[$list_id] = [];
+        }
+        if (!isset($this->cachedListOptions[$list_id][$option_id])) {
+            $options = $this->getListService()->getOptionsByListName($list_id);
+            foreach ($options as $option) {
+                $this->cachedListOptions[$list_id][$option['option_id']] = $option;
+            }
+        }
+        return $this->cachedListOptions[$list_id][$option_id] ?? null;
+    }
+
     private function parseOpenEMRPublicPatientIdentifier(FHIRPatient $patientResource, $pubpid)
     {
         if (!empty($pubpid)) {
@@ -484,7 +509,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMRCommunicationRecord(FHIRPatient $patientResource, $language)
     {
-        $record = $this->listService->getListOption('language', $language);
+        $record = $this->getCachedListOption('language', $language);
         if (empty($language) || empty($record)) {
             $communication = new FHIRPatientCommunication();
             $communication->setLanguage(UtilsService::createDataAbsentUnknownCodeableConcept());
@@ -510,10 +535,14 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    protected function parseOpenEMRGenderIdentity(FhirPatient $patientResource, array $dataRecord): void {
+    protected function parseOpenEMRGenderIdentity(FhirPatient $patientResource, array $dataRecord): void
+    {
         if (!empty($dataRecord['gender_identity'])) {
             $genderIdentityExtension = new FHIRExtension();
             $genderIdentityExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-genderidentity');
+            $code = 'UNK';
+            $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
+            $display = 'Unknown';
 
             if ($dataRecord['gender_identity'] == 'asked-declined') {
                 $genderIdentityExtension->setValueCodeableConcept(UtilsService::createDataAbsentUnknownCodeableConcept());
@@ -526,7 +555,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
                 $display = 'Unknown';
             } else {
-                $record = $this->listService->getListOption('gender', $dataRecord['gender_identity']);
+                $record = $this->getCachedListOption('gender', $dataRecord['gender_identity']);
                 if (!empty($record)) {
                     $parsedCode = $this->getCodeTypesService()->parseCode($record['codes']);
                     $this->getCodeTypesService()->getSystemForCodeType($parsedCode['code_type']);
@@ -550,83 +579,58 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
-     * Parses OpenEMR birth sex data into US Core birthsex extension
-     */
-    protected function parseOpenEMRPatientBirthSexExtension(FHIRPatient $patientResource, array $dataRecord)
-    {
-        if (!empty($dataRecord['sex'])) {
-            $birthSexExtension = new FHIRExtension();
-            $birthSexExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex');
-
-            $coding = new FHIRCoding();
-            $coding->setSystem(new FHIRUri('http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender'));
-            $coding->setCode(new FHIRCode($this->mapBirthSexToCode($dataRecord['sex'])));
-            $coding->setDisplay(new FHIRString($this->mapBirthSexToDisplay($dataRecord['sex'])));
-
-            $birthSexExtension->setValueCoding($coding);
-            $patientResource->addExtension($birthSexExtension);
-        }
-    }
-
-    /**
      * Parses OpenEMR administrative sex data into US Core sex extension
      */
     protected function parseOpenEMRPatientSexExtension(FHIRPatient $patientResource, array $dataRecord)
     {
-        if (!empty($dataRecord['administrative_sex'])) {
-            $sexExtension = new FHIRExtension();
-            $sexExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex');
-
-            $coding = new FHIRCoding();
-            $coding->setSystem(new FHIRUri('http://terminology.hl7.org/CodeSystem/v2-0001'));
-            $coding->setCode(new FHIRCode($this->mapAdministrativeSexToCode($dataRecord['administrative_sex'])));
-            $coding->setDisplay(new FHIRString($this->mapAdministrativeSexToDisplay($dataRecord['administrative_sex'])));
-
-            $sexExtension->setValueCoding($coding);
-            $patientResource->addExtension($sexExtension);
+        $sexExtension = new FHIRExtension();
+        $sexExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex');
+        $code = UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT;
+        $system = CodeTypesService::CODE_TYPE_DATE_ABSENT_REASON;
+        $display = "Unknown";
+        if (!empty($dataRecord['sex_identified'])) {
+            $record = $this->getCachedListOption('administrative_sex', $dataRecord['sex_identified']);
+            if (!empty($record)) { // valid entry so we can set the value
+                $parsedCode = $this->getCodeTypesService()->parseCode($record['codes']);
+                $code = $parsedCode['code'];
+                $system = $this->getCodeTypesService()->getSystemForCodeType($parsedCode['code_type']);
+                $display = $record['title'];
+            }
         }
+
+        $coding = UtilsService::createCoding($code, $display, $system);
+        $sexExtension->setValueCoding($coding);
+        $patientResource->addExtension($sexExtension);
     }
 
     /**
      * Parses OpenEMR tribal affiliation data into US Core tribal-affiliation extension
      */
-    protected function parseOpenEMRPatientTribalAffiliationExtension(FHIRPatient $patientResource, array $dataRecord)
+    protected function parseOpenEMRPatientTribalAffiliationExtension(FHIRPatient $patientResource, array $dataRecord): void
     {
-        // TODO: @adunsulag revisit tribal_affiliations
         if (!empty($dataRecord['tribal_affiliations'])) {
-            // Handle multiple tribal affiliations (stored as JSON or comma-separated)
-            $tribalAffiliations = [];
-            if (is_string($dataRecord['tribal_affiliations'])) {
-                $decoded = json_decode($dataRecord['tribal_affiliations'], true);
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    $tribalAffiliations = $decoded;
-                } else {
-                    // Handle comma-separated values
-                    $tribalAffiliations = array_map('trim', explode(',', $dataRecord['tribal_affiliations']));
-                }
-            } elseif (is_array($dataRecord['tribal_affiliations'])) {
-                $tribalAffiliations = $dataRecord['tribal_affiliations'];
+            // for now we just handle a single tribal affiliation
+            $record = $this->getCachedListOption('tribal_affiliations', $dataRecord['tribal_affiliations']);
+            if (empty($record)) {
+                $this->getSystemLogger()->error("Tribal affiliations not found for option_id", ['option_id' => $dataRecord['tribal_affiliations']]);
+                return;
             }
-
-            foreach ($tribalAffiliations as $tribalAffiliation) {
+            $tribalAffiliations[$record['option_id']] = $record['title'] ?? $dataRecord['tribal_affiliations'];
+            foreach ($tribalAffiliations as $code => $tribalAffiliation) {
                 if (!empty($tribalAffiliation)) {
                     $tribalExtension = new FHIRExtension();
                     $tribalExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation');
 
                     $tribalValueExtension = new FHIRExtension();
                     $tribalValueExtension->setUrl('tribalAffiliation');
-
-                    $coding = new FHIRCoding();
-                    $coding->setSystem(new FHIRUri('http://terminology.hl7.org/CodeSystem/v3-TribalEntityUS'));
-                    $coding->setDisplay(new FHIRString($tribalAffiliation));
-
-                    $codeableConcept = new FHIRCodeableConcept();
-                    $codeableConcept->addCoding($coding);
-                    $codeableConcept->setText(new FHIRString($tribalAffiliation));
-
-                    $tribalValueExtension->setValueCodeableConcept($codeableConcept);
+                    $tribalValueExtension->setValueCodeableConcept(UtilsService::createCodeableConcept([
+                        $code => [
+                            'code' => $code,
+                            'system' => 'http://terminology.hl7.org/CodeSystem/v3-TribalEntityUS',
+                            'description' => $tribalAffiliation
+                        ]
+                    ]));
                     $tribalExtension->addExtension($tribalValueExtension);
-
                     $patientResource->addExtension($tribalExtension);
                 }
             }
@@ -638,12 +642,25 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     protected function parseOpenEMRPatientInterpreterNeededExtension(FHIRPatient $patientResource, array $dataRecord)
     {
+        $interpreterExtension = new FHIRExtension();
+        $interpreterExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed');
+        // default to unknown
+        $code = UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT;
+        $system = CodeTypesService::CODE_TYPE_DATE_ABSENT_REASON;
+        $display = "Unknown";
+        // per spec we can implement in patient profile OR in the encounter.. we are implementing in profile here.
         if (isset($dataRecord['interpreter_needed'])) {
-            $interpreterExtension = new FHIRExtension();
-            $interpreterExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed');
-            $interpreterExtension->setValueBoolean($dataRecord['interpreter_needed'] === '1');
-            $patientResource->addExtension($interpreterExtension);
+            $record = $this->getCachedListOption('yes_no_unknowns', $dataRecord['interpreter_needed']);
+            if (!empty($record)) { // valid entry so we can set the value
+                $parsedCode = $this->getCodeTypesService()->parseCode($record['codes']);
+                $code = $parsedCode['code'];
+                $system = $this->getCodeTypesService()->getSystemForCodeType($parsedCode['code_type']);
+                $display = $record['title'];
+            }
         }
+        $coding = UtilsService::createCoding($code, $system, $display);
+        $interpreterExtension->setValueCoding($coding);
+        $patientResource->addExtension($interpreterExtension);
     }
 
     /**
