@@ -71,7 +71,7 @@ function display_desc($desc)
  * @param string $irnumber
  * @return void
  */
-function salesByItemLineItem(int $patient_id, int $encounter_id, ?string $rowcat, string $description, string $transdate, int $qty, float $amount, string $irnumber = ''): void
+function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat, string $description, string $transdate, int $qty, float $amount, string $irnumber = ''): void
 {
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
