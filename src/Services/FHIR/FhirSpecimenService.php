@@ -57,13 +57,13 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
-            'identifier' => new FhirSearchParameterDefinition('identifier', SearchFieldType::TOKEN, ['specimen_identifier']),
-            'accession' => new FhirSearchParameterDefinition('accession', SearchFieldType::TOKEN, ['accession_identifier']),
-            'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['specimen_type_code']),
-            'collected' => new FhirSearchParameterDefinition('collected', SearchFieldType::DATETIME, ['collected_date']),
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['deleted']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
-            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['updated_at'])
+            'identifier' => new FhirSearchParameterDefinition('identifier', SearchFieldType::TOKEN, ['ps.specimen_identifier']),
+            'accession' => new FhirSearchParameterDefinition('accession', SearchFieldType::TOKEN, ['ps.accession_identifier']),
+            'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['ps.specimen_type_code']),
+            'collected' => new FhirSearchParameterDefinition('collected', SearchFieldType::DATETIME, ['ps.collected_date']),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['ps.deleted']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('ps.uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['ps.updated_at'])
         ];
     }
 
@@ -494,7 +494,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         return new FhirSearchParameterDefinition(
             'patient',
             SearchFieldType::REFERENCE,
-            [new ServiceField('puuid', ServiceField::TYPE_UUID)]
+            [new ServiceField('p.uuid', ServiceField::TYPE_UUID)]
         );
     }
 
