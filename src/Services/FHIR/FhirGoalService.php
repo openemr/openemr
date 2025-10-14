@@ -63,6 +63,9 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             // note even though we label this as a uuid, it is a SURROGATE UID because of the nature of how goals are stored
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
+            'lifecycle-status' => new FhirSearchParameterDefinition('lifecycle-status', SearchFieldType::TOKEN, ['plan_status']),
+            'target-date' => new FhirSearchParameterDefinition('target-date', SearchFieldType::DATE, ['date_end']),
+            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['code']),
         ];
     }
 
@@ -102,53 +105,115 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             $goal->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        $lifecycleStatus = new FHIRGoalLifecycleStatus();
-        $lifecycleStatus->setValue("active");
-        $goal->setLifecycleStatus($lifecycleStatus);
+        // US Core 8.0: lifecycleStatus is mandatory and Must Support
+        $lifecycleStatus = $this->mapPlanStatusToLifecycleStatus($dataRecord['plan_status'] ?? null);
+        $fhirLifecycleStatus = new FHIRGoalLifecycleStatus();
+        $fhirLifecycleStatus->setValue($lifecycleStatus);
+        $goal->setLifecycleStatus($fhirLifecycleStatus);
 
+        // US Core 8.0: achievementStatus is Must Support (new requirement)
+        if (!empty($dataRecord['plan_status'])) {
+            $achievementStatus = $this->mapPlanStatusToAchievementStatus($dataRecord['plan_status']);
+            if ($achievementStatus) {
+                $goal->setAchievementStatus($achievementStatus);
+            }
+        }
+
+        // US Core 8.0: category is Must Support
+        $category = new FHIRCodeableConcept();
+        $categoryCoding = new FHIRCoding();
+        $categoryCoding->setSystem('http://hl7.org/fhir/goal-category');
+
+        // Check if this is an SDOH goal based on code or description
+        if ($this->isSDOHGoal($dataRecord)) {
+            $categoryCoding->setCode('sdoh');
+            $categoryCoding->setDisplay('Social Determinants of Health');
+        } else {
+            $categoryCoding->setCode('physiological');
+            $categoryCoding->setDisplay('Physiological');
+        }
+        $category->addCoding($categoryCoding);
+        $goal->addCategory($category);
+
+        // US Core 8.0: expressedBy is Must Support for provenance
         if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
             $goal->setExpressedBy(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 
+        // US Core 8.0: startDate is Must Support (at least one of startDate or target.dueDate required)
+        if (!empty($dataRecord['date'])) {
+            $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'], new \DateTimeZone(date('P')));
+            if ($parsedDateTime) {
+                $fhirDate = new FHIRDate();
+                $fhirDate->setValue($parsedDateTime->format("Y-m-d"));
+                $goal->setStartDate($fhirDate);
+            }
+        }
 
-        // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
-        // activity element if they so choose, for now we just return the combined description of the care plan.
+        // US Core 8.0: description is mandatory and Must Support with preferred binding
         if (!empty($dataRecord['details'])) {
             $text = $this->getGoalTextFromDetails($dataRecord['details']);
             $codeableConcept = new FHIRCodeableConcept();
             $codeableConcept->setText($text['text']);
-            $goal->setDescription($codeableConcept);
 
+            // Add coding from US Core Goal Description value set if available
             $codeTypeService = new CodeTypesService();
             foreach ($dataRecord['details'] as $detail) {
-                $fhirGoalTarget = new FHIRGoalTarget();
-                if (!empty($detail['date'])) {
-                    $fhirDate = new FHIRDate();
-                    $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $detail['date'], new \DateTimeZone(date('P')));
-                    $fhirDate->setValue($parsedDateTime->format("Y-m-d"));
-                    $fhirGoalTarget->setDueDate($fhirDate);
-                } else {
-                    $fhirGoalTarget->setDueDate(UtilsService::createDataMissingExtension());
+                if (!empty($detail['code'])) {
+                    $codeText = $codeTypeService->lookup_code_description($detail['code']);
+                    $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
+
+                    $coding = new FHIRCoding();
+                    $coding->setCode($detail['code']);
+                    if (!empty($codeText)) {
+                        $coding->setDisplay(xlt($codeText));
+                    }
+                    $coding->setSystem($codeSystem);
+                    $codeableConcept->addCoding($coding);
                 }
+            }
+            $goal->setDescription($codeableConcept);
+
+            // US Core 8.0: target is Must Support with measure and dueDate
+            foreach ($dataRecord['details'] as $detail) {
+                $fhirGoalTarget = new FHIRGoalTarget();
+
+                // target.dueDate from date_end (US Core 8.0 requirement)
+                if (!empty($dataRecord['date_end'])) {
+                    $parsedEndDate = \DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date_end'], new \DateTimeZone(date('P')));
+                    if ($parsedEndDate) {
+                        $fhirDueDate = new FHIRDate();
+                        $fhirDueDate->setValue($parsedEndDate->format("Y-m-d"));
+                        $fhirGoalTarget->setDueDate($fhirDueDate);
+                    }
+                } elseif (!empty($detail['date'])) {
+                    // Fallback to detail date if no date_end
+                    $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $detail['date'], new \DateTimeZone(date('P')));
+                    if ($parsedDateTime) {
+                        $fhirDueDate = new FHIRDate();
+                        $fhirDueDate->setValue($parsedDateTime->format("Y-m-d"));
+                        $fhirGoalTarget->setDueDate($fhirDueDate);
+                    }
+                }
+
                 $detailDescription = trim($detail['description'] ?? "");
                 if (!empty($detailDescription)) {
-                    // if description is populated we also have to populate the measure with the correct code
                     $fhirGoalTarget->setDetailString($detailDescription);
 
+                    // US Core 8.0: target.measure required if target.detail is populated
                     if (!empty($detail['code'])) {
                         $codeText = $codeTypeService->lookup_code_description($detail['code']);
                         $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
 
                         $targetCodeableConcept = new FHIRCodeableConcept();
-                        $coding = new FhirCoding();
+                        $coding = new FHIRCoding();
                         $coding->setCode($detail['code']);
                         if (empty($codeText)) {
                             $coding->setDisplay(UtilsService::createDataMissingExtension());
                         } else {
                             $coding->setDisplay(xlt($codeText));
                         }
-
-                        $coding->setSystem($codeSystem); // these should always be LOINC but we want this generic
+                        $coding->setSystem($codeSystem);
                         $targetCodeableConcept->addCoding($coding);
                         $fhirGoalTarget->setMeasure($targetCodeableConcept);
                     } else {
@@ -164,6 +229,98 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         } else {
             return $goal;
         }
+    }
+
+    /**
+     * Map OpenEMR plan_status to FHIR Goal lifecycleStatus
+     *
+     * @param string|null $planStatus
+     * @return string
+     */
+    private function mapPlanStatusToLifecycleStatus(?string $planStatus): string
+    {
+        if (empty($planStatus)) {
+            return 'active'; // Default per US Core
+        }
+
+        // Map common status values
+        $statusMap = [
+            'active' => 'active',
+            'completed' => 'completed',
+            'cancelled' => 'cancelled',
+            'canceled' => 'cancelled',
+            'on-hold' => 'on-hold',
+            'entered-in-error' => 'entered-in-error',
+        ];
+
+        $lowerStatus = strtolower(trim($planStatus));
+        return $statusMap[$lowerStatus] ?? 'active';
+    }
+
+    /**
+     * Map OpenEMR plan_status to FHIR Goal achievementStatus
+     * US Core 8.0 new requirement
+     *
+     * @param string $planStatus
+     * @return FHIRCodeableConcept|null
+     */
+    private function mapPlanStatusToAchievementStatus(string $planStatus): ?FHIRCodeableConcept
+    {
+        $achievementMap = [
+            'completed' => ['code' => 'achieved', 'display' => 'Achieved'],
+            'active' => ['code' => 'in-progress', 'display' => 'In Progress'],
+            'on-hold' => ['code' => 'sustaining', 'display' => 'Sustaining'],
+            'cancelled' => ['code' => 'not-achieved', 'display' => 'Not Achieved'],
+            'canceled' => ['code' => 'not-achieved', 'display' => 'Not Achieved'],
+        ];
+
+        $lowerStatus = strtolower(trim($planStatus));
+        if (!isset($achievementMap[$lowerStatus])) {
+            return null;
+        }
+
+        $achievement = $achievementMap[$lowerStatus];
+        $codeableConcept = new FHIRCodeableConcept();
+        $coding = new FHIRCoding();
+        $coding->setSystem('http://terminology.hl7.org/CodeSystem/goal-achievement');
+        $coding->setCode($achievement['code']);
+        $coding->setDisplay($achievement['display']);
+        $codeableConcept->addCoding($coding);
+
+        return $codeableConcept;
+    }
+
+    /**
+     * Check if goal is SDOH-related based on code or description
+     * USCDI v5 requirement for SDOH Goals
+     *
+     * @param array $dataRecord
+     * @return bool
+     */
+    private function isSDOHGoal(array $dataRecord): bool
+    {
+        // Check for SDOH-related codes or keywords
+        $sdohKeywords = ['social', 'housing', 'food', 'transportation', 'education',
+            'employment', 'financial', 'social support', 'stress'];
+
+        foreach ($dataRecord['details'] ?? [] as $detail) {
+            $description = strtolower($detail['description'] ?? '');
+            $codetext = strtolower($detail['codetext'] ?? '');
+
+            foreach ($sdohKeywords as $keyword) {
+                if (strpos($description, $keyword) !== false || strpos($codetext, $keyword) !== false) {
+                    return true;
+                }
+            }
+
+            // Check if code is from SDOH code system
+            $code = $detail['code'] ?? '';
+            if (strpos($code, 'SDOH') !== false || strpos($code, '96777') !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
