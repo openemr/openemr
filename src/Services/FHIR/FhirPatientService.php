@@ -204,7 +204,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
-        $patientResource->setDeceasedBoolean($dataRecord[ 'deceased_date' ] != null);
 
         $this->parseOpenEMRPatientSummaryText($patientResource, $dataRecord);
         $this->parseOpenEMRPatientName($patientResource, $dataRecord);
@@ -679,10 +678,14 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     protected function parseOpenEMRPatientDeceasedDateTime(FHIRPatient $patientResource, array $dataRecord): void
     {
+        // note this is a 0..1 field so we either have a date or we explicitly state false
         if (!empty($dataRecord['deceased_date'])) {
             $deceasedDateTime = new FHIRDateTime();
             $deceasedDateTime->setValue(UtilsService::getLocalDateAsUTC($dataRecord['deceased_date']));
             $patientResource->setDeceasedDateTime($deceasedDateTime);
+        } else {
+            // explicitly state not deceased
+            $patientResource->setDeceasedBoolean(false);
         }
     }
 
