@@ -29,7 +29,9 @@ class SecurityTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$baseUrl = getenv('OPENEMR_TEST_URL') ?: 'http://localhost/openemr';
+        // In CI environment, tests run inside Docker container where web server is on localhost
+        // For local development, use OPENEMR_TEST_URL environment variable
+        self::$baseUrl = getenv('OPENEMR_TEST_URL') ?: 'http://localhost';
         self::$client = new Client([
             'base_uri' => self::$baseUrl,
             'http_errors' => false,
