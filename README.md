@@ -19,6 +19,14 @@ OpenEMR is a leader in healthcare open source software and comprises a large and
 
 > Already comfortable with git? Check out [CONTRIBUTING.md](CONTRIBUTING.md) for quick setup instructions and requirements for contributing to OpenEMR by resolving a bug or adding an awesome feature 😊.
 
+PHI (Protected Health Information) must be handled with end-to-end security as required by regulations like HIPAA.
+
+Encryption: PHI must be encrypted at rest (when stored) and in transit (when being transmitted) using strong methods like AES-256 and TLS/SSL, respectively.
+
+Secure Storage: It must be stored in highly access-controlled, secure environments with auditing and redundancy measures in place.
+
+Secrets Management: Credentials, API keys, and other secrets used to access PHI databases or services must be managed through secure environment variables or dedicated vault services, not hardcoded, to enforce the principle of least privilege.
+
 ### Support
 
 Community and Professional support can be found [here](https://open-emr.org/wiki/index.php/OpenEMR_Support_Guide).
