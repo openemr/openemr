@@ -14368,10 +14368,6 @@ parameters:
     identifier: class.nameCase
     count: 2
     path: library/MedEx/API.php
-  - message: '#^Function dirname invoked with 3 parameters, 1\-2 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/MedEx/API.php
   - message: '#^Instantiated class MedExApi\\DateTime not found\.$#'
     identifier: class.notFound
     count: 2
