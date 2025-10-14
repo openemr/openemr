@@ -585,7 +585,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['title'],
+            $row['title'] ?? '',
             $row['code'] . ' ' . $row['code_text'],
             substr($row['date'], 0, 10),
             $row['units'] ?? 1,
