@@ -1391,7 +1391,10 @@ class Claim
         if (empty($pid) || empty($serviceDateYmd) || empty($cpt)) {
             return '';
         }
-        $sql = "SELECT auth_num\n                  FROM module_prior_authorizations\n                 WHERE pid = ?\n                   AND (start_date IS NULL OR start_date <= ?)\n                   AND (end_date IS NULL OR end_date >= ?)\n                   AND (cpt = ? OR cpt LIKE ? OR cpt LIKE ? OR cpt LIKE ?)\n                 ORDER BY id DESC\n                 LIMIT 1";
+        $sql = "SELECT auth_num FROM module_prior_authorizations
+                WHERE pid = ? AND (start_date IS NULL OR start_date <= ?) AND
+                      (end_date IS NULL OR end_date >= ?) AND
+                      (cpt = ? OR cpt LIKE ? OR cpt LIKE ? OR cpt LIKE ?) ORDER BY id DESC LIMIT 1";
         $params = array(
             $pid,
             $serviceDateYmd,
