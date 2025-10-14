@@ -68,7 +68,7 @@ trait VersionedProfileTrait
     public function setHighestCompatibleUSCoreProfileVersion(string $version) : void
     {
         // set the highest supported US Core profile version in our Globals
-        if (in_array(self::PROFILE_VERSIONS_ALL)) {
+        if (in_array($version, self::PROFILE_VERSIONS_ALL)) {
             $this->highestUSCoreProfileVersion = $version;
         } else {
             $this->getSystemLogger()->errorLogCaller("Attempt to set unsupported US Core profile version", ['version' => $version]);

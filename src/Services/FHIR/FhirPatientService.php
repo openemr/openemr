@@ -604,12 +604,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_8_0_0) {
             $coding = UtilsService::createCoding($code, $display, $system);
             $sexExtension->setValueCoding($coding);
-            $patientResource->addExtension($sexExtension);
         } else {
             $fhirCode = new FHIRCode();
             $fhirCode->setValue($code);
             $sexExtension->setValueCode($fhirCode);
         }
+        $patientResource->addExtension($sexExtension);
     }
 
     /**
