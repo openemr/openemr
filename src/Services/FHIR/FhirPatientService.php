@@ -681,7 +681,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
         if (!empty($dataRecord['deceased_date'])) {
             $deceasedDateTime = new FHIRDateTime();
-            $deceasedDateTime->setValue(UtilsService::getLocalTimestampAsUTCDate($dataRecord['deceased_date']));
+            $deceasedDateTime->setValue(UtilsService::getLocalDateAsUTC($dataRecord['deceased_date']));
             $patientResource->setDeceasedDateTime($deceasedDateTime);
         }
     }
