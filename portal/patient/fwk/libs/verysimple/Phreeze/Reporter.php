@@ -174,7 +174,7 @@ abstract class Reporter implements Serializable
      */
     public function GetPublicProperties()
     {
-        $className = $this::class;
+        $className = static::class;
 
         if (! property_exists(self::$PublicPropCache, $className)) {
             $props =  [];
@@ -301,7 +301,7 @@ abstract class Reporter implements Serializable
      */
     function GetArray()
     {
-        $fms = $this->_phreezer->GetFieldMaps($this::class);
+        $fms = $this->_phreezer->GetFieldMaps(static::class);
         $cols =  [];
 
         foreach ($fms as $fm) {
@@ -320,7 +320,7 @@ abstract class Reporter implements Serializable
      */
     function Load(&$row)
     {
-        $this->_phreezer->Observe("Loading " . $this::class, OBSERVE_DEBUG);
+        $this->_phreezer->Observe("Loading " . static::class, OBSERVE_DEBUG);
 
         foreach (array_keys($row) as $prop) {
             $this->$prop = $row [$prop];
