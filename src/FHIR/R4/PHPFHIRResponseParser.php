@@ -288,7 +288,7 @@ class PHPFHIRResponseParser
     {
         return new \InvalidArgumentException(sprintf(
             '%s::parse - Argument 1 expected to be string, %s seen.',
-            get_called_class(),
+            static::class,
             gettype($input)
         ));
     }
