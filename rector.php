@@ -23,6 +23,7 @@ use Rector\Php54\Rector\FuncCall\RemoveReferenceFromCallRector;
 use Rector\Php55\Rector\ClassConstFetch\StaticToSelfOnFinalClassRector;
 use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToSelfClassRector;
+use Rector\Php55\Rector\FuncCall\GetCalledClassToStaticClassRector;
 use Rector\Php55\Rector\FuncCall\PregReplaceEModifierRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php56\Rector\FuncCall\PowToExpRector;
@@ -184,6 +185,7 @@ return RectorConfig::configure()
         FirstClassCallableRector::class, // one of the withPhpSets rules
         FunctionArgumentDefaultValueReplacerRector::class,
         GetCalledClassToSelfClassRector::class,
+        GetCalledClassToStaticClassRector::class, // one of the withPhpSets rules
         GetClassOnNullRector::class,
         GetDebugTypeRector::class,
         HebrevcToNl2brHebrevRector::class,
