@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
+use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
+use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use OpenEMR\Tests\E2e\Email\EmailTestData;
 use OpenEMR\Tests\E2e\Email\EmailTestingTrait;
 use PHPUnit\Framework\Attributes\Test;
@@ -49,6 +51,10 @@ class FaxSmsEmailTest extends TestCase
         require_once $faxSmsModulePath . '/src/Controller/AppDispatch.php';
         require_once $faxSmsModulePath . '/src/Controller/EmailClient.php';
         require_once $faxSmsModulePath . '/src/BootstrapService.php';
+        require_once $faxSmsModulePath . '/src/Exception/EmailException.php';
+        require_once $faxSmsModulePath . '/src/Exception/SmtpNotConfiguredException.php';
+        require_once $faxSmsModulePath . '/src/Exception/InvalidEmailAddressException.php';
+        require_once $faxSmsModulePath . '/src/Exception/EmailSendFailedException.php';
 
         $this->initializeMailpit();
         // Clear all existing emails before each test
@@ -139,16 +145,17 @@ class FaxSmsEmailTest extends TestCase
         $testEmail = EmailTestData::TEST_RECIPIENT;
         $testBody = "Test message";
 
-        // Attempt to send email without SMTP configured
-        $result = $emailClient->emailReminder($testEmail, $testBody);
+        // Attempt to send email without SMTP configured - should throw exception
+        $this->expectException(SmtpNotConfiguredException::class);
+        $this->expectExceptionMessage('SMTP not configured');
 
-        // Should return an error message about SMTP not being set up
-        $this->assertNotFalse($result, 'Should return a result');
-        $this->assertStringContainsString('SMTP not setup', $result, 'Should indicate SMTP is not configured');
-
-        // Restore original SMTP settings
-        $GLOBALS['SMTP_PASS'] = $originalSmtpPass;
-        $GLOBALS['SMTP_USER'] = $originalSmtpUser;
+        try {
+            $emailClient->emailReminder($testEmail, $testBody);
+        } finally {
+            // Restore original SMTP settings
+            $GLOBALS['SMTP_PASS'] = $originalSmtpPass;
+            $GLOBALS['SMTP_USER'] = $originalSmtpUser;
+        }
     }
 
     #[Test]
