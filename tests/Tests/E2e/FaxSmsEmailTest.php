@@ -202,7 +202,35 @@ class FaxSmsEmailTest extends TestCase
     }
 
     #[Test]
-    public function testFaxSmsModuleEmailValidation(): void
+    public function testFaxSmsModuleEmailValidationBadEmail(): void
+    {
+        $emailClient = new EmailClient();
+
+        // Test with invalid email address
+        $invalidEmail = 'not-a-valid-email';
+        $testBody = "Test message";
+
+        $expectedException = false;
+        try {
+            $emailClient->emailReminder($invalidEmail, $testBody);
+        } catch (InvalidEmailAddressException) {
+            $expectedException = true;
+        }
+        $this->assertTrue($expectedException, "Expected an InvalidEmailAddressException");
+
+        // Verify no email was sent
+        sleep(1);
+        $count = $this->getMailpitMessageCount();
+        $this->assertEquals(0, $count, 'No email should be sent for invalid email address');
+
+        // Test with empty email
+        $emptyEmail = '';
+        $this->expectException(InvalidEmailAddressException::class);
+        $emailClient->emailReminder($emptyEmail, $testBody);
+    }
+
+    #[Test]
+    public function testFaxSmsModuleEmailValidationBlankEmail(): void
     {
         $emailClient = new EmailClient();
 
