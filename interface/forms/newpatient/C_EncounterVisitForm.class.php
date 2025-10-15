@@ -121,11 +121,15 @@ class C_EncounterVisitForm
                 } else {
                     continue;
                 }
+            } else {
+                // user is authorized (aka is a provider) then if the provider hasn't been set default to user
+                $provider_id = !empty($provider_id) ? $provider_id : $_SESSION['authUserID'];
             }
 
             $name = $user['fname'] . ' ' . ($user['mname'] ? $user['mname'] . ' ' : '') .
                 $user['lname'] . ($user['suffix'] ? ', ' . $user['suffix'] : '') .
                 ($user['valedictory'] ? ', ' . $user['valedictory'] : '');
+
             $providers[] = [
                 'id' => $user['id'],
                 'name' => $name . $flag_it,
