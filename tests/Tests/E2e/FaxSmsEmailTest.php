@@ -203,12 +203,8 @@ class FaxSmsEmailTest extends TestCase
         $invalidEmail = 'not-a-valid-email';
         $testBody = "Test message";
 
-        $result = $emailClient->emailReminder($invalidEmail, $testBody);
-
-        // Should return an error about missing/invalid email
-        $this->assertNotFalse($result, 'Should return a result');
-        $this->assertStringContainsString('Error', $result, 'Should contain error message for invalid email');
-        $this->assertStringContainsString('email', strtolower($result), 'Error should mention email');
+        $this->expectException(InvalidEmailAddressException::class);
+        $emailClient->emailReminder($invalidEmail, $testBody);
 
         // Verify no email was sent
         sleep(1);
@@ -217,10 +213,8 @@ class FaxSmsEmailTest extends TestCase
 
         // Test with empty email
         $emptyEmail = '';
-        $result2 = $emailClient->emailReminder($emptyEmail, $testBody);
-
-        $this->assertNotFalse($result2, 'Should return a result for empty email');
-        $this->assertStringContainsString('Error', $result2, 'Should contain error message for empty email');
+        $this->expectException(InvalidEmailAddressException::class);
+        $emailClient->emailReminder($emptyEmail, $testBody);
     }
 
     #[Test]
