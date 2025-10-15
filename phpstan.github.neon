@@ -17864,10 +17864,6 @@ parameters:
     identifier: arguments.count
     count: 2
     path: tests/Tests/Fixtures/FacilityFixtureManager.php
-  - message: '#^Function file_exists invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: tests/Tests/Services/DocumentTest.php
   - message: '#^Class OpenEMR\\ClinicalDecisionRules\\Interface\\ActionRouter constructor invoked with 3 parameters, 2 required\.$#'
     identifier: arguments.count
     count: 3
