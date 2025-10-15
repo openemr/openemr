@@ -92,6 +92,12 @@ return RectorConfig::configure()
         'rename_property' => true,
     ])
     ->withDeadCodeLevel(5)
+    // https://getrector.com/documentation/troubleshooting-parallel
+    ->withParallel(
+        timeoutSeconds: 120,
+        maxNumberOfProcess: 12,
+        jobSize: 12
+    )
     // FIXME rector should pick the php version from composer.json
     // but that doesn't seem to be working, so hard-coding for now.
     ->withPhpVersion(PhpVersion::PHP_82)
