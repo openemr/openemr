@@ -399,7 +399,7 @@ abstract class PortalController
     public function ListAll()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . $this::class . "::ListAll");
+            throw new Exception("ModelName must be defined in " . static::class . "::ListAll");
         }
 
         // capture output instead of rendering if specified
@@ -426,7 +426,7 @@ abstract class PortalController
     protected function _ListAll(Criteria $criteria, $current_page, $limit)
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . $this::class . "::_ListAll.");
+            throw new Exception("ModelName must be defined in " . static::class . "::_ListAll.");
         }
 
         $page = $this->Phreezer->Query($this->ModelName, $criteria)->GetDataPage($current_page, $limit);
@@ -663,7 +663,7 @@ abstract class PortalController
     protected function GetColumns()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . $this::class . "::GetColumns");
+            throw new Exception("ModelName must be defined in " . static::class . "::GetColumns");
         }
 
         $counter = 0;
@@ -1031,6 +1031,6 @@ abstract class PortalController
      */
     function __call($name, $vars = null)
     {
-        throw new Exception($this::class . "::" . $name . " is not implemented");
+        throw new Exception(static::class . "::" . $name . " is not implemented");
     }
 }
