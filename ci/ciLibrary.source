@@ -139,15 +139,30 @@ enable_e2e_coverage() {
     dc cp ci/coverage-prepend.php "openemr:${OPENEMR_DIR}/../coverage-prepend.php"
     dc cp ci/coverage-append.php "openemr:${OPENEMR_DIR}/../coverage-append.php"
 
+    # Detect the PHP configuration scan directory dynamically
+    local php_scan_dir
+    php_scan_dir=$(_exec php -r "echo ini_get('cfg_file_path') ?: dirname(php_ini_loaded_file());" 2>/dev/null)
+    if [[ -z "${php_scan_dir}" ]]; then
+        echo "Error: Could not detect PHP configuration directory"
+        return 1
+    fi
+    echo "Detected PHP config directory: ${php_scan_dir}"
+
     # Configure PHP to use auto_prepend and auto_append for coverage
-    _exec sh -c "cat > /etc/php84/conf.d/coverage.ini <<'EOF'
+    _exec sh -c "cat > ${php_scan_dir}/conf.d/coverage.ini <<'EOF'
 auto_prepend_file=${OPENEMR_DIR}/../coverage-prepend.php
 auto_append_file=${OPENEMR_DIR}/../coverage-append.php
 xdebug.mode=coverage
 EOF"
 
-    # Restart Apache to pick up the new PHP configuration
-    dc exec openemr sh -c 'if command -v apachectl > /dev/null 2>&1; then apachectl graceful; fi'
+    # Restart Apache/FPM to pick up the new PHP configuration
+    dc exec openemr sh <<'EOF'
+if command -v apachectl > /dev/null 2>&1; then
+    apachectl graceful
+elif command -v nginx > /dev/null 2>&1; then
+    pkill -USR2 php-fpm
+fi
+EOF
 
     # Verify the configuration was applied correctly
     echo 'Verifying E2E coverage configuration…'
@@ -157,11 +172,25 @@ EOF"
 }
 
 disable_e2e_coverage() {
-    # Remove the coverage configuration
-    _exec sh -c 'rm -f /etc/php84/conf.d/coverage.ini'
+    # Detect the PHP configuration scan directory dynamically
+    local php_scan_dir
+    php_scan_dir=$(_exec php -r "echo ini_get('cfg_file_path') ?: dirname(php_ini_loaded_file());" 2>/dev/null)
+    if [[ -z "${php_scan_dir}" ]]; then
+        echo "Error: Could not detect PHP configuration directory"
+        return 1
+    fi
 
-    # Restart Apache to pick up the removed configuration
-    dc exec openemr sh -c 'if command -v apachectl > /dev/null 2>&1; then apachectl graceful; fi'
+    # Remove the coverage configuration
+    _exec sh -c "rm -f ${php_scan_dir}/conf.d/coverage.ini"
+
+    # Restart Apache/FPM to pick up the removed configuration
+    dc exec openemr sh <<'EOF'
+if command -v apachectl > /dev/null 2>&1; then
+    apachectl graceful
+elif command -v nginx > /dev/null 2>&1; then
+    pkill -USR2 php-fpm
+fi
+EOF
 }
 
 build_test_e2e() {
