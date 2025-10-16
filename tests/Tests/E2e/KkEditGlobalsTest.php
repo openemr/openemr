@@ -446,14 +446,18 @@ class KkEditGlobalsTest extends PantherTestCase
             $options = $select->findElements(WebDriverBy::tagName('option'));
             $this->assertGreaterThan(0, count($options), 'No options found in language dropdown');
 
-            // Select the first available option (if different from current)
-            foreach ($options as $option) {
-                if (!$option->isSelected()) {
-                    $testValue = $option->getAttribute('value');
-                    $option->click();
-                    break;
-                }
-            }
+            // Filter to get only unselected options
+            $unselectedOptions = array_filter($options, function ($option) {
+                return !$option->isSelected();
+            });
+
+            // Ensure we have at least one unselected option to test with
+            $this->assertNotEmpty($unselectedOptions, 'All options are already selected, cannot test');
+
+            // Select the first unselected option (reset is PHP 8.2+ compatible)
+            $firstUnselected = reset($unselectedOptions);
+            $testValue = $firstUnselected->getAttribute('value');
+            $firstUnselected->click();
 
             // Click the Save button
             $this->crawler = $this->client->refreshCrawler();
