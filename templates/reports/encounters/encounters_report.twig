@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ lang_attr }}" dir="{{ text_direction }}" {% if is_rtl %}class="rtl"{% endif %} lang="{{ lang_attr }}" dir="{{ text_direction }}" {% if is_rtl %}class="rtl"{% endif %}>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ "Encounter Report" | xlt }}</title>
-    {{ setupHeader(['datetime-picker', 'select2', 'datatables']) }}
+    {{ setupHeader(['datetime-picker', 'select2', 'datatables', 'jquery-ui', 'jquery-validation']) }}
 
     <script>
         {{ DateToYYYYMMDD_js() }}
@@ -11,21 +13,104 @@
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
-            {{ jqueryDateTimePicker('.datepicker',false,false,true) }}
+            {{ jqueryDateTimePicker('.datepicker', false, false, true) }}
+
+            // Initialize form validation
+            initFormValidation();
+        });
+
+        /**
+         * Initialize form validation
+         */
+        function initFormValidation() {
+            $('form').validate({
+                rules: {
+                    date_from: {
+                        required: true,
+                        date: true
+                    },
+                    date_to: {
+                        required: true,
+                        date: true,
+                        greaterThanOrEqual: '#date_from'
+                    }
+                },
+                messages: {
+                    date_from: {
+                        required: "{{ 'Date From is required' | xlj }}",
+                        date: "{{ 'Please enter a valid date' | xlj }}"
+                    },
+                    date_to: {
+                        required: "{{ 'Date To is required' | xlj }}",
+                        date: "{{ 'Please enter a valid date' | xlj }}",
+                        greaterThanOrEqual: "{{ 'End date must be after or equal to start date' | xlj }}"
+                    }
+                },
+                errorElement: 'div',
+                errorClass: 'text-danger',
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+
+            // Custom validation method for date comparison
+            $.validator.addMethod('greaterThanOrEqual', function(value, element, param) {
+                var startDate = new Date($(param).val());
+                var endDate = new Date(value);
+                return this.optional(element) || endDate >= startDate;
+            });
+        }
+
+        // Rate limiting for form submission
+        var formSubmitted = false;
+        $(document).on('submit', 'form', function(e) {
+            if (formSubmitted) {
+                e.preventDefault();
+                return false;
+            }
+            
+            if ($(this).valid()) {
+                formSubmitted = true;
+                $('#loadingSpinner').show();
+                return true;
+            }
+            return false;
         });
     </script>
 </head>
 <body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+            <span class="sr-only">{{ 'Loading...'|xlt }}</span>
+            <p class="mt-2">{{ 'Generating report...'|xlt }}</p>
+        </div>
+    </div>
+    
     <div class="container-fluid">
+        <!-- Performance Metrics (Visible in dev mode) -->
+        {% if not production_env %}
+        <div class="alert alert-info small mb-3">
+            <strong>{{ 'Performance'|xlt }}:</strong> 
+            {{ 'Execution Time'|xlt }}: {{ performance.execution_time|default('N/A') }} | 
+            {{ 'Memory Usage'|xlt }}: {{ performance.memory_usage|default('N/A') }} | 
+            {{ 'Queries'|xlt }}: {{ performance.query_count|default('N/A') }}
+        </div>
+        {% endif %}
         <div class="row mt-5">
             <div class="col-12">
-                <div>
-                     <h1>{{ 'Encounter Report' | xlt }}</h1>
-                </div>
-                <div class="float-right">
-                    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#helpModal">
-                        <i class="fa fa-question-circle fa-lg"></i>
-                    </button>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1>{{ 'Encounter Report' | xlt }}</h1>
+                    <div>
+                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#helpModal" aria-label="{{ 'Help' | xla }}">
+                            <i class="fa fa-question-circle fa-lg" aria-hidden="true"></i>
+                            <span class="sr-only">{{ 'Help' | xlt }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,40 +119,40 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="helpModalLabel">{{ 'Encounter Report Help'|xlt }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h2 class="modal-title h5" id="helpModalLabel">{{ 'Encounter Report Help' | xlt }}</h2>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'Close' | xla }}">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>{{ 'This report shows encounter details filtered by date range, provider, and facility.'|xlt }}</p>
-                        <p>{{ 'There are two views. The default is the summary view which shows the total number of encounters by provider.'|xlt }}</p>
-                        <p>{{ 'Use the filters to customize your report data.'|xlt }}</p>
-                        <p>{{ 'You can also export this report to a CSV file.'|xlt }}</p>
-                        <p>{{ 'Click the column headers to sort the data.'|xlt }}</p>
+                        <p>{{ 'This report shows encounter details filtered by date range, provider, and facility.' | xlt }}</p>
+                        <p>{{ 'There are two views. The default is the summary view which shows the total number of encounters by provider.' | xlt }}</p>
+                        <p>{{ 'Use the filters to customize your report data.' | xlt }}</p>
+                        <p>{{ 'You can also export this report to a CSV file.' | xlt }}</p>
+                        <p>{{ 'Click the column headers to sort the data.' | xlt }}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'Close'|xlt }}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'Close' | xlt }}</button>
                     </div>
                 </div>
             </div>
         </div>
-            <form method="get" action="" class="mb-3">
-                <input type="hidden" name="csrf_token_form" value="{{ csrfToken | attr }}" >
-                <div class="row">
-                    <div class="col-md-3">
-
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row mt-4">
+        <form method="get" action="" class="mb-3" novalidate>
+            {{ csrfTokenInput() | raw }}
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="facility">{{ "Facility" | xlt }}:</label>
-                                        <select name="facility" id="facility" class="form-control">
+                                        <select name="facility" id="facility" class="form-control" aria-label="{{ 'Select Facility' | xla }}">
                                             <option value="all">{{ "All Facilities" | xlt }}</option>
                                             {% for facility in facilities %}
-                                                <option value="{{ facility.id }}" {% if filters.facility == facility.id %}selected{% endif %}>
-                                                    {{ facility.name }}
+                                                <option value="{{ facility.id | attr }}" 
+                                                    {% if filters.facility == facility.id %}selected{% endif %}>
+                                                    {{ facility.name | text }}
                                                 </option>
                                             {% endfor %}
                                         </select>
@@ -76,11 +161,14 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="provider">{{ "Provider" | xlt }}:</label>
-                                        <select name="provider" id="provider" class="form-control select2">
-                                            <option value="all">{{ "All" | xlt }}</option>
+                                        <select name="provider" id="provider" 
+                                            class="form-control select2" 
+                                            aria-label="{{ 'Select Provider' | xla }}">
+                                            <option value="all">{{ "All Providers" | xlt }}</option>
                                             {% for provider in providers %}
-                                                <option value="{{ provider.id }}" {% if filters.provider == provider.id %}selected{% endif %}>
-                                                    {{ provider.name }}
+                                                <option value="{{ provider.id | attr }}" 
+                                                    {% if filters.provider == provider.id %}selected{% endif %}>
+                                                    {{ provider.name | text }}
                                                 </option>
                                             {% endfor %}
                                         </select>
@@ -89,160 +177,277 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="date_from">{{ "Date From" | xlt }}:</label>
-                                        <input type="text" name="date_from" id="date_from" class="form-control datepicker" value="{{ filters.date_from|attr }}">
+                                        <input type="text" 
+                                            name="date_from" 
+                                            id="date_from" 
+                                            class="form-control datepicker" 
+                                            value="{{ filters.date_from | attr }}"
+                                            aria-label="{{ 'Date From' | xla }}"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="date_to">{{ "Date To" | xlt }}:</label>
-                                        <input type="text" name="date_to" id="date_to" class="form-control datepicker" value="{{ filters.date_to|attr }}">
+                                        <input type="text" 
+                                            name="date_to" 
+                                            id="date_to" 
+                                            class="form-control datepicker" 
+                                            value="{{ filters.date_to | attr }}"
+                                            aria-label="{{ 'Date To' | xla }}"
+                                            required>
                                     </div>
                                 </div>
-                        </div>
-                        <div class="row align-items-center">
-                            <div class="col-md-9 d-flex flex-wrap align-items-center">
-                                <div class="form-check mr-3">
-                                    <input class="form-check-input" type="checkbox" name="details" id="details" {% if filters.details %}checked{% endif %}>
-                                    <label class="form-check-label" for="details">{{ "Details" | xlt }}</label>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" 
+                                            type="checkbox" 
+                                            name="details" 
+                                            id="details" 
+                                            {% if filters.details %}checked{% endif %}>
+                                        <label class="form-check-label" for="details">
+                                            {{ "Show Details" | xlt }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" 
+                                            type="checkbox" 
+                                            name="signed_only" 
+                                            id="signed_only" 
+                                            {% if filters.signed_only %}checked{% endif %}>
+                                        <label class="form-check-label" for="signed_only">
+                                            {{ "Signed Encounters Only" | xlt }}
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="form-check mr-3">
-                                    <input class="form-check-input" type="checkbox" name="signed_only" id="signed_only" {% if filters.signed_only %}checked{% endif %}>
-                                    <label class="form-check-label" for="signed_only">{{ "Signed Encounters Only" | xlt }}</label>
+                                <div class="col-md-6 text-right">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-search" aria-hidden="true"></i> {{ "Generate Report" | xlt }}
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="exportCsvButton">
+                                        <i class="fa fa-download" aria-hidden="true"></i> {{ "Export CSV" | xlt }}
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col-md-3 d-flex justify-content-end align-items-center">
-                                <button type="submit" class="btn btn-primary mr-2">{{ "Generate Report" | xlt }}</button>
-                                <button type="button" class="btn btn-success" id="exportCsvButton">{{ "Export CSV" | xlt }}</button>
-                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-
                     </div>
                 </div>
-            </form>
+            </div>
+        </form>
         <div id="loadingSpinner" class="text-center my-4" style="display: none;">
             <div class="spinner-border text-primary" role="status">
-                <span class="sr-only">{{ "Loading..."|xlt }}</span>
+                <span class="sr-only">{{ "Loading..." | xlt }}</span>
             </div>
-            <p class="mt-2">{{ "Generating report..."|xlt }}</p>
+            <p class="mt-2">{{ "Generating report..." | xlt }}</p>
         </div>
-        {% if errors|length > 0 %}
-            <div class="alert alert-danger">
-                {% for error in errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
+
+        {% if errors | length > 0 %}
+            <div class="alert alert-danger" role="alert">
+                <h2 class="h5">{{ "Error" | xlt }}</h2>
+                <ul class="mb-0">
+                    {% for error in errors %}
+                        <li>{{ error | xlt }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         {% endif %}
         <div class="row m-3 w-100 d-flex">
-            {% if filters.details|length == 0 and encounters.providers is defined and encounters.providers|length > 0 %}
-                <h3>{{ "Summary" | xlt }}</h3>
-                <table id="encounterSummaryTable" class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>{{ "Provider" | xlt }}</th>
-                            <th class="text-right">{{ "Encounters" | xlt }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for provider in encounters.providers %}
-                            <tr>
-                                <td>{{ provider.provider_name|text }}</td>
-                                <td class="text-right">{{ provider.encounter_count }}</td>
-                            </tr>
-                        {% endfor %}
-                        <tr class="font-weight-bold">
-                            <td>{{ "Total" | xlt }}</td>
-                            <td class="text-right">{{ encounters.total_encounters }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            {% endif %}
-            {% if filters.details|length > 0 and  encounters is defined and encounters|length > 0 %}
-                <div class="detailed-report mt-4 w-100">
-                    <h3>{{ "Detailed Encounters"|xlt }}</h3>
-                    <table id="encounterDetailTable" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{{ "ID"|xlt }}</th>
-                                <th>{{ "Date"|xlt }}</th>
-                                <th>{{ "Patient"|xlt }}</th>
-                                <th>{{ "Provider"|xlt }}</th>
-                                <th style="width: 15%">{{ "Visit Type"|xlt }}</th>
-                                <th style="width: 15%">{{ "Enc#"|xlt }}</th>
-                                <th style="width: 15%">{{ "Forms"|xlt }}</th>
-                                <th>{{ "Coding"|xlt }}</th>
-                                <th>{{ "Signed By"|xlt }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for encounter in encounters %}
-                                <tr>
-                                    <td>{{ encounter.id|default('') }}</td>
-                                    <td>{{ encounter.date|date('Y-m-d') }}</td>
-                                    <td>{{ encounter.patient|default('') }}</td>
-                                    <td>{{ encounter.provider|default('') }}</td>
-                                    <td>{{ encounter.category|default('') }}</td>
-                                    <td><input type="button" class="btn btn-link" value="{{ encounter.encounter }}-{{ encounter.pid }}" onclick="toEncounter('{{ encounter.pid }}', '{{ encounter.encounter }}')"/></td>
-                                    <td>{{ encounter.forms|default('') }}</td>
-                                    <td>{{ encounter.coding|default('') }}</td>
-                                    <td {% if encounter.signedby %}class="text-success"{% endif %}>
-                                        {% if encounter.signedby %}
-                                            <span>{{ encounter.signedby|attr }}</span>
-                                        {% else %}
-                                            {{ "Not signed"|xlt }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <p>{{ "Total Encounters"|xlt }}: {{ encounterCount }}</p>
+            {% if filters.details is empty and encounters.providers is defined and encounters.providers | length > 0 %}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="h5 mb-0">{{ "Summary" | xlt }}</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="encounterSummaryTable" class="table table-striped" aria-label="{{ 'Encounter Summary' | xla }}">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">{{ "Provider" | xlt }}</th>
+                                            <th scope="col" class="text-right">{{ "Encounters" | xlt }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for provider in encounters.providers %}
+                                            <tr>
+                                                <td>{{ provider.provider_name | text }}</td>
+                                                <td class="text-right">{{ provider.encounter_count | number_format }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        <tr class="font-weight-bold">
+                                            <td>{{ "Total" | xlt }}</td>
+                                            <td class="text-right">{{ encounters.total_encounters | number_format }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
-            {% if filters.details and (encounters is empty or encounters|length == 0) %}
-                <div class="alert alert-info d-flex align-items-center justify-content-center w-100">
-                    {{ "No encounters found matching your criteria"|xlt }}
+
+            {% if filters.details is not empty and encounters is defined and encounters | length > 0 %}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="h5 mb-0">{{ "Detailed Encounters" | xlt }}</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="encounterDetailTable" 
+                                       class="table table-striped" 
+                                       aria-label="{{ 'Detailed Encounters' | xla }}">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">{{ "ID" | xlt }}</th>
+                                            <th scope="col">{{ "Date" | xlt }}</th>
+                                            <th scope="col">{{ "Patient" | xlt }}</th>
+                                            <th scope="col">{{ "Provider" | xlt }}</th>
+                                            <th scope="col" style="width: 15%">{{ "Visit Type" | xlt }}</th>
+                                            <th scope="col" style="width: 15%">{{ "Enc#" | xlt }}</th>
+                                            <th scope="col" style="width: 15%">{{ "Forms" | xlt }}</th>
+                                            <th scope="col">{{ "Coding" | xlt }}</th>
+                                            <th scope="col">{{ "Signed By" | xlt }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for encounter in encounters %}
+                                            <tr>
+                                                <td>{{ encounter.id | default('') | text }}</td>
+                                                <td>{{ encounter.date | date('Y-m-d') | text }}</td>
+                                                <td>{{ encounter.patient | default('') | text }}</td>
+                                                <td>{{ encounter.provider | default('') | text }}</td>
+                                                <td>{{ encounter.category | default('') | text }}</td>
+                                                <td>
+                                                    <button type="button" 
+                                                            class="btn btn-link p-0 border-0 bg-transparent" 
+                                                            onclick="top.RTop.location='../../patient_file/encounter/encounter_top.php?set_encounter={{ encounter.encounter | attr }}&pid={{ encounter.pid | attr }}'"
+                                                            aria-label="{{ 'View encounter' | xla }} {{ encounter.encounter | attr }}">
+                                                        {{ encounter.encounter | text }}-{{ encounter.pid | text }}
+                                                    </button>
+                                                </td>
+                                                <td>{{ encounter.forms | default('') | text }}</td>
+                                                <td>{{ encounter.coding | default('') | text }}</td>
+                                                <td {% if encounter.signedby %}class="text-success"{% endif %}>
+                                                    {% if encounter.signedby %}
+                                                        <span>{{ encounter.signedby | text }}</span>
+                                                    {% else %}
+                                                        <span class="text-muted">{{ "Not signed" | xlt }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-muted">
+                                    {{ "Total Encounters" | xlt }}: 
+                                    <strong>{{ encounterCount | number_format }}</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
+
+            {% if filters.details is not empty and (encounters is empty or encounters | length == 0) %}
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        {{ "No encounters found matching your criteria" | xlt }}
+                    </div>
+                </div>
+            {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+    
+    <!-- Hidden form for exports -->
+    <form id="exportForm" method="post" target="_blank" style="display: none;">
+        <input type="hidden" name="csrf_token_form" value="{{ csrf_token() }}">
+        <input type="hidden" name="export" value="1">
+        <!-- Add other form fields as needed -->
+    </form>
+    
+    <script>
+        // Initialize DataTable when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTable
+            var table = initDataTable();
+            
+            // Handle form submission with loading state
+            $('form').on('submit', function(e) {
+                if ($(this).valid()) {
+                    $('#loadingSpinner').show();
+                    $('.dataTables_wrapper').hide();
+                    return true;
+                }
+                return false;
+            });
+            
+            // Handle export buttons
+            $('.export-btn').on('click', function(e) {
+                e.preventDefault();
+                var format = $(this).data('format');
+                var form = $('#exportForm');
+                form.attr('action', window.location.pathname + '?export=' + format);
+                form.submit();
+            });
+            
+            // Toggle filters
+            $('.toggle-filters').on('click', function() {
+                $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+            });
+            
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body',
+                trigger: 'hover'
+            });
+        });
+    </script>
     <script>
         $(document).ready(function() {
-            $('form').on('submit', function() {
-                $('#loadingSpinner').show();
+            // Initialize Select2 for better dropdowns
+            $('.select2').select2({
+                width: '100%',
+                placeholder: '{{ "Select a provider" | xlj }}',
+                allowClear: true,
+                dropdownAutoWidth: true,
+                theme: 'bootstrap'
             });
 
-            // Hide spinner when page fully loads
-            $('#loadingSpinner').hide();
-        });
-        //AI GENERATED CODE
-        $(document).ready(function() {
-            // Initialize DataTables for both tables
+            // Initialize DataTables with accessibility features
             $('#encounterSummaryTable, #encounterDetailTable').DataTable({
                 "pageLength": 25,
                 "dom": '<"top"f>rt<"bottom"lip><"clear">',
                 "language": {
-                    "search": "{{ 'Search'|xlt }}",
-                    "lengthMenu": "{{ 'Show _MENU_ entries'|xlt }}",
-                    "info": "{{ 'Showing _START_ to _END_ of _TOTAL_ entries'|xlt }}",
-                    "infoEmpty": "{{ 'Showing 0 to 0 of 0 entries'|xlt }}",
-                    "infoFiltered": "{{ '(filtered from _MAX_ total entries)'|xlt }}",
+                    "search": "{{ 'Search' | xlj }}", 
+                    "lengthMenu": "{{ 'Show _MENU_ entries' | xlj }}",
+                    "info": "{{ 'Showing _START_ to _END_ of _TOTAL_ entries' | xlj }}",
+                    "infoEmpty": "{{ 'Showing 0 to 0 of 0 entries' | xlj }}",
+                    "infoFiltered": "{{ '(filtered from _MAX_ total entries)' | xlj }}",
                     "paginate": {
-                        "first": "{{ 'First'|xlt }} ",
-                        "last": "{{ 'Last'|xlt }} ",
-                        "next": "{{ 'Next'|xlt }} ",
-                        "previous": " {{ 'Previous'|xlt }}"
+                        "first": "{{ 'First' | xlj }}",
+                        "last": "{{ 'Last' | xlj }}",
+                        "next": "{{ 'Next' | xlj }}",
+                        "previous": "{{ 'Previous' | xlj }}"
                     }
                 },
                 "drawCallback": function() {
                     $('.paginate_button').not('.previous,.next,.first,.last').css('margin', '0 5px');
-                }
+                },
+                "responsive": true,
+                "a11y": true,
+                "stateSave": true
             });
 
-            // Export to CSV
+            // Export to CSV functionality
             $('#exportCsvButton').click(function() {
-                // Determine which table is visible and has data
                 let exportTable = $('#encounterSummaryTable').is(':visible') && $('#encounterSummaryTable tbody tr').length > 0
                     ? $('#encounterSummaryTable')
                     : $('#encounterDetailTable').is(':visible') && $('#encounterDetailTable tbody tr').length > 0
@@ -268,13 +473,19 @@
                 exportTable.find('tbody tr').each(function() {
                     let row = [];
                     $(this).find('td').each(function() {
-                        row.push($(this).text().trim().replace(/,/g, ';'));
+                        // Handle button text for encounter links
+                        const btn = $(this).find('button');
+                        if (btn.length) {
+                            row.push(btn.text().trim().replace(/,/g, ';'));
+                        } else {
+                            row.push($(this).text().trim().replace(/,/g, ';'));
+                        }
                     });
                     csv.push(row.join(','));
                 });
 
-                // Create download link
-                const csvContent = csv.join('\n');
+                // Create download link with BOM for Excel compatibility
+                const csvContent = "\uFEFF" + csv.join('\n');
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -285,19 +496,30 @@
                 link.click();
                 document.body.removeChild(link);
             });
-        });// END AI GENERATED CODE
-    </script>
-    <script>
+
+            // Add keyboard navigation to modals
+            $('.modal').on('shown.bs.modal', function() {
+                $(this).find('[autofocus]').focus();
+            });
+
+            // Handle form reset
+            $('button[type="reset"]').on('click', function() {
+                $('form').validate().resetForm();
+                $('.is-invalid').removeClass('is-invalid');
+                formSubmitted = false;
+            });
+        });
+
+        /**
+         * Navigate to encounter
+         * @param {string} pid - Patient ID
+         * @param {string} encounter - Encounter ID
+         */
         function toEncounter(pid, encounter) {
             top.restoreSession();
-            top.RTop.location = '../../patient_file/encounter/encounter_top.php?set_encounter=' +
-                encodeURIComponent(encounter) + '&pid=' + encodeURIComponent(pid);
+            top.RTop.location = `../../patient_file/encounter/encounter_top.php?set_encounter=${encodeURIComponent(encounter)}&pid=${encodeURIComponent(pid)}`;
         }
     </script>
-    <script>
-        $('#provider').select2({
-            width: '100%',
-            placeholder: '{{ "Select Provider"|xla }}'
         });
     </script>
 </body>
