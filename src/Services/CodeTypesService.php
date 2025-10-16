@@ -209,7 +209,7 @@ class CodeTypesService
         if (empty($type) || empty($code)) {
             return "";
         }
-        $tmp = explode(':', $code);
+        $tmp = explode(':', (string) $code);
         if (is_array($tmp) && count($tmp ?? []) === 2) {
             if (!$oe_format) {
                 return $code;
@@ -369,8 +369,8 @@ class CodeTypesService
 
         // use valueset table if code description not found.
         if (empty($currentCodeText)) {
-            if (str_contains($codeType, '2.16.840.1.113883.')) {
-                $oid = trim($codeType);
+            if (str_contains((string) $codeType, '2.16.840.1.113883.')) {
+                $oid = trim((string) $codeType);
                 $codeType = "";
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);

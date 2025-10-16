@@ -113,7 +113,7 @@ class CcdaGlobalsConfiguration
         $sortOrderIndexesByKeys = [];
         if (!empty($GLOBALS[$key])) {
             $sortString = $GLOBALS[$key] ?? "";
-            $sortOrder = explode(";", $sortString);
+            $sortOrder = explode(";", (string) $sortString);
             $sortOrderIndexesByKeys = array_combine($sortOrder, array_keys($sortOrder));
         }
         if (!empty($sortOrder)) {

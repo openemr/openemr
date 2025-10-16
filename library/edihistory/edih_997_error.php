@@ -42,9 +42,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 function edih_997_sbmtfile($icn, $filetype)
 {
     //
-    if (strlen($icn) == 13) {
-        $bticn = substr($icn, 0, 9);
-        $stn = substr($icn, -4);
+    if (strlen((string) $icn) == 13) {
+        $bticn = substr((string) $icn, 0, 9);
+        $stn = substr((string) $icn, -4);
     } else {
         $bticn = $icn;
     }
@@ -83,8 +83,8 @@ function edih_997_errdata($obj997)
     //
     foreach ($segments as $seg) {
         $sar = [];
-        if (strncmp($seg, 'TA1' . $de, 4) == 0) {
-            $sar = explode($de, $seg);
+        if (strncmp((string) $seg, 'TA1' . $de, 4) == 0) {
+            $sar = explode($de, (string) $seg);
             //
             $sub_icn = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';
             $subdate = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';
@@ -96,8 +96,8 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'AK1' . $de, 4) == 0) {
-            $sar = explode($de, $seg);
+        if (strncmp((string) $seg, 'AK1' . $de, 4) == 0) {
+            $sar = explode($de, (string) $seg);
             //
             $fg_type = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';
             $fg_id = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';
@@ -105,8 +105,8 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'AK2' . $de, 4) == 0 || strncmp($seg, 'IK2' . $de, 4) == 0) {
-            $sar = explode($de, $seg);
+        if (strncmp((string) $seg, 'AK2' . $de, 4) == 0 || strncmp((string) $seg, 'IK2' . $de, 4) == 0) {
+            $sar = explode($de, (string) $seg);
             //
             $iserr = false;
             //
@@ -116,8 +116,8 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'AK3' . $de, 4) == 0 || strncmp($seg, 'IK3' . $de, 4) == 0) {
-            $sar = explode($de, $seg);
+        if (strncmp((string) $seg, 'AK3' . $de, 4) == 0 || strncmp((string) $seg, 'IK3' . $de, 4) == 0) {
+            $sar = explode($de, (string) $seg);
             //$idx = count($diag);
             $idx++;
             $iserr = true;
@@ -133,8 +133,8 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'CTX' . $de, 4) == 0) {
-            $sar = explode($de, $seg);
+        if (strncmp((string) $seg, 'CTX' . $de, 4) == 0) {
+            $sar = explode($de, (string) $seg);
             if (isset($sar[1]) && strpos($sar[1], 'TRIG')) {
                 // CTX*SITUATIONAL TRIGGER*
                 $diag['err'][$idx]['ctxid'] = $sar[2] ?? '';
@@ -152,8 +152,8 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'AK4' . $de, 4) == 0 || strncmp($seg, 'IK4' . $de, 4) == 0) {
-            $sar = explode($de, $seg);
+        if (strncmp((string) $seg, 'AK4' . $de, 4) == 0 || strncmp((string) $seg, 'IK4' . $de, 4) == 0) {
+            $sar = explode($de, (string) $seg);
             $diag['err'][$idx]['ik401'] = $sar[1] ?? '';
             $diag['err'][$idx]['ik402'] = $sar[2] ?? '';
             $diag['err'][$idx]['ik403'] = $sar[3] ?? '';
@@ -162,9 +162,9 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'AK5' . $de, 4) == 0 || strncmp($seg, 'IK5' . $de, 4) == 0) {
+        if (strncmp((string) $seg, 'AK5' . $de, 4) == 0 || strncmp((string) $seg, 'IK5' . $de, 4) == 0) {
             if ($iserr) {
-                $sar = explode($de, $seg);
+                $sar = explode($de, (string) $seg);
                 $diag['err'][$idx]['ik501'] = $sar[1] ?? '';
                 $diag['err'][$idx]['ik502'] = $sar[2] ?? '';
                 $diag['err'][$idx]['ik503'] = $sar[3] ?? '';
@@ -178,7 +178,7 @@ function edih_997_errdata($obj997)
             continue;
         }
 
-        if (strncmp($seg, 'AK9' . $de, 4) == 0) {
+        if (strncmp((string) $seg, 'AK9' . $de, 4) == 0) {
             $diag['summary']['sub_icn'] = $sub_icn;
             $diag['summary']['subtype'] = $subtype;
             $diag['summary']['subdate'] = $subdate;
@@ -188,7 +188,7 @@ function edih_997_errdata($obj997)
             $diag['summary']['fg_type'] = $fg_type;
             $diag['summary']['fg_id'] = $fg_id;
             //
-            $sar = explode($de, $seg);
+            $sar = explode($de, (string) $seg);
             $diag['summary']['ak901'] = $sar[1] ?? ''; // AK901 A=Accepted R=Rejected.
             $diag['summary']['ak902'] = $sar[2] ?? ''; // AK902  number of transaction sets
             $diag['summary']['ak903'] = $sar[3] ?? ''; // AK903  number of transaction sets received by the translator.

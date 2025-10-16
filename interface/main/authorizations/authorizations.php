@@ -107,7 +107,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result1) {
             foreach ($result1 as $iter) {
                 $authorize[$iter["pid"]]["billing"] .= "<span class='text'>" .
-                text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["code_text"] . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -125,7 +125,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result2) {
             foreach ($result2 as $iter) {
                 $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" .
-                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -144,7 +144,7 @@ if ($imauthorized && $see_auth > 1) {
             if ($result3) {
                 foreach ($result3 as $iter) {
                     $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" .
-                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                     "</span><br />\n";
                 }
             }
@@ -163,7 +163,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result4) {
             foreach ($result4 as $iter) {
                 $authorize[$iter["pid"]]["forms"] .= "<span class='text'>" .
-                text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["form_name"] . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }

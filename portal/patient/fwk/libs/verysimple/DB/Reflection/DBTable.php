@@ -148,7 +148,7 @@ class DBTable
         $prev_prefix = "";
         $has_prefix = true;
         foreach ($this->Columns as $column) {
-            $curr_prefix = substr($column->Name, 0, strpos($column->Name, "_") + 1);
+            $curr_prefix = substr((string) $column->Name, 0, strpos((string) $column->Name, "_") + 1);
 
             if ($prev_prefix == "") {
                 // first time through the loop
@@ -164,14 +164,14 @@ class DBTable
 
             // update the columns to reflect the prefix as well
             foreach ($this->Columns as $column) {
-                $column->NameWithoutPrefix = substr($column->Name, strlen($curr_prefix));
+                $column->NameWithoutPrefix = substr((string) $column->Name, strlen($curr_prefix));
             }
         }
 
         // if a column begins with a numeric character then prepend a string to prevent generated code errors
         if (self::$NUMERIC_COLUMN_PREFIX) {
             foreach ($this->Columns as $column) {
-                if (is_numeric(substr($column->NameWithoutPrefix, 0, 1))) {
+                if (is_numeric(substr((string) $column->NameWithoutPrefix, 0, 1))) {
                     $column->NameWithoutPrefix = self::$NUMERIC_COLUMN_PREFIX . $column->NameWithoutPrefix;
                 }
             }
@@ -183,7 +183,7 @@ class DBTable
      */
     public function GetObjectName()
     {
-        if (is_numeric(substr($this->Name, 0, 1))) {
+        if (is_numeric(substr((string) $this->Name, 0, 1))) {
             return self::$NUMERIC_TABLE_PREFIX . $this->Name;
         }
 
@@ -198,7 +198,7 @@ class DBTable
     public function RemovePrefix($name)
     {
         // print "remove prefix $name: " . $this->ColumnPrefix . "<br />";
-        return substr($name, strlen($this->ColumnPrefix));
+        return substr((string) $name, strlen((string) $this->ColumnPrefix));
     }
 
     /**

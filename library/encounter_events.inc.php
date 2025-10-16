@@ -37,7 +37,7 @@ function calendar_arrived($form_pid)
     $appts = fetchAppointments($today, $today, $form_pid);
     $appt_count = count($appts); //
     if ($appt_count == 0) {
-        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
+        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars((string) xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars((string) xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     } elseif ($appt_count == 1) {
         $enc = todaysEncounterCheck($form_pid);
@@ -47,7 +47,7 @@ function calendar_arrived($form_pid)
             update_event($appts[0]['pc_eid']);
         }
     } elseif ($appt_count > 1) {
-        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
+        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars((string) xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars((string) xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     }
     return $enc;
@@ -330,7 +330,7 @@ function check_event_exist($eid)
         $origEventRow = sqlFetchArray($origEvent);
         return $origEventRow['pc_eid'];
     } else {
-        if (!str_contains($pc_recurrspec_array['exdate'], date('Ymd'))) {//;'20110228'
+        if (!str_contains((string) $pc_recurrspec_array['exdate'], date('Ymd'))) {//;'20110228'
             return false;
         } else {//this happens in delete case
             return true;
@@ -458,11 +458,11 @@ function &__increment($d, $m, $y, $f, $t)
 
 function getTheNextAppointment($appointment_date, $freq)
 {
-    $day_arr = explode(",", $freq);
+    $day_arr = explode(",", (string) $freq);
     $date_arr = [];
     foreach ($day_arr as $day) {
         $day = getDayName($day);
-        $date = date('Y-m-d', strtotime("next " . $day, strtotime($appointment_date)));
+        $date = date('Y-m-d', strtotime("next " . $day, strtotime((string) $appointment_date)));
         array_push($date_arr, $date);
     }
 
@@ -506,7 +506,7 @@ function getEarliestDate($date_arr)
 {
     $earliest = ($date_arr[0]);
     foreach ($date_arr as $date) {
-        if (strtotime($date) < strtotime($earliest)) {
+        if (strtotime((string) $date) < strtotime((string) $earliest)) {
             $earliest = $date;
         }
     }

@@ -322,7 +322,7 @@ class AclMain
         if (empty($aco_spec)) {
             return true;
         }
-        $tmp = explode('|', $aco_spec);
+        $tmp = explode('|', (string) $aco_spec);
         if (!is_array($return_value)) {
             $return_value = [$return_value];
         }

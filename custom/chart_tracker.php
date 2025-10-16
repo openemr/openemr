@@ -24,11 +24,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 
-$form_newid   = isset($_POST['form_newid'  ]) ? trim($_POST['form_newid'  ]) : '';
-$form_curpid  = isset($_POST['form_curpid' ]) ? trim($_POST['form_curpid' ]) : '';
-$form_curid   = isset($_POST['form_curid'  ]) ? trim($_POST['form_curid'  ]) : '';
-$form_newloc  = isset($_POST['form_newloc' ]) ? trim($_POST['form_newloc' ]) : '';
-$form_newuser = isset($_POST['form_newuser']) ? trim($_POST['form_newuser']) : '';
+$form_newid   = isset($_POST['form_newid'  ]) ? trim((string) $_POST['form_newid'  ]) : '';
+$form_curpid  = isset($_POST['form_curpid' ]) ? trim((string) $_POST['form_curpid' ]) : '';
+$form_curid   = isset($_POST['form_curid'  ]) ? trim((string) $_POST['form_curid'  ]) : '';
+$form_newloc  = isset($_POST['form_newloc' ]) ? trim((string) $_POST['form_newloc' ]) : '';
+$form_newuser = isset($_POST['form_newuser']) ? trim((string) $_POST['form_newuser']) : '';
 
 if ($form_newuser) {
     $form_newloc = '';

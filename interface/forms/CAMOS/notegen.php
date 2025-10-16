@@ -112,7 +112,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
     }
 
     // note we are trimming variables before sending through this function
-    $output = getFormData(trim($_POST["start"]), trim($_POST["end"]), trim($_POST["lname"]), trim($_POST["fname"]));
+    $output = getFormData(trim((string) $_POST["start"]), trim((string) $_POST["end"]), trim((string) $_POST["lname"]), trim((string) $_POST["fname"]));
     ksort($output);
     if ($_POST['submit_html']) { //print as html
         ?>
@@ -155,7 +155,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         <?php
         foreach ($output as $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
-                preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
+                preg_match('/(\d+)_(\d+)/', (string) $note_id, $matches); //the unique note id contains the pid and encounter
                 $pid = $matches[1];
                 $enc = $matches[2];
 
@@ -271,7 +271,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         $first = 1;
         foreach ($output as $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
-                preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
+                preg_match('/(\d+)_(\d+)/', (string) $note_id, $matches); //the unique note id contains the pid and encounter
                 $pid = $matches[1];
                 $enc = $matches[2];
                 if (!$first) { //generate a new page each time except first iteration when nothing has been printed yet
@@ -439,20 +439,20 @@ function getFormData($start_date, $end_date, $lname, $fname)
             );
         }
 
-        if (strtolower($results1['form_name']) == 'vitals') { // deal with Vitals
+        if (strtolower((string) $results1['form_name']) == 'vitals') { // deal with Vitals
             $query2 = sqlStatement("select * from form_vitals where id = ?", [$results1['form_id']]);
             if ($results2 = sqlFetchArray($query2)) {
                 $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['vitals'] = formatVitals($results2);
             }
         }
 
-        if (str_starts_with(strtolower($results1['form_name']), 'camos')) { // deal with camos
+        if (str_starts_with(strtolower((string) $results1['form_name']), 'camos')) { // deal with camos
             $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id = ?", [$results1['form_id']]);
             if ($results2 = sqlFetchArray($query2)) {
                 if ($results2['category'] == 'exam') {
                     array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['exam'], $results2['content']);
                 } elseif ($results2['category'] == 'prescriptions') {
-                    array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['prescriptions'], preg_replace("/\n+/", ' ', $results2['content']));
+                    array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['prescriptions'], preg_replace("/\n+/", ' ', (string) $results2['content']));
                 } elseif ($results2['category'] == 'communications') {
                     //do nothing
                 } elseif ($results2['category'] == 'calorie intake') {
@@ -468,7 +468,7 @@ function getFormData($start_date, $end_date, $lname, $fname)
 
                     array_push(
                         $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['other'][$results2['category']],
-                        preg_replace(["/\n+/","/patientname/i"], [' ',$results1['fname'] . ' ' . $results1['lname']], $results2['content'])
+                        preg_replace(["/\n+/","/patientname/i"], [' ',$results1['fname'] . ' ' . $results1['lname']], (string) $results2['content'])
                     );
                 }
             }

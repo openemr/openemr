@@ -54,12 +54,12 @@ function hl7Text($s)
 
 function hl7Zip($s)
 {
-    return hl7Text(preg_replace('/[-\s]*/', '', $s));
+    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
 }
 
 function hl7Date($s)
 {
-    return preg_replace('/[^\d]/', '', $s);
+    return preg_replace('/[^\d]/', '', (string) $s);
 }
 
 function hl7Time($s)
@@ -68,12 +68,12 @@ function hl7Time($s)
         return '';
     }
 
-    return date('YmdHis', strtotime($s));
+    return date('YmdHis', strtotime((string) $s));
 }
 
 function hl7Sex($s)
 {
-    $s = strtoupper(substr($s, 0, 1));
+    $s = strtoupper(substr((string) $s, 0, 1));
     if ($s !== 'M' && $s !== 'F') {
         $s = 'U';
     }
@@ -83,11 +83,11 @@ function hl7Sex($s)
 
 function hl7Phone($s)
 {
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
     }
 
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2];
     }
 
@@ -96,7 +96,7 @@ function hl7Phone($s)
 
 function hl7SSN($s)
 {
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
     }
 
@@ -105,12 +105,12 @@ function hl7SSN($s)
 
 function hl7Priority($s)
 {
-    return strtoupper(substr($s, 0, 1)) == 'H' ? 'S' : 'R';
+    return strtoupper(substr((string) $s, 0, 1)) == 'H' ? 'S' : 'R';
 }
 
 function hl7Relation($s)
 {
-    $tmp = strtolower($s);
+    $tmp = strtolower((string) $s);
     if ($tmp == 'self' || $tmp == '') {
         return 'self';
     } elseif ($tmp == 'spouse') {
@@ -266,7 +266,7 @@ function gen_hl7_order($orderid, &$out)
     $msql = sqlStatement("SELECT drug FROM prescriptions WHERE active=1 AND patient_id=?", [$porow['pid']]);
     $drugs = [];
     while ($mres = sqlFetchArray($msql)) {
-        $drugs[] = trim($mres['drug']);
+        $drugs[] = trim((string) $mres['drug']);
     }
     $med_list = count($drugs) > 0 ? implode(",", $drugs) : 'NONE';
 
@@ -400,7 +400,7 @@ function gen_hl7_order($orderid, &$out)
         // this more flexible (probably when some lab needs another diagnosis type).
         $setid2 = 0;
         if (!empty($pcrow['diagnoses'])) {
-            $relcodes = explode(';', $pcrow['diagnoses']);
+            $relcodes = explode(';', (string) $pcrow['diagnoses']);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
@@ -441,7 +441,7 @@ function gen_hl7_order($orderid, &$out)
         while ($qrow = sqlFetchArray($qres)) {
               // Formatting of these answer values may be lab-specific and we'll figure
               // out how to deal with that as more labs are supported.
-              $answer = trim($qrow['answer']);
+              $answer = trim((string) $qrow['answer']);
               $fldtype = $qrow['fldtype'];
               $datatype = 'ST';
             if ($fldtype == 'N') {

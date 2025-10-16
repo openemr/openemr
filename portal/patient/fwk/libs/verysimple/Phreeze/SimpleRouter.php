@@ -71,7 +71,7 @@ class SimpleRouter implements IRouter
         $match = '';
 
         $qs = $uri ?: (array_key_exists('QUERY_STRING', $_SERVER) ? $_SERVER ['QUERY_STRING'] : '');
-        $parsed = explode('&', $qs, 2);
+        $parsed = explode('&', (string) $qs, 2);
         $action = $parsed [0];
 
         if (strpos($action, '=') > - 1 || ! $action) {
@@ -84,7 +84,7 @@ class SimpleRouter implements IRouter
             $match = array_key_exists($route, $this->routes) ? $this->routes [$route] ['route'] : self::$ROUTE_NOT_FOUND;
         }
 
-        return explode('.', $match, 2);
+        return explode('.', (string) $match, 2);
     }
 
     /**

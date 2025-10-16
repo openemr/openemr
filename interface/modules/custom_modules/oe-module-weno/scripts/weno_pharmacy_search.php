@@ -79,7 +79,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     if ($weno_coverage == 'State') {
         $sql .= " AND (`state_wide_mail_order` = 'State') AND (`mail_order_us_state_serviced` = 'All' OR FIND_IN_SET(?, REPLACE (`mail_order_us_state_serviced`, '|', ',' )) > 0)";
-        $params[] = trim($weno_state);
+        $params[] = trim((string) $weno_state);
     } else {
         $sql .= " AND (state_wide_mail_order = 'Local')";
     }
@@ -102,7 +102,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        if (strlen($row['ncpdp_safe']) < 8) {
+        if (strlen((string) $row['ncpdp_safe']) < 8) {
             $return_arr[] = [
                 "name" => $row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'] . ", " . $row['state'],
                 "ncpdp" => $row['ncpdp_safe']
@@ -143,7 +143,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
 
     if ($weno_coverage == 'State') {
         $sql .= " AND (`state_wide_mail_order` = 'State') AND (`mail_order_us_state_serviced` = 'All' OR FIND_IN_SET(?, REPLACE (`mail_order_us_state_serviced`, '|', ',' )) > 0)";
-        $params[] = trim($weno_state);
+        $params[] = trim((string) $weno_state);
     } else {
         $sql .= " AND (state_wide_mail_order = 'Local')";
     }
@@ -165,7 +165,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        if (strlen($row['ncpdp_safe']) < 8) {
+        if (strlen((string) $row['ncpdp_safe']) < 8) {
             $return_arr[] = [
                 "name" => $row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'] . ", " . $row['state'],
                 "ncpdp" => $row['ncpdp_safe']

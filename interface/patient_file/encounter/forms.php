@@ -95,7 +95,7 @@ if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
 <?php
 // If the user requested attachment of any orphaned procedure orders, do it.
 if (!empty($_GET['attachid'])) {
-    $attachid = explode(',', $_GET['attachid']);
+    $attachid = explode(',', (string) $_GET['attachid']);
     foreach ($attachid as $aid) {
         $aid = intval($aid);
         if (!$aid) {
@@ -554,7 +554,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             $pass_sens = false;
         }
         foreach ($reg as $item) {
-            $tmp = explode('|', $item['aco_spec']);
+            $tmp = explode('|', (string) $item['aco_spec']);
             if ($pass_sens) {
                 if (!empty($tmp[1])) {
                     if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
@@ -613,7 +613,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     });
 
     $dateres = getEncounterDateByEncounter($encounter);
-    $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
+    $encounter_date = date("Y-m-d", strtotime((string) $dateres["date"]));
     $providerIDres = getProviderIdOfEncounter($encounter);
     $providerNameRes = getProviderName($providerIDres, false);
 
@@ -666,7 +666,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     $pc_catid = fetchCategoryIdByEncounter($encounter);
                     $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
                     if ($postCalendarCategoryACO) {
-                        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                        $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                         $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
                         $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
                     } else { // if no aco is set for category
@@ -832,14 +832,14 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     $note = '';
                     if ($noteData) {
                         $notes = [];
-                        $notes = explode("|", $noteData['docNotes']);
-                        $dates = explode("|", $noteData['docDates']);
+                        $notes = explode("|", (string) $noteData['docNotes']);
+                        $dates = explode("|", (string) $noteData['docDates']);
                         for ($i = 0, $iMax = count($notes); $i < $iMax; $i++) {
                             $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
                         }
                     }
                     ?>
-                    <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename($doc_iter['name'])); ?></a>
+                    <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename((string) $doc_iter['name'])); ?></a>
                     <?php if ($note != '') { ?>
                         <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png" /></a>
                     <?php } ?>
@@ -870,7 +870,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
                 $aco_spec = false;
 
-                if (str_starts_with($formdir, 'LBF')) {
+                if (str_starts_with((string) $formdir, 'LBF')) {
                     // Skip LBF forms that we are not authorized to see.
                     $lrow = sqlQuery(
                         "SELECT grp_aco_spec " .
@@ -880,7 +880,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     );
                     if (!empty($lrow)) {
                         if (!empty($lrow['grp_aco_spec'])) {
-                            $aco_spec = explode('|', $lrow['grp_aco_spec']);
+                            $aco_spec = explode('|', (string) $lrow['grp_aco_spec']);
                             if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                                 continue;
                             }
@@ -890,7 +890,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     // Skip non-LBF forms that we are not authorized to see.
                     $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
                     if (!empty($tmp['aco_spec'])) {
-                        $aco_spec = explode('|', $tmp['aco_spec']);
+                        $aco_spec = explode('|', (string) $tmp['aco_spec']);
                         if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                             continue;
                         }
@@ -898,7 +898,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 }
 
                 // $form_info = getFormInfoById($iter['id']);
-                $form_class_list = (strtolower(substr($iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
+                $form_class_list = (strtolower(substr((string) $iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
                 echo '<div id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" title="' . xla("Edit Form") . '" class="form-holder ' . $form_class_list . '">';
 
                 $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
@@ -962,7 +962,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
                 }
 
-                if (str_starts_with($formdir, 'LBF')) {
+                if (str_starts_with((string) $formdir, 'LBF')) {
                     // A link for a nice printout of the LBF
                     echo "<a target='_blank' " .
                         "href='$rootdir/forms/LBF/printable.php?" .

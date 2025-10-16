@@ -721,7 +721,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
             // Add the metadata related filter clauses
             foreach ($table_info[EXT_FILTER_CLAUSES] as $filter_clause) {
                 $query .= " AND ";
-                $dot_location = strpos($filter_clause, ".");
+                $dot_location = strpos((string) $filter_clause, ".");
                 if ($dot_location !== false) {
                     // The filter clause already includes a table specifier, so don't add one
                     $query .= $filter_clause;
@@ -1052,7 +1052,7 @@ function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0
     if (++$depth > 4 || empty($related_code)) {
         return false; // protects against relation loops
     }
-    $relcodes = explode(';', $related_code);
+    $relcodes = explode(';', (string) $related_code);
     foreach ($relcodes as $codestring) {
         if ($codestring === '') {
             continue;

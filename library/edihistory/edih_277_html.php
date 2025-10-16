@@ -91,9 +91,9 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             // debug
             // echo "$i loop: $loopid Segment: $seg".PHP_EOL;
             //
-            if (strncmp('BHT' . $de, $seg, 4) === 0) {
+            if (strncmp('BHT' . $de, (string) $seg, 4) === 0) {
                 $loopid = 'Heading';
-                $sar = explode($de, $seg);
+                $sar = explode($de, (string) $seg);
                 if (isset($sar[1])) {
                     if ($sar[1] == '0010') {
                         $elem01 = "Src, Rcv, Prv, Sbr, Dep";
@@ -121,8 +121,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('HL' . $de, $seg, 3) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('HL' . $de, (string) $seg, 3) === 0) {
+                $sar = explode($de, (string) $seg);
                 $elem03 = $sar[3] ?? "";
                 if ($elem03 == '20') {                     // level code
                     $loopid = '2000A';                      // info source (payer)
@@ -159,8 +159,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('NM1' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('NM1' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 //
                 $nm101 = $sar[1] ?? '';
                 $descr = ($nm101) ? $cd27x->get_271_code('NM101', $nm101) : "";
@@ -202,8 +202,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //                              //
-            if (strncmp('PER' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('PER' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 //
                 $elem01 = $sar[1] ?? '';
                 $elem02 = $sar[2] ?? '';
@@ -226,8 +226,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('TRN' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('TRN' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 //
                 $elem01 = ( isset($sar[1]) && $sar[1] == "1" ) ? "Transaction Ref" : "Trace";
                 $elem02 = $sar[2] ?? '';
@@ -255,8 +255,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('STC' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('STC' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 //
                 if (isset($sar[1])) {
                     if (strpos($sar[1], (string) $ds)) {       // claim status category : claim status : entity identifier
@@ -350,8 +350,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
 
             // in 277CA, expect QTY followed by AMT
             // do not expect QTY or AMT in regular 277
-            if (strncmp('QTY' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('QTY' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 if (isset($sar[1])) {
                     if ($sar[1] == '90') {
                         $qtystr = "Acknowledged Quantity ";
@@ -372,8 +372,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('AMT' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('AMT' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 // 277CA
                 $amtstr = (isset($sar[1])  && $sar[1] == 'YU') ? "Amt " : "Amt Rej ";
                 $amtstr .= (isset($sar[2])  && $sar[2]) ? edih_format_money($sar[2]) : "";
@@ -395,8 +395,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('REF' . $de, $seg, 4) === 0) {
-                $sar = explode($de, $seg);
+            if (strncmp('REF' . $de, (string) $seg, 4) === 0) {
+                $sar = explode($de, (string) $seg);
                 //
                 //
                 $elem01 = (isset($sar[1])) ? $cd27x->get_271_code('REF', $sar[1]) : '';
@@ -418,9 +418,9 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('DTP' . $de, $seg, 4) === 0) {
+            if (strncmp('DTP' . $de, (string) $seg, 4) === 0) {
                 //
-                $sar = explode($de, $seg);
+                $sar = explode($de, (string) $seg);
                 $var = '';
                 //
                 $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('DTP', $sar[1]) : "";
@@ -447,9 +447,9 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             }
 
             //
-            if (strncmp('SVC' . $de, $seg, 4) === 0) {
+            if (strncmp('SVC' . $de, (string) $seg, 4) === 0) {
                 //
-                $sar = explode($de, $seg);
+                $sar = explode($de, (string) $seg);
                 //
                 $elem01 = '';                           // composite procedure code source:code:modifier:modifier
                 if (isset($sar[1]) && $sar[1]) {

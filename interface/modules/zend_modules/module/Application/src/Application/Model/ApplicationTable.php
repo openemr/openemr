@@ -103,8 +103,8 @@ class ApplicationTable extends AbstractTableGateway
     {
         $escaper = new \Laminas\Escaper\Escaper('utf-8');
         $trace = $e->getTraceAsString();
-        $nLast = strpos($trace, '[internal function]');
-        $trace = substr($trace, 0, ($nLast - 3));
+        $nLast = strpos((string) $trace, '[internal function]');
+        $trace = substr((string) $trace, 0, ($nLast - 3));
         $logMsg = '';
         do {
             $logMsg .= "\r Exception: " . $escaper->escapeHtml($e->getMessage());
@@ -276,7 +276,7 @@ class ApplicationTable extends AbstractTableGateway
         $limitStart = $page == '' ? 0 : \Application\Plugin\CommonPlugin::escapeLimit($page);
 
         $keyword = $leading . $queryString . $trailing;
-        if (strtolower($searchType) == 'patient') {
+        if (strtolower((string) $searchType) == 'patient') {
             $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data
                 WHERE pid LIKE ?
                 OR  CONCAT(fname, ' ', lname) LIKE ?
@@ -304,7 +304,7 @@ class ApplicationTable extends AbstractTableGateway
                 $keyword,
 
             ]);
-        } elseif (strtolower($searchType) == 'emrdirect') {
+        } elseif (strtolower((string) $searchType) == 'emrdirect') {
             $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
                 OR  CONCAT(lname, ' ', fname) LIKE ?
@@ -400,9 +400,9 @@ class ApplicationTable extends AbstractTableGateway
         if ($input_format) {
             $inputFormat = self::dateFormat($input_format);
         } else {
-            if (preg_match('/^\d{8}$/', $input_date)) {
+            if (preg_match('/^\d{8}$/', (string) $input_date)) {
                 $inputFormat = 'Ymd';
-            } elseif (preg_match('/^\d{14}$/', $input_date)) {
+            } elseif (preg_match('/^\d{14}$/', (string) $input_date)) {
                 $inputFormat = 'YmdHis';
             } else {
                 $inputFormat = null;

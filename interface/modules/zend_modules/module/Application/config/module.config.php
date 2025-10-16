@@ -124,7 +124,7 @@ return [
         'factories' => [
             Listener::class => InvokableFactory::class,
             ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new ApplicationTable();
                 return $table;
             },

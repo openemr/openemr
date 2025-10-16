@@ -84,14 +84,14 @@ if (isset($_GET['docUpdateId'])) {
                 $has_note = 1;
 
                 $body = $iter['body'];
-                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
-                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
+                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', (string) $body);
+                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', (string) $body);
                 echo " <tr class='text' id=" . text($iter['id']) . ">\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td class='text'>" . text($iter['user']) . "</td>\n";
                 echo "<td class='text'>" . text($iter['assigned_to']) . "</td>\n";
-                echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
+                echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime((string) $iter['date'])))) . "</td>\n";
                 echo "  <td class='text'><b>";
                 echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                 echo "</b></td>\n";

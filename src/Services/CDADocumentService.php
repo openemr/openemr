@@ -68,7 +68,7 @@ class CDADocumentService extends BaseService
                     $cryptoGen = new CryptoGen();
                     $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
-                    $content = base64_decode($resp->data);
+                    $content = base64_decode((string) $resp->data);
                 }
             } elseif (!empty($row['ccda_data'])) {
                 $fccda = fopen($row['ccda_data'], "r");

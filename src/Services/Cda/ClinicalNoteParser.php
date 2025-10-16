@@ -253,7 +253,7 @@ class ClinicalNoteParser
     {
         libxml_use_internal_errors(true);
         // Remove extraneous whitespace between tags
-        $textXML = trim(preg_replace('/>\s+</', '><', $textXML));
+        $textXML = trim((string) preg_replace('/>\s+</', '><', $textXML));
         $dom = new DOMDocument();
         if (!$dom->loadXML($textXML)) {
             $errors = libxml_get_errors();
@@ -288,10 +288,10 @@ class ClinicalNoteParser
             $paragraphNodes = $xpath->query("ns:paragraph", $item);
             $captionNodes = $xpath->query("ns:caption", $item);
             if ($captionNodes->length > 0) {
-                $paraText = trim($captionNodes->item(0)->nodeValue) . "\n";
+                $paraText = trim((string) $captionNodes->item(0)->nodeValue) . "\n";
             }
             if ($paragraphNodes->length > 0) {
-                $paraText .= trim($paragraphNodes->item(0)->nodeValue);
+                $paraText .= trim((string) $paragraphNodes->item(0)->nodeValue);
             }
             // First table in the item
             $tableNodes = $xpath->query(".//ns:table", $item);
@@ -308,7 +308,7 @@ class ClinicalNoteParser
             $theadRows = $xpath->query("ns:thead/ns:tr", $table);
             if ($theadRows->length > 0) {
                 foreach ($xpath->query("ns:th", $theadRows->item(0)) as $th) {
-                    $headers[] = trim($th->nodeValue);
+                    $headers[] = trim((string) $th->nodeValue);
                 }
             }
             if (empty($headers)) {

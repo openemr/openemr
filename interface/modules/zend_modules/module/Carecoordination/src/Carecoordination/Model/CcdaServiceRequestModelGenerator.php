@@ -61,9 +61,9 @@ class CcdaServiceRequestModelGenerator
                 $encounterService = new EncounterService();
                 $encounterRecord = ProcessingResult::extractDataArray($encounterService->getEncounterById(intval($encounter)));
                 if (!empty($encounterRecord[0])) {
-                    $start = strtotime($encounterRecord[0]['date']);
+                    $start = strtotime((string) $encounterRecord[0]['date']);
                     if (!empty($end)) {
-                        $end = strtotime($end);
+                        $end = strtotime((string) $end);
                         // TODO: if we add encounter end dates we can populate this
                         $end = $end > $start ? $end : $start + 1800; // 30 minutes
                     }
@@ -79,7 +79,7 @@ class CcdaServiceRequestModelGenerator
                 $patientService = new PatientService();
                 $patientRecord = $patientService->findByPid($pid);
                 if (!empty($patientRecord)) {
-                    $start = date('YmdHisO', strtotime($patientRecord['DOB']));
+                    $start = date('YmdHisO', strtotime((string) $patientRecord['DOB']));
                 }
             }
             if (empty($end) && !empty($pid)) {
@@ -88,7 +88,7 @@ class CcdaServiceRequestModelGenerator
                     $encounterService = new EncounterService();
                     $encounterRecord = ProcessingResult::extractDataArray($encounterService->getEncounterById(intval($encounterId)));
                     if (!empty($encounterRecord[0])) {
-                        $end = date('YmdHisO', strtotime($encounterRecord[0]['date']));
+                        $end = date('YmdHisO', strtotime((string) $encounterRecord[0]['date']));
                     }
                 }
             }
@@ -96,11 +96,11 @@ class CcdaServiceRequestModelGenerator
         // TODO: this is the result of late night coding, hopefully we can come and fix this to be better in the future
         // we essentially need to handle the fall through case where we have a date range that's been sent us
         // that's not in our timestamp format
-        if (str_contains($start, "-")) {
-            $start = date('YmdHisO', strtotime($start));
+        if (str_contains((string) $start, "-")) {
+            $start = date('YmdHisO', strtotime((string) $start));
         }
-        if (str_contains($end, "-")) {
-            $end = date('YmdHisO', strtotime($end));
+        if (str_contains((string) $end, "-")) {
+            $end = date('YmdHisO', strtotime((string) $end));
         }
         return [
             'start' => $start ?? date('YmdHisO')
@@ -121,8 +121,8 @@ class CcdaServiceRequestModelGenerator
 
         $serviceStartDates = $this->getServiceStartDates($pid, $encounter, $document_type, $date_options);
 
-        $sections_list = explode('|', $sections);
-        $components_list = explode('|', $components);
+        $sections_list = explode('|', (string) $sections);
+        $components_list = explode('|', (string) $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
         $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
@@ -155,7 +155,7 @@ class CcdaServiceRequestModelGenerator
                 <postalCode>" . htmlspecialchars($representedOrganization['postal_code'] ?? '', ENT_QUOTES) . "</postalCode>
                 <country>" . htmlspecialchars($representedOrganization['country'] ?? '', ENT_QUOTES) . "</country>
             </representedOrganization>";
-        $this->data .= "<referral_reason><text>" . htmlspecialchars($referral_reason ?: '', ENT_QUOTES) . "</text></referral_reason>";
+        $this->data .= "<referral_reason><text>" . htmlspecialchars((string) $referral_reason ?: '', ENT_QUOTES) . "</text></referral_reason>";
 
         /***************CCDA Header Information***************/
         $this->data .= $this->getEncounterccdadispatchTable()->getPatientdata($pid, $encounter);

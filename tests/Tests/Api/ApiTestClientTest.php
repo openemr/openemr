@@ -94,7 +94,7 @@ class ApiTestClientTest extends TestCase
             ["client_id" => ApiTestClient::BOGUS_CLIENTID]
         );
         $this->assertEquals(401, $actualValue->getStatusCode());
-        $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
+        $this->assertEquals('invalid_client', json_decode((string) $actualValue->getBody())->error);
 
         $this->client->cleanupClient();
     }
@@ -109,7 +109,7 @@ class ApiTestClientTest extends TestCase
             ["username" => "bar", "password" => "boo"]
         );
         $this->assertEquals(400, $actualValue->getStatusCode());
-        $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);
+        $this->assertEquals('Failed Authentication', json_decode((string) $actualValue->getBody())->hint);
 
         $this->client->cleanupClient();
     }
@@ -121,14 +121,14 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
@@ -146,14 +146,14 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
@@ -181,9 +181,9 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
 
         $this->client->cleanupRevokeAuth();
         $this->client->cleanupClient();
@@ -196,14 +196,14 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
@@ -242,9 +242,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -264,9 +264,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -295,9 +295,9 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -318,9 +318,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -352,9 +352,9 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -375,9 +375,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -410,9 +410,9 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -433,14 +433,14 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
-        $id_token = json_decode($actualValue->getBody())->id_token;
-        $this->assertGreaterThan(10, strlen($id_token));
+        $id_token = json_decode((string) $actualValue->getBody())->id_token;
+        $this->assertGreaterThan(10, strlen((string) $id_token));
 
         $actualResponse = $this->client->cleanupRevokeAuth();
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
@@ -448,7 +448,7 @@ class ApiTestClientTest extends TestCase
 
         $actualResponse = $this->client->cleanupRevokeAuth();
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $actualResponse->getStatusCode());
-        $responseBody = json_decode($actualResponse->getBody(), true);
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals("You are currently not signed in.", $responseBody['message']);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -468,9 +468,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT_INVALID_SITE);
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -489,9 +489,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
@@ -514,9 +514,9 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());

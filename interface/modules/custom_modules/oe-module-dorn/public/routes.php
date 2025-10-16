@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                                             <td scope="row">
                                                 <?php
                                                 // Convert to OpenEMR’s short date format
-                                                $created = oeFormatShortDate(date('Y-m-d', strtotime($data->createdDateTimeUtc)));
+                                                $created = oeFormatShortDate(date('Y-m-d', strtotime((string) $data->createdDateTimeUtc)));
                                                 echo text($created);
                                                 ?>
                                             </td>

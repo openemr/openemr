@@ -132,13 +132,13 @@ EOF;
             return $output->GetOutput();
         }
         $tmp = $constantid[$i];
-        if (strpos(trim($tmp), ' ')) {
+        if (strpos(trim((string) $tmp), ' ')) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }
         $tmp = $color[$i];
-        if (strlen($tmp) != 7 || $tmp[0] != "#") {
-            $e = $tmp . " size " . strlen($tmp) . " at 0 " . $tmp[0];
+        if (strlen((string) $tmp) != 7 || $tmp[0] != "#") {
+            $e = $tmp . " size " . strlen((string) $tmp) . " at 0 " . $tmp[0];
             $output->Text(postcalendar_admin_categories($msg, "You entered an invalid color(USE Pick) $e!"));
             return $output->GetOutput();
         }
@@ -201,7 +201,7 @@ EOF;
             $output->Text(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
             return $output->GetOutput();
         }
-        if (strpos(trim($newconstantid), ' ')) {
+        if (strpos(trim((string) $newconstantid), ' ')) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }

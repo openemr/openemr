@@ -120,7 +120,7 @@ if (!empty($_POST['load'])) {
   // query for entering new definitions it picks the cons_id because is existant.
     if (!empty($_POST['cons_id'])) {
         foreach ($_POST['cons_id'] as $key => $value) {
-            $value = trim($value);
+            $value = trim((string) $value);
 
             // do not create new blank definitions
             if ($value == "") {
@@ -148,7 +148,7 @@ if (!empty($_POST['load'])) {
   // echo ('<pre>');    print_r($_POST['def_id']);  echo ('</pre>');
     if (!empty($_POST['def_id'])) {
         foreach ($_POST['def_id'] as $key => $value) {
-            $value = trim($value);
+            $value = trim((string) $value);
 
             // only continue if the definition is new
             $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";

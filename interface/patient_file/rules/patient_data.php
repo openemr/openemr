@@ -99,11 +99,11 @@ if ($_POST['form_complete'] ?? null) {
         $form_entryID = trim($_POST['form_entryID']);
     }
 
-    $form_date = trim($_POST['form_date']);
-    $form_category = trim($_POST['form_category']);
-    $form_item = trim($_POST['form_item']);
-    $form_complete = trim($_POST['form_complete']);
-    $form_result = trim($_POST['form_result']);
+    $form_date = trim((string) $_POST['form_date']);
+    $form_category = trim((string) $_POST['form_category']);
+    $form_item = trim((string) $_POST['form_item']);
+    $form_complete = trim((string) $_POST['form_complete']);
+    $form_result = trim((string) $_POST['form_result']);
 
     if (!isset($form_entryID)) {
         // Insert new row of data into rule_patient_data table
@@ -127,10 +127,10 @@ if ($_POST['form_complete'] ?? null) {
 
 // Display the form
 // Collect and trim variables
-$category = trim($_GET['category']);
-$item = trim($_GET['item']);
+$category = trim((string) $_GET['category']);
+$item = trim((string) $_GET['item']);
 if (isset($_GET['entryID'])) {
-    $entryID = trim($_GET['entryID']);
+    $entryID = trim((string) $_GET['entryID']);
 }
 
 // Collect data if a specific entry is selected

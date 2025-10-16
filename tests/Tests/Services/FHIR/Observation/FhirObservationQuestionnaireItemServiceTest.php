@@ -179,7 +179,7 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
         $this->assertEquals(FhirCodeSystemConstants::LOINC, $observation->getCode()->getCoding()[0]->getSystem(), "Code.coding[0].system should have been set");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getCode(), "observation.code.coding[0].code should not be empty");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getDisplay(), "observation.code.coding[0].display should not be empty");
-        $this->assertEquals(substr($record['code'], 6), $observation->getCode()->getCoding()[0]->getCode());
+        $this->assertEquals(substr((string) $record['code'], 6), $observation->getCode()->getCoding()[0]->getCode());
         $this->assertEquals($record['code_description'], $observation->getCode()->getCoding()[0]->getDisplay());
 
         // Test required performer field (mustSupport)
@@ -313,7 +313,7 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
         $this->assertNotEmpty($observation->getValueCodeableConcept());
         $valueCoding = $observation->getValueCodeableConcept()->getCoding()[0];
         $this->assertEquals(FhirCodeSystemConstants::LOINC, $valueCoding->getSystem()->getValue());
-        $this->assertEquals(substr($record['value'], strlen($codeSystem) + 1), $valueCoding->getCode()->getValue());
+        $this->assertEquals(substr((string) $record['value'], strlen($codeSystem) + 1), $valueCoding->getCode()->getValue());
     }
 
     /**
@@ -372,7 +372,7 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
         $observation = $this->fhirService->parseOpenEMRRecord($record);
 
         $dateTime = $observation->getEffectiveDateTime()->getValue();
-        $this->assertGreaterThanOrEqual(10, strlen($dateTime)); // At least YYYY-MM-DD format
+        $this->assertGreaterThanOrEqual(10, strlen((string) $dateTime)); // At least YYYY-MM-DD format
     }
 
     /**

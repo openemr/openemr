@@ -33,7 +33,7 @@ class CommonPlugin extends AbstractPlugin
     {
         // TODO: this is crazy... why do we grab the service locator so we can load the db adapter?
         // is there some db related state that is being loaded here in a global type of way that we aren't aware of?? Or can we just remove this line?
-        $container->get('Laminas\Db\Adapter\Adapter');
+        $container->get(\Laminas\Db\Adapter\Adapter::class);
         $this->application = new ApplicationTable();
         $this->listenerObject = new Listener();
     }
@@ -61,17 +61,17 @@ class CommonPlugin extends AbstractPlugin
     public function hightlight($str, $keywords = '')
     {
 
-        $keywords = preg_replace('/\s\s+/', ' ', strip_tags(trim($keywords)));
+        $keywords = preg_replace('/\s\s+/', ' ', strip_tags(trim((string) $keywords)));
         $style = '???';
         $style_i = 'highlight_i';
         $var = '';
-        foreach (explode(' ', $keywords) as $keyword) {
+        foreach (explode(' ', (string) $keywords) as $keyword) {
             $replacement = "<?? ?='" . $style . "'>" . trim($keyword) . "</??>";
             $var .= $replacement . " ";
             $str = str_ireplace($keyword, $replacement, $str);
         }
 
-        $str = str_ireplace(rtrim($var), "<?? ?='" . $style_i . "'>" . trim($keywords) . "</??>", $str);
+        $str = str_ireplace(rtrim($var), "<?? ?='" . $style_i . "'>" . trim((string) $keywords) . "</??>", $str);
         $str = str_ireplace('???', 'highlight_i', $str);
         $str = str_ireplace('??', 'span', $str);
         $str = str_ireplace('?', 'class', $str);
@@ -124,11 +124,11 @@ class CommonPlugin extends AbstractPlugin
                 foreach ($field_details as $field_name => $field_value) {
                     $detail_query .= "(? ,? ,? ,? ,?),";
                     $detail_query_array[] = $key;
-                    $detail_query_array[] = trim($field_name);
+                    $detail_query_array[] = trim((string) $field_name);
                     if (is_array($field_value)) {
                         if (!empty($field_value['status']) || !empty($field_value['enddate'])) {
                             $detail_query_array[] = trim($field_value['value'] ?? '') . "|" . trim($field_value['status'] ?? '') . "|" . trim($field_value['begdate'] ?? '');
-                        } elseif (stripos($field_name, 'encounter_diagnosis') !== false) {
+                        } elseif (stripos((string) $field_name, 'encounter_diagnosis') !== false) {
                             $detail_query_array[] = trim(implode('|', $field_value));
                         } else {
                             $detail_query_array[] = trim($field_value['value'] ?? '');
@@ -174,7 +174,7 @@ class CommonPlugin extends AbstractPlugin
         foreach ($res as $row) {
             $sel = ($row['option_id'] == $selected) ? true : false;
             $rows[$i] = [
-                'value' => htmlspecialchars($row['option_id'], ENT_QUOTES),
+                'value' => htmlspecialchars((string) $row['option_id'], ENT_QUOTES),
                 'label' => $this->listenerObject->z_xlt($row['title']),
                 'selected' => $sel,
             ];
@@ -190,7 +190,7 @@ class CommonPlugin extends AbstractPlugin
     */
     public static function escape($string)
     {
-        return htmlspecialchars($string, ENT_QUOTES);
+        return htmlspecialchars((string) $string, ENT_QUOTES);
     }
 
     public function getListtitle($listId, $listOptionId)

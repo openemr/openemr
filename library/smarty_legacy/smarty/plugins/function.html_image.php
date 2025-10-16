@@ -120,7 +120,7 @@ function smarty_function_html_image($params, &$smarty)
     }
 
     if(isset($params['dpi'])) {
-        $dpi_default = strstr($server_vars['HTTP_USER_AGENT'], 'Mac') ? 72 : 96;
+        $dpi_default = strstr((string) $server_vars['HTTP_USER_AGENT'], 'Mac') ? 72 : 96;
         $_resize = $dpi_default/$params['dpi'];
         $width = round($width * $_resize);
         $height = round($height * $_resize);

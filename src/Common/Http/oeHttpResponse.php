@@ -25,7 +25,7 @@ class oeHttpResponse
 
     public function json($asArray = true)
     {
-        return json_decode($this->response->getBody(), $asArray);
+        return json_decode((string) $this->response->getBody(), $asArray);
     }
 
     public function header($header, $asArray = false)

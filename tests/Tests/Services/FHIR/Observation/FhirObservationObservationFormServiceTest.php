@@ -170,7 +170,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $observation->getCode()->getCoding()[0]->getSystem(), "Code.coding[0].system should have been set");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getCode(), "observation.code.coding[0].code should not be empty");
         $this->assertNotEmpty($observation->getCode()->getCoding()[0]->getDisplay(), "observation.code.coding[0].display should not be empty");
-        $this->assertEquals(substr($record['code'], 6), $observation->getCode()->getCoding()[0]->getCode());
+        $this->assertEquals(substr((string) $record['code'], 6), $observation->getCode()->getCoding()[0]->getCode());
         $this->assertEquals($record['code_description'], $observation->getCode()->getCoding()[0]->getDisplay());
 
         // Test required performer field (mustSupport)
@@ -299,7 +299,7 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertNotEmpty($observation->getValueCodeableConcept());
         $valueCoding = $observation->getValueCodeableConcept()->getCoding()[0];
         $this->assertEquals(FhirCodeSystemConstants::LOINC, $valueCoding->getSystem()->getValue());
-        $this->assertEquals(substr($record['ob_value'], strlen($codeSystem) + 1), $valueCoding->getCode()->getValue());
+        $this->assertEquals(substr((string) $record['ob_value'], strlen($codeSystem) + 1), $valueCoding->getCode()->getValue());
     }
 
     /**

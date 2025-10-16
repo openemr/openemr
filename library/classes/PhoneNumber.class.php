@@ -156,21 +156,21 @@ class PhoneNumber extends ORDataObject
 
     function set_phone($num)
     {
-        if (strlen($num) == 10 && is_numeric($num)) {
+        if (strlen((string) $num) == 10 && is_numeric($num)) {
             $this->area_code = substr($num, 0, 3);
             $this->prefix = substr($num, 3, 3);
             $this->number = substr($num, 6, 4);
-        } elseif (strlen($num) == 12) {
-            $nums = explode("-", $num);
+        } elseif (strlen((string) $num) == 12) {
+            $nums = explode("-", (string) $num);
             if (count($nums) == 3) {
                 $this->area_code = $nums[0];
                 $this->prefix = $nums[1];
                 $this->number = $nums[2];
             }
-        } elseif (strlen($num) == 14 && str_starts_with($num, "(")) {
-            $nums[0] = substr($num, 1, 3);
-            $nums[1] = substr($num, 6, 3);
-            $nums[2] = substr($num, 10, 4);
+        } elseif (strlen((string) $num) == 14 && str_starts_with((string) $num, "(")) {
+            $nums[0] = substr((string) $num, 1, 3);
+            $nums[1] = substr((string) $num, 6, 3);
+            $nums[2] = substr((string) $num, 10, 4);
 
             foreach ($nums as $n) {
                 if (!is_numeric($n)) {

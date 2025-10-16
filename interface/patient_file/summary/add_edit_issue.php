@@ -134,7 +134,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 
     while ($issueCodesRow2 = sqlFetchArray($issueCodes2)) {
         if ($issueCodesRow2['diagnosis'] != "") {
-            $someCodes2 = explode(";", $issueCodesRow2['diagnosis']);
+            $someCodes2 = explode(";", (string) $issueCodesRow2['diagnosis']);
             $codeList2 = array_merge($codeList2, $someCodes2);
         }
     }
@@ -313,7 +313,7 @@ if (!empty($_POST['form_save'])) {
         $patientIssuesService->linkIssueToEncounter($thispid, $thisenc, $issue, $_SESSION['authUserID']);
     }
 
-    $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " . substr($_POST['form_title'], 0, 40);
+    $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " . substr((string) $_POST['form_title'], 0, 40);
 
     // Close this window and redisplay the updated list of issues.
     //
@@ -408,18 +408,18 @@ function getCodeText($code)
         );
         while ($res = sqlFetchArray($qry)) {
             echo " opt = new Option(" .
-                js_escape(xl_list_label(trim($res['title']))) .
+                js_escape(xl_list_label(trim((string) $res['title']))) .
                 ", " .
-                js_escape(trim($res['option_id'])) .
+                js_escape(trim((string) $res['option_id'])) .
                 ", false, false);\n";
             echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length] = opt\n";
             if ($res['codes']) {
-                $codes = explode(";", $res['codes']);
+                $codes = explode(";", (string) $res['codes']);
                 foreach ($codes as $code) {
                     $text = getCodeText($code);
                     echo " codeTexts.set(" . js_escape($code) . ", " . js_escape($text) . ");\n";
                 }
-                echo " opt.setAttribute('codes'," . js_escape(trim($res['codes'])) . ");\n";
+                echo " opt.setAttribute('codes'," . js_escape(trim((string) $res['codes'])) . ");\n";
             }
         }
 
@@ -605,9 +605,9 @@ function getCodeText($code)
         <?php
         $url = '../encounter/select_codes.php?codetype=';
         if (!empty($irow['type']) && ($irow['type'] == 'medical_problem')) {
-            $url .= urlencode(collect_codetypes("medical_problem", "csv"));
+            $url .= urlencode((string) collect_codetypes("medical_problem", "csv"));
         } else {
-            $url .= urlencode(collect_codetypes("diagnosis", "csv"));
+            $url .= urlencode((string) collect_codetypes("diagnosis", "csv"));
             $tmp_csv = collect_codetypes("drug", "csv");
             $tmp_csv .= "," . collect_codetypes("clinical_term", "csv");
             $tmp = explode(",", $tmp_csv);
@@ -775,7 +775,7 @@ function getCodeText($code)
                     $formdir = $vrow['formdir'];
                     $formid  = $vrow['form_id'];
                     $visitid = $vrow['encounter'];
-                    echo " <li><a href='#'>" . text(oeFormatShortDate(substr($vrow['date'], 0, 10))) . ' ' .
+                    echo " <li><a href='#'>" . text(oeFormatShortDate(substr((string) $vrow['date'], 0, 10))) . ' ' .
                         text($vrow['form_name']) . "</a></li>\n";
                     $tabcontents .= "<div class='tab' style='height:90%;width:98%;'>\n";
                     $tabcontents .= "<iframe frameborder='0' class='h-100 w-100' " .
@@ -913,7 +913,7 @@ function getCodeText($code)
                                         onchange="onCodeSelectionChange()">
                                     <?php
                                     if (!empty($irow['diagnosis'])) {
-                                        $codes = explode(";", $irow['diagnosis']);
+                                        $codes = explode(";", (string) $irow['diagnosis']);
                                         foreach ($codes as $code) {
                                             echo "<option value='" . attr($code) . "'>" . text(getCodeText($code)) . "</option>\n";
                                         }

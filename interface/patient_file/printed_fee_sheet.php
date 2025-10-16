@@ -32,7 +32,7 @@ function genColumn($ix)
     global $html;
     global $SBCODES;
     for ($imax = count($SBCODES); $ix < $imax; ++$ix) {
-        $a = explode('|', $SBCODES[$ix], 2);
+        $a = explode('|', (string) $SBCODES[$ix], 2);
         $cmd = trim($a[0]);
         if ($cmd == '*C') { // column break
             return++$ix;
@@ -149,10 +149,10 @@ if (empty($SBCODES)) {
         $fs_codes = $row['fs_codes'];
         if ($fs_category !== $last_category) {
             $last_category = $fs_category;
-            $SBCODES[] = '*G|' . substr($fs_category, 1);
+            $SBCODES[] = '*G|' . substr((string) $fs_category, 1);
         }
 
-        $SBCODES[] = " |" . substr($fs_option, 1);
+        $SBCODES[] = " |" . substr((string) $fs_option, 1);
     }
 
     // Create entries based on categories defined within the codes.
@@ -477,7 +477,7 @@ foreach ($pid_list as $pid) {
                         if (!empty($row['provider'])) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
-                            $insco_name = trim($icobj->get_name());
+                            $insco_name = trim((string) $icobj->get_name());
                             if ($instype != 'primary') {
                                 $html .= ",";
                             }
@@ -495,7 +495,7 @@ foreach ($pid_list as $pid) {
                 $html .= xlt('Visit date');
                 $html .= ":<br />\n";
                 if (!empty($encdata)) {
-                    $html .= text(substr($encdata['date'], 0, 10));
+                    $html .= text(substr((string) $encdata['date'], 0, 10));
                 } else {
                     $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
                 }

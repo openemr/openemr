@@ -709,7 +709,7 @@ class Savant3 implements \Stringable
         // loop through the path directories
         foreach ($path as $dir) {
             // no surrounding spaces allowed!
-            $dir = trim($dir);
+            $dir = trim((string) $dir);
 
             // add trailing separators as needed
             if (strpos($dir, '://') && !str_ends_with($dir, '/')) {
@@ -750,7 +750,7 @@ class Savant3 implements \Stringable
             $fullname = $path . $file;
 
             // is the path based on a stream?
-            if (!str_contains($path, '://')) {
+            if (!str_contains((string) $path, '://')) {
                 // not a stream, so do a realpath() to avoid
                 // directory traversal attempts on the local file
                 // system. Suggested by Ian Eure, initially
@@ -764,7 +764,7 @@ class Savant3 implements \Stringable
             // that the realpath() results in a directory registered
             // with Savant so that non-registered directores are not
             // accessible via directory traversal attempts.
-            if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, $path)) {
+            if (file_exists($fullname) && is_readable($fullname) && str_starts_with($fullname, (string) $path)) {
                 return $fullname;
             }
         }

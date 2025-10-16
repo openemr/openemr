@@ -51,7 +51,7 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 
 // Sets default factory using the default database
 $factories = [
-    'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
+    \Laminas\Db\Adapter\Adapter::class => function ($containerInterface, $requestedName) {
         $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
         \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
@@ -121,8 +121,8 @@ return [
 function my_decrypt($data)
 {
     // Remove the base64 encoding from our key
-    $encryption_key = base64_decode($GLOBALS['safe_key_database']);
+    $encryption_key = base64_decode((string) $GLOBALS['safe_key_database']);
     // To decrypt, split the encrypted data from our IV - our unique separator used was "::"
-    [$encrypted_data, $iv] = explode('::', base64_decode($data), 2);
+    [$encrypted_data, $iv] = explode('::', base64_decode((string) $data), 2);
     return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
 }

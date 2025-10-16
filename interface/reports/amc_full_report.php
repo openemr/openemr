@@ -19,7 +19,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode($data, true) ?? [];
+    $dataSheet = json_decode((string) $data, true) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
@@ -98,7 +98,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
                 if (empty($ruleObjectHash[$ruleId])) {
                     $ruleObjectHash[$ruleId] = getRuleObjectForId($ruleId) ?? new AMC_Unimplemented();
                 }
-                $data = json_decode($row['item_details'], true) ?? null;
+                $data = json_decode((string) $row['item_details'], true) ?? null;
                 if (!empty($data)) {
                     $data = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
 
@@ -180,10 +180,10 @@ function getRuleObjectForId($ruleId)
     return null;
 }
 
-$report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
+$report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 
 // Collect the back variable, if pertinent
-$back_link = (isset($_GET['back'])) ? trim($_GET['back']) : "";
+$back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
 $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
 $twig = $twigContainer->getTwig();
 $report_view = collectReportDatabase($report_id);

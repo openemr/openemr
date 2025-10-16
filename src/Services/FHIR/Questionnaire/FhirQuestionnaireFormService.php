@@ -96,7 +96,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
     {
         try {
             // parse the json data in dataRecord questionnaire
-            $innerData = json_decode($dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
+            $innerData = json_decode((string) $dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
             // we have to handle the item properties as Questionnaire only adds data arrays instead of
             // actual object values
             if (!empty($innerData['item'])) {

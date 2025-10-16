@@ -231,10 +231,10 @@ class PatientMenuRole extends MenuRole
      */
     private function getAbsoluteWebRoot($rel_url)
     {
-        if ($rel_url && !strpos($rel_url, "://")) {
+        if ($rel_url && !strpos((string) $rel_url, "://")) {
             // Normalize URL if it starts with a forward or backward slash
-            if (str_starts_with($rel_url, '/') || str_starts_with($rel_url, '\\')) {
-                $rel_url = ltrim($rel_url, '/\\');
+            if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
+                $rel_url = ltrim((string) $rel_url, '/\\');
             }
             return $GLOBALS['webroot'] . "/" . $rel_url;
         }

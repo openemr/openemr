@@ -106,7 +106,7 @@ class Savant3_Error implements \Stringable
     public function __toString(): string
     {
         ob_start();
-        echo $this::class . ': ';
+        echo static::class . ': ';
         print_r(get_object_vars($this));
         return (string) ob_get_clean();
     }

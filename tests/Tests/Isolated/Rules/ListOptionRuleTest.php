@@ -220,7 +220,7 @@ class ListOptionRuleTest extends TestCase
 
         // Use reflection to verify the listId property is set correctly
         // Check parent class since stub might not have the property
-        $reflection = new \ReflectionClass('OpenEMR\Validators\Rules\ListOptionRule');
+        $reflection = new \ReflectionClass(\OpenEMR\Validators\Rules\ListOptionRule::class);
         $property = $reflection->getProperty('listId');
         $storedListId = $property->getValue($rule);
 

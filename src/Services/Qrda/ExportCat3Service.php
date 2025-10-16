@@ -468,7 +468,7 @@ XML;
 
     private function escapeXml($content)
     {
-        return htmlspecialchars($content, ENT_XML1 | ENT_COMPAT, 'UTF-8');
+        return htmlspecialchars((string) $content, ENT_XML1 | ENT_COMPAT, 'UTF-8');
     }
 
     private function do_calculation($patients, $measures)

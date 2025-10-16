@@ -97,7 +97,7 @@ class Header
         $scriptName = $_SERVER['SCRIPT_NAME'];
 
         // we fire off events to grab any additional module scripts or css files that desire to adjust the currently executed script
-        $scriptFilterEvent = new ScriptFilterEvent(basename($scriptName));
+        $scriptFilterEvent = new ScriptFilterEvent(basename((string) $scriptName));
         $scriptFilterEvent->setContextArgument(ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
         $apptScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 

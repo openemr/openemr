@@ -240,14 +240,14 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
                         if ($provenanceResource) {
                             $fhirSearchResult->addData($provenanceResource);
                         } else {
-                            $this->getSystemLogger()->debug($this::class . ":getAll() did not return a provenance record when requested");
+                            $this->getSystemLogger()->debug(static::class . ":getAll() did not return a provenance record when requested");
                         }
                     }
                 }
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = $this->getSystemLogger();
-            $systemLogger->error($this::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

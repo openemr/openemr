@@ -236,7 +236,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         }
 
         //$is_self_of_insured = $claim->isSelfOfInsured();
-        $segs = explode("~\n", X125010837P::genX12837P(
+        $segs = explode("~\n", (string) X125010837P::genX12837P(
             $claim->getPid(),
             $claim->getEncounter(),
             $claim->getPartner(),
@@ -295,7 +295,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
                     '&partner=' . urlencode($x12_partner_id) .
-                    '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken());
+                    '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken());
                 $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>

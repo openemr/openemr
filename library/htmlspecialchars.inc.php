@@ -271,5 +271,5 @@ function xlj($key)
  */
 function xls($key)
 {
-    return addslashes(hsc_private_xl_or_warn($key));
+    return addslashes((string) hsc_private_xl_or_warn($key));
 }

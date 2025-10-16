@@ -118,7 +118,7 @@ function edih_archive_report($period = '')
                         if ($fntp !== $row['FileName']) {
                             $fntp = $row['FileName'];
                             // count files that would be archived
-                            if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) {
+                            if (($chkdt != 'None') && strcmp((string) $row['Date'], $chkdt) < 0) {
                                 $old_ct++;
                             }
 
@@ -175,17 +175,17 @@ function edih_archive_date($period)
         return $dtpd2;
     }
 
-    $is_period = preg_match('/\d{1,2}(?=m)/', $period, $matches);
+    $is_period = preg_match('/\d{1,2}(?=m)/', (string) $period, $matches);
     //
     if (count($matches)) {
         $gtdt = getdate();
         //
-        if (strpos($period, 'm')) {
+        if (strpos((string) $period, 'm')) {
             // take the number part of 'period'
             // so modstr will be '-N month'
             $modstr = '-' . $matches[0] . ' month';
             $dtstr1 = $gtdt['mon'] . '/01/' . $gtdt['year'];
-        } elseif (strpos($period, 'y')) {
+        } elseif (strpos((string) $period, 'y')) {
             $modstr = '-' . $matches[0] . ' year';
             $dtstr1 = $gtdt['mon'] . '/01/' . $gtdt['year'];
         } else {
@@ -226,7 +226,7 @@ function edih_archive_date($period)
 function edih_archive_filenames($csv_ar, $archive_date)
 {
     //
-    if ($archive_date && strlen($archive_date) == 8 && is_numeric($archive_date)) {
+    if ($archive_date && strlen((string) $archive_date) == 8 && is_numeric($archive_date)) {
         $testdate = (string)$archive_date;
     } else {
         csv_edihist_log("edih_archive_filenames: invalid archive date $archive_date");
@@ -242,7 +242,7 @@ function edih_archive_filenames($csv_ar, $archive_date)
     //
     $fn_ar = [];
     foreach ($csv_ar as $row) {
-        if (strcmp($row['Date'], $archive_date) < 0) {
+        if (strcmp((string) $row['Date'], $archive_date) < 0) {
             $fn_ar[] = $row['FileName'];
         }
     }
@@ -323,9 +323,9 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
     $tmp_dir = csv_edih_tmpdir();
     // archive csv rows -- same name as from edih_archive_main
     // $fn_files_arch = $tmp_dir.DS.'arch_'.basename($files_csv);
-    $files_csv_arch = 'arch_' . basename($parameters['files_csv']);
+    $files_csv_arch = 'arch_' . basename((string) $parameters['files_csv']);
     // $fn_claims_arch = $tmp_dir.DS.'arch_'.basename($claim_csv);
-    $claims_csv_arch = 'arch_' . basename($parameters['claims_csv']);
+    $claims_csv_arch = 'arch_' . basename((string) $parameters['claims_csv']);
     //
     $f_max = 200;
     $fn_ar2 = [];
@@ -525,7 +525,7 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
     $tmpdir = csv_edih_tmpdir();
     $tmpcsv = $tmpdir . DS . 'csv';
     //
-    $csvtp = (strpos($csv_type, 'aim')) ? 'claims' : 'files';
+    $csvtp = (strpos((string) $csv_type, 'aim')) ? 'claims' : 'files';
     //
     $csv_arch_path = is_file($filepath) ? $filepath : $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
 
@@ -583,7 +583,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
     $tmpdir = csv_edih_tmpdir();
     $tmpcsv = $tmpdir . DS . 'csv';
     //
-    $csvtp = (strpos($csvtype, 'aim')) ? 'claims' : 'files';
+    $csvtp = (strpos((string) $csvtype, 'aim')) ? 'claims' : 'files';
     $csv_arch_file = $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
     $csv_new_file = $tmpdir . DS . 'cmb_' . $csvtp . '_' . $filetype . '.csv';
     //
@@ -1140,13 +1140,13 @@ function edih_archive_main($period)
         //
         // create three csv file paths 'old_', 'arch_', and 'keep_'
         // files csv temporary names
-        $fn_files_old = $tmp_dir . DS . 'old_' . basename($files_csv);
-        $fn_files_arch = $tmp_dir . DS . 'arch_' . basename($files_csv);
-        $fn_files_keep = $tmp_dir . DS . 'keep_' . basename($files_csv);
+        $fn_files_old = $tmp_dir . DS . 'old_' . basename((string) $files_csv);
+        $fn_files_arch = $tmp_dir . DS . 'arch_' . basename((string) $files_csv);
+        $fn_files_keep = $tmp_dir . DS . 'keep_' . basename((string) $files_csv);
         // claims csv temporary names
-        $fn_claims_old = $tmp_dir . DS . 'old_' . basename($claims_csv);
-        $fn_claims_arch = $tmp_dir . DS . 'arch_' . basename($claims_csv);
-        $fn_claims_keep = $tmp_dir . DS . 'keep_' . basename($claims_csv);
+        $fn_claims_old = $tmp_dir . DS . 'old_' . basename((string) $claims_csv);
+        $fn_claims_arch = $tmp_dir . DS . 'arch_' . basename((string) $claims_csv);
+        $fn_claims_keep = $tmp_dir . DS . 'keep_' . basename((string) $claims_csv);
         // table headings
         $fh_ar = csv_table_header($ft, 'file');
         $ch_ar = csv_table_header($ft, 'claim');

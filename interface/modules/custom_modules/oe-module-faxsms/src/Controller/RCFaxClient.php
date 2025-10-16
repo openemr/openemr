@@ -70,7 +70,7 @@ class RCFaxClient extends AppDispatch
             return '';
         }
 
-        $name = basename($_FILES['fax']['name']);
+        $name = basename((string) $_FILES['fax']['name']);
         $tmpName = $_FILES['fax']['tmp_name'];
         $targetDir = $this->baseDir . '/send';
         if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
@@ -180,7 +180,7 @@ class RCFaxClient extends AppDispatch
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $user = $this::getLoggedInUser();
-        $facility = substr($user['facility'], 0, 20);
+        $facility = substr((string) $user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
         $tag = xlt("Forwarded");
         $statusMsg = xlt("Forwarding Requests") . "<br />";
@@ -256,17 +256,17 @@ class RCFaxClient extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments', 0); //from patient documents
         $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone', $phone));
-        $comments = trim($this->getRequest('comments', $comments));
+        $comments = trim((string) $this->getRequest('comments', $comments));
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
-        $fileName ??= pathinfo($file, PATHINFO_BASENAME);
+        $fileName ??= pathinfo((string) $file, PATHINFO_BASENAME);
         // validate/format file path
         if (is_file($file)) {
-            if (str_starts_with($file, 'file://')) {
-                $file = substr($file, 7);
+            if (str_starts_with((string) $file, 'file://')) {
+                $file = substr((string) $file, 7);
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
@@ -365,7 +365,7 @@ class RCFaxClient extends AppDispatch
     {
         $error = $e->apiResponse ? $e->apiResponse->text() : $e->getMessage();
 
-        if (stripos($error, 'invalid_grant') !== false) {
+        if (stripos((string) $error, 'invalid_grant') !== false) {
             try {
                 $this->platform->login(['jwt' => $this->credentials['jwt']]);
                 if ($this->platform->loggedIn()) {
@@ -452,7 +452,7 @@ class RCFaxClient extends AppDispatch
             ob_clean();
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=" . basename($where));
+            header("Content-Disposition: attachment; filename=" . basename((string) $where));
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             header('Content-Length: ' . filesize($where));
@@ -619,7 +619,7 @@ class RCFaxClient extends AppDispatch
         }
 
         if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode($content);
+            $decodedContent = base64_decode((string) $content);
             if (file_put_contents($where, $decodedContent) !== false) {
                 $response['success'] = true;
                 $response['url'] = $where;
@@ -705,8 +705,8 @@ class RCFaxClient extends AppDispatch
             return '';
         }
         $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
-        if (strlen($normalizedPhone) === 11 && str_starts_with($normalizedPhone, '1')) {
-            $normalizedPhone = substr($normalizedPhone, 1);
+        if (strlen((string) $normalizedPhone) === 11 && str_starts_with((string) $normalizedPhone, '1')) {
+            $normalizedPhone = substr((string) $normalizedPhone, 1);
         }
 
         $likePhone = "%" . $normalizedPhone;
@@ -837,7 +837,7 @@ class RCFaxClient extends AppDispatch
         // 2) Build date range
         $dateFrom    = $this->getRequest('datefrom') . 'T00:00:01.000Z';
         $dateTo      = $this->getRequest('dateto')   . 'T23:59:59.000Z';
-        $serviceType = strtolower($this->getRequest('type', ''));
+        $serviceType = strtolower((string) $this->getRequest('type', ''));
 
         // Decide messageType param
         if ($serviceType === 'sms') {
@@ -960,13 +960,13 @@ class RCFaxClient extends AppDispatch
                     $to = $messageStore->to[0]->name . " " . $messageStore->to[0]->phoneNumber;
                     $from = $messageStore->from->name . " " . $messageStore->from->phoneNumber;
                     $status = $messageStore->messageStatus . $messageStore->from->faxErrorCode;
-                    $faxFormattedDate = date('M j, Y g:i:sa T', strtotime($messageStore->creationTime));
-                    $updateDate = date('M j Y g:i:sa T', strtotime($messageStore->lastModifiedTime));
+                    $faxFormattedDate = date('M j, Y g:i:sa T', strtotime((string) $messageStore->creationTime));
+                    $updateDate = date('M j Y g:i:sa T', strtotime((string) $messageStore->lastModifiedTime));
 
                     $links = $this->generateActionLinks($id, $uri);
                     $checkbox = "<input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'>";
-                    $type = strtolower($messageStore->type);
-                    $direction = strtolower($messageStore->direction);
+                    $type = strtolower((string) $messageStore->type);
+                    $direction = strtolower((string) $messageStore->direction);
                     $messageText = '';
                     if ($type === "sms" && $type === $serviceType) {
                         if ($direction === "inbound") {
@@ -1057,8 +1057,8 @@ class RCFaxClient extends AppDispatch
     public function formatPhone($number): string
     {
         // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', $number);
-        $n = stripos($n, '1') === 0 ? '+' . $n : '+1' . $n;
+        $n = preg_replace('/[^0-9]/', '', (string) $number);
+        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
         return $n;
     }
 

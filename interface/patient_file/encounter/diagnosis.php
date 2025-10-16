@@ -57,7 +57,7 @@ if (isset($mode)) {
             "users.authorized = 1", [$pid, $encounter]);
         $provid = $tmp['id'] ?: $_SESSION["authUserID"];
 
-        if (strtolower($type) == "copay") {
+        if (strtolower((string) $type) == "copay") {
             BillingUtilities::addBilling(
                 $encounter,
                 $type,
@@ -70,7 +70,7 @@ if (isset($mode)) {
                 $units,
                 sprintf("%01.2f", 0 - $code)
             );
-        } elseif (strtolower($type) == "other") {
+        } elseif (strtolower((string) $type) == "other") {
             BillingUtilities::addBilling(
                 $encounter,
                 $type,
@@ -86,7 +86,7 @@ if (isset($mode)) {
         } else {
             $ndc_info = '';
       // If HCPCS, get and save default NDC data.
-            if (strtolower($type) == "hcpcs") {
+            if (strtolower((string) $type) == "hcpcs") {
                     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                 "code_type = 'HCPCS' AND code = ? AND ndc_info LIKE 'N4%' " .
                 "ORDER BY date DESC LIMIT 1", [$code]);
@@ -137,8 +137,8 @@ if (isset($mode)) {
               $ndc = $ndcarr["$lino"];
               $ndc_info = '';
             if ($ndc['ndcnum']) {
-                $ndc_info = 'N4' . trim($ndc['ndcnum']) . '   ' . $ndc['ndcuom'] .
-                trim($ndc['ndcqty']);
+                $ndc_info = 'N4' . trim((string) $ndc['ndcnum']) . '   ' . $ndc['ndcuom'] .
+                trim((string) $ndc['ndcqty']);
             }
 
               sqlStatement("UPDATE billing SET ndc_info = ? WHERE " .
@@ -281,9 +281,9 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 "<tr><td></td><td><a target='" . attr($target) . "' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 text(oeFormatMoney($iter['code'])) . "</b> " .
-                text(ucwords(strtolower($iter['code_text']))) .
+                text(ucwords(strtolower((string) $iter['code_text']))) .
                 ' ' . xlt('payment entered on') . ' ' .
-                text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . "</a></td></tr>\n";
+                text(oeFormatShortDate(substr((string) $iter['date'], 0, 10))) . text(substr((string) $iter['date'], 10, 6)) . "</a></td></tr>\n";
         } else {
             $billing_html[$iter["code_type"]] .=
                 "<tr><td>" . '<input  style="width: 11px; height: 11px;" name="code[proc][' .
@@ -291,10 +291,10 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 "</td><td><a target='$target' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 text($iter["code"]) . ' ' . text($iter['modifier']) . "</b> " .
-                text(ucwords(strtolower($iter["code_text"]))) . ' ' . text(oeFormatMoney($iter['fee'])) .
+                text(ucwords(strtolower((string) $iter["code_text"]))) . ' ' . text(oeFormatMoney($iter['fee'])) .
                 "</a><span class=\"small\">";
             $total += $iter['fee'];
-            $js = explode(":", $iter['justify']);
+            $js = explode(":", (string) $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if (!empty($j)) {
@@ -316,7 +316,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                     $ndcnum = '';
                 $ndcuom = '';
                 $ndcqty = '';
-                if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $iter['ndc_info'], $tmp)) {
+                if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', (string) $iter['ndc_info'], $tmp)) {
                     $ndcnum = $tmp[1];
                     $ndcuom = $tmp[2];
                     $ndcqty = $tmp[3];

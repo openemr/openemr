@@ -40,7 +40,7 @@ class SimpleTemplate
     static function TextToHtml($txt)
     {
         // Kills double spaces and spaces inside tags.
-        while (str_contains($txt, '  ')) {
+        while (str_contains((string) $txt, '  ')) {
             $txt = str_replace('  ', ' ', $txt);
         }
 

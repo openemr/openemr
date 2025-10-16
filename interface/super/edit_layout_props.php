@@ -176,7 +176,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             $alertmsg = xl('Layout ID is required');
         } elseif ($form_title == '') {
             $alertmsg = xl('Title is required');
-        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', $form_form_id)) {
+        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', (string) $form_form_id)) {
             $tmp = sqlQuery(
                 "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",

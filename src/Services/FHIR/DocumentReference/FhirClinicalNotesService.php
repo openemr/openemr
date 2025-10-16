@@ -139,7 +139,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setData(base64_encode((string) $dataRecord['description']));
             $content->setAttachment($attachment);
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
             $contentCoding = UtilsService::createCoding(

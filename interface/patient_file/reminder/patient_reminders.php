@@ -264,7 +264,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
 
                     //Escape sort by parameter
-                    $escapedsortby = explode(',', $sortby);
+                    $escapedsortby = explode(',', (string) $sortby);
                 foreach ($escapedsortby as $key => $columnName) {
                     $escapedsortby[$key] = escape_sql_column_name(trim($columnName), ['patient_reminders','patient_data']);
                 }

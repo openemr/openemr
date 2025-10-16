@@ -406,8 +406,8 @@ class Bootstrap
     public function moduleSqlUpgrade($installScript): string
     {
         try {
-            $fileName = basename($installScript);
-            $dir = dirname($installScript);
+            $fileName = basename((string) $installScript);
+            $dir = dirname((string) $installScript);
             $sqlUpgradeService = new SQLUpgradeService();
             $sqlUpgradeService->setThrowExceptionOnError(true);
             $sqlUpgradeService->setRenderOutputToScreen(false);

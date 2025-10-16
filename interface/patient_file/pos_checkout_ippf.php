@@ -412,7 +412,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     // Resolve the payment method portion of the memo to display properly.
     if (!empty($method)) {
-        $tmp = explode(' ', $method, 2);
+        $tmp = explode(' ', (string) $method, 2);
         $method = getListTitle('paymethod', $tmp[0]);
         if (isset($tmp[1])) {
             // If the description is not interesting then let it hold the check number
@@ -426,9 +426,9 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && !str_starts_with($billtime, '0000')) {
+    if (!empty($billtime) && !str_starts_with((string) $billtime, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
-            text(oeFormatShortDate($billtime)) . attr(substr($billtime, 10)) . "'";
+            text(oeFormatShortDate($billtime)) . attr(substr((string) $billtime, 10)) . "'";
     }
     echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
@@ -506,7 +506,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
     $invoice_refno = $ferow['invoice_refno'];
 
     // Generate checksum.
@@ -1118,7 +1118,7 @@ function write_form_headers(): void
         "SELECT date FROM form_encounter WHERE pid = ? AND encounter = ?",
         [$patient_id, $encounter_id]
     );
-    $encounter_date = substr($ferow['date'], 0, 10);
+    $encounter_date = substr((string) $ferow['date'], 0, 10);
     ?>
    <tr>
       <td colspan='<?php echo 5 + $num_optional_columns; ?>' align='center' class='title'>
@@ -1261,7 +1261,7 @@ function write_form_line_ippf(
         $units = 1;
     }
     $price = formatMoneyNumber($amount / $units, 2); // should be even cents, but...
-    if (str_ends_with($price, '00')) {
+    if (str_ends_with((string) $price, '00')) {
         $price = formatMoneyNumber($price);
     }
 
@@ -1278,7 +1278,7 @@ function write_form_line_ippf(
 
     // Compute the string of numeric tax rates to store with the charge line.
     $taxnumrates = '';
-    $arates = explode(':', $taxrates);
+    $arates = explode(':', (string) $taxrates);
     foreach ($taxes as $taxid => $taxarr) {
         $rate = $taxarr[1];
         if (empty($arates) || !in_array($taxid, $arates)) {
@@ -1438,7 +1438,7 @@ function write_old_payment_line($pay_type, $date, $method, $reference, $amount):
 function markTaxes($taxrates): void
 {
     global $taxes;
-    $arates = explode(':', $taxrates);
+    $arates = explode(':', (string) $taxrates);
     if (empty($arates)) {
         return;
     }
@@ -1520,7 +1520,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
     // Get the posting date from the form as yyyy-mm-dd.
     $postdate = substr($this_bill_date, 0, 10);
-    if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
+    if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $_POST['form_date'], $matches)) {
         $postdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
     }
     $dosdate = $postdate; // not sure if this is appropriate
@@ -1547,7 +1547,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $code      = $line['code'];
         $id        = $line['id'];
         $chargecat = $line['chargecat'] ?? '';
-        $amount    = formatMoneyNumber(trim($line['amount']));
+        $amount    = formatMoneyNumber(trim((string) $line['amount']));
         $linetax   = 0;
 
         // Skip saving taxes and adjustments for billed items.
@@ -1589,7 +1589,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
         // If there is an adjustment for this line, insert it.
         if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
-            $adjust = 0.00 + trim($line['adjust']);
+            $adjust = 0.00 + trim((string) $line['adjust']);
             $memo = formDataCore($line['memo']);
             if ($adjust != 0 || $memo !== '') {
                 // $memo = xl('Discount');
@@ -1647,9 +1647,9 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     // Post discount.
     if ($_POST['form_discount'] != 0) {
         if ($GLOBALS['discount_by_money']) {
-            $amount  = formatMoneyNumber(trim($_POST['form_discount']));
+            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']));
         } else {
-            $amount  = formatMoneyNumber(trim($_POST['form_discount']) * $form_amount / 100);
+            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
         }
         $memo = formData('form_discount_type');
         sqlBeginTrans();
@@ -1682,7 +1682,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $lines = $_POST['payment'];
         for ($lino = 0; isset($lines[$lino]['amount']); ++$lino) {
             $line = $lines[$lino];
-            $amount = formatMoneyNumber(trim($line['amount']));
+            $amount = formatMoneyNumber(trim((string) $line['amount']));
             if ($amount != 0.00) {
                 $method = $line['method'];
                 $refno  = $line['refno'];
@@ -2023,8 +2023,8 @@ while ($urow = sqlFetchArray($ures)) {
     );
     while ($tmprow = sqlFetchArray($tmpres)) {
         if (
-            preg_match('/ADJ=(\w+)/', $tmprow['notes'], $matches) ||
-            preg_match('/ADJ="(.*?)"/', $tmprow['notes'], $matches)
+            preg_match('/ADJ=(\w+)/', (string) $tmprow['notes'], $matches) ||
+            preg_match('/ADJ="(.*?)"/', (string) $tmprow['notes'], $matches)
         ) {
             echo "  if (customer == " . js_escape($tmprow['option_id']) . ") ret = " . js_escape($matches[1]) . ";\n";
         }
@@ -2345,7 +2345,7 @@ $dres = sqlStatement($query, [$patient_id, $encounter_id]);
 // Items that are not allowed to have a fee are skipped.
 //
 while ($brow = sqlFetchArray($bres)) {
-    $thisdate = substr($brow['date'], 0, 10);
+    $thisdate = substr((string) $brow['date'], 0, 10);
     $code_type = $brow['code_type'];
     $inv_payer = $brow['payer_id'];
     if (!$inv_date || $inv_date < $thisdate) {
@@ -2386,7 +2386,7 @@ while ($brow = sqlFetchArray($bres)) {
             $brow['code'],
             $brow['id'],
             $thisdate,
-            ucfirst(strtolower($brow['code_text'])),
+            ucfirst(strtolower((string) $brow['code_text'])),
             $brow['fee'],
             $brow['units'],
             $taxrates,
@@ -2397,7 +2397,7 @@ while ($brow = sqlFetchArray($bres)) {
 
     // Custom logic for IPPF to determine if a GCAC issue applies.
     if ($GLOBALS['ippf_specific'] && $related_code) {
-        $relcodes = explode(';', $related_code);
+        $relcodes = explode(';', (string) $related_code);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -2527,7 +2527,7 @@ $lino = 0;
 
 // Write co-pays.
 foreach ($aCopays as $brow) {
-    $thisdate = substr($brow['date'], 0, 10);
+    $thisdate = substr((string) $brow['date'], 0, 10);
     write_old_payment_line(
         xl('Prepayment'),
         $thisdate,
@@ -2568,7 +2568,7 @@ while ($arow = sqlFetchArray($ares)) {
     $memo = $arow['memo'];
     $reference = $arow['reference'];
     if (empty($arow['session_id'])) {
-        $atmp = explode(' ', $memo, 2);
+        $atmp = explode(' ', (string) $memo, 2);
         $memo = $atmp[0];
         $reference = $atmp[1];
     }
@@ -2706,8 +2706,8 @@ if (!$current_irnumber) {
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")'
+                onkeyup='maskkeyup(this,"<?php echo addslashes((string) $GLOBALS['gbl_mask_invoice_number']); ?>")'
+                onblur='maskblur(this,"<?php echo addslashes((string) $GLOBALS['gbl_mask_invoice_number']); ?>")'
         />
         </td>
     </tr>

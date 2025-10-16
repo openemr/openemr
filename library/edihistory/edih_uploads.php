@@ -95,7 +95,7 @@ function edih_upload_match_file($param_ar, $fidx)
     $ftype = '';
     //
     if (is_array($fidx) && isset($fidx['name'])) {
-        $fn = basename($fidx['name']);
+        $fn = basename((string) $fidx['name']);
         $ftmp = $fidx['tmp_name'];
     } else {
         csv_edihist_log('edih_upload_match_file: Error: invalid file argument');
@@ -290,7 +290,7 @@ function edih_upload_files()
     $html_str = '';
     //
     // from php manual ling 03-Nov-2010 08:35
-    if (empty($_FILES) && empty($_POST) && isset($_SERVER['REQUEST_METHOD']) && strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+    if (empty($_FILES) && empty($_POST) && isset($_SERVER['REQUEST_METHOD']) && strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
         $pmax = ini_get('post_max_size');
         //
         csv_edihist_log('edih_upload_files: Error: upload too large, max size is ' . $pmax);
@@ -376,7 +376,7 @@ function edih_upload_files()
         }
 
         // verify that we have a usable name
-        $fext = ( strpos($fa['name'], '.') ) ? pathinfo($fa['name'], PATHINFO_EXTENSION) : '';
+        $fext = ( strpos((string) $fa['name'], '.') ) ? pathinfo((string) $fa['name'], PATHINFO_EXTENSION) : '';
         if ($fext && preg_match('/' . $ext_types . '\?/i', $fext)) {
             //$html_str .= 'Error: uploaded_file error for '.$fa['name'].' extension '.$fext.'<br />'. PHP_EOL;
             $f_ar['reject'][] = ['name' => $fa['name'],'comment' => 'extension ' . $fext];
@@ -419,7 +419,7 @@ function edih_upload_files()
         //////////////////////////////////
         // check for zip file archive -- sent to edih_ziptoarray
         //
-        if (strpos(strtolower($fa['name']), '.zip') || strpos($fa['type'], 'zip')) {
+        if (strpos(strtolower($fa['name']), '.zip') || strpos((string) $fa['type'], 'zip')) {
             //
             // this is a bit involved since we cannot predict how many files will be returned
             // get an array of files from the zip unpack function"fileUplx12"
@@ -515,7 +515,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
             $prc_htm .=  "<ul class='fupl'>" . PHP_EOL;
             if (isset($p_ar[$key])) {
                 $tp_dir = $p_ar[$key]['directory'];
-                $tp_base = basename($tp_dir);
+                $tp_base = basename((string) $tp_dir);
                 $idx = 0;
                 $prc_htm .= "<li>type " . text($key) . "</li>" . PHP_EOL;
                 if (!is_array($val) || !count($val)) {
@@ -526,7 +526,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                 foreach ($val as $nf) {
                     // check if the file has already been stored
                     // a matching file name will not be replaced
-                    $nfb = basename($nf);
+                    $nfb = basename((string) $nf);
                     $testname = $tp_dir . DS . $nfb;
                     $prc_htm .= "<li>" . text($nfb) . "</li>" . PHP_EOL;
                     if (is_file($testname)) {
@@ -558,7 +558,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
             } else {
                 $prc_htm .= "<li>" . text($key) . " type not stored</li>" . PHP_EOL;
                 foreach ($val as $nf) {
-                    $prc_htm .= "<li>" . text(basename($nf)) . "</li>" . PHP_EOL;
+                    $prc_htm .= "<li>" . text(basename((string) $nf)) . "</li>" . PHP_EOL;
                 }
             }
 

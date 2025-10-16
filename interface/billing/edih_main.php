@@ -125,7 +125,7 @@ if (count($_POST)) {
 /*
  * functions called in the if stanzas are now in edih_io.php
  */
-if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -173,7 +173,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
         csv_edihist_log($bg_str);
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
-} elseif (strtolower($_SERVER['REQUEST_METHOD']) == 'get') {
+} elseif (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'get') {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }

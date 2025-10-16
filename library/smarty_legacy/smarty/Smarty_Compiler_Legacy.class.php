@@ -267,18 +267,18 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         /* fetch all special blocks */
         $search = "~{$ldq}\*(.*?)\*{$rdq}|{$ldq}\s*literal\s*{$rdq}(.*?){$ldq}\s*/literal\s*{$rdq}|{$ldq}\s*php\s*{$rdq}(.*?){$ldq}\s*/php\s*{$rdq}~s";
 
-        preg_match_all($search, $source_content, $match,  PREG_SET_ORDER);
+        preg_match_all($search, (string) $source_content, $match,  PREG_SET_ORDER);
         $this->_folded_blocks = $match;
 
         /* replace special blocks by "{php}" */
         $source_content = preg_replace_callback($search, $this->_preg_callback(...)
-                                       , $source_content);
+                                       , (string) $source_content);
 
         /* Gather all template tags. */
-        preg_match_all("~{$ldq}\s*(.*?)\s*{$rdq}~s", $source_content, $_match);
+        preg_match_all("~{$ldq}\s*(.*?)\s*{$rdq}~s", (string) $source_content, $_match);
         $template_tags = $_match[1];
         /* Split content by template tags to obtain non-template content. */
-        $text_blocks = preg_split("~{$ldq}.*?{$rdq}~s", $source_content);
+        $text_blocks = preg_split("~{$ldq}.*?{$rdq}~s", (string) $source_content);
 
         /* loop through text blocks */
         for ($curr_tb = 0, $for_max = count($text_blocks); $curr_tb < $for_max; $curr_tb++) {
@@ -297,13 +297,13 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                         $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', '<?php echo \''.str_replace("'", "\'", $sp_match[1][$curr_sp]).'\'; ?>'."\n", $text_blocks[$curr_tb]);
                     } else if ($this->php_handling == SMARTY_PHP_QUOTE) {
                         /* quote php tags */
-                        $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', htmlspecialchars($sp_match[1][$curr_sp]), $text_blocks[$curr_tb]);
+                        $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', htmlspecialchars((string) $sp_match[1][$curr_sp]), $text_blocks[$curr_tb]);
                     } else if ($this->php_handling == SMARTY_PHP_REMOVE) {
                         /* remove php tags */
                         $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', '', $text_blocks[$curr_tb]);
                     } else {
                         /* SMARTY_PHP_ALLOW, but echo non php starting tags */
-                        $sp_match[1][$curr_sp] = preg_replace('~(<\?(?!php|=|$))~i', '<?php echo \'\\1\'?>'."\n", $sp_match[1][$curr_sp]);
+                        $sp_match[1][$curr_sp] = preg_replace('~(<\?(?!php|=|$))~i', '<?php echo \'\\1\'?>'."\n", (string) $sp_match[1][$curr_sp]);
                         $text_blocks[$curr_tb] = str_replace('%%%SMARTYSP'.$curr_sp.'%%%', $sp_match[1][$curr_sp], $text_blocks[$curr_tb]);
                     }
                 }
@@ -331,16 +331,16 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 $compiled_tags[$i] = '';
                 $strip = true;
                 /* remove leading whitespaces */
-                $text_blocks[$i + 1] = ltrim($text_blocks[$i + 1]);
+                $text_blocks[$i + 1] = ltrim((string) $text_blocks[$i + 1]);
             }
             if ($strip) {
                 /* strip all $text_blocks before the next '/strip' */
                 for ($j = $i + 1; $j < $for_max; $j++) {
                     /* remove leading and trailing whitespaces of each line */
-                    $text_blocks[$j] = preg_replace('![\t ]*[\r\n]+[\t ]*!', '', $text_blocks[$j]);
+                    $text_blocks[$j] = preg_replace('![\t ]*[\r\n]+[\t ]*!', '', (string) $text_blocks[$j]);
                     if ($compiled_tags[$j] == '{/strip}') {
                         /* remove trailing whitespaces from the last text_block */
-                        $text_blocks[$j] = rtrim($text_blocks[$j]);
+                        $text_blocks[$j] = rtrim((string) $text_blocks[$j]);
                     }
                     $text_blocks[$j] = "<?php echo '" . strtr($text_blocks[$j], ["'"=>"\'", "\\"=>"\\\\"]) . "'; ?>";
                     if ($compiled_tags[$j] == '{/strip}') {
@@ -361,7 +361,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         for ($i = 0, $for_max = count($compiled_tags); $i < $for_max; $i++) {
             if ($compiled_tags[$i] == '') {
                 // tag result empty, remove first newline from following text block
-                $text_blocks[$i+1] = preg_replace('~^(\r\n|\r|\n)~', '', $text_blocks[$i+1]);
+                $text_blocks[$i+1] = preg_replace('~^(\r\n|\r|\n)~', '', (string) $text_blocks[$i+1]);
             }
             // replace legit PHP tags with placeholder
             $text_blocks[$i] = str_replace('<?', $tag_guard, $text_blocks[$i]);
@@ -562,7 +562,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             case 'php':
                 /* handle folded tags replaced by {php} */
                 $block = array_shift($this->_folded_blocks);
-                $this->_current_line_no += substr_count($block[0], "\n");
+                $this->_current_line_no += substr_count((string) $block[0], "\n");
                 /* the number of matched elements in the regexp in _compile_file()
                    determins the type of folded tag that was found */
                 switch (count($block)) {
@@ -762,7 +762,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     function _preg_callback ($matches) {
     return $this->_quote_replace($this->left_delimiter)
            . 'php'
-           . str_repeat("\n", substr_count($matches[1], "\n"))
+           . str_repeat("\n", substr_count((string) $matches[1], "\n"))
            . $this->_quote_replace($this->right_delimiter);
     }
     /**
@@ -1285,7 +1285,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             $token = &$tokens[$i];
 
-            switch (strtolower($token)) {
+            switch (strtolower((string) $token)) {
                 case '!':
                 case '%':
                 case '!==':
@@ -1368,7 +1368,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     if ($tokens[$i-1] == ')') {
                         $is_arg_start = array_pop($is_arg_stack);
                         if ($is_arg_start != 0) {
-                            if (preg_match('~^' . $this->_func_regexp . '$~', $tokens[$is_arg_start-1])) {
+                            if (preg_match('~^' . $this->_func_regexp . '$~', (string) $tokens[$is_arg_start-1])) {
                                 $is_arg_start--;
                             }
                         }
@@ -1394,16 +1394,16 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     break;
 
                 default:
-                    if(preg_match('~^' . $this->_func_regexp . '$~', $token) ) {
+                    if(preg_match('~^' . $this->_func_regexp . '$~', (string) $token) ) {
                             // function call
                             if($this->security &&
                                !in_array($token, $this->security_settings['IF_FUNCS'])) {
                                 $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
                             }
-                    } elseif(preg_match('~^' . $this->_var_regexp . '$~', $token) && (!str_contains('+-*/^%&|', substr($token, -1))) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
+                    } elseif(preg_match('~^' . $this->_var_regexp . '$~', (string) $token) && (!str_contains('+-*/^%&|', substr((string) $token, -1))) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
                         // variable function call
                         $this->_syntax_error("variable function call '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
-                    } elseif(preg_match('~^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . '*)$~', $token)) {
+                    } elseif(preg_match('~^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . '*)$~', (string) $token)) {
                         // object or variable
                         $token = $this->_parse_var_props($token);
                     } elseif(is_numeric($token)) {
@@ -1699,7 +1699,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             $_return = $var_expr;
         }
         // replace double quoted literal string with single quotes
-        $_return = preg_replace('~^"([\s\w]+)"$~',"'\\1'",$_return);
+        $_return = preg_replace('~^"([\s\w]+)"$~',"'\\1'",(string) $_return);
         return $_return;
     }
 
@@ -1773,7 +1773,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 if (($smarty_ref = $this->_compile_smarty_ref($_indexes)) !== null) {
                     $_output = $smarty_ref;
                 } else {
-                    $_var_name = substr(array_shift($_indexes), 1);
+                    $_var_name = substr((string) array_shift($_indexes), 1);
                     $_output = "\$this->_smarty_vars['$_var_name']";
                 }
             } elseif(is_numeric($_var_name) && is_numeric(substr($var_expr, 0, 1))) {
@@ -1995,7 +1995,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
         /* Extract the reference name. */
         $_ref = substr($indexes[0], 1);
         foreach($indexes as $_index_no=>$_index) {
-            if (!str_starts_with($_index, '.') && $_index_no<2 || !preg_match('~^(\.|\[|->)~', $_index)) {
+            if (!str_starts_with((string) $_index, '.') && $_index_no<2 || !preg_match('~^(\.|\[|->)~', (string) $_index)) {
                 $this->_syntax_error('$smarty' . implode('', array_slice($indexes, 0, 2)) . ' is an invalid reference', E_USER_ERROR, __FILE__, __LINE__);
             }
         }
@@ -2008,8 +2008,8 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             case 'foreach':
                 array_shift($indexes);
-                $_var = $this->_parse_var_props(substr($indexes[0], 1));
-                $_propname = substr($indexes[1], 1);
+                $_var = $this->_parse_var_props(substr((string) $indexes[0], 1));
+                $_propname = substr((string) $indexes[1], 1);
                 $_max_index = 1;
                 switch ($_propname) {
                     case 'index':
@@ -2040,7 +2040,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
             case 'section':
                 array_shift($indexes);
-                $_var = $this->_parse_var_props(substr($indexes[0], 1));
+                $_var = $this->_parse_var_props(substr((string) $indexes[0], 1));
                 $compiled_ref = "\$this->_sections[$_var]";
                 break;
 
@@ -2120,7 +2120,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 return null;
 
             case 'template':
-                $compiled_ref = "'" . addslashes($this->_current_file) . "'";
+                $compiled_ref = "'" . addslashes((string) $this->_current_file) . "'";
                 $_max_index = 1;
                 break;
 
@@ -2136,10 +2136,10 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                     return;
                 }
                 array_shift($indexes);
-                if (preg_match('!^\.\w+$!', $indexes[0])) {
-                    $compiled_ref = '@' . substr($indexes[0], 1);
+                if (preg_match('!^\.\w+$!', (string) $indexes[0])) {
+                    $compiled_ref = '@' . substr((string) $indexes[0], 1);
                 } else {
-                    $_val = $this->_parse_var_props(substr($indexes[0], 1));
+                    $_val = $this->_parse_var_props(substr((string) $indexes[0], 1));
                     $compiled_ref = '@constant(' . $_val . ')';
                 }
                 $_max_index = 1;

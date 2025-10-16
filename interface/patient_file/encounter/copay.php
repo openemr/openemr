@@ -25,7 +25,7 @@ function getInsuranceCompanies($pid)
     "ORDER BY type ASC, date DESC", [$pid]);
     $prevtype = '';
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        if (strcmp($row['type'], $prevtype) == 0) {
+        if (strcmp((string) $row['type'], (string) $prevtype) == 0) {
             continue;
         }
 
@@ -86,7 +86,7 @@ if ($ret = getInsuranceCompanies($pid)) {
     if (count($ret) > 0) {
         echo "<select name='insurance_company'>\n";
         foreach ($ret as $iter) {
-            $plan_name = trim($iter['plan_name']);
+            $plan_name = trim((string) $iter['plan_name']);
             if ($plan_name != '') {
                 echo "<option value='"
                 . attr($plan_name)

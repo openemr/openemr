@@ -104,7 +104,7 @@ class ActionRouter
 
     protected function resolveViewLocation($viewName)
     {
-        $controllerName = strtolower($this->controller->getControllerName());
+        $controllerName = strtolower((string) $this->controller->getControllerName());
         $viewLocation = $this->templateRoot . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $viewName;
         if (!is_file($viewLocation)) {
             $viewLocation = $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $viewName;

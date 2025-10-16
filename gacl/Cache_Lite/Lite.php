@@ -367,7 +367,7 @@ class Cache_Lite
         }
         if ($this->_memoryCaching) {
             foreach ($this->_memoryCachingArray as $key => $value) {
-                if (strpos($key, $motif, 0)) {
+                if (strpos((string) $key, $motif, 0)) {
                     unset($this->_memoryCachingArray[$key]);
                     $this->_memoryCachingCounter -= 1;
                 }

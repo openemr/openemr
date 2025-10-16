@@ -60,7 +60,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             $context = $oldToken['context'] ?? '{}';
             if (!empty($context)) {
                 try {
-                    $decodedContext = \json_decode($context, true, 512, JSON_THROW_ON_ERROR);
+                    $decodedContext = \json_decode((string) $context, true, 512, JSON_THROW_ON_ERROR);
                     $this->accessTokenRepository->setContextForNewTokens($decodedContext);
                     if ($responseType instanceof IdTokenSMARTResponse) {
                         $responseType->setContextForNewTokens($decodedContext);

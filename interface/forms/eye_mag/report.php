@@ -2392,7 +2392,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
             echo '<div style="padding-left:15px;">';
             $pattern = '/Code/';
-            if (preg_match($pattern, $item['code'])) {
+            if (preg_match($pattern, (string) $item['code'])) {
                 $item['code'] = '';
             }
 
@@ -2484,7 +2484,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
     if (($document_id > '1') && (is_numeric($document_id))) {
         $d = new Document($document_id);
-        $fname = basename($d->get_url());
+        $fname = basename((string) $d->get_url());
 
         $extension = substr($fname, strrpos($fname, "."));
         $notes = $d->get_notes();
@@ -2537,7 +2537,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
 function report_ACT($term)
 {
-    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
+    $term = nl2br(htmlspecialchars((string) $term, ENT_NOQUOTES));
     return $term . "&nbsp;";
 }
 ?>

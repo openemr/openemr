@@ -51,25 +51,25 @@ function validation($val_check, $val, $msg)
 
 function stripSpecialCharacterFacility($str)
 {
-    $str = preg_replace("/[^a-zA-Z0-9 '().,#:\/\-@_%]/", "", $str);
+    $str = preg_replace("/[^a-zA-Z0-9 '().,#:\/\-@_%]/", "", (string) $str);
     return $str;
 }
 
 function stripSpecialCharacter($str)
 {
-    $str = preg_replace("/[^a-zA-Z0-9 '().,#:\/\-@_%]/", "", $str);
+    $str = preg_replace("/[^a-zA-Z0-9 '().,#:\/\-@_%]/", "", (string) $str);
     return $str;
 }
 
 function stripPhoneSlashes($str)
 {
-    $str = preg_replace('/-/', '', $str);
+    $str = preg_replace('/-/', '', (string) $str);
     return $str;
 }
 
 function trimData($str, $length)
 {
-    $str = substr($str, 0, ($length - 1));
+    $str = substr((string) $str, 0, ($length - 1));
     return $str;
 }
 
@@ -78,8 +78,8 @@ function stringToNumeric($str)
     if (is_numeric($str)) {
         return [$str,""];
     } else {
-        for ($i = 0; $i < strlen($str); $i++) {
-            $x = substr($str, $i, 1);
+        for ($i = 0; $i < strlen((string) $str); $i++) {
+            $x = substr((string) $str, $i, 1);
             if (is_numeric($x) && !$txt) {
                 $num .= $x;
             } else {
@@ -90,7 +90,7 @@ function stringToNumeric($str)
         return [$num,$txt];
     }
 
-    $str = substr($str, 0, ($length - 1));
+    $str = substr((string) $str, 0, ($length - 1));
     return $str;
 }
 function credentials($doc, $r): void
@@ -138,7 +138,7 @@ function user_role($doc, $r): void
         die;
     }
 
-    $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
+    $userRole['newcrop_user_role'] = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
     if ($userRole['newcrop_user_role'] == 'doctor') {
         $userRole['eRxUser'] = 'LicensedPrescriber';
     } elseif ($userRole['newcrop_user_role'] == 'admin' || $userRole['newcrop_user_role'] == 'manager' || $userRole['newcrop_user_role'] == 'nurse') {
@@ -169,7 +169,7 @@ function destination($doc, $r, ?string $page = null, $pid = null): void
 {
     global $msg,$page;
     $userRole = sqlQuery("select * from users where username=?", [$_SESSION['authUser']]);
-    $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
+    $userRole['newcrop_user_role'] = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
     if (!$page) {
         $page = 'compose';
         if ($userRole['newcrop_user_role'] == 'admin') {
@@ -235,10 +235,10 @@ function account($doc, $r): void
         );
         $AccountAddress->appendChild($state);
         $jasonbigzip = $erxSiteID['postal_code'];
-    $jasonbigzip = preg_replace('/[^0-9]/', '', $jasonbigzip);
-    if (strlen($jasonbigzip) >= 5) {
-        $jasonzip = substr($jasonbigzip, 0, 5);
-        $zip4 = substr($jasonbigzip, 5, 4);
+    $jasonbigzip = preg_replace('/[^0-9]/', '', (string) $jasonbigzip);
+    if (strlen((string) $jasonbigzip) >= 5) {
+        $jasonzip = substr((string) $jasonbigzip, 0, 5);
+        $zip4 = substr((string) $jasonbigzip, 5, 4);
     } else {
         $msg = validation(xl('Facility Zip'), $jasonzip, $msg);
     }
@@ -257,7 +257,7 @@ function account($doc, $r): void
     }
 
         $msg = validation(xl('Facility Country code'), $erxSiteID['country_code'], $msg);
-        $county_code = substr($erxSiteID['country_code'], 0, 2);
+        $county_code = substr((string) $erxSiteID['country_code'], 0, 2);
         $country = $doc->createElement("country");
         $country->appendChild(
             $doc->createTextNode($county_code)
@@ -322,10 +322,10 @@ function location($doc, $r): void
     }
 
     $jasonbigzip = $userRole['postal_code'];
-    $jasonbigzip = preg_replace('/[^0-9]/', '', $jasonbigzip);
-    if (strlen($jasonbigzip) >= 5) {
-        $jasonzip = substr($jasonbigzip, 0, 5);
-        $zip4 = substr($jasonbigzip, 5, 4);
+    $jasonbigzip = preg_replace('/[^0-9]/', '', (string) $jasonbigzip);
+    if (strlen((string) $jasonbigzip) >= 5) {
+        $jasonzip = substr((string) $jasonbigzip, 0, 5);
+        $zip4 = substr((string) $jasonbigzip, 5, 4);
     } else {
         $msg = validation(xl('Facility Zip'), $jasonzip, $msg);
     }
@@ -344,7 +344,7 @@ function location($doc, $r): void
     }
 
     if ($userRole['country_code']) {
-        $county_code = substr($userRole['country_code'], 0, 2);
+        $county_code = substr((string) $userRole['country_code'], 0, 2);
         $country = $doc->createElement('country');
         $country->appendChild(
             $doc->createTextNode($county_code)
@@ -627,7 +627,7 @@ function Patient($doc, $r, $pid)
         $patient_data['street'] = stripSpecialCharacter($patient_data['street']);
         $patient_data['street'] = trimData($patient_data['street'], 35);
         $msg = validation(xl('Patient Address'), $patient_data['street'], $msg);
-    if (trim($patient_data['street']) == '') {
+    if (trim((string) $patient_data['street']) == '') {
         $warning_msg .= "<br />" . xlt("Patient Address is missing");
     }
 
@@ -663,13 +663,13 @@ function Patient($doc, $r, $pid)
     }
 
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
-    if (trim($patient_data['country_code']) == '' && $GLOBALS['erx_default_patient_country'] == '') {
+    if (trim((string) $patient_data['country_code']) == '' && $GLOBALS['erx_default_patient_country'] == '') {
         $dem_check .= xlt("Patient Country is missing. Also you have not set default Patient Country in Global Settings") . "<br />";
-    } elseif (trim($patient_data['country_code']) == '') {
+    } elseif (trim((string) $patient_data['country_code']) == '') {
         $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
     }
 
-        $county_code = substr($patient_data['country_code'], 0, 2);
+        $county_code = substr((string) $patient_data['country_code'], 0, 2);
         $country = $doc->createElement("country");
         $country->appendChild(
             $doc->createTextNode($county_code)
@@ -688,7 +688,7 @@ function Patient($doc, $r, $pid)
 
     $b->appendChild($PatientContact);
     $PatientCharacteristics = $doc->createElement("PatientCharacteristics");
-    if (trim($patient_data['date_of_birth']) == '' || $patient_data['date_of_birth'] == '00000000') {
+    if (trim((string) $patient_data['date_of_birth']) == '' || $patient_data['date_of_birth'] == '00000000') {
         $warning_msg .= "<br />" . xlt("Patient Date Of Birth is missing");
     }
 
@@ -700,12 +700,12 @@ function Patient($doc, $r, $pid)
         $PatientCharacteristics->appendChild($dob);
     }
 
-    if (trim($patient_data['sex']) == '') {
+    if (trim((string) $patient_data['sex']) == '') {
         $warning_msg .= "<br />" . xlt("Patient Gender is missing");
     }
 
     if ($patient_data['sex']) {
-        $gender_val = substr($patient_data['sex'], 0, 1);
+        $gender_val = substr((string) $patient_data['sex'], 0, 1);
         $gender = $doc->createElement("gender");
         $gender->appendChild(
             $doc->createTextNode($gender_val)
@@ -1000,7 +1000,7 @@ function stripStrings($str, $pattern)
 {
     $result = $str;
     foreach ($pattern as $key => $value) {
-        $result = preg_replace("/$key/", $value, $result);
+        $result = preg_replace("/$key/", (string) $value, (string) $result);
     }
 
     return $result;
