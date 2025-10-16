@@ -578,6 +578,7 @@ function pnVarPrepForOS()
                            '!/!si',     // Forward slash (directory traversal)
                            '!\\\\!si']; // Backslash (directory traversal)
 
+    /** @var array $replace */
     static $replace = ['',
                             '',
                             '_',
