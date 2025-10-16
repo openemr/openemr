@@ -225,4 +225,62 @@ trait BaseTrait
         $title = $this->client->getTitle();
         $this->assertSame('OpenEMR Login', $title, 'Logout FAILED');
     }
+
+    /**
+     * Add a visual annotation overlay to the page for video recordings.
+     * Creates a persistent banner at the top of the page showing the test step.
+     *
+     * @param string $message The test step message to display
+     * @param int $durationMs How long to show the message (default: 2000ms)
+     * @param string $backgroundColor Background color (default: '#FF6B35' - orange)
+     */
+    private function annotateVideo(string $message, int $durationMs = 2000, string $backgroundColor = '#FF6B35'): void
+    {
+        $escapedMessage = addslashes($message);
+
+        $script = <<<JS
+            (function() {
+                // Remove any existing annotation
+                const existingBanner = document.getElementById('e2e-test-annotation');
+                if (existingBanner) {
+                    existingBanner.remove();
+                }
+
+                // Create annotation banner
+                const banner = document.createElement('div');
+                banner.id = 'e2e-test-annotation';
+                banner.innerHTML = '$escapedMessage';
+                banner.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background-color: $backgroundColor;
+                    color: white;
+                    padding: 20px;
+                    font-size: 24px;
+                    font-weight: bold;
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    z-index: 999999;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                    border-bottom: 4px solid rgba(0,0,0,0.2);
+                `;
+
+                document.body.insertBefore(banner, document.body.firstChild);
+
+                // Auto-remove after duration
+                setTimeout(() => {
+                    banner.style.transition = 'opacity 0.5s';
+                    banner.style.opacity = '0';
+                    setTimeout(() => banner.remove(), 500);
+                }, $durationMs);
+            })();
+        JS;
+
+        $this->client->executeScript($script);
+
+        // Give the annotation time to be visible in the video
+        usleep($durationMs * 1000);
+    }
 }
