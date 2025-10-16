@@ -71,6 +71,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Edit Globals Page Load', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             // Navigate to Administration > Globals
@@ -96,7 +97,10 @@ class KkEditGlobalsTest extends PantherTestCase
             // Verify Search field exists
             $searchField = $this->crawler->filterXPath(XpathsConstantsEditGlobals::SEARCH_INPUT);
             $this->assertCount(1, $searchField, 'Search field not found');
+
+            $this->annotateVideo('TEST COMPLETE: Page load verified', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
@@ -122,6 +126,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Tab Navigation', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             $this->goToMainMenuLink('Administration||Globals');
@@ -155,7 +160,10 @@ class KkEditGlobalsTest extends PantherTestCase
                 $activeTab = $this->crawler->filterXPath($tabXpath . '/parent::li[contains(@class, "current")]');
                 $this->assertGreaterThan(0, count($activeTab), "Tab '$tabName' did not become active after clicking");
             }
+
+            $this->annotateVideo('TEST COMPLETE: All tabs verified', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
@@ -182,6 +190,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Search Functionality', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             $this->goToMainMenuLink('Administration||Globals');
@@ -214,7 +223,10 @@ class KkEditGlobalsTest extends PantherTestCase
             // Verify search results rows are marked
             $searchResults = $this->crawler->filterXPath(XpathsConstantsEditGlobals::SEARCH_RESULT_ROW);
             $this->assertGreaterThan(0, count($searchResults), 'No search result rows found');
+
+            $this->annotateVideo('TEST COMPLETE: Search verified', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
@@ -242,6 +254,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Save Text Setting', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             // Use 'site_id' as a test setting (it's a text field in the Locale tab)
@@ -298,7 +311,10 @@ class KkEditGlobalsTest extends PantherTestCase
 
             // Restore original value
             $this->setGlobalValue($testSetting, $originalValue);
+
+            $this->annotateVideo('TEST COMPLETE: Text setting saved', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
@@ -326,6 +342,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Save Checkbox Setting', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             // Use 'disable_utf8_flag' as a test setting (it's a checkbox)
@@ -381,7 +398,10 @@ class KkEditGlobalsTest extends PantherTestCase
 
             // Restore original value
             $this->setGlobalValue($testSetting, $originalValue);
+
+            $this->annotateVideo('TEST COMPLETE: Checkbox setting saved', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
@@ -409,6 +429,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Save Select Setting', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             // Use 'language_default' as a test setting (it's a select dropdown)
@@ -447,9 +468,7 @@ class KkEditGlobalsTest extends PantherTestCase
             $this->assertGreaterThan(0, count($options), 'No options found in language dropdown');
 
             // Filter to get only unselected options
-            $unselectedOptions = array_filter($options, function ($option) {
-                return !$option->isSelected();
-            });
+            $unselectedOptions = array_filter($options, fn($option): bool => !$option->isSelected());
 
             // Ensure we have at least one unselected option to test with
             $this->assertNotEmpty($unselectedOptions, 'All options are already selected, cannot test');
@@ -472,7 +491,10 @@ class KkEditGlobalsTest extends PantherTestCase
 
             // Restore original value
             $this->setGlobalValue($testSetting, $originalValue);
+
+            $this->annotateVideo('TEST COMPLETE: Select setting saved', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
@@ -503,6 +525,7 @@ class KkEditGlobalsTest extends PantherTestCase
     {
         $this->base();
         try {
+            $this->annotateVideo('TEST START: Save Multiple Settings', 2000, '#4CAF50');
             $this->login(LoginTestData::username, LoginTestData::password);
 
             // Test multiple settings at once
@@ -573,7 +596,10 @@ class KkEditGlobalsTest extends PantherTestCase
             foreach ($settings as $settingName => $values) {
                 $this->setGlobalValue($settingName, $values['original']);
             }
+
+            $this->annotateVideo('TEST COMPLETE: Multiple settings saved', 2000, '#4CAF50');
         } catch (\Throwable $e) {
+            $this->annotateVideo('TEST FAILED: ' . $e->getMessage(), 3000, '#F44336');
             $this->client->quit();
             throw $e;
         }
