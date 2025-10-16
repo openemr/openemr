@@ -57,10 +57,13 @@ class HhMainMenuLinksTest extends PantherTestCase
             }
             $this->base();
             try {
+                $this->annotateVideo("TEST START: Main Menu - $menuLink", 2000, '#4CAF50');
                 $this->login(LoginTestData::username, LoginTestData::password);
                 $this->goToMainMenuLink($menuLink);
                 $this->assertActiveTab($expectedTabTitle, $loading);
+                $this->annotateVideo("TEST COMPLETE: $menuLink verified", 2000, '#4CAF50');
             } catch (\Throwable $e) {
+                $this->annotateVideo("TEST FAILED: $menuLink - " . $e->getMessage(), 3000, '#F44336');
                 // Close client
                 $this->client->quit();
                 if ($counter > 2) {
