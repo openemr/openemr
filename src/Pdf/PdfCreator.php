@@ -28,18 +28,14 @@ class PdfCreator
 
         // This will not necessarily reflect actual machine bus width but php bus size.
         $intsize = strlen(decbin(~ 0));
-        if (empty(strstr(php_uname("m"), '64'))) {
-            $bit = "32";
-        } else {
-            $bit = "64";
-        }
+        $bit = empty(strstr(php_uname("m"), '64')) ? "32" : "64";
         try {
             $thisos = strtolower(php_uname());
-            if (strpos($thisos, "darwin") !== false) {
+            if (str_contains($thisos, "darwin")) {
                 $wkexe = $binroot . "/osx/wkhtmltopdf" . $bit . "-osx";
-            } elseif (strpos($thisos, "win") !== false) {
+            } elseif (str_contains($thisos, "win")) {
                 $wkexe = $binroot . "/win/wkhtmltopdf" . $bit . ".exe";
-            } elseif (strpos($thisos, "linux") !== false) {
+            } elseif (str_contains($thisos, "linux")) {
                 $wkexe = $binroot . "/linux/wkhtmltopdf" . $bit . "-linux";
             } else {
                 throw new ExceptionHandler(xlt("Can not determine OS!"));

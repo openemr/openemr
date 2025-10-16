@@ -7,6 +7,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "08:00"
+    rebase-strategy: "disabled"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -39,7 +40,10 @@ updates:
       # Don't update major versions automatically
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-        
+      # submodules are causing problems, so ignore them
+      - dependency-name: "*/onc-certification-g10-test-kit"
+      - dependency-name: "*/inferno-files"
+
   # JavaScript dependencies
   - package-ecosystem: "npm"
     directory: "/"
@@ -99,7 +103,7 @@ updates:
         versions: ["5.x", "6.x"] # Stay on Bootstrap 4 for compatibility
       - dependency-name: "angular"
         versions: [">1.8.x"] # Legacy AngularJS, don't update
-          
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -113,3 +117,25 @@ updates:
       prefix: "ci"
       include: "scope"
     open-pull-requests-limit: 5
+
+  # Docker selenium docker updates in 3 places in the repo as a group
+  - package-ecosystem: "docker-compose"
+    directories:
+      - "ci/compose-shared-selenium/"
+      - "docker/development-easy/"
+      - "docker/development-insane/"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-name: "selenium/standalone-chromium"
+    ignore:
+      - dependency-name: "selenium/standalone-chromium"
+        versions: [">=50"]
+    groups:
+      selenium-updates:
+        patterns:
+          - "selenium/standalone-chromium"
+    labels:
+      - "dependencies"
+      - "selenium"
+      - "docker"

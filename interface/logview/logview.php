@@ -173,15 +173,15 @@ if (!empty($_GET)) {
                                         </select>
                                     </div>
                                     <?php
-                                    $eventname = isset($_GET['eventname']) ? $_GET['eventname'] : '';
+                                    $eventname = $_GET['eventname'] ?? '';
                                     $res = sqlStatement("select distinct event from log order by event ASC");
-                                    $ename_list = array();
+                                    $ename_list = [];
                                     $j = 0;
                                     while ($erow = sqlFetchArray($res)) {
-                                        if (!trim($erow['event'])) {
+                                        if (!trim((string) $erow['event'])) {
                                             continue;
                                         }
-                                        $data = explode('-', $erow['event']);
+                                        $data = explode('-', (string) $erow['event']);
                                         $data_c = count($data);
                                         $ename = $data[0];
                                         for ($i = 1; $i < ($data_c - 1); $i++) {
@@ -193,10 +193,10 @@ if (!empty($_GET)) {
                                     $res1 = sqlStatement("select distinct event from extended_log order by event ASC");
                                     // $j=0; // This can't be right!  -- Rod 2013-08-23
                                     while ($row = sqlFetchArray($res1)) {
-                                        if (!trim($row['event'])) {
+                                        if (!trim((string) $row['event'])) {
                                             continue;
                                         }
-                                        $new_event = explode('-', $row['event']);
+                                        $new_event = explode('-', (string) $row['event']);
                                         $no = count($new_event);
                                         $events = $new_event[0];
                                         for ($i = 1; $i < ($no - 1); $i++) {
@@ -232,7 +232,7 @@ if (!empty($_GET)) {
                                     <div class="col-sm-3">
                                         <?php
                                         $type_event = $_GET['type_event'] ?? '';
-                                        $event_types = array("select", "update", "insert", "delete", "replace");
+                                        $event_types = ["select", "update", "insert", "delete", "replace"];
                                         $lcount = count($event_types);
                                         if ($eventname == "disclosure") {
                                             echo "<select name='type_event' id='type_event' class='form-control' disabled='disabled'>\n";
@@ -304,7 +304,7 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']))) {
+                                        if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
                                             $cryptoGen = new CryptoGen();
 
@@ -315,19 +315,11 @@ if (!empty($_GET)) {
                                                 }
 
                                                 //translate comments
-                                                $patterns = array('/^success/', '/^failure/', '/ encounter/');
-                                                $replace = array(xl('success'), xl('failure'), xl('encounter', '', ' '));
+                                                $patterns = ['/^success/', '/^failure/', '/ encounter/'];
+                                                $replace = [xl('success'), xl('failure'), xl('encounter', '', ' ')];
 
-                                                if (!empty($iter['encrypt'])) {
-                                                    $commentEncrStatus = $iter['encrypt'];
-                                                } else {
-                                                    $commentEncrStatus = "No";
-                                                }
-                                                if (!empty($iter['version'])) {
-                                                    $encryptVersion = $iter['version'];
-                                                } else {
-                                                    $encryptVersion = 0;
-                                                }
+                                                $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
+                                                $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
                                                 // Decrypt comment data if encrypted
                                                 if ($commentEncrStatus == "Yes") {
@@ -374,14 +366,14 @@ if (!empty($_GET)) {
                                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                                                     //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
                                                     if ($encryptVersion >= 4) {
-                                                        $iter["comments"] = base64_decode($iter["comments"]);
+                                                        $iter["comments"] = base64_decode((string) $iter["comments"]);
                                                     }
-                                                    $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+                                                    $trans_comments = preg_replace($patterns, $replace, (string) $iter["comments"]);
                                                 }
                                                 ?>
                                                 <tr>
                                                     <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
-                                                    <td><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
+                                                    <td><?php echo text(preg_replace('/select$/', 'Query', (string) $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
                                                     <td><?php echo text($iter["category"]); ?></td>
                                                     <td><?php echo text($iter["user"]); ?></td>
                                                     <td><?php echo text($iter["crt_user"]); ?></td>
@@ -407,7 +399,7 @@ if (!empty($_GET)) {
 
                                         if (($eventname == "disclosure") || ($gev == "")) {
                                             $eventname = "disclosure";
-                                            if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname))) {
+                                            if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>

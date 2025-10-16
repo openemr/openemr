@@ -37,14 +37,26 @@ function formatcyp($amount)
 
 function display_desc($desc)
 {
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
+    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
         $desc = $matches[1];
     }
 
     return $desc;
 }
 
-function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber = '')
+/**
+ * Render a line item for the CYP report HTML table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $description
+ * @param string $transdate
+ * @param int $qty
+ * @param float $cypfactor
+ * @param string $irnumber
+ * @return void
+ */
+function cypReportLineItem(int $patient_id, int $encounter_id, string $description, string $transdate, int $qty, float $cypfactor, string $irnumber = ''): void
 {
     global $product, $productcyp, $producttotal, $productqty, $grandtotal, $grandqty;
 
@@ -290,7 +302,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $productqty = 0;
     $grandqty = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT b.pid, b.encounter, b.code_type, b.code, b.units, " .
     "b.code_text, c.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -311,18 +323,18 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        cypReportLineItem(
             $row['pid'],
             $row['encounter'],
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'],
             $row['cyp_factor'],
             $row['invoice_refno']
         );
     }
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
     "d.name, d.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -344,11 +356,11 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem(
+        cypReportLineItem(
             $row['pid'],
             $row['encounter'],
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['cyp_factor'],
             $row['invoice_refno']

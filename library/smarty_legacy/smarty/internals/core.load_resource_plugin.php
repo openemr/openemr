@@ -13,7 +13,7 @@
 
 // $type
 
-function smarty_core_load_resource_plugin($params, &$smarty)
+function smarty_core_load_resource_plugin($params, &$smarty): void
 {
     /*
      * Resource plugins are not quite like the other ones, so they are
@@ -53,8 +53,8 @@ function smarty_core_load_resource_plugin($params, &$smarty)
         /*
          * Locate functions that we require the plugin to provide.
          */
-        $_resource_ops = array('source', 'timestamp', 'secure', 'trusted');
-        $_resource_funcs = array();
+        $_resource_ops = ['source', 'timestamp', 'secure', 'trusted'];
+        $_resource_funcs = [];
         foreach ($_resource_ops as $_op) {
             $_plugin_func = 'smarty_resource_' . $params['type'] . '_' . $_op;
             if (!function_exists($_plugin_func)) {
@@ -65,7 +65,7 @@ function smarty_core_load_resource_plugin($params, &$smarty)
             }
         }
 
-        $smarty->_plugins['resource'][$params['type']] = array($_resource_funcs, true);
+        $smarty->_plugins['resource'][$params['type']] = [$_resource_funcs, true];
     }
 }
 

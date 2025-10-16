@@ -86,17 +86,17 @@ class RxList
 
                 $rxcui = '';
 
-                if (trim($my_data['rxcui']) !== '') {
+                if (trim((string) $my_data['rxcui']) !== '') {
                     $rxcui = " (RxCUI:" . trim($my_data['rxcui'] . ")");
                 }
 
                 $synonym = '';
-                if (trim($my_data['synonym']) !== '') {
-                    $synonym = " | (" . trim($my_data['synonym']) . ")";
+                if (trim((string) $my_data['synonym']) !== '') {
+                    $synonym = " | (" . trim((string) $my_data['synonym']) . ")";
                 }
 
                 $list[trim($my_data['name'] . $rxcui) . $synonym] =
-                trim($my_data['name']);
+                trim((string) $my_data['name']);
             }
         }
         return $list;
@@ -109,28 +109,27 @@ class RxList
     {
         $pos = 0;
         $token = 0;
-        unset($tokens);
         $in_token = false;
-        while ($pos < strlen($page)) {
-            switch (substr($page, $pos, 1)) {
+        while ($pos < strlen((string) $page)) {
+            switch (substr((string) $page, $pos, 1)) {
                 case "<":
                     if ($in_token) {
                         $token++;
                         $in_token = false;
                     }
 
-                    $tokens[$token] .= substr($page, $pos, 1);
+                    $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = true;
                     break;
 
                 case ">":
-                    $tokens[$token] .= substr($page, $pos, 1);
+                    $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = false;
                     $token++;
                     break;
 
                 default:
-                    $tokens[$token] .= substr($page, $pos, 1);
+                    $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = false;
                     break;
             }
@@ -143,18 +142,16 @@ class RxList
     {
         $record = false;
         $current = 0;
-        unset($hash);
         $hash = [];
-        unset($all);
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
-            if ((bool)str_contains($tokens[$pos], "<name>") && $pos !== 3) {
+            if (str_contains((string) $tokens[$pos], "<name>") && $pos !== 3) {
                 // found a brand line 'token'
                 $type = "name";
                 $record = $pos;
                 $ending = "</name>";
             }
 
-            if ((bool)str_contains($tokens[$pos], "<synonym>")) {
+            if (str_contains((string) $tokens[$pos], "<synonym>")) {
                 // found a generic line 'token'
                 $type = "synonym";
                 //print "generic_name record start at $pos<BR>\n";
@@ -162,7 +159,7 @@ class RxList
                 $record = $pos;
             }
 
-            if ((bool)str_contains($tokens[$pos], "<rxcui>")) {
+            if (str_contains((string) $tokens[$pos], "<rxcui>")) {
                 // found a drug-class 'token'
                 $type = "rxcui";
                 $ending = "</rxcui>";
@@ -181,8 +178,8 @@ class RxList
             }
 
             if ($pos === ($record + 1) and ($ending != "")) {
-                $my_pos = stripos($tokens[$pos], "<");
-                $hash[$type] = substr($tokens[$pos], 0, $my_pos);
+                $my_pos = stripos((string) $tokens[$pos], "<");
+                $hash[$type] = substr((string) $tokens[$pos], 0, $my_pos);
                 $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
                 //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
                 $type = "";

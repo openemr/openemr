@@ -40,7 +40,7 @@ class SendNotificationEvent extends Event
 
     private mixed $eventData;
     private array|bool $patientDetails;
-    private mixed $pid;
+    private readonly mixed $pid;
     private string|null $sendNotificationMethod;
 
     public function __construct($pid, $data = [], $sendMethod = 'both') // 'both', 'sms', 'email'
@@ -92,7 +92,7 @@ class SendNotificationEvent extends Event
     public function fetchPatientDetails($id): bool|array
     {
         $query = "SELECT fname, lname, phone_cell as phone, email, hipaa_allowsms, hipaa_allowemail FROM patient_data WHERE pid = ?";
-        $result = sqlQuery($query, array($id));
+        $result = sqlQuery($query, [$id]);
         return $result ?? false;
     }
 

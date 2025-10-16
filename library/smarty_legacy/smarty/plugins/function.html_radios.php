@@ -41,7 +41,7 @@
 function smarty_function_html_radios($params, &$smarty)
 {
     require_once $smarty->_get_plugin_filepath('shared','escape_special_chars');
-   
+
     $name = 'radio';
     $values = null;
     $options = null;
@@ -56,7 +56,7 @@ function smarty_function_html_radios($params, &$smarty)
         switch($_key) {
             case 'name':
             case 'separator':
-                $$_key = (string)$_val;
+                ${$_key} = (string)$_val;
                 break;
 
             case 'checked':
@@ -70,16 +70,16 @@ function smarty_function_html_radios($params, &$smarty)
 
             case 'labels':
             case 'label_ids':
-                $$_key = (bool)$_val;
+                ${$_key} = (bool)$_val;
                 break;
 
             case 'options':
-                $$_key = (array)$_val;
+                ${$_key} = (array)$_val;
                 break;
 
             case 'values':
             case 'output':
-                $$_key = array_values((array)$_val);
+                ${$_key} = array_values((array)$_val);
                 break;
 
             case 'radios':
@@ -103,7 +103,7 @@ function smarty_function_html_radios($params, &$smarty)
     if (!isset($options) && !isset($values))
         return ''; /* raise error here? */
 
-    $_html_result = array();
+    $_html_result = [];
 
     if (isset($options)) {
 
@@ -113,7 +113,7 @@ function smarty_function_html_radios($params, &$smarty)
     } else {
 
         foreach ($values as $_i=>$_key) {
-            $_val = isset($output[$_i]) ? $output[$_i] : '';
+            $_val = $output[$_i] ?? '';
             $_html_result[] = smarty_function_html_radios_output($name, $_key, $_val, $selected, $extra, $separator, $labels, $label_ids);
         }
 
@@ -134,7 +134,7 @@ function smarty_function_html_radios_output($name, $value, $output, $selected, $
           $_id = smarty_function_escape_special_chars(preg_replace('![^\w\-\.]!', '_', $name . '_' . $value));
           $_output .= '<label for="' . $_id . '">';
       } else {
-          $_output .= '<label>';           
+          $_output .= '<label>';
       }
    }
    $_output .= '<input type="radio" name="'

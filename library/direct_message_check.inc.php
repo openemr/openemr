@@ -24,9 +24,9 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/pnotes.inc.php");
-require_once(dirname(__FILE__) . "/documents.php");
-require_once(dirname(__FILE__) . "/gprelations.inc.php");
+require_once(__DIR__ . "/pnotes.inc.php");
+require_once(__DIR__ . "/documents.php");
+require_once(__DIR__ . "/gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -47,7 +47,7 @@ function phimail_connect(&$phimail_error)
         return false; //for safety
     }
 
-    $phimail_server = @parse_url($GLOBALS['phimail_server_address']);
+    $phimail_server = @parse_url((string) $GLOBALS['phimail_server_address']);
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = new CryptoGen();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
@@ -153,7 +153,7 @@ function phimail_connect(&$phimail_error)
  * messages related to previously transmitted messages or any new messages received.
  */
 
-function phimail_check()
+function phimail_check(): void
 {
     $fp = phimail_connect($err);
     if ($fp === false) {
@@ -183,11 +183,11 @@ function phimail_check()
             phimail_close($fp);
             phimail_logit(1, "message check completed");
             return;
-        } elseif (substr($ret, 0, 6) == "STATUS") {
+        } elseif (str_starts_with($ret, "STATUS")) {
             //Format STATUS message-id status-code [additional-information]
             $val = explode(" ", trim($ret), 4);
             $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
-            $res = sqlStatementNoLog($sql, array($val[1]));
+            $res = sqlStatementNoLog($sql, [$val[1]]);
             if ($res === false) { //database problem
                 phimail_close($fp);
                 phimail_logit(0, "database problem");
@@ -227,7 +227,7 @@ function phimail_check()
             }
 
             $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
-            $res = sqlStatementNoLog($sql, array($status, $val[3], $val[1]));
+            $res = sqlStatementNoLog($sql, [$status, $val[3], $val[1]]);
             if ($res === false) { //database problem
                 phimail_close($fp);
                 phimail_logit(0, "database problem updating: " . $val[1]);
@@ -237,7 +237,7 @@ function phimail_check()
             if (!$success) {
                 //notify local user of failure
                 $sql = "SELECT username FROM users WHERE id = ?";
-                $res2 = sqlStatementNoLog($sql, array($msg['user_id']));
+                $res2 = sqlStatementNoLog($sql, [$msg['user_id']]);
                 $fail_user = ($res2 === false || ($user_row = sqlFetchArray($res2)) === false) ?
                     xl('unknown (see log)') : $user_row['username'];
                 $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
@@ -263,7 +263,7 @@ function phimail_check()
                 phimail_close($fp);
                 return;
             }
-        } elseif (substr($ret, 0, 4) == "MAIL") {
+        } elseif (str_starts_with($ret, "MAIL")) {
             $val = explode(" ", trim($ret), 5); // MAIL recipient sender #attachments msg-id
             $recipient = $val[1];
             $sender = $val[2];
@@ -321,7 +321,7 @@ function phimail_check()
 
             //main part gets stored as document if not plain text content
             //(if plain text it will be the body of the final pnote)
-            $all_doc_ids = array();
+            $all_doc_ids = [];
             $doc_id = 0;
             $att_detail = "";
             if ($mime_type_main != "text/plain" && $mime_type_main != "text/html") {
@@ -341,7 +341,7 @@ function phimail_check()
                     $idnum = $doc_id['doc_id'];
                     $all_doc_ids[] = $idnum;
                     $url = $doc_id['url'];
-                    $url = substr($url, strrpos($url, "/") + 1);
+                    $url = substr((string) $url, strrpos((string) $url, "/") + 1);
                     $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
                         filesize($body) . " bytes) Main message body";
                 }
@@ -394,7 +394,7 @@ function phimail_check()
                     $idnum = $att_doc_id['doc_id'];
                     $all_doc_ids[] = $idnum;
                     $url = $att_doc_id['url'];
-                    $url = substr($url, strrpos($url, "/") + 1);
+                    $url = substr((string) $url, strrpos((string) $url, "/") + 1);
                     $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
                         $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
                 }
@@ -409,7 +409,7 @@ function phimail_check()
             //logging only after succesful download, storage, and acknowledgement of message
             $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
                 "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
-            $res = sqlStatementNoLog($sql, array($msg_id, $sender, $recipient, phimail_service_userID()));
+            $res = sqlStatementNoLog($sql, [$msg_id, $sender, $recipient, phimail_service_userID()]);
 
             phimail_logit(1, $ret);
 
@@ -468,7 +468,7 @@ function phimail_check()
 
             if ($ret2 !== true) {
                 phimail_logit(0, "M12 DONE failed: " . $ret2);
-                phimail_close();
+                phimail_close($fp);
                 return;
             }
         } else { //unrecognized or FAIL response
@@ -482,9 +482,9 @@ function phimail_check()
 /**
  * Helper functions
  */
-function phimail_write($fp, $text)
+function phimail_write($fp, $text): void
 {
-    fwrite($fp, $text);
+    fwrite($fp, (string) $text);
     fflush($fp);
 }
 
@@ -500,12 +500,12 @@ function phimail_write_expect_OK($fp, $text)
     return true;
 }
 
-function phimail_close($fp)
+function phimail_close($fp): void
 {
     fclose($fp);
 }
 
-function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
+function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check"): void
 {
     if (!$success) {
         (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
@@ -570,28 +570,24 @@ function phimail_read_blob($fp, $len)
  */
 function phimail_extension($mime)
 {
-    $m = explode("/", $mime);
+    $m = explode("/", (string) $mime);
     switch ($mime) {
         case 'text/plain':
             return (".txt");
         default:
     }
 
-    switch ($m[1]) {
-        case 'html':
-        case 'xml':
-        case 'pdf':
-            return ("." . $m[1]);
-        default:
-            return (".dat");
-    }
+    return match ($m[1]) {
+        'html', 'xml', 'pdf' => "." . $m[1],
+        default => ".dat",
+    };
 }
 
 function phimail_service_userID($name = 'phimail-service')
 {
     $sql = "SELECT id FROM users WHERE username=?";
     if (
-        ($r = sqlStatementNoLog($sql, array($name))) === false ||
+        ($r = sqlStatementNoLog($sql, [$name])) === false ||
         ($u = sqlFetchArray($r)) === false
     ) {
         $user = 1; //default if we don't have a service user

@@ -37,12 +37,12 @@ switch ($_POST['action']) {
 		//showarray($_POST['selected_aro']);
 
 		//Parse the form values
-		foreach (array('aco','aro','axo') as $type) {
+		foreach (['aco','aro','axo'] as $type) {
 			$type_array = 'selected_'. $type .'_array';
-			$$type_array = array();
+			${$type_array} = [];
 			if (!empty($_POST['selected_'. $type]) && is_array($_POST['selected_'. $type])) {
 				foreach ($_POST['selected_'. $type] as $value) {
-					$split_value = explode('^', $value);
+					$split_value = explode('^', (string) $value);
 					${$type_array}[$split_value[0]][] = $split_value[1];
 				}
 			}
@@ -99,12 +99,12 @@ switch ($_POST['action']) {
 				FROM '. $gacl_api->_db_table_prefix .'acl
 				WHERE id='. $db->qstr($_GET['acl_id']);
 			$acl_row = $db->GetRow($query);
-			list($acl_id, $acl_section_value, $allow, $enabled, $return_value, $note) = $acl_row;
+			[$acl_id, $acl_section_value, $allow, $enabled, $return_value, $note] = $acl_row;
 
 			//Grab selected objects
-			foreach (array('aco','aro','axo') as $type) {
+			foreach (['aco','aro','axo'] as $type) {
 				$type_array = 'options_selected_'. $type;
-				$$type_array = array();
+				${$type_array} = [];
 
 				$query = '
 					SELECT a.section_value,a.value,c.name,b.name
@@ -116,7 +116,7 @@ switch ($_POST['action']) {
 
 				if (is_object($rs)) {
 					while ($row = $rs->FetchRow()) {
-						list($section_value, $value, $section, $obj) = $row;
+						[$section_value, $value, $section, $obj] = $row;
 						$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: " . ($aco ?? ''));
 						${$type_array}[$section_value.'^'.$value] = $section.' > '.$obj;
 					}
@@ -125,14 +125,14 @@ switch ($_POST['action']) {
 			}
 
 			//Grab selected groups.
-			foreach (array('aro','axo') as $type) {
+			foreach (['aro','axo'] as $type) {
 				$type_array = 'selected_'. $type .'_groups';
 
 				$query = '
 					SELECT group_id
 					FROM '. $gacl_api->_db_table_prefix . $type .'_groups_map
 					WHERE acl_id='. $db->qstr($acl_id);
-				$$type_array = $db->GetCol($query);
+				${$type_array} = $db->GetCol($query);
 				//showarray($$type_array);
 			}
 
@@ -147,9 +147,9 @@ switch ($_POST['action']) {
 		}
 
 		//Grab sections for select boxes
-		foreach (array('acl','aco','aro','axo') as $type) {
+		foreach (['acl','aco','aro','axo'] as $type) {
 			$type_array = 'options_'. $type .'_sections';
-			$$type_array = array();
+			${$type_array} = [];
 
 			$query = '
 				SELECT value,name
@@ -164,14 +164,14 @@ switch ($_POST['action']) {
 				}
 			}
 
-			${$type .'_section_id'} = reset($$type_array);
+			${$type .'_section_id'} = reset(${$type_array});
 		}
 
 		//Init the main js array
 		$js_array = 'var options = new Array();' . "\n";
 
 		//Grab objects for select boxes
-		foreach (array('aco','aro','axo') as $type) {
+		foreach (['aco','aro','axo'] as $type) {
 			//Init the main object js array.
 			$js_array .= 'options[\''. $type .'\'] = new Array();' . "\n";
 
@@ -186,9 +186,9 @@ switch ($_POST['action']) {
 
 			if (is_object($rs)) {
 				while ($row = $rs->FetchRow()) {
-					$section_value = addslashes($row[0]);
-					$value = addslashes($row[1]);
-					$name = addslashes($row[2]);
+					$section_value = addslashes((string) $row[0]);
+					$value = addslashes((string) $row[1]);
+					$name = addslashes((string) $row[2]);
 
 					//Prepare javascript code for dynamic select box.
 					//Init the javascript sub-array.

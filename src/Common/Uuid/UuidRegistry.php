@@ -47,7 +47,9 @@ class UuidRegistry
         'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
         'form_encounter' => ['table_name' => 'form_encounter'],
         'form_vitals' => ['table_name' => 'form_vitals'],
+        'form_observation' => ['table_name' => 'form_observation'],
         'history_data' => ['table_name' => 'history_data'],
+        'issue_encounter' => ['table_name' => 'issue_encounter'],
         'immunizations' => ['table_name' => 'immunizations'],
         'insurance_companies' => ['table_name' => 'insurance_companies'],
         'insurance_data' => ['table_name' => 'insurance_data'],
@@ -60,8 +62,11 @@ class UuidRegistry
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
         'procedure_report' => ['table_name' => 'procedure_report', 'table_id' => 'procedure_report_id'],
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
+        'procedure_specimen' => ['table_name' => 'procedure_specimen', 'table_id' => 'procedure_specimen_id'],
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
+        'patient_related_persons' => ['table_name' => 'patient_related_persons', 'table_id' => 'pid'],
+        'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
@@ -78,24 +83,12 @@ class UuidRegistry
     public function __construct($associations = [])
     {
         $this->table_name = $associations['table_name'] ?? '';
-        if (!empty($this->table_name)) {
-            $this->table_id = $associations['table_id'] ?? 'id';
-        } else {
-            $this->table_id = '';
-        }
+        $this->table_id = !empty($this->table_name) ? $associations['table_id'] ?? 'id' : '';
         $this->table_vertical = $associations['table_vertical'] ?? false;
         $this->disable_tracker = $associations['disable_tracker'] ?? false;
         $this->couchdb = $associations['couchdb'] ?? '';
-        if (!empty($associations['document_drive']) && $associations['document_drive'] === true) {
-            $this->document_drive = 1;
-        } else {
-            $this->document_drive = 0;
-        }
-        if (!empty($associations['mapped']) && $associations['mapped'] === true) {
-            $this->mapped = 1;
-        } else {
-            $this->mapped = 0;
-        }
+        $this->document_drive = !empty($associations['document_drive']) && $associations['document_drive'] === true ? 1 : 0;
+        $this->mapped = !empty($associations['mapped']) && $associations['mapped'] === true ? 1 : 0;
     }
 
     /**
@@ -144,7 +137,7 @@ class UuidRegistry
         self::appendPopulateLog('uuid_registry', $mappedRegistryUuidCounter, $logEntryComment);
 
         if (!empty($logEntryComment)) {
-            $logEntryComment = rtrim($logEntryComment, ', ');
+            $logEntryComment = rtrim((string) $logEntryComment, ', ');
         }
 
         // log it
@@ -196,7 +189,7 @@ class UuidRegistry
 
     /**
      * Given a table name it returns the UuidRegistry object for that table name
-     * @param $table_name The name of the table that has a uuid column
+     * @param string $table_name The name of the table that has a uuid column
      * @return UuidRegistry
      */
     public static function getRegistryForTable($table_name): UuidRegistry
@@ -211,15 +204,12 @@ class UuidRegistry
     /**
      * Given the name of a table that is supported in the uuid registry, return its uuid registry definition.  If there
      * is no definition an empty array is returned
-     * @param $table_name The name of the table
+     * @param $table_name string The name of the table
      * @return array The definition definition or empty array
      */
     public static function getUuidTableDefinitionForTable($table_name)
     {
-        if (isset(self::UUID_TABLE_DEFINITIONS[$table_name])) {
-            return self::UUID_TABLE_DEFINITIONS[$table_name];
-        }
-        return [];
+        return self::UUID_TABLE_DEFINITIONS[$table_name] ?? [];
     }
 
     /**
@@ -274,7 +264,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID byte value to a string representation
-     * @return the UUID string value
+     * @return string the UUID string value
      */
     public static function uuidToString($uuidBytes)
     {
@@ -283,7 +273,7 @@ class UuidRegistry
 
     /**
      * Converts a UUID string to a bytes representation
-     * @return the UUID bytes value
+     * @return string the UUID bytes value
      */
     public static function uuidToBytes($uuidString)
     {
@@ -323,24 +313,18 @@ class UuidRegistry
         $dbUUIDs = [];
 
         if (!$this->disable_tracker) {
-            $sqlColumns = array_map(function ($u) {
-                return '`uuid` = ?';
-            }, $uuids);
+            $sqlColumns = array_map(fn($u): string => '`uuid` = ?', $uuids);
             $sqlWhere = implode(" OR ", $sqlColumns);
             $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `uuid_registry` WHERE " . $sqlWhere, $uuids);
         }
         if (empty($dbUUIDs)) {
             if (!empty($this->table_name)) {
-                $sqlColumns = array_map(function ($u) {
-                    return '`uuid` = ?';
-                }, $uuids);
+                $sqlColumns = array_map(fn($u): string => '`uuid` = ?', $uuids);
                 $sqlWhere = implode(" OR ", $sqlColumns);
                 // If using $this->table_name, then ensure uuid is unique in that table
                 $dbUUIDs =  QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE " . $sqlWhere, $uuids);
             } elseif ($this->document_drive === 1) {
-                $sqlColumns = array_map(function ($u) {
-                    return '`drive_uuid` = ?';
-                }, $uuids);
+                $sqlColumns = array_map(fn($u): string => '`drive_uuid` = ?', $uuids);
                 $sqlWhere = implode(" OR ", $sqlColumns);
                 // If using for document labeling on drive, then ensure drive_uuid is unique in documents table
                 $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `drive_uuid` as `uuid` FROM `documents` WHERE " . $sqlWhere, $uuids);
@@ -402,18 +386,10 @@ class UuidRegistry
         $counter = 0;
 
         // Collect groups that are missing a uuid
-        $columns = array_map(function ($col) {
-            return "`$col`";
-        }, $this->table_vertical);
-        $columnsQtwo = array_map(function ($col) {
-            return "`q2`.`$col`";
-        }, $this->table_vertical);
-        $columnsOn = array_map(function ($col) {
-            return "`q1`.`$col` = `q2`.`$col`";
-        }, $this->table_vertical);
-        $columnsWhere = array_map(function ($col) {
-            return "(`q1`.`$col` IS NULL OR `q1`.`$col` = '')";
-        }, $this->table_vertical);
+        $columns = array_map(fn($col): string => "`$col`", $this->table_vertical);
+        $columnsQtwo = array_map(fn($col): string => "`q2`.`$col`", $this->table_vertical);
+        $columnsOn = array_map(fn($col): string => "`q1`.`$col` = `q2`.`$col`", $this->table_vertical);
+        $columnsWhere = array_map(fn($col): string => "(`q1`.`$col` IS NULL OR `q1`.`$col` = '')", $this->table_vertical);
         $query = "SELECT " . implode(",", $columnsQtwo) . "
         FROM
           (SELECT " . implode(",", $columns) . "
@@ -433,13 +409,9 @@ class UuidRegistry
             $batchUUids = $this->getUnusedUuidBatch($number);
             $this->insertUuidsIntoRegistry($batchUUids);
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
-                implode(" AND ", array_map(function ($col) {
-                    return "`$col` = ? ";
-                }, $this->table_vertical));
+                implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
             while ($row = sqlFetchArray($groupsWithoutUuid)) {
-                $mappedValues = array_map(function ($col) use ($row) {
-                    return $row[$col];
-                }, $this->table_vertical);
+                $mappedValues = array_map(fn($col) => $row[$col], $this->table_vertical);
                 $bindValues = array_merge([$batchUUids[$counter]], $mappedValues);
                 sqlStatementNoLog($sqlUpdate, $bindValues, true);
                 $counter++;
@@ -462,15 +434,9 @@ class UuidRegistry
         $counter = 0;
 
         // Collect groups that are missing a uuid
-        $columns = array_map(function ($col) {
-            return "`$col`";
-        }, $this->table_vertical);
-        $columnsQtwo = array_map(function ($col) {
-            return "`q2`.`$col`";
-        }, array_merge(['uuid'], $this->table_vertical));
-        $columnsOn = array_map(function ($col) {
-            return "`q1`.`$col` = `q2`.`$col`";
-        }, $this->table_vertical);
+        $columns = array_map(fn($col): string => "`$col`", $this->table_vertical);
+        $columnsQtwo = array_map(fn($col): string => "`q2`.`$col`", array_merge(['uuid'], $this->table_vertical));
+        $columnsOn = array_map(fn($col): string => "`q1`.`$col` = `q2`.`$col`", $this->table_vertical);
         $query = "SELECT " . implode(",", $columnsQtwo) . "
         FROM
           (SELECT " . implode(",", $columns) . "
@@ -488,13 +454,9 @@ class UuidRegistry
         // populate the groups with the already existent uuids
         if ($number > 0) {
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
-                implode(" AND ", array_map(function ($col) {
-                    return "`$col` = ? ";
-                }, $this->table_vertical));
+                implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
             while ($row = sqlFetchArray($groupsWithoutUuid)) {
-                $mappedValues = array_map(function ($col) use ($row) {
-                    return $row[$col];
-                }, array_merge(['uuid'], $this->table_vertical));
+                $mappedValues = array_map(fn($col) => $row[$col], array_merge(['uuid'], $this->table_vertical));
                 sqlStatementNoLog($sqlUpdate, $mappedValues, true);
                 $counter++;
             }

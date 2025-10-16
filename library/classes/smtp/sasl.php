@@ -14,11 +14,11 @@ define("SASL_NOMECH",  -4);
 
 class sasl_interact_class
 {
-	var $id;
-	var $challenge;
-	var $prompt;
-	var $default_result;
-	var $result;
+	public $id;
+	public $challenge;
+	public $prompt;
+	public $default_result;
+	public $result;
 };
 
 /*
@@ -76,7 +76,7 @@ class sasl_client_class
 	</variable>
 {/metadocument}
 */
-	var $error='';
+	public $error='';
 
 /*
 {metadocument}
@@ -92,7 +92,7 @@ class sasl_client_class
 	</variable>
 {/metadocument}
 */
-	var $mechanism='';
+	public $mechanism='';
 
 /*
 {metadocument}
@@ -110,20 +110,20 @@ class sasl_client_class
 	</variable>
 {/metadocument}
 */
-	var $encode_response=1;
+	public $encode_response=1;
 
 	/* Private variables */
 
-	var $driver;
-	var $drivers=array(
-		"Digest"   => array("digest_sasl_client_class",   "digest_sasl_client.php"   ),
-		"CRAM-MD5" => array("cram_md5_sasl_client_class", "cram_md5_sasl_client.php" ),
-		"LOGIN"    => array("login_sasl_client_class",    "login_sasl_client.php"    ),
-		"NTLM"     => array("ntlm_sasl_client_class",     "ntlm_sasl_client.php"     ),
-		"PLAIN"    => array("plain_sasl_client_class",    "plain_sasl_client.php"    ),
-		"Basic"    => array("basic_sasl_client_class",    "basic_sasl_client.php"    )
-	);
-	var $credentials=array();
+	public $driver;
+	public $drivers=[
+		"Digest"   => ["digest_sasl_client_class",   "digest_sasl_client.php"   ],
+		"CRAM-MD5" => ["cram_md5_sasl_client_class", "cram_md5_sasl_client.php" ],
+		"LOGIN"    => ["login_sasl_client_class",    "login_sasl_client.php"    ],
+		"NTLM"     => ["ntlm_sasl_client_class",     "ntlm_sasl_client.php"     ],
+		"PLAIN"    => ["plain_sasl_client_class",    "plain_sasl_client.php"    ],
+		"Basic"    => ["basic_sasl_client_class",    "basic_sasl_client.php"    ]
+	];
+	public $credentials=[];
 
 	/* Public functions */
 
@@ -299,7 +299,7 @@ class sasl_client_class
 */
 	Function Start($mechanisms, &$message, &$interactions)
 	{
-		if(strlen($this->error))
+		if(strlen((string) $this->error))
 			return(SASL_FAIL);
 		if(IsSet($this->driver))
 			return($this->driver->Start($this,$message,$interactions));
@@ -310,7 +310,7 @@ class sasl_client_class
 			if(IsSet($this->drivers[$mechanism]))
 			{
 				if(!class_exists($this->drivers[$mechanism][0]))
-					require(dirname(__FILE__)."/".$this->drivers[$mechanism][1]);
+					require(__DIR__."/".$this->drivers[$mechanism][1]);
 				$this->driver=new $this->drivers[$mechanism][0];
 				if($this->driver->Initialize($this))
 				{
@@ -320,7 +320,7 @@ class sasl_client_class
 					{
 						case SASL_NOMECH:
 							Unset($this->driver);
-							if(strlen($no_mechanism_error)==0)
+							if(strlen((string) $no_mechanism_error)==0)
 								$no_mechanism_error=$this->error;
 							$this->error="";
 							break;
@@ -336,13 +336,13 @@ class sasl_client_class
 				else
 				{
 					Unset($this->driver);
-					if(strlen($no_mechanism_error)==0)
+					if(strlen((string) $no_mechanism_error)==0)
 						$no_mechanism_error=$this->error;
 					$this->error="";
 				}
 			}
 		}
-		$this->error=(strlen($no_mechanism_error) ? $no_mechanism_error : "it was not requested any of the authentication mechanisms that are supported");
+		$this->error=(strlen((string) $no_mechanism_error) ? $no_mechanism_error : "it was not requested any of the authentication mechanisms that are supported");
 		return(SASL_NOMECH);
 	}
 /*
@@ -398,7 +398,7 @@ class sasl_client_class
 */
 	Function Step($response, &$message, &$interactions)
 	{
-		if(strlen($this->error))
+		if(strlen((string) $this->error))
 			return(SASL_FAIL);
 		return($this->driver->Step($this,$response,$message,$interactions));
 	}

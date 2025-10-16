@@ -138,14 +138,14 @@ class AuthHash
             $salt = RandomGenUtils::produceRandomString(16, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
             // Create hash
-            return crypt($password, '$6$rounds=' . $this->options['rounds'] . '$' . $salt . '$');
+            return crypt((string) $password, '$6$rounds=' . $this->options['rounds'] . '$' . $salt . '$');
         }
 
         // Process algos supported by standard password_hash
         if (empty($this->options)) {
-            return password_hash($password, $this->algo_constant);
+            return password_hash((string) $password, $this->algo_constant);
         } else {
-            return password_hash($password, $this->algo_constant, $this->options);
+            return password_hash((string) $password, $this->algo_constant, $this->options);
         }
     }
 
@@ -153,17 +153,17 @@ class AuthHash
     {
         if ($this->algo == "SHA512HASH") {
             // Process when going to SHA512HASH algo separately, since not supported by standard password_needs_rehash
-            if (empty(preg_match('/^\$6\$rounds=/', $hash))) {
+            if (empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
                 // algo does not match, so needs rehash
                 return true;
             }
-            preg_match('/^\$6\$rounds=([0-9]*)\$/', $hash, $matches);
+            preg_match('/^\$6\$rounds=([0-9]*)\$/', (string) $hash, $matches);
             $rounds = $matches[1];
             if ($rounds != $this->options['rounds']) {
                 // number of rounds does not match, so needs rehash
                 return true;
             }
-        } elseif (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+        } elseif (!empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
             // Process when going from SHA512HASH algo separately, since not supported by standard password_needs_rehash
             // Note we already know that $this->algo != "SHA512HASH", so we return true
             return true;
@@ -194,12 +194,12 @@ class AuthHash
             $millisecondsStart = round(microtime(true) * 1000);
         }
 
-        if (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+        if (!empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
             // Process SHA512HASH algo separately, since uses crypt
-            $valid = hash_equals($hash, crypt($password, $hash));
+            $valid = hash_equals($hash, crypt((string) $password, (string) $hash));
         } else {
             // Process algos supported by standard password_verify
-            $valid = password_verify($password, $hash);
+            $valid = password_verify((string) $password, (string) $hash);
 
             if (!$valid) {
                 // Ensure do not need to process legacy hash (pre 5.0.0), which will get converted to standard hash
@@ -211,12 +211,12 @@ class AuthHash
                 //
                 //  TODO: Consider removing this at some time in the future (early 2022) since it overcomplicates authorization.
                 //
-                if (!empty(preg_match('/^\$2a\$05\$/', $hash)) && (substr($hash, 28, 1) === '.')) {
-                    $fixedSalt = substr($hash, 0, 28) . "$";
+                if (!empty(preg_match('/^\$2a\$05\$/', (string) $hash)) && (substr((string) $hash, 28, 1) === '.')) {
+                    $fixedSalt = substr((string) $hash, 0, 28) . "$";
                     if (strlen($fixedSalt) !== 29) {
                         return false;
                     } else {
-                        $valid = hash_equals($hash, crypt($password, $fixedSalt));
+                        $valid = hash_equals($hash, crypt((string) $password, $fixedSalt));
                     }
                 }
             }
@@ -239,7 +239,7 @@ class AuthHash
         //   password_get_info() call can not identify older bcrypt hashes)
         //  (note also need to preg_match for /^\$6\$rounds=/ to support the SHA512HASH hashing option)
         $hash_info = password_get_info($hash);
-        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $hash)) && empty(preg_match('/^\$6\$rounds=/', $hash))) {
+        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', (string) $hash)) && empty(preg_match('/^\$6\$rounds=/', (string) $hash))) {
             // Invalid hash
             return false;
         } else {

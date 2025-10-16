@@ -22,7 +22,7 @@ require_once("../globals.php");
 
 
 # This is based on session array.
-$pid_list = array();
+$pid_list = [];
 $pid_list = $_SESSION['pidList'];
 
 #get label type and number of labels on sheet
@@ -65,7 +65,7 @@ foreach ($pid_list as $pid) {
     "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
     "p.street, p.city, p.state, p.postal_code, p.pid " .
     "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($pid));
+    "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 # sprintf to print data
     $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['city'], $patdata['state'], $patdata['postal_code']);

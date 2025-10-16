@@ -25,7 +25,6 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthConfigurationVer
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
@@ -67,101 +66,53 @@ class TeleconferenceRoomController
     const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
 
     /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var boolean  Whether we are running as a patient in the portal context
-     */
-    private $isPatient;
-
-    /**
-     * @var string The location where the module assets are stored
-     */
-    private $assetPath;
-
-    /**
      * @var EncounterService
      */
-    private $encounterService;
+    private EncounterService $encounterService;
 
     /**
      * @var AppointmentService
      */
-    private $appointmentService;
+    private AppointmentService $appointmentService;
 
     /**
-     * @var \Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository
+     * @var TeleHealthSessionRepository
      */
-    private $sessionRepository;
+    private readonly TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private $telehealthUserRepo;
+    private readonly TeleHealthUserRepository $telehealthUserRepo;
 
     /**
-     * @var TeleHealthVideoRegistrationController
+     * @param Environment $twig
+     * @param LoggerInterface $logger
+     * @param TeleHealthVideoRegistrationController $telehealthRegistrationController
+     * @param TeleHealthParticipantInvitationMailerService $mailerService
+     * @param TeleHealthFrontendSettingsController $settingsController
+     * @param TelehealthGlobalConfig $config
+     * @param TeleHealthProvisioningService $provisioningService
+     * @param ParticipantListService $participantListService
+     * @param string $assetPath The location where the module assets are stored
+     * @param bool $isPatient Whether we are running as a patient in the portal context
      */
-    private $telehealthRegistrationController;
-
-    /**
-     * @var TeleHealthParticipantInvitationMailerService
-     */
-    private $mailerService;
-
-    /**
-     * @var TeleHealthFrontendSettingsController
-     */
-    private $settingsController;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private $provisioningService;
-
-    /**
-     * @var ParticipantListService
-     */
-    private $participantListService;
-
     public function __construct(
-        Environment $twig,
-        LoggerInterface $logger,
-        TeleHealthVideoRegistrationController $registrationController,
-        TeleHealthParticipantInvitationMailerService $mailerService,
-        TeleHealthFrontendSettingsController $settingsController,
-        TelehealthGlobalConfig $config,
-        TeleHealthProvisioningService $provisioningService,
-        ParticipantListService $participantListService,
-        $assetPath,
-        $isPatient = false
+        private readonly Environment $twig,
+        private readonly LoggerInterface $logger,
+        private readonly TeleHealthVideoRegistrationController $telehealthRegistrationController,
+        private readonly TeleHealthParticipantInvitationMailerService $mailerService,
+        private readonly TeleHealthFrontendSettingsController $settingsController,
+        private readonly TelehealthGlobalConfig $config,
+        private readonly TeleHealthProvisioningService $provisioningService,
+        private readonly ParticipantListService $participantListService,
+        private readonly string $assetPath,
+        private readonly bool $isPatient = false
     ) {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->isPatient = $isPatient;
         $this->appointmentService = new AppointmentService();
         $this->encounterService = new EncounterService();
         $this->sessionRepository = new TeleHealthSessionRepository();
-        $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
-        $this->mailerService = $mailerService;
-        $this->settingsController = $settingsController;
-        $this->config = $config;
-        $this->provisioningService = $provisioningService;
-        $this->participantListService = $participantListService;
     }
 
     /**
@@ -174,39 +125,23 @@ class TeleconferenceRoomController
         $this->logger->debug("TeleconferenceRoomController->dispatch()", ['action' => $action, 'queryVars' => $queryVars, 'isPatient' => $this->isPatient]);
 
         // TODO: @adunsulag need to look at each individual action and make sure we are following access permissions here...
-        if ($action == 'get_telehealth_launch_data') {
-            $this->getTeleHealthLaunchDataAction($queryVars);
-        } elseif ($action == 'set_appointment_status') {
-            $this->setAppointmentStatusAction($queryVars);
-        } elseif ($action == 'set_current_appt_encounter') {
-            return $this->setCurrentAppointmentEncounter($queryVars);
-        } elseif ($action == 'patient_appointment_ready') {
-            return $this->patientAppointmentReadyAction($queryVars);
-        } elseif ($action == 'conference_session_update') {
-            return $this->conferenceSessionUpdateAction($queryVars);
-        } elseif ($action == 'check_registration') {
-            return $this->checkRegistrationAction($queryVars);
-        } elseif ($action == 'get_telehealth_settings') {
-            return $this->getTeleHealthFrontendSettingsAction($queryVars);
-        } elseif ($action == 'verify_installation_settings') {
-            return $this->verifyInstallationSettings($queryVars);
-        } elseif ($action == 'save_session_participant') {
-            return $this->saveSessionParticipantAction($queryVars);
-        } elseif ($action == 'get_participant_list') {
-            return $this->getParticipantListAction($queryVars);
-        } elseif ($action == self::LAUNCH_PATIENT_SESSION) {
-            return $this->launchPatientSessionAction($queryVars);
-        } elseif ($action == 'generate_participant_link') {
-            return $this->generateParticipantLinkAction($queryVars);
-        } elseif ($action == 'patient_validate_telehealth_ready') {
-            return $this->validatePatientIsTelehealthReadyAction($queryVars);
-        } else {
-            $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
-            echo "action not supported";
-            return;
-        }
+        match ($action) {
+            'get_telehealth_launch_data' => $this->getTeleHealthLaunchDataAction($queryVars),
+            'set_appointment_status' => $this->setAppointmentStatusAction($queryVars),
+            'set_current_appt_encounter' => $this->setCurrentAppointmentEncounter($queryVars),
+            'patient_appointment_ready' => $this->patientAppointmentReadyAction($queryVars),
+            'conference_session_update' => $this->conferenceSessionUpdateAction($queryVars),
+            'check_registration' => $this->checkRegistrationAction($queryVars),
+            'get_telehealth_settings' => $this->getTeleHealthFrontendSettingsAction($queryVars),
+            'verify_installation_settings' => $this->verifyInstallationSettings($queryVars),
+            'save_session_participant' => $this->saveSessionParticipantAction($queryVars),
+            'get_participant_list' => $this->getParticipantListAction($queryVars),
+            self::LAUNCH_PATIENT_SESSION => $this->launchPatientSessionAction($queryVars),
+            'generate_participant_link' => $this->generateParticipantLinkAction($queryVars),
+            'patient_validate_telehealth_ready' => $this->validatePatientIsTelehealthReadyAction($queryVars),
+            default => $this->handleInvalidAction($action)
+        };
     }
-
     /**
      * @param $queryVars
      * @return void
@@ -253,7 +188,6 @@ class TeleconferenceRoomController
     /**
      * @param $userName
      * @param $session
-     * @return array|\OpenEMR\Services\The
      * @throws AccessDeniedException
      */
     private function verifyUsernameCanAccessSession($userName, $session)
@@ -416,6 +350,13 @@ class TeleconferenceRoomController
         }
     }
 
+    public function handleInvalidAction($action)
+    {
+        $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
+        echo "action not supported";
+    }
+
+
     /**
      * @param $queryVars
      * @return void
@@ -433,7 +374,7 @@ class TeleconferenceRoomController
             }
             $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
             if (empty($session)) {
-                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+                throw new InvalidArgumentException("session was not found for pc_eid of {$pc_eid}");
             }
             // check to make sure the session user is the same as the logged in user
             $verifiedUser = null;
@@ -602,7 +543,7 @@ class TeleconferenceRoomController
         $pwd = $patientAccessService->getRandomPortalPassword();
         $uname = $patientData['fname'] . $patientData['id'];
         $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
-        $login_uname = $login_uname ?? $uname;
+        $login_uname ??= $uname;
         $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
 
         // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this
@@ -678,7 +619,7 @@ class TeleconferenceRoomController
                 // throw error
                 throw new InvalidArgumentException("Cannot update appointment status in a patient context");
             }
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to update appointment status");
             }
 
@@ -729,11 +670,7 @@ class TeleconferenceRoomController
         try {
             // grab the settings, grab the waiting room & grab the conference room
             $waitingRoom = $this->renderWaitingRoom($queryVars);
-            if ($this->isPatient) {
-                $settings = $this->getPatientSettings($queryVars);
-            } else {
-                $settings = $this->getProviderSettings($queryVars);
-            }
+            $settings = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
             $conferenceRoom = $this->renderConferenceRoom($queryVars);
 
             $result = [
@@ -925,7 +862,7 @@ class TeleconferenceRoomController
             ]);
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo text($jsonSettings);
-        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException $exception) {
+        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException) {
             $jsonSettings = text(json_encode(['errorCode' => self::REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE
                 , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
@@ -965,7 +902,7 @@ class TeleconferenceRoomController
         $sql = "UPDATE openemr_postcalendar_events SET pc_aid =? WHERE pc_eid =? ";
         QueryUtils::sqlStatementThrowException($sql, [$userId, $appt['pc_eid']]);
 
-        if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+        if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
             throw new AccessDeniedException("patients", "appt", "No access to change appointments");
         }
 
@@ -1007,7 +944,7 @@ class TeleconferenceRoomController
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "apt", "User does not have access to update current appointment information");
             }
             // grab the appointment and make sure the current user has access to the calendar
@@ -1091,7 +1028,7 @@ class TeleconferenceRoomController
             $jsonData = [
                 'selectedEncounter' => [
                     'id' => $encounter['eid']
-                    , 'dateStr' => date("Y-m-d", strtotime($encounter['date']))
+                    , 'dateStr' => date("Y-m-d", strtotime((string) $encounter['date']))
                 ]
                 , 'encounterList' => $encountersList
                 , 'patient' => [
@@ -1269,11 +1206,7 @@ class TeleconferenceRoomController
      */
     public function renderConferenceRoom($queryVars)
     {
-        if ($this->isPatient) {
-            $data = $this->getPatientSettings($queryVars);
-        } else {
-            $data = $this->getProviderSettings($queryVars);
-        }
+        $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
 //        $statuses = $apptRepo->getAppointmentStatuses();
         $statuses = $this->getAppointmentStatuses();

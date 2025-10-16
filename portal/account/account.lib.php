@@ -28,7 +28,7 @@ function notifyAdmin($pid, $provider): void
 
     $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
     $title = xlt("New Patient");
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$provider]);
 
     if (empty($user['username'])) {
         $user['username'] = "portal-user";
@@ -183,7 +183,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         // create $encoded_link
         $site_addr = $GLOBALS['portal_onsite_two_address'];
         $site_id = $_SESSION['site_id'];
-        if (stripos($site_addr, $site_id) === false) {
+        if (stripos((string) $site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $_SESSION['site_id']
@@ -293,7 +293,7 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
     }
 }
 
-function saveInsurance($pid)
+function saveInsurance($pid): void
 {
     newInsuranceData(
         $pid = $pid,
@@ -332,7 +332,7 @@ function saveInsurance($pid)
 
 function validEmail($email)
 {
-    if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
+    if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", (string) $email)) {
         return true;
     }
 
@@ -343,8 +343,8 @@ function validEmail($email)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
-    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", array($pid));
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($newpd['providerID']));
+    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
 
     // ensure pid exists
     if (empty($newpd)) {
@@ -405,7 +405,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     }
     $site_addr = $GLOBALS['portal_onsite_two_address'];
     $site_id = $_SESSION['site_id'];
-    if (stripos($site_addr, $site_id) === false) {
+    if (stripos((string) $site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
             'site' => $_SESSION['site_id']
@@ -531,7 +531,7 @@ function getPidHolder($preventRaceCondition = false): int
     }
 }
 
-function cleanupRegistrationSession()
+function cleanupRegistrationSession(): void
 {
     unset($_SESSION['patient_portal_onsite_two']);
     unset($_SESSION['authUser']);

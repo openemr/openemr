@@ -4,34 +4,77 @@ on:
   push:
     branches:
     - master
+    - rel-*
   pull_request:
     branches:
     - master
+    - rel-*
 
 permissions:
   contents: read
 
 jobs:
   phpstan:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v5
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
     - name: Composer Cache
       uses: actions/cache@v4
       with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-    - uses: php-actions/composer@v6
-      with:
-        php_extensions: gd soap zip
-    - name: Gather PHP Paths
-      id: gather-php-paths
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
+    - name: Composer Install
       run: |
-        # Gather all the directories that contain PHP files and all the root level php files, too.
-        {
-          printf 'paths='
-          git ls-files '*.php' | awk -v ORS=' ' -F / '!$2 { print; next; } !s[$1]++ { print $1 }'
-        } >> "$GITHUB_OUTPUT"
-    - uses: php-actions/phpstan@v3
+        composer install --prefer-dist --no-progress
+        # Hack: temporarily uninstall rector, which interferes with PHPStan
+        composer remove --dev --optimize-autoloader rector/rector
+    - name: PHPStan Cache
+      # https://phpstan.org/user-guide/result-cache
+      uses: actions/cache@v4
       with:
-        path: ${{ steps.gather-php-paths.outputs.paths }}
+        path: tmp-phpstan # same as in phpstan.neon
+        key: "phpstan-result-cache-${{ github.run_id }}"
+        restore-keys: |
+          phpstan-result-cache-
+    - name: PHPStan Diagnose
+      run: vendor/bin/phpstan --memory-limit=8G diagnose
+    - name: PHPStan Analyze
+      id: phpstan-analyze
+      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+      continue-on-error: true
+    # Generate baseline only if analyze step failed
+    - name: PHPStan Baseline
+      if: steps.phpstan-analyze.outcome == 'failure'
+      run: vendor/bin/phpstan --memory-limit=8G --generate-baseline=baseline.neon
+      continue-on-error: true
+    # Upload baseline only if baseline.neon file exists
+    - name: Upload PHPStan Baseline
+      if: hashFiles('baseline.neon') != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: phpstan-baseline-php${{ matrix.php-version }}
+        path: baseline.neon
+      continue-on-error: true
+    - name: Check PHPStan Results
+      if: steps.phpstan-analyze.outcome == 'failure'
+      run: false

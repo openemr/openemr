@@ -225,7 +225,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $total1 = 0.00;
         $total2 = 0.00;
 
-        $inputArray = array($from_date . ' 00:00:00', $to_date . ' 23:59:59');
+        $inputArray = [$from_date . ' 00:00:00', $to_date . ' 23:59:59'];
         $query = "SELECT r.pid, r.dtime, " .
         "SUM(r.amount1) AS amount1, " .
         "SUM(r.amount2) AS amount2, " .
@@ -255,12 +255,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
         while ($row = sqlFetchArray($res)) {
             // Make the timestamp URL-friendly.
-            $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
+            $timestamp = preg_replace('/[^0-9]/', '', (string) $row['dtime']);
             ?>
    <tr>
     <td nowrap>
      <a href="javascript:show_receipt(<?php echo attr_js($row['pid']); ?>, <?php echo attr_js($timestamp); ?>)">
-            <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . text(substr($row['dtime'], 10, 6)); ?>
+            <?php echo text(oeFormatShortDate(substr((string) $row['dtime'], 0, 10))) . text(substr((string) $row['dtime'], 10, 6)); ?>
    </a>
   </td>
   <td>

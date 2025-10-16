@@ -15,10 +15,10 @@
 
 use OpenEMR\Billing\MiscBillingOptions;
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function misc_billing_options_report($pid, $encounter, $cols, $id)
+function misc_billing_options_report($pid, $encounter, $cols, $id): void
 {
     $MBO = new OpenEMR\Billing\MiscBillingOptions();
     $count = 0;
@@ -61,7 +61,7 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
 
             if ($key === 'provider_id') {
                 $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE " .
-                         "id = ? ", array($value));
+                         "id = ? ", [$value]);
                 $value = $trow['fname'] . ' ' . $trow['lname'];
                 $key = 'Box 17 Provider';
             }

@@ -32,7 +32,7 @@ class LBF_Validation
     {
         //to prevent an empty form id error do :
         if (!$form_id || $form_id == '') {
-            return json_encode(array());
+            return json_encode([]);
         }
 
         $fres = sqlStatement(
@@ -41,23 +41,23 @@ class LBF_Validation
               LEFT JOIN list_options ON layout_options.validation = list_options.option_id AND list_options.list_id = 'LBF_Validations' AND list_options.activity = 1
               WHERE layout_options.form_id = ? AND layout_options.uor > 0 AND layout_options.field_id != ''
               ORDER BY layout_options.group_id, layout_options.seq ",
-            array($form_id)
+            [$form_id]
         );
-        $constraints = array();
-        $validation_arr = array();
-        $required = array();
+        $constraints = [];
+        $validation_arr = [];
+        $required = [];
         while ($frow = sqlFetchArray($fres)) {
             $id = 'form_' . $frow['field_id'];
-            $validation_arr = array();
-            $required = array();
+            $validation_arr = [];
+            $required = [];
             //Keep "required" option from the LBF form
             if ($frow['uor'] == 2) {
-                $required = array(self::VJS_KEY_REQUIRED => true);
+                $required = [self::VJS_KEY_REQUIRED => true];
             }
 
             if ($frow['validation_json']) {
-                if (json_decode($frow['validation_json'])) {
-                    $validation_arr = json_decode($frow['validation_json'], true);
+                if (json_decode((string) $frow['validation_json'])) {
+                    $validation_arr = json_decode((string) $frow['validation_json'], true);
                 } else {
                     trigger_error($frow['validation_json'] . " is not a valid json ", E_USER_WARNING);
                 }

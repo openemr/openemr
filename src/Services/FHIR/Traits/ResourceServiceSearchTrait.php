@@ -14,12 +14,19 @@ namespace OpenEMR\Services\FHIR\Traits;
 
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldOrder;
+use InvalidArgumentException;
 
 trait ResourceServiceSearchTrait
 {
-    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory)
+    /**
+     * @var FHIRSearchFieldFactory
+     */
+    private FHIRSearchFieldFactory $searchFieldFactory;
+
+    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory): void
     {
         $this->searchFieldFactory = $factory;
     }
@@ -35,13 +42,13 @@ trait ResourceServiceSearchTrait
      *
      * to either add search fields or change the functionality of the created ISearchFields.
      *
-     * @param $fhirSearchParameters
-     * @param $puuidBind The patient unique id if searching in a patient context
+     * @param array $fhirSearchParameters
+     * @param string|null $puuidBind The patient unique id if searching in a patient context
      * @return ISearchField[] where the keys are the search fields.
      */
-    protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind)
+    protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null): array
     {
-        $oeSearchParameters = array();
+        $oeSearchParameters = [];
 
         $specialColumns = ['_sort' => '', '_count' => '', '_offset' => ''];
         $hasSort = false;
@@ -67,7 +74,7 @@ trait ResourceServiceSearchTrait
                 // precedence and ALL values will be UNIONED (AND clause).
                 $searchField = $this->createSearchParameterForField($fhirSearchField, $searchValue);
                 $oeSearchParameters[$searchField->getName()] = $searchField;
-            } catch (\InvalidArgumentException $exception) {
+            } catch (InvalidArgumentException $exception) {
                 $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
                     . " Inner message: " . $exception->getMessage();
                 throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
@@ -92,10 +99,10 @@ trait ResourceServiceSearchTrait
         return $oeSearchParameters;
     }
 
-    private function createSortParameter($sort)
+    private function createSortParameter($sort): array
     {
         $newSortOrder = [];
-        $sortFields = explode(',', $sort);
+        $sortFields = explode(',', (string) $sort);
         $searchFactory = $this->getSearchFieldFactory();
         foreach ($sortFields as $sortField) {
             $isDescending = ($sortField[0] ?? '') === '-';
@@ -115,12 +122,11 @@ trait ResourceServiceSearchTrait
         return $newSortOrder;
     }
 
-    protected function createSearchParameterForField($fhirSearchField, $searchValue)
+    protected function createSearchParameterForField($fhirSearchField, $searchValue): ISearchField
     {
         $searchFactory = $this->getSearchFieldFactory();
         if ($searchFactory->hasSearchField($fhirSearchField)) {
-            $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
-            return $searchField;
+            return $searchFactory->buildSearchField($fhirSearchField, $searchValue);
         } else {
             throw new SearchFieldException($fhirSearchField, xlt("This search field does not exist or is not supported"));
         }

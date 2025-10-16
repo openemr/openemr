@@ -118,7 +118,7 @@ class CareTeamService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
             // code to support patient binding
@@ -166,7 +166,7 @@ class CareTeamService extends BaseService
 
     private function getFacilities($facilities)
     {
-        $facilityIds = explode(",", $facilities);
+        $facilityIds = explode(",", (string) $facilities);
         $service = new FacilityService();
         $result = $service->getAllWithIds($facilityIds);
         $providers = $result->getData() ?? [];
@@ -175,7 +175,7 @@ class CareTeamService extends BaseService
 
     private function getProvidersWithType($providers)
     {
-        $providers = explode("|", $providers);
+        $providers = explode("|", (string) $providers);
 
         $practitionerRoleService = new PractitionerRoleService();
         $result = $practitionerRoleService->getAllByPractitioners($providers);

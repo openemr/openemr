@@ -30,7 +30,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -53,10 +53,17 @@ $allow_multisite_setup = false;
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
 $allow_cloning_setup = false;
+
+// Include standard libraries/classes
+require_once __DIR__ . "/vendor/autoload.php";
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
-    require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionStart();
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionCookieDestroy();
+    SessionUtil::setupScriptSessionStart();
+    SessionUtil::setupScriptSessionCookieDestroy();
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
@@ -111,13 +118,6 @@ function recursive_writable_directory_test($dir)
         return 0;
     }
 }
-
-// Include standard libraries/classes
-require_once dirname(__FILE__) . "/vendor/autoload.php";
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 $installer = new Installer($_REQUEST);
@@ -1616,11 +1616,11 @@ STP4TOP;
                     echo "<p>Configuration of Apache web server...</p><br />\n";
                     echo "The <code>\"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
                     it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "\"&gt;<br />
+                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(__DIR__)) . "\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
                     &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "/sites\"&gt;<br />
+                    &nbsp;&nbsp;&lt;Directory \"" . text(realpath(__DIR__)) . "/sites\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
                     &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
                     &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />

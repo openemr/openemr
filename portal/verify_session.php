@@ -26,16 +26,20 @@
 
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
+use OpenEMR\Common\Session\SessionUtil;
+
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 // Landing page definition -- where to go if something goes wrong
 // if this script is included somewhere else we want to support them changing up the landingpage url such as adding
 // parameters, or even setting what the landing page should be for the portal verify session.
 if (!isset($landingpage)) {
-    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+    $landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? null));
 }
 
 if (!isset($skipLandingPageError)) {
@@ -47,7 +51,7 @@ if (!isset($skipLandingPageError)) {
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     if ($skipLandingPageError === true) {
         header('Location: ' . $landingpage);
     } else {

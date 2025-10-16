@@ -19,20 +19,25 @@ $user = $data['user'];
 $signer = !empty($data['signer']) ? $data['signer'] : '';
 $type = $data['type'];
 $isPortal = $data['is_portal'];
-$output = urldecode($data['output']);
+$output = urldecode((string) $data['output']);
 $ignoreAuth = false;
+
+use OpenEMR\Common\Session\SessionUtil;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
-    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+    // Will start the (patient) portal OpenEMR session/cookie.
+    // Need access to classes, so run autoloader now instead of in globals.php.
+    $GLOBALS['already_autoloaded'] = true;
+    require_once(__DIR__ . "/../../../vendor/autoload.php");
+    SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
         $req_pid = $_SESSION['pid'];
         $ignoreAuth_onsite_portal = true;
     } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         echo js_escape("error invalid session,");
         exit();
     }
@@ -64,15 +69,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ip = $_SERVER['REMOTE_ADDR'];
     $status = 'filed';
     $lastmod = date('Y-m-d H:i:s');
-    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array($req_pid, $user));
+    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", [$req_pid, $user]);
     $c = sqlFetchArray($r);
     $isit = $c['x'] * 1;
     if ($isit) {
         $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-        $rcnt = sqlStatement($qstr, array($req_pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $req_pid, $user));
+        $rcnt = sqlStatement($qstr, [$req_pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $req_pid, $user]);
     } else {
         $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-        sqlStatement($qstr, array($req_pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output));
+        sqlStatement($qstr, [$req_pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output]);
     }
 
     echo json_encode('Done', JSON_THROW_ON_ERROR);

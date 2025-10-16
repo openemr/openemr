@@ -85,7 +85,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $person = new FHIRPerson();
 
@@ -107,10 +107,10 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         if (isset($dataRecord['lname'])) {
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
-        $text = array(
+        $text = [
             'status' => 'generated',
             'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
+        ];
         $person->setText($text);
 
         $id = new FHIRId();
@@ -121,35 +121,35 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         $person->addAddress(UtilsService::createAddressFromRecord($dataRecord));
 
         if (!empty($dataRecord['phone'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phone'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonew1'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonew1'],
                 'use' => 'work'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonecell'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonecell'],
                 'use' => 'mobile'
-            ));
+            ]);
         }
 
         if (isset($dataRecord['email'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'email',
                 'value' => $dataRecord['email'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if ($encode) {
@@ -165,9 +165,9 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
-        $data = array();
+        $data = [];
 
         if (isset($fhirResource['id'])) {
             $data['uuid'] = $fhirResource['id'];
@@ -246,7 +246,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): never
     {
         // implement this if we want to allow inserts on this resource
         throw new \BadMethodCallException("insert is not supported in this resource");
@@ -260,7 +260,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): never
     {
         // implement this if we want to allow updates on this resource
         throw new \BadMethodCallException("update is not supported in this resource");
@@ -277,7 +277,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     {
         return $this->userService->search($openEMRSearchParameters);
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false): never
     {
         // TODO: If Required in Future
         throw new \BadMethodCallException("provenance record is not supported in this resource");

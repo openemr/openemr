@@ -26,11 +26,6 @@ use Ramsey\Uuid\Rfc4122\UuidV4;
 class TeleHealthRemoteRegistrationService
 {
     /**
-     * @var TelehealthRegistrationCodeService
-     */
-    private $codeService;
-
-    /**
      * API url endpoint to send registration requests to.
      * @var string
      */
@@ -77,7 +72,9 @@ class TeleHealthRemoteRegistrationService
      */
     private $logger;
 
-    public function __construct(TelehealthGlobalConfig $config, TelehealthRegistrationCodeService $codeService)
+    private TeleHealthUserRepository $userRepository;
+
+    public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService)
     {
         $this->apiURL = $config->getRegistrationAPIURI();
         $this->apiId = $config->getRegistrationAPIUserId();
@@ -88,7 +85,6 @@ class TeleHealthRemoteRegistrationService
         $this->userRepository = new TeleHealthUserRepository();
         $this->httpClient = new Client();
         $this->logger = new SystemLogger();
-        $this->codeService = $codeService;
     }
 
     public function createPatientRegistration($patient)
@@ -158,17 +154,6 @@ class TeleHealthRemoteRegistrationService
     public function setTelehealthUserRepository(TeleHealthUserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
-    }
-
-    /**
-     * Returns if a registration should be created for the given provider id.  This does not answer whether a registration
-     * exists, but whether the user passes the criteria for creating a registration record regardless of whether it exists or not.
-     * @param $providerId
-     * @return bool
-     */
-    public function shouldCreateRegistrationForProvider($providerId)
-    {
-        return $this->providerRepository->isEnabledProvider($providerId);
     }
 
     /**

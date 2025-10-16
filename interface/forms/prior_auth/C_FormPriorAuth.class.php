@@ -17,14 +17,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormPriorAuth extends Controller
 {
-    var $template_dir;
+    public $template_dir;
 
     function __construct($template_mod = "general")
     {
         parent::__construct();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
-        $this->template_dir = dirname(__FILE__) . "/templates/prior_auth/";
+        $this->template_dir = __DIR__ . "/templates/prior_auth/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
@@ -40,11 +40,7 @@ class C_FormPriorAuth extends Controller
 
     function view_action($form_id)
     {
-        if (is_numeric($form_id)) {
-            $prior_auth = new FormPriorAuth($form_id);
-        } else {
-            $prior_auth = new FormPriorAuth();
-        }
+        $prior_auth = is_numeric($form_id) ? new FormPriorAuth($form_id) : new FormPriorAuth();
 
         $this->assign("VIEW", true);
         $this->assign("prior_auth", $prior_auth);

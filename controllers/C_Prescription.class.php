@@ -27,18 +27,16 @@ use OpenEMR\Common\Twig\TwigContainer;
 
 class C_Prescription extends Controller
 {
-    var $template_mod;
-    var $pconfig;
-    var $providerid = 0;
-    var $is_faxing = false;
-    var $is_print_to_fax = false;
-    var $RxList;
-    var $prescriptions;
+    public $pconfig;
+    public $providerid = 0;
+    public $is_faxing = false;
+    public $is_print_to_fax = false;
+    public $RxList;
+    public $prescriptions;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
@@ -47,7 +45,7 @@ class C_Prescription extends Controller
         $this->RxList = new RxList();
         // test if rxnorm available for lookups.
         $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
-        $rxcui = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
+        $rxcui = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", ['RXCUI']);
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
         $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
@@ -55,8 +53,8 @@ class C_Prescription extends Controller
 
         if ($GLOBALS['inhouse_pharmacy']) {
             // Make an array of drug IDs and selectors for the template.
-            $drug_array_values = array(0);
-            $drug_array_output = array("-- " . xl('or select from inventory') . " --");
+            $drug_array_values = [0];
+            $drug_array_output = ["-- " . xl('or select from inventory') . " --"];
             $drug_attributes = '';
 
             // $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
@@ -119,12 +117,9 @@ class C_Prescription extends Controller
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    function edit_action($id = "", $patient_id = "", $p_obj = null)
+    function edit_action($id = "", $patient_id = "")
     {
-
-        if ($p_obj != null && get_class($p_obj) == "prescription") {
-            $this->prescriptions[0] = $p_obj;
-        } elseif (empty($this->prescriptions[0]) || !is_object($this->prescriptions[0]) || (get_class($this->prescriptions[0]) != "prescription")) {
+        if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
         }
 
@@ -166,11 +161,11 @@ class C_Prescription extends Controller
             } elseif ($rxn == true) {
                 //   Grab medication list from prescriptions list and load into array
                 $pid = $GLOBALS['pid'];
-                $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", array($pid));
-                $nameList = array();
+                $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", [$pid]);
+                $nameList = [];
                 while ($name = sqlFetchArray($medList)) {
-                    $drug = explode(" ", $name['drug']);
-                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", array("%" . $drug[0] . "%"));
+                    $drug = explode(" ", (string) $name['drug']);
+                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
                     $nameList[] = $rXn['rxcui'];
                 }
                 if (count($nameList) < 2) {
@@ -182,7 +177,7 @@ class C_Prescription extends Controller
                     // Unable to urlencode the $rxcui, since this breaks the + items on call to rxnav.nlm.nih.gov; so need to include it in the path
                     $response = oeHttp::get('https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=' . $rxcui_list);
                     $data = $response->body();
-                    $json = json_decode($data, true);
+                    $json = json_decode((string) $data, true);
                     if (!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])) {
                         foreach ($json['fullInteractionTypeGroup'][0]['fullInteractionType'] as $item) {
                             $interaction .= '<div class="alert alert-danger">';
@@ -353,7 +348,7 @@ class C_Prescription extends Controller
         $this->providerid = $p->provider->id;
         //print header
         $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], null, '50', '', 'center', '');
-        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
+        $pdf->ezColumnsStart(['num' => 2, 'gap' => 10]);
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
         $pdf->ezText($res['addr'] ?? '', 12);
@@ -397,7 +392,7 @@ class C_Prescription extends Controller
 
         $pdf->ezText('', 10);
         $pdf->setLineStyle(1);
-        $pdf->ezColumnsStart(array('num' => 2));
+        $pdf->ezColumnsStart(['num' => 2]);
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>', 6);
         $pdf->ezText($p->patient->get_name_display(), 10);
@@ -411,7 +406,7 @@ class C_Prescription extends Controller
         $pdf->ezText('');
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Medical Record #') . '</b>', 6);
-        $pdf->ezText(str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT), 10);
+        $pdf->ezText(str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT), 10);
         $pdf->ezColumnsStop();
         if ($my_y < $pdf->y) {
             $pdf->ezSetY($my_y);
@@ -438,8 +433,8 @@ class C_Prescription extends Controller
         echo ("<td>\n");
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
         if (!empty($res)) {
-            $patterns = array ('/\n/','/Tel:/','/Fax:/');
-            $replace = array ('<br />', xl('Tel') . ':', xl('Fax') . ':');
+            $patterns =  ['/\n/','/Tel:/','/Fax:/'];
+            $replace =  ['<br />', xl('Tel') . ':', xl('Fax') . ':'];
             $res = preg_replace($patterns, $replace, $res);
         }
 
@@ -480,8 +475,8 @@ class C_Prescription extends Controller
         echo ($p->patient->get_name_display() . '<br />');
         $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
         if (!empty($res)) {
-            $patterns = array ('/\n/');
-            $replace = array ('<br />');
+            $patterns =  ['/\n/'];
+            $replace =  ['<br />'];
             $res = preg_replace($patterns, $replace, $res);
         }
 
@@ -495,7 +490,7 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br />');
-        echo (str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -667,7 +662,7 @@ class C_Prescription extends Controller
         $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
         $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
         $d = $this->get_prescription_body_text($p);
-        if ($pdf->ezText($d, 10, array(), 1)) {
+        if ($pdf->ezText($d, 10, [], 1)) {
             $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
             $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
             $this->multiprint_footer($pdf);
@@ -697,9 +692,9 @@ class C_Prescription extends Controller
     function multiprintcss_body($p)
     {
         $d = $this->get_prescription_body_text($p);
-        $patterns = array ('/\n/','/     /');
-        $replace = array ('<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-        $d = preg_replace($patterns, $replace, $d);
+        $patterns =  ['/\n/','/     /'];
+        $replace =  ['<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
+        $d = preg_replace($patterns, $replace, (string) $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
 
@@ -716,12 +711,12 @@ class C_Prescription extends Controller
             $this->function_argument_error();
         }
 
-        list($pdf, $patient) = $this->generatePdfObjectForPrescriptionIds($id);
+        [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
 
         $pFirstName = $patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
         $pFName = convert_safe_file_dir_name($pFirstName);
         $modedFileName = "Rx_{$pFName}_{$patient->id}.pdf";
-        $pdf->ezStream(array('Content-Disposition' => $modedFileName));
+        $pdf->ezStream(['Content-Disposition' => $modedFileName]);
         return;
     }
 
@@ -811,7 +806,7 @@ class C_Prescription extends Controller
         echo ($p->patient->date_of_birth );
         echo "\n";
         echo xl('Medical Record #');
-        echo (str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo "\n\n";
         echo xl('Prescriptions') . "\n";
     }
@@ -839,7 +834,7 @@ class C_Prescription extends Controller
         }
         ob_start();
 
-        $ids = preg_split('/::/', substr($idsGet, 1, strlen($idsGet) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr((string) $idsGet, 1, strlen((string) $idsGet) - 2), -1, PREG_SPLIT_NO_EMPTY);
 
         $on_this_page = 0;
         foreach ($ids as $id) {
@@ -855,7 +850,7 @@ class C_Prescription extends Controller
             }
 
             // we don't want any html in the plain text rendering
-            echo strip_tags($this->get_prescription_body_text($p));
+            echo strip_tags((string) $this->get_prescription_body_text($p));
         }
 
         $this->multiprintplain_footer();
@@ -880,7 +875,7 @@ class C_Prescription extends Controller
         $this->multiprintcss_preheader();
 
         $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
 
         $on_this_page = 0;
         foreach ($ids as $id) {
@@ -965,11 +960,11 @@ class C_Prescription extends Controller
 
         $mail = new MyMailer();
         if ($sendAsPdf) {
-            list($pdf, $patient) = $this->generatePdfObjectForPrescriptionIds($id);
+            [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
             $pdfAsString = $pdf->output();
             $mailBody = $GLOBALS['openemr_name'] . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
         } else {
-            list($mailBody, $patient) = $this->generateHtmlObjectForPrescriptionIds($id);
+            [$mailBody, $patient] = $this->generateHtmlObjectForPrescriptionIds($id);
             $mail->isHTML(true);
         }
 
@@ -1002,7 +997,7 @@ class C_Prescription extends Controller
 
         // process the lookup
         $this->assign("drug", $_POST['drug']);
-        $list = array();
+        $list = [];
         if (!empty($_POST['drug'])) {
             $list = $this->RxList->getList($_POST['drug']);
         }
@@ -1025,7 +1020,7 @@ class C_Prescription extends Controller
     {
         $err = "Sent fax";
         //strip - ,(, ), and ws
-        $faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/", "", $faxNum);
+        $faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/", "", (string) $faxNum);
         //validate the number
 
         if (!empty($faxNum) && is_numeric($faxNum)) {
@@ -1053,7 +1048,7 @@ class C_Prescription extends Controller
                     $err .= " Failed to open file $fileName to write fax to";
                 }
 
-                if (fwrite($handle, $faxFile) === false) {
+                if (fwrite($handle, (string) $faxFile) === false) {
                     $err .= " Failed to write data to $fileName";
                 }
 
@@ -1086,7 +1081,7 @@ class C_Prescription extends Controller
 
         //print prescriptions body
         $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         foreach ($ids as $id) {
             $p = new Prescription($id);
             // if ($print_header == true) {
@@ -1106,7 +1101,7 @@ class C_Prescription extends Controller
         }
 
         $this->multiprint_footer($pdf);
-        return array($pdf, $p->patient);
+        return [$pdf, $p->patient];
     }
 
     private function generateHtmlObjectForPrescriptionIds($id)
@@ -1114,7 +1109,7 @@ class C_Prescription extends Controller
         ob_start();
         $this->multiprintcss_action($id);
         $html = ob_get_clean();
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         if (!empty($ids)) {
             $prescription = new Prescription($ids[0]);
         }

@@ -5,7 +5,7 @@
  * Several methods borrowed or refactored from Ken's CQM Tool.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -60,10 +60,10 @@ class QrdaReportService
     function fetchCurrentMeasures($scope = 'active'): array
     {
         $measures = [];
-        $year = trim($GLOBALS['cqm_performance_period'] ?: '2022');
+        $year = trim((string) $GLOBALS['cqm_performance_period'] ?: '2022');
         $list = 'ecqm_' . $year . '_reporting';
         $active = $scope == 'active' ? 1 : 0;
-        $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", array($list, $active));
+        $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", [$list, $active]);
         while ($row = sqlFetchArray($results)) {
             $measures[] = $row;
         }
@@ -78,7 +78,7 @@ class QrdaReportService
     {
         $resolved = [];
         $result = [];
-        if (empty($measures)) {
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
             $measures = $this->fetchCurrentMeasures('active');
         }
         if (is_array($measures)) {
@@ -111,11 +111,7 @@ class QrdaReportService
             'performance_period_start' => $this->effectiveDate,
             'performance_period_end' => $this->effectiveDateEnd
         ];
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
-            $request = new QdmRequestAll();
-        }
+        $request = $pid ? new QdmRequestOne($pid) : new QdmRequestAll();
 
         $exportService = new ExportCat1Service($this->builder, $request);
         $xml = $exportService->export($measures, $options);
@@ -130,17 +126,13 @@ class QrdaReportService
      */
     public function qualifyPatientMeasure($pid, $measures): bool
     {
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
-            $request = new QdmRequestAll();
-        }
+        $request = $pid ? new QdmRequestOne($pid) : new QdmRequestAll();
 
         $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
         $result = $exportService->export($measures, true);
         $include = array_shift($result);
         if ((int)$include[0]->IPP === 0) {
-            error_log(errorLogEscape(xlt('Patient did not qualify') . ' pid: ' . $pid . ' Measures: ' . text(basename($measures[0]))));
+            error_log(errorLogEscape(xlt('Patient did not qualify') . ' pid: ' . $pid . ' Measures: ' . text(basename((string) $measures[0]))));
             return false;
         }
 
@@ -170,6 +162,62 @@ class QrdaReportService
             throw new \RuntimeException($msg);
         }
 
-        return $xml ?? '';
+        return $xml;
+    }
+
+    /**
+     * NEW METHOD: Generate consolidated QRDA Category III XML for all measures
+     *
+     * @param mixed $pid Patient ID(s) - if empty, uses all patients
+     * @param array $measures Array of measures - if empty, uses all active measures
+     * @return string Consolidated QRDA III XML
+     */
+    public function generateConsolidatedCategoryIIIXml($pid = null, $measures = []): string
+    {
+        // Determine request type based on patient parameter
+        if (empty($pid)) {
+            $request = new QdmRequestAll();
+        } elseif (is_array($pid)) {
+            $request = new QdmRequestSome($pid);
+        } else {
+            $request = new QdmRequestOne($pid);
+        }
+
+        // Resolve measures - use active measures if none specified
+        if ($measures === '' || $measures === null || (is_array($measures) && count($measures) === 0)) {
+            $activeMeasures = $this->fetchCurrentMeasures('active');
+            $measures = $this->resolveMeasuresPath($activeMeasures);
+        } else {
+            $measures = $this->resolveMeasuresPath($measures);
+        }
+
+        // Ensure CQM service is running
+        if (empty($this->client->getHealth()['uptime'] ?? null)) {
+            $msg = xlt("Can not complete report request. Node Service is not running.");
+            throw new \RuntimeException($msg);
+        }
+
+        // Generate consolidated report
+        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
+        return $exportService->exportConsolidated($measures);
+    }
+
+    /**
+     * Get the filename for consolidated QRDA III download
+     *
+     * @param string $reportingPeriod
+     * @return string
+     */
+    public function getConsolidatedFilename($reportingPeriod = null): string
+    {
+        if (!$reportingPeriod) {
+            $reportingPeriod = trim($GLOBALS['cqm_performance_period'] ?? '2023');
+        }
+
+        $orgName = $GLOBALS['openemr_name'] ?? 'OpenEMR_Practice';
+        $orgName = preg_replace('/[^a-zA-Z0-9]/', '_', (string) $orgName);
+        $timestamp = date('Ymd_His');
+
+        return "{$orgName}_QRDA_III_Consolidated_{$reportingPeriod}_{$timestamp}.xml";
     }
 }

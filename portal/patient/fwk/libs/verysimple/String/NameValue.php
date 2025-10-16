@@ -27,7 +27,7 @@ class NameValue
      */
     function __construct($line = "", $delim = "=", $nameonly = false)
     {
-        $keyval = explode($delim, $line);
+        $keyval = explode($delim, (string) $line);
         $this->Name = $keyval [0];
         $this->Value = $nameonly == false && isset($keyval [1]) ? $keyval [1] : $keyval [0];
     }
@@ -46,7 +46,7 @@ class NameValue
      */
     static function Parse($lines, $delim = "=", $nameonly = false)
     {
-        $return = array ();
+        $return =  [];
 
         $lines = str_replace("\r\n", "\n", $lines);
         $lines = str_replace("\r", "\n", $lines);
@@ -74,7 +74,7 @@ class NameValue
      */
     static function ToSimpleArray($nvArray)
     {
-        $sa = array ();
+        $sa =  [];
         foreach ($nvArray as $nv) {
             $sa [$nv->Name] = $nv->Value;
         }

@@ -20,7 +20,7 @@ class X12TrackerPage
         $endDate = $_POST['endDate'];
 
         $sql = "SELECT * FROM x12_remote_tracker where created_at BETWEEN ? AND ?";
-        $files = sqlStatementNoLog($sql, array($startDate,$endDate));
+        $files = sqlStatementNoLog($sql, [$startDate,$endDate]);
 
         return $files;
     }

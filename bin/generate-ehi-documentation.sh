@@ -12,7 +12,6 @@ TEMPLATE_LOCATION=${EHI_ROOT_FILE}/layout/
 DOC_OUTPUT=../Documentation/EHI_Export/docs/
 JAR_FILES=${EHI_ROOT_FILE}/jars
 TYPE=mariadb
-MYSQL_CONNECTOR=${JAR_FILES}/mysql-connector-j-8.1.0.jar
 MARIADB_CONNECTOR=${JAR_FILES}/mariadb-java-client-3.4.1.jar
 JAVA_CONNECTOR=${MARIADB_CONNECTOR}
 
@@ -43,4 +42,4 @@ FILTER_CLAUSE="-i ${TABLES_INCLUDE}"
 # -noDbObjectPaging
 # schema file is named openemr.meta.xml
 
-java -jar ${JAR_FILES}/schemaspy.jar -t ${TYPE} -host ${DB_HOST} -port ${DB_PORT} -db ${DB_NAME} -u ${DB_USER} -p ${DB_PASSWORD} -o ${DOC_OUTPUT} -s ${DB_SCHEMA} -dp ${JAVA_CONNECTOR} -vizjs -norows -noimplied -nopages ${FILTER_CLAUSE} -meta ${SCHEMA_LOCATION} -template ${TEMPLATE_LOCATION}
+java -jar "${JAR_FILES}"/schemaspy.jar -t "${TYPE}" -host "${DB_HOST}" -port "${DB_PORT}" -db "${DB_NAME}" -u "${DB_USER}" -p "${DB_PASSWORD}" -o "${DOC_OUTPUT}" -s "${DB_SCHEMA}" -dp "${JAVA_CONNECTOR}" -vizjs -norows -noimplied -nopages "${FILTER_CLAUSE}" -meta "${SCHEMA_LOCATION}" -template "${TEMPLATE_LOCATION}"

@@ -9,8 +9,10 @@
 // Updated by:  Larry Lart on 11/03/2008
 ////////////////////////////////////////////////////////////////////
 
-// comment below exit if plan to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_CRON_SMS_NOTIFICATION')) {
+    die('Set OPENEMR_ENABLE_CRON_SMS_NOTIFICATION=1 environment variable to enable this script');
+}
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];

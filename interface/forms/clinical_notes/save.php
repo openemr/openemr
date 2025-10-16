@@ -32,7 +32,7 @@ if (!$encounter) { // comes from globals.php
 
 // TODO: This should all be rolled into a transaction
 
-$form_id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$form_id = (int) ($_GET['id'] ?? '');
 $code = $_POST["code"];
 $code_text = $_POST["codetext"];
 $code_date = $_POST["code_date"];
@@ -109,6 +109,6 @@ formJump();
 formFooter();
 function parse_note($note)
 {
-    $result = preg_match_all("/\{\|([^\]]*)\|}/", $note, $matches);
+    $result = preg_match_all("/\{\|([^\]]*)\|}/", (string) $note, $matches);
     return json_encode($matches[1]);
 }

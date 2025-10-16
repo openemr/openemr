@@ -32,14 +32,14 @@ function smarty_core_write_cache_file($params, &$smarty)
     }
 
     // collapse nocache.../nocache-tags
-    if (preg_match_all('!\{(/?)nocache\:[0-9a-f]{32}#\d+\}!', $params['results'], $match, PREG_PATTERN_ORDER)) {
+    if (preg_match_all('!\{(/?)nocache\:[0-9a-f]{32}#\d+\}!', (string) $params['results'], $match, PREG_PATTERN_ORDER)) {
         // remove everything between every pair of outermost noache.../nocache-tags
         // and replace it by a single nocache-tag
         // this new nocache-tag will be replaced by dynamic contents in
         // smarty_core_process_compiled_includes() on a cache-read
 
         $match_count = count($match[0]);
-        $results = preg_split('!(\{/?nocache\:[0-9a-f]{32}#\d+\})!', $params['results'], -1, PREG_SPLIT_DELIM_CAPTURE);
+        $results = preg_split('!(\{/?nocache\:[0-9a-f]{32}#\d+\})!', (string) $params['results'], -1, PREG_SPLIT_DELIM_CAPTURE);
 
         $level = 0;
         $j = 0;
@@ -68,7 +68,7 @@ function smarty_core_write_cache_file($params, &$smarty)
     if (!empty($smarty->cache_handler_func)) {
         // use cache_handler function
         call_user_func_array($smarty->cache_handler_func,
-                             array('write', &$smarty, &$params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], $smarty->_cache_info['expires']));
+                             ['write', &$smarty, &$params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], $smarty->_cache_info['expires']]);
     } else {
         // use local cache file
 
@@ -84,7 +84,7 @@ function smarty_core_write_cache_file($params, &$smarty)
 
         $_auto_id = $smarty->_get_auto_id($params['cache_id'], $params['compile_id']);
         $_cache_file = $smarty->_get_auto_filename($smarty->cache_dir, $params['tpl_file'], $_auto_id);
-        $_params = array('filename' => $_cache_file, 'contents' => $params['results'], 'create_dirs' => true);
+        $_params = ['filename' => $_cache_file, 'contents' => $params['results'], 'create_dirs' => true];
         require_once(SMARTY_CORE_DIR . 'core.write_file.php');
         smarty_core_write_file($_params, $smarty);
         return true;

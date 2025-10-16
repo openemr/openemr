@@ -19,7 +19,7 @@ use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
  * files to x12 partners that are in the 'waiting'
  * status.
  */
-function start_X12_SFTP()
+function start_X12_SFTP(): void
 {
     if ($GLOBALS['auto_sftp_claims_to_x12_partner']) {
         X12RemoteTracker::sftpSendWaitingFiles();

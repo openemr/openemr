@@ -14,7 +14,7 @@
 <div class="card">
     <div class="card-body">
         <h5 class="card-title"><?php echo xlt("Subscriber/Patient Information"); ?></h5>
-        <div class="row"> 
+        <div class="row">
             <div class="col">
                 <strong><?php echo xlt("Name"); ?></strong>
             </div>
@@ -29,5 +29,5 @@
             </div>
         </div>
     </div>
-        
+
 </div>

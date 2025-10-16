@@ -16,15 +16,9 @@ use OpenEMR\Validators\Rules\ListOptionRule;
 use Particle\Validator\MessageStack;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass OpenEMR\Validators\Rules\ListOptionRule
- */
 class ListOptionRuleTest extends TestCase
 {
-    /**
-     * @covers ::validate
-     */
-    public function testValidateWithValidOptionId()
+    public function testValidateWithValidOptionId(): void
     {
         // test with a valid list id
         $rule = new ListOptionRule('yesno');
@@ -34,11 +28,12 @@ class ListOptionRuleTest extends TestCase
         $this->assertEmpty($messageStack->getFailures(), "No failures should have been added to the message stack");
     }
 
-    public function testValidateWithInvalidOptionId()
+    public function testValidateWithInvalidOptionId(): void
     {
         $rule = new ListOptionRule('yesno');
         $messageStack = new MessageStack();
         $rule->setMessageStack($messageStack);
+        $rule->setParameters('field_key', 'Human Name'); // normally this would be done by a framework
         $this->assertFalse($rule->validate('somethingelse'), 'somethingelse is not a valid option id for the yesno list');
         $this->assertNotEmpty($messageStack->getFailures(), "Failures should have been added to the message stack");
     }

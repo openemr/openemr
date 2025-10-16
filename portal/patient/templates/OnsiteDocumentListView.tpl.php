@@ -37,7 +37,7 @@ $referer_flag = $this->referer_flag ?? 0;
 
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
-$referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
+$referer_portal = "../home.php?site=" . (urlencode((string) $_SESSION['site_id']) ?? null) ?: 'default';
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -48,7 +48,7 @@ $this->assign('nav', 'onsitedocuments');
 
 $catname = '';
 if ($category) {
-    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", array($category));
+    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", [$category]);
     $catname = $result['name'] ?: '';
 }
 $catname = $catname ?: xlt("Onsite Portal Reviewed");
@@ -552,12 +552,13 @@ $templateService = new DocumentTemplateService();
                 </ul>
                 <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
                 <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
-                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                    <!--Infeg : Added event.preventDefault to prevent page reload on click.-->
+                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='#' onclick="event.preventDefault();$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
                 <?php } ?>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
                 <?php } elseif (!$is_module && !$is_dashboard) {
-                    $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
+                    $referer_portal = "../home.php?site=" . (urlencode((string) $_SESSION['site_id']) ?? null) ?: 'default';
                     ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                 <?php }

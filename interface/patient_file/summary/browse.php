@@ -86,11 +86,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 <?php
 if (isset($_GET['set_pid'])) {
-    if (!isset($_POST['insurance'])) {
-        $insurance = "primary";
-    } else {
-        $insurance = $_POST['insurance'];
-    }
+    $insurance = !isset($_POST['insurance']) ? "primary" : $_POST['insurance'];
 
     $result = getPatientData($_GET['set_pid']);
   // $result2 = getEmployerData($_GET['set_pid']); // not used!
@@ -186,20 +182,20 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']), $result3['subscriber_state']);
+    echo generate_display_field(['data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']], $result3['subscriber_state']);
     ?>
 </span></td>
 </tr>
 <tr>
 <td><span class='text'><?php echo xlt('Zip Code'); ?>:</span></td>
-<td><span class='text'><?php echo htmlspecialchars($result3['subscriber_postal_code']);?></span></td>
+<td><span class='text'><?php echo htmlspecialchars((string) $result3['subscriber_postal_code']);?></span></td>
 </tr>
 <tr>
 <td><span class='text'><?php echo xlt('Country'); ?>:</span></td>
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']), $result3['subscriber_country']);
+    echo generate_display_field(['data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']], $result3['subscriber_country']);
     ?>
 </span></td>
 </tr>
@@ -255,7 +251,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
       //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(array('data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']), $result3['subscriber_employer_state']);
+        echo generate_display_field(['data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']], $result3['subscriber_employer_state']);
         ?>
 </span></td>
 </tr>
@@ -264,7 +260,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
        //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(array('data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']), $result3['subscriber_employer_country']);
+        echo generate_display_field(['data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']], $result3['subscriber_employer_country']);
         ?>
 </span></td>
 </tr>
@@ -273,7 +269,7 @@ function auto_populate_employer_address(){
 
 <tr>
 <td><span class='text'><?php echo xlt('Subscriber Sex'); ?>:</span></td>
-<td><span class='text'><?php echo generate_display_field(array('data_type' => '1','list_id' => 'sex'), $result3['subscriber_sex']); ?></span></td>
+<td><span class='text'><?php echo generate_display_field(['data_type' => '1','list_id' => 'sex'], $result3['subscriber_sex']); ?></span></td>
 </tr>
 </table>
 

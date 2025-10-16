@@ -25,8 +25,6 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-require_once(__DIR__ . '/../../../_rest_config.php');
-
 /**
  * Supports REST interactions with the FHIR practitioner resource
  */
@@ -80,7 +78,7 @@ class FhirPersonRestController
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirPersonService->getAll($searchParams);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

@@ -56,29 +56,21 @@ if ($pid) {
         die(xlt('You are not authorized to access this squad.'));
     }
 } else {
-    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
         die(xlt('Adding insurance is not authorized.'));
     }
 }
 // $statii = array('married','single','divorced','widowed','separated','domestic partner');
 // $provideri = getProviderInfo();
-if ($GLOBALS['insurance_information'] != '0') {
-    $insurancei = getInsuranceProvidersExtra();
-} else {
-    $insurancei = getInsuranceProviders();
-}
+$insurancei = $GLOBALS['insurance_information'] != '0' ? getInsuranceProvidersExtra() : getInsuranceProviders();
 //Check to see if only one insurance is allowed
-if ($GLOBALS['insurance_only_one']) {
-    $insurance_array = array('primary');
-} else {
-    $insurance_array = array('primary', 'secondary', 'tertiary');
-}
+$insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 //Check to see if only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {
-    $insurance_headings = array(xl("Primary Insurance Provider"));
+    $insurance_headings = [xl("Primary Insurance Provider")];
 } else {
-    $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+    $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
 }
 
 $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();

@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Services\DemographicsRelatedPersonsService;
 
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -37,7 +38,7 @@ if ($pid) {
         die(xlt('You are not authorized to access this squad.'));
     }
 } else {
-    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
         die(xlt('Adding demographics is not authorized.'));
     }
 }
@@ -48,16 +49,24 @@ foreach ($_POST as $key => $val) {
     }
 }
 
+$relSvc = new DemographicsRelatedPersonsService();
+$relatedValues = $relSvc->collectFromPostAndStrip($_POST); // removes form_related* from $_POST so they skip patient_data
+
 // Update patient_data and employer_data:
 //
-$newdata = array();
+$newdata = [];
 $newdata['patient_data']['id'] = $_POST['db_id'];
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_id, seq");
 
-$addressFieldsToSave = array();
+$addressFieldsToSave = [];
 while ($frow = sqlFetchArray($fres)) {
+    // Skip related-person fields from patient_data $newdata
+    if ($relSvc->isRelatedFieldId($frow['field_id'])) {
+        continue;
+    }
+
     $data_type = $frow['data_type'];
     if ((int)$data_type === 52) {
         // patient name history is saved in add.
@@ -66,8 +75,8 @@ while ($frow = sqlFetchArray($fres)) {
     $field_id = $frow['field_id'];
     $colname = $field_id;
     $table = 'patient_data';
-    if (str_starts_with($field_id, 'em_')) {
-        $colname = substr($field_id, 3);
+    if (str_starts_with((string) $field_id, 'em_')) {
+        $colname = substr((string) $field_id, 3);
         $table = 'employer_data';
     }
 
@@ -85,7 +94,7 @@ while ($frow = sqlFetchArray($fres)) {
 
 updatePatientData($pid, $newdata['patient_data']);
 if (!$GLOBALS['omit_employers']) {
-    updateEmployerData($pid, $newdata['employer_data']);
+    updateEmployerData($pid, $newdata['employer_data'], false, $newdata['patient_data']);
 }
 
 if (!empty($addressFieldsToSave)) {
@@ -99,6 +108,14 @@ if (!empty($addressFieldsToSave)) {
         $contactService->saveContactsForPatient($pid, $addressFieldData);
     }
 }
+
+// Save related-person info to patient_related_persons table
+// Note that there is a unique key on (pid) so this will only
+// ever be one row per patient.
+if (empty($pid) && !empty($_SESSION['pid'])) {
+    $pid = (int) $_SESSION['pid'];
+}
+$relSvc->saveForPid((int)$pid, $relatedValues);
 
 /**
  * trigger events to listeners who want data that is not directly available in

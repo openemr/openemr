@@ -31,7 +31,7 @@ require_once("php/" . $form_folder . "_functions.php");
 
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
-if (!$_REQUEST['pid'] && $_REQUEST['id']) {
+if (!($_REQUEST['pid'] ?? '') && $_REQUEST['id']) {
     $_REQUEST['pid'] = $_REQUEST['id'];
 }
 if (!$_REQUEST['pid']) {
@@ -63,7 +63,7 @@ $query = "select  *,form_encounter.date as encounter_date
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $data = sqlQuery($query, array($_REQUEST['encounter'], $_REQUEST['pid']));
+    $data = sqlQuery($query, [$_REQUEST['encounter'], $_REQUEST['pid']]);
     $data['ODMPDD'] = $data['ODPDMeasured'];
     $data['OSMPDD'] = $data['OSPDMeasured'];
     $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
@@ -74,20 +74,20 @@ $query = "select  *,form_encounter.date as encounter_date
     $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
 
     $query      = "SELECT * FROM users where id = ?";
-    $prov_data  = sqlQuery($query, array($data['provider_id']));
+    $prov_data  = sqlQuery($query, [$data['provider_id']]);
 
     $query      = "SELECT * FROM patient_data where pid=?";
-    $pat_data   = sqlQuery($query, array($data['pid']));
+    $pat_data   = sqlQuery($query, [$data['pid']]);
 
     $practice_data = $facilityService->getPrimaryBusinessEntity();
 
     $visit_date = oeFormatShortDate($data['encounter_date']);
 
-if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense table
+if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
-    $fields = array();
+    $fields = [];
 
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
@@ -113,14 +113,14 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     }
 
     exit;
-} elseif ($_REQUEST['mode'] == "remove") {
+} elseif ($_REQUEST['mode'] ?? '' == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
-    sqlStatement($query, array($_REQUEST['delete_id']));
+    sqlStatement($query, [$_REQUEST['delete_id']]);
     echo xlt('Prescription successfully removed.');
     exit;
-} elseif ($_REQUEST['RXTYPE']) {  //store any changed fields
+} elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
-    sqlStatement($query, array($_REQUEST['RXTYPE'], $_REQUEST['id']));
+    sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id']]);
     exit;
 }
 
@@ -142,18 +142,14 @@ if ($_REQUEST['REFTYPE']) {
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
-    if (!$_REQUEST['encounter']) {
-        $encounter = $_SESSION['encounter'];
-    } else {
-        $encounter = $_REQUEST['encounter'];
-    }
+    $encounter = !$_REQUEST['encounter'] ? $_SESSION['encounter'] : $_REQUEST['encounter'];
 
 
 
     if ($REFTYPE == "W") {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
-        $wear = sqlStatement($query, array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
+        $wear = sqlStatement($query, [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']]);
         $wearing = sqlFetchArray($wear);
         $ODSPH = $wearing['ODSPH'];
         $ODAXIS = $wearing['ODAXIS'];
@@ -253,7 +249,7 @@ if ($_REQUEST['REFTYPE']) {
     $table_name      = "form_eye_mag_dispense";
     $query           = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
-    $fields          = array();
+    $fields          = [];
 
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
@@ -282,9 +278,9 @@ if ($_REQUEST['REFTYPE']) {
     }
 }
 
-if ($_REQUEST['dispensed']) {
+if ($_REQUEST['dispensed'] ?? '') {
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
-    $dispensed = sqlStatement($query, array($_REQUEST['pid']));
+    $dispensed = sqlStatement($query, [$_REQUEST['pid']]);
     ?><html>
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
@@ -434,11 +430,11 @@ if ($_REQUEST['dispensed']) {
                     $Progressive = "checked='checked'";
                 }
 
-                $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
+                $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
                 if ($row['REFTYPE'] == "CTL") {
-                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($row['REFDATE'])));
+                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
                 } else {
-                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($row['REFDATE'])));
+                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
                 }
                 $expir_date = oeFormatShortDate($expir);
                 $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
@@ -446,7 +442,7 @@ if ($_REQUEST['dispensed']) {
                 ?>
                     <div class="position-relative text-center mt-2 mb-2 mx-auto" id="RXID_<?php echo attr($row['id']); ?>">
                         <i class="float-right fas fa-times"
-                           onclick="delete_me('<?php echo attr(addslashes($row['id'])); ?>');"
+                           onclick="delete_me('<?php echo attr(addslashes((string) $row['id'])); ?>');"
                            title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
                         <div class="table-responsive">
                             <table class="table mt-1 mb-1 mx-auto">
@@ -551,11 +547,7 @@ if ($_REQUEST['dispensed']) {
                                                 </table>
                                                 <?php
                                     } else {
-                                        if (!empty($row['ODADD']) || !empty($row['OSADD'])) {
-                                            $adds = 1;
-                                        } else {
-                                            $adds = '';
-                                        }
+                                        $adds = !empty($row['ODADD']) || !empty($row['OSADD']) ? 1 : '';
                                         ?>
                                                 <table id="CTLRx" name="CTLRx" class="refraction">
                                                     <tr>
@@ -913,9 +905,9 @@ if ($_REQUEST['dispensed']) {
 <br/><br/>
 <?php
 if ($REFTYPE == "CTL") {
-    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($data['date'])));
+    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
 } else {
-    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($data['date'])));
+    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
 }
     $expir_date = oeFormatShortDate($expir);
 ?>
@@ -962,7 +954,7 @@ if ($REFTYPE == "CTL") {
                                             <label for="RXTYPE_Bifocal"><?php echo xlt('Bifocal'); ?></label>
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>);"
-                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?> />
+                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal ?? ''); ?> />
                                         </span>
                                         <br/>
                                         <span id="Trifocal_span" name="Trifocal_span">
@@ -970,7 +962,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Trifocal" id="RXTYPE_Trifocal"
-                                                   name="RXTYPE" <?php echo attr($Trifocal); ?>>
+                                                   name="RXTYPE" <?php echo attr($Trifocal ?? ''); ?>>
                                         </span>
                                         <br/>
                                         <span id="Progressive_span">
@@ -980,7 +972,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Progressive" id="RXTYPE_Progressive"
-                                                   name="RXTYPE" <?php echo attr($Progressive); ?>>
+                                                   name="RXTYPE" <?php echo attr($Progressive ?? ''); ?>>
                                         </span>
                                         <br/>
                                     </td>
@@ -1135,7 +1127,7 @@ if ($REFTYPE == "CTL") {
                                                                                                         value="<?php echo attr($BPDN); ?>">
                                     </td>
                                     <td colspan="2">   <?php
-                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px'));
+                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px']);
                                     ?>
                                     </td>
                                 </tr>
@@ -1153,17 +1145,13 @@ if ($REFTYPE == "CTL") {
                                 </tr>
                                 <tr style="text-align:left;vertical-align:top;">
                                     <td colspan="4" class="bold left">
-                                        <?php echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
+                                        <?php echo generate_lens_treatments($W ?? '', $LENS_TREATMENTS); ?>
                                     </td>
                                 </tr>
                             </table>&nbsp;<br/><br/><br/>
                             <?php
                     } else {
-                        if (!empty($ODADD) || !empty($OSADD)) {
-                            $adds = 1;
-                        } else {
-                            $adds = '';
-                        }
+                        $adds = !empty($ODADD) || !empty($OSADD) ? 1 : '';
                         ?>
                             <table id="CTLRx" name="CTLRx" class="refraction bordershadow">
                                 <tr class="bold center">

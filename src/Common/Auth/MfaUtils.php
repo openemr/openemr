@@ -21,33 +21,31 @@ class MfaUtils
     const TOTP = 'TOTP';
     const U2F = 'U2F';
 
-    private $types = array(); //type of MFA
+    private $types = []; //type of MFA
     private $regs;
     private $registrations;
     private $var1U2F;
     private $var1TOTP;
-    private $uid; // User Id who try connect
     private $errorMsg = '';
     private $appId;
 
     /**
      * MfaUtils constructor.
      * Load the settings of user from login_mfa_registrations
-     * @param $uid - user Id
+     * @param $uid User Id who try connect
      */
-    public function __construct($uid)
+    public function __construct(private $uid)
     {
-        $this->uid = $uid;
         $res = sqlStatementNoLog(
             "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
             "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-            array($uid)
+            [$this->uid]
         );
         while ($row = sqlFetchArray($res)) {
             if ($row['method'] == 'U2F') {
                 $this->types[] = 'U2F';
                 $this->var1U2F = $row['var1'];
-                $regobj = json_decode($row['var1']);
+                $regobj = json_decode((string) $row['var1']);
                 $this->regs[json_encode($regobj->keyHandle)] = $row['name'];
                 $this->registrations[] = $regobj;
             } elseif ($row['method'] == 'TOTP') {
@@ -61,7 +59,7 @@ class MfaUtils
 
     public function tokenFromRequest($type)
     {
-        $token = isset($_POST['mfa_token']) ? $_POST['mfa_token'] : null;
+        $token = $_POST['mfa_token'] ?? null;
         if (is_null($token)) {
             return null;
         }
@@ -90,16 +88,11 @@ class MfaUtils
      */
     public function check($token, $type)
     {
-        switch ($type) {
-            case 'TOTP':
-                return $this->checkTOTP($token);
-                break;
-            case 'U2F':
-                return $this->checkU2F($token);
-                break;
-            default:
-                throw new \Exception('MFA type do not supported');
-        }
+        return match ($type) {
+            'TOTP' => $this->checkTOTP($token),
+            'U2F' => $this->checkU2F($token),
+            default => throw new \Exception('MFA type do not supported'),
+        };
     }
 
     /**
@@ -128,7 +121,7 @@ class MfaUtils
         $requests =  json_encode($u2f->getAuthenticateData($this->registrations));
         sqlStatement(
             "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
-            array($requests, $this->uid)
+            [$requests, $this->uid]
         );
         return $requests;
     }
@@ -153,7 +146,7 @@ class MfaUtils
             // Second, try the password hash, which was setup during install and is temporary
             $passwordResults = privQuery(
                 "SELECT password FROM users_secure WHERE username = ?",
-                array($_POST["authUser"])
+                [$_POST["authUser"]]
             );
             if (!empty($passwordResults["password"])) {
                 $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
@@ -163,7 +156,7 @@ class MfaUtils
                     $secretEncrypt = $cryptoGen->encryptStandard($secret);
                     privStatement(
                         "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
-                        array($secretEncrypt, $this->uid)
+                        [$secretEncrypt, $this->uid]
                     );
                 }
             }
@@ -191,12 +184,12 @@ class MfaUtils
     {
 
         $u2f = new \u2flib_server\U2F($this->appId);
-        $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($this->uid));
+        $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", [$this->uid]);
         try {
             $registration = $u2f->doAuthenticate(
-                json_decode($tmprow['login_work_area']), // these are the original challenge requests
+                json_decode((string) $tmprow['login_work_area']), // these are the original challenge requests
                 $this->registrations,
-                json_decode($token)
+                json_decode((string) $token)
             );
             // Stored registration data needs to be updated because the usage count has changed.
             // We have to use the matching registered key.
@@ -205,7 +198,7 @@ class MfaUtils
                 sqlStatement(
                     "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
                     "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
-                    array(json_encode($registration), $this->uid, $this->regs[$strhandle])
+                    [json_encode($registration), $this->uid, $this->regs[$strhandle]]
                 );
                 return true;
             } else {
@@ -227,16 +220,11 @@ class MfaUtils
      */
     private function validateToken($token, $type)
     {
-        switch ($type) {
-            case 'TOTP':
-                return strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false;
-                break;
-            case 'U2F':
-                // todo - USF string validation
-                return true;
-                break;
-            default:
-                throw new \Exception('MFA type do not supported');
-        }
+        return match ($type) {
+            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            // todo - USF string validation
+            'U2F' => true,
+            default => throw new \Exception('MFA type do not supported'),
+        };
     }
 }

@@ -21,7 +21,7 @@
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 //   $date_created - specifically for the uncomplete_safe mode only to ensure safe for duplicate entries.
-function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
+function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
 
   // Ensure empty variables are set correctly
@@ -81,7 +81,7 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcAdd($amc_id, $complete, $patient_id, $object_category = '', $object_id = '0')
+function amcAdd($amc_id, $complete, $patient_id, $object_category = '', $object_id = '0'): void
 {
 
   // Attempt to collect the item
@@ -89,7 +89,7 @@ function amcAdd($amc_id, $complete, $patient_id, $object_category = '', $object_
 
     if (empty($item)) {
         // does not yet exist, so add the item
-        $sqlBindArray = array($amc_id,$patient_id,$object_category,$object_id);
+        $sqlBindArray = [$amc_id,$patient_id,$object_category,$object_id];
         if ($complete) {
             sqlStatement("INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`,`date_completed`) VALUES(?,?,?,?,NOW(),NOW())", $sqlBindArray);
         } else {
@@ -110,11 +110,11 @@ function amcAdd($amc_id, $complete, $patient_id, $object_category = '', $object_
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcAddForce($amc_id, $complete, $patient_id, $object_category = '', $object_id = '0')
+function amcAddForce($amc_id, $complete, $patient_id, $object_category = '', $object_id = '0'): void
 {
 
   // add the item
-    $sqlBindArray = array($amc_id,$patient_id,$object_category,$object_id);
+    $sqlBindArray = [$amc_id,$patient_id,$object_category,$object_id];
     if ($complete) {
         sqlStatement("INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`,`date_completed`) VALUES(?,?,?,?,NOW(),NOW())", $sqlBindArray);
     } else {
@@ -127,9 +127,9 @@ function amcAddForce($amc_id, $complete, $patient_id, $object_category = '', $ob
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcRemove($amc_id, $patient_id, $object_category = '', $object_id = '0')
+function amcRemove($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
-    sqlStatement("DELETE FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id));
+    sqlStatement("DELETE FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", [$amc_id,$patient_id,$object_category,$object_id]);
 }
 
 // Function to complete an item from the amc_misc_data sql table
@@ -137,12 +137,12 @@ function amcRemove($amc_id, $patient_id, $object_category = '', $object_id = '0'
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '0')
+function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
     sqlStatement(
         "UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND " .
         dateEmptySql('date_completed', true),
-        array($amc_id,$patient_id,$object_category,$object_id)
+        [$amc_id,$patient_id,$object_category,$object_id]
     );
 }
 
@@ -153,11 +153,11 @@ function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 //   $date_created - date created.
-function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
+function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
     sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND" .
         dateEmptySql('date_completed', true) .
-        "AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
+        "AND `date_created`=?", [$amc_id,$patient_id,$object_category,$object_id,$date_created]);
 }
 
 // Function to remove completion date/flag from  an item in the amc_misc_data sql table
@@ -165,9 +165,9 @@ function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id = '0')
+function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id));
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", [$amc_id,$patient_id,$object_category,$object_id]);
 }
 
 // Function to remove completion date/flag from  an item in the amc_misc_data sql table
@@ -177,9 +177,9 @@ function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id =
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 //   $date_created - date created.
-function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
+function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND `date_created`=?", [$amc_id,$patient_id,$object_category,$object_id,$date_created]);
 }
 
 // Function to complete an item from the amc_misc_data sql table
@@ -189,7 +189,7 @@ function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcCollect($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-    return sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id));
+    return sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", [$amc_id,$patient_id,$object_category,$object_id]);
 }
 
 // Function to support the AMC tracking report
@@ -202,7 +202,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
     $where = '';
 
   # Collect the patient list first (from the provider)
-    $patients = array();
+    $patients = [];
     if (empty($provider)) {
         // Look at entire practice
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data`");
@@ -212,18 +212,18 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
     } else {
         // Look at one provider
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data` " .
-        "WHERE providerID=?", array($provider));
+        "WHERE providerID=?", [$provider]);
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
              $patients[$iter] = $row;
         }
     }
 
-    $results = array();
+    $results = [];
     foreach ($patients as $patient) {
-        $tempResults = array();
+        $tempResults = [];
 
         if ($amc_id == "send_sum_amc") {
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date`>=? ";
@@ -240,11 +240,11 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                 $amcCheck = amcCollect("send_sum_amc", $patient['pid'], "transactions", $res['id']);
                 if (empty($amcCheck)) {
                     // Records have not been sent, so send this back
-                    array_push($tempResults, array("pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date'], "id" => $res['id']));
+                    array_push($tempResults, ["pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date'], "id" => $res['id']]);
                 }
             }
         } elseif ($amc_id == "provide_rec_pat_amc") {
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date_created`>=? ";
@@ -261,10 +261,10 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
             "$where ORDER BY `date_created` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
                 // Records have not been sent, so send this back
-                array_push($tempResults, array("pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date_created']));
+                array_push($tempResults, ["pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date_created']]);
             }
         } elseif ($amc_id == "provide_sum_pat_amc") {
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date`>=? ";
@@ -281,7 +281,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                 $amcCheck = amcCollect("provide_sum_pat_amc", $patient['pid'], "form_encounter", $res['encounter']);
                 if (empty($amcCheck)) {
                     // Records have not been given, so send this back
-                    array_push($tempResults, array("pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date'], "id" => $res['encounter']));
+                    array_push($tempResults, ["pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date'], "id" => $res['encounter']]);
                 }
             }
         } else {
@@ -301,18 +301,18 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 // $start in YYYY-MM-DD
 // $end in YYYY-MM-DD
 // $holiday is an array containing YYYY-MM-DD
-function businessDaysDifference($startDate, $endDate, $holidays = array())
+function businessDaysDifference($startDate, $endDate, $holidays = [])
 {
   //The total number of days between the two dates. We compute the no. of seconds and divide it to 60*60*24
   //We add one to include both dates in the interval.
-    $days = (strtotime($endDate) - strtotime($startDate)) / 86400 + 1;
+    $days = (strtotime((string) $endDate) - strtotime((string) $startDate)) / 86400 + 1;
 
     $no_full_weeks = floor($days / 7);
     $no_remaining_days = fmod($days, 7);
 
   //It will return 1 if it's Monday,.. ,7 for Sunday
-    $the_first_day_of_week = date("N", strtotime($startDate));
-    $the_last_day_of_week = date("N", strtotime($endDate));
+    $the_first_day_of_week = date("N", strtotime((string) $startDate));
+    $the_last_day_of_week = date("N", strtotime((string) $endDate));
 
   //---->The two can be equal in leap years when february has 29 days, the equal sign is added here
   //In the first case the whole interval is within a week, in the second case the interval falls in two weeks.
@@ -353,9 +353,9 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
 
   //We subtract the holidays
     foreach ($holidays as $holiday) {
-        $time_stamp = strtotime($holiday);
+        $time_stamp = strtotime((string) $holiday);
         //If the holiday doesn't fall in weekend
-        if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7) {
+        if (strtotime((string) $startDate) <= $time_stamp && $time_stamp <= strtotime((string) $endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7) {
             $workingDays--;
         }
     }
@@ -368,16 +368,16 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcSoCProvided($amc_id, $patient_id, $object_category = '', $object_id = '0')
+function amcSoCProvided($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
-         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id));
+         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", [$amc_id,$patient_id,$object_category,$object_id]);
 }
 // Function to set summary of care provided for a encounter/patient from the amc_misc_data sql table
 //   $amc_id     - amc rule id
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcNoSoCProvided($amc_id, $patient_id, $object_category = '', $object_id = '0')
+function amcNoSoCProvided($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
-         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id));
+         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", [$amc_id,$patient_id,$object_category,$object_id]);
 }

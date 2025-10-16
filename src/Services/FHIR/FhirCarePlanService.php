@@ -22,6 +22,7 @@ use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -33,6 +34,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var CarePlanService
@@ -75,7 +77,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCarePlan
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $carePlanResource = new FHIRCarePlan();
 
@@ -162,7 +164,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

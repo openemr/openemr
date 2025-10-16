@@ -201,7 +201,7 @@ class CarePlanService extends BaseService
                         patient_data
                  ) patients ON fcp.pid = patients.pid
                  LEFT JOIN (
-                     select 
+                     select
                         id AS provider_id
                         ,uuid AS provider_uuid
                         ,npi AS provider_npi
@@ -311,10 +311,10 @@ class CarePlanService extends BaseService
     public function splitSurrogateKeyIntoParts($key)
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
-        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+        if (str_contains((string) $key, self::SURROGATE_KEY_SEPARATOR_V1)) {
             $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
         }
-        $parts = explode($delimiter, $key);
+        $parts = explode($delimiter, (string) $key);
         $key = [
             "euuid" => $parts[0] ?? ""
             ,"form_id" => $parts[1] ?? ""

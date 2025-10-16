@@ -16,7 +16,7 @@ Manual steps:
 
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "dr_signature.png";
 $GLOBALS['oer_config']['prescriptions']['use_signature'] = true;
-$GLOBALS['oer_config']['prescriptions']['addendum_file'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['prescriptions']['addendum_file'] = __DIR__ .
   "/../custom/rx_addendum.txt";
 
 "dr_signature.png" must exist in ./interface/pic/ to have the contents of rx_addendum.txt appear. Note that the pre-existing ability to

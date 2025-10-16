@@ -92,7 +92,7 @@ abstract class PortalController
         $ra = RequestUtil::GetRemoteHost();
         $this->GUID = $this->Phreezer->DataAdapter->GetDBName() . "_" . str_replace(".", "_", $ra);
 
-        $this->_router = $router ? $router : new GenericRouter();
+        $this->_router = $router ?: new GenericRouter();
 
         if ($context) {
             $this->Context = & $context;
@@ -218,7 +218,7 @@ abstract class PortalController
         $token = $this->Context->Get('X-CSRFToken');
 
         if (! $token) {
-            $token = md5(rand(1111111111, 9999999999) . microtime());
+            $token = md5(random_int(1111111111, 9999999999) . microtime());
             $this->Context->Set('X-CSRFToken', $token);
         }
 
@@ -242,7 +242,7 @@ abstract class PortalController
 
         // make this case-insensitive (IE changes all headers to lower-case)
         $headers = array_change_key_case($headers, CASE_LOWER);
-        $headerName = strtolower($headerName);
+        $headerName = strtolower((string) $headerName);
 
         if (array_key_exists($headerName, $headers)) {
             if ($this->GetCSRFToken() != $headers [$headerName]) {
@@ -287,7 +287,7 @@ abstract class PortalController
     protected function Get401AuthUsername($qs_username_field = "")
     {
         $qsv = $qs_username_field ? RequestUtil::Get($qs_username_field) : '';
-        return $qsv ? $qsv : Auth401::GetUsername();
+        return $qsv ?: Auth401::GetUsername();
     }
 
     /**
@@ -301,7 +301,7 @@ abstract class PortalController
     protected function Get401AuthPassword($qs_password_field = "")
     {
         $qsv = $qs_password_field ? RequestUtil::Get($qs_password_field) : '';
-        return $qsv ? $qsv : Auth401::GetPassword();
+        return $qsv ?: Auth401::GetPassword();
     }
 
     /**
@@ -399,7 +399,7 @@ abstract class PortalController
     public function ListAll()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::ListAll");
+            throw new Exception("ModelName must be defined in " . static::class . "::ListAll");
         }
 
         // capture output instead of rendering if specified
@@ -426,7 +426,7 @@ abstract class PortalController
     protected function _ListAll(Criteria $criteria, $current_page, $limit)
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::_ListAll.");
+            throw new Exception("ModelName must be defined in " . static::class . "::_ListAll.");
         }
 
         $page = $this->Phreezer->Query($this->ModelName, $criteria)->GetDataPage($current_page, $limit);
@@ -452,7 +452,7 @@ abstract class PortalController
         require_once("verysimple/String/VerySimpleStringUtil.php");
 
         if (! is_array($supressProps)) {
-            $supressProps = array ();
+            $supressProps =  [];
         }
 
             // never include these props
@@ -465,18 +465,18 @@ abstract class PortalController
         $xml .= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
 
         $xml .= "<DataPage>\r\n";
-        $xml .= "<ObjectName>" . htmlspecialchars($page->ObjectName) . "</ObjectName>\r\n";
-        $xml .= "<ObjectKey>" . htmlspecialchars($page->ObjectKey) . "</ObjectKey>\r\n";
-        $xml .= "<TotalRecords>" . htmlspecialchars($page->TotalResults) . "</TotalRecords>\r\n";
-        $xml .= "<TotalPages>" . htmlspecialchars($page->TotalPages) . "</TotalPages>\r\n";
-        $xml .= "<CurrentPage>" . htmlspecialchars($page->CurrentPage) . "</CurrentPage>\r\n";
-        $xml .= "<PageSize>" . htmlspecialchars($page->PageSize) . "</PageSize>\r\n";
+        $xml .= "<ObjectName>" . htmlspecialchars((string) $page->ObjectName) . "</ObjectName>\r\n";
+        $xml .= "<ObjectKey>" . htmlspecialchars((string) $page->ObjectKey) . "</ObjectKey>\r\n";
+        $xml .= "<TotalRecords>" . htmlspecialchars((string) $page->TotalResults) . "</TotalRecords>\r\n";
+        $xml .= "<TotalPages>" . htmlspecialchars((string) $page->TotalPages) . "</TotalPages>\r\n";
+        $xml .= "<CurrentPage>" . htmlspecialchars((string) $page->CurrentPage) . "</CurrentPage>\r\n";
+        $xml .= "<PageSize>" . htmlspecialchars((string) $page->PageSize) . "</PageSize>\r\n";
 
         $xml .= "<Records>\r\n";
 
         // get the fieldmap for this object type unless not specified
         if ($noMap) {
-            $fms = array ();
+            $fms =  [];
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
@@ -486,16 +486,16 @@ abstract class PortalController
         }
 
         foreach ($page->Rows as $obj) {
-            $xml .= "<" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            $xml .= "<" . htmlspecialchars((string) $page->ObjectName) . ">\r\n";
             foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
                     $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
 
                     if ($fm == FM_TYPE_DATETIME) {
-                        $val = strtotime($val) ? date("m/d/Y h:i A", strtotime($val)) : $val;
+                        $val = strtotime((string) $val) ? date("m/d/Y h:i A", strtotime((string) $val)) : $val;
                     } elseif ($fm == FM_TYPE_DATE) {
-                        $val = strtotime($val) ? date("m/d/Y", strtotime($val)) : $val;
+                        $val = strtotime((string) $val) ? date("m/d/Y", strtotime((string) $val)) : $val;
                     }
 
                     // if the developer has added a property that is not a simple type
@@ -513,14 +513,14 @@ abstract class PortalController
             // Add any properties that we want from child objects
             if ($additionalProps) {
                 foreach ($additionalProps as $meth => $propPair) {
-                    $props = explode(",", $propPair);
+                    $props = explode(",", (string) $propPair);
                     foreach ($props as $prop) {
-                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
+                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars((string) $obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
             }
 
-            $xml .= "</" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            $xml .= "</" . htmlspecialchars((string) $page->ObjectName) . ">\r\n";
         }
 
         $xml .= "</Records>\r\n";
@@ -618,9 +618,9 @@ abstract class PortalController
 
         if (! is_object($obj)) {
             $vr->Success = false;
-            $vr->Errors = array (
+            $vr->Errors =  [
                     "Unknown" => "LoadFromForm does not appear to be implemented.  Unable to validate"
-            );
+            ];
             $vr->Message = "LoadFromForm does not appear to be implemented.  Unable to validate";
         } elseif ($obj->Validate()) {
             $vr->Success = true;
@@ -650,7 +650,7 @@ abstract class PortalController
         require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
         $vr->Success = false;
-        $vr->Errors = array ();
+        $vr->Errors =  [];
         $vr->Message = "SaveInline is not implemented by this controller";
         $this->RenderJSON($vr);
     }
@@ -663,11 +663,11 @@ abstract class PortalController
     protected function GetColumns()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::GetColumns");
+            throw new Exception("ModelName must be defined in " . static::class . "::GetColumns");
         }
 
         $counter = 0;
-        $props = array ();
+        $props =  [];
         foreach (get_class_vars($this->ModelName) as $var => $val) {
             $props [$counter++] = $var;
         }
@@ -731,7 +731,7 @@ abstract class PortalController
             $this->_cu = Authenticator::GetCurrentUser($this->GUID);
 
             if ($this->_cu) {
-                if (get_class($this->_cu) == "__PHP_Incomplete_Class") {
+                if ($this->_cu::class == "__PHP_Incomplete_Class") {
                     // this happens if the class used for authentication was not included before the session was started
                     $tmp = print_r($this->_cu, 1);
                     $parts1 = explode("__PHP_Incomplete_Class_Name] => ", $tmp);
@@ -764,7 +764,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (strpos($url, self::$ApiIdentifier) !== false);
+        return (str_contains($url, (string) self::$ApiIdentifier));
     }
 
     /**
@@ -793,10 +793,10 @@ abstract class PortalController
             $message = ! $cu || $cu->IsAnonymous() ? $not_authenticated_feedback : $permission_denied_feedback;
 
             if ($on_fail_action && $this->IsApiRequest() == false) {
-                $this->Redirect($on_fail_action, array (
+                $this->Redirect($on_fail_action, [
                         'feedback' => $message,
                         'warning' => $message
-                ));
+                ]);
             } else {
                 $ex = new AuthenticationException($message, 500);
                 $this->Crash("Permission Denied", 500, $ex);
@@ -825,7 +825,7 @@ abstract class PortalController
      */
     protected function Render($view = "", $format = null)
     {
-        $isSmarty = (strpos(get_class($this->RenderEngine), "Smarty") > - 1);
+        $isSmarty = (strpos($this->RenderEngine::class, "Smarty") > - 1);
 
         if ($isSmarty && $format == null) {
             $format = self::$SmartyViewPrefix;
@@ -876,7 +876,7 @@ abstract class PortalController
         } elseif ($useSimpleObject) {
             // we need to figure out what type
             if (is_array($var) || is_a($var, 'SplFixedArray')) {
-                $obj = array ();
+                $obj =  [];
                 foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
@@ -896,7 +896,7 @@ abstract class PortalController
         try {
             $output = json_encode($obj);
         } catch (Exception $ex) {
-            if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
+            if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
                     $this->UTF8Encode($obj);
@@ -935,7 +935,7 @@ abstract class PortalController
      */
     protected function Crash($errmsg = "Unknown Error", $code = 0, $exception = null)
     {
-        $ex = $exception ? $exception : new Exception($errmsg, $code);
+        $ex = $exception ?: new Exception($errmsg, $code);
         throw $ex;
     }
 
@@ -958,14 +958,14 @@ abstract class PortalController
             $mode = self::$DefaultRedirectMode;
         }
 
-        $params = is_array($params) ? $params : array ();
+        $params = is_array($params) ? $params :  [];
 
         if ($feedback != null) {
             $this->Context->Set("feedback", $feedback);
         }
 
         // support for deprecated Controller/Method format
-        list ( $controller, $method ) = explode(".", str_replace("/", ".", $action));
+        [$controller, $method] = explode(".", str_replace("/", ".", $action));
 
         $url = $this->GetRouter()->GetUrl($controller, $method, $params);
 
@@ -1006,7 +1006,7 @@ abstract class PortalController
     {
         if (is_string($input)) {
             // pop recursion here
-            $input = utf8_encode($input);
+            $input = mb_convert_encoding($input, 'UTF-8', 'ISO-8859-1');
         } elseif (is_array($input)) {
             foreach ($input as &$value) {
                 $this->UTF8Encode($value);
@@ -1031,6 +1031,6 @@ abstract class PortalController
      */
     function __call($name, $vars = null)
     {
-        throw new Exception(get_class($this) . "::" . $name . " is not implemented");
+        throw new Exception(static::class . "::" . $name . " is not implemented");
     }
 }

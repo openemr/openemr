@@ -8,6 +8,8 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -21,20 +23,21 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Practitioner Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner';
     /**
      * @var PractitionerService
      */
@@ -84,7 +87,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $practitionerResource = new FHIRPractitioner();
 
@@ -111,13 +114,13 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
         // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
-        if (empty(trim($narrativeText))) {
+        if (empty(trim((string) $narrativeText))) {
             $practitionerResource->addName(UtilsService::createDataMissingExtension());
         } else {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $practitionerResource->setText($text);
 
             $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
@@ -128,35 +131,35 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         }
 
         if (!empty($dataRecord['phone'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phone'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonew1'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonew1'],
                 'use' => 'work'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonecell'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonecell'],
                 'use' => 'mobile'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['email'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'email',
                 'value' => $dataRecord['email'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['npi'])) {
@@ -187,7 +190,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        $data = array();
+        $data = [];
         $data['uuid'] = (string)$fhirResource->getId() ?? null;
 
         if (!empty($fhirResource->getName())) {
@@ -229,9 +232,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['zip'] = (string)$activeAddress->getPostalCode() ?? null;
             $data['city'] = (string)$activeAddress->getCity() ?? null;
@@ -244,7 +245,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
-                    $data[$systemValue] = (string)$contactValue;
+                    $data[$systemValue] = $contactValue;
                 } else if ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";
                     $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
@@ -306,10 +307,6 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, true);
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
-    }
 
     /**
      * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
@@ -318,10 +315,8 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

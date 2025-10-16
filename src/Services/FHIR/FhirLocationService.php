@@ -19,6 +19,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\LocationService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -32,8 +34,12 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-location';
 
     /**
      * @var LocationService
@@ -76,7 +82,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRLocation
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $locationResource = new FHIRLocation();
 
@@ -210,25 +216,6 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         return $this->locationService->getAll($openEMRSearchParameters, false);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
-    }
-
     private function hasAccessToUserLocationData()
     {
         return AclMain::aclCheckCore('admin', 'users') !== false;
@@ -257,10 +244,8 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-location'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

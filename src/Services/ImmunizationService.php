@@ -164,7 +164,7 @@ class ImmunizationService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (isset($search['patient.uuid'])) {
             $isValidEncounter = $this->immunizationValidator->validateId(
@@ -234,6 +234,9 @@ class ImmunizationService extends BaseService
      */
     public function insert($data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 
 
@@ -247,5 +250,8 @@ class ImmunizationService extends BaseService
      */
     public function update($uuid, $data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 }

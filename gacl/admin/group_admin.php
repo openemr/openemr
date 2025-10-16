@@ -15,13 +15,9 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 require_once('gacl_admin.inc.php');
 
 //GET takes precedence.
-if ($_GET['group_type'] != '') {
-	$group_type = $_GET['group_type'];
-} else {
-	$group_type = $_POST['group_type'];
-}
+$group_type = $_GET['group_type'] != '' ? $_GET['group_type'] : $_POST['group_type'];
 
-switch(strtolower(trim($group_type))) {
+switch(strtolower(trim((string) $group_type))) {
 	case 'axo':
 		$group_type = 'axo';
 		$group_table = $gacl_api->_db_table_prefix . 'axo_groups';
@@ -51,22 +47,22 @@ switch ($postAction) {
 			GROUP BY	a.id,a.name,a.value';
 		$rs = $db->Execute($query);
 
-		$group_data = array();
+		$group_data = [];
 
 		if(is_object($rs)) {
 			while($row = $rs->FetchRow()) {
-				$group_data[$row[0]] = array(
+				$group_data[$row[0]] = [
 					'name' => $row[1],
 					'value' => $row[2],
 					'count' => $row[3]
-				);
+				];
 			}
 		}
 
-		$groups = array();
+		$groups = [];
 
 		foreach($formatted_groups as $id => $name) {
-			$groups[] = array(
+			$groups[] = [
 				'id' => $id,
 				// 'parent_id' => $parent_id,
 				// 'family_id' => $family_id,
@@ -74,7 +70,7 @@ switch ($postAction) {
 				'raw_name' => $group_data[$id]['name'],
 				'value' => $group_data[$id]['value'],
 				'object_count' => $group_data[$id]['count']
-			);
+			];
 		}
 
 		$smarty->assign('groups', $groups);

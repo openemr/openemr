@@ -48,7 +48,7 @@ $form_npi = trim($_POST['form_npi'] ?? '');
 $form_abook_type = trim($_REQUEST['form_abook_type'] ?? '');
 $form_external = !empty($_POST['form_external']) ? 1 : 0;
 
-$sqlBindArray = array();
+$sqlBindArray = [];
 $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
   "LEFT JOIN list_options AS lo ON " .
   "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
@@ -207,7 +207,7 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td>" . text($row['organization']) . "</td>\n";
     echo "  <td>" . text($displayName) . "</td>\n";
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";
-    echo "  <td>" . generate_display_field(array('data_type' => '1','list_id' => 'abook_type'), $row['ab_name']) . "</td>\n";
+    echo "  <td>" . generate_display_field(['data_type' => '1','list_id' => 'abook_type'], $row['ab_name']) . "</td>\n";
     echo "  <td>" . text($row['specialty']) . "</td>\n";
     echo "  <td>" . text($row['npi'])       . "</td>\n";
     echo "  <td>" . text($row['phonew1'])   . "</td>\n";

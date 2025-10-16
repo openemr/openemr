@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - rel-*
     # GitHub Actions do not support YAML anchors
     # There are five places in here we must keep
     # the paths in sync and the exclusion logic.
@@ -25,6 +26,7 @@ on:
   pull_request:
     branches:
     - master
+    - rel-*
     paths:
     - '**.sh'
     - '**.source'
@@ -46,7 +48,7 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Setup PHP with cs2pr
       uses: shivammathur/setup-php@v2
       with:
@@ -59,7 +61,7 @@ jobs:
       # if only the workflow file itself is changed in a PR.
       # Thus we validate changes to the workflow file.
       continue-on-error: true
-      uses: tj-actions/changed-files@v46
+      uses: tj-actions/changed-files@v47
       with:
         # Keep the paths in sync with the paths in the on.push and on.pull_request sections
         # See https://github.com/tj-actions/changed-files/blob/v46/README.md#inputs-%EF%B8%8F

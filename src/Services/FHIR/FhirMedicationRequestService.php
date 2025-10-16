@@ -21,6 +21,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -41,6 +42,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     private $medicationRequestIdCounter = 1;
 
@@ -85,7 +87,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     const MEDICATION_REQUEST_REFERENCE_ID_PREFIX = "m";
 
-    const PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
+    const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
+    /**
+     * @deprecated use USCGI_PROFILE_URI
+     */
+    const PROFILE_URI = self::USCGI_PROFILE_URI;
 
     /**
      * @var PrescriptionService
@@ -125,7 +131,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPatient
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $medRequestResource = new FHIRMedicationRequest();
 
@@ -297,7 +303,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return $this->prescriptionService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -384,8 +390,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

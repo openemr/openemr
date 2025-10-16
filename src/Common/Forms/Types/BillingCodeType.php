@@ -25,7 +25,7 @@ class BillingCodeType
     public function getAccumActionConditions($frow, $condition_str, $action)
     {
         // For billing codes handle requirement to display its description.
-        $tmp = explode('=', $action, 2);
+        $tmp = explode('=', (string) $action, 2);
         if (!empty($tmp[1])) {
             return "valdesc:" . js_escape(getCodeDescription($tmp[1])) . ", ";
         }
@@ -39,7 +39,7 @@ class BillingCodeType
     {
         $s = '';
         if (!empty($currvalue)) {
-            $relcodes = explode(';', $currvalue);
+            $relcodes = explode(';', (string) $currvalue);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
@@ -82,10 +82,10 @@ class BillingCodeType
         }
 
         // escaped variables to use in html
-        $field_id_esc = htmlspecialchars($field_id, ENT_QUOTES);
+        $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
 
         // Support edit option T which assigns the (possibly very long) description as
         // the default value.
@@ -103,10 +103,10 @@ class BillingCodeType
         $lbfchange = (
             !empty($form_id) &&
             (
-                strpos($form_id, 'LBF') === 0 ||
-                strpos($form_id, 'LBT') === 0 ||
-                strpos($form_id, 'DEM') === 0 ||
-                strpos($form_id, 'HIS') === 0
+                str_starts_with((string) $form_id, 'LBF') ||
+                str_starts_with((string) $form_id, 'LBT') ||
+                str_starts_with((string) $form_id, 'DEM') ||
+                str_starts_with((string) $form_id, 'HIS')
             )
         ) ? "checkSkipConditions();" : "";
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
@@ -125,7 +125,7 @@ class BillingCodeType
         // Edit option E means allow multiple (Extra) billing codes in a field.
         // We invent a class name for this because JavaScript needs to know.
         $className = '';
-        if (strpos($frow['edit_options'], 'E') !== false) {
+        if (str_contains((string) $frow['edit_options'], 'E')) {
             $className = 'EditOptionE';
         }
         //
@@ -134,7 +134,7 @@ class BillingCodeType
             // displaying their descriptions. First step is computing the description string.
             $currdescstring = '';
             if (!empty($currvalue)) {
-                $relcodes = explode(';', $currvalue);
+                $relcodes = explode(';', (string) $currvalue);
                 foreach ($relcodes as $codestring) {
                     if ($codestring === '') {
                         continue;

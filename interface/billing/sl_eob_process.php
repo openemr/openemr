@@ -41,7 +41,7 @@ $InsertionId; // last inserted ID of
 
 function parse_date($date)
 {
-    $date = substr(trim($date), 0, 10);
+    $date = substr(trim((string) $date), 0, 10);
     if (preg_match('/^(\d\d\d\d)\D*(\d\d)\D*(\d\d)$/', $date, $matches)) {
         return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
     }
@@ -49,7 +49,7 @@ function parse_date($date)
     return '';
 }
 
-function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "false")
+function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "false"): void
 {
     $dline =
     " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
@@ -75,7 +75,7 @@ function writeDetailLine(
     $description,
     $amount,
     $balance
-) {
+): void {
 
     global $last_ptname, $last_invnumber, $last_code;
     if ($ptname == $last_ptname) {
@@ -120,13 +120,13 @@ function writeDetailLine(
     // This writes detail lines that were already in SQL-Ledger for a given
     // charge item.
     //
-function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
+function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor): void
 {
     global $invoice_total;
     // $prev['total'] = 0.00; // to accumulate total charges
     ksort($prev['dtl']);
     foreach ($prev['dtl'] as $dkey => $ddata) {
-        $ddate = substr($dkey, 0, 10);
+        $ddate = substr((string) $dkey, 0, 10);
         $description = ($ddata['src'] ?? '') . ($ddata['rsn'] ?? '');
         if ($ddate == '          ') { // this is the service item
             $ddate = $dos;
@@ -153,7 +153,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     //
 
 // TODO: Sort colors here for Bootstrap themes
-function era_callback_check(&$out)
+function era_callback_check(&$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
@@ -172,13 +172,9 @@ function era_callback_check(&$out)
         $StringToEcho .= "<tbody>";
         $WarningFlag = false;
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
-            if ($check_count % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $check_count % 2 == 1 ? '#ddddff' : '#ffdddd';
 
-            $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+            $rs = sqlQ("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
 
             if (sqlNumRows($rs) > 0) {
                 $bgcolor = '#ff0000';
@@ -211,7 +207,7 @@ function era_callback_check(&$out)
             $chk_num = $out['check_number' . $check_count];
             $chk_num = str_replace(' ', '_', $chk_num);
             if (isset($_REQUEST['chk' . $chk_num])) {
-                $check_date = $out['check_date' . $check_count] ? $out['check_date' . $check_count] : $_REQUEST['paydate'];
+                $check_date = $out['check_date' . $check_count] ?: $_REQUEST['paydate'];
                 $post_to_date = $_REQUEST['post_to_date'] != '' ? $_REQUEST['post_to_date'] : date('Y-m-d');
                 $deposit_date = $_REQUEST['deposit_date'] != '' ? $_REQUEST['deposit_date'] : date('Y-m-d');
                 $InsertionId[$out['check_number' . $check_count]] = SLEOB::arPostSession($_REQUEST['InsId'], $out['check_number' . $check_count], $out['check_date' . $check_count], $out['check_amount' . $check_count], $post_to_date, $deposit_date, $debug);
@@ -219,7 +215,7 @@ function era_callback_check(&$out)
         }
     }
 }
-function era_callback(&$out)
+function era_callback(&$out): void
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
@@ -248,17 +244,17 @@ function era_callback(&$out)
         $last_code = '';
         $invoice_total = 0.00;
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
 
         // Get details, if we have them, for the invoice.
         $inverror = true;
-        $codes = array();
+        $codes = [];
         if ($pid && $encounter) {
             // Get invoice data into $arrow or $ferow.
             $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
             "FROM form_encounter AS e, patient_data AS p WHERE " .
             "e.pid = ? AND e.encounter = ? AND " .
-            "p.pid = e.pid", array($pid, $encounter));
+            "p.pid = e.pid", [$pid, $encounter]);
             if (empty($ferow)) {
                   $pid = $encounter = 0;
                   $invnumber = $out['our_claim_id'];
@@ -342,13 +338,13 @@ function era_callback(&$out)
         }
 
         if ($out['warnings']) {
-            writeMessageLine($bgcolor, 'infdetail', rtrim($out['warnings']), true);
+            writeMessageLine($bgcolor, 'infdetail', rtrim((string) $out['warnings']), true);
         }
 
         // Simplify some claim attributes for cleaner code.
-        $service_date = parse_date(isset($out['dos']) ? $out['dos'] : $out['claim_date']);
-        $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
-        $production_date = $paydate ? $paydate : parse_date($out['production_date']);
+        $service_date = parse_date($out['dos'] ?? $out['claim_date']);
+        $check_date      = $paydate ?: parse_date($out['check_date']);
+        $production_date = $paydate ?: parse_date($out['production_date']);
 
         $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
         if (empty($ferow['lname'])) {
@@ -362,7 +358,7 @@ function era_callback(&$out)
         // create array of cpts and mods for complex matching
         $codes_arr_keys = array_keys($codes);
         foreach ($codes_arr_keys as $value) {
-            $tmp = explode(":", $value);
+            $tmp = explode(":", (string) $value);
             $count = count($tmp) - 1;
             $cpt = $tmp[0];
             $cpts[] = $cpt;
@@ -489,7 +485,7 @@ function era_callback(&$out)
                         $debug,
                         '',
                         $codetype,
-                        $date ?? null,
+                        $check_date,
                         $out['payer_claim_id']
                     );
                     $invoice_total -= $svc['paid'];
@@ -634,7 +630,7 @@ function era_callback(&$out)
             if ($out['crossover'] == 1) {//Automatic forward case.So need not again bill from the billing manager screen.
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = ?,last_level_billed=? WHERE " .
-                "pid = ? AND encounter = ?", array($level_done, $level_done, $pid, $encounter));
+                "pid = ? AND encounter = ?", [$level_done, $level_done, $pid, $encounter]);
                 writeMessageLine(
                     $bgcolor,
                     'infdetail',
@@ -643,7 +639,7 @@ function era_callback(&$out)
             } else {
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = ? WHERE " .
-                "pid = ? AND encounter = ?", array($level_done, $pid, $encounter));
+                "pid = ? AND encounter = ?", [$level_done, $pid, $encounter]);
             }
 
             // Check for secondary insurance.
@@ -782,12 +778,12 @@ if (!empty($_GET['original']) && $_GET['original'] == 'original') {
           $StringPrint = 'No';
         if (is_countable($InsertionId)) {
             foreach ($InsertionId as $key => $value) {
-                $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
+                $rs = sqlQ("select pay_total from ar_session where session_id=?", [$value]);
                 $row = sqlFetchArray($rs);
                 $pay_total = $row['pay_total'];
                 $rs = sqlQ(
                     "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
-                    array($value)
+                    [$value]
                 );
                 $row = sqlFetchArray($rs);
                 $pay_amount = $row['sum_pay_amount'];

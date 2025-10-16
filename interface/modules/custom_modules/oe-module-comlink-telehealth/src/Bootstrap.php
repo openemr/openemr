@@ -51,11 +51,6 @@ class Bootstrap
     const MODULE_NAME = "";
     const MODULE_MENU_NAME = "TeleHealth";
 
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
-
     private $moduleDirectoryName;
 
     /**
@@ -116,14 +111,19 @@ class Bootstrap
      */
     private $serviceRegistry = [];
 
-    public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
-    {
+    /**
+     * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param ?Kernel $kernel
+     */
+    public function __construct(
+        private readonly EventDispatcher $eventDispatcher,
+        ?Kernel $kernel = null
+    ) {
         global $GLOBALS;
 
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
-        $this->eventDispatcher = $dispatcher;
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
@@ -197,7 +197,7 @@ class Bootstrap
 
     public function subscribeToProviderEvents()
     {
-        $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, [$this, 'createSessionRecord'], 10);
+        $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, $this->createSessionRecord(...), 10);
     }
 
     public function createSessionRecord(AppointmentSetEvent $event)
@@ -215,8 +215,8 @@ class Bootstrap
 
     public function subscribeToTemplateEvents()
     {
-        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, [$this, 'addTemplateOverrideLoader']);
-        $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderMainBodyTelehealthScripts']);
+        $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, $this->addTemplateOverrideLoader(...));
+        $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, $this->renderMainBodyTelehealthScripts(...));
     }
 
 
@@ -259,7 +259,7 @@ class Bootstrap
 
     public function addGlobalSettings()
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalTeleHealthSettings']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalTeleHealthSettings(...));
     }
 
     public function addGlobalTeleHealthSettings(GlobalsInitializedEvent $event)
@@ -413,9 +413,6 @@ class Bootstrap
 
     private function getService($className)
     {
-        if (isset($this->serviceRegistry[$className])) {
-            return $this->serviceRegistry[$className];
-        }
-        return null;
+        return $this->serviceRegistry[$className] ?? null;
     }
 }

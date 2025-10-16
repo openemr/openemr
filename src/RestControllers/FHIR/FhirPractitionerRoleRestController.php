@@ -7,11 +7,9 @@ use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
-require_once(__DIR__ . '/../../../_rest_config.php');
 /**
  * FHIR PractitionerRole Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerRoleService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
@@ -40,7 +38,7 @@ class FhirPractitionerRoleRestController
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirPractitionerRoleService->getAll($searchParams);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

@@ -19,6 +19,9 @@
 //hack add for command line version
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
+use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
+use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME'] = 'localhost';
@@ -180,7 +183,7 @@ $db_sms_msg['message'] = $MESSAGE;
                                 $db_sms_msg['message'] ?? '',
                                 $db_sms_msg['email_sender'] ?? ''
                             );
-                            if (stripos($error, 'error') !== false) {
+                            if (stripos((string) $error, 'error') !== false) {
                                 $strMsg .= " | " . xlt("Error:") . "<strong>" . text($error) . "</strong>\n";
                                 error_log($strMsg); // text
                                 echo(nl2br($strMsg));
@@ -197,7 +200,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                            cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -210,19 +213,28 @@ $db_sms_msg['message'] = $MESSAGE;
                         $isValid = $emailApp->validEmail($prow['email']);
                         if ($bTestRun == 0 && $isValid) {
                             try {
-                                $error = $emailApp->emailReminder(
+                                $emailApp->emailReminder(
                                     $prow['email'] ?? '',
                                     $db_sms_msg['message'],
                                 );
-                            } catch (\PHPMailer\PHPMailer\Exception $e) {
-                                $error = 'Error' . ' ' . $e->getMessage();
-                            }
-                            if (stripos($error, 'error') !== false) {
-                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>\n";
+                                // Success - create notification log entry
+                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                            } catch (InvalidEmailAddressException) {
+                                $strMsg .= formatErrorMessage(xlt("Invalid email address"));
                                 echo(nl2br($strMsg));
                                 continue;
-                            } else {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                            } catch (SmtpNotConfiguredException) {
+                                $strMsg .= formatErrorMessage(xlt("SMTP not configured"));
+                                echo(nl2br($strMsg));
+                                continue;
+                            } catch (EmailSendFailedException $e) {
+                                $strMsg .= formatErrorMessage(xlt("Failed to send email") . ": " . text($e->getMessage()));
+                                echo(nl2br($strMsg));
+                                continue;
+                            } catch (\PHPMailer\PHPMailer\Exception $e) {
+                                $strMsg .= formatErrorMessage(xlt("Email error") . ": " . text($e->getMessage()));
+                                echo(nl2br($strMsg));
+                                continue;
                             }
                         }
                         if (!$isValid) {
@@ -233,7 +245,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                            cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
@@ -255,12 +267,12 @@ $db_sms_msg['message'] = $MESSAGE;
 <?php
 function isValidPhone($phone): array|bool|string|null
 {
-    $justNums = preg_replace("/[^0-9]/", '', $phone);
-    if (strlen($justNums) === 11) {
-        $justNums = preg_replace("/^1/", '', $justNums);
+    $justNums = preg_replace("/[^0-9]/", '', (string) $phone);
+    if (strlen((string) $justNums) === 11) {
+        $justNums = preg_replace("/^1/", '', (string) $justNums);
     }
     //if we have 10 digits left, it's probably valid.
-    if (strlen($justNums) === 10) {
+    if (strlen((string) $justNums) === 10) {
         return $justNums;
     } else {
         return false;
@@ -278,7 +290,7 @@ function isValidPhone($phone): array|bool|string|null
  * @param string $recur
  * @return int
  */
-function cron_UpdateEntry($type, $pid, $pc_eid, $recur = '')
+function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
 {
     global $bTestRun;
 
@@ -298,7 +310,7 @@ function cron_UpdateEntry($type, $pid, $pc_eid, $recur = '')
 
     $query .= " where pc_pid=? and pc_eid=? ";
 
-    return sqlStatement($query, array($pid, $pc_eid));
+    return sqlStatement($query, [$pid, $pc_eid]);
 }
 
 /**
@@ -340,6 +352,17 @@ function cron_GetNotificationData($type): bool|array
 }
 
 /**
+ * Format an error message for display
+ *
+ * @param string $message The translated error message
+ * @return string Formatted error message with HTML
+ */
+function formatErrorMessage(string $message): string
+{
+    return " | " . xlt("Error:") . " <strong>" . $message . "</strong>\n";
+}
+
+/**
  * Cron Insert Notification Log Entry
  *
  * @param string $type
@@ -349,18 +372,14 @@ function cron_GetNotificationData($type): bool|array
  */
 function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
 {
-    if ($type == 'SMS') {
-        $smsgateway_info = "";
-    } else {
-        $smsgateway_info = $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
-    }
+    $smsgateway_info = $type == 'SMS' ? "" : $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
 
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_cell'] . "|||" . $prow['email'];
     $data_info = $prow['pc_eventDate'] . "|||" . $prow['pc_endDate'] . "|||" . $prow['pc_startTime'] . "|||" . $prow['pc_endTime'];
     $sdate = date("Y-m-d H:i:s");
     $sql_loginsert = "INSERT INTO `notification_log` (`iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
+    $safe = [$prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate];
 
     sqlStatement($sql_loginsert, $safe);
 }
@@ -382,8 +401,8 @@ function cron_SetMessage($prow, $db_sms_msg): string
     $DATE = date('l F j, Y', $dtWrk);
     $STARTTIME = date('g:i A', $dtWrk);
     $ENDTIME = $prow['pc_endTime'];
-    $find_array = array("***NAME***", "***PROVIDER***", "***DATE***", "***STARTTIME***", "***ENDTIME***", "***ORG***");
-    $replace_array = array($NAME, $PROVIDER, $DATE, $STARTTIME, $ENDTIME, $ORG);
+    $find_array = ["***NAME***", "***PROVIDER***", "***DATE***", "***STARTTIME***", "***ENDTIME***", "***ORG***"];
+    $replace_array = [$NAME, $PROVIDER, $DATE, $STARTTIME, $ENDTIME, $ORG];
     $message = str_replace($find_array, $replace_array, $db_sms_msg['message']);
     $message = text($message);
 

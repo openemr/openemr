@@ -2,231 +2,583 @@
 /**
  * interface/modules/zend_modules/module/Application/view/application/sendto/send.phtml
  *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Basil PT <basil@zhservices.com>
- * @author    Riju K P <rijukp@zhservices.com>
- * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package    OpenEMR
+ * @link       https://www.open-emr.org
+ * @author     Basil PT <basil@zhservices.com>
+ * @author     Riju K P <rijukp@zhservices.com>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 $combinationFormData = $this->combinationFormData;
 $faxRecievers = $this->faxRecievers;
 $required_buttons = $this->required_butons;
 $download_format = $this->download_format;
+
+$ecqm_reporting_periods = sqlStatement("
+    SELECT option_id, title, is_default 
+    FROM list_options 
+    WHERE list_id = 'ecqm_reporting_period' 
+        AND activity = 1 
+    ORDER BY seq ASC
+");
+
+$reporting_periods = [];
+$default_period = null;
+while ($row = sqlFetchArray($ecqm_reporting_periods)) {
+    $reporting_periods[] = $row;
+    if ($row['is_default'] == 1) {
+        $default_period = $row['option_id'];
+    }
+}
+// Get current selected period from session/globals or use default
+$selected_period = $_SESSION['selected_ecqm_period'] ?? $GLOBALS['cqm_performance_period'] ?? $default_period ?? '2023';
+
 ?>
 <div class="header_wrap_left">
     <div class="send-to" title="<?php echo $this->listenerObject->z_xlt('Send To'); ?>"><?php echo $this->listenerObject->z_xlt('SEND TO'); ?></div>
 </div><!-- header_wrap_left -->
-<div class="ap-st-st-12">
+<div class="ap-st-st-12" style="width:35vw;">
     <div class="ap-st-st-2">
         <div class="ap-st-st-1" style="<?php if (!in_array('hie', $required_buttons)) echo "display:none;" ?>">
-            <label><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if ($this->send_via == "hie") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('HIE') ?></label></div>
+            <label>
+                <input class="ap-st-st-3" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if ($this->send_via == "hie") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('HIE') ?>
+            </label>
+        </div>
         <div class="ap-st-st-1" style="<?php if (!in_array('emr_direct', $required_buttons)) echo "display:none;" ?>">
-            <label><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if ($this->send_via == "emr_direct") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('EMR Direct') ?></label></div>
+            <label>
+                <input class="ap-st-st-3" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if ($this->send_via == "emr_direct") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('EMR Direct') ?>
+            </label>
+        </div>
         <div class="ap-st-st-1" style="<?php if (!in_array('download', $required_buttons)) echo "display:none;" ?>">
-            <label><input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if ($this->send_via == "download") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('Print To') ?></label></div>
+            <label>
+                <input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if ($this->send_via == "download") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('Print To') ?>
+            </label>
+        </div>
         <div class="ap-st-st-1" style="<?php if (!in_array('download_all', $required_buttons)) echo "display:none;" ?>">
-            <label><input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if ($this->send_via == "download_all") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('Download') ?></label></div>
+            <label>
+                <input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if ($this->send_via == "download_all") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('Download') ?>
+            </label>
+        </div>
     </div>
     <div style="padding-left: 10px;padding-top: 1%;" id="adv-op-div" class="ap-st-st-13">
-        <div style="float:left;"><span class="showcomponentsForCCDA-div"><?php echo $this->listenerObject->z_xlt('Advance Options') ?></span></div>
-        <div id="advance-opt" class="showcomponentsForCCDA-div"></div>
-    </div>
-    <!--HIE-->
-    <div id="hie_div" <?php if ($this->send_via == "hie") echo "class='display_block'"; ?>>
-        <div class="ap-st-st-13">
-            <table width="50%">
-                <tr>
-                    <td nowrap>
-                        <input type="checkbox" name="hie_myhealthaccess" id="hie_myhealthaccess" checked disabled><label class="hie_label" for="hie_myhealthaccess"><?php echo $this->listenerObject->z_xlt('My Health'); ?></label>
-                    </td>
-                    <td nowrap>
-                        <input type="checkbox" name="myhealthaccess_ccda" id="myhealthaccess_ccda" checked disabled><label class="hie_label" for="myhealthaccess_ccda"><?php echo $this->listenerObject->z_xlt('CCDA'); ?></label>
-                    </td>
-                </tr>
-            </table>
-            <table style="display: none;">
-                <?php
-                foreach ($this->ccda_sections as $key_ccda => $value_ccda) {
-                    ?>
-                    <tr>
-                        <td width="5%">
-                            <input checked type="checkbox" name="ccda" id="<?php echo $this->escapeHtml($key_ccda); ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>">
-                        </td>
-                        <td>
-                            <label for="<?php echo $this->escapeHtml($key_ccda); ?>"><?php echo $this->escapeHtml($this->listenerObject->z_xlt($value_ccda)); ?></label>
-                        </td>
-                    </tr>
-                    <?php
-                }
-                ?>
-            </table>
+        <div style="float:left;">
+            <span class="showcomponentsForCCDA-div"><?php echo $this->listenerObject->z_xlt('Advance Options') ?></span>
         </div>
-    </div>
-    <!--End HIE-->
-
-    <!--EMR Direct-->
-    <div id="emrDirect_div" <?php if ($this->send_via == "emr_direct") echo "class='display_block'"; ?>>
-        <div class="ap-st-st-13">
-            <div id="autosuggest1" class="autosuggest">
-                <input type="hidden" value="" id="page1" name="page1" />
-                <input type="hidden" id="string_value1" class="emr_to_phimail" name="string_value" value="" />
-                <input type="hidden" id="string_id1" name="string_id" value="" class="string_id" />
+        <div id="advance-opt" class="showcomponentsForCCDA-div"></div>
+        <!--HIE-->
+        <div id="hie_div" <?php if ($this->send_via == "hie") echo "class='display_block'"; ?>>
+            <div class="ap-st-st-13">
                 <table width="50%">
-                    <div class="selected_search" id="selected_search1"></div>
-                    <div class="clear"></div>
                     <tr>
-                        <td>
-                            <label style="padding-left:0px!important;"><?php echo $this->listenerObject->z_xlt('Direct Address') . ":"; ?></label>
-                            <input type="text" name="emr_to_phimail" class="lookup multiple" id="inputString1" onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'emrdirect', '1', 'multiple');" autocomplete="off">
+                        <td nowrap>
+                            <input type="checkbox" name="hie_myhealthaccess" id="hie_myhealthaccess" checked disabled><label class="hie_label" for="hie_myhealthaccess"><?php echo $this->listenerObject->z_xlt('My Health'); ?></label>
                         </td>
-                        <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="xml" checked="true"><?php echo $this->listenerObject->z_xlt('XML'); ?></td>
-                        <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="pdf"><?php echo $this->listenerObject->z_xlt('PDF'); ?></td>
-                        <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="html"><?php echo $this->listenerObject->z_xlt('HTML'); ?></td>
+                        <td nowrap>
+                            <input type="checkbox" name="myhealthaccess_ccda" id="myhealthaccess_ccda" checked disabled><label class="hie_label" for="myhealthaccess_ccda"><?php echo $this->listenerObject->z_xlt('CCDA'); ?></label>
+                        </td>
                     </tr>
                 </table>
-                <label style="padding-left:10px !important;"><?php echo $this->listenerObject->z_xlt('Reason for Referral') . ":"; ?></label>
-                <textarea id="referral_reason" class="referral_reason" name="referral_reason" style="max-width:500px!important;min-width:500px!important;margin-left:10px;"></textarea>
-                <div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 510px;left:18px;z-index: 1;top: 120px;">
-                    <div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
-                </div>
-            </div>
-            <?php if (count($this->ccda_sections) > 0) { ?>
-                <div id="chkall_cmp_div" style="margin-left:10px;">
-                    <input type="checkbox" id="chkall_comp" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All'); ?>
-                </div>
-                <div class="ap-st-st-11 ap-st-st-5">
+                <table style="display: none;">
                     <?php
-                    $i = 0;
                     foreach ($this->ccda_sections as $key_ccda => $value_ccda) {
-                        if ($i % 2 == 0 && $i != 0) { ?>
-                            <div class="clear"></div>
-                        <?php } ?>
-                        <div style="float:left;margin-top:-3px;width:250px" class="chkdiv" id="chkbx_click<?php echo $i; ?>">
-                            <input type="checkbox" class="chkbx_click chkbx_cmps" id="chkbx_click<?php echo $i; ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>" checked="true">
-                            <?php echo $this->escapeHtml($this->listenerObject->z_xlt($value_ccda)); ?>
-                        </div>
+                        ?>
+                        <tr>
+                            <td width="5%">
+                                <input checked type="checkbox" name="ccda" id="<?php echo $this->escapeHtml($key_ccda); ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>">
+                            </td>
+                            <td>
+                                <label for="<?php echo $this->escapeHtml($key_ccda); ?>"><?php echo $this->escapeHtml($this->listenerObject->z_xlt($value_ccda)); ?></label>
+                            </td>
+                        </tr>
                         <?php
-                        $i++;
                     }
                     ?>
+                </table>
+            </div>
+        </div>
+        <!--End HIE-->
+        <!--EMR Direct-->
+        <div id="emrDirect_div" <?php if ($this->send_via == "emr_direct") echo "class='display_block'"; ?>>
+            <div class="ap-st-st-13">
+                <div id="autosuggest1" class="autosuggest">
+                    <input type="hidden" value="" id="page1" name="page1" />
+                    <input type="hidden" id="string_value1" class="emr_to_phimail" name="string_value" value="" />
+                    <input type="hidden" id="string_id1" name="string_id" value="" class="string_id" />
+                    <table width="50%">
+                        <div class="selected_search" id="selected_search1"></div>
+                        <div class="clear"></div>
+                        <tr>
+                            <td>
+                                <label style="padding-left:0px!important;"><?php echo $this->listenerObject->z_xlt('Direct Address') . ":"; ?></label>
+                                <input type="text" name="emr_to_phimail" class="lookup multiple" id="inputString1" onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'emrdirect', '1', 'multiple');" autocomplete="off">
+                            </td>
+                            <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="xml" checked="true"><?php echo $this->listenerObject->z_xlt('XML'); ?></td>
+                            <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="pdf"><?php echo $this->listenerObject->z_xlt('PDF'); ?></td>
+                            <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="html"><?php echo $this->listenerObject->z_xlt('HTML'); ?></td>
+                        </tr>
+                    </table>
+                    <label style="padding-left:10px !important;"><?php echo $this->listenerObject->z_xlt('Reason for Referral') . ":"; ?></label>
+                    <textarea id="referral_reason" class="referral_reason" name="referral_reason" style="max-width:500px!important;min-width:500px!important;margin-left:10px;"></textarea>
+                    <div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 510px;left:18px;z-index: 1;top: 120px;">
+                        <div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
+                    </div>
                 </div>
-            <?php } ?>
-        </div>
-    </div>
-    <!--End EMR Direct-->
-
-    <!--Download-->
-    <div id="download_div" <?php if ($this->send_via == "download") echo "class='display_block'"; ?>>
-        <div class="ap-st-st-13">
-            <table width="50%">
-                <tr>
-                    <td width="10px;">
-                        <input <?php if (!in_array('pdf_format', $download_format)) echo "disabled" ?> type="radio" name="download_format" id="pdf_format" style="margin: 0; clear: right; float: left;">
-                        <label for="pdf_format"><?php echo $this->listenerObject->z_xlt('PDF'); ?></label>
-                    </td>
-                    <td width="10px;">
-                        <input <?php if (!in_array('doc_format', $download_format)) echo "disabled" ?> type="radio" name="download_format" id="doc_format" style="margin: 0; clear: right; float: left;">
-                        <label for="doc_format"><?php echo $this->listenerObject->z_xlt('DOC{{document format}}'); ?></label>
-                    </td>
-                    <td width="10px;">
-                        <input <?php if (!in_array('hl7_format', $download_format)) echo "disabled" ?> type="radio" name="download_format" id="hl7_format" style="margin: 0; clear: right; float: left;" checked="true">
-                        <label for="hl7_format"><?php echo $this->listenerObject->z_xlt('HL7'); ?></label>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    <!--Download-->
-    <!--Download All-->
-    <div id="download_all_div" <?php if ($this->send_via == "download_all") echo "class='display_block'"; ?>>
-        <div class="ap-st-st-13">
-            <table width="50%">
-                <tr>
-                    <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_ccda" value="ccda" checked>&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('CCDA') ?></span></td>
-                    <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda" value="qrda">&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA I') ?></span></td>
-                    <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda3" value="qrda3">&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA III') ?></span></td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    <div id="componentsForQRDA" style="height:300px !important;display:none;" class="ap-st-st-13">
-        <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
-        <select size="12" id="report_measures" name="report_measures[]" style="width:100%;">
-            <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures one per Patient'); ?></option>
-            <option value="all"><?php echo $this->listenerObject->z_xlt('Patient with all Measures'); ?></option>
-            <?php
-            foreach ($this->current_measures as $measure) {
-                $help = attr($measure['title']);
-                $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
-                echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
-            }
-            ?>
-        </select>
-    </div>
-    <div id="componentsForQRDA3" style="height:300px !important;display:none;" class="ap-st-st-13">
-        <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
-        <select size="12" id="report_measures_cat3" name="report_measures_cat3[]" style="width:100%;">
-            <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures All Patients'); ?></option>
-            <!--<option value="all"><?php /*echo $this->listenerObject->z_xlt('Patient with all Measures'); */ ?></option>-->
-            <?php
-            foreach ($this->current_measures as $measure) {
-                $help = attr($measure['title']);
-                $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
-                echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
-            }
-            ?>
-        </select>
-    </div>
-    <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13">
-        <div style="display:inline-flex;width:100%;">
-            <div style="width:15%">
-                <label style="margin:1px 2px;"><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_ccd" value="ccd" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('CCD') ?></label>
-            </div>
-            <div style="width:35%">
-                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc" >&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?></label>
-            </div>
-            <div style="width:25%">
-                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_careplan" value="careplan">&nbsp;<?php echo $this->listenerObject->z_xlt('Careplan') ?></label>
-            </div>
-            <div style="width:25%">
-                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_referral" value="referral">&nbsp;<?php echo $this->listenerObject->z_xlt('Referral') ?></label>
-            </div>
-        </div>
-        <div>
-            <input type="checkbox" id="latest_ccda" />
-            <?php echo $this->listenerObject->z_xlt('Latest Medical Records'); ?>
-        </div>
-        <?php if (count($this->ccda_components ?? []) > 0) { ?>
-            <div id="chkall_cmp_div1" style="margin-left: 65%;">
-                <input type="checkbox" id="chkall_cmp1" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All - Components'); ?>
-            </div>
-            <?php
-            $i = 0;
-            foreach ($this->ccda_components as $key_ccda => $value_ccda) {
-                if ($i % 2 == 0 && $i != 0) { ?>
-                    <div class="clear"></div>
+                <?php if (count($this->ccda_sections) > 0) { ?>
+                    <div id="chkall_cmp_div" style="margin-left:10px;">
+                        <input type="checkbox" id="chkall_comp" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All'); ?>
+                    </div>
+                    <div class="ap-st-st-11 ap-st-st-5">
+                        <?php
+                        $i = 0;
+                        foreach ($this->ccda_sections as $key_ccda => $value_ccda) {
+                            if ($i % 2 == 0 && $i != 0) { ?>
+                                <div class="clear"></div>
+                            <?php } ?>
+                            <div style="float:left;margin-top:-3px;width:250px" class="chkdiv" id="chkbx_click<?php echo $i; ?>">
+                                <input type="checkbox" class="chkbx_click chkbx_cmps" id="chkbx_click<?php echo $i; ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>" checked="true">
+                                <?php echo $this->escapeHtml($this->listenerObject->z_xlt($value_ccda)); ?>
+                            </div>
+                            <?php
+                            $i++;
+                        }
+                        ?>
+                    </div>
                 <?php } ?>
-                <div style="float:left;margin-top:2px;width:50%" class="chkdivcmp1" id="chkbxcmp_click1<?php echo $i; ?>">
-                    <input type="checkbox" class="check_component1 chkbxcmp_click1" id="chkbxcmp_click1<?php echo $i; ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>" checked="true">
-                    <span><?php echo $this->escapeHtml($value_ccda); ?></span>
+            </div>
+        </div>
+        <!--End EMR Direct-->
+        <!--Download-->
+        <div id="download_div" <?php if ($this->send_via == "download") echo "class='display_block'"; ?>>
+            <div class="ap-st-st-13">
+                <table width="50%">
+                    <tr>
+                        <td width="10px;">
+                            <input <?php if (!in_array('pdf_format', $download_format)) echo "disabled" ?> type="radio" name="download_format" id="pdf_format" style="margin: 0; clear: right; float: left;">
+                            <label for="pdf_format"><?php echo $this->listenerObject->z_xlt('PDF'); ?></label>
+                        </td>
+                        <td width="10px;">
+                            <input <?php if (!in_array('doc_format', $download_format)) echo "disabled" ?> type="radio" name="download_format" id="doc_format" style="margin: 0; clear: right; float: left;">
+                            <label for="doc_format"><?php echo $this->listenerObject->z_xlt('DOC{{document format}}'); ?></label>
+                        </td>
+                        <td width="10px;">
+                            <input <?php if (!in_array('hl7_format', $download_format)) echo "disabled" ?> type="radio" name="download_format" id="hl7_format" style="margin: 0; clear: right; float: left;" checked="true">
+                            <label for="hl7_format"><?php echo $this->listenerObject->z_xlt('HL7'); ?></label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!--Download-->
+        <!--Download All-->
+        <div id="download_all_div" <?php if ($this->send_via == "download_all") echo "class='display_block'"; ?>>
+            <div class="ap-st-st-13">
+                <table width="50%">
+                    <tr>
+                        <td nowrap>
+                            <label for="downloadformat_ccda" style="cursor: pointer;">
+                                <input class="export-document" type="radio" name="downloadformat" id="downloadformat_ccda" value="ccda" checked>
+                                <span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('CCDA') ?></span>
+                            </label>
+                        </td>
+                        <td nowrap>
+                            <label for="downloadformat_qrda" style="cursor: pointer;">
+                                <input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda" value="qrda">
+                                <span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA I') ?></span>
+                            </label>
+                        </td>
+                        <td nowrap>
+                            <label for="downloadformat_qrda3" style="cursor: pointer;">
+                                <input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda3" value="qrda3">
+                                <span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA III') ?></span>
+                            </label>
+                        </td>
+                        <td nowrap>
+                            <label for="downloadformat_qrda3_consolidated" style="cursor: pointer;">
+                                <input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda3_consolidated" value="qrda3_consolidated">
+                                <span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA III Consolidated') ?></span>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- eCQM Reporting Period Selection -->
+        <div id="ecqm_period" style="display:none clear:both; margin-top:0px; margin-bottom:0px;">
+            <label for="ecqm_reporting_period" style="display:inline-block; width:125px; font-weight:bold;">
+                <?php echo $this->listenerObject->z_xlt('Reporting Period') ?>:
+            </label>
+            <select name="ecqm_reporting_period" id="ecqm_reporting_period"
+                style="width:200px; padding:5px;"
+                onchange="refreshReportingPeriod(this.value)">
+                <?php foreach ($reporting_periods as $period): ?>
+                    <option value="<?php echo $this->escapeHtml($period['option_id']); ?>"
+                        <?php echo ($period['option_id'] == $selected_period) ? 'selected="selected"' : ''; ?>>
+                        <?php echo $this->escapeHtml($period['title']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <span id="period_loading" style="display:none; margin-left:10px;">
+                        <?php echo $this->listenerObject->z_xlt('Updating...'); ?>
+                    <img src="<?php echo $this->basePath(); ?>/css/images/loading.gif" alt="Loading..." style="width:16px;height:16px;">
+                </span>
+        </div>
+        <div id="componentsForQRDA" style="height:325px !important;display:none;" class="ap-st-st-13">
+            <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+
+            <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
+            <select size="12" id="report_measures" name="report_measures[]" style="width:100%;">
+                <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures one per Patient'); ?></option>
+                <option value="all"><?php echo $this->listenerObject->z_xlt('Patient with all Measures'); ?></option>
+                <?php
+                foreach ($this->current_measures as $measure) {
+                    $help = attr($measure['title']);
+                    $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
+                    echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
+                }
+                ?>
+            </select>
+        </div>
+        <div id="componentsForQRDA3" style="height:325px !important;display:none;" class="ap-st-st-13">
+            <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
+            <select size="12" id="report_measures_cat3" name="report_measures_cat3[]" style="width:100%;">
+                <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures All Patients'); ?></option>
+                <!--<option value="all"><?php /*echo $this->listenerObject->z_xlt('Patient with all Measures'); */ ?></option>-->
+                <?php
+                foreach ($this->current_measures as $measure) {
+                    $help = attr($measure['title']);
+                    $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
+                    echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
+                }
+                ?>
+            </select>
+        </div>
+        <div id="componentsForQRDA3Consolidated" style="height:300px !important;display:none;" class="ap-st-st-13">
+            <label for="report_measures_consolidated"><?php echo $this->listenerObject->z_xlt('Consolidated Report - All Measures in One File'); ?></label>
+            <div style="margin: 10px 0; padding: 10px; background-color: #f0f8ff; border: 1px solid #d0e7ff; border-radius: 4px;">
+                <strong><?php echo $this->listenerObject->z_xlt('Note'); ?>:</strong>
+                <?php echo $this->listenerObject->z_xlt('This generates a single QRDA Category III file containing all selected measures with aggregate data from all patients.'); ?>
+            </div>
+            <select size="1" id="report_measures_consolidated" name="report_measures_consolidated[]" style="width:100%;">
+                <option value="" selected><?php echo $this->listenerObject->z_xlt('All Active Measures (Recommended)'); ?></option>
+                <?php
+                foreach ($this->current_measures as $measure) {
+                    $help = attr($measure['title']);
+                    $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
+                    //echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
+                }
+                ?>
+            </select>
+            <!--<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                <?php /*echo $this->listenerObject->z_xlt('Select specific measures or leave "All Active Measures" selected for a complete report.'); */ ?>
+            </div>-->
+        </div>
+        <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13">
+            <div style="display:inline-flex;width:100%;">
+                <div style="width:15%">
+                    <label style="margin:1px 2px;">
+                        <input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_ccd" value="ccd" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('CCD') ?>
+                    </label>
+                </div>
+                <div style="width:35%">
+                    <label>
+                        <input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc">&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?>
+                    </label>
+                </div>
+                <div style="width:25%">
+                    <label>
+                        <input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_careplan" value="careplan">&nbsp;<?php echo $this->listenerObject->z_xlt('Careplan') ?>
+                    </label>
+                </div>
+                <div style="width:25%">
+                    <label>
+                        <input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_referral" value="referral">&nbsp;<?php echo $this->listenerObject->z_xlt('Referral') ?>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <input type="checkbox" id="latest_ccda" />
+                <?php echo $this->listenerObject->z_xlt('Latest Medical Records'); ?>
+            </div>
+            <?php if (count($this->ccda_components ?? []) > 0) { ?>
+                <div id="chkall_cmp_div1" style="margin-left: 65%;">
+                    <input type="checkbox" id="chkall_cmp1" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All - Components'); ?>
                 </div>
                 <?php
-                $i++;
-            }
-        } ?>
-    </div>
-    <!--End Download All-->
-    <div class="ap-st-st-6">
-        <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
-        <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('Send'); ?></div>
-        <input type="hidden" name="form_filter_content" id="form_filter_content" value="" />
-        <div class="ap-st-st-7" onclick="sendFiltered();"><?php echo $this->listenerObject->z_xlt('Send Filtered'); ?></div>
+                $i = 0;
+                foreach ($this->ccda_components as $key_ccda => $value_ccda) {
+                    if ($i % 2 == 0 && $i != 0) { ?>
+                        <div class="clear"></div>
+                    <?php } ?>
+                    <div style="float:left;margin-top:2px;width:50%" class="chkdivcmp1" id="chkbxcmp_click1<?php echo $i; ?>">
+                        <input type="checkbox" class="check_component1 chkbxcmp_click1" id="chkbxcmp_click1<?php echo $i; ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>" checked="true">
+                        <span><?php echo $this->escapeHtml($value_ccda); ?></span>
+                    </div>
+                    <?php
+                    $i++;
+                }
+            } ?>
+        </div>
+        <!--End Download All-->
+        <div class="ap-st-st-6">
+            <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
+            <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('Send'); ?></div>
+            <input type="hidden" name="form_filter_content" id="form_filter_content" value="" />
+            <div class="ap-st-st-7" onclick="sendFiltered();"><?php echo $this->listenerObject->z_xlt('Send Filtered'); ?></div>
+        </div>
     </div>
 </div>
 <?php $this->headScript()->captureStart() ?>
 var APP_URL = "<?php echo $this->basePath(); ?>";
 var WEB_ROOT = "<?php echo $GLOBALS['webroot']; ?>";
 <?php $this->headScript()->captureEnd() ?>
+
+<script>
+    async function refreshReportingPeriod(selectedPeriod) {
+        // Show loading indicator
+        document.getElementById('period_loading').style.display = 'inline';
+
+        try {
+            // Get CSRF token
+            const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+
+            // Store the selected period using modern fetch API
+            const response = await fetch(WEB_ROOT + '/interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    ajax_mode: 'update_reporting_period',
+                    period: selectedPeriod,
+                    csrf_token: csrfToken
+                })
+            });
+
+            // Hide loading indicator
+            document.getElementById('period_loading').style.display = 'none';
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Refresh the measures lists
+                await refreshMeasuresList(selectedPeriod);
+
+                // Show success message briefly
+                showPeriodMessage('<?php echo $this->listenerObject->z_xlt('Reporting period updated successfully'); ?>', 'success');
+            } else {
+                showPeriodMessage(data.message || '<?php echo $this->listenerObject->z_xlt('Error updating reporting period'); ?>', 'error');
+            }
+
+        } catch (error) {
+            // Hide loading indicator
+            document.getElementById('period_loading').style.display = 'none';
+
+            console.error('Error updating reporting period:', error);
+            showPeriodMessage('<?php echo $this->listenerObject->z_xlt('Network error updating reporting period'); ?>', 'error');
+        }
+    }
+
+    async function refreshMeasuresList(selectedPeriod) {
+        // Refresh both QRDA I and QRDA III measure lists
+        const qrdaSelect = document.getElementById('report_measures');
+        const qrda3Select = document.getElementById('report_measures_cat3');
+
+        if (!qrdaSelect && !qrda3Select) {
+            return; // No measure selects to update
+        }
+
+        try {
+            const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+
+            const response = await fetch(WEB_ROOT + '/interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    ajax_mode: 'get_measures_for_period',
+                    period: selectedPeriod,
+                    csrf_token: csrfToken
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success && data.measures) {
+                updateMeasuresDropdown(qrdaSelect, data.measures);
+                updateMeasuresDropdown(qrda3Select, data.measures);
+                console.log(`Updated measures list: ${data.count} measures loaded for period ${data.period}`);
+            } else {
+                console.error('Error loading measures:', data.message);
+            }
+
+        } catch (error) {
+            console.error('Error refreshing measures list:', error);
+        }
+    }
+
+    function updateMeasuresDropdown(selectElement, measures) {
+        if (!selectElement) return;
+
+        // Store current selection
+        const currentValue = selectElement.value;
+
+        // Clear existing options except for default ones
+        const defaultOptions = [];
+        for (let i = 0; i < selectElement.options.length; i++) {
+            const option = selectElement.options[i];
+            if (option.value === '' || option.value === 'all') {
+                defaultOptions.push({
+                    value: option.value,
+                    text: option.text,
+                    selected: option.selected
+                });
+            }
+        }
+
+        // Clear all options
+        selectElement.innerHTML = '';
+
+        // Add back default options
+        defaultOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.text = opt.text;
+            option.selected = opt.selected;
+            selectElement.appendChild(option);
+        });
+
+        // Add measure options
+        measures.forEach(measure => {
+            const option = document.createElement('option');
+            option.value = measure.measure_id;
+            option.text = `${measure.measure_id} - ${measure.title}`;
+            option.title = measure.title;
+            if (currentValue === measure.measure_id) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
+        });
+    }
+
+    function showPeriodMessage(message, type) {
+        // Create or update a message div
+        let messageDiv = document.getElementById('period_message');
+        if (!messageDiv) {
+            messageDiv = document.createElement('div');
+            messageDiv.id = 'period_message';
+            messageDiv.style.cssText = 'margin:5px 0; padding:5px 10px; border-radius:3px; font-size:12px;';
+            document.getElementById('ecqm_reporting_period').parentNode.appendChild(messageDiv);
+        }
+
+        // Set message content and style
+        messageDiv.textContent = message;
+        messageDiv.className = type === 'success' ? 'alert-success' : 'alert-danger';
+        messageDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+        messageDiv.style.color = type === 'success' ? '#155724' : '#721c24';
+        messageDiv.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+        messageDiv.style.display = 'block';
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 2000);
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#download_all").click()
+        // Set initial state
+        const periodSelect = document.getElementById('ecqm_reporting_period');
+        if (periodSelect && periodSelect.value) {
+            console.log('Initial reporting period:', periodSelect.value);
+            // Optionally refresh measures on initial load
+            // refreshMeasuresList(periodSelect.value);
+        }
+    });
+</script>
+<script>
+    (function () {
+        const QRDA_FORMATS = new Set(['qrda', 'qrda3', 'qrda3_consolidated']);
+
+        function $$all(sel, root = document) {
+            return Array.from(root.querySelectorAll(sel));
+        }
+
+        function $(sel, root = document) {
+            return root.querySelector(sel);
+        }
+
+        function toggle(elOrId, show) {
+            const el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
+            if (!el) return;
+            el.style.display = show ? '' : 'none';
+        }
+
+        let lastFormat = null;
+
+        async function updateUiForDownloadFormat(fmt) {
+            // Show/Hide Reporting Period
+            const periodWrap = document.getElementById('ecqm_period');
+            const periodSelect = document.getElementById('ecqm_reporting_period');
+            const showPeriod = QRDA_FORMATS.has(fmt);
+
+            if (periodWrap) {
+                toggle(periodWrap, showPeriod);
+            }
+            if (periodSelect) {
+                periodSelect.disabled = !showPeriod;
+            }
+
+            // Toggle component panels
+            toggle('componentsForQRDA', fmt === 'qrda');
+            toggle('componentsForQRDA3', fmt === 'qrda3');
+            toggle('componentsForQRDA3Consolidated', fmt === 'qrda3_consolidated');
+            toggle('componentsForCCDA', fmt === 'ccda');
+
+            // If entering a QRDA mode, refresh measures for selected period
+            if (showPeriod && periodSelect && fmt !== lastFormat) {
+                try {
+                    await refreshMeasuresList(periodSelect.value);
+                } catch (e) {
+                    console.warn('Unable to refresh measures list:', e);
+                }
+            }
+
+            lastFormat = fmt;
+        }
+
+        function getSelectedDownloadFormat() {
+            const checked = document.querySelector('input[name="downloadformat"]:checked');
+            return checked ? checked.value : null;
+        }
+
+        function wireDownloadFormatListeners() {
+            $$all('input[name="downloadformat"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    updateUiForDownloadFormat(radio.value);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            wireDownloadFormatListeners();
+            // Initialize UI based on current selection
+            const initial = getSelectedDownloadFormat();
+            updateUiForDownloadFormat(initial);
+        });
+    })();
+</script>

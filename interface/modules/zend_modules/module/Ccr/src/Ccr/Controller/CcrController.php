@@ -18,19 +18,18 @@ use Laminas\View\Model\ViewModel;
 use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
+use Documents\Plugin\Documents;
 use Ccr\Model\CcrTable;
 
 class CcrController extends AbstractActionController
 {
     protected $ccrTable;
     protected $listenerObject;
-    private $documentsController;
 
-    public function __construct(CcrTable $ccrTable, DocumentsController $documentsController)
+    public function __construct(CcrTable $ccrTable, private readonly DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
         $this->listenerObject   = new Listener();
-        $this->documentsController = $documentsController;
     }
 
     /*
@@ -49,8 +48,8 @@ class CcrController extends AbstractActionController
 
         $time_start     = date('Y-m-d H:i:s');
         $docid          = $this->documentsController->uploadAction($request);
-        $uploaded_documents     = array();
-        $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
+        $uploaded_documents     = [];
+        $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
 
         if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
@@ -58,26 +57,25 @@ class CcrController extends AbstractActionController
             $this->importAction();
         } else {
             // TODO: change to $this->Documents()
-            $result = \Documents\Plugin\Documents::fetchXmlDocuments();
+            $result = Documents::fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCR') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
-                    // TODO: need to inject this dependency instead of the static...
-                    \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                    $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }
 
-        $records = $this->getCcrTable()->document_fetch(array('cat_title' => 'CCR'));
-        $view = new ViewModel(array(
+        $records = $this->getCcrTable()->document_fetch(['cat_title' => 'CCR']);
+        $view = new ViewModel([
             'records'       => $records,
             'category_id'   => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id'    => '00',
             'listenerObject' => $this->listenerObject,
             'commonplugin'  => $this->CommonPlugin(),
-        ));
+        ]);
         return $view;
     }
 
@@ -98,8 +96,8 @@ class CcrController extends AbstractActionController
         $doc_id     = $_REQUEST["document_id"];
         $content    = $this->getCcrTable()->getDocument($doc_id);
         if ($request->getQuery('document_id')) {
-            $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
-            $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
+            $replace    = ['<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:'];
+            $to_replace = ['<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">',''];
             $content    = str_replace($replace, $to_replace, $content);
             $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
         }
@@ -109,22 +107,22 @@ class CcrController extends AbstractActionController
         //level 2 key is 'table name:field name' and level 2 value is the sub tag under the main tag given in level 1 key
         //eg:- 'Type/Text' if the XML format is '//Problems/Problem/Type/Text' or 'id/@extension' if it is an attribute
         //level 2 key can be 'table name:#some value' for checking whether a particular tag exits in the XML section
-        $field_mapping = array(
-          '//Problems/Problem'  => array(
+        $field_mapping = [
+          '//Problems/Problem'  => [
             'lists1:diagnosis'  => 'Description/Code/Value',
             'lists1:comments'   => 'CommentID',
             'lists1:activity'   => 'Status/Text',
             'lists1:title'      => 'Description/Text',
             'lists1:date'       => 'DateTime/ExactDateTime',
-          ),
-          '//Alerts/Alert' => array(
+          ],
+          '//Alerts/Alert' => [
             'lists2:type'       => 'Type/Text',
             'lists2:diagnosis'  => 'Description/Code/Value',
             'lists2:date'       => 'Agent/EnvironmentalAgents/EnvironmentalAgent/DateTime/ExactDateTime',
             'lists2:title'      => 'Agent/EnvironmentalAgents/EnvironmentalAgent/Description/Text',
             'lists2:reaction'   => 'Reaction/Description/Text',
-          ),
-          '//Medications/Medication'    => array(
+          ],
+          '//Medications/Medication'    => [
             'prescriptions:date_added'  => 'DateTime/ExactDateTime',
             'prescriptions:active'      => 'Status/Text',
             'prescriptions:drug'        => 'Product/ProductName/Text',
@@ -134,19 +132,19 @@ class CcrController extends AbstractActionController
             'prescriptions:quantity'    => 'Quantity/Value',
             'prescriptions:note'        => 'PatientInstructions/Instruction/Text',
             'prescriptions:refills'     => 'Refills/Refill/Number',
-          ),
-          '//Immunizations/Immunization'        => array(
+          ],
+          '//Immunizations/Immunization'        => [
             'immunizations:administered_date'   => 'DateTime/ExactDateTime',
             'immunizations:note'                => 'Directions/Direction/Description/Text',
-          ),
-          '//Results/Result' => array(
+          ],
+          '//Results/Result' => [
             'procedure_result:date'     => 'DateTime/ExactDateTime',
             'procedure_type:name'       => 'Test/Description/Text',
             'procedure_result:result'   => 'Test/TestResult/Value',
             'procedure_result:range'    => 'Test/NormalResult/Normal/Value',
             'procedure_result:abnormal' => 'Test/Flag/Text',
-          ),
-          '//Actors/Actor' => array(
+          ],
+          '//Actors/Actor' => [
             'patient_data:fname'    => 'Person/Name/CurrentName/Given',
             'patient_data:lname'    => 'Person/Name/CurrentName/Family',
             'patient_data:DOB'      => 'Person/DateOfBirth/ExactDateTime',
@@ -159,16 +157,16 @@ class CcrController extends AbstractActionController
             'patient_data:state'    => 'Address/State',
             'patient_data:postal_code'      => 'Address/PostalCode',
             'patient_data:phone_contact'    => 'Telephone/Value',
-          ),
-        );
+          ],
+        ];
         if (!empty($content)) {
-            $var = array();
+            $var = [];
             $res = $this->getCcrTable()->parseXmlStream($content, $field_mapping);
-            $var = array(
+            $var = [
                 'approval_status' => 1,
                 'type' => 11,
                 'ip_address' => $_SERVER['REMOTE_ADDR'],
-            );
+            ];
             foreach ($res as $sections => $details) {
                 foreach ($details as $cnt => $vals) {
                     foreach ($vals as $key => $val) {
@@ -178,7 +176,7 @@ class CcrController extends AbstractActionController
                             } elseif ($key == 'phone_contact') {
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
                             } elseif ($key == 'abname') {
-                                $values = explode(' ', $val);
+                                $values = explode(' ', (string) $val);
                                 if ($values[0]) {
                                     $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
                                 }
@@ -193,16 +191,12 @@ class CcrController extends AbstractActionController
                             $var['entry_identification_array']['misc_address_book'][$cnt] = $cnt;
                         } else {
                             if ($sections == 'lists1' && $key == 'activity') {
-                                if ($val == 'Active') {
-                                    $val = 1;
-                                } else {
-                                    $val = 0;
-                                }
+                                $val = $val == 'Active' ? 1 : 0;
                             }
 
                             if ($sections == 'lists2' && $key == 'type') {
-                                if (strpos($val, "-")) {
-                                    $vals = explode("-", $val);
+                                if (strpos((string) $val, "-")) {
+                                    $vals = explode("-", (string) $val);
                                     $val = $vals[0];
                                 } else {
                                     $val = "";
@@ -210,11 +204,7 @@ class CcrController extends AbstractActionController
                             }
 
                             if ($sections == 'prescriptions' && $key == 'active') {
-                                if ($val == 'Active') {
-                                    $val = 1;
-                                } else {
-                                    $val = 0;
-                                }
+                                $val = $val == 'Active' ? 1 : 0;
                             }
 
                             $var['field_name_value_array'][$sections][$cnt][$key] = $val;
@@ -255,37 +245,37 @@ class CcrController extends AbstractActionController
     public function revandapproveAction()
     {
         $request            = $this->getRequest();
-        $audit_master_id    = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
-        $pid                = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
-        $document_id        = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
+        $audit_master_id    = $request->getQuery('amid') ?: $request->getPost('amid', null);
+        $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
+        $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
 
         if ($request->getPost('setval') == 'approve') {
             $this->getCcrTable()->insertApprovedData($_REQUEST);
-            return $this->redirect()->toRoute('ccr', array('action' => 'index'));
+            return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         } elseif ($request->getPost('setval') == 'discard') {
-            $this->getCcrTable()->discardCCRData(array('audit_master_id' => $audit_master_id));
-            return $this->redirect()->toRoute('ccr', array('action' => 'index'));
+            $this->getCcrTable()->discardCCRData(['audit_master_id' => $audit_master_id]);
+            return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         }
 
-        $demographics       = $this->getCcrTable()->getDemographics(array('audit_master_id' => $audit_master_id));
-        $demographics_old   = $this->getCcrTable()->getDemographicsOld(array('pid' => $pid));
+        $demographics       = $this->getCcrTable()->getDemographics(['audit_master_id' => $audit_master_id]);
+        $demographics_old   = $this->getCcrTable()->getDemographicsOld(['pid' => $pid]);
 
-        $problems           = $this->getCcrTable()->getProblems(array('pid' => $pid));
+        $problems           = $this->getCcrTable()->getProblems(['pid' => $pid]);
         $problems_audit     = $this->getCcrTable()->createAuditArray($audit_master_id, 'lists1');
 
-        $allergies          = $this->getCcrTable()->getAllergies(array('pid' => $pid));
+        $allergies          = $this->getCcrTable()->getAllergies(['pid' => $pid]);
         $allergies_audit    = $this->getCcrTable()->createAuditArray($audit_master_id, 'lists2');
 
-        $medications        = $this->getCcrTable()->getMedications(array('pid' => $pid));
+        $medications        = $this->getCcrTable()->getMedications(['pid' => $pid]);
         $medications_audit  = $this->getCcrTable()->createAuditArray($audit_master_id, 'prescriptions');
 
-        $immunizations      = $this->getCcrTable()->getImmunizations(array('pid' => $pid));
+        $immunizations      = $this->getCcrTable()->getImmunizations(['pid' => $pid]);
         $immunizations_audit  = $this->getCcrTable()->createAuditArray($audit_master_id, 'immunizations');
 
-        $lab_results        = $this->getCcrTable()->getLabResults(array('pid' => $pid));
+        $lab_results        = $this->getCcrTable()->getLabResults(['pid' => $pid]);
         $lab_results_audit  = $this->getCcrTable()->createAuditArray($audit_master_id, 'procedure_result,procedure_type');
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'demographics'      => $demographics,
             'demographics_old'  => $demographics_old,
             'problems'          => $problems,
@@ -304,7 +294,7 @@ class CcrController extends AbstractActionController
             'listenerObject'    => $this->listenerObject,
             'commonplugin'      => $this->CommonPlugin(),
 
-        ));
+        ]);
         return $view;
     }
 

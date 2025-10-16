@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services;
 
-require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
+require_once(__DIR__ . "/../../controllers/C_Document.class.php");
 
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
@@ -51,7 +51,7 @@ class DocumentService extends BaseService
 
     public function isValidPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
 
         unset($docPathParts[0]);
 
@@ -82,7 +82,7 @@ class DocumentService extends BaseService
 
     public function getLastIdOfPath($path)
     {
-        $docPathParts = explode("/", $path);
+        $docPathParts = explode("/", (string) $path);
         $lastInPath = end($docPathParts);
 
         $sql  = "  SELECT id";
@@ -106,17 +106,17 @@ class DocumentService extends BaseService
         $documentsSql .= " JOIN categories_to_documents ctd on ctd.document_id = doc.id";
         $documentsSql .= " WHERE ctd.category_id = ? and doc.foreign_id = ? and doc.deleted = 0";
 
-        $documentResults = sqlStatement($documentsSql, array($categoryId, $pid));
+        $documentResults = sqlStatement($documentsSql, [$categoryId, $pid]);
 
-        $fileResults = array();
+        $fileResults = [];
         while ($row = sqlFetchArray($documentResults)) {
-            array_push($fileResults, array(
+            array_push($fileResults, [
                 "filename" => $row["name"],
                 "hash" => $row["hash"],
                 "id" =>  $row["id"],
                 "mimetype" =>  $row["mimetype"],
                 "docdate" =>  $row["docdate"]
-            ));
+            ]);
         }
         return $fileResults;
     }
@@ -160,11 +160,7 @@ class DocumentService extends BaseService
     {
         $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
 
-        if (empty($filenameSql['name'])) {
-            $filename = "unknownName";
-        } else {
-            $filename = $filenameSql['name'];
-        }
+        $filename = empty($filenameSql['name']) ? "unknownName" : $filenameSql['name'];
 
         $obj = new \C_Document();
         $obj->onReturnRetrieveKey();
@@ -188,7 +184,7 @@ class DocumentService extends BaseService
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
-    public function search($search, $isAndCondition = true, $options = array())
+    public function search($search, $isAndCondition = true, $options = [])
     {
         $processingResult = new ProcessingResult();
 

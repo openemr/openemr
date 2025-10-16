@@ -286,8 +286,6 @@ function submit_canvas(zone) {
  *  Function to update the user's preferences
  */
 function update_PREFS() {
-    var checker = $('#PREFS_TOOLTIPS').val();
-    if (checker > '') {
         var url = "../../forms/eye_mag/save.php";
         var formData = {
             'AJAX_PREFS'            : "1",
@@ -301,6 +299,7 @@ function update_PREFS() {
             'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
             'PREFS_VAX'             : $('#PREFS_VAX').val(),
             'PREFS_RXHX'            : $('#PREFS_RXHX').val(),
+            'PREFS_VAHx'            : $('#PREFS_VAHx').val(),
             'PREFS_IOP'             : $('#PREFS_IOP').val(),
             'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
             'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
@@ -339,7 +338,7 @@ function update_PREFS() {
                url      : url,
                data     : formData
                });
-    }
+
 }
 /*
  *  Function to unlock the form - remove temporary lock at DB level.
@@ -568,8 +567,9 @@ function refresh_GFS() {
     }
 
     config_byday.data.datasets[0].data[indexToUpdate] = $('#ODIOPTARGET').val();
-    config_byday.data.datasets[1].data[indexToUpdate] = ODIOP;
-    config_byday.data.datasets[2].data[indexToUpdate] = OSIOP;
+    config_byday.data.datasets[1].data[indexToUpdate] = $('#OSIOPTARGET').val();
+    config_byday.data.datasets[2].data[indexToUpdate] = ODIOP;
+    config_byday.data.datasets[3].data[indexToUpdate] = OSIOP;
     myLine.update();
 
     var time = $('#IOPTIME').val();
@@ -2202,6 +2202,16 @@ function getTimeStamp() {
  * as a previous setting and the next eye form opened will appear the same way.
  */
 function show_by_setting() {
+    // set display functions for Draw panel appearance
+    // for each DRAW area, if the value AREA_DRAW = 1, show it.
+    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+    for (index = '0'; index < zones.length; ++index) {
+        if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
+            show_DRAW_section(zones[index]);
+        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+            show_QP_section(zones[index],'1');
+        }
+    }
     var tabs_left = $("#setting_tabs_left").val();
     if (typeof tabs_left ==undefined) exit;
     var arrSet = ["HPI","PMH","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
@@ -2230,6 +2240,9 @@ function show_by_setting() {
     } else {
         $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
         $("#Draw_SDRETINA").addClass('nodisplay');
+    }
+    if ($("#PREFS_VAHx").val() == '1') {
+        $("#LayerVision_VAHx").removeClass('nodisplay');
     }
 
     return true;
@@ -2276,7 +2289,7 @@ $(function () {
                   });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
-                  if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
+                  if ($("#PREFS_TOOLTIPS").val() != "<?php echo xla('On'); ?>") {
                     $('[title]').each(function() {
                         var $this = $(this);
                         $this.data('title',$this.attr('title'));
@@ -2330,12 +2343,7 @@ $(function () {
                   $('.close').on('click', function(){
                                     $('#GFS_accordion .hide').slideUp();
                                     });
-                  $('#ODIOPTARGET').on('change', function() {
-                                           $('#OSIOPTARGET').val($('#ODIOPTARGET').val());
-                                           refresh_GFS();
-                                           });
                   $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').on('change', function() {
-                                                             //this is failing if there is no config_by_day variable.
                                                              refresh_GFS();
                                                              });
                   if ($("#PREFS_KB").val() =='1') {
@@ -2886,16 +2894,6 @@ $(function () {
                                             }
                     });
 
-                  // set display functions for Draw panel appearance
-                  // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                  var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
-                  for (index = '0'; index < zones.length; ++index) {
-                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-                        show_DRAW_section(zones[index]);
-                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
-                        show_QP_section(zones[index],'1');
-                    }
-                  }
                   $("body").on("click","[name$='_text_view']" , function() {
                                var header = this.id.match(/(.*)_text_view$/)[1];
                                $("#"+header+"_text_list").toggleClass('wide_textarea');
@@ -3318,15 +3316,21 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
                                                   $("#PREFS_VA").val('0');
-                                                  if (section2 != "IOP")$("#REFRACTION_sections").removeClass('nodisplay');
+                                                  if ((section2 != "IOP") && (section2 != "VAHx")) {
+                                                        $("#REFRACTION_sections").removeClass('nodisplay');
+                                                  }
                                                   if (elem.value == "0" || elem.value =='') {
                                                   elem.value='1';
                                                   if (section2 =="ADDITIONAL") {
                                                   $("#LayerVision_ADDITIONAL").removeClass('nodisplay');
                                                   }
                                                   if (section2 =="IOP") {
-                                                  $("#LayerVision_IOP").removeClass('nodisplay');
-                                                  //plot_IOPs();
+                                                    $("#LayerVision_IOP").removeClass('nodisplay');
+                                                    //plot_IOPs();
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").removeClass('nodisplay');
+                                                    //plot_VAHxs();
                                                   }
                                                   $(section).removeClass('nodisplay');
                                                   $(this).addClass("buttonRefraction_selected");
@@ -3338,6 +3342,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   }
                                                   if (section2 =="IOP") {
                                                   $("#LayerVision_IOP").addClass('nodisplay');
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").addClass('nodisplay');
                                                   }
                                                   $(this).removeClass("buttonRefraction_selected");
                                                   }
@@ -3419,7 +3426,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
-                                            $result = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $result = sqlStatement($query, ["Eye_defaults_$providerID"]);
 
                                             $list = sqlFetchArray($result);
                                             $SEQ = $list['seq'] ?? '';
@@ -3433,7 +3440,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
-                                                $add_fields = array();
+                                                $add_fields = [];
                                                 $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
@@ -3450,14 +3457,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
 
-                                                sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                sqlStatement($query, ["Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq]);
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES " . $parameters;
                                                 sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
@@ -3468,7 +3475,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             }
                                             function startsWith($str, $needle)
                                             {
-                                                return substr($str, 0, strlen($needle)) === $needle;
+                                                return str_starts_with((string) $str, (string) $needle);
                                             }
                                             ?>
                                             submit_form("eye_mag");
@@ -3974,7 +3981,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("[id^='Blank_']").on("click", function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
-                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.png");
+                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.jpg");
                                            //canvas.renderAll();
                                            drawImage(zone);
                                            });

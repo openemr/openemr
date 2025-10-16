@@ -22,10 +22,13 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 //setting the session & other config options
 
-// Will start the (patient) portal OpenEMR session/cookie.
+use OpenEMR\Common\Session\SessionUtil;
 
-require_once __DIR__ . "/../src/Common/Session/SessionUtil.php";
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Will start the (patient) portal OpenEMR session/cookie.
+//  Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;
@@ -48,7 +51,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
-$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode((string) $_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
@@ -131,7 +134,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
                 '0'
             );
             // do we want a separate message that their token has expired?
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             header('Location: ' . $landingpage . '&oe');
             exit();
         } catch (OneTimeAuthException $exception) {
@@ -142,7 +145,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
                 '',
                 '0'
             );
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             header('Location: ' . $landingpage . '&oi');
             exit();
         }
@@ -155,7 +158,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
 if (!empty($_GET['forward_email_verify'])) {
     if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
         (new SystemLogger())->debug("registration not supported, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -163,7 +166,7 @@ if (!empty($_GET['forward_email_verify'])) {
     $crypto = new CryptoGen();
     if (!$crypto->cryptCheckStandard($_GET['forward_email_verify'])) {
         (new SystemLogger())->debug("illegal token, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -171,7 +174,7 @@ if (!empty($_GET['forward_email_verify'])) {
     $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], null, 'drive', 6);
     if (empty($token_one_time)) {
         (new SystemLogger())->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -180,14 +183,14 @@ if (!empty($_GET['forward_email_verify'])) {
     if (sqlNumRows($sqlResource) > 1) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
         EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
     if (!sqlNumRows($sqlResource)) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
         EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -195,7 +198,7 @@ if (!empty($_GET['forward_email_verify'])) {
     if (empty($sqlVerify['id']) || empty($sqlVerify['token_onetime'])) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
         EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -206,7 +209,7 @@ if (!empty($_GET['forward_email_verify'])) {
     if ($validateTime <= time()) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
         EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your email verification link has expired. Reset and try again."));
     }
 
@@ -233,14 +236,14 @@ if (!empty($_GET['forward_email_verify'])) {
     } else {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
         EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
 } elseif (isset($_GET['forward'])) {
     if ((empty($GLOBALS['portal_two_pass_reset']) && empty($GLOBALS['portal_onsite_two_register'])) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
         (new SystemLogger())->debug("reset password and registration not supported, so stopped attempt to use forward token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -250,14 +253,14 @@ if (!empty($_GET['forward_email_verify'])) {
         if ($crypto->cryptCheckStandard($_GET['forward'])) {
             $one_time = $crypto->decryptStandard($_GET['forward'], null, 'drive', 6);
             if (!empty($one_time)) {
-                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", array($one_time . '%'));
+                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
             }
         }
     }
     if ($auth === false) {
         error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $_GET['forward']), 0);
         $logit->portalLog('login attempt', '', ($_GET['forward'] . ':invalid one time'), '', '0');
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -266,7 +269,7 @@ if (!empty($_GET['forward_email_verify'])) {
     if ($validate <= time()) {
         error_log("PORTAL ERROR: " . errorLogEscape('One time reset link expired. Dying.'), 0);
         $logit->portalLog('password reset attempt', '', ($_POST['uname'] . ':link expired'), '', '0');
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time());
     }
     $_SESSION['pin'] = substr($parse, 0, 6);
@@ -286,7 +289,7 @@ $_SESSION['itsme'] = 1;
 //
 // collect default language id (skip this if this is a password update or reset)
 if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])))) {
-    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [$GLOBALS['language_default']]);
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
     }
@@ -315,7 +318,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
             "ld.lang_id = ? " .
             "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-        $res3 = SqlStatement($sql, array($mainLangID));
+        $res3 = SqlStatement($sql, [$mainLangID]);
         for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
             $result3[$iter] = $row;
         }

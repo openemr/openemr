@@ -44,8 +44,8 @@ $sql = "select f.* from facility f " .
     "LEFT JOIN form_encounter fe on fe.facility_id = f.id " .
     "where fe.encounter = ?";
 $db = $GLOBALS['adodb']['db'];
-$results = $db->Execute($sql, array($encounter));
-$facility = array();
+$results = $db->Execute($sql, [$encounter]);
+$facility = [];
 if (!$results->EOF) {
     $facility = $results->fields;
 }
@@ -67,9 +67,9 @@ if (file_exists($practice_logo)) {
 <table>
 <tr><td><?php echo xlt('Generated on'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
 <?php
-if ($date_result = sqlQuery("select date from form_encounter where encounter=? and pid=?", array($encounter, $pid))) {
-    $encounter_date = date("D F jS", strtotime($date_result["date"]));
-    $raw_encounter_date = date("Y-m-d", strtotime($date_result["date"]));
+if ($date_result = sqlQuery("select date from form_encounter where encounter=? and pid=?", [$encounter, $pid])) {
+    $encounter_date = date("D F jS", strtotime((string) $date_result["date"]));
+    $raw_encounter_date = date("Y-m-d", strtotime((string) $date_result["date"]));
 }
 ?>
 <tr><td><?php echo xlt('Date Of Service'); ?>: </td><td> <?php print text(oeFormatShortDate($raw_encounter_date));?></td></tr>
@@ -80,7 +80,7 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 
  //print "Provider: " . $provider  . "<br />";
 
- $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", array($pid));
+ $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
     include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
 }
@@ -93,7 +93,7 @@ while ($result = sqlFetchArray($inclookupres)) {
 <table class="table-bordered" cellpadding="5">
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
-    $billing_html = array();
+    $billing_html = [];
         $total = 0.0;
     $copay = 0.0;
 
@@ -129,7 +129,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 . "</td><td>" . text(oeFormatMoney($iter['fee'])) . "</td></tr>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $total += $iter['fee'];
-            $js = explode(":", $iter['justify']);
+            $js = explode(":", (string) $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if (!empty($j)) {

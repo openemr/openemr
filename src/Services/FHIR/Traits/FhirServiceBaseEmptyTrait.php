@@ -34,26 +34,26 @@ trait FhirServiceBaseEmptyTrait
         return $processingResult;
     }
 
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
-        // TODO: If Required in Future
+        return;
     }
 
     public function insertOpenEMRRecord($openEmrRecord)
     {
-        // TODO: If Required in Future
+        return;
     }
 
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        // TODO: If Required in Future
+        return;
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
-        // TODO: If Required in Future
+        return;
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         return null;
     }

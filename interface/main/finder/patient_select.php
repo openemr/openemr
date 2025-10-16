@@ -26,10 +26,10 @@ if (!empty($_REQUEST)) {
     }
 }
 
-$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] : 0;
+$fstart = $_REQUEST['fstart'] ?? 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
-$message = isset($_GET['message']) ? $_GET['message'] : "";
-$from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
+$message = $_GET['message'] ?? "";
+$from_page = $_REQUEST['from_page'] ?? "";
 
 ?>
 <!DOCTYPE html>
@@ -171,32 +171,32 @@ if ($popup) {
     echo "<input type='hidden' name='popup' value='1' />\n";
 
   // Construct WHERE clause and save search parameters as form fields.
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $where = "1 = 1";
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
     "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
-        if (strpos($field_id, 'em_') === 0) {
+        if (str_starts_with((string) $field_id, 'em_')) {
             continue;
         }
 
         $data_type = $frow['data_type'];
         if (!empty($_REQUEST[$field_id])) {
-            $value = trim($_REQUEST[$field_id]);
+            $value = trim((string) $_REQUEST[$field_id]);
             if ($field_id == 'pid') {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " = ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " = ?";
                 array_push($sqlBindArray, $value);
             } elseif ($field_id == 'pubpid') {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " LIKE ?";
                 array_push($sqlBindArray, $value);
                 //for 'date' field
             } elseif ($data_type == 4) {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " LIKE ?";
                 array_push($sqlBindArray, DateToYYYYMMDD($value));
             } else {
-                $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
+                $where .= " AND " . escape_sql_column_name($field_id, ['patient_data']) . " LIKE ?";
                 array_push($sqlBindArray, $value . "%");
             }
 
@@ -226,17 +226,13 @@ if ($popup) {
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
 
-    if (empty($where)) {
-        $where = $customWhere;
-    } else {
-        $where = "$customWhere AND $where";
-    }
+    $where = empty($where) ? $customWhere : "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
     $rez = sqlStatement($sql, $sqlBindArray);
-    $result = array();
+    $result = [];
     while ($row = sqlFetchArray($rez)) {
         $result[] = $row;
     }
@@ -245,15 +241,15 @@ if ($popup) {
 } elseif ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='" . attr($from_page) . "' />\n";
-    $report_id = isset($_REQUEST['report_id']) ? $_REQUEST['report_id'] : 0;
+    $report_id = $_REQUEST['report_id'] ?? 0;
     echo "<input type='hidden' name='report_id' value='" . attr($report_id) . "' />\n";
-    $itemized_test_id = isset($_REQUEST['itemized_test_id']) ? $_REQUEST['itemized_test_id'] : 0;
+    $itemized_test_id = $_REQUEST['itemized_test_id'] ?? 0;
     echo "<input type='hidden' name='itemized_test_id' value='" . attr($itemized_test_id) . "' />\n";
-    $numerator_label = isset($_REQUEST['numerator_label']) ? $_REQUEST['numerator_label'] : '';
+    $numerator_label = $_REQUEST['numerator_label'] ?? '';
     echo "<input type='hidden' name='numerator_label' value='" . attr($numerator_label) . "' />\n";
-    $pass_id = isset($_REQUEST['pass_id']) ? $_REQUEST['pass_id'] : "all";
+    $pass_id = $_REQUEST['pass_id'] ?? "all";
     echo "<input type='hidden' name='pass_id' value='" . attr($pass_id) . "' />\n";
-    $print_patients = isset($_REQUEST['print_patients']) ? $_REQUEST['print_patients'] : 0;
+    $print_patients = $_REQUEST['print_patients'] ?? 0;
     echo "<input type='hidden' name='print_patients' value='" . attr($print_patients) . "' />\n";
 
   // Collect patient listing from cdr report
@@ -404,7 +400,7 @@ if ($fend > $count) {
 } else {
   // Alternate patient search results style; this gets address plus other
   // fields that are mandatory, up to a limit of 5.
-    $extracols = array();
+    $extracols = [];
     $tres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND ( uor > 1 AND field_id != '' " .
     "OR uor > 0 AND field_id = 'street' ) AND " .
@@ -492,7 +488,7 @@ if ($result) {
                   "billing.pid = form_encounter.pid and billing.activity = 1 and " .
                   "billing.code_type not like 'COPAY' where " .
                   "form_encounter.pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
@@ -508,7 +504,7 @@ if ($result) {
                   escape_limit($add_days) .
                   " day) as next_appt_day from form_encounter " .
                   " where form_encounter.pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
@@ -521,7 +517,7 @@ if ($result) {
                    " from billing " .
                    " where code_type not like 'COPAY' and activity = 1 " .
                    " and pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count_billed = $results['encounter_count'];
             }
@@ -530,7 +526,7 @@ if ($result) {
             $query = "select count(date) as encounter_count " .
                       " from form_encounter where " .
                       " pid = ?";
-            $statement = sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, [$iter["pid"]]);
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count = $results['encounter_count'];
             }

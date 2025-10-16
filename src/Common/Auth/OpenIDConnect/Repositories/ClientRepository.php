@@ -15,23 +15,21 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    use SystemLoggerAwareTrait;
 
     private $cryptoGen;
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
         $this->cryptoGen = new CryptoGen();
     }
 
@@ -53,6 +51,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $this;
     }
 
+    // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
@@ -66,19 +65,25 @@ class ClientRepository implements ClientRepositoryInterface
             $redirects = implode("|", $redirects);
         }
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
-        $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
+        $info['client_secret'] ??= null; // just to be sure empty is null;
         // set our list of default scopes for the registration if our scope is empty
         // This is how a client can set if they support SMART apps and other stuff by passing in the 'launch'
         // scope to the dynamic client registration.
         // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
         // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
         // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
-        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
+        $info['scope'] ??= 'openid email phone address api:oemr api:fhir api:port';
 
         $scopes = explode(" ", $info['scope']);
         $scopeRepo = new ScopeRepository();
 
-        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
+        if (
+            $scopeRepo->hasScopesThatRequireManualApproval(
+                $is_confidential_client == 1,
+                $scopes,
+                $GLOBALS['oauth_app_manual_approval'] ?? '0'
+            )
+        ) {
             $is_client_enabled = 0; // disabled
         } else {
             $is_client_enabled = 1; // enabled
@@ -91,8 +96,8 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
-        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`, `skip_ehr_launch_authorization_flow`, `dsi_type`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $i_vals = array(
+        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`, `skip_ehr_launch_authorization_flow`, `dsi_type`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $i_vals = [
             $clientId,
             $info['client_role'],
             $info['client_name'],
@@ -101,6 +106,7 @@ class ClientRepository implements ClientRepositoryInterface
             $info['registration_client_uri_path'],
             $contacts,
             $redirects,
+            $info['grant_types'] ?? 'authorization_code',
             $info['scope'],
             $user,
             $site,
@@ -115,9 +121,10 @@ class ClientRepository implements ClientRepositoryInterface
             $is_client_enabled,
             $skip_ehr_launch_authorization_flow,
             $info['dsi_type'] ?? 0
-        );
+        ];
 
-        return sqlQueryNoLog($sql, $i_vals, true); // throw an exception if it fails
+        $result = QueryUtils::sqlInsert($sql, $i_vals);
+        return $result !== false;
     }
 
     public function generateClientId()
@@ -145,20 +152,20 @@ class ClientRepository implements ClientRepositoryInterface
         return $list;
     }
 
-    public function getClientEntity($clientIdentifier)
+    public function getClientEntity($clientIdentifier): ClientEntity|false
     {
-        $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
+        $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", [$clientIdentifier]);
 
         // Check if client is registered
         if ($clients === false) {
-            $this->logger->error(
+            $this->getSystemLogger()->error(
                 "ClientRepository->getClientEntity() no client found for identifier ",
                 ["client" => $clientIdentifier]
             );
             return false;
         }
 
-        $this->logger->debug(
+        $this->getSystemLogger()->debug(
             "ClientRepository->getClientEntity() client found",
             [
                 "client" => [
@@ -173,7 +180,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        $this->logger->debug(
+        $this->getSystemLogger()->debug(
             "ClientRepository->validateClient() checking client validation",
             ["client" => $clientIdentifier, "grantType" => $grantType]
         );
@@ -182,7 +189,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Check if client is registered
             if ($client === false) {
-                $this->logger->error(
+                $this->getSystemLogger()->error(
                     "ClientRepository->validateClient() no client found for identifier ",
                     ["client" => $clientIdentifier]
                 );
@@ -197,7 +204,7 @@ class ClientRepository implements ClientRepositoryInterface
                 }
                 $secretMatches = hash_equals($clientSecret, $secret);
                 if (!$secretMatches) {
-                    $this->logger->error(
+                    $this->getSystemLogger()->error(
                         "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
                         ["client" => $clientIdentifier, "grantType" => $grantType]
                     );
@@ -241,10 +248,10 @@ class ClientRepository implements ClientRepositoryInterface
     private function hydrateClientEntityFromArray($client_record): ClientEntity
     {
         // note redirect_uris in the database is actually named redirect_uri
-        $pipedValues = array('contacts', 'redirect_uri', 'request_uri', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values');
+        $pipedValues = ['contacts', 'redirect_uri', 'request_uri', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'];
         foreach ($pipedValues as $value) {
             if (!empty($client_record[$value])) {
-                $client_record[$value] = explode('|', $client_record[$value]);
+                $client_record[$value] = explode('|', (string) $client_record[$value]);
             }
         }
         $client = new ClientEntity();
@@ -291,5 +298,10 @@ class ClientRepository implements ClientRepositoryInterface
             throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
         }
         return true;
+    }
+
+    public function remove(ClientEntity $clientEntity, bool $noLog = false)
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM oauth_clients WHERE client_id = ?", [$clientEntity->getIdentifier()], $noLog);
     }
 }

@@ -27,11 +27,11 @@ class GaclAdminApi extends GaclApi {
 	 * Administration interface settings
 	 */
  	/** @var int Number of items to display per page in the phpGACL interface. */
-	var $_items_per_page = 100;
+	public $_items_per_page = 100;
  	/** @var int Maximum number of items to display in a select box. Override to manage large collections via ACL Admin */
-	var $_max_select_box_items = 100;
+	public $_max_select_box_items = 100;
  	/** @var int Maximum number of items to return in an ACL Search. */
-	var $_max_search_return_items = 100;
+	public $_max_search_return_items = 100;
 
 	/*
 	 *
@@ -45,8 +45,8 @@ class GaclAdminApi extends GaclApi {
 	 * Sends the user back to a passed URL
 	 * @param string URL to return to.
 	 */
-	function return_page($url="") {
-        $return_page = basename($url);
+	function return_page($url=""): never {
+        $return_page = basename((string) $url);
         header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
         exit;
 	}
@@ -59,14 +59,14 @@ class GaclAdminApi extends GaclApi {
 	 * @param ADORecordSet ADODB recordset.
 	 */
 	function get_paging_data($rs) {
-                return array(
+                return [
                                 'prevpage' => $rs->absolutepage() - 1,
                                 'currentpage' => $rs->absolutepage(),
                                 'nextpage' => $rs->absolutepage() + 1,
                                 'atfirstpage' => $rs->atfirstpage(),
                                 'atlastpage' => $rs->atlastpage(),
                                 'lastpageno' => $rs->lastpageno()
-                        );
+                        ];
 	}
 
 }

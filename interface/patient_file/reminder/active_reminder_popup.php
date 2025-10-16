@@ -27,7 +27,7 @@ use OpenEMR\Core\Header;
 <tr>
 
 <?php
-$all_allergy_alerts = array();
+$all_allergy_alerts = [];
 if ($GLOBALS['enable_allergy_check']) {
   // Will show allergy and medication/prescription conflicts here
     $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser']);

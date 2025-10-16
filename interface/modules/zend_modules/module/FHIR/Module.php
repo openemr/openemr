@@ -26,13 +26,13 @@ class Module
     public function getAutoloaderConfig()
     {
         // TODO: verify that we need this namespace autoloader... it should be on by default...
-        return array(
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+        return [
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     'OpenEMR\\ZendModules\\' . __NAMESPACE__ => __DIR__ . '/src/' . self::NAMESPACE_NAME,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function onBootstrap(MvcEvent $e)
@@ -48,7 +48,7 @@ class Module
 
     public function getServiceConfig()
     {
-        return array();
+        return [];
     }
 
     public function getConfig()

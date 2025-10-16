@@ -26,11 +26,11 @@ $addresses = $contactService->getContactsForPatient($pid);
 
 $table_id = uniqid("table_edit_addresses_");
 // should always be set, but just in case we will set it to 0 so we can grab it
-$field_id_esc = $field_id_esc ?? '0';
-$addresses = $addresses ?? [];
+$field_id_esc ??= '0';
+$addresses ??= [];
 
 $name_field_id = "form_" . $field_id_esc;
-$smallform = $smallform ?? '';
+$smallform ??= '';
 $widgetConstants = [
         'listWithAddButton' => 26
         ,'textDate' => 4

@@ -21,11 +21,14 @@ namespace OpenEMR\Common\Http;
  */
 class oeHttpRequest extends oeHttp
 {
+    private string $bodyFormat;
+    private array $options;
+
     public function __construct($client)
     {
         parent::__construct();
 
-        $this->client = $client;
+        self::$client = $client;
         $this->bodyFormat = "json";
         $this->options = [
             'base_uri' => '',
@@ -45,11 +48,9 @@ class oeHttpRequest extends oeHttp
 
     public function usingHeaders($headers)
     {
-        return $this->tap($this, function ($request) use ($headers) {
-            return $this->options = array_merge_recursive($this->options, [
-                'headers' => $headers
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, [
+            'headers' => $headers
+        ]));
     }
 
     protected function tap($value, $callback)
@@ -60,9 +61,7 @@ class oeHttpRequest extends oeHttp
 
     public function setOptions($options)
     {
-        return $this->tap($this, function ($request) use ($options) {
-            return $this->options = array_merge_recursive($this->options, $options);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, $options));
     }
 
     public static function newArgs(...$args): oeHttpRequest
@@ -135,21 +134,17 @@ class oeHttpRequest extends oeHttp
 
     public function setParams($params)
     {
-        return $this->tap($this, function ($request) use ($params) {
-            return $this->options = array_merge_recursive($this->options, [
-                'query' => $params,
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, [
+            'query' => $params,
+        ]));
     }
 
     public function usingBaseUri($baseUri)
     {
-        $baseUri = substr($baseUri, -1) === '/' ? $baseUri : $baseUri . '/';
-        return $this->tap($this, function ($request) use ($baseUri) {
-            return $this->options = array_merge($this->options, [
-                'base_uri' => $baseUri,
-            ]);
-        });
+        $baseUri = str_ends_with((string) $baseUri, '/') ? $baseUri : $baseUri . '/';
+        return $this->tap($this, fn($request): array => $this->options = array_merge($this->options, [
+            'base_uri' => $baseUri,
+        ]));
     }
 
     public function get($url, $queryParams = []): oeHttpResponse
@@ -168,7 +163,7 @@ class oeHttpRequest extends oeHttp
             ]);
         }
 
-        return new oeHttpResponse($this->client->request($method, $url, $this->mergeOptions([
+        return new oeHttpResponse(self::$client->request($method, $url, $this->mergeOptions([
             'query' => $this->parseQueryParams($url),
         ], $options)));
     }
@@ -181,7 +176,7 @@ class oeHttpRequest extends oeHttp
     protected function parseQueryParams($url)
     {
         return $this->tap([], function (&$query) use ($url): void {
-            parse_str(parse_url($url, PHP_URL_QUERY), $query);
+            parse_str(parse_url((string) $url, PHP_URL_QUERY), $query);
         });
     }
 

@@ -85,7 +85,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRProcedure
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $procedureResource = new FHIRProcedure();
 
@@ -123,7 +123,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
 
         if (!empty($dataRecord['diagnosis'])) {
             $codesService = new CodeTypesService();
-            $codes = explode(";", $dataRecord['diagnosis']);
+            $codes = explode(";", (string) $dataRecord['diagnosis']);
             $diagnosisCode = new FHIRCodeableConcept();
             foreach ($codes as $code) {
                 $description = $codesService->lookup_code_description($code);

@@ -7,6 +7,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Facility Service Tests
@@ -31,6 +32,8 @@ class FacilityServiceTest extends TestCase
      */
     private $fixtureManager;
 
+    private array $facilityFixture;
+
     protected function setUp(): void
     {
         $this->facilityService = new FacilityService();
@@ -44,7 +47,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertFailure()
+    public function testInsertFailure(): void
     {
         $this->facilityFixture["name"] = "A";
         $this->facilityFixture["facility_npi"] = "12345";
@@ -60,7 +63,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertSuccess()
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->facilityService->insert($this->facilityFixture);
         $this->assertTrue($actualResult->isValid());
@@ -79,7 +82,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateFailure()
+    public function testUpdateFailure(): void
     {
         $this->facilityService->insert($this->facilityFixture);
 
@@ -95,7 +98,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateSuccess()
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->facilityService->insert($this->facilityFixture);
         $this->assertTrue($actualResult->isValid());
@@ -119,7 +122,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testFacilityQueries()
+    public function testFacilityQueries(): void
     {
         $this->fixtureManager->installFacilityFixtures();
 
@@ -147,7 +150,7 @@ class FacilityServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->facilityService->getAll(array("facility_npi" => "0123456789"));
+        $actualResult = $this->facilityService->getAll(["facility_npi" => "0123456789"]);
         $this->assertNotNull($actualResult);
         $this->assertEquals(2, count($actualResult->getData()));
 
@@ -158,7 +161,7 @@ class FacilityServiceTest extends TestCase
         }
     }
 
-    public function testGetFacilityForUser()
+    public function testGetFacilityForUser(): void
     {
         $this->fixtureManager->installFacilityFixtures();
 

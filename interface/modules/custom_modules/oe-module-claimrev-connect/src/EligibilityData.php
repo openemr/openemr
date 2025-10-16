@@ -22,15 +22,15 @@ class EligibilityData
 
     public static function getPatientIdFromAppointment($eid)
     {
-        $sql = "SELECT 
-                pc_pid 
+        $sql = "SELECT
+                pc_pid
                 ,DATE_FORMAT(pc_eventDate, '%Y-%m-%d') as appointmentDate
                 ,pc_facility as facilityId
                 ,pc_aid as providerId
-                from openemr_postcalendar_events 
-                WHERE pc_eid = ? 
+                from openemr_postcalendar_events
+                WHERE pc_eid = ?
             LIMIT 1";
-        $sqlarr = array($eid);
+        $sqlarr = [$eid];
         $result = sqlStatement($sql, $sqlarr);
         if (sqlNumRows($result) == 1) {
             foreach ($result as $row) {
@@ -43,13 +43,13 @@ class EligibilityData
     public static function removeEligibilityCheck($pid, $payer_responsibility)
     {
         $sql = "DELETE FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? ";
-        $sqlarr = array($pid,$payer_responsibility);
+        $sqlarr = [$pid,$payer_responsibility];
         $result = sqlStatement($sql, $sqlarr);
     }
     public static function getEligibilityCheckByStatus($status)
     {
         $sql = "SELECT * FROM mod_claimrev_eligibility WHERE status = ?";
-        $sqlarr = array($status);
+        $sqlarr = [$status];
 
         $result = sqlStatement($sql, $sqlarr);
         return $result;
@@ -57,7 +57,7 @@ class EligibilityData
     public static function getEligibilityResults($status, $minutes)
     {
         $sql = "SELECT * FROM mod_claimrev_eligibility WHERE status = ? AND TIMESTAMPDIFF(MINUTE,last_checked,NOW()) >= ?";
-        $sqlarr = array($status,$minutes);
+        $sqlarr = [$status,$minutes];
         $result = sqlStatement($sql, $sqlarr);
         return $result;
     }
@@ -65,7 +65,7 @@ class EligibilityData
     {
         $pr = ValueMapping::mapPayerResponsibility($payer_responsibility);
         $sql = "SELECT status, coalesce(last_checked,create_date) as last_update,response_json,eligibility_json,individual_json,response_message  FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? LIMIT 1";
-        $res = sqlStatement($sql, array($pid,$pr));
+        $res = sqlStatement($sql, [$pid,$pr]);
         return $res;
     }
 
@@ -73,7 +73,7 @@ class EligibilityData
     {
         $sql = "UPDATE mod_claimrev_eligibility SET status = ? ";
 
-        $sqlarr = array($status);
+        $sqlarr = [$status];
         if ($updateLastChecked) {
             $sql .= ",last_checked = NOW() ";
         }
@@ -109,7 +109,7 @@ class EligibilityData
 
     public static function getSubscriberData($pid = 0, $pr = "")
     {
-            $query = "SELECT 
+            $query = "SELECT
                     c.name as payer_name
                     , coalesce( c.eligibility_id, c.cms_id) as payerId
                     , i.subscriber_lname
@@ -121,7 +121,7 @@ class EligibilityData
                 inner join insurance_companies as c ON (c.id = i.provider)
                 where i.pid = ?";
 
-            $ary = array($pid);
+            $ary = [$pid];
 
         if ($pr != "") {
             $query .= " AND i.type = ?";
@@ -137,15 +137,15 @@ class EligibilityData
     {
         $query = "SELECT
                         d.facility_id,
-                        f.pos_code,            
+                        f.pos_code,
                         f.facility_npi as facility_npi,
                         f.name as facility_name,
                         f.state as facility_state,
-                        f.federal_ein as facility_ein,   
+                        f.federal_ein as facility_ein,
                         d.lname as provider_lname,
                         d.fname as provider_fname,
                         d.npi as provider_npi,
-                        d.upin as provider_pin,            
+                        d.upin as provider_pin,
                         p.lname,
                         p.fname,
                         p.mname,
@@ -159,33 +159,33 @@ class EligibilityData
                         p.street,
                         p.city,
                         p.state,
-                        p.postal_code                    
+                        p.postal_code
                     FROM patient_data AS p
-                    LEFT JOIN users AS d on 
+                    LEFT JOIN users AS d on
                         p.providerID = d.id
-                    INNER JOIN facility AS f on 
+                    INNER JOIN facility AS f on
                         f.id = d.facility_id	
                     WHERE p.pid = ?
                     LIMIT 1";
 
-        $ary = array($pid);
+        $ary = [$pid];
         $res = sqlStatement($query, $ary);
 
         return $res;
     }
     public static function getFacilityData($fid)
     {
-        $query = "SELECT          
-                        f.pos_code,            
+        $query = "SELECT
+                        f.pos_code,
                         f.facility_npi as facility_npi,
                         f.name as facility_name,
                         f.state as facility_state,
-                        f.federal_ein as facility_ein                
+                        f.federal_ein as facility_ein
                     FROM facility AS f
                     WHERE f.id = ?
                     LIMIT 1";
 
-        $ary = array($fid);
+        $ary = [$fid];
         $result = sqlStatement($query, $ary);
 
         if (sqlNumRows($result) == 1) {
@@ -199,7 +199,7 @@ class EligibilityData
 
     public static function getPatientData($pid = 0)
     {
-        $query = "SELECT          
+        $query = "SELECT
                         p.lname,
                         p.fname,
                         p.mname,
@@ -214,16 +214,16 @@ class EligibilityData
                         p.city,
                         p.state,
                         p.postal_code,
-                        f.id facility_id                    
+                        f.id facility_id
                     FROM patient_data AS p
-                    LEFT JOIN users AS d on 
+                    LEFT JOIN users AS d on
                         p.providerID = d.id
-                    LEFT JOIN facility AS f on 
+                    LEFT JOIN facility AS f on
                         f.id = d.facility_id
                     WHERE p.pid = ?
                     LIMIT 1";
 
-        $ary = array($pid);
+        $ary = [$pid];
         $result = sqlStatement($query, $ary);
 
         if (sqlNumRows($result) == 1) {
@@ -241,12 +241,12 @@ class EligibilityData
                         d.lname as provider_lname,
                         d.fname as provider_fname,
                         d.npi as provider_npi,
-                        d.upin as provider_pin           
-                    FROM users AS d                    
+                        d.upin as provider_pin
+                    FROM users AS d
                     WHERE d.id = ?
                     LIMIT 1";
 
-        $ary = array($pid);
+        $ary = [$pid];
         $result = sqlStatement($query, $ary);
 
         if (sqlNumRows($result) == 1) {
@@ -261,10 +261,10 @@ class EligibilityData
     public static function getInsuranceData($pid = 0, $pr = "")
     {
         $query = "SELECT
-			i.type as payer_responsibility           
+			i.type as payer_responsibility
 			FROM insurance_data AS i
             WHERE i.pid = ? ";
-        $ary = array($pid);
+        $ary = [$pid];
 
         if ($pr != "") {
             $query .= " AND i.type = ?";

@@ -38,7 +38,7 @@ if (empty($tmp)) {
 $enc_list = [];
 if (!empty($prow)) {
     $results = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-        " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
+        " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", [$prow['pid']]);
     foreach ($enc_list as $row) {
         $enc_list[] = [
             'encounter' => $row['encounter'],
@@ -51,7 +51,7 @@ if (!empty($prow)) {
 // if we have phimail enabled, we are going to find out if our document is an xml file, if so, we are going to do a validation
 // report on the document.  This would be a great thing for caching if we wanted to do that, we'll just compute on the fly for now.
 $records = [];
-$prow = $prow ?? null;
+$prow ??= null;
 $cdaDocumentValidator = new CdaValidateDocumentObject();
 foreach ($tmp as $record) {
     if ($record['type1'] == 1) {

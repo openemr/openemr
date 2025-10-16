@@ -25,14 +25,10 @@ class EncounterValidator extends BaseValidator
             function (Validator $context): void {
                 $context->required('pc_catid');
                 $context->required('class_code')->callback(
-                    function ($value) {
-                        return $this->validateCode($value, "list_options", "_ActEncounterCode");
-                    }
+                    fn($value) => $this->validateCode($value, "list_options", "_ActEncounterCode")
                 );
                 $context->required("puuid", "Patient UUID")->callback(
-                    function ($value) {
-                        return $this->validateId('uuid', "patient_data", $value, true);
-                    }
+                    fn($value) => $this->validateId('uuid', "patient_data", $value, true)
                 )->uuid();
             }
         );
@@ -50,21 +46,13 @@ class EncounterValidator extends BaseValidator
                     }
                 );
                 // additional euuid validation
-                $context->required("euuid", "Encounter UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "form_encounter", $value, true);
-                })->uuid();
+                $context->required("euuid", "Encounter UUID")->callback(fn($value) => $this->validateId("uuid", "form_encounter", $value, true))->uuid();
                 // additional puuid validation
-                $context->required("puuid", "Patient UUID")->callback(function ($value) {
-                    return $this->validateId('uuid', "patient_data", $value, true);
-                })->uuid();
-                $context->required("user", "Encounter Author")->callback(function ($value) {
-                    return $this->validateId('username', "users", $value);
-                })->string();
+                $context->required("puuid", "Patient UUID")->callback(fn($value) => $this->validateId('uuid', "patient_data", $value, true))->uuid();
+                $context->required("user", "Encounter Author")->callback(fn($value) => $this->validateId('username', "users", $value))->string();
                 $context->required("group", "Encounter Provider Group")->string();
                 $context->optional('class_code')->callback(
-                    function ($value) {
-                        return $this->validateCode($value, "list_options", "_ActEncounterCode");
-                    }
+                    fn($value) => $this->validateCode($value, "list_options", "_ActEncounterCode")
                 );
             }
         );

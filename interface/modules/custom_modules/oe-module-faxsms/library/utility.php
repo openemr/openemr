@@ -45,9 +45,9 @@ if ($_POST['form_create'] ?? null) {
     $clientApp = AppDispatch::getApiService('fax');
 
     if (!empty($_POST["pubpid"])) {
-        $form_pubpid = trim($_POST["pubpid"]);
+        $form_pubpid = trim((string) $_POST["pubpid"]);
         $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
-            "pubpid = ?", array($form_pubpid));
+            "pubpid = ?", [$form_pubpid]);
         if ($result['count']) {
             unset($_POST['form_create']);
             require_once("./utility.php");
@@ -63,17 +63,13 @@ if ($_POST['form_create'] ?? null) {
     if ($pid == null) {
         $pid = 0;
     }
-    if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
-        $mypubpid = $_POST["pubpid"] ?? '';
-    } else {
-        $mypubpid = $pid;
-    }
+    $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));
     $form_lname = ucwords(trim($_POST["lname"] ?? ''));
     $form_mname = ucwords(trim($_POST["mname"] ?? ''));
     $form_sex = trim($_POST["sex"] ?? '');
-    $form_dob = DateToYYYYMMDD(trim($_POST["DOB"] ?? null));
+    $form_dob = DateToYYYYMMDD(trim((string) ($_POST["DOB"] ?? null)));
     $form_street = '';
     $form_city = '';
     $form_postcode = '';
@@ -153,23 +149,23 @@ if ($_POST['form_create'] ?? null) {
 function getLayoutUOR($form_id, $field_id)
 {
     $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-        "form_id = ? AND field_id = ? LIMIT 1", array($form_id, $field_id));
+        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
     return 0 + $crow['uor'];
 }
 if (empty($_POST) && !empty($data)) {
     $_POST = $data;
     unset($data);
 }
-$form_pubpid = $_POST['pubpid'] ?? '' ? trim($_POST['pubpid']) : '';
-$form_title = $_POST['title'] ?? '' ? trim($_POST['title']) : '';
-$form_fname = $_POST['fname'] ?? '' ? trim($_POST['fname']) : '';
-$form_mname = $_POST['mname'] ?? '' ? trim($_POST['mname']) : '';
-$form_lname = $_POST['lname'] ?? '' ? trim($_POST['lname']) : '';
-$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
-$form_sex = $_POST['sex'] ?? '' ? trim($_POST['sex']) : '';
-$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
-$form_dob = $_POST['DOB'] ?? '' ? trim($_POST['DOB']) : '';
-$form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d');
+$form_pubpid = $_POST['pubpid'] ?? '' ? trim((string) $_POST['pubpid']) : '';
+$form_title = $_POST['title'] ?? '' ? trim((string) $_POST['title']) : '';
+$form_fname = $_POST['fname'] ?? '' ? trim((string) $_POST['fname']) : '';
+$form_mname = $_POST['mname'] ?? '' ? trim((string) $_POST['mname']) : '';
+$form_lname = $_POST['lname'] ?? '' ? trim((string) $_POST['lname']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim((string) $_POST['refsource']) : '';
+$form_sex = $_POST['sex'] ?? '' ? trim((string) $_POST['sex']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim((string) $_POST['refsource']) : '';
+$form_dob = $_POST['DOB'] ?? '' ? trim((string) $_POST['DOB']) : '';
+$form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : date('Y-m-d');
 
 ?>
 <!DOCTYPE html>
@@ -254,7 +250,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 $lres = getLayoutRes();
                 while ($lrow = sqlFetchArray($lres)) {
                     $field_id  = $lrow['field_id'];
-                    if (strpos($field_id, 'em_') === 0) {
+                    if (str_starts_with((string) $field_id, 'em_')) {
                         continue;
                     }
                     $data_type = $lrow['data_type'];

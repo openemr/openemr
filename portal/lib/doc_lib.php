@@ -12,16 +12,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['cpid'])) {
         if ($_POST['cpid'] != $_SESSION['pid']) {
             echo "illegal Action";
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
@@ -31,11 +35,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     // only support download handler from patient portal
     if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
         echo xlt("Not authorized");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         exit;
     }
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
@@ -107,16 +111,16 @@ if ($dispose == $_POST['audit_delete'] ?? null) {
 
 try {
     if (!$category) {
-        $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
+        $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["Reviewed"]);
         $category = $result['id'] ?: 3;
     }
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
-    $len = stripos($htmlin, 'data:application/pdf;base64,');
+    $len = stripos((string) $htmlin, 'data:application/pdf;base64,');
     if ($len !== false) {
         if ($dispose == "download") {
             //'<object data=data:application/pdf;base64,'
-            $len = strpos($htmlin, ',');
-            $content = substr($htmlin, $len + 1);
+            $len = strpos((string) $htmlin, ',');
+            $content = substr((string) $htmlin, $len + 1);
             $content = str_replace("type='application/pdf' width='100%' height='450'></object>", '', $content);
 
             $pdf = base64_decode($content);
@@ -160,7 +164,7 @@ try {
     if ($dispose == 'fetch_pdf') {
         try {
             $file = $pdfObject->Output($form_filename, 'S');
-            $file = base64_encode($file);
+            $file = base64_encode((string) $file);
             echo $file;
             $logit->portalLog('fetched PDF', $cpid, ('document:' . $form_filename));
             exit;

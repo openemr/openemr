@@ -2,12 +2,15 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Organization Service Crud Tests
@@ -39,6 +42,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirFacilityFixture();
         $this->fhirOrganizationFixture = FhirOrganizationSerializer::deserialize($fixture);
         $this->fhirOrganizationService = new FhirOrganizationService();
+        $this->fhirOrganizationService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void
@@ -47,7 +51,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -60,7 +64,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsertWithErrors()
+    public function testInsertWithErrors(): void
     {
         $this->fhirOrganizationFixture->setName(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -69,7 +73,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -92,7 +96,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateWithErrors()
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirOrganizationService->update('bad-uuid', $this->fhirOrganizationFixture);
         $this->assertFalse($actualResult->isValid());

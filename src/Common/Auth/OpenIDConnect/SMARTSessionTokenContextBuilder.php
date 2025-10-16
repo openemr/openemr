@@ -16,36 +16,40 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\FHIR\UtilsService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use Exception;
 
 class SMARTSessionTokenContextBuilder
 {
-    private $sessionArray;
-    public function __construct($sessionArray = array())
+    use SystemLoggerAwareTrait;
+
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session)
     {
-        $this->sessionArray = !empty($sessionArray) ? $sessionArray : $_SESSION ?? [];
-        $this->logger = new SystemLogger();
     }
 
-    public function getEHRLaunchContext()
+    /**
+     * @return array
+     * @throws OAuthServerException
+     */
+    public function getEHRLaunchContext(): array
     {
-        $launch = $this->sessionArray['launch'] ?? null;
-        $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() launch context is", ['launch' => $launch]);
+        $launch = $this->session->get('launch');
+        $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() launch context is", ['launch' => $launch]);
         if (empty($launch)) {
             return [];
         }
         $context = [];
         try {
-            // TODO: adunsulag do we want any kind of hmac signature to verify the request hasn't been
-            // tampered with?  Not sure that it matters as the ACL's will verify that the app only has access
-            // to the data the currently authorized oauth2 user can access.
             $launchToken = SMARTLaunchToken::deserializeToken($launch);
-            $this->logger->debug(
+            $this->getSystemLogger()->debug(
                 "SMARTSessionTokenContextBuilder->getEHRLaunchContext() decoded launch context is",
                 ['patient' => $launchToken->getPatient(), 'encounter' => $launchToken->getEncounter(), 'intent' => $launchToken->getIntent()]
             );
@@ -66,11 +70,11 @@ class SMARTSessionTokenContextBuilder
                 $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
-        } catch (\Exception $ex) {
-            $this->logger->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
+        } catch (Exception $ex) {
+            $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
             throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
         }
-        $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() ehr launch context is ", $context);
+        $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() ehr launch context is ", $context);
         return $context;
     }
 
@@ -101,10 +105,15 @@ class SMARTSessionTokenContextBuilder
         return $returnContext;
     }
 
+    /**
+     * @param $scopes
+     * @return array
+     * @throws OAuthServerException
+     */
     public function getContextForScopes($scopes): array
     {
         $context = [];
-        $this->logger->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
+        $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
         } else if ($this->isEHRLaunchRequest($scopes)) {
@@ -113,13 +122,13 @@ class SMARTSessionTokenContextBuilder
         return $context;
     }
 
-    public function getStandaloneLaunchContext()
+    public function getStandaloneLaunchContext(): array
     {
         $context = [];
-        if (empty($this->sessionArray['puuid'])) {
+        if (empty($this->session->get('puuid'))) {
             return $context;
         }
-        $context['patient'] = $this->sessionArray['puuid'];
+        $context['patient'] = $this->session->get('puuid');
         $context['need_patient_banner'] = true;
         $context['smart_style_url'] = $this->getSmartStyleURL();
         return $context;
@@ -127,23 +136,22 @@ class SMARTSessionTokenContextBuilder
 
     /**
      * Needed for OpenEMR\FHIR\SMART\Capability::CONTEXT_STYLE support
-     * TODO: adunsulag do we want to try and read from the scss files and generate some kind of styles...
      * Reading the SMART FHIR spec author forums so few app writers are actually using this at all, it seems like we
      * can just use defaults without getting trying to load up based upon which skin we have, or using node &
      * gulp to auto generate a skin.
      */
-    private function getSmartStyleURL()
+    private function getSmartStyleURL(): string
     {
         // "/public/smart-styles/smart-light.json";
         // need to make sure we grab the site id for this.
-        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/oauth2/" . $_SESSION['site_id'] . SMARTAuthorizationController::SMART_STYLE_URL;
+        return $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . "/oauth2/" . $this->session->get('site_id') . SMARTAuthorizationController::SMART_STYLE_URL;
     }
 
     /**
      * @param ScopeEntityInterface[] $scopes
      * @return bool
      */
-    public function isStandaloneLaunchPatientRequest($scopes)
+    public function isStandaloneLaunchPatientRequest(array $scopes): bool
     {
         return $this->hasScope($scopes, SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE);
     }
@@ -152,12 +160,17 @@ class SMARTSessionTokenContextBuilder
      * @param ScopeEntityInterface[] $scopes
      * @return bool
      */
-    public function isEHRLaunchRequest($scopes)
+    public function isEHRLaunchRequest(array $scopes): bool
     {
         return $this->hasScope($scopes, SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE);
     }
 
-    private function hasScope($scopes, $searchScope)
+    /**
+     * @param ScopeEntity[] $scopes
+     * @param string $searchScope
+     * @return bool
+     */
+    private function hasScope(array $scopes, string $searchScope): bool
     {
         // Verify scope and make sure openid exists.
         $valid  = false;

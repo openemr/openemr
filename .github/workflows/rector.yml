@@ -1,36 +1,44 @@
 name: Rector PHP Analysis
 
 on:
+  push:
+    branches:
+    - master
+    - rel-*
   pull_request:
     branches:
     - master
+    - rel-*
 
 jobs:
   rector:
     name: Rector PHP Analysis
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4'
+        php-version: ${{ matrix.php-version }}
         coverage: none
-        tools: composer:v2
 
     - name: Get composer cache directory
       id: composer-cache
       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
           ${{ runner.os }}-composer-
 
     - name: Install dependencies
@@ -46,9 +54,8 @@ jobs:
     - name: Create Rector cache directory
       run: mkdir -p /tmp/rector
 
+    - name: Rector List Rules
+      run: vendor/bin/rector list-rules
+
     - name: Rector Dry Run
-      run: |
-        if ! vendor/bin/rector process --dry-run; then
-          echo "Rector failed!"
-          exit 1
-        fi
+      run: vendor/bin/rector process --dry-run

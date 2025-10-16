@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 class ValidationUtilsTest extends TestCase
 {
-    public function testIsValidEmailAcceptsValidEmails()
+    public function testIsValidEmailAcceptsValidEmails(): void
     {
         // these are emails that have commonly failed in the past that we want to make sure work
         // in our validation

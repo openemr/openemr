@@ -43,18 +43,18 @@ if ($_POST['export']) {
                 $tmp = "<category>$tmp</category>" . "\n";
                 fwrite($temp, $tmp);
                 $query2 = "select id,subcategory from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where category_id=?";
-                $statement2 = sqlStatement($query2, array($result1['id']));
+                $statement2 = sqlStatement($query2, [$result1['id']]);
             while ($result2 = sqlFetchArray($statement2)) {
                 $tmp = $result2['subcategory'];
                 $tmp = "<subcategory>$tmp</subcategory>" . "\n";
                 fwrite($temp, $tmp);
                 $query3 = "select item, content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where subcategory_id=?";
-                $statement3 = sqlStatement($query3, array($result2['id']));
+                $statement3 = sqlStatement($query3, [$result2['id']]);
                 while ($result3 = sqlFetchArray($statement3)) {
                     $tmp = $result3['item'];
                     $tmp = "<item>$tmp</item>" . "\n";
                     fwrite($temp, $tmp);
-                    $tmp = preg_replace(array("/\n/","/\r/"), array("\\\\n","\\\\r"), $result3['content']);
+                    $tmp = preg_replace(["/\n/","/\r/"], ["\\\\n","\\\\r"], (string) $result3['content']);
                     $tmp = "<content>$tmp</content>" . "\n";
                     fwrite($temp, $tmp);
                 }
@@ -99,14 +99,14 @@ if ($_POST['import']) {
             $buffer = fgets($handle);
             if (preg_match('/<category>(.*?)<\/category>/', $buffer, $matches)) {
                 $category = trim($matches[1]); //trim in case someone edited by hand and added spaces
-                $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", array($category));
+                $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
                 if ($result = sqlFetchArray($statement)) {
                     $category_id = $result['id'];
                 } else {
                     $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_category") . " (user, category) " .
                     "values (?, ?)";
-                    sqlStatement($query, array($_SESSION['authUser'], $category));
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", array($category));
+                    sqlStatement($query, [$_SESSION['authUser'], $category]);
+                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
                     if ($result = sqlFetchArray($statement)) {
                         $category_id = $result['id'];
                     }
@@ -116,15 +116,15 @@ if ($_POST['import']) {
             if (preg_match('/<subcategory>(.*?)<\/subcategory>/', $buffer, $matches)) {
                 $subcategory = trim($matches[1]);
                 $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
-                "like ? and category_id = ?", array($subcategory, $category_id));
+                "like ? and category_id = ?", [$subcategory, $category_id]);
                 if ($result = sqlFetchArray($statement)) {
                     $subcategory_id = $result['id'];
                 } else {
                     $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " (user, subcategory, category_id) " .
                     "values (?, ?, ?)";
-                    sqlStatement($query, array($_SESSION['authUser'], $subcategory, $category_id));
+                    sqlStatement($query, [$_SESSION['authUser'], $subcategory, $category_id]);
                     $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
-                    "like ? and category_id = ?", array($subcategory, $category_id));
+                    "like ? and category_id = ?", [$subcategory, $category_id]);
                     if ($result = sqlFetchArray($statement)) {
                         $subcategory_id = $result['id'];
                     }
@@ -141,7 +141,7 @@ if ($_POST['import']) {
                 if ($mode == 'item') {
                     $postfix = 0;
                     $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where item like ? " .
-                    "and subcategory_id = ?", array($value, $subcategory_id));
+                    "and subcategory_id = ?", [$value, $subcategory_id]);
                     if ($result = sqlFetchArray($statement)) {//let's count until we find a number available
                         $postfix = 1;
                         $inserted_duplicate = false;
@@ -149,11 +149,11 @@ if ($_POST['import']) {
                             $insert_value = $value . "_" . $postfix;
                             $inner_statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " " .
                                 "where item like ? " .
-                                "and subcategory_id = ?", array($insert_value, $subcategory_id));
+                                "and subcategory_id = ?", [$insert_value, $subcategory_id]);
                             if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
                                     $inner_query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
                                     "values (?, ?, ?)";
-                                    sqlStatement($inner_query, array($_SESSION['authUser'], $insert_value, $subcategory_id));
+                                    sqlStatement($inner_query, [$_SESSION['authUser'], $insert_value, $subcategory_id]);
                                     $inserted_duplicate = true;
                             } else {
                                 $postfix++;
@@ -162,7 +162,7 @@ if ($_POST['import']) {
                     } else {
                         $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
                         "values (?, ?, ?)";
-                        sqlStatement($query, array($_SESSION['authUser'], $value, $subcategory_id));
+                        sqlStatement($query, [$_SESSION['authUser'], $value, $subcategory_id]);
                     }
 
                     if ($postfix == 0) {
@@ -170,12 +170,12 @@ if ($_POST['import']) {
                     }
 
                     $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where item like ? " .
-                    "and subcategory_id = ?", array($insert_value, $subcategory_id));
+                    "and subcategory_id = ?", [$insert_value, $subcategory_id]);
                     if ($result = sqlFetchArray($statement)) {
                         $item_id = $result['id'];
                     }
                 } elseif ($mode == 'content') {
-                    $statement = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where id = ?", array($item_id));
+                    $statement = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where id = ?", [$item_id]);
                     if ($result = sqlFetchArray($statement)) {
                         //$content = "/*old*/\n\n".$result['content']."\n\n/*new*/\n\n$value";
                         $content = $value;
@@ -184,7 +184,7 @@ if ($_POST['import']) {
                     }
 
                     $query = "UPDATE " . mitigateSqlTableUpperCase("form_CAMOS_item") . " set content = ? where id = ?";
-                    sqlStatement($query, array($content, $item_id));
+                    sqlStatement($query, [$content, $item_id]);
                 }
             }
         }

@@ -72,7 +72,7 @@ class McryptUtil
         McryptUtil::Init();
 
         if ($decode) {
-            $data = base64_decode($data);
+            $data = base64_decode((string) $data);
         }
 
         $decrypted = mcrypt_decrypt(McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV);

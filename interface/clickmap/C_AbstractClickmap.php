@@ -16,7 +16,7 @@
  * remember that include paths are calculated relative to the including script, not this file.
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
-require_once(dirname(__FILE__) . '/../globals.php');
+require_once(__DIR__ . '/../globals.php');
 
 /* For the addform() function */
 require_once($GLOBALS['srcdir'] . '/forms.inc.php');
@@ -34,7 +34,7 @@ abstract class C_AbstractClickmap extends Controller
      *
      * @var template_dir
      */
-    var $template_dir;
+    public $template_dir;
 
     /**
      * @brief Initialize a newly created object belonging to this class

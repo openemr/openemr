@@ -83,14 +83,14 @@ $bigdata = getRegistered("%") or $bigdata = false;
                     CsrfUtils::csrfNotVerified();
                 }
                 foreach ($_POST as $key => $val) {
-                    if (preg_match('/nickname_(\d+)/', $key, $matches)) {
-                        sqlQuery("update registry set nickname = ? where id = ?", array($val, $matches[1]));
-                    } elseif (preg_match('/category_(\d+)/', $key, $matches)) {
-                        sqlQuery("update registry set category = ? where id = ?", array($val, $matches[1]));
-                    } elseif (preg_match('/priority_(\d+)/', $key, $matches)) {
-                        sqlQuery("update registry set priority = ? where id = ?", array($val, $matches[1]));
-                    } elseif (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
-                        sqlQuery("update registry set aco_spec = ? where id = ?", array($val, $matches[1]));
+                    if (preg_match('/nickname_(\d+)/', (string) $key, $matches)) {
+                        sqlQuery("update registry set nickname = ? where id = ?", [$val, $matches[1]]);
+                    } elseif (preg_match('/category_(\d+)/', (string) $key, $matches)) {
+                        sqlQuery("update registry set category = ? where id = ?", [$val, $matches[1]]);
+                    } elseif (preg_match('/priority_(\d+)/', (string) $key, $matches)) {
+                        sqlQuery("update registry set priority = ? where id = ?", [$val, $matches[1]]);
+                    } elseif (preg_match('/aco_spec_(\d+)/', (string) $key, $matches)) {
+                        sqlQuery("update registry set aco_spec = ? where id = ?", [$val, $matches[1]]);
                     }
                 }
             }
@@ -127,7 +127,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             foreach ($bigdata as $registry) {
                                 $priority_category = sqlQuery(
                                     "select priority, category, nickname, aco_spec from registry where id = ?",
-                                    array($registry['id'])
+                                    [$registry['id']]
                                 );
                                 $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
                                 ?>
@@ -218,7 +218,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                         }
 
                         foreach ($inDir as $fname) {
-                            if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz")) {
+                            if (stristr((string) $fname, ".tar.gz") || stristr((string) $fname, ".tar") || stristr((string) $fname, ".zip") || stristr((string) $fname, ".gz")) {
                                 $phpState = "PHP compressed";
                             } else {
                                 $phpState =  "PHP extracted";
@@ -228,11 +228,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 <td colspan="2">
                                     <?php
                                     $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
-                                    if ($form_title_file) {
-                                            $form_title = $form_title_file[0];
-                                    } else {
-                                        $form_title = $fname;
-                                    }
+                                    $form_title = $form_title_file ? $form_title_file[0] : $fname;
                                     $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
                                     <?php

@@ -28,11 +28,7 @@ if (!empty($_POST)) {
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'] ?? '';
-if (!empty($codetype)) {
-    $allowed_codes = split_csv_line($codetype);
-} else {
-    $allowed_codes = array_keys($code_types);
-}
+$allowed_codes = !empty($codetype) ? split_csv_line($codetype) : array_keys($code_types);
 
 $form_code_type = $_POST['form_code_type'] ?? '';
 
@@ -99,11 +95,7 @@ $focus = "document.theform.search_term.select();";
     <div class="container-fluid">
         <?php
         $string_target_element = "";
-        if (!empty($target_element)) {
-            $string_target_element = "?target_element=" . attr_url($target_element) . "&";
-        } else {
-            $string_target_element = "?";
-        }
+        $string_target_element = !empty($target_element) ? "?target_element=" . attr_url($target_element) . "&" : "?";
         ?>
         <?php if (!empty($allowed_codes)) { ?>
         <form class="form-inline" method='post' name='theform'
@@ -205,9 +197,9 @@ $focus = "document.theform.search_term.select();";
                     } else {
                         while ($row = sqlFetchArray($res)) { // Display normal search
                             $itercode = $row['code'];
-                            $itertext = ucfirst(strtolower(trim($row['code_text'])));
+                            $itertext = ucfirst(strtolower(trim((string) $row['code_text'])));
                             $dynCodeType = $form_code_type ?: $codetype;
-                            if (stripos($dynCodeType, 'VALUESET') !== false) {
+                            if (stripos((string) $dynCodeType, 'VALUESET') !== false) {
                                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
                             }
                             if (!empty($target_element)) {

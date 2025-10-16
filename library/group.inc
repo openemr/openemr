@@ -25,4 +25,4 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/group.inc.php");
+require_once(__DIR__ . "/group.inc.php");

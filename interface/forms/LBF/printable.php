@@ -28,7 +28,7 @@ use OpenEMR\Pdf\Config_Mpdf;
 $FONTSIZE = 9;
 
 // The form name is passed to us as a GET parameter.
-$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formname = $_GET['formname'] ?? '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
@@ -51,7 +51,7 @@ $isblankform = empty($_REQUEST['isform']) ? 0 : 1;
 
 $CPR = 4; // cells per row
 
-$grparr = array();
+$grparr = [];
 getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
@@ -75,7 +75,7 @@ if ($lobj['grp_diags'   ]) {
 
 // Check access control.
 if (!empty($lobj['aco_spec'])) {
-    $LBF_ACO = explode('|', $lobj['aco_spec']);
+    $LBF_ACO = explode('|', (string) $lobj['aco_spec']);
 }
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
     if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
@@ -110,7 +110,7 @@ if ($visitid && (isset($LBF_SERVICES_SECTION) || isset($LBF_DIAGS_SECTION) || is
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = ? AND uor > 0 " .
-  "ORDER BY group_id, seq", array($formname));
+  "ORDER BY group_id, seq", [$formname]);
 ?>
 <?php if (!$PDF_OUTPUT) { ?>
 <html>
@@ -279,7 +279,7 @@ if ($PDF_OUTPUT) {
 
 <?php
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -288,7 +288,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -352,14 +352,14 @@ while ($frow = sqlFetchArray($fres)) {
 
     $this_levels = $this_group;
     $i = 0;
-    $mincount = min(strlen($this_levels), strlen($group_levels));
+    $mincount = min(strlen((string) $this_levels), strlen($group_levels));
     while ($i < $mincount && $this_levels[$i] == $group_levels[$i]) {
         ++$i;
     }
     // $i is now the number of initial matching levels.
 
     // If ending a group or starting a subgroup, terminate the current row and its table.
-    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen($this_levels))) {
+    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
         end_row();
         echo " </table>\n";
         $group_table_active = false;
@@ -374,7 +374,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // If there are any new groups, open them.
-    while ($i < strlen($this_levels)) {
+    while ($i < strlen((string) $this_levels)) {
         end_row();
         if ($group_table_active) {
             echo " </table>\n";
@@ -467,7 +467,7 @@ while ($frow = sqlFetchArray($fres)) {
         if ($cell_count > 0) {
             echo "padding-left:5pt;";
         }
-        if (in_array($data_type, array(21,27,40))) {
+        if (in_array($data_type, [21,27,40])) {
             // Omit underscore for checkboxes, radio buttons and images.
             echo "border-width:0 0 0 0;";
         }
@@ -581,7 +581,7 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 ?>
 
 <p style='text-align:center' class='small'>
-  <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+  <?php echo text(xl('Rev.') . ' ' . substr((string) $grp_last_update, 0, 10)); ?>
 </p>
 
 </form>

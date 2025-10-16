@@ -74,8 +74,8 @@ class Hcfa1500
         }
 
         $data = preg_replace($strip, '', strtoupper($data));
-        $len = min(strlen($data), $maxlen);
-        $this->hcfa_data .= substr($data, 0, $len);
+        $len = min(strlen((string) $data), $maxlen);
+        $this->hcfa_data .= substr((string) $data, 0, $len);
         $this->hcfa_curr_col += $len;
     }
 
@@ -87,13 +87,9 @@ class Hcfa1500
      */
     private function processDiagnoses0212($claim, &$log)
     {
-        $hcfa_entries = array();
+        $hcfa_entries = [];
         $diags = $claim->diagArray(false);
-        if ($claim->diagtype == 'ICD10') {
-            $icd_indicator = '0';
-        } else {
-            $icd_indicator = '9';
-        }
+        $icd_indicator = $claim->diagtype == 'ICD10' ? '0' : '9';
 
         $hcfa_entries[] = new HCFAInfo(37, 42, 1, $icd_indicator);
 
@@ -115,7 +111,7 @@ class Hcfa1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, array('OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo'));
+        usort($hcfa_entries, [\OpenEMR\Billing\HCFAInfo::class, 'cmpHcfaInfo']);
 
         foreach ($hcfa_entries as $hcfa_entry) {
             $this->putHcfa(
@@ -234,22 +230,22 @@ class Hcfa1500
         // Box 2. Patient's Name
         $tmp = $claim->patientLastName() . ', ' . $claim->patientFirstName();
         if ($claim->patientMiddleName()) {
-            $tmp .= ', ' . substr($claim->patientMiddleName(), 0, 1);
+            $tmp .= ', ' . substr((string) $claim->patientMiddleName(), 0, 1);
         }
 
         $this->putHcfa(10, 1, 28, $tmp);
 
         // Box 3. Patient's Birth Date and Sex
         $tmp = $claim->patientDOB();
-        $this->putHcfa(10, 31, 2, substr($tmp, 4, 2));
-        $this->putHcfa(10, 34, 2, substr($tmp, 6, 2));
-        $this->putHcfa(10, 37, 4, substr($tmp, 0, 4));
+        $this->putHcfa(10, 31, 2, substr((string) $tmp, 4, 2));
+        $this->putHcfa(10, 34, 2, substr((string) $tmp, 6, 2));
+        $this->putHcfa(10, 37, 4, substr((string) $tmp, 0, 4));
         $this->putHcfa(10, $claim->patientSex() == 'M' ? 42 : 47, 1, 'X');
 
         // Box 4. Insured's Name
         $tmp = $claim->insuredLastName() . ', ' . $claim->insuredFirstName();
         if ($claim->insuredMiddleName()) {
-            $tmp .= ', ' . substr($claim->insuredMiddleName(), 0, 1);
+            $tmp .= ', ' . substr((string) $claim->insuredMiddleName(), 0, 1);
         }
 
         $this->putHcfa(10, 50, 28, $tmp);
@@ -286,14 +282,14 @@ class Hcfa1500
         // Box 5 continued. Patient's Zip Code and Telephone
         $this->putHcfa(16, 1, 10, $claim->patientZip());
         $tmp = $claim->patientPhone();
-        $this->putHcfa(16, 15, 3, substr($tmp, 0, 3));
-        $this->putHcfa(16, 19, 7, substr($tmp, 3));
+        $this->putHcfa(16, 15, 3, substr((string) $tmp, 0, 3));
+        $this->putHcfa(16, 19, 7, substr((string) $tmp, 3));
 
         // Box 7 continued. Insured's Zip Code and Telephone
         $this->putHcfa(16, 50, 10, $claim->insuredZip());
         $tmp = $claim->insuredPhone();
-        $this->putHcfa(16, 65, 3, substr($tmp, 0, 3));
-        $this->putHcfa(16, 69, 7, substr($tmp, 3));
+        $this->putHcfa(16, 65, 3, substr((string) $tmp, 0, 3));
+        $this->putHcfa(16, 69, 7, substr((string) $tmp, 3));
 
         // Box 9. Other Insured's Name
         if ($new_medicare_logic) {
@@ -302,7 +298,7 @@ class Hcfa1500
             if ($claim->payerCount() > 1) {
                 $tmp = $claim->insuredLastName(1) . ', ' . $claim->insuredFirstName(1);
                 if ($claim->insuredMiddleName(1)) {
-                    $tmp .= ', ' . substr($claim->insuredMiddleName(1), 0, 1);
+                    $tmp .= ', ' . substr((string) $claim->insuredMiddleName(1), 0, 1);
                 }
 
                 $this->putHcfa(18, 1, 28, $tmp);
@@ -345,9 +341,9 @@ class Hcfa1500
         }
 
         if ($tmpdob) {
-            $this->putHcfa(20, 53, 2, substr($tmpdob, 4, 2));
-            $this->putHcfa(20, 56, 2, substr($tmpdob, 6, 2));
-            $this->putHcfa(20, 59, 4, substr($tmpdob, 0, 4));
+            $this->putHcfa(20, 53, 2, substr((string) $tmpdob, 4, 2));
+            $this->putHcfa(20, 56, 2, substr((string) $tmpdob, 6, 2));
+            $this->putHcfa(20, 59, 4, substr((string) $tmpdob, 0, 4));
         }
 
         if ($tmpsex) {
@@ -423,11 +419,11 @@ class Hcfa1500
 
         // Box 14. Date of Current Illness/Injury/Pregnancy
         // this will cause onsetDate in Encounter summary to override misc billing so not perfect yet but fine for now
-        $tmp = ($claim->onsetDate()) ? $claim->onsetDate() : $claim->miscOnsetDate();
+        $tmp = $claim->onsetDate() ?: $claim->miscOnsetDate();
         if (!empty($tmp)) {
-            $this->putHcfa(32, 2, 2, substr($tmp, 4, 2));
-            $this->putHcfa(32, 5, 2, substr($tmp, 6, 2));
-            $this->putHcfa(32, 8, 4, substr($tmp, 0, 4));
+            $this->putHcfa(32, 2, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa(32, 5, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa(32, 8, 4, substr((string) $tmp, 0, 4));
             // Include Box 14 Qualifier
             $this->putHcfa(32, 16, 3, $claim->box14Qualifier());
         }
@@ -439,20 +435,20 @@ class Hcfa1500
             $this->putHcfa(32, 31, 3, $claim->box15Qualifier());
         }
 
-        $this->putHcfa(32, 37, 2, substr($tmp, 4, 2));
-        $this->putHcfa(32, 40, 2, substr($tmp, 6, 2));
-        $this->putHcfa(32, 43, 4, substr($tmp, 0, 4));
+        $this->putHcfa(32, 37, 2, substr((string) $tmp, 4, 2));
+        $this->putHcfa(32, 40, 2, substr((string) $tmp, 6, 2));
+        $this->putHcfa(32, 43, 4, substr((string) $tmp, 0, 4));
 
         // Box 16. Dates Patient Unable to Work in Current Occupation
         if ($claim->isUnableToWork()) {
             $tmp = $claim->offWorkFrom();
-            $this->putHcfa(32, 54, 2, substr($tmp, 4, 2));
-            $this->putHcfa(32, 57, 2, substr($tmp, 6, 2));
-            $this->putHcfa(32, 60, 4, substr($tmp, 0, 4));
+            $this->putHcfa(32, 54, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa(32, 57, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa(32, 60, 4, substr((string) $tmp, 0, 4));
             $tmp = $claim->offWorkTo();
-            $this->putHcfa(32, 68, 2, substr($tmp, 4, 2));
-            $this->putHcfa(32, 71, 2, substr($tmp, 6, 2));
-            $this->putHcfa(32, 74, 4, substr($tmp, 0, 4));
+            $this->putHcfa(32, 68, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa(32, 71, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa(32, 74, 4, substr((string) $tmp, 0, 4));
         }
 
         // Referring provider stuff.  Reports are that for primary care providers,
@@ -477,10 +473,10 @@ class Hcfa1500
             }
 
             // Box 17. Name of Referring Provider or Other Source
-            if (strlen($claim->billingProviderLastName()) != 0) {
+            if (strlen((string) $claim->billingProviderLastName()) != 0) {
                 $tmp2 = $claim->billingProviderLastName() . ', ' . $claim->billingProviderFirstName();
                 if ($claim->billingProviderMiddleName()) {
-                    $tmp2 .= ', ' . substr($claim->billingProviderMiddleName(), 0, 1);
+                    $tmp2 .= ', ' . substr((string) $claim->billingProviderMiddleName(), 0, 1);
                 }
 
                 $this->putHcfa(34, 1, 3, $claim->billing_options['provider_qualifier_code']);
@@ -491,7 +487,7 @@ class Hcfa1500
             } else {
                 $tmp = $claim->referrerLastName() . ', ' . $claim->referrerFirstName();
                 if ($claim->referrerMiddleName()) {
-                    $tmp .= ', ' . substr($claim->referrerMiddleName(), 0, 1);
+                    $tmp .= ', ' . substr((string) $claim->referrerMiddleName(), 0, 1);
                 }
 
                 $this->putHcfa(34, 1, 3, 'DN');
@@ -505,13 +501,13 @@ class Hcfa1500
         // Box 18. Hospitalization Dates Related to Current Services
         if ($claim->isHospitalized()) {
             $tmp = $claim->hospitalizedFrom();
-            $this->putHcfa(34, 54, 2, substr($tmp, 4, 2));
-            $this->putHcfa(34, 57, 2, substr($tmp, 6, 2));
-            $this->putHcfa(34, 60, 4, substr($tmp, 0, 4));
+            $this->putHcfa(34, 54, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa(34, 57, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa(34, 60, 4, substr((string) $tmp, 0, 4));
             $tmp = $claim->hospitalizedTo();
-            $this->putHcfa(34, 68, 2, substr($tmp, 4, 2));
-            $this->putHcfa(34, 71, 2, substr($tmp, 6, 2));
-            $this->putHcfa(34, 74, 4, substr($tmp, 0, 4));
+            $this->putHcfa(34, 68, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa(34, 71, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa(34, 74, 4, substr((string) $tmp, 0, 4));
         }
 
         // Box 19. Reserved for Local Use
@@ -571,9 +567,9 @@ class Hcfa1500
             //
             $ndc = $claim->cptNDCID($this->hcfa_proc_index);
             if ($ndc) {
-                if (preg_match('/^(\d\d\d\d\d)-(\d\d\d\d)-(\d\d)$/', $ndc, $tmp)) {
+                if (preg_match('/^(\d\d\d\d\d)-(\d\d\d\d)-(\d\d)$/', (string) $ndc, $tmp)) {
                     $ndc = $tmp[1] . $tmp[2] . $tmp[3];
-                } elseif (preg_match('/^\d{11}$/', $ndc)) {
+                } elseif (preg_match('/^\d{11}$/', (string) $ndc)) {
                 } else {
                     $log .= "*** NDC code '$ndc' has invalid format!\n";
                 }
@@ -606,12 +602,12 @@ class Hcfa1500
 
             // 24a. Date of Service
             $tmp = $claim->serviceDate();
-            $this->putHcfa($lino, 1, 2, substr($tmp, 4, 2));
-            $this->putHcfa($lino, 4, 2, substr($tmp, 6, 2));
-            $this->putHcfa($lino, 7, 2, substr($tmp, 2, 2));
-            $this->putHcfa($lino, 10, 2, substr($tmp, 4, 2));
-            $this->putHcfa($lino, 13, 2, substr($tmp, 6, 2));
-            $this->putHcfa($lino, 16, 2, substr($tmp, 2, 2));
+            $this->putHcfa($lino, 1, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa($lino, 4, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa($lino, 7, 2, substr((string) $tmp, 2, 2));
+            $this->putHcfa($lino, 10, 2, substr((string) $tmp, 4, 2));
+            $this->putHcfa($lino, 13, 2, substr((string) $tmp, 6, 2));
+            $this->putHcfa($lino, 16, 2, substr((string) $tmp, 2, 2));
 
             // 24b. Place of Service
             $this->putHcfa($lino, 19, 2, $claim->facilityPOS());
@@ -681,10 +677,10 @@ class Hcfa1500
 
         // 33. Billing Provider: Phone Number
         $tmp = $claim->billingContactPhone();
-        $this->putHcfa(57, 66, 3, substr($tmp, 0, 3));
-        $this->putHcfa(57, 70, 3, substr($tmp, 3)); // slight adjustment for better look smw 030315
+        $this->putHcfa(57, 66, 3, substr((string) $tmp, 0, 3));
+        $this->putHcfa(57, 70, 3, substr((string) $tmp, 3)); // slight adjustment for better look smw 030315
         $this->putHcfa(57, 73, 1, '-');
-        $this->putHcfa(57, 74, 4, substr($tmp, 6));
+        $this->putHcfa(57, 74, 4, substr((string) $tmp, 6));
 
         // 32. Service Facility Location Information: Name
         $this->putHcfa(58, 23, 25, $claim->facilityName());
@@ -729,9 +725,9 @@ class Hcfa1500
         if ($GLOBALS['cms_1500_box_31_date'] > 0) {
             if ($GLOBALS['cms_1500_box_31_date'] == 1) {
                 $date_of_service = $claim->serviceDate();
-                $MDY = substr($date_of_service, 4, 2) .
-                    " " . substr($date_of_service, 6, 2) .
-                    " " . substr($date_of_service, 2, 2);
+                $MDY = substr((string) $date_of_service, 4, 2) .
+                    " " . substr((string) $date_of_service, 6, 2) .
+                    " " . substr((string) $date_of_service, 2, 2);
             } elseif ($GLOBALS['cms_1500_box_31_date'] == 2) {
                 $MDY = date("m/d/y");
             }

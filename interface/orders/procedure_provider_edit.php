@@ -44,7 +44,7 @@ $info_msg = "";
 
 function invalue($name)
 {
-    $fld = add_escape_custom(trim($_POST[$name]));
+    $fld = add_escape_custom(trim((string) $_POST[$name]));
     return "'$fld'";
 }
 
@@ -105,11 +105,11 @@ function onvalue($name)
     // except when it's not in the address book, then it's the name
     if (!empty($_POST['form_save'])) {
         $org_qry = "SELECT organization FROM users WHERE id = ?";
-        $org_res = sqlQuery($org_qry, array($_POST['form_name']));
+        $org_res = sqlQuery($org_qry, [$_POST['form_name']]);
         $org_name = $org_res['organization'];
         if (empty($org_res) && $ppid) {
             $org_qry = "SELECT name FROM procedure_providers WHERE ppid = ?";
-            $org_res = sqlQuery($org_qry, array($ppid));
+            $org_res = sqlQuery($org_qry, [$ppid]);
             $org_name = $org_res['name'];
         }
         $sets =
@@ -140,7 +140,7 @@ function onvalue($name)
         }
     } elseif (!empty($_POST['form_delete'])) {
         if ($ppid) {
-            sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", array($ppid));
+            sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", [$ppid]);
         }
     }
 
@@ -157,9 +157,9 @@ function onvalue($name)
         exit();
     }
 
-    $row = array();
+    $row = [];
     if ($ppid) {
-        $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
+        $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", [$ppid]);
     }
 
     $ppid_active = $row['active'] ?? null;
@@ -251,12 +251,12 @@ function onvalue($name)
                                 <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
                                     <?php
                                     foreach (
-                                        array(
+                                        [
                                         'D' => xl('Debugging'),
                                         'P' => xl('Production'),
                                         'T' => xl('Quest Cert Testing'),
                                         'Q' => xl('Quest Cert Debug'),
-                                        ) as $key => $value
+                                        ] as $key => $value
                                     ) {
                                         echo "    <option value='" . attr($key) . "'";
                                         if (!empty($row['DorP']) && ($key == $row['DorP'])) {
@@ -348,14 +348,14 @@ function onvalue($name)
                                     <select name='form_protocol' id='form_protocol' class='form-control'>
                                         <?php
                                         foreach (
-                                            array(
+                                            [
                                             // Add to this list as more protocols are supported.
                                             'DL' => xl('Download'),
                                             'SFTP' => xl('SFTP'),
                                             'FS' => xl('Local Filesystem'),
                                             'WS' => xl('Web Service'),
                                             'DORN' => xl('Dorn'),
-                                            ) as $key => $value
+                                            ] as $key => $value
                                         ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if (!empty($row['protocol']) && ($key == $row['protocol'])) {
@@ -370,10 +370,10 @@ function onvalue($name)
                                     <select name='form_direction' id='form_direction' class='form-control'>
                                         <?php
                                         foreach (
-                                            array(
+                                            [
                                             'B' => xl('Bidirectional'),
                                             'R' => xl('Results Only'),
-                                            ) as $key => $value
+                                            ] as $key => $value
                                         ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if (!empty($row['direction']) && ($key == $row['direction'])) {

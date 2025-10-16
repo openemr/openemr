@@ -108,10 +108,10 @@ class QuestionnaireResponseService extends BaseService
         head;
         $title = true;
         foreach ($source as $k => $value) {
-            $v = explode($delimiter, $k);
+            $v = explode($delimiter, (string) $k);
             $last = count($v ?? []) - 1;
             $item = $v[$last];
-            $margin_count = max(substr_count($k, 'item') - 1, 0);
+            $margin_count = max(substr_count((string) $k, 'item') - 1, 0);
             $margin = attr($margin_count * 2 . 'rem');
             if ($item === 'text') {
                 if ($title) {
@@ -316,9 +316,7 @@ class QuestionnaireResponseService extends BaseService
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(function ($uuid) {
-                    return "?";
-            }, $uuidResults)) . ") ORDER BY qr.create_time DESC ";
+            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(fn($uuid): string => "?", $uuidResults)) . ") ORDER BY qr.create_time DESC ";
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = new ProcessingResult();
             foreach ($statementResults as $record) {
@@ -333,12 +331,12 @@ class QuestionnaireResponseService extends BaseService
     /**
      * @param       $response
      * @param       $pid
-     * @param null  $encounter
-     * @param null  $qr_id
-     * @param null  $qr_record_id
-     * @param null  $q
-     * @param null  $q_id
-     * @param null  $form_response
+     * @param ?int  $encounter
+     * @param ?string  $qr_id
+     * @param ?int  $qr_record_id
+     * @param string|array|null  $q
+     * @param ?string  $q_id
+     * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
      * @return array|false|int|mixed
@@ -397,20 +395,18 @@ class QuestionnaireResponseService extends BaseService
         }
 
         $version = 1;
-        if (!empty($fhirQuestionnaireOb)) {
-            $q_id = $q_id ?: $this->getValue($fhirQuestionnaireOb->id);
-            $q_title = $this->getValue($fhirQuestionnaireOb->title);
-            $q_name = $this->getValue($fhirQuestionnaireOb->name);
-            if (empty($q_title)) {
-                $q_title = $q_name;
-            }
-            $q_record_id = $this->questionnaireService->getQuestionnaireIdAndVersion($q_title, $q_id)['id'] ?? null;
+        $q_id = $q_id ?: $this->getValue($fhirQuestionnaireOb->id);
+        $q_title = $this->getValue($fhirQuestionnaireOb->title);
+        $q_name = $this->getValue($fhirQuestionnaireOb->name);
+        if (empty($q_title)) {
+            $q_title = $q_name;
         }
+        $q_record_id = $this->questionnaireService->getQuestionnaireIdAndVersion($q_title, $q_id)['id'] ?? null;
 
         if ($add_report) {
             $response_array = $this->fhirObjectToArray($fhirResponseOb);
             $answers = $this->flattenQuestionnaireResponse($response_array, '|', '');
-            $html = $this->buildQuestionnaireResponseHtml($answers, '|');
+            $html = $this->buildQuestionnaireResponseHtml($answers);
             $report = new FHIRNarrative();
             $report->setStatus(new FHIRNarrativeStatus(['value' => 'generated']));
             $report->setDiv($html);
@@ -428,8 +424,10 @@ class QuestionnaireResponseService extends BaseService
             $qr_id = UuidRegistry::uuidToString($qr_uuid);
             $update_flag = false;
         } else {
+            $qr_uuid = null;
             $update_flag = true;
         }
+        $id = [];
         if ($update_flag) {
             $id = $this->getQuestionnaireResourceIdAndVersion(null, $qr_id, null);
             if (empty($id)) {
@@ -442,10 +440,10 @@ class QuestionnaireResponseService extends BaseService
         $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
-            if (!empty($encounter_uuid)) {
-                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
-            } else {
+            if (empty($encounter_uuid)) {
                 $encounter = 0;
+            } else {
+                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
             }
         }
         if (!empty($encounter)) {
@@ -494,7 +492,7 @@ class QuestionnaireResponseService extends BaseService
         $dataValues = $updatedPreSaveEvent->getSaveData();
 
         if ($update_flag) {
-            $bind = array(
+            $bind = [
                 $dataValues['audit_user_id']
             , $dataValues['version']
             , $dataValues['last_updated']
@@ -505,11 +503,11 @@ class QuestionnaireResponseService extends BaseService
             , $dataValues['tscore']
             , $dataValues['error']
             , $dataValues['id']
-            );
+            ];
             $result = sqlQuery($sql_update, $bind);
             $id = $id['id'];
         } else {
-            $bind = array(
+            $bind = [
                 $dataValues['uuid'],
                 $dataValues['response_id'],
                 $dataValues['questionnaire_foreign_id'],
@@ -523,7 +521,7 @@ class QuestionnaireResponseService extends BaseService
                 $dataValues['questionnaire'],
                 $dataValues['questionnaire_response'],
                 $dataValues['form_response']
-            );
+            ];
             $id = sqlInsert($sql_insert, $bind) ?: 0;
             $dataValues['id'] = $id;
         }
@@ -617,7 +615,7 @@ class QuestionnaireResponseService extends BaseService
 
         foreach ($flattenedArray as $key => $value) {
             // Split the key by the delimiter to handle nesting
-            $keys = explode('|', $key);
+            $keys = explode('|', (string) $key);
             $current = &$grouped;
 
             // Traverse through the key segments and build the nested structure
@@ -735,17 +733,17 @@ class QuestionnaireResponseService extends BaseService
 
     /**
      * @param      $name
-     * @param null $q_id
-     * @param null $uuid
+     * @param ?string $q_id
+     * @param ?string $uuid
      * @return array
      */
     public function getQuestionnaireResourceIdAndVersion($name, $q_id = null, $uuid = null): array
     {
         $sql = "Select `id`, `uuid`, response_id, `version` From `questionnaire_response` Where ((`questionnaire_name` IS NOT NULL And `questionnaire_name` = ?) Or (`response_id` IS NOT NULL And `response_id` = ?))";
-        $bind = array($name, $q_id);
+        $bind = [$name, $q_id];
         if (!empty($uuid)) {
             $sql = "Select `id`, `uuid`, response_id, `version` From `questionnaire_response` Where `uuid` = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'] ?? null)) {
@@ -764,10 +762,10 @@ class QuestionnaireResponseService extends BaseService
         $id = $id ?: 0;
         if (!empty($uuid)) {
             $sql = "Select * From `questionnaire_response` Where `uuid` = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         } else {
             $sql = "Select * From `questionnaire_response` Where (`id` = ?) Or (`response_id` IS NOT NULL And `response_id` = ?)";
-            $bind = array($id, $qr_id);
+            $bind = [$id, $qr_id];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {
@@ -787,7 +785,7 @@ class QuestionnaireResponseService extends BaseService
     public function fetchQuestionnaireResponse($record_id = null, $qr_id = null): array
     {
         $sql = "Select * From `questionnaire_response` Where `id` = ? Or `response_id` = ?";
-        $resource = sqlQuery($sql, array($record_id, $qr_id));
+        $resource = sqlQuery($sql, [$record_id, $qr_id]);
 
         return $resource ?: [];
     }

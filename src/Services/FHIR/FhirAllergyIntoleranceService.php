@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -41,19 +42,18 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 /**
  * FHIR AllergyIntolerance Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirAllergyIntoleranceService
  * @package   OpenEMR
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @link      http://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class FhirAllergyIntoleranceService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var AllergyIntoleranceService
@@ -114,7 +114,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRAllergyIntolerance
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $allergyIntoleranceResource = new FHIRAllergyIntolerance();
         $fhirMeta = new FHIRMeta();
@@ -138,11 +138,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
         $clinical_Status = new FHIRCodeableConcept();
         $clinical_Status->addCoding(
-            array(
+            [
             'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
             'code' => $clinicalStatus,
             'display' => ucwords($clinicalStatus),
-            )
+            ]
         );
         $allergyIntoleranceResource->setClinicalStatus($clinical_Status);
 
@@ -152,7 +152,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $allergyIntoleranceResource->addCategory($allergyIntoleranceCategory);
 
         if (isset($dataRecord['severity_al'])) {
-            $criticalityCode = array(
+            $criticalityCode = [
                 "mild" => ["code" => "low", "display" => "Low Risk"],
                 "mild_to_moderate" => ["code" => "low", "display" => "Low Risk"],
                 "moderate" => ["code" => "low", "display" => "Low Risk"],
@@ -161,7 +161,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 "life_threatening_severity" => ["code" => "high", "display" => "High Risk"],
                 "fatal" => ["code" => "high", "display" => "High Risk"],
                 "unassigned" => ["code" => "unable-to-assess", "display" => "Unable to Assess Risk"],
-            );
+            ];
             $criticality = new FHIRAllergyIntoleranceCriticality();
             $criticality->setValue($criticalityCode[$dataRecord['severity_al']]['code']);
             $allergyIntoleranceResource->setCriticality($criticality);
@@ -199,7 +199,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 $reactionCoding->setCode($code);
                 $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
-                $reactionCoding->setDisplay(trim($display));
+                $reactionCoding->setDisplay(trim((string) $display));
                 // @see http://hl7.org/fhir/R4/valueset-clinical-findings.html
                 $reactionCoding->setSystem($codeValues['system']);
                 $reactionConcept->addCoding($reactionCoding);
@@ -224,7 +224,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 // if we have no display value we will just show the code value here
                 $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
-                $diagnosisCoding->setDisplay(trim($display));
+                $diagnosisCoding->setDisplay(trim((string) $display));
                 $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
@@ -237,17 +237,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $allergyIntoleranceResource->setText(UtilsService::createNarrative($dataRecord['title'], "additional"));
 
         $verificationStatus = new FHIRCodeableConcept();
-        $verificationCoding = array(
+        $verificationCoding = [
             'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
-        );
+        ];
         if (!empty($dataRecord['verification'])) {
-            $verificationCoding = array(
+            $verificationCoding = [
                 'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
-            );
+            ];
         }
         $verificationStatus->addCoding($verificationCoding);
         $allergyIntoleranceResource->setVerificationStatus($verificationStatus);
@@ -273,7 +273,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

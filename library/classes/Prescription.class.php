@@ -80,7 +80,7 @@
 //
 
 
-require_once(dirname(__FILE__) . "/../lists.inc.php");
+require_once(__DIR__ . "/../lists.inc.php");
 
 
 /**
@@ -101,53 +101,55 @@ class Prescription extends ORDataObject
      *
      * static
      */
-    var $form_array;
-    var $unit_array;
-    var $route_array;
-    var $interval_array;
-    var $substitute_array;
-    var $medication_array;
-    var $refills_array;
+    public $form_array;
+    public $unit_array;
+    public $route_array;
+    public $interval_array;
+    public $substitute_array;
+    public $medication_array;
+    public $refills_array;
 
     /**
      *
      * @access private
      */
 
-    var $id;
-    var $patient = '';
-    var $pharmacist = '';
-    var $date_added;
-    var $txDate;
-    var $date_modified;
-    var $pharmacy = '';
-    var $start_date;
-    var $filled_date;
-    var $provider = '';
-    var $note = '';
-    var $drug = '';
-    var $rxnorm_drugcode = '';
-    var $form = '';
-    var $dosage = '';
-    var $quantity;
-    var $size = '';
-    var $unit;
-    var $route;
-    var $interval = '';
-    var $substitute;
-    var $refills;
-    var $per_refill;
-    var $medication;
+    public $id;
+    public $patient = '';
+    public $pharmacist = '';
+    public $date_added;
+    public $txDate;
+    public $date_modified;
+    public $pharmacy = '';
+    public $start_date;
+    public $filled_date;
+    public $provider = '';
+    public $note = '';
+    public $drug = '';
+    public $rxnorm_drugcode = '';
+    public $form = '';
+    public $dosage = '';
+    public $quantity;
+    public $size = '';
+    public $unit;
+    public $route;
+    public $interval = '';
+    public $substitute;
+    public $refills;
+    public $per_refill;
+    public $medication;
 
-    var $drug_id;
-    var $active;
-    var $ntx;
+    public $drug_id;
+    public $active;
+    public $ntx;
 
-    var $encounter;
+    public $encounter;
 
-    var $created_by;
+    public $created_by;
 
-    var $updated_by;
+    public $updated_by;
+
+    private string $erx_source;
 
     /**
     * Constructor sets all Prescription attributes to their default value
@@ -160,10 +162,10 @@ class Prescription extends ORDataObject
         $this->interval_array = $this->load_drug_attributes('drug_interval');
         $this->unit_array = $this->load_drug_attributes('drug_units');
 
-        $this->substitute_array = array("",xl("substitution allowed"),
-            xl("do not substitute"));
+        $this->substitute_array = ["",xl("substitution allowed"),
+            xl("do not substitute")];
 
-        $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
+        $this->medication_array = [0 => xl('No'), 1 => xl('Yes')];
 
         if (is_numeric($id)) {
             $this->id = $id;
@@ -267,13 +269,9 @@ class Prescription extends ORDataObject
 
     private function load_drug_attributes($id)
     {
-        $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", array($id));
+        $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", [$id]);
         while ($row = sqlFetchArray($res)) {
-            if ($row['title'] == '') {
-                $arr[$row['option_id']] = ' ';
-            } else {
-                $arr[$row['option_id']] = xl_list_label($row['title']);
-            }
+            $arr[$row['option_id']] = $row['title'] == '' ? ' ' : xl_list_label($row['title']);
         }
 
         return $arr;
@@ -353,7 +351,7 @@ class Prescription extends ORDataObject
 
     function set_size($size)
     {
-        $this->size = preg_replace("/[^0-9\/\.\-]/", "", $size);
+        $this->size = preg_replace("/[^0-9\/\.\-]/", "", (string) $size);
     }
     function get_size()
     {
@@ -518,7 +516,7 @@ class Prescription extends ORDataObject
 
     function set_provider($pobj)
     {
-        if (get_class($pobj) == "provider") {
+        if ($pobj::class == "provider") {
             $this->provider = $pobj;
         }
     }
@@ -547,39 +545,39 @@ class Prescription extends ORDataObject
 
     function get_start_date_y()
     {
-        $ymd = explode("-", $this->start_date);
+        $ymd = explode("-", (string) $this->start_date);
         return $ymd[0];
     }
     function set_start_date_y($year)
     {
         if (is_numeric($year)) {
-            $ymd = explode("-", $this->start_date);
+            $ymd = explode("-", (string) $this->start_date);
             $ymd[0] = $year;
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
     function get_start_date_m()
     {
-        $ymd = explode("-", $this->start_date);
+        $ymd = explode("-", (string) $this->start_date);
         return $ymd[1];
     }
     function set_start_date_m($month)
     {
         if (is_numeric($month)) {
-            $ymd = explode("-", $this->start_date);
+            $ymd = explode("-", (string) $this->start_date);
             $ymd[1] = $month;
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
     function get_start_date_d()
     {
-        $ymd = explode("-", $this->start_date);
+        $ymd = explode("-", (string) $this->start_date);
         return $ymd[2];
     }
     function set_start_date_d($day)
     {
         if (is_numeric($day)) {
-            $ymd = explode("-", $this->start_date);
+            $ymd = explode("-", (string) $this->start_date);
             $ymd[2] = $day;
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
@@ -763,7 +761,7 @@ class Prescription extends ORDataObject
 
         $gnd = $this->provider->get_name_display();
 
-        while (strlen($gnd) < 31) {
+        while (strlen((string) $gnd) < 31) {
             $gnd .= " ";
         }
 
@@ -775,7 +773,7 @@ class Prescription extends ORDataObject
         if (!$results->EOF) {
             $rfn = $results->fields['name'];
 
-            while (strlen($rfn) < 31) {
+            while (strlen((string) $rfn) < 31) {
                 $rfn .= " ";
             }
 
@@ -786,13 +784,13 @@ class Prescription extends ORDataObject
         }
 
         $string .= "\n";
-        $string .= strtoupper($this->patient->lname) . ", " . ucfirst($this->patient->fname) . " " . $this->patient->mname . "\n";
+        $string .= strtoupper((string) $this->patient->lname) . ", " . ucfirst((string) $this->patient->fname) . " " . $this->patient->mname . "\n";
         $string .= "DOB " .  $this->patient->date_of_birth . "\n";
         $string .= "\n";
-        $string .= date("F j, Y", strtotime($this->start_date)) . "\n";
+        $string .= date("F j, Y", strtotime((string) $this->start_date)) . "\n";
         $string .= "\n";
-        $string .= strtoupper($this->drug) . " " . $this->size  . " " . ($this->unit_array[$this->unit] ?? '') . "\n";
-        if (strlen($this->note) > 0) {
+        $string .= strtoupper((string) $this->drug) . " " . $this->size  . " " . ($this->unit_array[$this->unit] ?? '') . "\n";
+        if (strlen((string) $this->note) > 0) {
             $string .= "Notes: \n" . $this->note . "\n";
         }
 
@@ -828,11 +826,11 @@ class Prescription extends ORDataObject
         $order_by = "active DESC, date_modified DESC, date_added DESC"
     ) {
 
-        $prescriptions = array();
+        $prescriptions = [];
         $p = new Prescription();
         $sql = "SELECT id FROM " . escape_table_name($p->_table) . " WHERE patient_id = ? " .
                 "ORDER BY " . add_escape_custom($order_by);
-        $results = sqlQ($sql, array($patient_id));
+        $results = sqlQ($sql, [$patient_id]);
         while ($row = sqlFetchArray($results)) {
             $prescriptions[] = new Prescription($row['id']);
         }

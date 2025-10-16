@@ -20,6 +20,10 @@ use DateTime;
 
 class DateFormatterUtils
 {
+    public static function isNotEmptyDateTimeString(?string $dateString)
+    {
+        return !empty($dateString) && $dateString !== '0000-00-00 00:00:00' && $dateString !== '1970-01-01 00:00:00';
+    }
     public static function DateToYYYYMMDD($DateValue)
     {
         //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
@@ -32,7 +36,7 @@ class DateFormatterUtils
         if ($GLOBALS['date_display_format'] == 0) {
             return $DateValue;
         } elseif ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
-            $DateValueArray = explode('/', $DateValue);
+            $DateValueArray = explode('/', (string) $DateValue);
             if ($GLOBALS['date_display_format'] == 1) {
                 return $DateValueArray[2] . '-' . $DateValueArray[0] . '-' . $DateValueArray[1];
             }
@@ -48,17 +52,18 @@ class DateFormatterUtils
      * then it returns false.  The DateTime must be in the format of Y-m-d, d/m/Y, or m/d/Y depending on the global settings
      * to be parsed correct.  If an empty string is passed in then the current date is returned as a DateTime object.
      * @param string $DateValue
+     * @param bool $includeSeconds Whether seconds are included in the time portion of the string and should be parsed
      * @return bool|DateTime false if the date could not be parsed
      */
-    public static function dateStringToDateTime(string $DateValue)
+    public static function dateStringToDateTime(string $DateValue, bool $includeSeconds = false)
     {
         $dateTime = new DateTime();
         //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
         //But in database the date can be stored only in the yyyy-mm-dd format.
         //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
         $timeFormat = '';
-        if (strpos($DateValue, ":") !== false) {
-            $timeFormat = " H:i:s";
+        if (str_contains($DateValue, ":")) {
+            $timeFormat = " " . self::getTimeFormat($includeSeconds);
         }
         if (trim($DateValue ?? '') == '') {
             $dateTime = new DateTime();
@@ -96,22 +101,22 @@ class DateFormatterUtils
         if (strlen($date ?? '') >= 10) {
             // assume input is yyyy-mm-dd
             if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
-                $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
+                $newDate = substr((string) $date, 5, 2) . '/' . substr((string) $date, 8, 2);
             } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
-                $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
+                $newDate = substr((string) $date, 8, 2) . '/' . substr((string) $date, 5, 2);
             }
 
             // process the year (add for formats 1 and 2; remove for format 0)
             if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
                 if ($showYear) {
-                    $newDate .= '/' . substr($date, 0, 4);
+                    $newDate .= '/' . substr((string) $date, 0, 4);
                 }
             } elseif (!$showYear) { // $GLOBALS['date_display_format'] == 0
                 // need to remove the year
-                $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
+                $newDate = substr((string) $date, 5, 2) . '-' . substr((string) $date, 8, 2);
             } else { // $GLOBALS['date_display_format'] == 0
                 // keep the year (so will simply be the original $date)
-                $newDate = substr($date, 0, 10);
+                $newDate = substr((string) $date, 0, 10);
             }
 
             return $newDate;
@@ -126,17 +131,9 @@ class DateFormatterUtils
         $format = $GLOBALS['time_display_format'] ?? 0;
 
         if ($format == 1) {
-            if ($seconds) {
-                $formatted = "g:i:s a";
-            } else {
-                $formatted = "g:i a";
-            }
+            $formatted = $seconds ? "g:i:s a" : "g:i a";
         } else { // ($format == 0)
-            if ($seconds) {
-                $formatted = "H:i:s";
-            } else {
-                $formatted = "H:i";
-            }
+            $formatted = $seconds ? "H:i:s" : "H:i";
         }
         return $formatted;
     }

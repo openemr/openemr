@@ -24,57 +24,57 @@ namespace OpenEMR\Gacl;
  * Path to ADODB.
  */
 if ( !defined('ADODB_DIR') ) {
-	define('ADODB_DIR', dirname(__FILE__).'/../vendor/adodb/adodb-php');
+	define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
 
 //openemr configuration file - bm - 05-2009
 // to collect sql database login info and the utf8 flag
 // also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-require_once(dirname(__FILE__) . "/../../library/sqlconf.php");
-require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(__DIR__ . "/../../library/sqlconf.php");
+require_once(__DIR__ . "/../../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(__DIR__ . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 
 class Gacl {
 	/*
 	--- phpGACL Configuration path/file ---
 	*/
-	var $config_file = '';
+	public $config_file = '';
 
 	/*
 	--- Private properties ---
 	*/
 	/** @var boolean Enables Debug output if true */
-	var $_debug = FALSE;
+	public $_debug = FALSE;
 
 	/*
 	--- Database configuration. ---
 	*/
 	/** @var string Prefix for all the phpgacl tables in the database */
-	var $_db_table_prefix = 'gacl_';
+	public $_db_table_prefix = 'gacl_';
 
 	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-	var $_db_type = 'mysqli';
+	public $_db_type = 'mysqli';
 
 	/** @var string The database server */
-	var $_db_host = '';
+	public $_db_host = '';
 
 	/** @var string The database user name */
-	var $_db_user = '';
+	public $_db_user = '';
 
 	/** @var string The database user password */
-	var $_db_password = '';
+	public $_db_password = '';
 
 	/** @var string The database name */
-	var $_db_name = '';
+	public $_db_name = '';
 
 	/** @var object An ADODB database connector object */
-	var $_db = '';
+	public $_db = '';
 
     /** @var boolean The utf8 encoding flag */
-    var $_db_encoding_setting = '';
+    public $_db_encoding_setting = '';
 
     /** @var object An ADODB database connector object */
-    var $db;
+    public $db;
 
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
@@ -82,19 +82,19 @@ class Gacl {
 	 */
 
 	/** @var boolean Caches queries if true */
-	var $_caching = FALSE;
+	public $_caching = FALSE;
 
 	/** @var boolean Force cache to expire */
-	var $_force_cache_expire = TRUE;
+	public $_force_cache_expire = TRUE;
 
 	/** @var string The directory for cache file to eb written (ensure write permission are set) */
-	var $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
+	public $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 
 	/** @var int The time for the cache to expire in seconds - 600 == Ten Minutes */
-	var $_cache_expire_time=600;
+	public $_cache_expire_time=600;
 
 	/** @var string A switch to put acl_check into '_group_' mode */
-	var $_group_switch = '_group_';
+	public $_group_switch = '_group_';
 
 	/**
 	 * Constructor
@@ -102,7 +102,7 @@ class Gacl {
 	 */
 	function __construct($options = NULL) {
 
-		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
+		$available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time'];
 
 		//Values supplied in $options array overwrite those in the config file.
 		if ( file_exists($this->config_file) ) {
@@ -213,7 +213,7 @@ class Gacl {
 
 		if ( $this->_caching == TRUE ) {
 			if (!class_exists('Hashed_Cache_Lite')) {
-				require_once(dirname(__FILE__) .'/Cache_Lite/Hashed_Cache_Lite.php');
+				require_once(__DIR__ .'/Cache_Lite/Hashed_Cache_Lite.php');
 			}
 
 			/*
@@ -221,7 +221,7 @@ class Gacl {
 			 * Change all the 'false' to 'true', this will slow things down slightly however.
 			 */
 
-			$cache_options = array(
+			$cache_options = [
 				'caching' => $this->_caching,
 				'cacheDir' => $this->_cache_dir.'/',
 				'lifeTime' => $this->_cache_expire_time,
@@ -230,7 +230,7 @@ class Gacl {
 				'readControl' => FALSE,
 				'memoryCaching' => TRUE,
 				'automaticSerialization' => FALSE
-			);
+			];
 			$this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
 		}
 
@@ -393,7 +393,7 @@ class Gacl {
 			 * This is probably where the most optimizations can be made.
 			 */
 
-			$order_by = array();
+			$order_by = [];
 
 			$query = '
 					SELECT		a.id,a.allow,a.return_value
@@ -514,12 +514,7 @@ class Gacl {
 					';
 
 			// we are only interested in the first row unless $return_all is set
-                        if ($return_all) {
-                                $rs = $this->db->Execute($query);
-                        }
-                        else {
-			        $rs = $this->db->SelectLimit($query, 1);
-                        }
+                        $rs = $return_all ? $this->db->Execute($query) : $this->db->SelectLimit($query, 1);
 
 			if (!is_object($rs)) {
 				$this->debug_db('acl_query');
@@ -552,7 +547,7 @@ class Gacl {
                                                     //  array explicitly
                                                     $retarr = [['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow]];
                                                 } else {
-                                                    $retarr[] = array('acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow);
+                                                    $retarr[] = ['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow];
                                                 }
                                         }
                                 }
@@ -561,7 +556,7 @@ class Gacl {
 				        if ( isset($row[1]) AND $row[1] == 1 ) {
 					        $allow = TRUE;
 				        }
-				        $retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
+				        $retarr = ['acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow];
                                 }
 			} else {
                                 if ($return_all) {
@@ -569,11 +564,11 @@ class Gacl {
                             if(!is_array($retarr)) {
                                 $retarr = [];
                             }
-			                $retarr[] = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE);
+			                $retarr[] = ['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE];
                                 }
                                 else {
                                         // Permission denied.
-                                        $retarr = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE);
+                                        $retarr = ['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE];
                                 }
 			}
 
@@ -609,7 +604,7 @@ class Gacl {
 	*/
 	function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
-		switch(strtolower($group_type)) {
+		switch(strtolower((string) $group_type)) {
 			case 'axo':
 				$group_type = 'axo';
 				$object_table = $this->_db_table_prefix .'axo';
@@ -682,7 +677,7 @@ class Gacl {
 				return FALSE;
 			}
 
-			$retarr = array();
+			$retarr = [];
 
 			//Unbuffered query?
 			while (!$rs->EOF) {

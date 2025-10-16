@@ -116,7 +116,7 @@ class EtherFaxClient
      * @param array|null $get
      * @return string
      */
-    private function clientHttpGet($url, array $get = null): string
+    private function clientHttpGet($url, ?array $get = null): string
     {
         // create full uri request
         $uri = EtherFaxClient::EFAX_API_URL . $url;
@@ -125,14 +125,14 @@ class EtherFaxClient
         }
 
         try {
-            $client = new \GuzzleHttp\Client(array(
-            "defaults" => array(
+            $client = new \GuzzleHttp\Client([
+            "defaults" => [
                 "allow_redirects" => true,
                 "exceptions" => false
-            ),
+            ],
             'verify' => false,
             //'proxy' => "localhost:8888", // use a proxy for debugging.
-            ));
+            ]);
             // request it
             $response = $client->request('GET', $uri, [
                 'debug' => false,
@@ -192,12 +192,12 @@ class EtherFaxClient
             $pages = 1;
         }
         // create post array/items
-        $post = array(
+        $post = [
             'DialNumber' => $number,
-            'FaxImage' => base64_encode($data),
+            'FaxImage' => base64_encode((string) $data),
             'TotalPages' => $pages,
             'TimeZoneOffset' => $tz
-        );
+        ];
         // add optional items
         if (!is_null($localId)) {
             $post['LocalId'] = $localId;
@@ -235,7 +235,7 @@ class EtherFaxClient
      * @param array|null $post
      * @return bool|string
      */
-    private function clientHttpPost($url, array $post = null): bool|string
+    private function clientHttpPost($url, ?array $post = null): bool|string
     {
         // create full uri
         $uri = EtherFaxClient::EFAX_API_URL . $url;
@@ -364,10 +364,10 @@ class EtherFaxClient
     public function getNextUnreadFax($download = false, $sid = null): ?FaxReceive
     {
         // create set parameters
-        $get = array(
+        $get = [
             'a' => 'getnext',
             'download' => $download ? "1" : "0"
-        );
+        ];
         // sid?
         if (!is_null($sid)) {
             $get ['sid'] = $sid;

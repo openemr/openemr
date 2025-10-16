@@ -24,8 +24,10 @@
  */
 
 
-// comment out below exit when need to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_TEST_EDIH_835_ACCOUNTING')) {
+    die('Set OPENEMR_ENABLE_TEST_EDIH_835_ACCOUNTING=1 environment variable to enable this script');
+}
 use OpenEMR\Billing\ParseERA;
 
 function edih_835_accounting($segments, $delimiters)
@@ -225,26 +227,26 @@ function edih_835_accounting($segments, $delimiters)
      */
 
     if (is_array($segments) && count($segments)) {
-        $acct = array();
+        $acct = [];
     } else {
         csv_edihist_log("edih_835_accounting: invalid segments argument");
         return "835 accounting: invalid segments argument";
     }
 
     foreach ($segments as $seg) {
-        if (strncmp('GS' . $de, $seg, 3) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('GS' . $de, (string) $seg, 3) === 0) {
+            $sar = explode($de, (string) $seg);
             $gs_date = (isset($sar[4]) && $sar[4]) ? trim($sar[4]) : '';
         }
 
-        if (strncmp('BPR' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('BPR' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $check_amount = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : '';
             $check_date = (isset($sar[16]) && $sar[16]) ? trim($sar[16]) : '';
         }
 
-        if (strncmp('TRN' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('TRN' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $ck = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : count($out);
             $out[$ck]['gs_date'] = $gs_date;
             $out[$ck]['check_amount'] = $check_amount;
@@ -252,11 +254,11 @@ function edih_835_accounting($segments, $delimiters)
             $out[$ck]['check_number'] = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : '';
         }
 
-        if (strncmp('LX' . $de, $seg, 3) === 0) {
+        if (strncmp('LX' . $de, (string) $seg, 3) === 0) {
         }
 
-        if (strncmp('CLP' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('CLP' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $loopid = '2100';
             //
             $i = (isset($out[$ck]['clp'])) ? count($out[$ck]['clp']) : 0;
@@ -269,7 +271,7 @@ function edih_835_accounting($segments, $delimiters)
             $out[$ck]['clp'][$i]['subscriber_mname'] = '';
             $out[$ck]['clp'][$i]['subscriber_member_id'] = '';
             $out[$ck]['clp'][$i]['crossover'] = 0;
-            $out[$ck]['clp'][$i]['svc'] = array();
+            $out[$ck]['clp'][$i]['svc'] = [];
             //
             // This is the poorly-named "Patient Account Number".  For 837p
             // it comes from CLM01 which we populated as pid-diagid-procid,
@@ -289,8 +291,8 @@ function edih_835_accounting($segments, $delimiters)
             $out[$ck]['clp'][$i]['payer_claim_id']  = (isset($sar[7]) && $sar[7]) ? trim($sar[7]) : ""; // payer's claim number
         }
 
-        if (strncmp('CAS' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        if (strncmp('CAS' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             if ($loop == '2100') {
                 //
                 // This is a claim-level adjustment and should be unusual.
@@ -300,12 +302,12 @@ function edih_835_accounting($segments, $delimiters)
                 // amount that offsets these adjustments.
                 $j = 0; // if present, the dummy service item will be first.
                 if (!$out['svc'][$j]) {
-                    $out[$ck]['clp'][$i]['svc'][$j] = array();
+                    $out[$ck]['clp'][$i]['svc'][$j] = [];
                     $out[$ck]['clp'][$i]['svc'][$j]['code'] = 'Claim';
                     $out[$ck]['clp'][$i]['svc'][$j]['mod']  = '';
                     $out[$ck]['clp'][$i]['svc'][$j]['chg']  = '0';
                     $out[$ck]['clp'][$i]['svc'][$j]['paid'] = '0';
-                    $out[$ck]['clp'][$i]['svc'][$j]['adj']  = array();
+                    $out[$ck]['clp'][$i]['svc'][$j]['adj']  = [];
                 }
 
                 for ($k = 2; $k < 20; $k += 3) {
@@ -314,15 +316,15 @@ function edih_835_accounting($segments, $delimiters)
                     }
 
                     $k = count($out['svc'][$j]['adj']);
-                    $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k] = array();
+                    $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k] = [];
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['group_code']  = $sar[1];
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['reason_code'] = $sar[$k];
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['amount']      = $sar[$k + 1];
                 }
             } elseif ($loopid == '2110') {
-                $sar = explode($de, $seg);
+                $sar = explode($de, (string) $seg);
                 $j = count($out[$ck]['clp'][$i]['svc']);
-                $out[$ck]['clp'][$i]['svc'][$j] = array();
+                $out[$ck]['clp'][$i]['svc'][$j] = [];
                 if (! $out['loopid']) {
                     return 'Unexpected SVC segment';
                 }
@@ -337,7 +339,7 @@ function edih_835_accounting($segments, $delimiters)
                     $out[$ck]['clp'][$i]['warnings'] .= "Submitted procedure modified " . $svc[1] .
                         " as " . $tmp[1] . ".\n";
                 } else {
-                    $svc = explode($delimiter3, $seg[1]);
+                    $svc = explode($delimiter3, (string) $seg[1]);
                 }
 
                 if ($svc[0] != 'HC') {
@@ -346,7 +348,7 @@ function edih_835_accounting($segments, $delimiters)
 
                 // TBD: Other qualifiers are possible; see IG pages 140-141.
                 $j = count($out[$ck]['clp'][$i]['svc']);
-                $out['svc'][$j] = array();
+                $out['svc'][$j] = [];
                 // It seems some payers append the modifier with no separator!
                 if (strlen($svc[1]) == 7 && empty($svc[2])) {
                     $out['svc'][$j]['code'] = substr($svc[1], 0, 5);
@@ -362,12 +364,12 @@ function edih_835_accounting($segments, $delimiters)
 
                     $out['svc'][$j]['chg']  = $seg[2];
                     $out['svc'][$j]['paid'] = $seg[3];
-                    $out['svc'][$j]['adj']  = array();
+                    $out['svc'][$j]['adj']  = [];
                     // Note: SVC05, if present, indicates the paid units of service.
                     // It defaults to 1.
             }
-        } elseif (strncmp('NM1' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        } elseif (strncmp('NM1' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $id = (isset($sar[1]) && $sar[1]) ? trim($sar[1]) : "";
             if ($id == 'QC') {
                 // QC Patient
@@ -391,17 +393,17 @@ function edih_835_accounting($segments, $delimiters)
                 //Claim automatic forward case.
                 $out[$ck]['clp'][$i]['crossover'] = 1;
             }
-        } elseif ((strncmp('PER' . $de, $seg, 4) === 0 ) && ($segid == 'PER' && $out['loopid'] == '2100')) {
-              $sar = explode($de, $seg);
-            $out['payer_insurance']  = trim($seg[2]);
+        } elseif ((strncmp('PER' . $de, (string) $seg, 4) === 0 ) && ($segid == 'PER' && $out['loopid'] == '2100')) {
+              $sar = explode($de, (string) $seg);
+            $out['payer_insurance']  = trim((string) $seg[2]);
             $out['warnings'] .= 'Claim contact information: ' . $seg[4];
-        } elseif (strncmp('PLB' . $de, $seg, 4) === 0) {
-            $sar = explode($de, $seg);
+        } elseif (strncmp('PLB' . $de, (string) $seg, 4) === 0) {
+            $sar = explode($de, (string) $seg);
             $p = (isset($out[$ck]['plb'])) ? count($out[$ck]['plb']) : 0;
             $q = 0;
             //
-            $out[$ck]['plb'][$p] = array();
-            $out[$ck]['plb']['adj'] = array();
+            $out[$ck]['plb'][$p] = [];
+            $out[$ck]['plb']['adj'] = [];
             $out[$ck]['plb'][$p]['provider'] = (isset($sar[1]) && $sar[1]) ? trim($sar[1]) : "";
             $out[$ck]['plb'][$p]['fye'] = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : "";
             // PLB02 is provider fiscal year end or CCYY1231
@@ -415,7 +417,7 @@ function edih_835_accounting($segments, $delimiters)
                         break;
                     // PLB03 05 07 ...
                     case 1:
-                        if (strpos($plb, $ds)) {
+                        if (strpos($plb, (string) $ds)) {
                             $plb02 = explode($ds, $plb);
                             $out[$ck]['per'][$p]['adj'][$q]['code']  = $plb02[0];
                             $out[$ck]['per'][$p]['adj'][$q]['ref']  = $plb02[1];
@@ -434,22 +436,18 @@ function edih_835_accounting($segments, $delimiters)
         // I am not sure that the assignment is corrent here, but based on the flow, I frame it.
     }
 }
-if (strncmp('SVC' . $de, $seg, 4) === 0) {
+if (strncmp('SVC' . $de, (string) $seg, 4) === 0) {
     $loopid = '2110';
 }
 
-    $acctng['lx'][$lx01] = array('ts3amt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'prvadj' => 0, 'ptrsp' => 0);
+    $acctng['lx'][$lx01] = ['ts3amt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'prvadj' => 0, 'ptrsp' => 0];
 if ($chk) {
     $acctng['pmt'] = $bpr02;
 }
 
     // try a little accounting
 if ($chk) {
-    if ($acctng['pmt'] == ($acctng['clmpmt'] + $acctng['prvadj'])) {
-        $bal = 'Balanced';
-    } else {
-        $bal = 'Not Balanced';
-    }
+    $bal = $acctng['pmt'] == $acctng['clmpmt'] + $acctng['prvadj'] ? 'Balanced' : 'Not Balanced';
 
     $pmt_html .= "<tr class='pmt'><td colspan=4>Accounting " . text($bal) . "</td></tr>" . PHP_EOL;
     $pmt_html .= "<tr class='pmt'><td>Fee " . text($acctng['fee']) . "</td><td>Adj " . text($acctng['clmadj']) . "</td><td>PtRsp " . text($acctng['ptrsp']) . "</td></tr>" . PHP_EOL;

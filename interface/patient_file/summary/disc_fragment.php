@@ -32,8 +32,8 @@ function getDisclosureByDate($pid, $limit)
     " LEFT JOIN users u ON u.username = el.user " .
     " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
     " ORDER BY el.date DESC LIMIT 0, " . escape_limit($limit);
-    $r1 = sqlStatement($discQry, array($pid));
-    $result2 = array();
+    $r1 = sqlStatement($discQry, [$pid]);
+    $result2 = [];
     for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
         $result2[$iter] = $frow;
     }
@@ -61,7 +61,7 @@ if ($result != null) {
     foreach ($result as $iter) {
         $has_disclosure = 1;
         $app_event = $iter["event"];
-        $event = explode("-", $app_event);
+        $event = explode("-", (string) $app_event);
         $description = $iter["description"];
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
@@ -91,7 +91,7 @@ if ($has_disclosure == 0) { //If there are no disclosures recorded
     <span class='text'>
     <?php
     echo xlt("There are no disclosures recorded for this patient.");
-    if (AclMain::aclCheckCore('patients', 'disclosure', '', array('write', 'addonly'))) {
+    if (AclMain::aclCheckCore('patients', 'disclosure', '', ['write', 'addonly'])) {
         echo " ";
         echo xlt("To record disclosures, please click");
         echo " <a href='disclosure_full.php'>";

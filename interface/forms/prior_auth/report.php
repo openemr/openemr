@@ -10,10 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function prior_auth_report($pid, $encounter, $cols, $id)
+function prior_auth_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_prior_auth", $id);

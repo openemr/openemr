@@ -27,8 +27,8 @@ class DBColumn
     public $Comment;
     public $NameWithoutPrefix; // populated by DBTable if there is a prefix
     public $MaxSize;
-    public $Keys = array ();
-    public $Constraints = array ();
+    public $Keys =  [];
+    public $Constraints =  [];
 
     /**
      * Instantiate new DBColumn
@@ -41,7 +41,7 @@ class DBColumn
     function __construct($table, $row)
     {
         // typical type is something like varchar(40)
-        $typesize = explode("(", $row ["Type"]);
+        $typesize = explode("(", (string) $row ["Type"]);
 
         $tmp = isset($typesize [1]) ? str_replace(")", "", $typesize [1]) : "";
         $sizesign = explode(" ", $tmp);
@@ -88,7 +88,7 @@ class DBColumn
      */
     function GetEnumValues()
     {
-        return $this->IsEnum() ? $this->Size : array ();
+        return $this->IsEnum() ? $this->Size :  [];
     }
 
     /**

@@ -45,13 +45,13 @@ if (property_exists($eligibilityData, 'deductibles')) {
         <table class="table">
             <thead>
                 <th scope="col"><?php echo xlt("Service Type"); ?></th>
-                <th scope="col"><?php echo xlt("Coverage Level"); ?></th>   
+                <th scope="col"><?php echo xlt("Coverage Level"); ?></th>
                 <th scope="col"><?php echo xlt("Insurance Type"); ?></th>
-                <th scope="col"><?php echo xlt("In Plan Network"); ?></th>  
-                <th scope="col"><?php echo xlt("Annual Amt"); ?></th>    
-                <th scope="col"><?php echo xlt("Episode Amt"); ?></th>  
-                <th scope="col"><?php echo xlt("Remaining Amt"); ?></th>  
-                <th scope="col"><?php echo xlt("Plan Name"); ?></th>  
+                <th scope="col"><?php echo xlt("In Plan Network"); ?></th>
+                <th scope="col"><?php echo xlt("Annual Amt"); ?></th>
+                <th scope="col"><?php echo xlt("Episode Amt"); ?></th>
+                <th scope="col"><?php echo xlt("Remaining Amt"); ?></th>
+                <th scope="col"><?php echo xlt("Plan Name"); ?></th>
             </thead>
             <tbody>
             <?php

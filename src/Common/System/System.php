@@ -23,11 +23,11 @@ class System
 
         $process = proc_open(
             "$whereIsCommand $exec_command",
-            array(
-            0 => array("pipe", "r"), //STDIN
-            1 => array("pipe", "w"), //STDOUT
-            2 => array("pipe", "w"), //STDERR
-            ),
+            [
+            0 => ["pipe", "r"], //STDIN
+            1 => ["pipe", "w"], //STDOUT
+            2 => ["pipe", "w"], //STDERR
+            ],
             $pipes
         );
         if ($process !== false) {

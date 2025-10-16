@@ -40,7 +40,7 @@ class Cache_Lite
     *
     * @var string $_cacheDir
     */
-    var $_cacheDir = '/tmp/';
+    public $_cacheDir = '/tmp/';
 
     /**
     * Enable / disable caching
@@ -49,14 +49,14 @@ class Cache_Lite
     *
     * @var boolean $_caching
     */
-    var $_caching = true;
+    public $_caching = true;
 
     /**
     * Cache lifetime (in seconds)
     *
     * @var int $_lifeTime
     */
-    var $_lifeTime = 3600;
+    public $_lifeTime = 3600;
 
     /**
     * Enable / disable fileLocking
@@ -65,21 +65,21 @@ class Cache_Lite
     *
     * @var boolean $_fileLocking
     */
-    var $_fileLocking = true;
+    public $_fileLocking = true;
 
     /**
     * Timestamp of the last valid cache
     *
     * @var int $_refreshTime
     */
-    var $_refreshTime;
+    public $_refreshTime;
 
     /**
     * File name (with path)
     *
     * @var string $_file
     */
-    var $_file;
+    public $_file;
 
     /**
     * Enable / disable write control (the cache is read just after writing to detect corrupt entries)
@@ -89,7 +89,7 @@ class Cache_Lite
     *
     * @var boolean $_writeControl
     */
-    var $_writeControl = true;
+    public $_writeControl = true;
 
     /**
     * Enable / disable read control
@@ -99,7 +99,7 @@ class Cache_Lite
     *
     * @var boolean $_writeControl
     */
-    var $_readControl = true;
+    public $_readControl = true;
 
     /**
     * Type of read control (only if read control is enabled)
@@ -111,7 +111,7 @@ class Cache_Lite
     *
     * @var boolean $_readControlType
     */
-    var $_readControlType = 'crc32';
+    public $_readControlType = 'crc32';
 
     /**
     * Pear error mode (when raiseError is called)
@@ -121,21 +121,21 @@ class Cache_Lite
     * @see setToDebug()
     * @var int $_pearErrorMode
     */
-    var $_pearErrorMode = CACHE_LITE_ERROR_RETURN;
+    public $_pearErrorMode = CACHE_LITE_ERROR_RETURN;
 
     /**
     * Current cache id
     *
     * @var string $_id
     */
-    var $_id;
+    public $_id;
 
     /**
     * Current cache group
     *
     * @var string $_group
     */
-    var $_group;
+    public $_group;
 
     /**
     * Enable / Disable "Memory Caching"
@@ -144,7 +144,7 @@ class Cache_Lite
     *
     * @var boolean $_memoryCaching
     */
-    var $_memoryCaching = false;
+    public $_memoryCaching = false;
 
     /**
     * Enable / Disable "Only Memory Caching"
@@ -152,28 +152,28 @@ class Cache_Lite
     *
     * @var boolean $_onlyMemoryCaching
     */
-    var $_onlyMemoryCaching = false;
+    public $_onlyMemoryCaching = false;
 
     /**
     * Memory caching array
     *
     * @var array $_memoryCachingArray
     */
-    var $_memoryCachingArray = array();
+    public $_memoryCachingArray = [];
 
     /**
     * Memory caching counter
     *
     * @var int $memoryCachingCounter
     */
-    var $_memoryCachingCounter = 0;
+    public $_memoryCachingCounter = 0;
 
     /**
     * Memory caching limit
     *
     * @var int $memoryCachingLimit
     */
-    var $_memoryCachingLimit = 1000;
+    public $_memoryCachingLimit = 1000;
 
     /**
     * File Name protection
@@ -185,7 +185,7 @@ class Cache_Lite
     *
     * @var boolean $fileNameProtection
     */
-    var $_fileNameProtection = true;
+    public $_fileNameProtection = true;
 
     /**
     * Enable / disable automatic serialization
@@ -195,7 +195,7 @@ class Cache_Lite
     *
     * @var boolean $_serialize
     */
-    var $_automaticSerialization = false;
+    public $_automaticSerialization = false;
 
     // --- Public methods ---
 
@@ -222,9 +222,9 @@ class Cache_Lite
     * @param array $options options
     * @access public
     */
-    function __construct($options = array(NULL))
+    function __construct($options = [NULL])
     {
-        $availableOptions = array('automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode');
+        $availableOptions = ['automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode'];
         foreach($options as $key => $value) {
             if(in_array($key, $availableOptions)) {
                 $property = '_'.$key;
@@ -367,7 +367,7 @@ class Cache_Lite
         }
         if ($this->_memoryCaching) {
             foreach ($this->_memoryCachingArray as $key => $value) {
-                if (strpos($key, $motif, 0)) {
+                if (strpos((string) $key, $motif, 0)) {
                     unset($this->_memoryCachingArray[$key]);
                     $this->_memoryCachingCounter -= 1;
                 }
@@ -428,10 +428,10 @@ class Cache_Lite
     function saveMemoryCachingState($id, $group = 'default')
     {
         if ($this->_caching) {
-            $array = array(
+            $array = [
                 'counter' => $this->_memoryCachingCounter,
                 'array' => $this->_memoryCachingState
-            );
+            ];
             $data = serialize($array);
             $this->save($data, $id, $group);
         }
@@ -472,11 +472,14 @@ class Cache_Lite
     *
     * @param string $msg error message
     * @param int $code error code
+    * @throws PEAR_Error
+    * @return never
     * @access public
     */
     function raiseError($msg, $code)
     {
         include_once('PEAR.php');
+        /** @phpstan-ignore-next-line */
         PEAR::raiseError($msg, $code, $this->_pearErrorMode);
     }
 

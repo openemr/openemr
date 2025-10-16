@@ -42,7 +42,7 @@ class BladeRenderEngine implements IRenderEngine
     /**
      * stores the assigned vars
      */
-    public $model = array ();
+    public $model =  [];
 
     /**
      *
@@ -59,9 +59,7 @@ class BladeRenderEngine implements IRenderEngine
         $GLOBALS ['laravel_paths'] ['storage'] = self::$COMPILE_PATH;
 
         // attach a handler to the 'View::loader' event so we can tweak the file paths to fit with Phreeze
-        Laravel\Event::listen(Laravel\View::loader, function ($bundle, $view) {
-            return BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php';
-        });
+        Laravel\Event::listen(Laravel\View::loader, fn($bundle, $view): string => BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php');
     }
 
     /**
@@ -99,9 +97,9 @@ class BladeRenderEngine implements IRenderEngine
 
         Laravel\Blade::sharpen();
 
-        $responses = Laravel\Event::fire(Laravel\View::engine, array (
+        $responses = Laravel\Event::fire(Laravel\View::engine, [
                 $view
-        ));
+        ]);
 
         return $responses [0];
     }
@@ -123,7 +121,7 @@ class BladeRenderEngine implements IRenderEngine
      */
     function clearAll()
     {
-        $this->model == array ();
+        $this->model ==  [];
     }
 
     /**

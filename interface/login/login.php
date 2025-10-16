@@ -59,17 +59,17 @@ $layout = $GLOBALS['login_page_layout'];
 //
 // Build a list of valid entries
 // Original merge v5.0.1
-$emr_app = array();
+$emr_app = [];
 $sql = "SELECT option_id, title,is_default FROM list_options WHERE list_id=? and activity=1 ORDER BY seq, option_id";
 $rs = sqlStatement($sql, ['apps']);
 if (sqlNumRows($rs)) {
     while ($app = sqlFetchArray($rs)) {
-        $app_req = explode('?', trim($app['title']));
+        $app_req = explode('?', trim((string) $app['title']));
         if (! file_exists('../' . $app_req[0])) {
             continue;
         }
 
-        $emr_app [trim($app ['option_id'])] = trim($app ['title']);
+        $emr_app [trim((string) $app ['option_id'])] = trim((string) $app ['title']);
         if ($app ['is_default']) {
             $emr_app_def = $app ['option_id'];
         }

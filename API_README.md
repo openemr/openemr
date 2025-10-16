@@ -448,11 +448,10 @@ REST API endpoints are defined in the [primary routes file](_rest_routes.inc.php
 endpoint to the OpenEMR controller which handles the request, and also handles the JSON data conversions.
 
 ```php
-"POST /api/patient" => function () {
-    RestConfig::authorization_check("patients", "demo");
+"POST /api/patient" => function (HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "patients", "demo");
     $data = (array) (json_decode(file_get_contents("php://input")));
     $return = (new PatientRestController())->post($data);
-    RestConfig::apiLog($return, $data);
     return $return;
 }
 ```

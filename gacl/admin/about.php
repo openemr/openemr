@@ -24,18 +24,10 @@ function get_system_info() {
 	$system_info .= '  phpGACL Version: '.$gacl_api->get_version()."\n";
 	$system_info .= '  phpGACL Schema Version: '.$gacl_api->get_schema_version()."\n";
 
-	if($gacl_api->_caching == TRUE) {
-		$caching = 'True';
-	} else {
-		$caching = 'False';
-	}
+	$caching = $gacl_api->_caching == TRUE ? 'True' : 'False';
 	$system_info .= '  Caching Enabled: '. $caching ."\n";
 
-	if($gacl_api->_force_cache_expire == TRUE) {
-		$force_cache_expire = 'True';
-	} else {
-		$force_cache_expire = 'False';
-	}
+	$force_cache_expire = $gacl_api->_force_cache_expire == TRUE ? 'True' : 'False';
 	$system_info .= '  Force Cache Expire: '.$force_cache_expire."\n";
 
 	$system_info .= '  Database Prefix: \''.$gacl_api->_db_table_prefix."'\n";
@@ -61,7 +53,7 @@ $system_info = get_system_info();
 $smarty->assign("credits", implode('',file('../CREDITS')) );
 
 $smarty->assign("system_info", $system_info);
-$smarty->assign("system_info_md5", md5($system_info) );
+$smarty->assign("system_info_md5", md5((string) $system_info) );
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 

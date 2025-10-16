@@ -119,7 +119,7 @@ class SphereRevert
                 'aggregator1' => Sphere::AGGREGATOR_ID,
                 'custid' => $this->custid,
                 'password' => $this->custpass,
-                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode(CsrfUtils::collectCsrfToken("sphere_revert")),
+                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode((string) CsrfUtils::collectCsrfToken("sphere_revert")),
                 'action' => $action,
                 'transid' => $transid
             ]
@@ -173,7 +173,7 @@ class SphereRevert
         $lines = explode("\n", $complete);
         foreach ($lines as $line) {
             if (!empty($line)) {
-                list($param, $val) = explode('=', $line, 2);
+                [$param, $val] = explode('=', $line, 2);
                 $data[$param] = $val;
             }
         }

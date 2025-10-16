@@ -21,7 +21,7 @@ $exp = '';
 
 $str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
 
-function gad7_report($pid, $encounter, $cols, $id)
+function gad7_report($pid, $encounter, $cols, $id): void
 {
     global $str_test, $str_nervous,$gad7_total, $pdf_as_string, $str_values,$str_difficulty_values, $data, $exp, $file_name, $str_generate_pdf;
 
@@ -57,17 +57,11 @@ function gad7_report($pid, $encounter, $cols, $id)
             }
         }
         // print the total
-        switch (intdiv($gad7_total, 5)) {
-            case 0:
-                $exp = $str_score_analysis[0];
-                break;
-            case 1:
-            case 2:
-                $exp = $str_score_analysis[5];
-                break;
-            default:
-                $exp = $str_score_analysis[15];
-        }
+        $exp = match (intdiv($gad7_total, 5)) {
+            0 => $str_score_analysis[0],
+            1, 2 => $str_score_analysis[5],
+            default => $str_score_analysis[15],
+        };
 
           print "<td><span class=bold>" . text($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
     }

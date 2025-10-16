@@ -40,18 +40,17 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
             CsrfUtils::csrfNotVerified();
         }
 
-        $fenote = trim($_POST['form_note']);
+        $fenote = trim((string) $_POST['form_note']);
         if ($_POST['form_submit']) {
             sqlStatement("UPDATE form_encounter " .
-            "SET billing_note = ? WHERE id = ?", array($fenote,$feid));
+            "SET billing_note = ? WHERE id = ?", [$fenote,$feid]);
         } else {
             $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-            " WHERE id = ?", array($feid));
+            " WHERE id = ?", [$feid]);
             $fenote = $tmp['billing_note'];
         }
 
         // escape and format note for viewing
-        $fenote = $fenote;
         $fenote = str_replace("\r\n", "<br />", $fenote);
         $fenote = str_replace("\n", "<br />", $fenote);
 
@@ -63,7 +62,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     }
 
     $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-    " WHERE id = ?", array($feid));
+    " WHERE id = ?", [$feid]);
     $fenote = $tmp['billing_note'];
     ?>
 

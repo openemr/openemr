@@ -27,7 +27,7 @@ if (isset($_POST["ajax_mode"])) {
 }
 
 //=================================
-function AjaxDropDownCode()
+function AjaxDropDownCode(): void
 {
     if ($_POST["ajax_mode"] == "set") {//insurance
         $CountIndex = 1;
@@ -44,15 +44,11 @@ function AjaxDropDownCode()
 	  onkeydown=\"ProcessKeyForColoring(event," . attr_js($CountIndex) . ");PlaceValues(event,'&nbsp;','')\"   onclick=\"PutTheValuesClick('&nbsp;','')\">
 			<td colspan='3' align='center'><a id='anchor_insurance_code_" . attr($CountIndex) . "' href='#'></a></td>
 	  </tr>";
-        $insurance_text_ajax = trim((isset($_POST['insurance_text_ajax']) ? $_POST['insurance_text_ajax'] : ''));
+        $insurance_text_ajax = trim(($_POST['insurance_text_ajax'] ?? ''));
         $res = sqlStatement("SELECT insurance_companies.id,name,city,state,country FROM insurance_companies
-			left join addresses on insurance_companies.id=addresses.foreign_id  where name like ? or  insurance_companies.id like ? ORDER BY name", array($insurance_text_ajax . '%', $insurance_text_ajax . '%'));
+			left join addresses on insurance_companies.id=addresses.foreign_id  where name like ? or  insurance_companies.id like ? ORDER BY name", [$insurance_text_ajax . '%', $insurance_text_ajax . '%']);
         while ($row = sqlFetchArray($res)) {
-            if ($CountIndex % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
 
                 $CountIndex++;
                 $Id = $row['id'];
@@ -71,7 +67,7 @@ function AjaxDropDownCode()
         }
 
         $StringForAjax .= "</table></div>";
-        echo text(strlen($_POST['insurance_text_ajax'])) . '~`~`' . $StringForAjax;
+        echo text(strlen((string) $_POST['insurance_text_ajax'])) . '~`~`' . $StringForAjax;
         die;
     }
 
@@ -83,7 +79,7 @@ function AjaxDropDownCode()
         //PlaceValuesDistribute==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClickDistribute==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         if (isset($_POST['patient_code']) && $_POST['patient_code'] != '') {
-            $patient_code = trim((isset($_POST['patient_code']) ? $_POST['patient_code'] : ''));
+            $patient_code = trim(($_POST['patient_code'] ?? ''));
             if (isset($_POST['submit_or_simple_type']) && $_POST['submit_or_simple_type'] == 'Simple') {
                 $StringToAppend = "PutTheValuesClickPatient";
                 $StringToAppend2 = "PlaceValuesPatient";
@@ -94,7 +90,7 @@ function AjaxDropDownCode()
 
             $patient_code_complete = $_POST['patient_code'];//we need the spaces here
         } elseif (isset($_POST['insurance_text_ajax']) && $_POST['insurance_text_ajax'] != '') {
-            $patient_code = trim((isset($_POST['insurance_text_ajax']) ? $_POST['insurance_text_ajax'] : ''));
+            $patient_code = trim(($_POST['insurance_text_ajax'] ?? ''));
             $StringToAppend = "PutTheValuesClick";
             $StringToAppend2 = "PlaceValues";
             $patient_code_complete = $_POST['insurance_text_ajax'];//we need the spaces here
@@ -120,20 +116,16 @@ function AjaxDropDownCode()
             "SELECT pid as id,fname,lname,mname,DOB FROM patient_data
 			 where  fname like ? or lname like ? or mname like ? or
 			 CONCAT(lname,' ',fname,' ',mname) like ? or pid like ? ORDER BY lname",
-            array(
+            [
                 $patient_code . '%',
                 $patient_code . '%',
                 $patient_code . '%',
                 $patient_code . '%',
                 $patient_code . '%'
-            )
+            ]
         );
         while ($row = sqlFetchArray($res)) {
-            if ($CountIndex % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
 
                 $CountIndex++;
                 $Id = $row['id'];
@@ -153,7 +145,7 @@ function AjaxDropDownCode()
         }
 
         $StringForAjax .= "</table></div>";
-        echo text(strlen($patient_code_complete)) . '~`~`' . $StringForAjax;
+        echo text(strlen((string) $patient_code_complete)) . '~`~`' . $StringForAjax;
         die;
     }
 
@@ -162,7 +154,7 @@ function AjaxDropDownCode()
     //PlaceValuesEncounter==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClickEncounter==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         if (isset($_POST['encounter_patient_code'])) {
-            $patient_code = trim((isset($_POST['encounter_patient_code']) ? $_POST['encounter_patient_code'] : ''));
+            $patient_code = trim(($_POST['encounter_patient_code'] ?? ''));
             $StringToAppend = "PutTheValuesClickEncounter";
             $StringToAppend2 = "PlaceValuesEncounter";
         }
@@ -181,17 +173,13 @@ function AjaxDropDownCode()
 
 	  ";
         $res = sqlStatement("SELECT date,encounter FROM form_encounter
-			 where pid =? ORDER BY encounter", array($patient_code));
+			 where pid =? ORDER BY encounter", [$patient_code]);
         while ($row = sqlFetchArray($res)) {
-            if ($CountIndex % 2 == 1) {
-                $bgcolor = '#ddddff';
-            } else {
-                $bgcolor = '#ffdddd';
-            }
+            $bgcolor = $CountIndex % 2 == 1 ? '#ddddff' : '#ffdddd';
 
                 $CountIndex++;
                 $Date = $row['date'];
-                $Date = explode(' ', $Date);
+                $Date = explode(' ', (string) $Date);
                 $Date = oeFormatShortDate($Date[0]);
                 $Encounter = $row['encounter'];
                 $StringForAjax .= "<tr class='text'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"

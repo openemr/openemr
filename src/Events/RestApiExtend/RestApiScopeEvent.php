@@ -12,6 +12,7 @@
 namespace OpenEMR\Events\RestApiExtend;
 
 use Symfony\Contracts\EventDispatcher\Event;
+use InvalidArgumentException;
 
 class RestApiScopeEvent extends Event
 {
@@ -20,54 +21,68 @@ class RestApiScopeEvent extends Event
 
     const EVENT_TYPE_GET_SUPPORTED_SCOPES = "api.scope.get-supported-scopes";
 
-    private $scopes;
-    private $type;
-    private $apiType;
+    private array $scopes;
+    private string $apiType;
+
+    private bool $systemScopesEnabled = false;
 
     public function __construct()
     {
         $this->scopes = [];
-        $this->type = self::API_TYPE_STANDARD;
+        $this->apiType = self::API_TYPE_STANDARD;
     }
 
     /**
-     * @return mixed
+     * @return array The scopes for the API
      */
-    public function getScopes()
+    public function getScopes(): array
     {
         return $this->scopes;
     }
 
     /**
-     * @param mixed $scopes
+     * @param array $scopes
      * @return RestApiScopeEvent
      */
-    public function setScopes($scopes)
+    public function setScopes(array $scopes): RestApiScopeEvent
     {
         $this->scopes = $scopes;
         return $this;
     }
 
-    public function addScope($context, $resource, $permission)
+    public function addScope($context, $resource, $permission): void
     {
         $this->scopes[] = $context . '/' . $resource . '.' . $permission;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getApiType()
+    public function getApiType(): string
     {
         return $this->apiType;
     }
 
     /**
-     * @param mixed $apiType
+     * @param string $apiType
      * @return RestApiScopeEvent
      */
-    public function setApiType($apiType)
+    public function setApiType(string $apiType): RestApiScopeEvent
     {
+        if (!in_array($apiType, [self::API_TYPE_STANDARD, self::API_TYPE_FHIR])) {
+            throw new InvalidArgumentException("Invalid API type: " . $apiType);
+        }
         $this->apiType = $apiType;
         return $this;
+    }
+
+    public function setSystemScopesEnabled(bool $areSystemScopesEnabled): RestApiScopeEvent
+    {
+        $this->systemScopesEnabled = $areSystemScopesEnabled;
+        return $this;
+    }
+    public function isSystemScopesEnabled(): bool
+    {
+        return $this->systemScopesEnabled ?? false;
     }
 }

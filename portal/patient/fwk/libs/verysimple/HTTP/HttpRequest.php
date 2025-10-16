@@ -27,7 +27,7 @@ class HttpRequest
      * @param
      *          $params
      */
-    static function RestRequest($endpoint, $method, $params = array())
+    static function RestRequest($endpoint, $method, $params = [])
     {
         $qs = HttpRequest::ArrayToQueryString($params);
         $ch = null;
@@ -54,9 +54,9 @@ class HttpRequest
                 break;
         }
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 "Expect:  "
-        )); // Fixes the HTTP/1.1 417 Expectation Failed Bug
+        ]); // Fixes the HTTP/1.1 417 Expectation Failed Bug
 
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -181,7 +181,7 @@ class HttpRequest
             }
         }
 
-        $url ['query'] = isset($url ['query']) ? $url ['query'] : '';
+        $url ['query'] ??= '';
 
         $url ['protocol'] = $url ['scheme'] . '://';
         $eol = "\r\n";
@@ -294,9 +294,9 @@ class HttpRequest
 
                 // if the PUT request contains JSON data then add the content type header
                 if (json_encode($data)) {
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
                             "Content-Type: application/json"
-                    ));
+                    ]);
                 }
 
                 curl_setopt($ch, CURLOPT_INFILE, $fp);
@@ -308,9 +308,9 @@ class HttpRequest
             $ch = curl_init($full_url);
         }
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 "Expect:  "
-        )); // Fixes the HTTP/1.1 417 Expectation Failed Bug
+        ]); // Fixes the HTTP/1.1 417 Expectation Failed Bug
 
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

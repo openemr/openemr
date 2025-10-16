@@ -35,27 +35,22 @@ class Cat3 extends \Mustache_Engine
 
     // version 3.1.8 of qrda-reports uses this template which is what the latest Cypress version uses.
     protected $template = 'qrda3_r21.mustache';
-    protected $measures = [];
-    protected $aggregate_results = [];
     protected $measure_result_hash = [];
     protected $provider;
     protected $submission_program;
     protected $ry2022_submission;
     protected $_qrda_guid; // for extension in root template
 
-    public function __construct($aggregate_results = array(), $measures = array(), $options = array())
+    public function __construct(protected $aggregate_results = [], protected $measures = [], $options = [])
     {
         parent::__construct(
-            array(
+            [
                 'entity_flags' => ENT_QUOTES,
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            )
+            ]
         );
 
         $this->_qrda_guid = UuidV4::uuid4();
-
-        $this->aggregate_results = $aggregate_results;
-        $this->measures = $measures;
 
         // Initialize our measure results data structure
         foreach ($this->measures as $measure) {

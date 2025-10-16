@@ -28,7 +28,7 @@
  * @param array
  * @param Smarty
  */
-function smarty_function_datetimepickerSupport($params, &$smarty)
+function smarty_function_datetimepickerSupport($params, &$smarty): void
 {
     if (!empty($params['picker']) && $params['picker'] == 'time') {
         echo "$('.datetimepicker').datetimepicker({ ";
@@ -38,17 +38,9 @@ function smarty_function_datetimepickerSupport($params, &$smarty)
         $datetimepicker_timepicker = false;
     }
 
-    if (!empty($params['seconds']) && $params['seconds'] == 'show') {
-        $datetimepicker_showseconds = true;
-    } else {
-        $datetimepicker_showseconds = false;
-    }
+    $datetimepicker_showseconds = !empty($params['seconds']) && $params['seconds'] == 'show' ? true : false;
 
-    if (!empty($params['input']) && $params['input'] == 'format') {
-        $datetimepicker_formatInput = true;
-    } else {
-        $datetimepicker_formatInput = false;
-    }
+    $datetimepicker_formatInput = !empty($params['input']) && $params['input'] == 'format' ? true : false;
 
     require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
 

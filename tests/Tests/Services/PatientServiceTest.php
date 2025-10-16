@@ -7,6 +7,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Patient Service Tests
@@ -28,6 +29,8 @@ class PatientServiceTest extends TestCase
     private $patientService;
     private $fixtureManager;
 
+    private array $patientFixture;
+
     protected function setUp(): void
     {
         $this->patientService = new PatientService();
@@ -41,18 +44,20 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testGetFreshPid()
+    public function testGetFreshPid(): void
     {
         $actualValue = $this->patientService->getFreshPid();
         $this->assertGreaterThan(0, $actualValue);
     }
 
     #[Test]
-    public function testInsertFailure()
+    public function testInsertFailure(): void
     {
         $this->patientFixture["fname"] = "";
         $this->patientFixture["DOB"] = "12/27/2017";
-        unset($this->patientFixture["sex"]);
+        if (isset($this->patientFixture["sex"])) {
+            unset($this->patientFixture["sex"]);
+        }
 
         $actualResult = $this->patientService->insert($this->patientFixture);
 
@@ -65,7 +70,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertSuccess()
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
@@ -84,7 +89,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateFailure()
+    public function testUpdateFailure(): void
     {
         $this->patientService->insert($this->patientFixture);
 
@@ -100,7 +105,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateSuccess()
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
@@ -124,7 +129,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testPatientQueries()
+    public function testPatientQueries(): void
     {
         $this->fixtureManager->installPatientFixtures();
 
@@ -156,7 +161,7 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->patientService->getAll(array("postal_code" => "90210"));
+        $actualResult = $this->patientService->getAll(["postal_code" => "90210"]);
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 

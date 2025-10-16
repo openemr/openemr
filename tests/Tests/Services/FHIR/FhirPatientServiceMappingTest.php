@@ -2,12 +2,15 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Patient Service Mapping Tests
@@ -46,6 +49,7 @@ class FhirPatientServiceMappingTest extends TestCase
 //        var_dump($this->fhirPatientFixture);
 //        die();
         $this->fhirPatientService = new FhirPatientService();
+        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     /**
@@ -74,9 +78,9 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertEquals($sourcePatientRecord['title'], $actualName->getPrefix()[0]);
 
         $this->assertEquals($sourcePatientRecord['lname'], $actualName->getFamily());
-        $this->assertEquals(array(
+        $this->assertEquals([
             $sourcePatientRecord['fname'],
-            $sourcePatientRecord['mname']), $actualName->getGiven());
+            $sourcePatientRecord['mname']], $actualName->getGiven());
 
         $this->assertEquals(1, count($fhirPatientResource->getAddress()));
         $actualAddress = $fhirPatientResource->getAddress()[0];
@@ -158,7 +162,7 @@ class FhirPatientServiceMappingTest extends TestCase
     }
 
     #[Test]
-    public function testParseOpenEMRRecord()
+    public function testParseOpenEMRRecord(): void
     {
         $this->patientFixture['uuid'] = $this->fixtureManager->getUnregisteredUuid();
         $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture);
@@ -176,7 +180,7 @@ class FhirPatientServiceMappingTest extends TestCase
      */
     private function findTelecomEntry(FHIRPatient $fhirPatientResource, $telecomSystem, $telecomUse)
     {
-        $matchingEntries = array();
+        $matchingEntries = [];
 
         if (empty($fhirPatientResource->getTelecom())) {
             return $matchingEntries;
@@ -214,7 +218,7 @@ class FhirPatientServiceMappingTest extends TestCase
     }
 
     #[Test]
-    public function testParseFhirResource()
+    public function testParseFhirResource(): void
     {
         $actualResult = $this->fhirPatientService->parseFhirResource($this->fhirPatientFixture);
 

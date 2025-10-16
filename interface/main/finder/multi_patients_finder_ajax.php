@@ -49,6 +49,6 @@ switch ($type) {
         break;
 }
 
-$output = array('results' => $results);
+$output = ['results' => $results];
 echo json_encode($output);
 die;

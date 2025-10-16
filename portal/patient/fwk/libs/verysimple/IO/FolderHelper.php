@@ -18,18 +18,14 @@ require_once("FileHelper.php");
  */
 class FolderHelper
 {
-    private $Path;
-
     /**
      * Constructor
      *
      * @access public
-     * @param string $path
-     *          uri to directory to manipulate
+     * @param string $Path uri to directory to manipulate
      */
-    function __construct($path)
+    function __construct(private $Path)
     {
-        $this->Path = $path;
     }
 
     /**
@@ -42,7 +38,7 @@ class FolderHelper
      */
     public function GetFiles($pattern = "")
     {
-        $files = array ();
+        $files =  [];
         $dh = opendir($this->Path);
 
         while ($fname = readdir($dh)) {

@@ -25,11 +25,8 @@ use OpenEMR\Services\ListService;
  */
 class RuleCriteriaSex extends RuleCriteria
 {
-    var $value;
-
-    function __construct($value)
+    function __construct(public $value)
     {
-        $this->value = $value;
     }
 
     function getRequirements()
@@ -53,7 +50,7 @@ class RuleCriteriaSex extends RuleCriteria
         $optionsByListName  = $listService->getOptionsByListName('sex', ['active' => 1]);
         $options = [];
         foreach ($optionsByListName as $row) {
-            $options[] = array( "id" => $row['option_id'], "label" => xl_list_label($row['title']) );
+            $options[] = [ "id" => $row['option_id'], "label" => xl_list_label($row['title']) ];
         }
 
         return $options;

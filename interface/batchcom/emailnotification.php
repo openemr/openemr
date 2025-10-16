@@ -59,9 +59,9 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
     if (!$form_err) {
         $sql_text = " ( `notification_id` , `sms_gateway_type` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
         $sql_value = " (?, ?, ?, ?, ?, ?, ?) ";
-        $values = array($_POST['notification_id'], '', $_POST['provider_name'],
+        $values = [$_POST['notification_id'], '', $_POST['provider_name'],
                         $_POST['message'], $_POST['email_sender'],
-                        $_POST['email_subject'], 'Email');
+                        $_POST['email_subject'], 'Email'];
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
         $id = sqlInsert($query, $values);

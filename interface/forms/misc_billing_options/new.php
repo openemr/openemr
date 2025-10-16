@@ -56,32 +56,32 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 //only one misc billing form per encounter so grab if exists
-$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) ($_GET['id'] ?? 0);
 if (empty($formid)) {
     $mboquery = sqlquery("SELECT `id` FROM `form_misc_billing_options` WHERE
-                          `encounter` = ?", array($encounter));
+                          `encounter` = ?", [$encounter]);
     if (!empty($mboquery['id'])) {
         $formid = (int) $mboquery['id'];
     }
 }
-$obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
+$obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
 ?>
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Miscellaneous Billing Options for HCFA-1500'),
         'include_patient_name' => true,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array(""),//all file names need suffix _xpd
+        'expandable_files' => [""],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => true,
         'help_file_name' => "cms_1500_help.php"
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -95,7 +95,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
-/* ai generated code by google-labs-jules starts */                        
+/* ai generated code by google-labs-jules starts */
                         <span class="text"><?php echo xlt('Select Yes/No where appropriate'); ?><br /><br /></span>
                         <div class="form-group">
                             <label for="employment_related"><?php echo xlt('Box 10 A. Employment related'); ?>:</label>

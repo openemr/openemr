@@ -11,10 +11,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function ros_report($pid, $encounter, $cols, $id)
+function ros_report($pid, $encounter, $cols, $id): void
 {
 
     $count = 0;
@@ -22,7 +22,7 @@ function ros_report($pid, $encounter, $cols, $id)
     $data = formFetch("form_ros", $id);
 
     if ($data) {
-        $cmap = array(
+        $cmap = [
                 "id" => '',
                 "pid" => '',
                 "user" => '',
@@ -84,7 +84,7 @@ function ros_report($pid, $encounter, $cols, $id)
                 "fh_blood_problems" => "FH Blood Problems",
                 "hiv" => "HIV",
                 "hai_status" => "HAI Status",
-        );
+        ];
 
         print "<div id='form_ros_values'><table class='report_results'><tr>";
 

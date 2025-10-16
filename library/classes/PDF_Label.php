@@ -63,31 +63,31 @@
 class PDF_Label extends FPDF {
 
 	// Private properties
-	var $_Margin_Left;			// Left margin of labels
-	var $_Margin_Top;			// Top margin of labels
-	var $_X_Space;				// Horizontal space between 2 labels
-	var $_Y_Space;				// Vertical space between 2 labels
-	var $_X_Number;				// Number of labels horizontally
-	var $_Y_Number;				// Number of labels vertically
-	var $_Width;				// Width of label
-	var $_Height;				// Height of label
-	var $_Line_Height;			// Line height
-	var $_Padding;				// Padding
-	var $_Metric_Doc;			// Type of metric for the document
-	var $_COUNTX;				// Current x position
-	var $_COUNTY;				// Current y position
+	public $_Margin_Left;			// Left margin of labels
+	public $_Margin_Top;			// Top margin of labels
+	public $_X_Space;				// Horizontal space between 2 labels
+	public $_Y_Space;				// Vertical space between 2 labels
+	public $_X_Number;				// Number of labels horizontally
+	public $_Y_Number;				// Number of labels vertically
+	public $_Width;				// Width of label
+	public $_Height;				// Height of label
+	public $_Line_Height;			// Line height
+	public $_Padding;				// Padding
+	public $_Metric_Doc;			// Type of metric for the document
+	public $_COUNTX;				// Current x position
+	public $_COUNTY;				// Current y position
 
 	// List of label formats
-	var $_Avery_Labels = array(
-		'5160' => array('paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>1.762,	'marginTop'=>10.7,		'NX'=>3,	'NY'=>10,	'SpaceX'=>3.175,	'SpaceY'=>0,	'width'=>66.675,	'height'=>25.4,		'font-size'=>10),
-		'5161' => array('paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>0.967,	'marginTop'=>10.7,		'NX'=>2,	'NY'=>10,	'SpaceX'=>3.967,	'SpaceY'=>0,	'width'=>101.6,		'height'=>25.4,		'font-size'=>10),
-		'5162' => array('paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>0.97,		'marginTop'=>20.224,	'NX'=>2,	'NY'=>7,	'SpaceX'=>4.762,	'SpaceY'=>0,	'width'=>100.807,	'height'=>35.72,	'font-size'=>10),
-		'5163' => array('paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>1.762,	'marginTop'=>10.7, 		'NX'=>2,	'NY'=>5,	'SpaceX'=>3.175,	'SpaceY'=>0,	'width'=>101.6,		'height'=>50.8,		'font-size'=>8),
-		'5164' => array('paper-size'=>'letter',	'metric'=>'in',	'marginLeft'=>0.148,	'marginTop'=>0.5, 		'NX'=>2,	'NY'=>3,	'SpaceX'=>0.2031,	'SpaceY'=>0,	'width'=>4.0,		'height'=>3.33,		'font-size'=>12),
-		'8600' => array('paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>7.1, 		'marginTop'=>19, 		'NX'=>3, 	'NY'=>10, 	'SpaceX'=>9.5, 		'SpaceY'=>3.1, 	'width'=>66.6, 		'height'=>25.4,		'font-size'=>8),
-		'L7163'=> array('paper-size'=>'A4',		'metric'=>'mm',	'marginLeft'=>5,		'marginTop'=>15, 		'NX'=>2,	'NY'=>7,	'SpaceX'=>25,		'SpaceY'=>0,	'width'=>99.1,		'height'=>38.1,		'font-size'=>9),
-		'3422' => array('paper-size'=>'A4',		'metric'=>'mm',	'marginLeft'=>0,		'marginTop'=>8.5, 		'NX'=>3,	'NY'=>8,	'SpaceX'=>0,		'SpaceY'=>0,	'width'=>70,		'height'=>35,		'font-size'=>9)
-	);
+	public $_Avery_Labels = [
+		'5160' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>1.762,	'marginTop'=>10.7,		'NX'=>3,	'NY'=>10,	'SpaceX'=>3.175,	'SpaceY'=>0,	'width'=>66.675,	'height'=>25.4,		'font-size'=>10],
+		'5161' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>0.967,	'marginTop'=>10.7,		'NX'=>2,	'NY'=>10,	'SpaceX'=>3.967,	'SpaceY'=>0,	'width'=>101.6,		'height'=>25.4,		'font-size'=>10],
+		'5162' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>0.97,		'marginTop'=>20.224,	'NX'=>2,	'NY'=>7,	'SpaceX'=>4.762,	'SpaceY'=>0,	'width'=>100.807,	'height'=>35.72,	'font-size'=>10],
+		'5163' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>1.762,	'marginTop'=>10.7, 		'NX'=>2,	'NY'=>5,	'SpaceX'=>3.175,	'SpaceY'=>0,	'width'=>101.6,		'height'=>50.8,		'font-size'=>8],
+		'5164' => ['paper-size'=>'letter',	'metric'=>'in',	'marginLeft'=>0.148,	'marginTop'=>0.5, 		'NX'=>2,	'NY'=>3,	'SpaceX'=>0.2031,	'SpaceY'=>0,	'width'=>4.0,		'height'=>3.33,		'font-size'=>12],
+		'8600' => ['paper-size'=>'letter',	'metric'=>'mm',	'marginLeft'=>7.1, 		'marginTop'=>19, 		'NX'=>3, 	'NY'=>10, 	'SpaceX'=>9.5, 		'SpaceY'=>3.1, 	'width'=>66.6, 		'height'=>25.4,		'font-size'=>8],
+		'L7163'=> ['paper-size'=>'A4',		'metric'=>'mm',	'marginLeft'=>5,		'marginTop'=>15, 		'NX'=>2,	'NY'=>7,	'SpaceX'=>25,		'SpaceY'=>0,	'width'=>99.1,		'height'=>38.1,		'font-size'=>9],
+		'3422' => ['paper-size'=>'A4',		'metric'=>'mm',	'marginLeft'=>0,		'marginTop'=>8.5, 		'NX'=>3,	'NY'=>8,	'SpaceX'=>0,		'SpaceY'=>0,	'width'=>70,		'height'=>35,		'font-size'=>9]
+	];
 
 	// Constructor
 	function __construct($format, $unit='mm', $posX=1, $posY=1) {
@@ -139,7 +139,7 @@ class PDF_Label extends FPDF {
 
 	// Give the line height for a given font size
 	function _Get_Height_Chars($pt) {
-		$a = array(6=>2, 7=>2.5, 8=>3, 9=>4, 10=>5, 11=>6, 12=>7, 13=>8, 14=>9, 15=>10);
+		$a = [6=>2, 7=>2.5, 8=>3, 9=>4, 10=>5, 11=>6, 12=>7, 13=>8, 14=>9, 15=>10];
 		if (!isset($a[$pt]))
 			$this->Error('Invalid font size: '.$pt);
 		return $this->_Convert_Metric($a[$pt], 'mm');
