@@ -24,7 +24,6 @@ coverage_args=(
     --coverage-filter src
     --coverage-filter tests
     --coverage-text
-    --path-coverage
 )
 
 composer_github_auth() {
