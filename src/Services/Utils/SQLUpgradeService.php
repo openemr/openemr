@@ -674,7 +674,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                                 $mboquery = sqlQueryNoLog("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                                 INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
                                 `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
-                                `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($row['encounter']));
+                                `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$row['encounter']]);
                                 if (!empty($mboquery['id'])) {
                                     $formid = (int) $mboquery['id'];
                                     QueryUtils::sqlStatementThrowException("UPDATE `form_misc_billing_options` SET `encounter` = ? WHERE `id` = ? AND `encounter` IS NULL", [$row['encounter'], $formid], true);
@@ -683,7 +683,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception $e) {
+                    } catch (\Exception) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }
@@ -717,7 +717,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                                 $mboquery = sqlQueryNoLog("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                                 INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
                                 `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
-                                `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($row['encounter']));
+                                `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$row['encounter']]);
                                 if (!empty($mboquery['id'])) {
                                     $formid = (int) $mboquery['id'];
                                     QueryUtils::sqlStatementThrowException("UPDATE `form_misc_billing_options` SET `encounter` = ? WHERE `id` = ? AND `encounter` IS NULL", [$row['encounter'], $formid], true);
@@ -726,7 +726,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                         QueryUtils::commitTransaction();
                         $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
-                    } catch (\Exception $e) {
+                    } catch (\Exception) {
                         QueryUtils::rollbackTransaction();
                         $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
                     }
