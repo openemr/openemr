@@ -24,7 +24,6 @@ coverage_args=(
     --coverage-filter src
     --coverage-filter tests
     --coverage-text
-    --path-coverage
 )
 
 composer_github_auth() {
@@ -241,6 +240,7 @@ build_test() {
     esac
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
+            --coverage-clover "coverage.${testsuite}.clover.xml"
             --coverage-php "./coverage/coverage.${testsuite}.cov"
             "${coverage_args[@]}"
         )
