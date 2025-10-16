@@ -34,6 +34,7 @@ class CodeTypesService
     const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
+    const CODE_TYPE_DATE_ABSENT_REASON = 'DataAbsentReason';
     const CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY = "2.16.840.1.114222.4.11.1066";
     const CODE_TYPE_OID = [
         '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
@@ -271,6 +272,7 @@ class CodeTypesService
                 self::CODE_TYPE_RXNORM, self::CODE_TYPE_RXCUI => FhirCodeSystemConstants::RXNORM,
                 self::CODE_TYPE_CPT4, self::CODE_TYPE_CPT => FhirCodeSystemConstants::AMA_CPT,
                 self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10,
+                self::CODE_TYPE_DATE_ABSENT_REASON => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM,
                 default => null,
             };
         }
