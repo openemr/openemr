@@ -12,15 +12,17 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirMedicationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 
 class FhirMedicationRestController
 {
-    private $fhirMedicationService;
-    private $fhirService;
+    private readonly FhirMedicationService $fhirMedicationService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct()
     {
@@ -33,9 +35,9 @@ class FhirMedicationRestController
      * @param $fhirId The FHIR medication resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null): Response
     {
-        $processingResult = $this->fhirMedicationService->getOne($fhirId);
+        $processingResult = $this->fhirMedicationService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
