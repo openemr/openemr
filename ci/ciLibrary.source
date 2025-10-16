@@ -241,6 +241,7 @@ build_test() {
     esac
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
+            --coverage-clover "coverage.${testsuite}.clover.xml"
             --coverage-php "./coverage/coverage.${testsuite}.cov"
             "${coverage_args[@]}"
         )
