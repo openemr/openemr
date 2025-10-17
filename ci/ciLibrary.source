@@ -170,11 +170,9 @@ enable_e2e_coverage() {
     dc restart openemr
     dockers_env_start
 
-    # Verify the configuration was applied correctly
-    echo 'Verifying E2E coverage configuration…'
-    _exec php -r "echo 'auto_prepend_file: ' . ini_get('auto_prepend_file') . PHP_EOL;"
-    _exec php -r "echo 'auto_append_file: ' . ini_get('auto_append_file') . PHP_EOL;"
-    _exec php -r "echo 'xdebug.mode: ' . ini_get('xdebug.mode') . PHP_EOL;"
+    # Verify the configuration was applied correctly via web request (not CLI)
+    echo 'Verifying E2E coverage configuration via web server…'
+    dc exec openemr sh -c "curl -s http://localhost/ci/phpinfo.php | grep -E 'auto_prepend_file|auto_append_file|xdebug.mode' | head -20"
 }
 
 disable_e2e_coverage() {
