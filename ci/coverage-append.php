@@ -30,5 +30,19 @@ $filename = sprintf(
     bin2hex(random_bytes(8))
 );
 
-// Serialize and save coverage data
-file_put_contents($filename, serialize($coverage));
+// Save coverage data in PHP_CodeCoverage format
+require_once '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
+
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Xdebug3Driver;
+use SebastianBergmann\CodeCoverage\Report\PHP;
+
+// Create a CodeCoverage object and set the data
+$codeCoverage = new CodeCoverage(
+    new Xdebug3Driver()
+);
+$codeCoverage->setData($coverage);
+
+// Save using the PHP writer
+$writer = new PHP();
+$writer->process($codeCoverage, $filename);
