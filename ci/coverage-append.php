@@ -11,7 +11,11 @@ define('COVERAGE_DIR', WEBROOT . '/coverage');
 define('E2E_COVERAGE_DIR', COVERAGE_DIR . '/e2e');
 
 // Write marker to prove this file executes
-@file_put_contents(COVERAGE_DIR . '/APPEND_EXECUTED', date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+$marker = COVERAGE_DIR . '/APPEND_EXECUTED';
+$data = date('Y-m-d H:i:s') . " - append executed\n";
+if (file_put_contents($marker, $data, FILE_APPEND | LOCK_EX) === false) {
+    error_log("COVERAGE DEBUG: Failed to write append marker to $marker");
+}
 
 if (!function_exists('xdebug_get_code_coverage')) {
     return;

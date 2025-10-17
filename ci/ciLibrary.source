@@ -177,9 +177,13 @@ enable_e2e_coverage() {
     # Test if auto_append actually executes via a simple web request
     echo 'Testing if auto_append executes via web request…'
     _exec rm -f ./coverage/PREPEND_EXECUTED ./coverage/APPEND_EXECUTED
-    dc exec openemr sh -c "curl -s http://localhost/ci/test-append.php > /dev/null"
+    echo 'Output from test-append.php:'
+    dc exec openemr sh -c "curl -s http://localhost/ci/test-append.php"
+    sleep 1  # Give filesystem time to flush
     echo 'Checking marker files after web request:'
     _exec sh -c 'ls -la ./coverage/PREPEND_EXECUTED ./coverage/APPEND_EXECUTED 2>&1 || echo "Marker files missing!"'
+    echo 'Checking error log for coverage debug messages:'
+    dc exec openemr tail -20 /var/log/apache2/error_log 2>/dev/null || echo "Could not read error log"
 }
 
 disable_e2e_coverage() {
