@@ -40,6 +40,14 @@ class ProcessingResult
         $this->pagination = new QueryPagination();
     }
 
+    public static function createNewWithData(array $data): self
+    {
+        $result = new ProcessingResult();
+        $result->setData($data);
+
+        return $result;
+    }
+
     /**
      * @param QueryPagination $pagination
      */
