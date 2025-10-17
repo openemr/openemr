@@ -135,12 +135,10 @@ install_configure() {
 }
 
 enable_e2e_coverage() {
-    # Copy coverage prepend/append scripts to the container
-    dc cp ci/coverage-prepend.php "openemr:${OPENEMR_DIR}/../coverage-prepend.php"
-    dc cp ci/coverage-append.php "openemr:${OPENEMR_DIR}/../coverage-append.php"
-
     # Detect the PHP configuration scan directory dynamically
     local php_scan_dir
+    local coverage_prepend_file="${OPENEMR_DIR}/ci/coverage-prepend.php"
+    local coverage_append_file="${OPENEMR_DIR}/ci/coverage-append.php"
     php_scan_dir=$(_exec php -r "echo ini_get('scan.directory') ?: (dirname(php_ini_loaded_file()) . '/conf.d');" 2>/dev/null)
     if [[ -z "${php_scan_dir}" ]]; then
         echo "Error: Could not detect PHP configuration scan directory"
@@ -148,21 +146,38 @@ enable_e2e_coverage() {
     fi
     echo "Detected PHP config scan directory: ${php_scan_dir}"
 
-    # Configure PHP to use auto_prepend and auto_append for coverage
-    _exec sh -c "cat > ${php_scan_dir}/conf.d/coverage.ini <<'EOF'
-auto_prepend_file=${OPENEMR_DIR}/../coverage-prepend.php
-auto_append_file=${OPENEMR_DIR}/../coverage-append.php
-xdebug.mode=coverage
-EOF"
+    echo 'Confirming coverage prepend and append files are present'
+    _exec sh -xc "
+        if [[ ! -f ${coverage_prepend_file} ]]; then
+            echo '${coverage_prepend_file} is missing'
+            exit 1
+        fi
+        if [[ ! -f ${coverage_append_file} ]]; then
+            echo '${coverage_append_file} is missing'
+            exit 1
+        fi
+    "
 
-    # Restart Apache/FPM to pick up the new PHP configuration
-    dc exec openemr sh <<'EOF'
-if command -v apachectl > /dev/null 2>&1; then
-    apachectl graceful
-elif command -v nginx > /dev/null 2>&1; then
-    pkill -USR2 php-fpm
-fi
-EOF
+    echo 'Configuring PHP to use auto_prepend and auto_append for coverage'
+    {
+        echo "auto_prepend_file=${OPENEMR_DIR}/ci/coverage-prepend.php"
+        echo "auto_append_file=${OPENEMR_DIR}/ci/coverage-append.php"
+        echo 'xdebug.mode=coverage'
+    } > coverage.ini
+    dc cp coverage.ini "openemr:${php_scan_dir}/conf.d/coverage.ini"
+
+    echo 'Restarting services to pick up the new PHP configuration'
+    _exec sh -xc '
+        if command -v apachectl > /dev/null 2>&1; then
+            echo restarting apache
+            apachectl graceful
+        elif command -v nginx > /dev/null 2>&1; then
+            echo restarting nginx
+            pkill -USR2 php-fpm
+        else
+            echo warning: did not restart apache or nginx >&2
+        fi
+    '
 
     # Verify the configuration was applied correctly
     echo 'Verifying E2E coverage configuration…'
