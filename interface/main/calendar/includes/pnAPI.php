@@ -578,6 +578,7 @@ function pnVarPrepForOS()
                            '!/!si',     // Forward slash (directory traversal)
                            '!\\\\!si']; // Backslash (directory traversal)
 
+    /** @var array $replace */
     static $replace = ['',
                             '',
                             '_',
@@ -586,7 +587,7 @@ function pnVarPrepForOS()
     $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Parse out bad things
-        $ourvar = preg_replace($search, (string) $replace, (string) $ourvar);
+        $ourvar = preg_replace($search, $replace, (string) $ourvar);
 
         // Prepare var
         $ourvar = addslashes((string) $ourvar);
