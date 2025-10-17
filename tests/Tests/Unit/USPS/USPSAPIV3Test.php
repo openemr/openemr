@@ -26,7 +26,6 @@ class USPSAPIV3Test extends TestCase
         $legacyAPI = new USPSAddressVerify('username123', '', '');
         $reflection = new \ReflectionClass($legacyAPI);
         $property = $reflection->getProperty('useV3');
-        $property->setAccessible(true);
         $this->assertFalse($property->getValue($legacyAPI));
 
         // v3 credentials
@@ -152,7 +151,6 @@ class USPSAPIV3Test extends TestCase
 
         $reflection = new \ReflectionClass($verify);
         $method = $reflection->getMethod('fetchAccessToken');
-        $method->setAccessible(true);
 
         $result = $method->invoke($verify);
 
