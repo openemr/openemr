@@ -431,8 +431,7 @@ function era_callback(&$out): void
                         $codekey,
                         $description,
                         $debug,
-                        '',
-                        $codetype ?? ''
+                        ''
                     );
                     $invoice_total += $svc['chg'];
                 }
@@ -554,8 +553,7 @@ function era_callback(&$out): void
                             $reason,
                             $debug,
                             '',
-                            $codetype,
-                            $out['payer_claim_id']
+                            $codetype
                         );
                     }
 
@@ -575,17 +573,15 @@ function era_callback(&$out): void
                     $error = true;
                 } elseif (!$error && !$debug) {
                     SLEOB::arPostAdjustment(
-                        $pid,
-                        $encounter,
-                        $InsertionId[$out['check_number']],
-                        $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
-                        $codekey,
-                        substr($inslabel, 3),
-                        "Adjust code " . $adj['reason_code'],
-                        $debug,
-                        '',
-                        $codetype ?? '',
-                        $out['payer_claim_id']
+                        patient_id: $pid,
+                        encounter_id: $encounter,
+                        session_id: $InsertionId[$out['check_number']],
+                        amount: $adj['amount'],
+                        code: $codekey,
+                        payer_type: substr($inslabel, 3),
+                        reason: "Adjust code " . $adj['reason_code'],
+                        debug: $debug,
+                        codetype: $codetype,
                     );
                     $invoice_total -= $adj['amount'];
                 }
@@ -737,7 +733,7 @@ if (!$debug) {
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] == 'original') {
-    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
     echo $StringToEcho;
 } else {
     ?>

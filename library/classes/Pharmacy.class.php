@@ -66,7 +66,7 @@ class Pharmacy extends ORDataObject
     function set_form_id($id = "")
     {
         if (!empty($id)) {
-            $this->populate($id);
+            $this->populate();
         }
     }
     function set_fax_id($id)

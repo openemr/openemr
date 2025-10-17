@@ -112,7 +112,7 @@ class InsuranceCompany extends ORDataObject
     public function set_form_id($id = "")
     {
         if (!empty($id)) {
-            $this->populate($id);
+            $this->populate();
         }
     }
 

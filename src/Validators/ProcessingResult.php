@@ -164,7 +164,7 @@ class ProcessingResult
         $this->internalErrors = array_merge($this->internalErrors, $other->internalErrors);
         $this->validationMessages = array_merge($this->validationMessages, $other->validationMessages);
         if (!empty($other->getPagination())) {
-            $this->pagination->copy($other->getPagination());
+            $this->pagination->copy();
         }
         // make sure to handle our pagination properly by using the setData method
         $this->setData(array_merge($this->data, $other->data));

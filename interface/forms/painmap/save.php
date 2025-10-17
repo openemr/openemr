@@ -22,7 +22,7 @@ require('C_FormPainMap.class.php');
 $c = new C_FormPainMap();
 
 /* Save the form contents .*/
-echo $c->default_action_process($_POST);
+echo $c->default_action_process();
 
 /* return to the encounter. */
 @formJump();
