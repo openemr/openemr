@@ -9,3 +9,6 @@ trim_trailing_whitespace = true
 
 [*.{json,jsn,sh,yaml,yml}]
 indent_size = 2
+
+[composer.{json,lock}]
+indent_size = 4
