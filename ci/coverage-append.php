@@ -6,6 +6,13 @@
  * when E2E coverage is enabled.
  */
 
+define('WEBROOT', dirname(__DIR__));
+define('COVERAGE_DIR', WEBROOT . '/coverage');
+define('E2E_COVERAGE_DIR', COVERAGE_DIR . '/e2e');
+
+// Write marker to prove this file executes
+@file_put_contents(COVERAGE_DIR . '/APPEND_EXECUTED', date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+
 if (!function_exists('xdebug_get_code_coverage')) {
     return;
 }
@@ -18,29 +25,29 @@ if (empty($coverage)) {
 }
 
 // Create unique filename based on request time and random component
-$coverageDir = '/var/www/localhost/htdocs/openemr/coverage/e2e';
-if (!is_dir($coverageDir)) {
-    @mkdir($coverageDir, 0777, true);
+if (!is_dir(E2E_COVERAGE_DIR)) {
+    @mkdir(E2E_COVERAGE_DIR, 0777, true);
 }
 
 $filename = sprintf(
     '%s/coverage.e2e.%s.%s.cov',
-    $coverageDir,
+    E2E_COVERAGE_DIR,
     date('YmdHis'),
     bin2hex(random_bytes(8))
 );
 
 // Save coverage data in PHP_CodeCoverage format
-require_once '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
+require_once WEBROOT . '/vendor/autoload.php';
 
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\Xdebug3Driver;
+use SebastianBergmann\CodeCoverage\Driver\XdebugDriver;
+use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 
 // Create a CodeCoverage object and set the data
-$codeCoverage = new CodeCoverage(
-    new Xdebug3Driver()
-);
+$codeCoverageFilter = new Filter();  // a filter is required, but an empty filter includes everything
+$codeCoverageDriver = new XdebugDriver($codeCoverageFilter);
+$codeCoverage = new CodeCoverage($codeCoverageDriver, $codeCoverageFilter);
 $codeCoverage->setData($coverage);
 
 // Save using the PHP writer

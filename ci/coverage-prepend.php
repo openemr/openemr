@@ -6,6 +6,9 @@
  * when E2E coverage is enabled.
  */
 
+// Write marker to prove this file executes
+@file_put_contents('/var/www/localhost/htdocs/openemr/coverage/PREPEND_EXECUTED', date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+
 if (!function_exists('xdebug_start_code_coverage')) {
     return;
 }
