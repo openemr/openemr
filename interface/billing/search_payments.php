@@ -191,7 +191,7 @@ if (isset($_POST["mode"])) {
                 $StringSessionId .= $rowrs['session_id'] . ',';
             }
 
-            $StringSessionId = substr($StringSessionId, 0, -1);
+            $StringSessionId = substr((string) $StringSessionId, 0, -1);
             if ($PaymentStatus == 'fully_paid') {
                 $QueryString .= " $And session_id in(" . add_escape_custom($StringSessionId) . ") ";
             } elseif ($PaymentStatus == 'unapplied') {
@@ -531,7 +531,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 ?></a>
                                             </td>
                                             <td>
-                                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : htmlspecialchars($Payer); ?></a>-->
+                                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars((string) $RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : htmlspecialchars((string) $Payer); ?></a>-->
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
                                             </td>
                                             <td>

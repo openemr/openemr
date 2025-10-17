@@ -89,7 +89,7 @@ if (isset($mode)) {
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (str_starts_with($var, 'act')) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);
@@ -284,7 +284,7 @@ function submitform(attr) {
                     <?php
                     if ($noteid) {
                         $body = $prow['body'];
-                        $body = preg_replace(['/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'], '${1}' . $patientname . '${2}', $body);
+                        $body = preg_replace(['/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'], '${1}' . $patientname . '${2}', (string) $body);
                         $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         echo "<div class='text'>" . $body . "</div>";
                     }
@@ -366,7 +366,7 @@ if (!empty($_GET['set_pid'])) {
 //
 if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
-    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', (string) $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
         ?>

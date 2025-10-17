@@ -315,7 +315,7 @@ class ClientAdminController
         $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $user_id) ?? [];
         foreach ($accessTokens as $token) {
             try {
-                $token['scope'] = json_decode($token['scope'], true, 512, JSON_THROW_ON_ERROR);
+                $token['scope'] = json_decode((string) $token['scope'], true, 512, JSON_THROW_ON_ERROR);
                 $result[] = $token;
             } catch (JsonException $exception) {
                 (new SystemLogger())->error("Failed to json_decode api_token scope column. "
@@ -610,10 +610,10 @@ class ClientAdminController
         if (is_array($action)) {
             $action = implode("/", $action);
         }
-        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($this->getCSRFToken());
+        $url = $this->actionURL . "?action=" . urlencode((string) $action) . "&csrf_token=" . urlencode($this->getCSRFToken());
         if (!empty($options['queryParams'])) {
             foreach ($options['queryParams'] as $key => $param) {
-                $url .= "&" . urlencode($key) . "=" . urlencode($param);
+                $url .= "&" . urlencode((string) $key) . "=" . urlencode((string) $param);
             }
         }
 

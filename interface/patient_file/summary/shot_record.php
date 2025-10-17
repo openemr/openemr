@@ -234,7 +234,7 @@ function printHTML($res, $res2, $data): void
           //convert end of line characters to space
             $patterns =  ['/\n/'];
             $replace =  [' '];
-            $key = preg_replace($patterns, $replace, $key);
+            $key = preg_replace($patterns, $replace, (string) $key);
             echo "<th>" . text($key) . "</th>\n";
         }
 

@@ -71,14 +71,14 @@ class ReceiveHl7Results
         $send_account = $record['send_fac_id'];
         $recv_account = $record['recv_fac_id'];
         $lab_app = $record['recv_app_id'];
-        $lab_npi = strtoupper(trim($record['npi']));
+        $lab_npi = strtoupper(trim((string) $record['npi']));
         $lab_name = $record['name'];
         $direction = $record['direction'];
         $hl7 = '';
 
         $protocol = $record['protocol'];
         $remote_host = $record['remote_host'];
-        $debug = trim($record['DorP']) === 'D';
+        $debug = trim((string) $record['DorP']) === 'D';
 
         $logpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results/logs/$lab_npi";
         $prpath .= $resultPath . '/' . $ppid . '-' . $lab_npi;
@@ -98,7 +98,7 @@ class ReceiveHl7Results
         }
 
         if (!empty($result->hl7Base64)) {
-            $hl7 = base64_decode($result->hl7Base64);
+            $hl7 = base64_decode((string) $result->hl7Base64);
         } else {
             $returnValue->message = "HL7 appears to be empty";
             $returnValue->isSuccess = false;
@@ -194,7 +194,7 @@ class ReceiveHl7Results
         $rhl7_segnum = 0;
         $obrPerformingOrganization = '';
 
-        if (!str_starts_with($hl7, 'MSH')) {
+        if (!str_starts_with((string) $hl7, 'MSH')) {
             return $this->rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
         }
 
@@ -378,11 +378,11 @@ class ReceiveHl7Results
                 // Patient matching is needed for a results-only interface or MDM message type.
                 if ('R' == $direction || 'MDM' == $msgtype) {
                     $ptarr = [
-                        'ss' => strtoupper($in_ssn),
+                        'ss' => strtoupper((string) $in_ssn),
                         'fname' => $this->ucname($in_fname),
                         'lname' => $this->ucname($in_lname),
                         'mname' => $this->ucname($in_mname),
-                        'DOB' => strtoupper($in_dob),
+                        'DOB' => strtoupper((string) $in_dob),
                         'sex' => $in_sex,
                         'street' => $in_street,
                         'city' => $in_city,
@@ -777,9 +777,9 @@ class ReceiveHl7Results
                 ) {
                     $amain[$i]['res'][$j]['comments'] =
                         substr(
-                            $amain[$i]['res'][$j]['comments'],
+                            (string) $amain[$i]['res'][$j]['comments'],
                             0,
-                            strlen($amain[$i]['res'][$j]['comments'])
+                            strlen((string) $amain[$i]['res'][$j]['comments'])
                         ) . $this->rhl7Text($a[5] ?? '') . $commentdelim;
                     continue;
                 }
@@ -986,9 +986,9 @@ class ReceiveHl7Results
             return false;
         }
         $d0 = "\r";
-        $d1 = substr($hl7, 3, 1); // typically |
+        $d1 = substr((string) $hl7, 3, 1); // typically |
 
-        $segs = explode($d0, $hl7);
+        $segs = explode($d0, (string) $hl7);
         $a = explode($d1, $segs[0]);
         if ($a[0] != 'MSH') {
             unset($segs);
@@ -997,9 +997,9 @@ class ReceiveHl7Results
 
         unset($segs);
         // CMS has deactivated NPI 1891752424, not sure who AMMON is
-        if ($lab_npi == '1891752424' || strtoupper($lab_npi) == 'AMMON') {
-            if (strtoupper(trim($a[5])) == strtoupper(trim($send_acct))) {
-                $srch = '|' . strtoupper(trim($send_acct)) . '-';
+        if ($lab_npi == '1891752424' || strtoupper((string) $lab_npi) == 'AMMON') {
+            if (strtoupper(trim($a[5])) == strtoupper(trim((string) $send_acct))) {
+                $srch = '|' . strtoupper(trim((string) $send_acct)) . '-';
                 $hl7 = str_replace($srch, "|", $hl7);
                 return true;
             }
@@ -1007,9 +1007,9 @@ class ReceiveHl7Results
         }
 
         if (
-            strtoupper(trim($a[5])) == strtoupper(trim($send_acct))
-            || strtoupper(trim($a[3])) == strtoupper(trim($lab_acct))
-            || strtoupper(trim($a[2])) == strtoupper(trim($lab_app))
+            strtoupper(trim($a[5])) == strtoupper(trim((string) $send_acct))
+            || strtoupper(trim($a[3])) == strtoupper(trim((string) $lab_acct))
+            || strtoupper(trim($a[2])) == strtoupper(trim((string) $lab_app))
         ) {
             return true;
         }
@@ -1023,8 +1023,8 @@ class ReceiveHl7Results
         // Try to parse composites
         foreach ($composites as $key => $composite) {
             // If it is a composite ...
-            if (str_contains($composite, '^')) {
-                $composites[$key] = explode('^', $composite);
+            if (str_contains((string) $composite, '^')) {
+                $composites[$key] = explode('^', (string) $composite);
             }
         }
 
@@ -1113,10 +1113,10 @@ class ReceiveHl7Results
                 unset($ares['obxkey']);
                 // If TX result is not over 10 characters, move it from comments to result field.
                 if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
-                    $i = strpos($ares['comments'], (string) $commentdelim);
+                    $i = strpos((string) $ares['comments'], (string) $commentdelim);
                     if ($i && $i <= 10) {
-                        $ares['result'] = substr($ares['comments'], 0, $i);
-                        $ares['comments'] = substr($ares['comments'], $i);
+                        $ares['result'] = substr((string) $ares['comments'], 0, $i);
+                        $ares['comments'] = substr((string) $ares['comments'], $i);
                     }
                 }
 
@@ -1134,7 +1134,7 @@ class ReceiveHl7Results
                 $mdm_docname .= '_';
             }
 
-            $mdm_docname .= preg_replace('/[^0-9]/', '', $mdm_datetime);
+            $mdm_docname .= preg_replace('/[^0-9]/', '', (string) $mdm_datetime);
             $filename = $mdm_docname . '.txt';
             $d = new Document();
             $rc = $d->createDocument($patient_id, $mdm_category_id, $filename, 'text/plain', $mdm_text);
@@ -1170,11 +1170,11 @@ class ReceiveHl7Results
     private function rhl7DateTime($s)
     {
         // Remove UTC offset if present.
-        if (preg_match('/^([0-9.]+)[+-]/', $s, $tmp)) {
+        if (preg_match('/^([0-9.]+)[+-]/', (string) $s, $tmp)) {
             $s = $tmp[1];
         }
 
-        $s = preg_replace('/[^0-9]/', '', $s);
+        $s = preg_replace('/[^0-9]/', '', (string) $s);
         if (empty($s)) {
             return '0000-00-00 00:00:00';
         }
@@ -1195,7 +1195,7 @@ class ReceiveHl7Results
     private function rhl7DateTimeZone($s)
     {
         // UTC offset if present always begins with "+" or "-".
-        if (preg_match('/^[0-9.]+([+-].*)$/', $s, $tmp)) {
+        if (preg_match('/^[0-9.]+([+-].*)$/', (string) $s, $tmp)) {
             return trim($tmp[1]);
         }
 
@@ -1204,7 +1204,7 @@ class ReceiveHl7Results
 
     private function rhl7Date($s)
     {
-        return substr($this->rhl7DateTime($s), 0, 10);
+        return substr((string) $this->rhl7DateTime($s), 0, 10);
     }
 
     private function rhl7Abnormal($s)
@@ -1331,7 +1331,7 @@ class ReceiveHl7Results
             return $out;
         }
 
-        $arr = explode($componentdelimiter, $s);
+        $arr = explode($componentdelimiter, (string) $s);
         if (!empty($arr[8])) {
             $out = $arr[8];
         } else {
@@ -1396,7 +1396,7 @@ class ReceiveHl7Results
             // OBX25 Example: "2343242^Knowsalot^Phil^J.^III^Dr.^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^L^^^DNSPM"
             //             Dr. Phil Knowsalot J. III
             if (!empty($obx25)) {
-                $obx25_segs = explode($componentdelimiter, $obx25);
+                $obx25_segs = explode($componentdelimiter, (string) $obx25);
                 $s .= "$obx25_segs[5] $obx25_segs[2] $obx25_segs[1] $obx25_segs[3] $obx25_segs[4]" . $commentdelim;
             }
 
@@ -1432,7 +1432,7 @@ class ReceiveHl7Results
         $in_fname = $ptarr['fname'];
         $in_lname = $ptarr['lname'];
         $in_dob = $ptarr['DOB'];
-        $in_sex = strtoupper($ptarr['sex']) == 'M' ? 'Male' : 'Female'; // AND sex IS NOT NULL AND sex = ?
+        $in_sex = strtoupper((string) $ptarr['sex']) == 'M' ? 'Male' : 'Female'; // AND sex IS NOT NULL AND sex = ?
 
         $patient_id = 0;
         $res = sqlStatement(
@@ -1508,8 +1508,8 @@ class ReceiveHl7Results
                 "encounter = ?, " .
                 "provider_id = ?",
                 [
-                    date('Y-m-d H:i:s', strtotime($order_date)),
-                    "Generated encounter for " . strtoupper($lab_name) . " result",
+                    date('Y-m-d H:i:s', strtotime((string) $order_date)),
+                    "Generated encounter for " . strtoupper((string) $lab_name) . " result",
                     $pid,
                     $encounter,
                     ($provider_id ?? '')
@@ -1579,7 +1579,7 @@ class ReceiveHl7Results
         }
 
         $op_lname = $op_fname = '';
-        $op_npi = preg_replace('/[^0-9]/', '', $arr[0]);
+        $op_npi = preg_replace('/[^0-9]/', '', (string) $arr[0]);
         if (!empty($arr[1])) {
             $op_lname = $arr[1];
         }
@@ -1618,7 +1618,7 @@ class ReceiveHl7Results
 
     private function ucname($string)
     {
-        $string = ucwords(strtolower($string));
+        $string = ucwords(strtolower((string) $string));
 
         foreach (['-', '\''] as $delimiter) {
             if (str_contains($string, $delimiter)) {

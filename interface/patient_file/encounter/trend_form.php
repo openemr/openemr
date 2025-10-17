@@ -18,7 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $formname = $_GET["formname"];
-$is_lbf = str_starts_with($formname, 'LBF');
+$is_lbf = str_starts_with((string) $formname, 'LBF');
 
 if ($is_lbf) {
   // Determine the default field ID and its title for graphing.

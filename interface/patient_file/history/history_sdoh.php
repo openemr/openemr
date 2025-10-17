@@ -89,11 +89,11 @@ function render_list_select(string $field, string $list_id, $current, string $pl
         $code = $system = '';
         if ($codes) {
             if ($codes[0] === '{') {
-                $cd = json_decode($codes, true) ?: [];
+                $cd = json_decode((string) $codes, true) ?: [];
                 $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
-            } elseif (str_contains($codes, ':')) {
-                [$system, $code] = explode(':', $codes, 2);
+            } elseif (str_contains((string) $codes, ':')) {
+                [$system, $code] = explode(':', (string) $codes, 2);
             }
         }
         echo "<option value='" . attr($o['option_id']) . "'"
@@ -103,7 +103,7 @@ function render_list_select(string $field, string $list_id, $current, string $pl
     echo "</select>";
 }
 
-$self = basename($_SERVER['PHP_SELF']);
+$self = basename((string) $_SERVER['PHP_SELF']);
 ?>
 <!doctype html>
 <html>

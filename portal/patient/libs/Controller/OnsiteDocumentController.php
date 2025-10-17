@@ -135,7 +135,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
-                $prop_normal = ucfirst($prop);
+                $prop_normal = ucfirst((string) $prop);
                 $prop_equals = $prop_normal . '_Equals';
 
                 if (property_exists($criteria, $prop_normal)) {
@@ -238,7 +238,7 @@ class OnsiteDocumentController extends AppBasePortalController
                 }
             }
 
-            $isLegacy = stripos($onsitedocument->FullDocument, 'portal_version') === false;
+            $isLegacy = stripos((string) $onsitedocument->FullDocument, 'portal_version') === false;
             if (!empty($onsitedocument->TemplateData) && !$isLegacy) {
                 $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
                 // use original template saved in create/insert or get new raw template so same version stay with edits.
@@ -276,14 +276,14 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter');
-            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'createDate')));
+            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'createDate')));
             $onsitedocument->DocType = $this->SafeGetVal($json, 'docType');
             $onsitedocument->PatientSignedStatus = $this->SafeGetVal($json, 'patientSignedStatus');
-            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'patientSignedTime')));
-            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'authorizeSignedTime')));
+            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'patientSignedTime')));
+            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'authorizeSignedTime')));
             $onsitedocument->AcceptSignedStatus = $this->SafeGetVal($json, 'acceptSignedStatus');
             $onsitedocument->AuthorizingSignator = $this->SafeGetVal($json, 'authorizingSignator');
-            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'reviewDate')));
+            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'reviewDate')));
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason');
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature');
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature');
@@ -336,7 +336,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $existing_template = $onsitedocument->FullDocument;
 
-            $hasVersion = stripos($existing_template, 'portal_version') !== false;
+            $hasVersion = stripos((string) $existing_template, 'portal_version') !== false;
             if ($this->SafeGetVal($json, 'type') == 'flattened') {
                 $existing = $this->SafeGetVal($json, 'fullDocument');
                 if (!empty($existing)) {
@@ -379,14 +379,14 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter', $onsitedocument->Encounter);
-            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'createDate', $onsitedocument->CreateDate)));
+            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'createDate', $onsitedocument->CreateDate)));
             $onsitedocument->DocType = $this->SafeGetVal($json, 'docType', $onsitedocument->DocType);
             $onsitedocument->PatientSignedStatus = $this->SafeGetVal($json, 'patientSignedStatus', $onsitedocument->PatientSignedStatus);
-            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'patientSignedTime', $onsitedocument->PatientSignedTime)));
-            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'authorizeSignedTime', $onsitedocument->AuthorizeSignedTime)));
+            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'patientSignedTime', $onsitedocument->PatientSignedTime)));
+            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'authorizeSignedTime', $onsitedocument->AuthorizeSignedTime)));
             $onsitedocument->AcceptSignedStatus = $this->SafeGetVal($json, 'acceptSignedStatus', $onsitedocument->AcceptSignedStatus);
             $onsitedocument->AuthorizingSignator = $this->SafeGetVal($json, 'authorizingSignator', $onsitedocument->AuthorizingSignator);
-            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'reviewDate', $onsitedocument->ReviewDate)));
+            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'reviewDate', $onsitedocument->ReviewDate)));
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason', $onsitedocument->DenialReason);
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature', $onsitedocument->AuthorizedSignature);
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature', $onsitedocument->PatientSignature);

@@ -59,13 +59,13 @@ function CloseTag($tag): void
  // Remove all non-digits from a string.
 function Digits($field)
 {
-    return preg_replace("/\D/", "", $field);
+    return preg_replace("/\D/", "", (string) $field);
 }
 
  // Translate sex.
 function Sex($field)
 {
-    $sex = strtoupper(substr(trim($field), 0, 1));
+    $sex = strtoupper(substr(trim((string) $field), 0, 1));
     if ($sex != "M" && $sex != "F") {
         $sex = "U";
     }
@@ -224,7 +224,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("family_size", $row['family_size']);
  custom_xml_Add("monthly_income", $row['monthly_income']);
  custom_xml_Add("homeless", $row['homeless']);
- custom_xml_Add("financial_review", LWDate(substr($row['financial_review'], 0, 10)));
+ custom_xml_Add("financial_review", LWDate(substr((string) $row['financial_review'], 0, 10)));
  custom_xml_Add("genericname1", $row['genericname1']);
  custom_xml_Add("genericval1", $row['genericval1']);
  custom_xml_Add("genericname2", $row['genericname2']);

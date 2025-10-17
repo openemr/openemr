@@ -31,10 +31,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return [
-            'Laminas\Loader\ClassMapAutoloader' => [
+            \Laminas\Loader\ClassMapAutoloader::class => [
                 __DIR__ . '/autoload_classmap.php',
             ],
-            'Laminas\Loader\StandardAutoloader' => [
+            \Laminas\Loader\StandardAutoloader::class => [
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
@@ -68,16 +68,16 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // listen for the filter event in the patient finder (hook located in main/finder/dynamic_finder_ajax.php)
-        $oemrDispatcher->addListener(PatientFinderFilterEvent::EVENT_HANDLE, [$this, 'filterPatientFinderByBlacklist']);
+        $oemrDispatcher->addListener(PatientFinderFilterEvent::EVENT_HANDLE, $this->filterPatientFinderByBlacklist(...));
 
         // listen for filter event in the appointments.inc.php library
-        $oemrDispatcher->addListener(AppointmentsFilterEvent::EVENT_HANDLE, [$this, 'filterAppointmentsByBlacklist']);
+        $oemrDispatcher->addListener(AppointmentsFilterEvent::EVENT_HANDLE, $this->filterAppointmentsByBlacklist(...));
 
         // listen for view and update events on the patient demographics screen (hooks located in
         // interface/patient_file/summary/demogrphics.php and
         // interface/patient_file/summary/demogrphics_full.php
-        $oemrDispatcher->addListener(ViewEvent::EVENT_HANDLE, [$this, 'checkBlacklistForViewAuth']);
-        $oemrDispatcher->addListener(UpdateEvent::EVENT_HANDLE, [$this, 'checkBlacklistForUpdateAuth']);
+        $oemrDispatcher->addListener(ViewEvent::EVENT_HANDLE, $this->checkBlacklistForViewAuth(...));
+        $oemrDispatcher->addListener(UpdateEvent::EVENT_HANDLE, $this->checkBlacklistForUpdateAuth(...));
     }
 
     /**

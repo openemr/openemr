@@ -222,13 +222,13 @@ if (!empty($_POST['form_refresh'])) {
         if (related_codes_are_used()) {
             // Show related codes.
             echo "   <td class='text'>";
-            $arel = explode(';', $row['related_code']);
+            $arel = explode(';', (string) $row['related_code']);
             foreach ($arel as $tmp) {
                 [$reltype, $relcode] = explode(':', $tmp);
                 $reltype = $code_types[$reltype]['id'];
                 $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
                 "code_type = ? AND code = ? LIMIT 1", [$reltype, $relcode]);
-                echo text($relcode) . ' ' . text(trim($relrow['code_text'])) . '<br />';
+                echo text($relcode) . ' ' . text(trim((string) $relrow['code_text'])) . '<br />';
             }
 
             echo "</td>\n";

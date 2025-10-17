@@ -71,7 +71,7 @@ class PHPFHIRResponseParser
             '{' => $this->_parseJson($input),
             default => throw new \RuntimeException(sprintf(
                 '%s::parse - Unable to determine response type, expected JSON or XML.',
-                $this::class
+                static::class
             )),
         };
     }
@@ -91,7 +91,7 @@ class PHPFHIRResponseParser
 
         throw new \DomainException(sprintf(
             '%s::parse - Error encountered while decoding json input.  Error code: %s',
-            $this::class,
+            static::class,
             $lastError
         ));
     }
@@ -288,7 +288,7 @@ class PHPFHIRResponseParser
     {
         return new \InvalidArgumentException(sprintf(
             '%s::parse - Argument 1 expected to be string, %s seen.',
-            get_called_class(),
+            static::class,
             gettype($input)
         ));
     }

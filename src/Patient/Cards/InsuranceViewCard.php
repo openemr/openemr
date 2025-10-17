@@ -119,7 +119,7 @@ class InsuranceViewCard extends CardModel
             $icobj = new InsuranceCompany($row['provider']);
             $adobj = $icobj->get_address();
             $row['insco'] = [
-                'name' => trim($icobj->get_name()),
+                'name' => trim((string) $icobj->get_name()),
                 'display_name' => $icobj->get_display_name(),
                 'address' => [
                     'line1' => $adobj->get_line1(),

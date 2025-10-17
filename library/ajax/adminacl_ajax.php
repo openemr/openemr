@@ -134,7 +134,7 @@ if ($_POST["control"] == "acl") {
         if (empty($_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
-        } elseif (!ctype_alpha($_POST["identifier"])) {
+        } elseif (!ctype_alpha((string) $_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
         } elseif (AclExtended::aclExist(false, $_POST["identifier"], $_POST["return_value"])) {

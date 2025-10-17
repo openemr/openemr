@@ -61,7 +61,7 @@ class Barcode
 
         $code = (string) $code;
 
-        $type = strtolower($type);
+        $type = strtolower((string) $type);
 
         switch ($type) {
             case 'std25':
@@ -136,7 +136,7 @@ class Barcode
     private static function bitStringTo2DArray($digit)
     {
         $d = [];
-        $len = strlen($digit);
+        $len = strlen((string) $digit);
         for ($i = 0; $i < $len; $i++) {
             $d[$i] = $digit[$i];
         }
@@ -199,7 +199,7 @@ class Barcode
     private static function digitToFPDFRenderer($pdf, $color, $xi, $yi, $angle, $mw, $mh, $digit)
     {
         if (!is_array($color)) {
-            if (preg_match('`([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})`i', $color, $m)) {
+            if (preg_match('`([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})`i', (string) $color, $m)) {
                 $color = [hexdec($m[1]),hexdec($m[2]),hexdec($m[3])];
             } else {
                 $color = [0,0,0];
@@ -277,17 +277,17 @@ class BarcodeI25
     public static function compute($code, $crc, $type)
     {
         if (! $crc) {
-            if (strlen($code) % 2) {
+            if (strlen((string) $code) % 2) {
                 $code = '0' . $code;
             }
         } else {
-            if (($type == 'int25') && (strlen($code) % 2 == 0)) {
+            if (($type == 'int25') && (strlen((string) $code) % 2 == 0)) {
                 $code = '0' . $code;
             }
 
             $odd = true;
             $sum = 0;
-            for ($i = strlen($code) - 1; $i > -1; $i--) {
+            for ($i = strlen((string) $code) - 1; $i > -1; $i--) {
                 $v = intval($code[$i]);
                 $sum += $odd ? 3 * $v : $v;
                 $odd = ! $odd;
@@ -313,7 +313,7 @@ class BarcodeI25
             $result .= '1010';
 
             // digits + CRC
-            $end = strlen($code) / 2;
+            $end = strlen((string) $code) / 2;
             for ($i = 0; $i < $end; $i++) {
                 $c1 = $code[2 * $i];
                 $c2 = $code[2 * $i + 1];
@@ -341,7 +341,7 @@ class BarcodeI25
             $result .= '11011010';
 
             // digits + CRC
-            $end = strlen($code);
+            $end = strlen((string) $code);
             for ($i = 0; $i < $end; $i++) {
                 $c = $code[$i];
                 for ($j = 0; $j < 5; $j++) {
@@ -384,7 +384,7 @@ class BarcodeEAN
     {
         // Check len (12 for ean13, 7 for ean8)
         $len = $type == 'ean8' ? 7 : 12;
-        $code = substr($code, 0, $len);
+        $code = substr((string) $code, 0, $len);
         if (!preg_match('`[0-9]{' . $len . '}`', $code)) {
             return('');
         }
@@ -433,7 +433,7 @@ class BarcodeEAN
     public static function compute($code, $type)
     {
         $len = $type == 'ean13' ? 12 : 7;
-        $code = substr($code, 0, $len);
+        $code = substr((string) $code, 0, $len);
         if (!preg_match('`[0-9]{' . $len . '}`', $code)) {
             return('');
         }
@@ -453,7 +453,7 @@ class BarcodeUPC
 {
     public static function getDigit($code)
     {
-        if (strlen($code) < 12) {
+        if (strlen((string) $code) < 12) {
             $code = '0' . $code;
         }
 
@@ -462,11 +462,11 @@ class BarcodeUPC
 
     public static function compute($code)
     {
-        if (strlen($code) < 12) {
+        if (strlen((string) $code) < 12) {
             $code = '0' . $code;
         }
 
-        return substr(BarcodeEAN::compute($code, 'ean13'), 1);
+        return substr((string) BarcodeEAN::compute($code, 'ean13'), 1);
     }
 }
 
@@ -500,7 +500,7 @@ class BarcodeMSI
 
     private static function computeMod10($code)
     {
-        $len = strlen($code);
+        $len = strlen((string) $code);
         $toPart1 = $len % 2;
         $n1 = 0;
         $sum = 0;
@@ -527,7 +527,7 @@ class BarcodeMSI
     {
         $sum = 0;
         $weight = 2;
-        for ($i = strlen($code) - 1; $i > -1; $i--) {
+        for ($i = strlen((string) $code) - 1; $i > -1; $i--) {
             $sum += $weight * intval($code[$i]);
             $weight = $weight == 7 ? 2 : $weight + 1;
         }
@@ -537,7 +537,7 @@ class BarcodeMSI
 
     public static function getDigit($code, $crc)
     {
-        if (preg_match('`[^0-9]`', $code)) {
+        if (preg_match('`[^0-9]`', (string) $code)) {
             return '';
         }
 
@@ -550,7 +550,7 @@ class BarcodeMSI
         $result = '110';
 
         // digits
-        $len = strlen($code);
+        $len = strlen((string) $code);
         for ($i = 0; $i < $len; $i++) {
             $result .= self::$encoding[ intval($code[$i]) ];
         }
@@ -571,7 +571,7 @@ class Barcode11
 
     public static function getDigit($code)
     {
-        if (preg_match('`[^0-9\-]`', $code)) {
+        if (preg_match('`[^0-9\-]`', (string) $code)) {
             return '';
         }
 
@@ -582,7 +582,7 @@ class Barcode11
         $result = '1011001' . $intercharacter;
 
         // digits
-        $len = strlen($code);
+        $len = strlen((string) $code);
         for ($i = 0; $i < $len; $i++) {
             $index = $code[$i] == '-' ? 10 : intval($code[$i]);
             $result .= self::$encoding[ $index ] . $intercharacter;
@@ -640,7 +640,7 @@ class Barcode39
         $result = '';
         $intercharacter = '0';
 
-        if (str_contains($code, '*')) {
+        if (str_contains((string) $code, '*')) {
             return('');
         }
 
@@ -686,11 +686,11 @@ class Barcode93
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%____*'; // _ => ($), (%), (/) et (+)
         $result = '';
 
-        if (str_contains($code, '*')) {
+        if (str_contains((string) $code, '*')) {
             return('');
         }
 
-        $code = strtoupper($code);
+        $code = strtoupper((string) $code);
 
         // start :  *
         $result  .= self::$encoding[47];
@@ -781,7 +781,7 @@ class Barcode128
         $value = 0;
 
         // check each characters
-        $len = strlen($code);
+        $len = strlen((string) $code);
         for ($i = 0; $i < $len; $i++) {
             if (!str_contains($tableB, (string) $code[$i])) {
                 return("");
@@ -792,7 +792,7 @@ class Barcode128
         $tableCActivated = $len > 1;
         $c = '';
         for ($i = 0; $i < 3 && $i < $len; $i++) {
-            $tableCActivated &= preg_match('`[0-9]`', $code[$i]);
+            $tableCActivated &= preg_match('`[0-9]`', (string) $code[$i]);
         }
 
         $sum = $tableCActivated ? 105 : 104;
@@ -805,7 +805,7 @@ class Barcode128
             if (! $tableCActivated) {
                 $j = 0;
                 // check next character to activate C table if interresting
-                while (($i + $j < $len) && preg_match('`[0-9]`', $code[$i + $j])) {
+                while (($i + $j < $len) && preg_match('`[0-9]`', (string) $code[$i + $j])) {
                     $j++;
                 }
 
@@ -818,14 +818,14 @@ class Barcode128
                 }
 
                 // 2 min for table C so need table B
-            } elseif (($i == $len - 1) || (preg_match('`[^0-9]`', $code[$i])) || (preg_match('`[^0-9]`', $code[$i + 1]))) { //todo : verifier le JS : len - 1!!! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            } elseif (($i == $len - 1) || (preg_match('`[^0-9]`', (string) $code[$i])) || (preg_match('`[^0-9]`', (string) $code[$i + 1]))) { //todo : verifier le JS : len - 1!!! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                 $tableCActivated = false;
                 $result .= self::$encoding[ 100 ]; // B table
                 $sum += ++$isum * 100;
             }
 
             if ($tableCActivated) {
-                $value = intval(substr($code, $i, 2)); // Add two characters (numeric)
+                $value = intval(substr((string) $code, $i, 2)); // Add two characters (numeric)
                 $i += 2;
             } else {
                 $value = strpos($tableB, (string) $code[$i]); // Add one character
@@ -867,7 +867,7 @@ class BarcodeCodabar
         // add start : A->D : arbitrary choose A
         $result .= self::$encoding[16] . $intercharacter;
 
-        $len = strlen($code);
+        $len = strlen((string) $code);
         for ($i = 0; $i < $len; $i++) {
             $index = strpos($table, (string) $code[$i]);
             if ($index === false) {
@@ -1009,14 +1009,14 @@ class BarcodeDatamatrix
     {
         $dataCodeWords = [];
         $n = 0;
-        $len = strlen($text);
+        $len = strlen((string) $text);
         for ($i = 0; $i < $len; $i++) {
             $c = ord($text[$i]);
             if ($c > 127) {
                 $dataCodeWords[$n] = 235;
                 $c -= 127;
                 $n++;
-            } elseif (($c >= 48 && $c <= 57) && ($i + 1 < $len) && (preg_match('`[0-9]`', $text[$i + 1]))) {
+            } elseif (($c >= 48 && $c <= 57) && ($i + 1 < $len) && (preg_match('`[0-9]`', (string) $text[$i + 1]))) {
                 $c = (($c - 48) * 10) + intval($text[$i + 1]);
                 $c += 130;
                 $i++;

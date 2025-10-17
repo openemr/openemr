@@ -26,7 +26,7 @@ class ImmunizationForm extends Form
         // Codes
         $this->add([
             'name' => 'codes',
-            'type' => 'Laminas\Form\Element\Select',
+            'type' => \Laminas\Form\Element\Select::class,
             'attributes' => [
                 'multiple' => 'multiple',
                 'size' => '3',
@@ -43,7 +43,7 @@ class ImmunizationForm extends Form
 
         $this->add([
             'name' => 'from_date',
-            'type' => 'Laminas\Form\Element\Text',
+            'type' => \Laminas\Form\Element\Text::class,
             'attributes' => [
                 'id' => 'from_date',
                 'placeholder' => 'From Date',

@@ -172,7 +172,7 @@ class SMARTAuthorizationController
      */
     public function needSMARTAuthorization(): bool
     {
-        if (empty($this->session->get('puuid')) && str_contains($this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
+        if (empty($this->session->get('puuid')) && str_contains((string) $this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
             $this->logger->debug(
                 "AuthorizationController->userLogin() SMART app request for patient context ",
                 ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid')]
@@ -412,7 +412,7 @@ class SMARTAuthorizationController
     public function smartAppStyles(): ResponseInterface
     {
         $cssTheme = $this->globalsBag->get('css_header');
-        $baseCssTheme = basename($cssTheme);
+        $baseCssTheme = basename((string) $cssTheme);
         $parts = explode(".", $baseCssTheme);
         $coreTheme = !empty($parts[0]) ? $parts[0] : "style_light";
         $logoService = $this->getLogoService();

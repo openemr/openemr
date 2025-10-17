@@ -156,7 +156,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
 
     if ($GLOBALS['receipts_by_provider']) {
         if (isset($ferow['provider_id'])) {
@@ -554,7 +554,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     function markTaxes($taxrates): void
     {
         global $taxes;
-        $arates = explode(':', $taxrates);
+        $arates = explode(':', (string) $taxrates);
         if (empty($arates)) {
             return;
         }
@@ -595,7 +595,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
       // Get the posting date from the form as yyyy-mm-dd.
         $dosdate = substr($this_bill_date, 0, 10);
-        if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
+        if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $_POST['form_date'], $matches)) {
             $dosdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
 
@@ -629,7 +629,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             $line = $lines[$lino];
             $code_type = $line['code_type'];
             $id        = $line['id'];
-            $amount    = sprintf('%01.2f', trim($line['amount']));
+            $amount    = sprintf('%01.2f', trim((string) $line['amount']));
 
 
             if ($code_type == 'PROD') {
@@ -672,9 +672,9 @@ function generate_receipt($patient_id, $encounter = 0): void
       // Post discount.
         if ($_POST['form_discount']) {
             if ($GLOBALS['discount_by_money']) {
-                $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
+                $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {
-                $form_discount = trim($_POST['form_discount']) ?? 0;
+                $form_discount = trim((string) $_POST['form_discount']) ?? 0;
                 if ($form_discount < 100) {
                     $total_discount = $form_discount * $form_amount / (100 - $form_discount);
                     $amount = sprintf('%01.2f', $total_discount);
@@ -708,9 +708,9 @@ function generate_receipt($patient_id, $encounter = 0): void
 
       // Post payment.
         if ($_POST['form_amount']) {
-            $amount  = sprintf('%01.2f', trim($_POST['form_amount']));
-            $form_source = trim($_POST['form_source']);
-            $paydesc = trim($_POST['form_method']);
+            $amount  = sprintf('%01.2f', trim((string) $_POST['form_amount']));
+            $form_source = trim((string) $_POST['form_source']);
+            $paydesc = trim((string) $_POST['form_method']);
             //Fetching the existing code and modifier
                 $ResultSearchNew = sqlStatement(
                     "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
@@ -997,7 +997,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                             continue;
                                         }
 
-                                        $thisdate = substr($brow['date'], 0, 10);
+                                        $thisdate = substr((string) $brow['date'], 0, 10);
                                         $code_type = $brow['code_type'];
 
                                         // Collect tax rates, related code and provider ID.
@@ -1042,7 +1042,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
                                         // Custom logic for IPPF to determine if a GCAC issue applies.
                                         if ($GLOBALS['ippf_specific'] && $related_code) {
-                                            $relcodes = explode(';', $related_code);
+                                            $relcodes = explode(';', (string) $related_code);
                                             foreach ($relcodes as $codestring) {
                                                 if ($codestring === '') {
                                                     continue;

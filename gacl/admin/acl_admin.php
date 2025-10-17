@@ -42,7 +42,7 @@ switch ($_POST['action']) {
 			${$type_array} = [];
 			if (!empty($_POST['selected_'. $type]) && is_array($_POST['selected_'. $type])) {
 				foreach ($_POST['selected_'. $type] as $value) {
-					$split_value = explode('^', $value);
+					$split_value = explode('^', (string) $value);
 					${$type_array}[$split_value[0]][] = $split_value[1];
 				}
 			}
@@ -186,9 +186,9 @@ switch ($_POST['action']) {
 
 			if (is_object($rs)) {
 				while ($row = $rs->FetchRow()) {
-					$section_value = addslashes($row[0]);
-					$value = addslashes($row[1]);
-					$name = addslashes($row[2]);
+					$section_value = addslashes((string) $row[0]);
+					$value = addslashes((string) $row[1]);
+					$name = addslashes((string) $row[2]);
 
 					//Prepare javascript code for dynamic select box.
 					//Init the javascript sub-array.

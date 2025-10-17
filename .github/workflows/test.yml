@@ -25,6 +25,7 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v5
+
     - name: Collect Docker Dirs
       id: docker-dirs
       ##
@@ -149,12 +150,15 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v5
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.configurations.php }}
+
     - name: Report PHP Version
       run: php -v
+
     - name: Get composer cache directory
       id: composer-cache
       run: |
@@ -162,6 +166,7 @@ jobs:
           printf 'dir='
           composer config cache-files-dir
         } >> $GITHUB_OUTPUT
+
     - name: Composer Cache
       uses: actions/cache/restore@v4
       with:
@@ -170,10 +175,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-composer-${{ matrix.configurations.php }}-
           ${{ runner.os }}-composer-
+
     - name: Install npm package
       uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.configurations.node_version }}
+
     - name: Get NPM Cache Directory
       id: npm-cache-dir
       run: |
@@ -181,6 +188,7 @@ jobs:
           printf 'dir='
           npm config get cache
         } >> "$GITHUB_OUTPUT"
+
     - name: Cache node modules
       # Use explicit restore and save actions to control
       # precisely when in the workflow the cache is
@@ -192,54 +200,234 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-
           ${{ runner.os }}-node-
+
     - name: Main build
       run: |
         . ci/ciLibrary.source
         composer_github_auth
         main_build
+
     - name: CCDA build
       run: |
         . ci/ciLibrary.source
         ccda_build
+
     - name: Save node cache
       if: ${{ matrix.configurations.save_node_cache == 'true' }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-${{ hashFiles('**/package-lock.json') }}
+
     - name: Save composer cache
       if: ${{ matrix.configurations.save_composer_cache == 'true' }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
+
     - name: Docker Compose Config Output
       run: |
         . ci/ciLibrary.source
         dc config
+
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source
         dockers_env_start
+
     - name: Wait for MySQL to initialize
       if: ${{ matrix.configurations.database == 'mysql' }}
       run: |
         echo "Waiting 60 seconds for MySQL to initialize..."
         sleep 60
+
     - name: Install and configure
       run: |
         . ci/ciLibrary.source
         install_configure
+
     - name: Prepare for coverage reporting
       if: ${{ env.ENABLE_COVERAGE == 'true' }}
       run: |
         . ci/ciLibrary.source
         configure_coverage
+
     - name: Unit testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test unit
+
+    - name: Upload unit test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-unit.xml
+        flags: unit,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload unit test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.unit.clover.xml
+        flags: unit,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Api testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test api
+
+    - name: Upload api test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-api.xml
+        flags: api,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload api test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.api.clover.xml
+        flags: api,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Fixtures testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test fixtures
+
+    - name: Upload fixtures test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-fixtures.xml
+        flags: fixtures,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload fixtures test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.fixtures.clover.xml
+        flags: fixtures,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Services testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test services
+
+    - name: Upload services test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-services.xml
+        flags: services,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload services test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.services.clover.xml
+        flags: services,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Validators testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test validators
+
+    - name: Upload validators test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-validators.xml
+        flags: validators,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload validators test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.validators.clover.xml
+        flags: validators,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Controllers testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test controllers
+
+    - name: Upload controllers test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-controllers.xml
+        flags: controllers,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload controllers test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.controllers.clover.xml
+        flags: controllers,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Common testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test common
+
+    - name: Upload common test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-common.xml
+        flags: common,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload common test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.common.clover.xml
+        flags: common,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Email testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test email
+
+    - name: Upload email test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-email.xml
+        flags: email,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload email test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.email.clover.xml
+        flags: email,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
 
     ##
     # To skip E2E tests for specific docker directories,
@@ -253,84 +441,27 @@ jobs:
         . ci/ciLibrary.source
         build_test e2e
 
-    - name: Upload E2E test videos
+    - name: Upload e2e test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-e2e.xml
+        flags: e2e,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+
+    - name: Upload E2E test videos to GitHub
       if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
       uses: actions/upload-artifact@v4
       with:
         name: e2e-test-videos-${{ matrix.configurations.docker_dir }}
         path: selenium-videos/
 
-    - name: Api testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test api
-
-    - name: Fixtures testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test fixtures
-
-    - name: Services testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test services
-
-    - name: Validators testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test validators
-
-    - name: Controllers testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test controllers
-
-    - name: Common testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test common
-
-    - name: Collect test results for Codecov
-      id: collect-junit-files
-      if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
-      run: |
-        shopt -s nullglob
-        files=( ./junit-*.xml )
-        (( "${#files[@]}" < 1 )) && exit
-        export IFS=,
-        echo "files=${files[*]}" >> $GITHUB_OUTPUT
-
-    - name: Upload all test results to Codecov
-      if: ${{ !cancelled() && steps.collect-junit-files.outputs.files != '' }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ${{ steps.collect-junit-files.outputs.files }}
-
-    - name: Email testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test email
-
-    - name: Upload JUnit test results
+    - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
       uses: actions/upload-artifact@v4
       with:
         name: junit-test-results-${{ matrix.configurations.docker_dir }}
         path: junit-*.xml
-
-    - name: Upload Email test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Combine coverage
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
@@ -338,28 +469,23 @@ jobs:
         . ci/ciLibrary.source
         merge_coverage
 
-    - name: Check if coverage files exist
+    - name: Check if combined coverage files exist
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
       id: check-files
       run: |
         echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
         echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
 
-    - uses: actions/upload-artifact@v4
+    - name: Upload clover coverage to GitHub
+      uses: actions/upload-artifact@v4
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
 
-    - uses: actions/upload-artifact@v4
+    - name: Upload html coverage to GitHub
+      uses: actions/upload-artifact@v4
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
       with:
         name: htmlcov
         path: ./htmlcov/
-
-    - name: Upload coverage reports to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.clover.xml

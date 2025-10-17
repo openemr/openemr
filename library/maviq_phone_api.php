@@ -24,7 +24,7 @@ class MaviqClient
 
         $encoded = "";
         foreach ($vars as $key => $value) {
-            $encoded .= "$key=" . urlencode($value) . "&";
+            $encoded .= "$key=" . urlencode((string) $value) . "&";
         }
 
         $encoded = substr($encoded, 0, -1);
@@ -38,7 +38,7 @@ class MaviqClient
 
         // if GET and vars, append them
         if ($method == "GET") {
-            $url .= (!str_contains($path, '?') ? "?" : "&") . $encoded;
+            $url .= (!str_contains((string) $path, '?') ? "?" : "&") . $encoded;
         }
 
         // initialize a new curl object
@@ -46,7 +46,7 @@ class MaviqClient
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        switch (strtoupper($method)) {
+        switch (strtoupper((string) $method)) {
             case "GET":
                 curl_setopt($curl, CURLOPT_HTTPGET, true);
                 break;
@@ -120,11 +120,11 @@ class RestResponse
 
     public function __construct($url, public $ResponseText, public $HttpStatus)
     {
-        preg_match('/([^?]+)\??(.*)/', $url, $matches);
+        preg_match('/([^?]+)\??(.*)/', (string) $url, $matches);
         $this->Url = $matches[1];
         $this->QueryString = $matches[2];
         if ($this->HttpStatus != 204) {
-            $this->ResponseXml = @simplexml_load_string($this->ResponseText);
+            $this->ResponseXml = @simplexml_load_string((string) $this->ResponseText);
         }
 
         if ($this->IsError = ($this->HttpStatus >= 400)) {

@@ -176,7 +176,7 @@ class CcrController extends AbstractActionController
                             } elseif ($key == 'phone_contact') {
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
                             } elseif ($key == 'abname') {
-                                $values = explode(' ', $val);
+                                $values = explode(' ', (string) $val);
                                 if ($values[0]) {
                                     $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
                                 }
@@ -195,8 +195,8 @@ class CcrController extends AbstractActionController
                             }
 
                             if ($sections == 'lists2' && $key == 'type') {
-                                if (strpos($val, "-")) {
-                                    $vals = explode("-", $val);
+                                if (strpos((string) $val, "-")) {
+                                    $vals = explode("-", (string) $val);
                                     $val = $vals[0];
                                 } else {
                                     $val = "";

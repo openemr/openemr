@@ -242,7 +242,7 @@ class Generator
             }
 
             if ($datatype == 'QDMBaseType') {
-                $class->setExtendedClass('\\OpenEMR\\Cqm\\Qdm\\BaseTypes\\DataElement');
+                $class->setExtendedClass(\OpenEMR\Cqm\Qdm\BaseTypes\DataElement::class);
             }
 
             $file = FileGenerator::fromArray([
@@ -264,6 +264,6 @@ class Generator
 
     public function underscore($input)
     {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
+        return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $input));
     }
 }

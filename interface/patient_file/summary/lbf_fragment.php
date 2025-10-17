@@ -45,7 +45,7 @@ $lbf_form_id = $_GET['formname'];
         <span class='text'><b>
         <?php
         echo text(xl('Most recent from') . ": " .
-        oeFormatShortDate(substr($result['date'], 0, 10)));
+        oeFormatShortDate(substr((string) $result['date'], 0, 10)));
         ?>
   </b></span>
         <br />

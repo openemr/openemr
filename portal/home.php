@@ -111,10 +111,10 @@ if ($appts) {
     foreach ($appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $count++;
-        $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
+        $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr($row['pc_startTime'], 0, 2);
-        $dispmin = substr($row['pc_startTime'], 3, 2);
+        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
+        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -145,10 +145,10 @@ if ($past_appts) {
     foreach ($past_appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $pastCount++;
-        $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
+        $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr($row['pc_startTime'], 0, 2);
-        $dispmin = substr($row['pc_startTime'], 3, 2);
+        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
+        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -230,7 +230,7 @@ function buildNav($newcnt, $pid, $result): array
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
-                    'url' => $GLOBALS['web_root'] . '/portal/patient/onsitedocuments?pid=' . urlencode($pid),
+                    'url' => $GLOBALS['web_root'] . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
                     'label' => xl('Forms and Documents'),
                     'icon' => 'fa-file',
                 ],

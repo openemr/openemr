@@ -34,14 +34,14 @@ class USPSBaseTest extends TestCase
         $uspsBase = new TestableUSPSBase('myusername');
         // Since username is protected, we test through getPostData which uses it
         $postData = $uspsBase->getPostData();
-        $this->assertNotFalse(strpos($postData['XML'], 'myusername'));
+        $this->assertNotFalse(strpos((string) $postData['XML'], 'myusername'));
     }
 
     public function testConstructorWithEmptyUsername(): void
     {
         $uspsBase = new TestableUSPSBase();
         $postData = $uspsBase->getPostData();
-        $this->assertNotFalse(strpos($postData['XML'], 'USERID=""'));
+        $this->assertNotFalse(strpos((string) $postData['XML'], 'USERID=""'));
     }
 
     public function testSetUsername(): void
@@ -49,7 +49,7 @@ class USPSBaseTest extends TestCase
         $testBase = new TestableUSPSBase();
         $testBase->setUsername('newuser');
         $postData = $testBase->getPostData();
-        $this->assertNotFalse(strpos($postData['XML'], 'newuser'));
+        $this->assertNotFalse(strpos((string) $postData['XML'], 'newuser'));
     }
 
     public function testSetApiVersion(): void
@@ -218,7 +218,6 @@ class USPSBaseTest extends TestCase
         // Using reflection to access protected property for testing
         $reflection = new \ReflectionClass($this->uspsBase);
         $apiCodesProperty = $reflection->getProperty('apiCodes');
-        $apiCodesProperty->setAccessible(true);
         $apiCodes = $apiCodesProperty->getValue($this->uspsBase);
 
         $this->assertIsArray($apiCodes);

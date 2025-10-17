@@ -23,7 +23,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
@@ -118,10 +118,10 @@ function postToGet($arin)
     foreach ($arin as $key => $val) {
         if (is_array($val)) {
             foreach ($val as $v) {
-                $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
+                $getstring .= urlencode($key . "[]") . "=" . urlencode((string) $v) . "&";
             }
         } else {
-            $getstring .= urlencode($key) . "=" . urlencode($val) . "&";
+            $getstring .= urlencode((string) $key) . "=" . urlencode((string) $val) . "&";
         }
     }
 
@@ -157,9 +157,9 @@ function zip_content($source, $destination, $content = '', $create = true)
     }
 
     if (is_file($source) === true) {
-        $zip->addFromString(basename($source), file_get_contents($source));
+        $zip->addFromString(basename((string) $source), file_get_contents($source));
     } elseif (!empty($content)) {
-        $zip->addFromString(basename($source), $content);
+        $zip->addFromString(basename((string) $source), $content);
     }
 
     return $zip->close();
@@ -581,7 +581,7 @@ foreach ($ar as $key => $val) {
 
     // These are the top checkboxes (demographics, allergies, etc.).
     //
-    if (stristr($key, "include_")) {
+    if (stristr((string) $key, "include_")) {
         if ($val == "demographics") {
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
@@ -631,7 +631,7 @@ foreach ($ar as $key => $val) {
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
-                    $ta = explode(":", $be);
+                    $ta = explode(":", (string) $be);
                     $billing = getPatientBillingEncounter($pid, $ta[1]);
                     $billings[] = $billing;
                     foreach ($billing as $b) {
@@ -756,7 +756,7 @@ foreach ($ar as $key => $val) {
                 }
 
                 $d = new Document($document_id);
-                $fname = basename($d->get_name());
+                $fname = basename((string) $d->get_name());
                 $extension = substr($fname, strrpos($fname, "."));
                 if (strtolower($extension) == '.zip' || strtolower($extension) == '.dcm') {
                     continue;
@@ -829,13 +829,13 @@ foreach ($ar as $key => $val) {
                                 $itpl = $pdf->importPage($i + 1);
                                 $pdf->useTemplate($itpl);
                             }
-                        } catch (Exception $e) {
+                        } catch (Exception) {
                             // chances are PDF is > v1.4 and compression level not supported.
                             // regardless, we're here so lets dispose in different way.
                             //
                             unlink($from_file_tmp_name);
                             $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
-                            $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
+                            $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp);
                             $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                             $pdf->writeHTML($err);
                             $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
@@ -883,7 +883,7 @@ foreach ($ar as $key => $val) {
 
                 echo "</div>";
             }
-        } elseif (str_starts_with($key, "issue_")) {
+        } elseif (str_starts_with((string) $key, "issue_")) {
             // display patient Issues
 
             if ($first_issue) {
@@ -893,7 +893,7 @@ foreach ($ar as $key => $val) {
                 echo "<h1>" . xlt("Issues") . "</h1>";
             }
 
-            preg_match('/^(.*)_(\d+)$/', $key, $res);
+            preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
             $rowid = $res[2];
             $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
                             "FROM lists WHERE id = ?", [$rowid]);
@@ -912,7 +912,7 @@ foreach ($ar as $key => $val) {
             if ($diagnosis) {
                 echo "<div class='text issue_diag'>";
                 echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br />";
-                $dcodes = explode(";", $diagnosis);
+                $dcodes = explode(";", (string) $diagnosis);
                 foreach ($dcodes as $dcode) {
                     echo "<span class='italic'>" . text($dcode) . "</span>: ";
                     echo lookup_code_descriptions($dcode) . "<br />\n";
@@ -943,7 +943,7 @@ foreach ($ar as $key => $val) {
 
             if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
                 $form_encounter = $val;
-                preg_match('/^(.*)_(\d+)$/', $key, $res);
+                preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
                 $form_id = $res[2];
                 $formres = getFormNameByFormdirAndFormid($res[1], $form_id);
                 $dateres = getEncounterDateByEncounter($form_encounter);
@@ -958,7 +958,7 @@ foreach ($ar as $key => $val) {
                 }
 
                 // show the encounter's date
-                echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
+                echo "(" . text(oeFormatSDFT(strtotime((string) $dateres["date"]))) . ") ";
                 if ($res[1] == 'newpatient') {
                     // display the provider info
                     echo ' ' . xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
@@ -1018,11 +1018,11 @@ if ($PDF_OUTPUT) {
     $content = getContent();
     $ptd = report_basename($pid);
     $fn = $ptd['base'] . ".pdf";
-    $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
-    $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+    $pdf->SetTitle(ucfirst((string) $ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
+    $isit_utf8 = preg_match('//u', (string) $content); // quick check for invalid encoding
     if (!$isit_utf8) {
         if (function_exists('iconv')) { // if we can lets save the report
-            $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+            $content = iconv("UTF-8", "UTF-8//IGNORE", (string) $content);
         } else { // no sense going on.
             $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
             die($die_str);

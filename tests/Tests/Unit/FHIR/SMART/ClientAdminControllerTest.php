@@ -266,7 +266,6 @@ class ClientAdminControllerTest extends TestCase
         // Use reflection to call private method
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('enableAuthorizationFlowSkipAction');
-        $method->setAccessible(true);
 
         // Act
         $response = $method->invoke($this->controller, $clientId);
@@ -292,7 +291,6 @@ class ClientAdminControllerTest extends TestCase
         // Use reflection to call private method
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('disableAuthorizationFlowSkipAction');
-        $method->setAccessible(true);
 
         // Act
         $response = $method->invoke($this->controller, $clientId);
@@ -327,7 +325,6 @@ class ClientAdminControllerTest extends TestCase
         // Use reflection to call private method
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('tokenToolsAction');
-        $method->setAccessible(true);
 
         // Act
         $response = $method->invoke($this->controller, $request);

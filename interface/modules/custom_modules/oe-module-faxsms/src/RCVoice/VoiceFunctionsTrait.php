@@ -46,7 +46,7 @@ trait VoiceFunctionsTrait
 
             // Get raw JSON and decode as associative array
             $body = $resp->text();
-            $data = json_decode($body, true);
+            $data = json_decode((string) $body, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \RuntimeException('Invalid JSON from SIP provision');
             }
@@ -132,7 +132,7 @@ trait VoiceFunctionsTrait
             $endpoint = "/restapi/v1.0/account/~/extension/~/message-store/{$messageId}/content";
             $response = $this->platform->get($endpoint);
             return $response->raw(); // binary content for WAV/MP3
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -192,7 +192,7 @@ trait VoiceFunctionsTrait
                 // Check if any event filter matches the telephony sessions pattern
                 $isCorrectFilter = false;
                 foreach ($subscription->eventFilters ?? [] as $filter) {
-                    if (preg_match('#^/restapi/v1\.0/account/\d+/extension/\d+/telephony/sessions$#', $filter)) {
+                    if (preg_match('#^/restapi/v1\.0/account/\d+/extension/\d+/telephony/sessions$#', (string) $filter)) {
                         $isCorrectFilter = true;
                         break;
                     }

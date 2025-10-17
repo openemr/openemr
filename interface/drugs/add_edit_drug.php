@@ -200,7 +200,7 @@ if (!empty($_POST['form_save'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $drugName = trim($_POST['form_name']);
+    $drugName = trim((string) $_POST['form_name']);
     if ($drugName === '') {
         $alertmsg = xl('Drug name is required');
     } else {
@@ -213,11 +213,11 @@ if (!empty($_POST['form_save'])) {
             "route = ? AND " .
             "drug_id != ?",
             [
-                trim($_POST['form_name']),
-                trim($_POST['form_form']),
-                trim($_POST['form_size']),
-                trim($_POST['form_unit']),
-                trim($_POST['form_route']),
+                trim((string) $_POST['form_name']),
+                trim((string) $_POST['form_form']),
+                trim((string) $_POST['form_size']),
+                trim((string) $_POST['form_unit']),
+                trim((string) $_POST['form_route']),
                 $drug_id
             ]
         );
@@ -256,18 +256,18 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
                 "consumable = ? " .
                 "WHERE drug_id = ?",
                 [
-                    trim($_POST['form_name']),
-                    trim($_POST['form_ndc_number']),
-                    trim($_POST['form_drug_code']),
-                    trim($_POST['form_on_order']),
-                    trim($_POST['form_reorder_point']),
-                    trim($_POST['form_max_level']),
-                    trim($_POST['form_form']),
-                    trim($_POST['form_size']),
-                    trim($_POST['form_unit']),
-                    trim($_POST['form_route']),
-                    trim($_POST['form_cyp_factor']),
-                    trim($_POST['form_related_code']),
+                    trim((string) $_POST['form_name']),
+                    trim((string) $_POST['form_ndc_number']),
+                    trim((string) $_POST['form_drug_code']),
+                    trim((string) $_POST['form_on_order']),
+                    trim((string) $_POST['form_reorder_point']),
+                    trim((string) $_POST['form_max_level']),
+                    trim((string) $_POST['form_form']),
+                    trim((string) $_POST['form_size']),
+                    trim((string) $_POST['form_unit']),
+                    trim((string) $_POST['form_route']),
+                    trim((string) $_POST['form_cyp_factor']),
+                    trim((string) $_POST['form_related_code']),
                     (empty($_POST['form_dispensable'    ]) ? 0 : 1),
                     (empty($_POST['form_allow_multiple' ]) ? 0 : 1),
                     (empty($_POST['form_allow_combining']) ? 0 : 1),
@@ -311,18 +311,18 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
             "?, " .
             "?)",
             [
-                trim($_POST['form_name']),
-                trim($_POST['form_ndc_number']),
-                trim($_POST['form_drug_code']),
-                trim($_POST['form_on_order']),
-                trim($_POST['form_reorder_point']),
-                trim($_POST['form_max_level']),
-                trim($_POST['form_form']),
-                trim($_POST['form_size']),
-                trim($_POST['form_unit']),
-                trim($_POST['form_route']),
-                trim($_POST['form_cyp_factor']),
-                trim($_POST['form_related_code']),
+                trim((string) $_POST['form_name']),
+                trim((string) $_POST['form_ndc_number']),
+                trim((string) $_POST['form_drug_code']),
+                trim((string) $_POST['form_on_order']),
+                trim((string) $_POST['form_reorder_point']),
+                trim((string) $_POST['form_max_level']),
+                trim((string) $_POST['form_form']),
+                trim((string) $_POST['form_size']),
+                trim((string) $_POST['form_unit']),
+                trim((string) $_POST['form_route']),
+                trim((string) $_POST['form_cyp_factor']),
+                trim((string) $_POST['form_related_code']),
                 (empty($_POST['form_dispensable'    ]) ? 0 : 1),
                 (empty($_POST['form_allow_multiple' ]) ? 0 : 1),
                 (empty($_POST['form_allow_combining']) ? 0 : 1),
@@ -343,7 +343,7 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
         sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", [$drug_id]);
         for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
             $iter = $tmpl["$lino"];
-            $selector = trim($iter['selector']);
+            $selector = trim((string) $iter['selector']);
             if ($selector) {
                 $taxrates = "";
                 if (!empty($iter['taxrate'])) {
@@ -359,10 +359,10 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
                     [
                         $drug_id,
                         $selector,
-                        trim($iter['dosage']),
-                        trim($iter['period']),
-                        trim($iter['quantity']),
-                        trim($iter['refills']),
+                        trim((string) $iter['dosage']),
+                        trim((string) $iter['period']),
+                        trim((string) $iter['quantity']),
+                        trim((string) $iter['refills']),
                         $taxrates,
                         // floatval(trim($iter['pkgqty']))
                         1.0
@@ -485,7 +485,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label><?php echo xlt('NDC Number'); ?>:</label>
-        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' />
+        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes((string) $GLOBALS['gbl_mask_product_id'])); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes((string) $GLOBALS['gbl_mask_product_id'])); ?>")' />
     </div>
 
     <div class="form-group mt-3">
@@ -701,7 +701,7 @@ dispensable_changed();
 
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert('" . addslashes((string) $alertmsg) . "');\n";
 }
 ?>
 

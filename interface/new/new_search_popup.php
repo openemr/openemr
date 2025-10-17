@@ -124,10 +124,10 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         $sqlBindArraySpecial = [];
         $where = "1 = 0";
         foreach ($_REQUEST as $key => $value) {
-            if (!str_starts_with($key, 'mf_')) {
+            if (!str_starts_with((string) $key, 'mf_')) {
                 continue; // "match field"
             }
-            $fldname = substr($key, 3);
+            $fldname = substr((string) $key, 3);
             // pubpid requires special treatment.  Match on that is fatal.
             if ($fldname == 'pubpid') {
                 $relevance .= " + 1000 * ( " . add_escape_custom($fldname) . " LIKE ? )";

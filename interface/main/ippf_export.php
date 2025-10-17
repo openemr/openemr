@@ -87,7 +87,7 @@ function CloseTag($tag): void
 // Remove all non-digits from a string.
 function Digits($field)
 {
-    return preg_replace("/\D/", "", $field);
+    return preg_replace("/\D/", "", (string) $field);
 }
 
 // Translate sex.
@@ -113,16 +113,16 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
         $default = '1800-01-01T00:00:00';
     }
 
-    if (strlen($str) < 10 || str_starts_with($str, '0000')) {
+    if (strlen((string) $str) < 10 || str_starts_with((string) $str, '0000')) {
         $str = $default;
-    } elseif (strlen($str) > 10) {
-        $str = substr($str, 0, 10) . 'T' . substr($str, 11);
+    } elseif (strlen((string) $str) > 10) {
+        $str = substr((string) $str, 0, 10) . 'T' . substr((string) $str, 11);
     } else {
         $str .= 'T00:00:00';
     }
 
   // Per discussion with Daniel 2009-05-12, replace zero day or month with 01.
-    $str = preg_replace('/-00/', '-01', $str);
+    $str = preg_replace('/-00/', '-01', (string) $str);
     return $str;
 }
 
@@ -133,7 +133,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
 //
 function getTextListValue($string, $key)
 {
-    $tmp = explode('|', $string);
+    $tmp = explode('|', (string) $string);
     foreach ($tmp as $value) {
         if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
             if ($matches[1] == $key) {
@@ -161,7 +161,7 @@ function mappedOption($list_id, $option_id, $default = '9')
     }
 
   // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
-    $maparr = explode(':', $row['mapping']);
+    $maparr = explode(':', (string) $row['mapping']);
     return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
@@ -198,7 +198,7 @@ function mappedFieldOption($form_id, $field_id, $option_id)
     }
 
   // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
-    $maparr = explode(':', $row['mapping']);
+    $maparr = explode(':', (string) $row['mapping']);
     return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
@@ -218,7 +218,7 @@ function exportEncounter($pid, $encounter, $date): void
     $bres = sqlStatement($query, [$pid, $encounter]);
     while ($brow = sqlFetchArray($bres)) {
         if (!empty($brow['related_code'])) {
-            $relcodes = explode(';', $brow['related_code']);
+            $relcodes = explode(';', (string) $brow['related_code']);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
@@ -279,7 +279,7 @@ function exportEncounter($pid, $encounter, $date): void
     "ORDER BY id";
     $tres = sqlStatement($query, [$pid, $date]);
     while ($trow = sqlFetchArray($tres)) {
-        $relcodes = explode(';', $trow['refer_related_code']);
+        $relcodes = explode(';', (string) $trow['refer_related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
@@ -292,7 +292,7 @@ function exportEncounter($pid, $encounter, $date): void
                 "code_type = '16' AND code = ? AND active = 1 " .
                 "ORDER BY id LIMIT 1", [$code]);
                 if (!empty($rrow['related_code'])) {
-                        [$codetype, $code] = explode(':', $rrow['related_code']);
+                        [$codetype, $code] = explode(':', (string) $rrow['related_code']);
                 }
             }
 
@@ -335,7 +335,7 @@ function endClient($pid, &$encarray): void
 
     while ($irow = sqlFetchArray($ires)) {
         OpenTag('IMS_eMRUpload_Issue');
-        Add('IssueType', substr($irow['type'], 0, 15)); // per email 2009-03-20
+        Add('IssueType', substr((string) $irow['type'], 0, 15)); // per email 2009-03-20
         Add('emrIssueId', $irow['id']);
         Add('IssueStartDate', xmlTime($irow['begdate'], 0));
         Add('IssueEndDate', xmlTime($irow['enddate']));
@@ -354,7 +354,7 @@ function endClient($pid, &$encarray): void
                 continue;
             }
 
-            $avalues = explode('|', $value);
+            $avalues = explode('|', (string) $value);
             foreach ($avalues as $tmp) {
                   OpenTag('IMS_eMRUpload_IssueData');
                   // TBD: Add IssueCodeGroup to identify the list, if any???
@@ -409,7 +409,7 @@ function endClient($pid, &$encarray): void
                     continue;
                 }
 
-                    $avalues = explode('|', $value);
+                    $avalues = explode('|', (string) $value);
                 foreach ($avalues as $tmp) {
                     OpenTag('IMS_eMRUpload_IssueData');
                     Add('IssueCodeGroup', '?');
@@ -577,7 +577,7 @@ if (!empty($form_submit)) {
         $methodid = '';
         $methodvalue = -999;
         if (!empty($crow['new_method'])) {
-              $methods = explode('|', $crow['new_method']);
+              $methods = explode('|', (string) $crow['new_method']);
               /***************************************************************
             foreach ($methods as $method) {
               $lorow = sqlQuery("SELECT option_value FROM list_options WHERE " .

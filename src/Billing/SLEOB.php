@@ -27,7 +27,7 @@ class SLEOB
     public static function slInvoiceNumber(&$out)
     {
         $invnumber = $out['our_claim_id'];
-        $atmp = preg_split('/[ -]/', $invnumber);
+        $atmp = preg_split('/[ -]/', (string) $invnumber);
         $acount = count($atmp);
 
         $pid = 0;
@@ -47,9 +47,9 @@ class SLEOB
                 "fname LIKE ? " .
                 "ORDER BY pid DESC", [$out['patient_lname'], $out['patient_fname']]);
             while ($prow = sqlFetchArray($pres)) {
-                if (str_starts_with($invnumber, $prow['pid'])) {
+                if (str_starts_with((string) $invnumber, (string) $prow['pid'])) {
                     $pid = $prow['pid'];
-                    $encounter = substr($invnumber, strlen($pid));
+                    $encounter = substr((string) $invnumber, strlen((string) $pid));
                     break;
                 }
             }
@@ -119,10 +119,10 @@ class SLEOB
     ) {
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         if (empty($time)) {
@@ -188,10 +188,10 @@ class SLEOB
 
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         BillingUtilities::addBilling(
@@ -216,10 +216,10 @@ class SLEOB
     {
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         if (empty($time)) {
@@ -271,7 +271,7 @@ class SLEOB
         $ferow = sqlQuery("SELECT date, last_level_billed " .
             "FROM form_encounter WHERE " .
             "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
-        $date_of_service = substr($ferow['date'], 0, 10);
+        $date_of_service = substr((string) $ferow['date'], 0, 10);
         $new_payer_type = 0 + $ferow['last_level_billed'];
         if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0) {
             ++$new_payer_type;

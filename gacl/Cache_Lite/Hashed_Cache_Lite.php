@@ -83,8 +83,8 @@ class Hashed_Cache_Lite extends Cache_Lite
 
 	function _remove_dir_structure($dir,$remove_dir = false)
 	{
-		if (in_array(substr($dir,-1),[DIR_SEP,'/','\\'])) {
-			$dir = substr($dir,0,-1);
+		if (in_array(substr((string) $dir,-1),[DIR_SEP,'/','\\'])) {
+			$dir = substr((string) $dir,0,-1);
 		}
 
 		if (!($dh = opendir($dir))) {
@@ -141,7 +141,7 @@ class Hashed_Cache_Lite extends Cache_Lite
 
 			if ($this->_memoryCaching) {
 				foreach ($this->_memoryCachingArray as $key => $value) {
-					if (strpos($key, $motif, 0)) {
+					if (strpos((string) $key, $motif, 0)) {
 						unset($this->_memoryCachingArray[$key]);
 					}
 				}

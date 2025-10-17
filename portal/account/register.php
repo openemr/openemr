@@ -42,7 +42,7 @@ $_SESSION['pid'] = true;
 $_SESSION['register'] = true;
 $_SESSION['register_silo_ajax'] = true;
 
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
 
 // Prepare data for the template
 $data = [

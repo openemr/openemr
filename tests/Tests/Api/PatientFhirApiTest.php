@@ -49,7 +49,7 @@ class PatientFhirApiTest extends TestCase
         $this->assertEquals(Response::HTTP_OK, $actualResult->getStatusCode());
         $body = $actualResult->getBody()->getContents();
         $this->assertNotEmpty($body, "Patient search by _id should have returned a result");
-        $contents = json_decode($body, true);
+        $contents = json_decode((string) $body, true);
         $this->assertArrayhasKey("entry", $contents);
         $this->assertNotEmpty($contents['entry'], "Patient search by _id should have returned a result");
         $this->assertCount(1, $contents['entry'], "Patient search by _id should have returned a single result");

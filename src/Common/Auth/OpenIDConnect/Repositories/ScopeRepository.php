@@ -389,7 +389,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     private function scopeArrayHasString(array $scopes, $str): bool
     {
         foreach ($scopes as $scope) {
-            if (str_contains($scope, $str)) {
+            if (str_contains((string) $scope, (string) $str)) {
                 return true;
             }
         }

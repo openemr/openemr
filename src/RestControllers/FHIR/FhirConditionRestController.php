@@ -16,11 +16,13 @@ use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class FhirConditionRestController
 {
-    private $fhirConditionService;
-    private $fhirService;
+    private readonly FhirConditionService $fhirConditionService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct()
     {
@@ -30,11 +32,11 @@ class FhirConditionRestController
 
     /**
      * Queries for a single FHIR condition resource by FHIR id
-     * @param $fhirId The FHIR condition resource id (uuid)
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @returns 200 if the operation completes successfully
+     * @param string $fhirId The FHIR condition resource id (uuid)
+     * @param string $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @returns Response 200 if the operation completes successfully
      */
-    public function getOne($fhirId, $puuidBind = null)
+    public function getOne($fhirId, $puuidBind = null): Response
     {
         $processingResult = $this->fhirConditionService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
@@ -44,10 +46,11 @@ class FhirConditionRestController
      * Queries for FHIR condition resources using various search parameters.
      * Search parameters include:
      * - patient (puuid)
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @param array $searchParams
+     * @param string $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return JsonResponse|Response FHIR bundle with query results, if found
      */
-    public function getAll($searchParams, $puuidBind = null)
+    public function getAll($searchParams, $puuidBind = null): JsonResponse|Response
     {
         $processingResult = $this->fhirConditionService->getAll($searchParams, $puuidBind);
         $bundleEntries = [];

@@ -61,13 +61,13 @@ if (!$form_batch && !$pid && !$form_review) {
 function oresRawData($name, $index)
 {
     $s = $_POST[$name][$index] ?? '';
-    return trim($s);
+    return trim((string) $s);
 }
 
 function oresData($name, $index)
 {
     $s = $_POST[$name][$index] ?? '';
-    return add_escape_custom(trim($s));
+    return add_escape_custom(trim((string) $s));
 }
 
 function QuotedOrNull($fld)
@@ -83,7 +83,7 @@ $current_report_id = 0;
 
 if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
-        [$order_id, $order_seq, $report_id, $result_id] = explode(':', $line_value);
+        [$order_id, $order_seq, $report_id, $result_id] = explode(':', (string) $line_value);
 
 // Not using xl() here because this is for debugging only.
         if (empty($order_id)) {
@@ -307,8 +307,8 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     <td class='text form-inline'>
                         <?php
                         if ($form_batch) {
-                            $form_from_date = isset($_POST['form_from_date']) ? trim($_POST['form_from_date']) : '';
-                            $form_to_date = isset($_POST['form_to_date']) ? trim($_POST['form_to_date']) : '';
+                            $form_from_date = isset($_POST['form_from_date']) ? trim((string) $_POST['form_from_date']) : '';
+                            $form_to_date = isset($_POST['form_to_date']) ? trim((string) $_POST['form_to_date']) : '';
                             if (empty($form_to_date)) {
                                 $form_to_date = $form_from_date;
                             }
@@ -448,8 +448,8 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     $order_id = empty($row['procedure_order_id']) ? 0 : ($row['procedure_order_id'] + 0);
                     $order_seq = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
                     $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-                    $date_report = empty($row['date_report']) ? '' : substr($row['date_report'], 0, 16);
-                    $date_collected = empty($row['date_collected']) ? '' : substr($row['date_collected'], 0, 16);
+                    $date_report = empty($row['date_report']) ? '' : substr((string) $row['date_report'], 0, 16);
+                    $date_collected = empty($row['date_collected']) ? '' : substr((string) $row['date_collected'], 0, 16);
                     $specimen_num = empty($row['specimen_num']) ? '' : $row['specimen_num'];
                     $report_status = empty($row['report_status']) ? '' : $row['report_status'];
                     $review_status = empty($row['review_status']) ? 'received' : $row['review_status'];
@@ -523,13 +523,13 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
 
                         // If there is more than one line of comments, everything after that is "notes".
                         $result_notes = '';
-                        $i = strpos($result_comments, "\n");
+                        $i = strpos((string) $result_comments, "\n");
                         if ($i !== false) {
-                            $result_notes = trim(substr($result_comments, $i + 1));
-                            $result_comments = substr($result_comments, 0, $i);
+                            $result_notes = trim(substr((string) $result_comments, $i + 1));
+                            $result_comments = substr((string) $result_comments, 0, $i);
                         }
 
-                        $result_comments = trim($result_comments);
+                        $result_comments = trim((string) $result_comments);
 
                         if ($result_facility <> "" && !in_array($result_facility, $facilities)) {
                             $facilities[] = $result_facility;
@@ -723,7 +723,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     $extra_html .= "<table class='table'>";
                     $extra_html .= "<tr><th>" . xlt('Performing Laboratory Facility') . "</th></tr>";
                     foreach ($facilities as $facilityID) {
-                        foreach (explode(":", $facilityID) as $lab_facility) {
+                        foreach (explode(":", (string) $facilityID) as $lab_facility) {
                             $facility_array = getFacilityInfo($lab_facility);
                             if ($facility_array) {
                                 $extra_html .=

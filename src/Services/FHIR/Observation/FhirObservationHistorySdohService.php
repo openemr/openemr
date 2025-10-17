@@ -289,7 +289,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
     public function getCodeFromResourcePath($resourcePath)
     {
         $query_vars = [];
-        parse_str($resourcePath, $query_vars);
+        parse_str((string) $resourcePath, $query_vars);
         return $query_vars['code'] ?? null;
     }
 

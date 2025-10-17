@@ -26,7 +26,7 @@ if (!AclMain::aclCheckCore('patients', 'amendment')) {
 }
 
 $amendments = $_REQUEST["ids"];
-$amendments = rtrim($amendments, ",");
+$amendments = rtrim((string) $amendments, ",");
 $amendmentsList = explode(",", $amendments);
 
 $patientDetails = getPatientData($pid, "fname,lname");
@@ -76,7 +76,7 @@ function printAmendment($amendmentID, $lastAmendment): void
     $resultSet = sqlStatement($query, [$amendmentID]);
     while ($row = sqlFetchArray($resultSet)) {
         echo "<tr class=text>";
-        $created_date = date('Y-m-d', strtotime($row['created_time']));
+        $created_date = date('Y-m-d', strtotime((string) $row['created_time']));
         echo "<td>" . text(oeFormatShortDate($created_date)) . "</td>";
         echo "<td>" . text($row['lname']) . ", " . text($row['fname']) . "</td>";
         echo "<td>" . text($row['amendment_note']) . "</td>";

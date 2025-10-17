@@ -74,7 +74,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
 
     $text_out = $message;
 
-    $text_len = strlen($text_out);
+    $text_len = strlen((string) $text_out);
     phimail_write($fp, "TEXT $text_len\n");
     $ret = @fgets($fp, 256);
     if ($ret != "BEGIN\n") {
@@ -240,7 +240,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         return ("$config_err " . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE);
     }
 
-    $ccd_len = strlen($ccd_out);
+    $ccd_len = strlen((string) $ccd_out);
 
     phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
     $ret = fgets($fp, 256);

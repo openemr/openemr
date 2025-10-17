@@ -30,14 +30,14 @@ $celltypes = [
 // encode a string from a form field for database writing.
 function form2db($fldval)
 {
-    $fldval = trim($fldval);
+    $fldval = trim((string) $fldval);
     return $fldval;
 }
 
 // Get the actual string from a form field.
 function form2real($fldval)
 {
-    $fldval = trim($fldval);
+    $fldval = trim((string) $fldval);
     return $fldval;
 }
 
@@ -85,7 +85,7 @@ if ($tempid) {
 } elseif ($formid) {
     $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
     " WHERE id = ? AND rownbr = -1 AND colnbr = -1", [$formid]);
-    [$form_completed, $start_date, $template_name] = explode('|', $trow['value'], 3);
+    [$form_completed, $start_date, $template_name] = explode('|', (string) $trow['value'], 3);
 }
 
 if (!$start_date) {
@@ -104,7 +104,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
     for ($i = 0; $i < count($cells); ++$i) {
         $row = $cells[$i];
         for ($j = 0; $j < count($row); ++$j) {
-            if (substr($row[$j], 0, 1)) {
+            if (substr((string) $row[$j], 0, 1)) {
                 if ($i >= $num_used_rows) {
                     $num_used_rows = $i + 1;
                 }
@@ -232,8 +232,8 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         for ($i = 0; $i < $num_used_rows; ++$i) {
             for ($j = 0; $j < $num_used_cols; ++$j) {
                 $tmp = $cells[$i][$j];
-                $celltype = substr($tmp, 0, 1) + 0;
-                $cellvalue = form2db(substr($tmp, 1));
+                $celltype = substr((string) $tmp, 0, 1) + 0;
+                $cellvalue = form2db(substr((string) $tmp, 1));
                 if ($celltype) {
                     sqlStatement(
                         "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) .
@@ -678,7 +678,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
             if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
                 $celltype = $drow['datatype'];
                 $cellvalue = $drow['value'];
-                $cellstatic = addslashes($drow['value']);
+                $cellstatic = addslashes((string) $drow['value']);
             }
         }
 

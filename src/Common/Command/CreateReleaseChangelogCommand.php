@@ -78,7 +78,7 @@ class CreateReleaseChangelogCommand extends Command
             $uniqueCategories = [];
             $categorizedIssues = array_map(function ($issue) use (&$uniqueCategories) {
                 // note the limit here means to limit our array elements to a maximum of two values, the last value will be the remainder of the string
-                $categoryParts = explode(":", $issue['title'], 2);
+                $categoryParts = explode(":", (string) $issue['title'], 2);
                 $title = $issue['title'];
                 $category = "bug";
                 $isDevelopment = false;
@@ -295,7 +295,7 @@ class CreateReleaseChangelogCommand extends Command
 
         $link = $headers['Link'][0] ?? null;
         if (!empty($link)) {
-            $linkParts = explode(",", $link);
+            $linkParts = explode(",", (string) $link);
             foreach ($linkParts as $linkPart) {
                 $linkPart = trim($linkPart);
                 $linkPartParts = explode(";", $linkPart);
@@ -368,7 +368,7 @@ class CreateReleaseChangelogCommand extends Command
             return [];
         }
         // sort the issues
-        usort($issues, fn($a, $b): int => strcmp($a['title'], $b['title']));
+        usort($issues, fn($a, $b): int => strcmp((string) $a['title'], (string) $b['title']));
         return $issues;
     }
 }

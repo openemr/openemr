@@ -91,7 +91,7 @@ if ($verify->isSuccess()) {
     ksort($address_array);
 
     foreach ($address_array as $key => $value) {
-        if (($_GET[strtolower($key)] ?? null) != $value) {
+        if (($_GET[strtolower((string) $key)] ?? null) != $value) {
             $output .= "<div class='text-danger'>";
         } else {
             $output .= "<div class='text-success'>";

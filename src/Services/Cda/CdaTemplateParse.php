@@ -1741,7 +1741,7 @@ class CdaTemplateParse
             $i = 1;
             foreach ($referral_data['text']['paragraph'] as $value) {
                 if ($value) {
-                    $this->templateData['field_name_value_array']['referral'][$i]['body'] = preg_replace('/\s+/', ' ', $value);
+                    $this->templateData['field_name_value_array']['referral'][$i]['body'] = preg_replace('/\s+/', ' ', (string) $value);
                     $this->templateData['entry_identification_array']['referral'][$i] = $i;
                     $i++;
                 }
@@ -1752,7 +1752,7 @@ class CdaTemplateParse
                 $i += count($this->templateData['field_name_value_array']['referral']);
             }
             $this->templateData['field_name_value_array']['referral'][$i]['root'] = $referral_data['templateId']['root'] ?? '';
-            $this->templateData['field_name_value_array']['referral'][$i]['body'] = (!empty($referral_data['text']['paragraph'])) ? preg_replace('/\s+/', ' ', $referral_data['text']['paragraph']) : '';
+            $this->templateData['field_name_value_array']['referral'][$i]['body'] = (!empty($referral_data['text']['paragraph'])) ? preg_replace('/\s+/', ' ', (string) $referral_data['text']['paragraph']) : '';
 
             $this->templateData['entry_identification_array']['referral'][$i] = $i;
         }
@@ -1829,14 +1829,14 @@ class CdaTemplateParse
             $i += count($this->templateData['field_name_value_array']['discharge_summary']);
         }
         $this->templateData['field_name_value_array']['discharge_summary'][$i]['root'] = $discharge_summary_data['templateId']['root'];
-        $text = preg_replace('/\s+/', ' ', $discharge_summary_data['text']['content']);
+        $text = preg_replace('/\s+/', ' ', (string) $discharge_summary_data['text']['content']);
         for ($j = 0, $jMax = count($discharge_summary_data['text']['list']['item']); $j < $jMax; $j++) {
             if (is_array($discharge_summary_data['text']['list']['item'][$j])) {
                 for ($k = 0, $kMax = count($discharge_summary_data['text']['list']['item'][$j]['list']['item']); $k < $kMax; $k++) {
-                    $text .= '#$%' . preg_replace('/\s+/', ' ', $discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
+                    $text .= '#$%' . preg_replace('/\s+/', ' ', (string) $discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
                 }
             } else {
-                $text .= '#$%' . preg_replace('/\s+/', ' ', $discharge_summary_data['text']['list']['item'][$j]);
+                $text .= '#$%' . preg_replace('/\s+/', ' ', (string) $discharge_summary_data['text']['list']['item'][$j]);
             }
         }
 

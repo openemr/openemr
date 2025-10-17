@@ -108,10 +108,10 @@ class QuestionnaireResponseService extends BaseService
         head;
         $title = true;
         foreach ($source as $k => $value) {
-            $v = explode($delimiter, $k);
+            $v = explode($delimiter, (string) $k);
             $last = count($v ?? []) - 1;
             $item = $v[$last];
-            $margin_count = max(substr_count($k, 'item') - 1, 0);
+            $margin_count = max(substr_count((string) $k, 'item') - 1, 0);
             $margin = attr($margin_count * 2 . 'rem');
             if ($item === 'text') {
                 if ($title) {
@@ -615,7 +615,7 @@ class QuestionnaireResponseService extends BaseService
 
         foreach ($flattenedArray as $key => $value) {
             // Split the key by the delimiter to handle nesting
-            $keys = explode('|', $key);
+            $keys = explode('|', (string) $key);
             $current = &$grouped;
 
             // Traverse through the key segments and build the nested structure

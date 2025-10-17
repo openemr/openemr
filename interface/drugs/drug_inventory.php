@@ -57,7 +57,7 @@ $form_consumable = isset($_REQUEST['form_consumable']) ? intval($_REQUEST['form_
 // Incoming form_warehouse, if not empty is in the form "warehouse/facility".
 // The facility part is an attribute used by JavaScript logic.
 $form_warehouse = empty($_REQUEST['form_warehouse']) ? '' : $_REQUEST['form_warehouse'];
-$tmp = explode('/', $form_warehouse);
+$tmp = explode('/', (string) $form_warehouse);
 $form_warehouse = $tmp[0];
 
 // Get the order hash array value and key for this request.
@@ -141,7 +141,7 @@ function mapToTable($row): void
         echo " <tr class='detail'>\n";
         $lastid = $row['drug_id'];
         if ($auth_admin) {
-            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
+            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes((string) $lastid)) . ")'>" .
             "<a href='' onclick='return false'>" .
             text($row['name']) . "</a></td>\n";
         } else {
@@ -203,7 +203,7 @@ function mapToTable($row): void
 
             foreach ($row['expiration'] as $value) {
                 // Make the expiration date red if expired.
-                $expired = !empty($value) && strcmp($value, $today) <= 0;
+                $expired = !empty($value) && strcmp((string) $value, $today) <= 0;
                 $value = !empty($value) ? oeFormatShortDate($value) : xl('N/A');
                 echo "<div" . ($expired ? " style='color:red'" : "") . ">" . text($value) . "</div>";
             }

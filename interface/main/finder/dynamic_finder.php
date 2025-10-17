@@ -59,7 +59,7 @@ while ($row = sqlFetchArray($res)) {
         $coljson .= ", ";
     }
 
-    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"";
+    $coljson .= "{\"sName\": \"" . addcslashes((string) $colname, "\t\r\n\"\\") . "\"";
     if ($title1 == xl('Name')) {
         $coljson .= ", \"mRender\": wrapInLink";
     }
@@ -67,7 +67,7 @@ while ($row = sqlFetchArray($res)) {
     if ($orderjson) {
         $orderjson .= ", ";
     }
-    $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
+    $orderjson .= "[\"$colcount\", \"" . addcslashes((string) $colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
 $loading = "";

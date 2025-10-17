@@ -128,7 +128,6 @@ abstract class Reporter implements Serializable
 
             if (! in_array($propname, self::$NoCacheProperties)) {
                 if (method_exists($rp, "setAccessible")) {
-                    $rp->setAccessible(true);
                     $propvals [$propname] = $rp->getValue($this);
                 } elseif (! $rp->isPrivate()) {
                     // if < php 5.3 we can't serialize private vars
@@ -156,7 +155,6 @@ abstract class Reporter implements Serializable
             $propname = $rp->name;
             if (array_key_exists($propname, $propvals)) {
                 if (method_exists($rp, "setAccessible")) {
-                    $rp->setAccessible(true);
                     $rp->setValue($this, $propvals [$propname]);
                 } elseif (! $rp->isPrivate()) {
                     // if < php 5.3 we can't serialize private vars
@@ -176,7 +174,7 @@ abstract class Reporter implements Serializable
      */
     public function GetPublicProperties()
     {
-        $className = $this::class;
+        $className = static::class;
 
         if (! property_exists(self::$PublicPropCache, $className)) {
             $props =  [];
@@ -226,7 +224,7 @@ abstract class Reporter implements Serializable
 
         foreach ($props as $prop) {
             if (! in_array($prop, $omit)) {
-                $newProp = ($camelCase) ? lcfirst($prop) : $prop;
+                $newProp = ($camelCase) ? lcfirst((string) $prop) : $prop;
                 $obj->$newProp = $this->$prop;
             }
         }
@@ -303,7 +301,7 @@ abstract class Reporter implements Serializable
      */
     function GetArray()
     {
-        $fms = $this->_phreezer->GetFieldMaps($this::class);
+        $fms = $this->_phreezer->GetFieldMaps(static::class);
         $cols =  [];
 
         foreach ($fms as $fm) {
@@ -322,7 +320,7 @@ abstract class Reporter implements Serializable
      */
     function Load(&$row)
     {
-        $this->_phreezer->Observe("Loading " . $this::class, OBSERVE_DEBUG);
+        $this->_phreezer->Observe("Loading " . static::class, OBSERVE_DEBUG);
 
         foreach (array_keys($row) as $prop) {
             $this->$prop = $row [$prop];

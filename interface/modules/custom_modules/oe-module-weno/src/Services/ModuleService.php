@@ -74,7 +74,7 @@ class ModuleService
         $flag = false;
         while ($row = sqlFetchArray($us)) {
             $flag = true;
-            $key = substr($row['setting_label'], 7);
+            $key = substr((string) $row['setting_label'], 7);
             $vendors[$key] = $row['setting_value'];
         }
         if (!$flag && !empty($_SESSION['authUserID'] ?? '')) {
@@ -150,7 +150,7 @@ class ModuleService
         $sql = "SELECT $col FROM modules WHERE mod_id = ? OR `mod_directory` = ?";
         $results = sqlQuery($sql, [$modId, $modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
         }
 
         return $registry;

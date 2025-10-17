@@ -580,7 +580,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
                 // Contraceptive method does not match existing contraception data for this visit,
                 // or there is no such data.  Open a new or existing Contraception Summary form.
                 $tmpurl = "{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php" .
-                    "?formname=LBFcontra&id=" . ($tmp_form_id < 0 ? 0 : urlencode($tmp_form_id));
+                    "?formname=LBFcontra&id=" . ($tmp_form_id < 0 ? 0 : urlencode((string) $tmp_form_id));
                 if (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges'])) {
                     $tmpurl .= "&from_save_and_checkout=1";
                 }
@@ -594,7 +594,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
             formJump("{$GLOBALS['rootdir']}/patient_file/pos_checkout.php?framed=1" .
-            "&ptid=" . urlencode($fs->pid) . "&enid=" . urlencode($fs->encounter) . "&rde=" . urlencode($rapid_data_entry));
+            "&ptid=" . urlencode((string) $fs->pid) . "&enid=" . urlencode((string) $fs->encounter) . "&rde=" . urlencode((string) $rapid_data_entry));
         } else {
             // Otherwise return to the normal encounter summary frameset.
             //
@@ -644,7 +644,7 @@ var diags = new Array();
 <?php
 if ($billresult) {
     foreach ($billresult as $iter) {
-        genDiagJS($iter["code_type"], trim($iter["code"]));
+        genDiagJS($iter["code_type"], trim((string) $iter["code"]));
     }
 }
 
@@ -663,7 +663,7 @@ if (!empty($_POST['bill'])) {
 }
 
 if (!empty($_POST['newcodes'])) {
-    $arrcodes = explode('~', $_POST['newcodes']);
+    $arrcodes = explode('~', (string) $_POST['newcodes']);
     foreach ($arrcodes as $codestring) {
         if ($codestring === '') {
             continue;
@@ -859,7 +859,7 @@ function setSaveAndClose() {
 // Open the add-event dialog.
 function newEvt() {
  var f = document.forms[0];
- var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo urlencode($fs->pid); ?>';
+ var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo urlencode((string) $fs->pid); ?>';
  if (f.ProviderID && f.ProviderID.value) {
   url += '&userid=' + parseInt(f.ProviderID.value);
  }
@@ -959,7 +959,7 @@ $enrow = sqlQuery(
 );
 $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
-$date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
+$date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr((string) $enrow['date'], 0, 10));
 $title = [xl('Fee Sheet for'), text($name), text($date)];
 $heading =  implode(" ", $title);
 ?>
@@ -1050,14 +1050,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $last_category = $fs_category;
                                     ++$i;
                                     // can cleave either one or two spaces from fs_category, fs_option to accomodate more than 9 custom categories
-                                    $cleave_cat = is_numeric(substr($fs_category, 0, 2)) ? 2 : 1;
-                                    $cleave_opt = is_numeric(substr($fs_option, 0, 2)) ? 2 : 1;
+                                    $cleave_cat = is_numeric(substr((string) $fs_category, 0, 2)) ? 2 : 1;
+                                    $cleave_opt = is_numeric(substr((string) $fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
                                     echo "  <td class='text-nowrap' width='50%'>\n";
                                     echo "   <select class='form-control' onchange='codeselect(this)'>\n";
-                                    echo "    <option value=''> " . xlt(substr($fs_category, $cleave_cat)) . "</option>\n";
+                                    echo "    <option value=''> " . xlt(substr((string) $fs_category, $cleave_cat)) . "</option>\n";
                                 }
-                                echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, $cleave_opt)) . "</option>\n";
+                                echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr((string) $fs_option, $cleave_opt)) . "</option>\n";
                             }
                                 endFSCategory();
 
@@ -1289,15 +1289,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $bline = $_POST['bill']["$bill_lino"] ?? null;
                                         $del = $bline['del'] ?? null; // preserve Delete if checked
                                         if ($institutional) {
-                                            $revenue_code   = trim($iter["revenue_code"]);
+                                            $revenue_code   = trim((string) $iter["revenue_code"]);
                                         }
                                         $modifier   = trim($iter["modifier"] ?? '');
                                         $units      = $iter["units"];
                                         $fee        = $iter["fee"];
                                         $authorized = $iter["authorized"];
                                         $ndc_info   = $iter["ndc_info"];
-                                        $justify    = trim($iter['justify']);
-                                        $notecodes  = trim($iter['notecodes']);
+                                        $justify    = trim((string) $iter['justify']);
+                                        $notecodes  = trim((string) $iter['notecodes']);
                                         if ($justify) {
                                             $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
                                         }
@@ -1306,7 +1306,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         // Also preserve other items from the form, if present.
                                         if (!empty($bline['id']) && empty($iter["billed"])) {
                                             if ($institutional) {
-                                                $revenue_code   = trim($bline['revenue_code']);
+                                                $revenue_code   = trim((string) $bline['revenue_code']);
                                             }
                                             $modifier   = trim($bline['mod'] ?? '');
                                             $units = intval(trim($bline['units'] ?? ''));
@@ -1320,8 +1320,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $authorized = $bline['auth'] ?? null;
                                             $ndc_info   = '';
                                             if (!empty($bline['ndcnum'])) {
-                                                $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
-                                                trim($bline['ndcqty']);
+                                                $ndc_info = 'N4' . trim((string) $bline['ndcnum']) . '   ' . $bline['ndcuom'] .
+                                                trim((string) $bline['ndcqty']);
                                             }
                                             $justify    = $bline['justify'] ?? null;
                                             $notecodes  = trim($bline['notecodes'] ?? '');
@@ -1334,7 +1334,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                         $fs->addServiceLineItem([
                                         'codetype'    => $iter['code_type'],
-                                        'code'        => trim($iter['code']),
+                                        'code'        => trim((string) $iter['code']),
                                         'revenue_code'    => ($revenue_code ?? null),
                                         'modifier'    => $modifier,
                                         'ndc_info'    => $ndc_info,
@@ -1345,7 +1345,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         'fee'         => $fee,
                                         'id'          => $iter['id'],
                                         'billed'      => $iter['billed'],
-                                        'code_text'   => trim($iter['code_text']),
+                                        'code_text'   => trim((string) $iter['code_text']),
                                         'justify'     => $justify,
                                         'provider_id' => $provider_id,
                                         'notecodes'   => $notecodes,
@@ -1391,17 +1391,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                         $ndc_info = '';
                                         if (!empty($iter['ndcnum'])) {
-                                            $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
-                                            trim($iter['ndcqty']);
+                                            $ndc_info = 'N4' . trim((string) $iter['ndcnum']) . '   ' . $iter['ndcuom'] .
+                                            trim((string) $iter['ndcqty']);
                                         }
-                                        $units = intval(trim($iter['units']));
+                                        $units = intval(trim((string) $iter['units']));
                                         if (!$units) {
                                             $units = 1; // units may be negative.
                                         }
 
                                         // Price display is conditional.
                                         if ($iter['price'] != 'X') {
-                                            $fee = formatMoneyNumber((0 + trim($iter['price'] ?? null)) * $units);
+                                            $fee = formatMoneyNumber((0 + trim((string) ($iter['price'] ?? null))) * $units);
                                         } else {
                                             $fee = $fs->getPrice($iter['pricelevel'], $iter['code_type'], $iter['code']);
                                             $fee = formatMoneyNumber((0 + $fee) * $units);
@@ -1418,7 +1418,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $fs->addServiceLineItem(
                                             [
                                                 'codetype'    => $iter['code_type'],
-                                                'code'        => trim($iter['code']),
+                                                'code'        => trim((string) $iter['code']),
                                                 'revenue_code'    => $revenue_code ?? null,
                                                 'modifier'    => trim($iter["mod"] ?? ''),
                                                 'ndc_info'    => $ndc_info,
@@ -1463,13 +1463,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $del   = $pline['del']; // preserve Delete if checked
                                         if ($pline['sale_id'] && !$srow['billed']) {
                                             $convert_units = false;
-                                            $units = intval(trim($pline['units']));
+                                            $units = intval(trim((string) $pline['units']));
                                             if (!$units) {
                                                 $units = 1; // units may be negative.
                                             }
                                             // Price display is conditional.
                                             if ($fs->pricesAuthorized()) {
-                                                $fee = formatMoneyNumber((0 + trim($pline['price'])) * $units);
+                                                $fee = formatMoneyNumber((0 + trim((string) $pline['price'])) * $units);
                                             }
                                             $rx    = !empty($pline['rx']);
                                         }
@@ -1503,14 +1503,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if (!empty($iter["del"])) {
                                             continue; // skip if Delete was checked
                                         }
-                                        $units = intval(trim($iter['units']));
+                                        $units = intval(trim((string) $iter['units']));
                                         if (!$units) {
                                             $units = 1; // units may be negative.
                                         }
 
                                         // Price display is conditional.
                                         if ($iter['price'] != 'X') {
-                                            $fee = formatMoneyNumber((0 + trim($iter['price'])) * $units);
+                                            $fee = formatMoneyNumber((0 + trim((string) $iter['price'])) * $units);
                                         } else {
                                             $fee = $fs->getPrice($iter['pricelevel'], 'PROD', $iter['drug_id'], $iter['selector']);
                                             $fee = formatMoneyNumber((0 + $fee) * $units);
@@ -1536,7 +1536,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // If new billing code(s) were <select>ed, add their line(s) here.
                                     //
                                 if (!empty($_POST['newcodes']) && !$alertmsg) {
-                                    $arrcodes = explode('~', $_POST['newcodes']);
+                                    $arrcodes = explode('~', (string) $_POST['newcodes']);
 
                                     // A first pass here checks for any sex restriction errors.
                                     foreach ($arrcodes as $codestring) {

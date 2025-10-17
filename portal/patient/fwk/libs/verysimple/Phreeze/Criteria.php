@@ -58,7 +58,7 @@ class Criteria
      */
     protected function Init()
     {
-        $this->_map_object_class = str_replace("Criteria", "Map", $this::class);
+        $this->_map_object_class = str_replace("Criteria", "Map", static::class);
     }
 
     /**
@@ -190,7 +190,7 @@ class Criteria
     final protected function Prepare()
     {
         if (! $this->_is_prepared) {
-            if ($this::class == "Criteria") {
+            if (static::class == "Criteria") {
                 if ($this->PrimaryKeyField) {
                     // PrimaryKeyField property was specified. this might be coming from $phreezer->Get
                     $this->_where = " " . $this->PrimaryKeyField . " = '" . $this->Escape($this->PrimaryKeyValue) . "'";
@@ -281,7 +281,7 @@ class Criteria
                     } elseif (str_ends_with($prop, "_In") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
-                            $val = explode(',', $val);
+                            $val = explode(',', (string) $val);
                         }
 
                             // if the count is zero, technically the user is saying that they don't
@@ -306,7 +306,7 @@ class Criteria
                     } elseif (str_ends_with($prop, "_NotIn") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
-                            $val = explode(',', $val);
+                            $val = explode(',', (string) $val);
                         }
 
                             // if the count is zero, technically the user is saying that they don't
@@ -440,7 +440,7 @@ class Criteria
         try {
             Includer::RequireClass($objectclass, "Model/DAO/");
         } catch (IncludeException $ex) {
-            throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . $this::class . ' can implement GetFieldFromProp instead.');
+            throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . static::class . ' can implement GetFieldFromProp instead.');
         }
     }
     protected function GetFieldMaps()
@@ -455,7 +455,7 @@ class Criteria
     }
     public function GetFieldFromProp($propname)
     {
-        if ($this::class == "Criteria") {
+        if (static::class == "Criteria") {
             throw new Exception("Phreeze is unable to determine field mapping.  The base Criteria class should only be used to query by primary key without sorting");
         }
 
@@ -463,7 +463,7 @@ class Criteria
 
         // make sure this property is defined
         if (! isset($fms [$propname])) {
-            throw new Exception($this::class . " is unable to determine the database column for the property: '$propname'");
+            throw new Exception(static::class . " is unable to determine the database column for the property: '$propname'");
         }
 
         // print_r($this->_fieldmaps);

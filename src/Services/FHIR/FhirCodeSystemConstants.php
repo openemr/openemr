@@ -116,4 +116,6 @@ class FhirCodeSystemConstants
     const SPECIMEN_SOURCE = "http://terminology.hl7.org/CodeSystem/v2-0070";
 // FHIR core: Specimen Status (availability)
     const SPECIMEN_STATUS = "http://hl7.org/fhir/specimen-status";
+
+    const HL7_CONDITION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/condition-category';
 }

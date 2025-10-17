@@ -23,7 +23,7 @@ require_once("gacl_admin.inc.php");
 //GET takes precedence.
 $object_type = !empty($_GET['object_type']) ? $_GET['object_type'] : $_POST['object_type'];
 
-switch(strtolower(trim($object_type))) {
+switch(strtolower(trim((string) $object_type))) {
     case 'aco':
         $object_type = 'aco';
 	$object_table = $gacl_api->_db_table_prefix . 'aco';

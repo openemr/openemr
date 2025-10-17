@@ -118,8 +118,8 @@ class TeleHealthParticipantInvitationMailerService
         if ($this->config->isOneTimePasswordLoginEnabled()) {
             $parameters = [
                 'pid' => $patient['pid']
-                ,'redirect_link' => $this->publicPathFQDN . "index-portal.php?action=" . urlencode($thirdPartyLaunchAction)
-                    . "&pc_eid=" . urlencode($session['pc_eid'])
+                ,'redirect_link' => $this->publicPathFQDN . "index-portal.php?action=" . urlencode((string) $thirdPartyLaunchAction)
+                    . "&pc_eid=" . urlencode((string) $session['pc_eid'])
                 ,'email' => $patient['email']
                 ,'expiry_interval' => $this->config->getOneTimePasswordTimeoutSetting()
             ];
@@ -133,8 +133,8 @@ class TeleHealthParticipantInvitationMailerService
             }
         } else {
             // the index-portal will redirect the person to login before completing the action
-            return $this->publicPathFQDN . "index-portal.php?action=" . urlencode($thirdPartyLaunchAction)
-                . "&pc_eid=" . urlencode($session['pc_eid']);
+            return $this->publicPathFQDN . "index-portal.php?action=" . urlencode((string) $thirdPartyLaunchAction)
+                . "&pc_eid=" . urlencode((string) $session['pc_eid']);
         }
 
         return $oneTime;

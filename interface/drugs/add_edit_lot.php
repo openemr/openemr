@@ -103,8 +103,8 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
         echo "<option value='" . attr("$whid|$facid") . "'";
 
         if (
-            (strlen($currvalue) == 0 && $lrow['is_default']) ||
-            (strlen($currvalue)  > 0 && $whid == $currvalue)
+            (strlen((string) $currvalue) == 0 && $lrow['is_default']) ||
+            (strlen((string) $currvalue)  > 0 && $whid == $currvalue)
         ) {
             echo " selected";
             $got_selected = true;
@@ -115,7 +115,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
         ++$count;
     }
 
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && strlen((string) $currvalue) > 0) {
         echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
         echo "</select>";
         echo " <span class='text-danger' title='" .
@@ -352,10 +352,10 @@ if (!empty($_POST['form_save'])) {
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     // $form_source_lot = $_POST['form_source_lot'] + 0;
 
-    [$form_source_lot, $form_source_facility] = explode('|', $_POST['form_source_lot']);
+    [$form_source_lot, $form_source_facility] = explode('|', (string) $_POST['form_source_lot']);
     $form_source_lot = intval($form_source_lot);
 
-    [$form_warehouse_id] = explode('|', $_POST['form_warehouse_id']);
+    [$form_warehouse_id] = explode('|', (string) $_POST['form_warehouse_id']);
 
     $form_expiration   = $_POST['form_expiration'] ?? '';
     $form_lot_number   = $_POST['form_lot_number'] ?? '';
@@ -784,7 +784,7 @@ if (
 <script>
 <?php
 if ($info_msg) {
-    echo " alert('" . addslashes($info_msg) . "');\n";
+    echo " alert('" . addslashes((string) $info_msg) . "');\n";
     echo " window.close();\n";
 }
 ?>

@@ -81,7 +81,7 @@ class PractitionerRestControllerTest extends TestCase
         unset($this->practitionerData["fname"]);
         $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
@@ -91,7 +91,7 @@ class PractitionerRestControllerTest extends TestCase
     {
         $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(2, count($actualResult["data"]));
@@ -105,7 +105,7 @@ class PractitionerRestControllerTest extends TestCase
     {
         $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $actualUuid = $actualResult["data"]["uuid"];
@@ -113,7 +113,7 @@ class PractitionerRestControllerTest extends TestCase
 
         $response = $this->practitionerController->patch("not-a-id", $this->practitionerData, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
@@ -123,7 +123,7 @@ class PractitionerRestControllerTest extends TestCase
     {
         $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $practitionerUuid = $actualResult["data"]["uuid"];
@@ -131,7 +131,7 @@ class PractitionerRestControllerTest extends TestCase
         $response = $this->practitionerController->patch($practitionerUuid, $this->practitionerData, $this->createMock(HttpRestRequest::class));
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertNotNull($actualResult["data"]);
@@ -145,7 +145,7 @@ class PractitionerRestControllerTest extends TestCase
     {
         $response = $this->practitionerController->getOne("not-a-uuid", $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals([], $actualResult["data"]);
@@ -156,13 +156,13 @@ class PractitionerRestControllerTest extends TestCase
         // create a record
         $response = $this->practitionerController->post($this->practitionerData, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-        $postResult = json_decode($response->getBody(), true);
+        $postResult = json_decode((string) $response->getBody(), true);
         $postedUuid = $postResult["data"]["uuid"];
 
         // confirm the id matches what was requested
         $response = $this->practitionerController->getOne($postedUuid, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
@@ -176,7 +176,7 @@ class PractitionerRestControllerTest extends TestCase
         $response = $this->practitionerController->getAll($restRequest, ["npi" => "0123456789"]);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $searchResult = json_decode($response->getBody(), true);
+        $searchResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(0, count($searchResult["validationErrors"]));
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));

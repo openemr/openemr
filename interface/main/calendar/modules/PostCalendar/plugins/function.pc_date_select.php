@@ -37,15 +37,15 @@ function smarty_function_pc_date_select($args): void
     $Date = postcalendar_getDate();
 
     if (!isset($y)) {
-        $y = substr($Date, 0, 4);
+        $y = substr((string) $Date, 0, 4);
     }
 
     if (!isset($m)) {
-        $m = substr($Date, 4, 2);
+        $m = substr((string) $Date, 4, 2);
     }
 
     if (!isset($d)) {
-        $d = substr($Date, 6, 2);
+        $d = substr((string) $Date, 6, 2);
     }
 
     if (!isset($args['day']) || strtolower($args['day']) == 'on') {

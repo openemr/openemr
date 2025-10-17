@@ -430,11 +430,11 @@ if ($_REQUEST['dispensed'] ?? '') {
                     $Progressive = "checked='checked'";
                 }
 
-                $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
+                $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
                 if ($row['REFTYPE'] == "CTL") {
-                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($row['REFDATE'])));
+                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
                 } else {
-                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($row['REFDATE'])));
+                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
                 }
                 $expir_date = oeFormatShortDate($expir);
                 $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
@@ -442,7 +442,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                 ?>
                     <div class="position-relative text-center mt-2 mb-2 mx-auto" id="RXID_<?php echo attr($row['id']); ?>">
                         <i class="float-right fas fa-times"
-                           onclick="delete_me('<?php echo attr(addslashes($row['id'])); ?>');"
+                           onclick="delete_me('<?php echo attr(addslashes((string) $row['id'])); ?>');"
                            title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
                         <div class="table-responsive">
                             <table class="table mt-1 mb-1 mx-auto">
@@ -905,9 +905,9 @@ if ($_REQUEST['dispensed'] ?? '') {
 <br/><br/>
 <?php
 if ($REFTYPE == "CTL") {
-    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($data['date'])));
+    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
 } else {
-    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($data['date'])));
+    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
 }
     $expir_date = oeFormatShortDate($expir);
 ?>

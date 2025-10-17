@@ -14,6 +14,9 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
+use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
+use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -125,16 +128,18 @@ class EmailClient extends AppDispatch
     }
 
     /**
+     * @throws InvalidEmailAddressException
+     * @throws SmtpNotConfiguredException
+     * @throws EmailSendFailedException
      * @throws Exception
      */
-    public function emailReminder($email, $body): false|string
+    public function emailReminder($email, $body): void
     {
-        $hasEmail = $this->validEmail($email);
-        if (!$hasEmail) {
-            return js_escape(xlt("Error: Missing valid email address. Try again."));
+        if (!$this->validEmail($email)) {
+            throw new InvalidEmailAddressException("Missing valid email address");
         }
         if (!$this->smtpEnabled) {
-            return text(js_escape('SMTP not setup.'));
+            throw new SmtpNotConfiguredException("SMTP not configured");
         }
         $from_name = text($GLOBALS["Patient Reminder Sender Name"] ?? 'UNK');
         $desc = text($body);
@@ -146,7 +151,9 @@ class EmailClient extends AppDispatch
         $mail->Subject = xlt("A Reminder for You");
         $mail->Body = $desc;
 
-        return $mail->Send();
+        if (!$mail->Send()) {
+            throw new EmailSendFailedException($mail->ErrorInfo);
+        }
     }
     /**
      * @return false|string

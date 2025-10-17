@@ -370,7 +370,7 @@ class EncountermanagerController extends AbstractActionController
             }
 
             $dir = $parent_dir . "/";
-            $arr = explode('|', $pids);
+            $arr = explode('|', (string) $pids);
             foreach ($arr as $row) {
                 $pid = $row;
                 $ids = $this->getEncountermanagerTable()->getFileID($pid, 2);

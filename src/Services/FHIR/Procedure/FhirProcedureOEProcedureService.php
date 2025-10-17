@@ -3,12 +3,12 @@
 /**
  * FhirProcedureOEProcedureService.php
  *
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @package    openemr
+ * @link       http://www.open-emr.org
+ * @author     Stephen Nielson <stephen@nielson.org>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -72,16 +72,20 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [
+        return [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
-            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['procedure_code', 'standard_code']), // ADDED THIS
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['result_status']), // ADDED THIS
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('report_uuid', ServiceField::TYPE_UUID)]),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['procedure_code', 'standard_code']),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['result_status']),
+            // FIXED: Use order_uuid (the procedure_order UUID) instead of report_uuid
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('order_uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
     }
 
+    /**
+     * @return FhirSearchParameterDefinition|null
+     */
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
@@ -89,6 +93,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
+     *
      * @param openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return OpenEMR records
@@ -102,12 +107,10 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             SearchModifier::NOT_EQUALS_EXACT
         );
 
-        // we only want records where a report is created as we go off the individual report_uuid
-        if (!isset($openEMRSearchParameters['report_uuid'])) {
-            // make sure we only return results with a matching report.
-            $openEMRSearchParameters['report_uuid'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)], false);
-            $openEMRSearchParameters['report_uuid']->setModifier(SearchModifier::MISSING);
-        }
+        // FIXED: Don't require reports - we want to show all procedure orders
+        // Remove the report_uuid filter to include orders without reports
+        // Orders without reports will have status "in-progress" or "preparation"
+
         return $this->service->search($openEMRSearchParameters);
     }
 
@@ -115,19 +118,28 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
     /**
      * Parses an OpenEMR procedure record, returning the equivalent FHIR Procedure Resource
      *
-     * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param array   $dataRecord The source OpenEMR data record
+     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRProcedure
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $procedureResource = new FHIRProcedure();
-        $report = array_pop($dataRecord['reports']);
+
+        // FIXED: Handle cases where there might be no reports yet
+        $report = null;
+        if (!empty($dataRecord['reports']) && is_array($dataRecord['reports'])) {
+            $report = array_pop($dataRecord['reports']);
+        }
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
+
+        // Use report date if available, otherwise use order date
         if (!empty($report['date'])) {
             $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($report['date']));
+        } elseif (!empty($dataRecord['date_ordered'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
@@ -135,9 +147,10 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
         $procedureResource->setMeta($meta);
 
-
+        // FIXED: Use order_uuid (procedure_order.uuid) as the Procedure ID
+        // This is the correct primary identifier for the procedure
         $id = new FHIRId();
-        $id->setValue($report['uuid']);
+        $id->setValue($dataRecord['order_uuid']);
         $procedureResource->setId($id);
 
         if (!empty($dataRecord['patient']['uuid'])) {
@@ -158,7 +171,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
         $codesService = new CodeTypesService();
         if (!empty($dataRecord['diagnosis'])) {
-            $codes = explode(";", $dataRecord['diagnosis']);
+            $codes = explode(";", (string) $dataRecord['diagnosis']);
             foreach ($codes as $code) {
                 $codeParts = $codesService->parseCode($code);
                 $codeParts['description'] = $codesService->lookup_code_description($code) ?? '';
@@ -209,8 +222,12 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         }
         $procedureResource->setCode($fhirCodeableConcept);
 
+        // FIXED: Determine status based on whether reports exist
         $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_COMPLETED;
-        if (!empty($report['results'])) {
+        if (empty($report)) {
+            // No report yet - procedure has been ordered but not performed
+            $status = 'preparation'; // or 'in-progress' depending on your workflow
+        } elseif (!empty($report['results'])) {
             foreach ($report['results'] as $result) {
                 if ($result['status'] != 'final') {
                     $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_IN_PROGRESS;
@@ -220,9 +237,12 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         }
         $procedureResource->setStatus($status);
 
-
+        // FIXED: Use report date if available, otherwise order date
         if (!empty($report['date'])) {
             $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
+        } elseif (!empty($dataRecord['date_ordered'])) {
+            // Order placed but not yet performed
+            $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
         } else {
             $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
         }
@@ -230,13 +250,30 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         if (!empty($report['notes'])) {
             $annotation = new FHIRAnnotation();
             $annotation->setText($report['notes']);
+            $procedureResource->addNote($annotation);
         }
 
+        // FIXED: basedOn should reference the ServiceRequest with the SAME UUID
+        // A Procedure is the execution of a ServiceRequest (procedure_order)
         if (!empty($dataRecord['order_uuid'])) {
             $procedureResource->addBasedOn(
                 UtilsService::createRelativeReference('ServiceRequest', $dataRecord['order_uuid'])
             );
         }
+
+        // Add UsedReference for specimen reference support
+        // Both per US Core 8.0
+        if (!empty($report['specimens'])) {
+            foreach ($report['specimens'] as $specimen) {
+                // Only include non-deleted specimens (deleted flag = 0)
+                if (!empty($specimen['uuid']) && ($specimen['deleted'] ?? '0') == '0') {
+                    $procedureResource->addUsedReference(
+                        UtilsService::createRelativeReference('Specimen', $specimen['uuid'])
+                    );
+                }
+            }
+        }
+
         // Add reasonReference support (in addition to reasonCode)
         // Both per US Core 8.0
         if (!empty($dataRecord['reason_reference_uuid'])) {
@@ -256,7 +293,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @param $encode     Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
     public function createProvenanceResource($dataRecord, $encode = false)
@@ -278,10 +315,15 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         }
     }
 
+    /**
+     * @param string|null $hint
+     * @return string|null
+     */
     private function normalizeProcedureCodingSystem(?string $hint): ?string
     {
         if (!$hint) {
-            return null; }
+            return null;
+        }
         $h = strtolower($hint);
         if (str_contains($h, 'snomed')) {
             return 'http://snomed.info/sct';

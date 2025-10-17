@@ -53,7 +53,7 @@ $system_info = get_system_info();
 $smarty->assign("credits", implode('',file('../CREDITS')) );
 
 $smarty->assign("system_info", $system_info);
-$smarty->assign("system_info_md5", md5($system_info) );
+$smarty->assign("system_info_md5", md5((string) $system_info) );
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
