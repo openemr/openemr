@@ -18,7 +18,7 @@ if (empty($coverage)) {
 }
 
 // Create unique filename based on request time and random component
-$coverageDir = getenv('E2E_COVERAGE_DIR') ?: '/var/www/localhost/htdocs/coverage/e2e';
+$coverageDir = '/var/www/localhost/htdocs/openemr/coverage/e2e';
 if (!is_dir($coverageDir)) {
     @mkdir($coverageDir, 0777, true);
 }
