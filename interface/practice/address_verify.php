@@ -20,8 +20,12 @@ use OpenEMR\Core\Header;
 use OpenEMR\USPS\USPSAddress;
 use OpenEMR\USPS\USPSAddressVerify;
 
-// Initiate and set the username provided from usps
-$verify = new USPSAddressVerify($GLOBALS['usps_webtools_username']);
+// set up USPS API (v3 if client credentials exist, otherwise legacy)
+$verify = new USPSAddressVerify(
+    $GLOBALS['usps_webtools_username'] ?? '',
+    $GLOBALS['usps_webtools_client_id'] ?? '',
+    $GLOBALS['usps_webtools_client_secret'] ?? ''
+);
 
 // Create new address object and assign the properties
 // apparently the order you assign them is important so make sure
@@ -57,15 +61,30 @@ $output .= "<body class='text-left'>
        <p>";
 
 if ($verify->isSuccess()) {
-    $address_array = $response_array['AddressValidateResponse']['Address'];
+    // check response format (v3 JSON vs legacy XML)
+    if (isset($response_array['address'])) {
+        // v3 format
+        $address_data = $response_array['address'];
+        $address_array = [
+            'Address1' => $address_data['secondaryAddress'] ?? '',
+            'Address2' => $address_data['streetAddress'] ?? '',
+            'City' => $address_data['city'] ?? '',
+            'State' => $address_data['state'] ?? '',
+            'Zip5' => $address_data['ZIPCode'] ?? '',
+            'Zip4' => $address_data['ZIPPlus4'] ?? '',
+        ];
+    } else {
+        // legacy format
+        $address_array = $response_array['AddressValidateResponse']['Address'];
 
-    // remove attributes array at end of response address array
-    $removed = array_pop($address_array);
+        // remove attributes array at end of response address array
+        $removed = array_pop($address_array);
 
-    // usps Address1 is for apt/suite so need to handle their special response
-    if (!array_key_exists('Address1', $address_array)) {
-        $address_array['Address1'] = $address_array['Address2'];
-        $address_array['Address2'] = '';
+        // usps Address1 is for apt/suite so need to handle their special response
+        if (!array_key_exists('Address1', $address_array)) {
+            $address_array['Address1'] = $address_array['Address2'];
+            $address_array['Address2'] = '';
+        }
     }
 
     // sort for decent display except pesky zip4 :)
