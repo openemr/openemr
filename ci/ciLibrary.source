@@ -209,6 +209,11 @@ build_test_e2e() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         echo 'Enabling E2E coverage collection…'
         enable_e2e_coverage
+
+        # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
+        export SELENIUM_IMPLICIT_WAIT=90
+        export SELENIUM_PAGE_LOAD_TIMEOUT=180
+        echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
     fi
 
     selenium_video_start
@@ -237,6 +242,33 @@ build_test_e2e() {
     echo 'Showing the chromedriver version…'
     dc exec selenium chromedriver --version
 
+    # If coverage is enabled, run a quick test to verify coverage files are being created
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        echo 'Running quick coverage verification test…'
+        set +e
+        _exec php -d memory_limit=8G ./vendor/bin/phpunit --filter testLoginAuthorized --testsuite e2e
+        set -e
+
+        echo 'Checking if coverage files were created…'
+        _exec sh -exc '
+            ls -lah ./coverage/e2e/
+            echo "Files found:"
+            ls -1 ./coverage/e2e/*.cov 2>/dev/null | wc -l
+        '
+
+        coverage_file_count=$(_exec sh -c 'ls -1 ./coverage/e2e/*.cov 2>/dev/null | wc -l' | tr -d '[:space:]')
+        if (( "${coverage_file_count}" > 0 )); then
+            echo "✓ Coverage collection is working! Found ${coverage_file_count} coverage file(s)"
+        else
+            echo "✗ WARNING: No coverage files found after test run!"
+            echo "Checking coverage directory and PHP configuration…"
+            _exec sh -exc '
+                ls -la ./coverage/
+                php -i | grep -E "auto_prepend|auto_append|xdebug"
+            '
+        fi
+    fi
+
     echo 'Running E2E tests…'
     set +e
     _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit-e2e.xml --testsuite e2e --testdox
@@ -249,8 +281,6 @@ build_test_e2e() {
         disable_e2e_coverage
 
         echo 'Merging E2E coverage files…'
-        pwd
-        find .
         # Check if E2E coverage files exist and merge them
         shopt -s nullglob
         e2e_coverage_files=( ./coverage/e2e/*.cov )

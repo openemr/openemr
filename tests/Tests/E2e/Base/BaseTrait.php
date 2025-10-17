@@ -56,8 +56,11 @@ trait BaseTrait
             $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
             $this->client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
 
-            $this->client->manage()->timeouts()->implicitlyWait(30);
-            $this->client->manage()->timeouts()->pageLoadTimeout(60);
+            // Configurable timeouts (higher when coverage is enabled due to performance impact)
+            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 30);
+            $pageLoadTimeout = (int)(getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60);
+            $this->client->manage()->timeouts()->implicitlyWait($implicitWait);
+            $this->client->manage()->timeouts()->pageLoadTimeout($pageLoadTimeout);
         } else {
             // Use local ChromeDriver (not a consistent testing environment, which is thus not stable, good luck :) )
             $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
