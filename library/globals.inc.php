@@ -3705,7 +3705,7 @@ $GLOBALS_METADATA = [
 
         'usps_webtools_client_id' => [
             xl('USPS API Client ID'),
-            'text',
+            'encrypted',
             '',
             xl('Client ID for USPS API v3')
         ],
