@@ -51,9 +51,9 @@ class Controller extends Smarty
         }
 
         foreach ($_POST as $varname => $var) {
-            $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
+            $varname = preg_replace("/[^A-Za-z0-9_]/", "", (string) $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable([$obj,$func])) {
+            if ((!(str_starts_with("_", (string) $varname))) && is_callable([$obj,$func])) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);
@@ -97,8 +97,8 @@ class Controller extends Smarty
         }
 
         $args = array_reverse(array_keys($qarray));
-        $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
-        $parts = explode("_", $c_name);
+        $c_name = preg_replace("/[^A-Za-z0-9_]/", "", (string) array_pop($args));
+        $parts = explode("_", (string) $c_name);
         $name = "";
 
         foreach ($parts as $p) {
@@ -106,7 +106,7 @@ class Controller extends Smarty
         }
 
             $c_name = $name;
-            $c_action = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
+            $c_action = preg_replace("/[^A-Za-z0-9_]/", "", (string) array_pop($args));
             $args = array_reverse($args);
 
         if (!$this->i_once($GLOBALS['fileroot'] . "/controllers/C_" . $c_name . ".class.php")) {
@@ -125,7 +125,7 @@ class Controller extends Smarty
             $args_array = [];
 
         foreach ($args as $arg) {
-            $arg = preg_replace("/[^A-Za-z0-9_]/", "", $arg);
+            $arg = preg_replace("/[^A-Za-z0-9_]/", "", (string) $arg);
             //this is a workaround because call user func does funny things with passing args if they have no assigned value
             //2013-02-10 EMR Direct: workaround modified since "0" is also considered empty;
             if (empty($qarray[$arg]) && $qarray[$arg] != "0") {
@@ -165,7 +165,7 @@ class Controller extends Smarty
 
     public function _link($action = "default", $inlining = false)
     {
-         $url_parts = explode("&", $_SERVER['REQUEST_URI']);
+         $url_parts = explode("&", (string) $_SERVER['REQUEST_URI']);
          $link = array_shift($url_parts);
          //print_r($url_parts);
 
@@ -178,13 +178,13 @@ class Controller extends Smarty
 
         if ($inlining) {
             $link .= "&" . urlencode($inline_arg);
-            $link .= "&action=" . urlencode($url_parts[0]);
+            $link .= "&action=" . urlencode((string) $url_parts[0]);
         } else {
-            $link .= "&" . urlencode($url_parts[0]);
+            $link .= "&" . urlencode((string) $url_parts[0]);
         }
 
         foreach ($this->_args as $arg_name => $arg) {
-            $link .= "&" . urlencode($arg_name) . "=" . urlencode($arg);
+            $link .= "&" . urlencode((string) $arg_name) . "=" . urlencode((string) $arg);
         }
 
             $link .= "&";

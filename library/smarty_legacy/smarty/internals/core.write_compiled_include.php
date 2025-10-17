@@ -22,14 +22,14 @@ function smarty_core_write_compiled_include($params, &$smarty)
     $_tag_end   = 'if \(\$this->caching && \!\$this->_cache_including\)\: echo \'\{/nocache\:(\\2)#(\\3)\}\'; endif;';
 
     preg_match_all('!('.$_tag_start.'(.*)'.$_tag_end.')!Us',
-                   $params['compiled_content'], $_match_source, PREG_SET_ORDER);
+                   (string) $params['compiled_content'], $_match_source, PREG_SET_ORDER);
 
     // no nocache-parts found: done
     if (count($_match_source)==0) return;
 
     // convert the matched php-code to functions
     $_include_compiled =  "<?php /* Smarty version ".$smarty->_version.", created on ".strftime("%Y-%m-%d %H:%M:%S")."\n";
-    $_include_compiled .= "         compiled from " . strtr(urlencode($params['resource_name']), ['%2F'=>'/', '%3A'=>':']) . " */\n\n";
+    $_include_compiled .= "         compiled from " . strtr(urlencode((string) $params['resource_name']), ['%2F'=>'/', '%3A'=>':']) . " */\n\n";
 
     $_compile_path = $params['include_file_path'];
 

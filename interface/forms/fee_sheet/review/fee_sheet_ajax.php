@@ -73,7 +73,7 @@ if ($task == 'retrieve') {
 
 if ($task == 'add_diags') {
     if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode($_REQUEST['diags']);
+        $json_diags = json_decode((string) $_REQUEST['diags']);
     }
 
     $diags = [];
@@ -83,7 +83,7 @@ if ($task == 'add_diags') {
 
     $procs = [];
     if (isset($_REQUEST['procs'])) {
-        $json_procs = json_decode($_REQUEST['procs']);
+        $json_procs = json_decode((string) $_REQUEST['procs']);
     }
 
     foreach ($json_procs as $proc) {

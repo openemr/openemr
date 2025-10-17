@@ -247,7 +247,7 @@ class FhirObservationPatientServiceTest extends TestCase
         $profiles = $sexualOrientationObs->getMeta()->getProfile();
         $hasSexualOrientationProfile = false;
         foreach ($profiles as $profile) {
-            if (str_contains($profile->getValue(), 'us-core-observation-sexual-orientation')) {
+            if (str_contains((string) $profile->getValue(), 'us-core-observation-sexual-orientation')) {
                 $hasSexualOrientationProfile = true;
                 break;
             }
@@ -292,7 +292,7 @@ class FhirObservationPatientServiceTest extends TestCase
         $mappings = UuidMapping::getMappingForUUID($this->testPatientData['uuid']);
         foreach ($mappings as $mapping) {
             if ($mapping['resource'] === $resource) {
-                $variables = parse_url($mapping['resource_path'], PHP_URL_QUERY);
+                $variables = parse_url((string) $mapping['resource_path'], PHP_URL_QUERY);
                 if (($variables['category'] ?? '') === $category && ($variables['code'] ?? '') === $code) {
                     return $mapping['uuid'];
                 }

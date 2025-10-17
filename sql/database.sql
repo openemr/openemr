@@ -1587,7 +1587,8 @@ CREATE TABLE `employer_data` (
   `industry` text COMMENT 'Employment Industry fk to list_options.option_id where list_id=IndustryODH',
   `created_by` int DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the employer data',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid_unique` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3312,11 +3313,19 @@ CREATE TABLE `ip_tracking` (
 
 DROP TABLE IF EXISTS `issue_encounter`;
 CREATE TABLE `issue_encounter` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this issue encounter record, for data exchange purposes',
   `pid` bigint(20) NOT NULL,
   `list_id` int(11) NOT NULL,
   `encounter` int(11) NOT NULL,
   `resolved` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`pid`,`list_id`,`encounter`)
+  `created_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the issue encounter data',
+  `updated_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that last updated the issue encounter data',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was created',
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated',
+  UNIQUE KEY `uniq_issue_key`(`pid`,`list_id`,`encounter`),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid_unique` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3547,8 +3556,9 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`,
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_mname','1','',70,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_lname','1','',80,2,1,20,63,'',0,0,'','[\"C\",\"DAP\"]','Birth Last Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','DOB','1','DOB',90,4,2,0,10,'',1,1,'','[\"D\"]','Date of Birth',0,'','F','','past_date','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sex','1','Sex',100,1,2,0,0,'sex',1,1,'','[\"N\"]','Sex',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sex','1','Birth Sex',100,1,2,0,0,'sex',1,1,'','[\"N\"]','Birth Sex',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','gender_identity','1','Gender Identity',110,46,1,0,100,'gender_identity',1,1,'','[\"N\"]','Gender Identity',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sex_identified','1','Sex',115,1,2,0,0,'administrative_sex',1,1,'','[\"N\"]','Sex',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sexual_orientation','1','Sexual Orientation',120,46,1,0,100,'sexual_orientation',1,1,'','[\"N\"]','Sexual Orientation',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','pubpid','1','External ID',130,2,1,10,255,'',1,1,'','[\"D\",\"N\"]','External identifier',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','ss','1','S.S.',140,2,1,11,11,'',1,1,'','','Social Security Number',0,'','F','','','');
@@ -3627,13 +3637,14 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'family_size', '5', 'Family Size', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'homeless', '5', 'Homeless, etc.', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpretter', '5', 'Interpreter', 9, 2, 1, 20, 63, '', 1, 1, '', '', 'Interpreter needed?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 10, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',11,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',12, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 13, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 14, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations','5','Tribal Affiliations',15,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpreter_needed', '5', 'Interpreter', 9, 1, 1, 0, 0, 'yes_no_unknown', 1, 1, '', '', 'Interpreter needed?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpretter', '5', 'Interpreter Comments', 10, 2, 1, 20, 63, '', 1, 1, '', '', 'Additional notes about interpretation needs', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 11, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',12,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',13, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 14, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 15, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations','5','Tribal Affiliations',16,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
 --
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
@@ -6900,6 +6911,394 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','physical','Physical',20,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','both','Postal & Physical',30,0,1);
 
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Social History SDOHValuesets
+
+INSERT INTO list_options (list_id, option_id, title, seq)
+VALUES ('lists', 'sdoh_food_insecurity_risk', 'SDOH – Food Insecurity (Risk)', 0),
+       ('lists', 'sdoh_housing_worry', 'SDOH – Housing Worry (Y/N)', 0),
+       ('lists', 'sdoh_housing_worry_freq', 'SDOH – Housing Worry (Freq)', 0),
+       ('lists', 'sdoh_transportation_barrier', 'SDOH – Transportation Barrier', 0),
+       ('lists', 'sdoh_utilities_shutoff', 'SDOH – Utilities Shutoff Risk', 0),
+       ('lists', 'sdoh_ipv_yesno', 'SDOH – Interpersonal Safety (Y/N)', 0),
+       ('lists', 'sdoh_financial_strain', 'SDOH – Financial Strain', 0),
+       ('lists', 'sdoh_social_isolation_freq', 'SDOH – Social Connection (Freq)', 0),
+       ('lists', 'sdoh_childcare_needs', 'SDOH – Childcare Needs (Y/N)', 0),
+       ('lists', 'sdoh_digital_access', 'SDOH – Digital Access (Y/N)', 0),
+       ('lists', 'sdoh_employment_status', 'SDOH – Employment Status', 0),
+       ('lists', 'sdoh_education_level', 'SDOH – Education Level', 0),
+       ('lists', 'pregnancy_status', 'Pregnancy Status', 0),
+       ('lists', 'postpartum_status', 'Postpartum Status', 0),
+       ('lists', 'sdoh_instruments', 'SDOH – Screening Instruments', 0),
+       ('lists','pregnancy_intent','Pregnancy Intent Over Next Year',0);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
+       ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_food_insecurity_risk', 'at_risk', 'At risk', 10, 'LOINC:LA19952-3', 'Question LOINC 88124-3'),
+       ('sdoh_food_insecurity_risk', 'no_risk', 'No risk', 20, 'LOINC:LA19983-8', 'Question LOINC 88124-3'),
+       ('sdoh_food_insecurity_risk', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 88124-3');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_housing_worry', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Question LOINC 93033-9'),
+       ('sdoh_housing_worry', 'no', 'No', 20, 'LOINC:LA32-8', 'Question LOINC 93033-9'),
+       ('sdoh_housing_worry', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 93033-9');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_housing_worry_freq', 'never', 'Never', 10, 'LOINC:LA26683-5', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'rarely', 'Rarely', 20, 'LOINC:LA30109-6', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'sometimes', 'Sometimes', 30, 'LOINC:LA30110-4', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'often', 'Often', 40, 'LOINC:LA30111-2', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'always', 'Always', 50, 'LOINC:LA30112-0', 'Question LOINC 104561-6'),
+       ('sdoh_housing_worry_freq', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 104561-6');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_transportation_barrier', 'yes_med', 'Yes – medical', 10, 'LOINC:LA30133-5', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'yes_nonmed', 'Yes – non-medical', 20, 'LOINC:LA30134-3', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'no', 'No', 30, 'LOINC:LA32-8', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 93030-5'),
+       ('sdoh_transportation_barrier', 'unable', 'Unable to respond', 95, 'LOINC:LA33608-3', 'Question LOINC 93030-5');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_utilities_shutoff', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Question LOINC 96779-4'),
+       ('sdoh_utilities_shutoff', 'no', 'No', 20, 'LOINC:LA32-8', 'Question LOINC 96779-4'),
+       ('sdoh_utilities_shutoff', 'already_off', 'Already shut off', 30, 'LOINC:LA32002-0', 'Question LOINC 96779-4'),
+       ('sdoh_utilities_shutoff', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 96779-4');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_ipv_yesno', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Use with HARK items'),
+       ('sdoh_ipv_yesno', 'no', 'No', 20, 'LOINC:LA32-8', 'Use with HARK items'),
+       ('sdoh_ipv_yesno', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_financial_strain', 'very_hard', 'Very hard', 10, 'LOINC:LA15832-1', 'Question LOINC 76513-1'),
+       ('sdoh_financial_strain', 'hard', 'Hard', 20, 'LOINC:LA14745-6', 'Question LOINC 76513-1'),
+       ('sdoh_financial_strain', 'somewhat_hard', 'Somewhat hard', 30, 'LOINC:LA22683-9', 'Question LOINC 76513-1'),
+       ('sdoh_financial_strain', 'not_very_hard', 'Not very hard', 40, 'LOINC:LA22682-1', 'Question LOINC 76513-1');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_social_isolation_freq', 'never', 'Never', 10, 'LOINC:LA26683-5', 'Pair with LOINC 93159-2'),
+       ('sdoh_social_isolation_freq', 'rarely', 'Rarely', 20, 'LOINC:LA30109-6', ''),
+       ('sdoh_social_isolation_freq', 'sometimes', 'Sometimes', 30, 'LOINC:LA30110-4', ''),
+       ('sdoh_social_isolation_freq', 'often', 'Often', 40, 'LOINC:LA30111-2', ''),
+       ('sdoh_social_isolation_freq', 'always', 'Always', 50, 'LOINC:LA30112-0', ''),
+       ('sdoh_social_isolation_freq', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_childcare_needs', 'yes', 'Yes', 10, 'LOINC:LA33-6', ''),
+       ('sdoh_childcare_needs', 'no', 'No', 20, 'LOINC:LA32-8', ''),
+       ('sdoh_childcare_needs', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_digital_access', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'e.g., access available'),
+       ('sdoh_digital_access', 'no', 'No', 20, 'LOINC:LA32-8', 'e.g., access not available'),
+       ('sdoh_digital_access', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_employment_status', 'unemployed', 'Unemployed', 10, 'LOINC:LA17956-6', 'PRAPARE/LOINC 67875-5 family'),
+       ('sdoh_employment_status', 'part_time', 'Part-time / temporary', 20, 'LOINC:LA30138-4', ''),
+       ('sdoh_employment_status', 'full_time', 'Full-time', 30, 'LOINC:LA30136-8', ''),
+       ('sdoh_employment_status', 'otherwise_unemployed', 'Otherwise unemployed (student/retired/disabled/caregiver)', 40, 'LOINC:LA30137-6', ''),
+       ('sdoh_employment_status', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_education_level', 'less_than_hs', '< High school', 5, 'LOINC:LA15606-9', 'Question LOINC 63504-5'),
+       ('sdoh_education_level', 'hs_grad', 'High school graduate', 10, 'LOINC:LA15564-0', ''),
+       ('sdoh_education_level', 'ged', 'GED or equivalent', 20, 'LOINC:LA15619-2', ''),
+       ('sdoh_education_level', 'some_college', 'Some college, no degree', 30, 'LOINC:LA15620-0', ''),
+       ('sdoh_education_level', 'assoc', 'Associate degree', 40, 'LOINC:LA15621-8', ''),
+       ('sdoh_education_level', 'bachelor', 'Bachelor’s degree', 50, 'LOINC:LA12460-4', ''),
+       ('sdoh_education_level', 'master', 'Master’s degree', 60, 'LOINC:LA12461-2', ''),
+       ('sdoh_education_level', 'professional', 'Professional school degree', 70, 'LOINC:LA15625-9', ''),
+       ('sdoh_education_level', 'doctorate', 'Doctoral degree', 80, 'LOINC:LA15626-7', ''),
+       ('sdoh_education_level', 'declined', 'Declined', 90, 'LOINC:LA4389-8', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('pregnancy_status', 'pregnant', 'Pregnant', 10, 'SNOMED-CT:77386006', ''),
+       ('pregnancy_status', 'not_pregnant', 'Not pregnant', 20, 'SNOMED-CT:60001007', ''),
+       ('pregnancy_status', 'possible', 'Possible pregnancy', 30, 'SNOMED-CT:146799005', ''),
+       ('pregnancy_status', 'unconfirmed', 'Pregnancy not yet confirmed', 40, 'SNOMED-CT:152231000119106', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('postpartum_status', 'postpartum', 'Postpartum (≤6 weeks)', 10, 'SNOMED-CT:10152009', '');
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 10, 'LOINC:88121-9', 'Includes items 88122-7, 88123-5; risk 88124-3'),
+       ('sdoh_instruments', 'ahc_hrsn_core', 'AHC HRSN – Core', 20, 'LOINC:96777-8', ''),
+       ('sdoh_instruments', 'ahc_hrsn_supp', 'AHC HRSN – Supplemental', 30, 'LOINC:97023-6', 'Financial strain 76513-1; loneliness 93159-2'),
+       ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
+       ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Vital Signs Answers (single set; no duplicate parent)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('vital_signs_answers', 'LA28397-0', 'Often true', 10, 'LOINC:LA28397-0', 1),
+       ('vital_signs_answers', 'LA28398-8', 'Sometimes true', 20, 'LOINC:LA28398-8', 1),
+       ('vital_signs_answers', 'LA28399-6', 'Never true', 30, 'LOINC:LA28399-6', 1);
+
+-- Tribal Affiliations
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity)
+VALUES ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65', 1),
+       ('tribal_affiliations', 'cherokee_nation', 'Cherokee Nation (OK)', 20, '40', 1),
+       ('tribal_affiliations', 'chickasaw_nation', 'Chickasaw Nation (OK)', 30, '43', 1),
+       ('tribal_affiliations', 'choctaw_nation', 'Choctaw Nation of Oklahoma', 40, '47', 1),
+       ('tribal_affiliations', 'gila_river', 'Gila River Indian Community (AZ)', 50, '93', 1),
+       ('tribal_affiliations', 'hopi', 'Hopi Tribe (AZ)', 60, '104', 1),
+       ('tribal_affiliations', 'navajo_nation', 'Navajo Nation (AZ/NM/UT)', 70, '170', 1),
+       ('tribal_affiliations', 'standing_rock', 'Standing Rock Sioux Tribe (ND/SD)', 80, '289', 1),
+       ('tribal_affiliations', 'tohono_oodham', 'Tohono O''odham Nation (AZ)', 90, '302', 1),
+       ('tribal_affiliations', 'white_mountain_apache', 'White Mountain Apache Tribe (AZ)', 100, '325', 1),
+       ('tribal_affiliations', 'zuni', 'Zuni Tribe (NM)', 110, '337', 1),
+       ('tribal_affiliations', 'other_specify', 'Other (specify)', 120, '000', 1);
+
+-- Disability Status parent exists above; now the answers
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','disability_status','Disability Status',0,1,0,'',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7', 1),
+       ('disability_status', 'im_vulnerable', 'I''m Vulnerable.', 20, 'LOINC:LA29243-5', 1),
+       ('disability_status', 'im_at_risk', 'I''m at risk.', 30, 'LOINC:LA29244-3', 1),
+       ('disability_status', 'im_in_crisis', 'I''m in crisis.', 40, 'LOINC:LA29245-0', 1);
+
+-- SDOH Problems (single set)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
+       ('sdoh_problems', '224130005', 'Difficulty accessing healthcare', 20, 'SNOMED:224130005', 1),
+       ('sdoh_problems', '182964004', 'Medication not available', 30, 'SNOMED:182964004', 1),
+       ('sdoh_problems', '73438004', 'Educational problem', 40, 'SNOMED:73438004', 1),
+       ('sdoh_problems', '266948004', 'Unemployed', 50, 'SNOMED:266948004', 1),
+       ('sdoh_problems', 'Z59.1', 'Inadequate housing', 60, 'ICD10CM:Z59.1', 1),
+       ('sdoh_problems', 'Z59.4', 'Lack of adequate food', 70, 'ICD10CM:Z59.4', 1),
+       ('sdoh_problems', 'Z59.6', 'Low income', 80, 'ICD10CM:Z59.6', 1),
+       ('sdoh_problems', 'Z62.9', 'Problem related to upbringing', 90, 'ICD10CM:Z62.9', 1),
+       ('sdoh_problems', '266944006', 'Lives in poverty', 100, 'SNOMED:266944006', 1);
+
+-- SDOH Interventions (fixed duplicate option_id for 467681000124101)
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
+VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance program', 10, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', 'assist_food_program', 'Assistance with application for food program', 90, 'SNOMED:467681000124101', 1),
+       ('sdoh_interventions', '467711000124100', 'Referral to housing assistance program', 20, 'SNOMED:467711000124100', 1),
+       ('sdoh_interventions', '467721000124107', 'Referral to transportation assistance program', 30, 'SNOMED:467721000124107', 1),
+       ('sdoh_interventions', '467731000124109', 'Referral to utility assistance program', 40, 'SNOMED:467731000124109', 1),
+       ('sdoh_interventions', '428191000124101', 'Education about community resources', 50, 'SNOMED:428191000124101', 1),
+       ('sdoh_interventions', '464031000124108', 'Referral to social worker', 60, 'SNOMED:464031000124108', 1),
+       ('sdoh_interventions', '385763009', 'Lifestyle education', 70, 'SNOMED:385763009', 1),
+       ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1),
+       ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 100, 'SNOMED:467701000124103', 1),
+       ('sdoh_interventions', 'assist_transport', 'Assistance with transportation', 110, 'SNOMED:467721000124107', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_status', 'Care Plan Status', 0);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','draft','Draft',10);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','active','Active',20);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','on-hold','On hold',30);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','revoked','Revoked',40);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_type', 'Specimen Type', 1, 0, 0, '', 'FHIR Specimen.type - SNOMED CT preferred');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_type', '119297000', 'Blood specimen', 10, 1, 0, 'SNOMED-CT:119297000', 'Whole blood'),
+    ('specimen_type', '122555007', 'Venous blood specimen', 15, 0, 0, 'SNOMED-CT:122555007', 'Venous blood'),
+    ('specimen_type', '122554006', 'Capillary blood specimen', 20, 0, 0, 'SNOMED-CT:122554006', 'Capillary blood'),
+    ('specimen_type', '119364003', 'Serum specimen', 30, 0, 0, 'SNOMED-CT:119364003', 'Blood serum'),
+    ('specimen_type', '119361006', 'Plasma specimen', 40, 0, 0, 'SNOMED-CT:119361006', 'Blood plasma'),
+    ('specimen_type', '122556008', 'Cord blood specimen', 50, 0, 0, 'SNOMED-CT:122556008', 'Umbilical cord blood'),
+    ('specimen_type', '122560006', 'Arterial blood specimen', 60, 0, 0, 'SNOMED-CT:122560006', 'Arterial blood'),
+    ('specimen_type', '258580003', 'Whole blood specimen', 65, 0, 0, 'SNOMED-CT:258580003', 'Whole blood for testing'),
+    ('specimen_type', '122575003', 'Urine specimen', 70, 0, 0, 'SNOMED-CT:122575003', 'Urine'),
+    ('specimen_type', '278020009', 'Spot urine specimen', 75, 0, 0, 'SNOMED-CT:278020009', 'Random/spot urine'),
+    ('specimen_type', '258574006', 'Midstream urine specimen', 80, 0, 0, 'SNOMED-CT:258574006', 'Midstream catch'),
+    ('specimen_type', '258566001', '24-hour urine specimen', 85, 0, 0, 'SNOMED-CT:258566001', '24-hour collection'),
+    ('specimen_type', '119376003', 'Tissue specimen', 90, 0, 0, 'SNOMED-CT:119376003', 'Tissue'),
+    ('specimen_type', '119327009', 'Tissue specimen from skin', 95, 0, 0, 'SNOMED-CT:119327009', 'Skin biopsy'),
+    ('specimen_type', '430268003', 'Bone specimen', 100, 0, 0, 'SNOMED-CT:430268003', 'Bone tissue'),
+    ('specimen_type', '258415003', 'Biopsy specimen', 105, 0, 0, 'SNOMED-CT:258415003', 'Biopsy'),
+    ('specimen_type', '309051001', 'Body fluid specimen', 110, 0, 0, 'SNOMED-CT:309051001', 'Body fluid'),
+    ('specimen_type', '258450006', 'Cerebrospinal fluid specimen', 120, 0, 0, 'SNOMED-CT:258450006', 'CSF'),
+    ('specimen_type', '119378004', 'Amniotic fluid specimen', 125, 0, 0, 'SNOMED-CT:119378004', 'Amniotic fluid'),
+    ('specimen_type', '258459008', 'Gastric fluid specimen', 130, 0, 0, 'SNOMED-CT:258459008', 'Gastric aspirate'),
+    ('specimen_type', '258442002', 'Bile specimen', 135, 0, 0, 'SNOMED-CT:258442002', 'Bile fluid'),
+    ('specimen_type', '258498002', 'Synovial fluid specimen', 140, 0, 0, 'SNOMED-CT:258498002', 'Joint fluid'),
+    ('specimen_type', '119323008', 'Pus specimen', 145, 0, 0, 'SNOMED-CT:119323008', 'Pus/purulent drainage'),
+    ('specimen_type', '119334006', 'Sputum specimen', 150, 0, 0, 'SNOMED-CT:119334006', 'Sputum'),
+    ('specimen_type', '258603007', 'Respiratory tract specimen', 155, 0, 0, 'SNOMED-CT:258603007', 'Respiratory specimen'),
+    ('specimen_type', '258500001', 'Nasopharyngeal swab', 160, 0, 0, 'SNOMED-CT:258500001', 'NP swab'),
+    ('specimen_type', '472901003', 'Swab from nasal sinus', 165, 0, 0, 'SNOMED-CT:472901003', 'Nasal swab'),
+    ('specimen_type', '258529004', 'Throat swab', 170, 0, 0, 'SNOMED-CT:258529004', 'Throat culture swab'),
+    ('specimen_type', '258607008', 'Bronchoalveolar lavage fluid specimen', 175, 0, 0, 'SNOMED-CT:258607008', 'BAL fluid'),
+    ('specimen_type', '119339001', 'Stool specimen', 180, 0, 0, 'SNOMED-CT:119339001', 'Fecal specimen'),
+    ('specimen_type', '119342007', 'Saliva specimen', 190, 0, 0, 'SNOMED-CT:119342007', 'Saliva'),
+    ('specimen_type', '258455001', 'Gastric aspirate specimen', 195, 0, 0, 'SNOMED-CT:258455001', 'Gastric contents'),
+    ('specimen_type', '119295008', 'Aspirate', 200, 0, 0, 'SNOMED-CT:119295008', 'Specimen obtained by aspiration'),
+    ('specimen_type', '119396002', 'Specimen from vagina', 210, 0, 0, 'SNOMED-CT:119396002', 'Vaginal specimen'),
+    ('specimen_type', '119397006', 'Specimen from cervix', 215, 0, 0, 'SNOMED-CT:119397006', 'Cervical specimen'),
+    ('specimen_type', '119393003', 'Specimen from urethra', 220, 0, 0, 'SNOMED-CT:119393003', 'Urethral specimen'),
+    ('specimen_type', '119395003', 'Semen specimen', 225, 0, 0, 'SNOMED-CT:119395003', 'Seminal fluid'),
+    ('specimen_type', '119303007', 'Microbial isolate specimen', 230, 0, 0, 'SNOMED-CT:119303007', 'Microbial culture');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_location', 'Specimen Collection Site', 1, 0, 0, '', 'FHIR Specimen.collection.bodySite - SNOMED CT required');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_location', '368208006', 'Left upper arm structure', 10, 0, 0, 'SNOMED-CT:368208006', 'Left arm'),
+    ('specimen_location', '368209003', 'Right upper arm structure', 20, 1, 0, 'SNOMED-CT:368209003', 'Right arm'),
+    ('specimen_location', '16671000205103', 'Structure of left antecubital fossa', 30, 0, 0, 'SNOMED-CT:16671000205103', 'Left AC fossa'),
+    ('specimen_location', '16681000205101', 'Structure of right antecubital fossa', 40, 0, 0, 'SNOMED-CT:16681000205101', 'Right AC fossa'),
+    ('specimen_location', '368456002', 'Left forearm structure', 50, 0, 0, 'SNOMED-CT:368456002', 'Left forearm'),
+    ('specimen_location', '368454004', 'Right forearm structure', 60, 0, 0, 'SNOMED-CT:368454004', 'Right forearm'),
+    ('specimen_location', '85151006', 'Structure of left hand', 70, 0, 0, 'SNOMED-CT:85151006', 'Left hand'),
+    ('specimen_location', '78791008', 'Structure of right hand', 80, 0, 0, 'SNOMED-CT:78791008', 'Right hand'),
+    ('specimen_location', '762101005', 'Structure of left index finger', 85, 0, 0, 'SNOMED-CT:762101005', 'Left index finger'),
+    ('specimen_location', '762106000', 'Structure of right index finger', 87, 0, 0, 'SNOMED-CT:762106000', 'Right index finger'),
+    ('specimen_location', '7569003', 'Finger structure', 90, 0, 0, 'SNOMED-CT:7569003', 'Finger (unspecified)'),
+    ('specimen_location', '76853006', 'Structure of heel', 100, 0, 0, 'SNOMED-CT:76853006', 'Heel stick'),
+    ('specimen_location', '29707007', 'Structure of toe', 105, 0, 0, 'SNOMED-CT:29707007', 'Toe'),
+    ('specimen_location', '117590005', 'Structure of ear', 110, 0, 0, 'SNOMED-CT:117590005', 'Ear lobe'),
+    ('specimen_location', '45206002', 'Nasal structure', 120, 0, 0, 'SNOMED-CT:45206002', 'Nose/nasal cavity'),
+    ('specimen_location', '71836000', 'Nasopharyngeal structure', 130, 0, 0, 'SNOMED-CT:71836000', 'Nasopharynx'),
+    ('specimen_location', '31389004', 'Oropharyngeal structure', 140, 0, 0, 'SNOMED-CT:31389004', 'Oropharynx'),
+    ('specimen_location', '54066008', 'Pharyngeal structure', 150, 0, 0, 'SNOMED-CT:54066008', 'Throat/pharynx'),
+    ('specimen_location', '44567001', 'Tracheal structure', 155, 0, 0, 'SNOMED-CT:44567001', 'Trachea'),
+    ('specimen_location', '39607008', 'Lung structure', 160, 0, 0, 'SNOMED-CT:39607008', 'Lung'),
+    ('specimen_location', '13648007', 'Urethral structure', 170, 0, 0, 'SNOMED-CT:13648007', 'Urethra'),
+    ('specimen_location', '71252005', 'Cervix uteri structure', 180, 0, 0, 'SNOMED-CT:71252005', 'Cervix'),
+    ('specimen_location', '76784001', 'Vaginal structure', 190, 0, 0, 'SNOMED-CT:76784001', 'Vagina'),
+    ('specimen_location', '34402009', 'Rectum structure', 200, 0, 0, 'SNOMED-CT:34402009', 'Rectum'),
+    ('specimen_location', '13024002', 'Male genital structure', 205, 0, 0, 'SNOMED-CT:13024002', 'Male genitalia'),
+    ('specimen_location', '416462003', 'Wound', 210, 0, 0, 'SNOMED-CT:416462003', 'Wound site'),
+    ('specimen_location', '125643001', 'Open wound', 215, 0, 0, 'SNOMED-CT:125643001', 'Open wound'),
+    ('specimen_location', '39937001', 'Skin structure', 220, 0, 0, 'SNOMED-CT:39937001', 'Skin'),
+    ('specimen_location', '128477000', 'Abscess', 225, 0, 0, 'SNOMED-CT:128477000', 'Abscess'),
+    ('specimen_location', '83419000', 'Spinal canal structure', 230, 0, 0, 'SNOMED-CT:83419000', 'CSF collection site'),
+    ('specimen_location', '39352004', 'Joint structure', 240, 0, 0, 'SNOMED-CT:39352004', 'Joint (arthrocentesis)'),
+    ('specimen_location', '38266002', 'Entire body', 250, 0, 0, 'SNOMED-CT:38266002', 'Body as a whole'),
+    ('specimen_location', '113345001', 'Abdominal structure', 255, 0, 0, 'SNOMED-CT:113345001', 'Abdomen'),
+    ('specimen_location', '69105007', 'Carotid artery structure', 260, 0, 0, 'SNOMED-CT:69105007', 'Carotid artery'),
+    ('specimen_location', '51185008', 'Radial artery structure', 265, 0, 0, 'SNOMED-CT:51185008', 'Radial artery');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_condition', 'Specimen Condition', 1, 0, 0, '', 'FHIR uses HL7 v2 Table 0493 - specimen condition/state');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_condition', 'AUT', 'Autolyzed', 10, 0, 0, 'HL7V20493:AUT', 'Autolyzed specimen'),
+    ('specimen_condition', 'CLOT', 'Clotted', 20, 0, 0, 'HL7V20493:CLOT', 'Specimen clotted'),
+    ('specimen_condition', 'CON', 'Contaminated', 30, 0, 0, 'HL7V20493:CON', 'Specimen contaminated'),
+    ('specimen_condition', 'COOL', 'Cool', 40, 0, 0, 'HL7V20493:COOL', 'Cooled specimen'),
+    ('specimen_condition', 'FROZ', 'Frozen', 50, 0, 0, 'HL7V20493:FROZ', 'Frozen specimen'),
+    ('specimen_condition', 'HEM', 'Hemolyzed', 60, 0, 0, 'HL7V20493:HEM', 'Hemolyzed specimen'),
+    ('specimen_condition', 'LIVE', 'Live', 70, 0, 0, 'HL7V20493:LIVE', 'Live organism'),
+    ('specimen_condition', 'ROOM', 'Room temperature', 80, 0, 0, 'HL7V20493:ROOM', 'Room temperature'),
+    ('specimen_condition', 'SNR', 'Sample not received', 90, 0, 0, 'HL7V20493:SNR', 'Not received by lab'),
+    ('specimen_condition', 'THAW', 'Thawed', 100, 0, 0, 'HL7V20493:THAW', 'Thawed specimen'),
+    ('specimen_condition', 'UNFZ', 'Unfrozen', 110, 0, 0, 'HL7V20493:UNFZ', 'Unfrozen specimen'),
+    ('specimen_condition', 'WARM', 'Warm', 120, 0, 0, 'HL7V20493:WARM', 'Warmed specimen'),
+    ('specimen_condition', 'WET', 'Wet', 130, 0, 0, 'HL7V20493:WET', 'Wet specimen'),
+    ('specimen_condition', 'DRY', 'Dry', 140, 0, 0, 'HL7V20493:DRY', 'Dry specimen'),
+    ('specimen_condition', 'OTHER', 'Other', 150, 0, 0, 'HL7V20493:OTHER', 'Other condition'),
+    ('specimen_condition', 'acceptable', 'Acceptable', 160, 1, 0, '','Specimen is acceptable for testing'),
+    ('specimen_condition', 'QNS', 'Quantity not sufficient', 170, 0, 0, 'LOCAL:QNS', 'Insufficient volume'),
+    ('specimen_condition', 'HEMOLYZED', 'Hemolyzed', 180, 0, 0, 'LOCAL:HEM', 'Hemolysis detected'),
+    ('specimen_condition', 'LIPEMIC', 'Lipemic', 190, 0, 0, 'LOCAL:LIP', 'Lipemia present'),
+    ('specimen_condition', 'ICTERIC', 'Icteric', 200, 0, 0, 'LOCAL:ICT', 'Icterus/jaundice'),
+    ('specimen_condition', 'EXPIRED', 'Specimen expired', 210, 0, 0, 'LOCAL:EXP', 'Past stability time'),
+    ('specimen_condition', 'MISLABELED', 'Mislabeled', 220, 0, 0, 'LOCAL:MISLAB', 'Labeling error'),
+    ('specimen_condition', 'UNLABELED', 'Unlabeled', 230, 0, 0, 'LOCAL:NOLAB', 'No label present'),
+    ('specimen_condition', 'DAMAGED', 'Container damaged', 240, 0, 0, 'LOCAL:DAM', 'Container leak/break'),
+    ('specimen_condition', 'WRONGTEMP', 'Improper storage temperature', 250, 0, 0, 'LOCAL:TEMP', 'Temperature abuse'),
+    ('specimen_condition', 'WRONGTUBE', 'Wrong collection container', 260, 0, 0, 'LOCAL:TUBE', 'Incorrect tube type');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('lists', 'specimen_collection_method', 'Specimen Collection Method', 1, 0, 0, '', 'SNOMED-CT binding');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
+    ('specimen_collection_method', '129316008', 'Aspiration', 10, 0, 0, 'SNOMED-CT:129316008', 'Aspiration procedure'),
+    ('specimen_collection_method', '129300006', 'Puncture', 20, 0, 0, 'SNOMED-CT:129300006', 'Puncture procedure'),
+    ('specimen_collection_method', '129314006', 'Biopsy', 30, 0, 0, 'SNOMED-CT:129314006', 'Biopsy procedure'),
+    ('specimen_collection_method', '129304002', 'Excision', 40, 0, 0, 'SNOMED-CT:129304002', 'Excision procedure'),
+    ('specimen_collection_method', '129323009', 'Scraping', 50, 0, 0, 'SNOMED-CT:129323009', 'Scraping procedure'),
+    ('specimen_collection_method', '70777001', 'Swab', 60, 0, 0, 'SNOMED-CT:70777001', 'Swab procedure'),
+    ('specimen_collection_method', '225113003', 'Timed collection', 70, 0, 0, 'SNOMED-CT:225113003', 'Timed specimen collection'),
+    ('specimen_collection_method', '386089008', 'Collection of coughed sputum', 80, 0, 0, 'SNOMED-CT:386089008', 'Sputum collection'),
+    ('specimen_collection_method', '278450005', 'Finger-prick sampling', 90, 0, 0, 'SNOMED-CT:278450005', 'Capillary blood collection'),
+    ('specimen_collection_method', '28520004', 'Venipuncture', 100, 1, 0, 'SNOMED-CT:28520004', 'Venous blood draw'),
+    ('specimen_collection_method', '76499008', 'Arterial puncture', 110, 0, 0, 'SNOMED-CT:76499008', 'Arterial blood draw'),
+    ('specimen_collection_method', '258574006', 'Midstream urine', 120, 0, 0, 'SNOMED-CT:258574006', 'Midstream urine collection'),
+    ('specimen_collection_method', '73416001', 'Urine specimen collection, clean catch', 130, 0, 0, 'SNOMED-CT:73416001', 'Clean catch method'),
+    ('specimen_collection_method', '386090004', 'Catheter specimen of urine', 140, 0, 0, 'SNOMED-CT:386090004', 'Catheterized urine'),
+    ('specimen_collection_method', '386091000', 'Suprapubic aspiration of urine', 150, 0, 0, 'SNOMED-CT:386091000', 'Suprapubic tap'),
+    ('specimen_collection_method', '397394008', 'Bronchoalveolar lavage', 160, 0, 0, 'SNOMED-CT:397394008', 'BAL procedure'),
+    ('specimen_collection_method', '168138009', 'Nasopharyngeal swab', 170, 0, 0, 'SNOMED-CT:168138009', 'NP swab collection'),
+    ('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');
+
+-- Intentional missing create list. Appends
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('ord_priority', 'routine', 'Routine', 45, 1, 0, 'Normal priority order', 1),
+    ('ord_priority', 'urgent', 'Urgent', 55, 0, 0, 'Urgent priority order', 1),
+    ('ord_priority', 'asap', 'ASAP', 65, 0, 0, 'As soon as possible', 1),
+    ('ord_priority', 'stat', 'STAT', 75, 0, 0, 'Immediate/emergency', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES ('lists', 'order_intent', 'Order Intent', 1, 0, 0, 'FHIR ServiceRequest intent values', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('order_intent', 'order', 'Order', 10, 1, 0, 'Request for action to occur as specified', 1),
+    ('order_intent', 'plan', 'Plan', 20, 0, 0, 'Intention to perform an action', 1),
+    ('order_intent', 'directive', 'Directive', 30, 0, 0, 'Request with legal standing', 1),
+    ('order_intent', 'proposal', 'Proposal', 40, 0, 0, 'Suggestion for action', 1),
+    ('order_intent', 'option', 'Option', 50, 0, 0, 'Option for consideration', 1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES ('lists', 'performer_type', 'Performer Type', 1, 0, 0, 'FHIR ServiceRequest performer type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `codes`)
+VALUES
+    ('performer_type', 'laboratory', 'Laboratory', 10, 1, 0, 'Laboratory technician', 'SNOMED:159001'),
+    ('performer_type', 'radiology', 'Radiology', 20, 0, 0, 'Radiologist', 'SNOMED:66862007'),
+    ('performer_type', 'pathology', 'Pathology', 30, 0, 0, 'Pathologist', 'SNOMED:61207006'),
+    ('performer_type', 'cardiology', 'Cardiology', 40, 0, 0, 'Cardiologist', ''),
+    ('performer_type', 'pharmacy', 'Pharmacy', 50, 0, 0, 'Pharmacist', '');
+
+
+-- Yes/No/Unknown List
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','yes_no_unknown','Yes/No/Unknown',0,0,0,'Codeset from valueset https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1267.16/expansion',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('yes_no_unknown', 'yes', 'Yes', 10, 'SNOMED-CT:373066001', ''),
+       ('yes_no_unknown', 'no', 'No', 20, 'SNOMED-CT:373067005', ''),
+       ('yes_no_unknown', 'asked-unknown', 'Asked But Unknown', 30, 'DataAbsentReason:asked-unknown', ''),
+       ('yes_no_unknown', 'unknown', 'Unknown', 40, 'DataAbsentReason:unknown', '');
+
+-- Administrative Sex list used for patient_data.sex_identified field.
+-- This list seems to constantly update with USCDI versions and new administrations so expect the values here to change frequently
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','administrative_sex','Administrative Sex',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1021.121 (expansive)',1);
+
+-- note USCDI V3 has a ton more options here, but USCDI V4 reverts to M/F/nonbinary/asked-decline with expansion allowed so adding in unknown to map values from patient_data.sex column
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248152002', ''),
+       ('administrative_sex', 'Female', 'Female', 20, 'SNOMED-CT:248153007', ''),
+       ('administrative_sex', 'nonbinary', 'Identifies as nonbinary gender (finding)', 20, 'SNOMED-CT:33791000087105', ''),
+       ('administrative_sex', 'asked-declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined', ''),
+       ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
+
 --
 -- Table structure for table `lists`
 --
@@ -7588,7 +7987,7 @@ CREATE TABLE `patient_data` (
   `status` varchar(255) NOT NULL default '',
   `contact_relationship` varchar(255) NOT NULL default '',
   `date` datetime default NULL,
-  `sex` varchar(255) NOT NULL default '',
+  `sex` varchar(255) NOT NULL default '' COMMENT 'Sex at birth',
   `referrer` varchar(255) NOT NULL default '',
   `referrerID` varchar(255) NOT NULL default '',
   `providerID` int(11) default NULL,
@@ -7599,7 +7998,8 @@ CREATE TABLE `patient_data` (
   `race` varchar(255) NOT NULL default '',
   `ethnicity` varchar(255) NOT NULL default '',
   `religion` varchar(40) NOT NULL default '',
-  `interpretter` varchar(255) NOT NULL default '',
+  `interpretter` varchar(255) NOT NULL default '' COMMENT 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter',
+  `interpreter_needed` TEXT COMMENT 'fk to list_options.option_id where list_id=yes_no_unknown used to determine if patient needs an interpreter',
   `migrantseasonal` varchar(255) NOT NULL default '',
   `family_size` varchar(255) NOT NULL default '',
   `monthly_income` varchar(255) NOT NULL default '',
@@ -7691,6 +8091,7 @@ CREATE TABLE `patient_data` (
   `nationality_country` TINYTEXT,
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tribal_affiliations` TEXT,
+  `sex_identified` TEXT COMMENT 'Patient reported current sex',
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -9619,10 +10020,20 @@ CREATE TABLE `procedure_order` (
   `account_facility`       int(11)          DEFAULT NULL,
   `provider_number`        varchar(30)      DEFAULT NULL,
   `procedure_order_type`   varchar(32)      NOT NULL DEFAULT 'laboratory_test',
+  `scheduled_date` datetime DEFAULT NULL COMMENT 'Scheduled date for service (FHIR occurrence[x])',
+  `scheduled_start` datetime DEFAULT NULL COMMENT 'Scheduled start time (FHIR occurrencePeriod.start)',
+  `scheduled_end` datetime DEFAULT NULL COMMENT 'Scheduled end time (FHIR occurrencePeriod.end)',
+  `performer_type` varchar(50) DEFAULT NULL COMMENT 'Type of performer: laboratory, radiology, pathology (SNOMED CT)',
+  `order_intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR intent: order, plan, directive, proposal',
+  `location_id` int(11) DEFAULT NULL COMMENT 'References facility.id for service location (FHIR locationReference)',
   PRIMARY KEY (`procedure_order_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `datepid` (`date_ordered`,`patient_id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  KEY `idx_specimen_type` (`specimen_type`),
+  KEY `idx_scheduled_date` (`scheduled_date`),
+  KEY `idx_order_intent` (`order_intent`),
+  KEY `idx_location_id` (`location_id`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -9763,6 +10174,26 @@ CREATE TABLE `procedure_specimen` (
   KEY `idx_identifier` (`specimen_identifier`),
   KEY `idx_accession` (`accession_identifier`)
 ) ENGINE=InnoDB;
+
+-- ------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_order_relationships`
+--
+
+DROP TABLE IF EXISTS `procedure_order_relationships`;
+CREATE TABLE `procedure_order_relationships` (
+ `id` INT AUTO_INCREMENT PRIMARY KEY,
+ `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'Links to procedure_order.procedure_order_id',
+ `resource_type` VARCHAR(50) NOT NULL COMMENT 'FHIR resource type (Observation, Condition, etc.)',
+ `resource_uuid` BINARY(16) NOT NULL COMMENT 'UUID of the related resource',
+ `relationship` VARCHAR(50) DEFAULT NULL COMMENT 'Type of relationship',
+ `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ `created_by` BIGINT(20) DEFAULT NULL COMMENT 'User who created this link',
+ INDEX `idx_order_id` (`procedure_order_id`),
+ INDEX `idx_resource` (`resource_type`, `resource_uuid`),
+ INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links ServiceRequests to supporting clinical information';
 
 -- -----------------------------------------------------------------------------------
 
@@ -14319,338 +14750,3 @@ CREATE TABLE `form_history_sdoh`
     KEY `assessment_idx` (`assessment_date`),
     KEY `encounter_idx` (`encounter`)
 ) ENGINE = InnoDB;
-
--- -------------------------------------------------------------------------------------------------------------------------------------------------------
--- Social History SDOHValuesets
-
-INSERT INTO list_options (list_id, option_id, title, seq)
-VALUES ('lists', 'sdoh_food_insecurity_risk', 'SDOH – Food Insecurity (Risk)', 0),
-       ('lists', 'sdoh_housing_worry', 'SDOH – Housing Worry (Y/N)', 0),
-       ('lists', 'sdoh_housing_worry_freq', 'SDOH – Housing Worry (Freq)', 0),
-       ('lists', 'sdoh_transportation_barrier', 'SDOH – Transportation Barrier', 0),
-       ('lists', 'sdoh_utilities_shutoff', 'SDOH – Utilities Shutoff Risk', 0),
-       ('lists', 'sdoh_ipv_yesno', 'SDOH – Interpersonal Safety (Y/N)', 0),
-       ('lists', 'sdoh_financial_strain', 'SDOH – Financial Strain', 0),
-       ('lists', 'sdoh_social_isolation_freq', 'SDOH – Social Connection (Freq)', 0),
-       ('lists', 'sdoh_childcare_needs', 'SDOH – Childcare Needs (Y/N)', 0),
-       ('lists', 'sdoh_digital_access', 'SDOH – Digital Access (Y/N)', 0),
-       ('lists', 'sdoh_employment_status', 'SDOH – Employment Status', 0),
-       ('lists', 'sdoh_education_level', 'SDOH – Education Level', 0),
-       ('lists', 'pregnancy_status', 'Pregnancy Status', 0),
-       ('lists', 'postpartum_status', 'Postpartum Status', 0),
-       ('lists', 'sdoh_instruments', 'SDOH – Screening Instruments', 0),
-       ('lists','pregnancy_intent','Pregnancy Intent Over Next Year',0);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
-       ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
-       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
-       ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_food_insecurity_risk', 'at_risk', 'At risk', 10, 'LOINC:LA19952-3', 'Question LOINC 88124-3'),
-       ('sdoh_food_insecurity_risk', 'no_risk', 'No risk', 20, 'LOINC:LA19983-8', 'Question LOINC 88124-3'),
-       ('sdoh_food_insecurity_risk', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 88124-3');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_housing_worry', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Question LOINC 93033-9'),
-       ('sdoh_housing_worry', 'no', 'No', 20, 'LOINC:LA32-8', 'Question LOINC 93033-9'),
-       ('sdoh_housing_worry', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 93033-9');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_housing_worry_freq', 'never', 'Never', 10, 'LOINC:LA26683-5', 'Question LOINC 104561-6'),
-       ('sdoh_housing_worry_freq', 'rarely', 'Rarely', 20, 'LOINC:LA30109-6', 'Question LOINC 104561-6'),
-       ('sdoh_housing_worry_freq', 'sometimes', 'Sometimes', 30, 'LOINC:LA30110-4', 'Question LOINC 104561-6'),
-       ('sdoh_housing_worry_freq', 'often', 'Often', 40, 'LOINC:LA30111-2', 'Question LOINC 104561-6'),
-       ('sdoh_housing_worry_freq', 'always', 'Always', 50, 'LOINC:LA30112-0', 'Question LOINC 104561-6'),
-       ('sdoh_housing_worry_freq', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 104561-6');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_transportation_barrier', 'yes_med', 'Yes – medical', 10, 'LOINC:LA30133-5', 'Question LOINC 93030-5'),
-       ('sdoh_transportation_barrier', 'yes_nonmed', 'Yes – non-medical', 20, 'LOINC:LA30134-3', 'Question LOINC 93030-5'),
-       ('sdoh_transportation_barrier', 'no', 'No', 30, 'LOINC:LA32-8', 'Question LOINC 93030-5'),
-       ('sdoh_transportation_barrier', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 93030-5'),
-       ('sdoh_transportation_barrier', 'unable', 'Unable to respond', 95, 'LOINC:LA33608-3', 'Question LOINC 93030-5');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_utilities_shutoff', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Question LOINC 96779-4'),
-       ('sdoh_utilities_shutoff', 'no', 'No', 20, 'LOINC:LA32-8', 'Question LOINC 96779-4'),
-       ('sdoh_utilities_shutoff', 'already_off', 'Already shut off', 30, 'LOINC:LA32002-0', 'Question LOINC 96779-4'),
-       ('sdoh_utilities_shutoff', 'declined', 'Declined', 90, 'LOINC:LA30122-8', 'Question LOINC 96779-4');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_ipv_yesno', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'Use with HARK items'),
-       ('sdoh_ipv_yesno', 'no', 'No', 20, 'LOINC:LA32-8', 'Use with HARK items'),
-       ('sdoh_ipv_yesno', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_financial_strain', 'very_hard', 'Very hard', 10, 'LOINC:LA15832-1', 'Question LOINC 76513-1'),
-       ('sdoh_financial_strain', 'hard', 'Hard', 20, 'LOINC:LA14745-6', 'Question LOINC 76513-1'),
-       ('sdoh_financial_strain', 'somewhat_hard', 'Somewhat hard', 30, 'LOINC:LA22683-9', 'Question LOINC 76513-1'),
-       ('sdoh_financial_strain', 'not_very_hard', 'Not very hard', 40, 'LOINC:LA22682-1', 'Question LOINC 76513-1');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_social_isolation_freq', 'never', 'Never', 10, 'LOINC:LA26683-5', 'Pair with LOINC 93159-2'),
-       ('sdoh_social_isolation_freq', 'rarely', 'Rarely', 20, 'LOINC:LA30109-6', ''),
-       ('sdoh_social_isolation_freq', 'sometimes', 'Sometimes', 30, 'LOINC:LA30110-4', ''),
-       ('sdoh_social_isolation_freq', 'often', 'Often', 40, 'LOINC:LA30111-2', ''),
-       ('sdoh_social_isolation_freq', 'always', 'Always', 50, 'LOINC:LA30112-0', ''),
-       ('sdoh_social_isolation_freq', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_childcare_needs', 'yes', 'Yes', 10, 'LOINC:LA33-6', ''),
-       ('sdoh_childcare_needs', 'no', 'No', 20, 'LOINC:LA32-8', ''),
-       ('sdoh_childcare_needs', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_digital_access', 'yes', 'Yes', 10, 'LOINC:LA33-6', 'e.g., access available'),
-       ('sdoh_digital_access', 'no', 'No', 20, 'LOINC:LA32-8', 'e.g., access not available'),
-       ('sdoh_digital_access', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_employment_status', 'unemployed', 'Unemployed', 10, 'LOINC:LA17956-6', 'PRAPARE/LOINC 67875-5 family'),
-       ('sdoh_employment_status', 'part_time', 'Part-time / temporary', 20, 'LOINC:LA30138-4', ''),
-       ('sdoh_employment_status', 'full_time', 'Full-time', 30, 'LOINC:LA30136-8', ''),
-       ('sdoh_employment_status', 'otherwise_unemployed', 'Otherwise unemployed (student/retired/disabled/caregiver)', 40, 'LOINC:LA30137-6', ''),
-       ('sdoh_employment_status', 'declined', 'Declined', 90, 'LOINC:LA30122-8', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_education_level', 'less_than_hs', '< High school', 5, 'LOINC:LA15606-9', 'Question LOINC 63504-5'),
-       ('sdoh_education_level', 'hs_grad', 'High school graduate', 10, 'LOINC:LA15564-0', ''),
-       ('sdoh_education_level', 'ged', 'GED or equivalent', 20, 'LOINC:LA15619-2', ''),
-       ('sdoh_education_level', 'some_college', 'Some college, no degree', 30, 'LOINC:LA15620-0', ''),
-       ('sdoh_education_level', 'assoc', 'Associate degree', 40, 'LOINC:LA15621-8', ''),
-       ('sdoh_education_level', 'bachelor', 'Bachelor’s degree', 50, 'LOINC:LA12460-4', ''),
-       ('sdoh_education_level', 'master', 'Master’s degree', 60, 'LOINC:LA12461-2', ''),
-       ('sdoh_education_level', 'professional', 'Professional school degree', 70, 'LOINC:LA15625-9', ''),
-       ('sdoh_education_level', 'doctorate', 'Doctoral degree', 80, 'LOINC:LA15626-7', ''),
-       ('sdoh_education_level', 'declined', 'Declined', 90, 'LOINC:LA4389-8', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('pregnancy_status', 'pregnant', 'Pregnant', 10, 'SNOMED-CT:77386006', ''),
-       ('pregnancy_status', 'not_pregnant', 'Not pregnant', 20, 'SNOMED-CT:60001007', ''),
-       ('pregnancy_status', 'possible', 'Possible pregnancy', 30, 'SNOMED-CT:146799005', ''),
-       ('pregnancy_status', 'unconfirmed', 'Pregnancy not yet confirmed', 40, 'SNOMED-CT:152231000119106', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('postpartum_status', 'postpartum', 'Postpartum (≤6 weeks)', 10, 'SNOMED-CT:10152009', '');
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
-VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 10, 'LOINC:88121-9', 'Includes items 88122-7, 88123-5; risk 88124-3'),
-       ('sdoh_instruments', 'ahc_hrsn_core', 'AHC HRSN – Core', 20, 'LOINC:96777-8', ''),
-       ('sdoh_instruments', 'ahc_hrsn_supp', 'AHC HRSN – Supplemental', 30, 'LOINC:97023-6', 'Financial strain 76513-1; loneliness 93159-2'),
-       ('sdoh_instruments', 'prapare', 'PRAPARE', 40, 'LOINC:93025-5', ''),
-       ('sdoh_instruments', 'ipv_hark', 'Intimate Partner Violence – HARK', 50, 'LOINC:76499-3', '');
--- -----------------------------------------------------------------------------------------------------------------------------------------------------------
-
--- Vital Signs Answers (single set; no duplicate parent)
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists','vital_signs_answers','Vital Signs Answers',0,0,0,'',1);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('vital_signs_answers', 'LA28397-0', 'Often true', 10, 'LOINC:LA28397-0', 1),
-       ('vital_signs_answers', 'LA28398-8', 'Sometimes true', 20, 'LOINC:LA28398-8', 1),
-       ('vital_signs_answers', 'LA28399-6', 'Never true', 30, 'LOINC:LA28399-6', 1);
-
--- Tribal Affiliations
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists','tribal_affiliations','Tribal Affiliation',0,0,0,'USCDI v3 Required - HL7 TribalEntityUS',1);
-
-INSERT INTO list_options (list_id, option_id, title, seq, notes, activity)
-VALUES ('tribal_affiliations', 'coquille', 'Coquille Indian Tribe', 10, '65', 1),
-       ('tribal_affiliations', 'cherokee_nation', 'Cherokee Nation (OK)', 20, '40', 1),
-       ('tribal_affiliations', 'chickasaw_nation', 'Chickasaw Nation (OK)', 30, '43', 1),
-       ('tribal_affiliations', 'choctaw_nation', 'Choctaw Nation of Oklahoma', 40, '47', 1),
-       ('tribal_affiliations', 'gila_river', 'Gila River Indian Community (AZ)', 50, '93', 1),
-       ('tribal_affiliations', 'hopi', 'Hopi Tribe (AZ)', 60, '104', 1),
-       ('tribal_affiliations', 'navajo_nation', 'Navajo Nation (AZ/NM/UT)', 70, '170', 1),
-       ('tribal_affiliations', 'standing_rock', 'Standing Rock Sioux Tribe (ND/SD)', 80, '289', 1),
-       ('tribal_affiliations', 'tohono_oodham', 'Tohono O''odham Nation (AZ)', 90, '302', 1),
-       ('tribal_affiliations', 'white_mountain_apache', 'White Mountain Apache Tribe (AZ)', 100, '325', 1),
-       ('tribal_affiliations', 'zuni', 'Zuni Tribe (NM)', 110, '337', 1),
-       ('tribal_affiliations', 'other_specify', 'Other (specify)', 120, '000', 1);
-
--- Disability Status parent exists above; now the answers
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists','disability_status','Disability Status',0,1,0,'',1);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('disability_status', 'im_safe', 'I''m Safe.', 10, 'LOINC:LA29242-7', 1),
-       ('disability_status', 'im_vulnerable', 'I''m Vulnerable.', 20, 'LOINC:LA29243-5', 1),
-       ('disability_status', 'im_at_risk', 'I''m at risk.', 30, 'LOINC:LA29244-3', 1),
-       ('disability_status', 'im_in_crisis', 'I''m in crisis.', 40, 'LOINC:LA29245-0', 1);
-
--- SDOH Problems (single set)
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists','sdoh_problems','SDOH Problems/Health Concerns',0,0,0,'USCDI v3 SDOH - Gravity Project',1);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('sdoh_problems', '160903007', 'Lives alone', 10, 'SNOMED:160903007', 1),
-       ('sdoh_problems', '224130005', 'Difficulty accessing healthcare', 20, 'SNOMED:224130005', 1),
-       ('sdoh_problems', '182964004', 'Medication not available', 30, 'SNOMED:182964004', 1),
-       ('sdoh_problems', '73438004', 'Educational problem', 40, 'SNOMED:73438004', 1),
-       ('sdoh_problems', '266948004', 'Unemployed', 50, 'SNOMED:266948004', 1),
-       ('sdoh_problems', 'Z59.1', 'Inadequate housing', 60, 'ICD10CM:Z59.1', 1),
-       ('sdoh_problems', 'Z59.4', 'Lack of adequate food', 70, 'ICD10CM:Z59.4', 1),
-       ('sdoh_problems', 'Z59.6', 'Low income', 80, 'ICD10CM:Z59.6', 1),
-       ('sdoh_problems', 'Z62.9', 'Problem related to upbringing', 90, 'ICD10CM:Z62.9', 1),
-       ('sdoh_problems', '266944006', 'Lives in poverty', 100, 'SNOMED:266944006', 1);
-
--- SDOH Interventions (fixed duplicate option_id for 467681000124101)
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
-VALUES ('lists','sdoh_interventions','SDOH Interventions',0,0,0,'USCDI v3 SDOH Interventions - Gravity Project',1);
-
-INSERT INTO list_options (list_id, option_id, title, seq, codes, activity)
-VALUES ('sdoh_interventions', '467681000124101', 'Referral to food assistance program', 10, 'SNOMED:467681000124101', 1),
-       ('sdoh_interventions', 'assist_food_program', 'Assistance with application for food program', 90, 'SNOMED:467681000124101', 1),
-       ('sdoh_interventions', '467711000124100', 'Referral to housing assistance program', 20, 'SNOMED:467711000124100', 1),
-       ('sdoh_interventions', '467721000124107', 'Referral to transportation assistance program', 30, 'SNOMED:467721000124107', 1),
-       ('sdoh_interventions', '467731000124109', 'Referral to utility assistance program', 40, 'SNOMED:467731000124109', 1),
-       ('sdoh_interventions', '428191000124101', 'Education about community resources', 50, 'SNOMED:428191000124101', 1),
-       ('sdoh_interventions', '464031000124108', 'Referral to social worker', 60, 'SNOMED:464031000124108', 1),
-       ('sdoh_interventions', '385763009', 'Lifestyle education', 70, 'SNOMED:385763009', 1),
-       ('sdoh_interventions', '467741000124103', 'Referral to financial assistance program', 80, 'SNOMED:467741000124103', 1),
-       ('sdoh_interventions', '467701000124103', 'Assistance with application for housing program', 100, 'SNOMED:467701000124103', 1),
-       ('sdoh_interventions', 'assist_transport', 'Assistance with transportation', 110, 'SNOMED:467721000124107', 1);
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_status', 'Care Plan Status', 0);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','draft','Draft',10);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','active','Active',20);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','on-hold','On hold',30);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','revoked','Revoked',40);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
--- --------------------------------------------------------------------------------------------------------------------------------------------------------------
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('lists', 'specimen_type', 'Specimen Type', 1, 0, 0, '', 'FHIR Specimen.type - SNOMED CT preferred');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('specimen_type', '119297000', 'Blood specimen', 10, 1, 0, 'SNOMED-CT:119297000', 'Whole blood'),
-    ('specimen_type', '122555007', 'Venous blood specimen', 15, 0, 0, 'SNOMED-CT:122555007', 'Venous blood'),
-    ('specimen_type', '122554006', 'Capillary blood specimen', 20, 0, 0, 'SNOMED-CT:122554006', 'Capillary blood'),
-    ('specimen_type', '119364003', 'Serum specimen', 30, 0, 0, 'SNOMED-CT:119364003', 'Blood serum'),
-    ('specimen_type', '119361006', 'Plasma specimen', 40, 0, 0, 'SNOMED-CT:119361006', 'Blood plasma'),
-    ('specimen_type', '122556008', 'Cord blood specimen', 50, 0, 0, 'SNOMED-CT:122556008', 'Umbilical cord blood'),
-    ('specimen_type', '122560006', 'Arterial blood specimen', 60, 0, 0, 'SNOMED-CT:122560006', 'Arterial blood'),
-    ('specimen_type', '258580003', 'Whole blood specimen', 65, 0, 0, 'SNOMED-CT:258580003', 'Whole blood for testing'),
-    ('specimen_type', '122575003', 'Urine specimen', 70, 0, 0, 'SNOMED-CT:122575003', 'Urine'),
-    ('specimen_type', '278020009', 'Spot urine specimen', 75, 0, 0, 'SNOMED-CT:278020009', 'Random/spot urine'),
-    ('specimen_type', '258574006', 'Midstream urine specimen', 80, 0, 0, 'SNOMED-CT:258574006', 'Midstream catch'),
-    ('specimen_type', '258566001', '24-hour urine specimen', 85, 0, 0, 'SNOMED-CT:258566001', '24-hour collection'),
-    ('specimen_type', '119376003', 'Tissue specimen', 90, 0, 0, 'SNOMED-CT:119376003', 'Tissue'),
-    ('specimen_type', '119327009', 'Tissue specimen from skin', 95, 0, 0, 'SNOMED-CT:119327009', 'Skin biopsy'),
-    ('specimen_type', '430268003', 'Bone specimen', 100, 0, 0, 'SNOMED-CT:430268003', 'Bone tissue'),
-    ('specimen_type', '258415003', 'Biopsy specimen', 105, 0, 0, 'SNOMED-CT:258415003', 'Biopsy'),
-    ('specimen_type', '309051001', 'Body fluid specimen', 110, 0, 0, 'SNOMED-CT:309051001', 'Body fluid'),
-    ('specimen_type', '258450006', 'Cerebrospinal fluid specimen', 120, 0, 0, 'SNOMED-CT:258450006', 'CSF'),
-    ('specimen_type', '119378004', 'Amniotic fluid specimen', 125, 0, 0, 'SNOMED-CT:119378004', 'Amniotic fluid'),
-    ('specimen_type', '258459008', 'Gastric fluid specimen', 130, 0, 0, 'SNOMED-CT:258459008', 'Gastric aspirate'),
-    ('specimen_type', '258442002', 'Bile specimen', 135, 0, 0, 'SNOMED-CT:258442002', 'Bile fluid'),
-    ('specimen_type', '258498002', 'Synovial fluid specimen', 140, 0, 0, 'SNOMED-CT:258498002', 'Joint fluid'),
-    ('specimen_type', '119323008', 'Pus specimen', 145, 0, 0, 'SNOMED-CT:119323008', 'Pus/purulent drainage'),
-    ('specimen_type', '119334006', 'Sputum specimen', 150, 0, 0, 'SNOMED-CT:119334006', 'Sputum'),
-    ('specimen_type', '258603007', 'Respiratory tract specimen', 155, 0, 0, 'SNOMED-CT:258603007', 'Respiratory specimen'),
-    ('specimen_type', '258500001', 'Nasopharyngeal swab', 160, 0, 0, 'SNOMED-CT:258500001', 'NP swab'),
-    ('specimen_type', '472901003', 'Swab from nasal sinus', 165, 0, 0, 'SNOMED-CT:472901003', 'Nasal swab'),
-    ('specimen_type', '258529004', 'Throat swab', 170, 0, 0, 'SNOMED-CT:258529004', 'Throat culture swab'),
-    ('specimen_type', '258607008', 'Bronchoalveolar lavage fluid specimen', 175, 0, 0, 'SNOMED-CT:258607008', 'BAL fluid'),
-    ('specimen_type', '119339001', 'Stool specimen', 180, 0, 0, 'SNOMED-CT:119339001', 'Fecal specimen'),
-    ('specimen_type', '119342007', 'Saliva specimen', 190, 0, 0, 'SNOMED-CT:119342007', 'Saliva'),
-    ('specimen_type', '258455001', 'Gastric aspirate specimen', 195, 0, 0, 'SNOMED-CT:258455001', 'Gastric contents'),
-    ('specimen_type', '119295008', 'Aspirate', 200, 0, 0, 'SNOMED-CT:119295008', 'Specimen obtained by aspiration'),
-    ('specimen_type', '119396002', 'Specimen from vagina', 210, 0, 0, 'SNOMED-CT:119396002', 'Vaginal specimen'),
-    ('specimen_type', '119397006', 'Specimen from cervix', 215, 0, 0, 'SNOMED-CT:119397006', 'Cervical specimen'),
-    ('specimen_type', '119393003', 'Specimen from urethra', 220, 0, 0, 'SNOMED-CT:119393003', 'Urethral specimen'),
-    ('specimen_type', '119395003', 'Semen specimen', 225, 0, 0, 'SNOMED-CT:119395003', 'Seminal fluid'),
-    ('specimen_type', '119303007', 'Microbial isolate specimen', 230, 0, 0, 'SNOMED-CT:119303007', 'Microbial culture');
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('lists', 'specimen_location', 'Specimen Collection Site', 1, 0, 0, '', 'FHIR Specimen.collection.bodySite - SNOMED CT required');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('specimen_location', '368208006', 'Left upper arm structure', 10, 0, 0, 'SNOMED-CT:368208006', 'Left arm'),
-    ('specimen_location', '368209003', 'Right upper arm structure', 20, 1, 0, 'SNOMED-CT:368209003', 'Right arm'),
-    ('specimen_location', '16671000205103', 'Structure of left antecubital fossa', 30, 0, 0, 'SNOMED-CT:16671000205103', 'Left AC fossa'),
-    ('specimen_location', '16681000205101', 'Structure of right antecubital fossa', 40, 0, 0, 'SNOMED-CT:16681000205101', 'Right AC fossa'),
-    ('specimen_location', '368456002', 'Left forearm structure', 50, 0, 0, 'SNOMED-CT:368456002', 'Left forearm'),
-    ('specimen_location', '368454004', 'Right forearm structure', 60, 0, 0, 'SNOMED-CT:368454004', 'Right forearm'),
-    ('specimen_location', '85151006', 'Structure of left hand', 70, 0, 0, 'SNOMED-CT:85151006', 'Left hand'),
-    ('specimen_location', '78791008', 'Structure of right hand', 80, 0, 0, 'SNOMED-CT:78791008', 'Right hand'),
-    ('specimen_location', '762101005', 'Structure of left index finger', 85, 0, 0, 'SNOMED-CT:762101005', 'Left index finger'),
-    ('specimen_location', '762106000', 'Structure of right index finger', 87, 0, 0, 'SNOMED-CT:762106000', 'Right index finger'),
-    ('specimen_location', '7569003', 'Finger structure', 90, 0, 0, 'SNOMED-CT:7569003', 'Finger (unspecified)'),
-    ('specimen_location', '76853006', 'Structure of heel', 100, 0, 0, 'SNOMED-CT:76853006', 'Heel stick'),
-    ('specimen_location', '29707007', 'Structure of toe', 105, 0, 0, 'SNOMED-CT:29707007', 'Toe'),
-    ('specimen_location', '117590005', 'Structure of ear', 110, 0, 0, 'SNOMED-CT:117590005', 'Ear lobe'),
-    ('specimen_location', '45206002', 'Nasal structure', 120, 0, 0, 'SNOMED-CT:45206002', 'Nose/nasal cavity'),
-    ('specimen_location', '71836000', 'Nasopharyngeal structure', 130, 0, 0, 'SNOMED-CT:71836000', 'Nasopharynx'),
-    ('specimen_location', '31389004', 'Oropharyngeal structure', 140, 0, 0, 'SNOMED-CT:31389004', 'Oropharynx'),
-    ('specimen_location', '54066008', 'Pharyngeal structure', 150, 0, 0, 'SNOMED-CT:54066008', 'Throat/pharynx'),
-    ('specimen_location', '44567001', 'Tracheal structure', 155, 0, 0, 'SNOMED-CT:44567001', 'Trachea'),
-    ('specimen_location', '39607008', 'Lung structure', 160, 0, 0, 'SNOMED-CT:39607008', 'Lung'),
-    ('specimen_location', '13648007', 'Urethral structure', 170, 0, 0, 'SNOMED-CT:13648007', 'Urethra'),
-    ('specimen_location', '71252005', 'Cervix uteri structure', 180, 0, 0, 'SNOMED-CT:71252005', 'Cervix'),
-    ('specimen_location', '76784001', 'Vaginal structure', 190, 0, 0, 'SNOMED-CT:76784001', 'Vagina'),
-    ('specimen_location', '34402009', 'Rectum structure', 200, 0, 0, 'SNOMED-CT:34402009', 'Rectum'),
-    ('specimen_location', '13024002', 'Male genital structure', 205, 0, 0, 'SNOMED-CT:13024002', 'Male genitalia'),
-    ('specimen_location', '416462003', 'Wound', 210, 0, 0, 'SNOMED-CT:416462003', 'Wound site'),
-    ('specimen_location', '125643001', 'Open wound', 215, 0, 0, 'SNOMED-CT:125643001', 'Open wound'),
-    ('specimen_location', '39937001', 'Skin structure', 220, 0, 0, 'SNOMED-CT:39937001', 'Skin'),
-    ('specimen_location', '128477000', 'Abscess', 225, 0, 0, 'SNOMED-CT:128477000', 'Abscess'),
-    ('specimen_location', '83419000', 'Spinal canal structure', 230, 0, 0, 'SNOMED-CT:83419000', 'CSF collection site'),
-    ('specimen_location', '39352004', 'Joint structure', 240, 0, 0, 'SNOMED-CT:39352004', 'Joint (arthrocentesis)'),
-    ('specimen_location', '38266002', 'Entire body', 250, 0, 0, 'SNOMED-CT:38266002', 'Body as a whole'),
-    ('specimen_location', '113345001', 'Abdominal structure', 255, 0, 0, 'SNOMED-CT:113345001', 'Abdomen'),
-    ('specimen_location', '69105007', 'Carotid artery structure', 260, 0, 0, 'SNOMED-CT:69105007', 'Carotid artery'),
-    ('specimen_location', '51185008', 'Radial artery structure', 265, 0, 0, 'SNOMED-CT:51185008', 'Radial artery');
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('lists', 'specimen_condition', 'Specimen Condition', 1, 0, 0, '', 'FHIR uses HL7 v2 Table 0493 - specimen condition/state');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('specimen_condition', 'AUT', 'Autolyzed', 10, 0, 0, 'HL7V20493:AUT', 'Autolyzed specimen'),
-    ('specimen_condition', 'CLOT', 'Clotted', 20, 0, 0, 'HL7V20493:CLOT', 'Specimen clotted'),
-    ('specimen_condition', 'CON', 'Contaminated', 30, 0, 0, 'HL7V20493:CON', 'Specimen contaminated'),
-    ('specimen_condition', 'COOL', 'Cool', 40, 0, 0, 'HL7V20493:COOL', 'Cooled specimen'),
-    ('specimen_condition', 'FROZ', 'Frozen', 50, 0, 0, 'HL7V20493:FROZ', 'Frozen specimen'),
-    ('specimen_condition', 'HEM', 'Hemolyzed', 60, 0, 0, 'HL7V20493:HEM', 'Hemolyzed specimen'),
-    ('specimen_condition', 'LIVE', 'Live', 70, 0, 0, 'HL7V20493:LIVE', 'Live organism'),
-    ('specimen_condition', 'ROOM', 'Room temperature', 80, 0, 0, 'HL7V20493:ROOM', 'Room temperature'),
-    ('specimen_condition', 'SNR', 'Sample not received', 90, 0, 0, 'HL7V20493:SNR', 'Not received by lab'),
-    ('specimen_condition', 'THAW', 'Thawed', 100, 0, 0, 'HL7V20493:THAW', 'Thawed specimen'),
-    ('specimen_condition', 'UNFZ', 'Unfrozen', 110, 0, 0, 'HL7V20493:UNFZ', 'Unfrozen specimen'),
-    ('specimen_condition', 'WARM', 'Warm', 120, 0, 0, 'HL7V20493:WARM', 'Warmed specimen'),
-    ('specimen_condition', 'WET', 'Wet', 130, 0, 0, 'HL7V20493:WET', 'Wet specimen'),
-    ('specimen_condition', 'DRY', 'Dry', 140, 0, 0, 'HL7V20493:DRY', 'Dry specimen'),
-    ('specimen_condition', 'OTHER', 'Other', 150, 0, 0, 'HL7V20493:OTHER', 'Other condition'),
-    ('specimen_condition', 'acceptable', 'Acceptable', 160, 1, 0, '','Specimen is acceptable for testing'),
-    ('specimen_condition', 'QNS', 'Quantity not sufficient', 170, 0, 0, 'LOCAL:QNS', 'Insufficient volume'),
-    ('specimen_condition', 'HEMOLYZED', 'Hemolyzed', 180, 0, 0, 'LOCAL:HEM', 'Hemolysis detected'),
-    ('specimen_condition', 'LIPEMIC', 'Lipemic', 190, 0, 0, 'LOCAL:LIP', 'Lipemia present'),
-    ('specimen_condition', 'ICTERIC', 'Icteric', 200, 0, 0, 'LOCAL:ICT', 'Icterus/jaundice'),
-    ('specimen_condition', 'EXPIRED', 'Specimen expired', 210, 0, 0, 'LOCAL:EXP', 'Past stability time'),
-    ('specimen_condition', 'MISLABELED', 'Mislabeled', 220, 0, 0, 'LOCAL:MISLAB', 'Labeling error'),
-    ('specimen_condition', 'UNLABELED', 'Unlabeled', 230, 0, 0, 'LOCAL:NOLAB', 'No label present'),
-    ('specimen_condition', 'DAMAGED', 'Container damaged', 240, 0, 0, 'LOCAL:DAM', 'Container leak/break'),
-    ('specimen_condition', 'WRONGTEMP', 'Improper storage temperature', 250, 0, 0, 'LOCAL:TEMP', 'Temperature abuse'),
-    ('specimen_condition', 'WRONGTUBE', 'Wrong collection container', 260, 0, 0, 'LOCAL:TUBE', 'Incorrect tube type');
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('lists', 'specimen_collection_method', 'Specimen Collection Method', 1, 0, 0, '', 'SNOMED-CT binding');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
-    ('specimen_collection_method', '129316008', 'Aspiration', 10, 0, 0, 'SNOMED-CT:129316008', 'Aspiration procedure'),
-    ('specimen_collection_method', '129300006', 'Puncture', 20, 0, 0, 'SNOMED-CT:129300006', 'Puncture procedure'),
-    ('specimen_collection_method', '129314006', 'Biopsy', 30, 0, 0, 'SNOMED-CT:129314006', 'Biopsy procedure'),
-    ('specimen_collection_method', '129304002', 'Excision', 40, 0, 0, 'SNOMED-CT:129304002', 'Excision procedure'),
-    ('specimen_collection_method', '129323009', 'Scraping', 50, 0, 0, 'SNOMED-CT:129323009', 'Scraping procedure'),
-    ('specimen_collection_method', '70777001', 'Swab', 60, 0, 0, 'SNOMED-CT:70777001', 'Swab procedure'),
-    ('specimen_collection_method', '225113003', 'Timed collection', 70, 0, 0, 'SNOMED-CT:225113003', 'Timed specimen collection'),
-    ('specimen_collection_method', '386089008', 'Collection of coughed sputum', 80, 0, 0, 'SNOMED-CT:386089008', 'Sputum collection'),
-    ('specimen_collection_method', '278450005', 'Finger-prick sampling', 90, 0, 0, 'SNOMED-CT:278450005', 'Capillary blood collection'),
-    ('specimen_collection_method', '28520004', 'Venipuncture', 100, 1, 0, 'SNOMED-CT:28520004', 'Venous blood draw'),
-    ('specimen_collection_method', '76499008', 'Arterial puncture', 110, 0, 0, 'SNOMED-CT:76499008', 'Arterial blood draw'),
-    ('specimen_collection_method', '258574006', 'Midstream urine', 120, 0, 0, 'SNOMED-CT:258574006', 'Midstream urine collection'),
-    ('specimen_collection_method', '73416001', 'Urine specimen collection, clean catch', 130, 0, 0, 'SNOMED-CT:73416001', 'Clean catch method'),
-    ('specimen_collection_method', '386090004', 'Catheter specimen of urine', 140, 0, 0, 'SNOMED-CT:386090004', 'Catheterized urine'),
-    ('specimen_collection_method', '386091000', 'Suprapubic aspiration of urine', 150, 0, 0, 'SNOMED-CT:386091000', 'Suprapubic tap'),
-    ('specimen_collection_method', '397394008', 'Bronchoalveolar lavage', 160, 0, 0, 'SNOMED-CT:397394008', 'BAL procedure'),
-    ('specimen_collection_method', '168138009', 'Nasopharyngeal swab', 170, 0, 0, 'SNOMED-CT:168138009', 'NP swab collection'),
-    ('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');

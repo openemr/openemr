@@ -39,7 +39,7 @@ SessionUtil::portalSessionStart();
 // if this script is included somewhere else we want to support them changing up the landingpage url such as adding
 // parameters, or even setting what the landing page should be for the portal verify session.
 if (!isset($landingpage)) {
-    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+    $landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? null));
 }
 
 if (!isset($skipLandingPageError)) {

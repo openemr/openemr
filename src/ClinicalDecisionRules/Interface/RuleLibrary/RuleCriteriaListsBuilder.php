@@ -29,9 +29,9 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "lists")) {
+        if (strpos((string) $method, "lists")) {
             if ($methodDetail == 'medical_problem') {
-                $exploded = explode("::", $value);
+                $exploded = explode("::", (string) $value);
                 if ($exploded[0] == "CUSTOM") {
                     // its a medical issue
                     return RuleCriteriaType::from(RuleCriteriaType::issue);
@@ -61,7 +61,7 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {
-        $exploded = explode("::", $value);
+        $exploded = explode("::", (string) $value);
 
         if ($ruleCriteriaType->code == 'issue') {
             return new RuleCriteriaMedicalIssue(xl("Medical Issue"), $exploded[1]);

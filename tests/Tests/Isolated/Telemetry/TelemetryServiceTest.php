@@ -780,7 +780,7 @@ class TelemetryServiceTest extends TestCase
 
         // Verify method exists and is callable
         $this->assertTrue(method_exists($telemetryService, 'trackApiRequestEvent'));
-        $this->assertTrue(is_callable([$telemetryService, 'trackApiRequestEvent']));
+        $this->assertTrue(is_callable($telemetryService->trackApiRequestEvent(...)));
 
         // Test method signature
         $reflection = new \ReflectionMethod($telemetryService, 'trackApiRequestEvent');

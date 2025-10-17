@@ -71,7 +71,7 @@ trait EmailTestingTrait
         try {
             $response = $this->httpClient->get("/api/v1/message/{$id}");
             return json_decode($response->getBody()->getContents(), true);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -112,7 +112,7 @@ trait EmailTestingTrait
         try {
             $this->httpClient->delete("/api/v1/messages");
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
@@ -138,7 +138,7 @@ trait EmailTestingTrait
                 $messageSubject = $message['Subject'] ?? '';
 
                 foreach ($toAddresses as $to) {
-                    if (strcasecmp($to['Address'], $recipient) === 0) {
+                    if (strcasecmp((string) $to['Address'], $recipient) === 0) {
                         if ($subject === null || stripos($messageSubject, $subject) !== false) {
                             return $message;
                         }
@@ -214,7 +214,7 @@ trait EmailTestingTrait
             $toAddresses = $message['To'] ?? [];
 
             foreach ($toAddresses as $to) {
-                if (strcasecmp($to['Address'], $recipient) === 0) {
+                if (strcasecmp((string) $to['Address'], $recipient) === 0) {
                     return $message;
                 }
             }

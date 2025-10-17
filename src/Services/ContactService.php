@@ -59,7 +59,7 @@ class ContactService extends BaseService
 
             // grab all of the NEW records and insert them in as address records for the given patient
 //            \sqlCommitTrans();
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // TODO: @adunsulag handle exception
 //            \sqlRollbackTrans();
         }

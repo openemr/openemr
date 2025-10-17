@@ -842,7 +842,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return true;
         }
 
-        return (strcasecmp($row['Type'], $coltype) == 0);
+        return (strcasecmp((string) $row['Type'], $coltype) == 0);
     }
 
 
@@ -863,7 +863,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
 
         // Check if the type matches
-        if (strcasecmp($row['Type'], $coltype) != 0) {
+        if (strcasecmp((string) $row['Type'], $coltype) != 0) {
             return false;
         }
 
@@ -878,7 +878,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return (!empty($row));
         } else {
             // Standard case when checking if default is neither NULL or ""(blank)
-            return (strcasecmp($row['Default'], $coldefault) == 0);
+            return (strcasecmp((string) $row['Default'], $coldefault) == 0);
         }
     }
 
@@ -1216,7 +1216,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (str_starts_with($form_id, 'LBF')) {
+            if (str_starts_with((string) $form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1227,7 +1227,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (str_starts_with($form_id, 'LBT')) {
+            } elseif (str_starts_with((string) $form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]
@@ -1261,7 +1261,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 "grp_repeats = ?";
             $sqlvars = [$form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']];
             if ($props['notes']) {
-                $jobj = json_decode($props['notes'], true);
+                $jobj = json_decode((string) $props['notes'], true);
                 if (isset($jobj['columns'])) {
                     $query .= ", grp_columns = ?";
                     $sqlvars[] = $jobj['columns'];
@@ -1306,7 +1306,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 $group_name = $grow['group_name'];
                 $group_id = '';
                 $title = '';
-                $a = explode('|', $group_name);
+                $a = explode('|', (string) $group_name);
                 foreach ($a as $tmp) {
                     $group_id .= substr($tmp, 0, 1);
                     $title = substr($tmp, 1);
@@ -1359,10 +1359,10 @@ class SQLUpgradeService implements ISQLUpgradeService
         try {
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
-                    $options = json_decode($row['edit_options'], true) ?? [];
-                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
+                    $options = json_decode((string) $row['edit_options'], true) ?? [];
+                    if (!in_array($add_option, $options) && stripos((string) $mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos((string) $mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {

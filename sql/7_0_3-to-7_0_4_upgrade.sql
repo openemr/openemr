@@ -1297,3 +1297,183 @@ ALTER TABLE `employer_data` ADD COLUMN `created_by` INT DEFAULT NULL COMMENT 'fk
 #IfMissingColumn employer_data uuid
 ALTER TABLE `employer_data` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this employer record, for data exchange purposes';
 #EndIf
+-- ------------------------------------------------------------------- 10-10-2025 sjp-----------------------------------------------------------------------------
+-- =====================================================================
+-- US Core 8.0 ServiceRequest Database Migration
+-- For ONC 2025 USCDI v5 Compliance
+-- =====================================================================
+--
+#IfMissingColumn procedure_order scheduled_date
+ALTER TABLE `procedure_order`
+    ADD COLUMN `scheduled_date` DATETIME DEFAULT NULL
+        COMMENT 'Scheduled date for service (FHIR occurrence[x])',
+    ADD COLUMN `scheduled_start` DATETIME DEFAULT NULL
+        COMMENT 'Scheduled start time (FHIR occurrencePeriod.start)',
+    ADD COLUMN `scheduled_end` DATETIME DEFAULT NULL
+        COMMENT 'Scheduled end time (FHIR occurrencePeriod.end)',
+    ADD COLUMN `performer_type` VARCHAR(50) DEFAULT NULL
+        COMMENT 'Type of performer: laboratory, radiology, pathology (SNOMED CT)',
+    ADD COLUMN `order_intent` VARCHAR(31) NOT NULL DEFAULT 'order'
+        COMMENT 'FHIR intent: order, plan, directive, proposal',
+    ADD COLUMN `location_id` INT DEFAULT NULL
+        COMMENT 'References facility.id for service location (FHIR locationReference)';
+ALTER TABLE `procedure_order`
+    ADD INDEX IF NOT EXISTS `idx_scheduled_date` (`scheduled_date`),
+    ADD INDEX IF NOT EXISTS `idx_order_intent` (`order_intent`),
+    ADD INDEX IF NOT EXISTS `idx_location_id` (`location_id`);
+#EndIf
+
+#IfNotRow2D list_options list_id ord_priority option_id routine
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('ord_priority', 'routine', 'Routine', 45, 1, 0, 'Normal priority order', 1),
+    ('ord_priority', 'urgent', 'Urgent', 55, 0, 0, 'Urgent priority order', 1),
+    ('ord_priority', 'asap', 'ASAP', 65, 0, 0, 'As soon as possible', 1),
+    ('ord_priority', 'stat', 'STAT', 75, 0, 0, 'Immediate/emergency', 1);
+#EndIf
+#IfNotRow2D list_options list_id lists option_id order_intent
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+    VALUES ('lists', 'order_intent', 'Order Intent', 1, 0, 0, 'FHIR ServiceRequest intent values', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+VALUES
+    ('order_intent', 'order', 'Order', 10, 1, 0, 'Request for action to occur as specified', 1),
+    ('order_intent', 'plan', 'Plan', 20, 0, 0, 'Intention to perform an action', 1),
+    ('order_intent', 'directive', 'Directive', 30, 0, 0, 'Request with legal standing', 1),
+    ('order_intent', 'proposal', 'Proposal', 40, 0, 0, 'Suggestion for action', 1),
+    ('order_intent', 'option', 'Option', 50, 0, 0, 'Option for consideration', 1);
+#EndIf
+#IfNotRow2D list_options list_id lists option_id performer_type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`)
+    VALUES ('lists', 'performer_type', 'Performer Type', 1, 0, 0, 'FHIR ServiceRequest performer type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `codes`)
+VALUES
+    ('performer_type', 'laboratory', 'Laboratory', 10, 1, 0, 'Laboratory technician', 'SNOMED:159001'),
+    ('performer_type', 'radiology', 'Radiology', 20, 0, 0, 'Radiologist', 'SNOMED:66862007'),
+    ('performer_type', 'pathology', 'Pathology', 30, 0, 0, 'Pathologist', 'SNOMED:61207006'),
+    ('performer_type', 'cardiology', 'Cardiology', 40, 0, 0, 'Cardiologist', ''),
+    ('performer_type', 'pharmacy', 'Pharmacy', 50, 0, 0, 'Pharmacist', '');
+#EndIf
+
+#IfNotTable procedure_order_relationships
+CREATE TABLE `procedure_order_relationships` (
+     `id` INT AUTO_INCREMENT PRIMARY KEY,
+     `procedure_order_id` BIGINT(20) NOT NULL COMMENT 'Links to procedure_order.procedure_order_id',
+     `resource_type` VARCHAR(50) NOT NULL COMMENT 'FHIR resource type (Observation, Condition, etc.)',
+     `resource_uuid` BINARY(16) NOT NULL COMMENT 'UUID of the related resource',
+     `relationship` VARCHAR(50) DEFAULT NULL COMMENT 'Type of relationship',
+     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     `created_by` BIGINT(20) DEFAULT NULL COMMENT 'User who created this link',
+     INDEX `idx_order_id` (`procedure_order_id`),
+     INDEX `idx_resource` (`resource_type`, `resource_uuid`),
+     INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links ServiceRequests to supporting clinical information';
+
+-- --------------------------- Migrate existing data ---------------------------------------------------------------
+-- Set order_intent default for existing orders
+UPDATE `procedure_order` SET `order_intent` = 'order' WHERE `order_intent` IS NULL OR `order_intent` = '';
+-- Set default priority if empty (and not already set)
+UPDATE `procedure_order` SET `order_priority` = 'routine' WHERE (`order_priority` IS NULL OR `order_priority` = '') AND `date_ordered` IS NOT NULL;
+-- Infer performer_type from procedure_order_type for existing orders
+UPDATE `procedure_order`
+SET `performer_type` = CASE
+   WHEN `procedure_order_type` = 'laboratory_test' THEN 'laboratory'
+   WHEN `procedure_order_type` = 'imaging' THEN 'radiology'
+   WHEN `procedure_order_type` = 'clinical_test' THEN 'laboratory'
+   WHEN `procedure_order_type` = 'procedure' THEN NULL END WHERE `performer_type` IS NULL AND `procedure_order_type` IS NOT NULL;
+-- Copy date_collected to scheduled_date where appropriate
+UPDATE `procedure_order` SET `scheduled_date` = `date_collected` WHERE `scheduled_date` IS NULL AND `date_collected` IS NOT NULL AND `date_collected` > NOW();
+#EndIf
+
+#IfMissingColumn issue_encounter uuid
+ALTER TABLE `issue_encounter` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this issue encounter record, for data exchange purposes';
+#EndIf
+
+#IfMissingColumn issue_encounter id
+ALTER TABLE `issue_encounter` ADD UNIQUE INDEX `uniq_issue_key`(`pid`,`list_id`,`encounter`);
+ALTER TABLE `issue_encounter` DROP PRIMARY KEY;
+ALTER TABLE `issue_encounter` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfNotIndex issue_encounter uuid_unique
+ALTER TABLE `issue_encounter` ADD UNIQUE KEY `uuid_unique` (`uuid`);
+#EndIf
+
+#IfNotIndex employer_data uuid_unique
+ALTER TABLE `employer_data` ADD UNIQUE KEY `uuid_unique` (`uuid`);
+#EndIf
+
+#IfMissingColumn issue_encounter created_by
+ALTER TABLE `issue_encounter` ADD COLUMN `created_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that entered in the issue encounter data';
+#EndIf
+#IfMissingColumn issue_encounter updated_by
+ALTER TABLE `issue_encounter` ADD COLUMN `updated_by` bigint(20) DEFAULT NULL COMMENT 'fk to users.id for the user that last updated the issue encounter data';
+#EndIf
+#IfMissingColumn issue_encounter created_at
+ALTER TABLE `issue_encounter` ADD COLUMN `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was created';
+#EndIf
+#IfMissingColumn issue_encounter updated_at
+ALTER TABLE `issue_encounter` ADD COLUMN `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated';
+#EndIf
+
+
+#IfNotRow list_options list_id administrative_sex
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','administrative_sex','Administrative Sex',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1021.121 (expansive)',1);
+
+-- note USCDI V3 has a ton more options here, but USCDI V4 reverts to M/F/nonbinary/asked-decline with expansion allowed so adding in unknown to map values from patient_data.sex column
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248152002', ''),
+       ('administrative_sex', 'Female', 'Female', 20, 'SNOMED-CT:248153007', ''),
+       ('administrative_sex', 'nonbinary', 'Identifies as nonbinary gender (finding)', 20, 'SNOMED-CT:33791000087105', ''),
+       ('administrative_sex', 'asked-declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined', ''),
+       ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
+#EndIf
+
+#IfMissingColumn patient_data sex_identified
+ALTER TABLE `patient_data` ADD COLUMN `sex_identified` TEXT COMMENT 'Patient reported current sex';
+-- migrate existing values over as its a new column, people can change it later if needed
+UPDATE `patient_data` SET `sex_identified` = `sex` WHERE `sex` IS NOT NULL AND `sex` != '';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id sex_identified
+-- we rename Sex to Birth Sex and use the sex_identified to represent the 'Sex' label with the Administrative Sex list option
+UPDATE `layout_options` SET title='Birth Sex',description='Birth Sex' WHERE `form_id` = 'DEM' AND `field_id` = 'sex';
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='gender_identity' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='gender_identity' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
+    ('DEM','sex_identified',@group_id,'Sex',@seq_add_to+10,1,1,20,0,'administrative_sex',1,1,'UNK','sex_identified',"Sex",1,'','[\"N\"]','Sex',0,'');
+#Endif
+
+#IfNotRow list_options list_id yes_no_unknown
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','yes_no_unknown','Yes/No/Unknown',0,0,0,'Codeset from valueset https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1267.16/expansion',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('yes_no_unknown', 'yes', 'Yes', 10, 'SNOMED-CT:373066001', ''),
+       ('yes_no_unknown', 'no', 'No', 20, 'SNOMED-CT:373067005', ''),
+       ('yes_no_unknown', 'asked-unknown', 'Asked But Unknown', 30, 'DataAbsentReason:asked-unknown', ''),
+       ('yes_no_unknown', 'unknown', 'Unknown', 40, 'DataAbsentReason:unknown', '');
+#EndIf
+
+#IfMissingColumn patient_data interpreter_needed
+-- we add this column in order to map to the USCDI V4 element for interpreter needed since the patient_data.interpreter column is a free text field
+ALTER TABLE `patient_data` ADD COLUMN `interpreter_needed` TEXT COMMENT 'fk to list_options.option_id where list_id=yes_no_unknown used to determine if patient needs an interpreter';
+-- migrate existing values over as its a new column, people can change it later if needed
+UPDATE `patient_data` SET `interpreter_needed` = 'YES' WHERE `interpretter` IS NOT NULL AND `interpretter` != '' AND LOWER(TRIM(`interpretter`)) ='yes';
+UPDATE `patient_data` SET `interpreter_needed` = 'NO' WHERE `interpretter` IS NOT NULL AND `interpretter` != '' AND LOWER(TRIM(`interpretter`)) ='no';
+-- there are so many possibilities that for a structured data set we set the value to unknown
+UPDATE `patient_data` SET `interpreter_needed` = 'unknown' WHERE `interpreter_needed` IS NULL and `interpretter` IS NOT NULL AND `interpretter` != '';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id interpreter_needed
+-- we rename 'Interpreter' to 'Intepreter Comments' and add Interpreter Needed as structured data so we can programatically key off of it
+UPDATE `layout_options` SET title='Interpreter Comments',description='Additional notes about interpretation needs' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='homeless' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='homeless' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
+    ('DEM','interpreter_needed',@group_id,'Interpreter',@seq_add_to+5,1,1,20,0,'yes_no_unknown',1,1,'UNK','interpreter_needed',"Interpreter needed?",1,'','','',0,'');
+#Endif

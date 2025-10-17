@@ -31,7 +31,7 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
     $got_selected = false;
     while ($lrow = sqlFetchArray($lres)) {
         $s .= "<option   id='option_" . attr($lrow['option_id']) . "'" . " value='" . attr($lrow['option_id']) . "'";
-        if ((strlen($currvalue) == 0 && $lrow['is_default']) || (strlen($currvalue) > 0 && $lrow['option_id'] == $currvalue) || ($lrow['option_id'] == 'insurance_payment' && $screen == 'new_payment')) {
+        if ((strlen((string) $currvalue) == 0 && $lrow['is_default']) || (strlen((string) $currvalue) > 0 && $lrow['option_id'] == $currvalue) || ($lrow['option_id'] == 'insurance_payment' && $screen == 'new_payment')) {
             $s .= " selected";
             $got_selected = true;
         }
@@ -43,7 +43,7 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
         }
         $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && strlen((string) $currvalue) > 0) {
         $currescaped = text($currvalue);
         $s .= "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
         $s .= "</select>";

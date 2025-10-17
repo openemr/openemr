@@ -28,7 +28,7 @@ function smarty_core_assign_smarty_interface($params, &$smarty): void
 
         $_smarty_vars_request  = [];
 
-        foreach (preg_split('!!', strtolower($smarty->request_vars_order)) as $_c) {
+        foreach (preg_split('!!', strtolower((string) $smarty->request_vars_order)) as $_c) {
             if (isset($_globals_map[$_c])) {
                 $_smarty_vars_request = array_merge($_smarty_vars_request, $GLOBALS[$_globals_map[$_c]]);
             }

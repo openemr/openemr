@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
+use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
@@ -64,6 +66,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
 
         $this->service = new FhirQuestionnaireResponseFormService();
+        $this->service->setSystemLogger(new SystemLogger(Level::Critical));
 
         // Create test patient - AI Generated test data creation
         $this->createTestPatient();

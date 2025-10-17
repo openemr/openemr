@@ -242,7 +242,7 @@ $help_icon = '';
                             <label for='form_date' class="col-form-label col-sm-2"><?php echo xlt('Date of Service'); ?>:</label>
                             <div class="col-sm-3">
                                 <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
-                                       value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
+                                       value='<?php echo $viewmode ? attr(oeFormatShortDate(substr((string) $result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
                                        title='<?php echo xla('Date of service'); ?>'/>
                             </div>
 
@@ -251,7 +251,7 @@ $help_icon = '';
                                 <label for='form_onset_date' class="col-form-label col-sm-2"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date'
-                                           value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
+                                           value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr((string) $result['onset_date'], 0, 10))) : ''; ?>'
                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                 </div>
                             <?php if ($GLOBALS['ippf_specific']) {
@@ -386,7 +386,7 @@ if (!$viewmode) { ?>
     if (!empty($erow['encounter'])) {
         // If there is an encounter from today then present the duplicate visit dialog
         echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
-        js_escape(oeFormatShortDate(substr($erow['date'], 0, 10))) . ");\n";
+        js_escape(oeFormatShortDate(substr((string) $erow['date'], 0, 10))) . ");\n";
     }
 }
 ?>

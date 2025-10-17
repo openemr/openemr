@@ -156,7 +156,7 @@ function getBarId($lab_id, $pid): bool|array|string|null
 function getFacilityInfo($facilityID): bool|array
 {
     // facility ID will be in the format XX_YY, where XX is the lab-assigned id, Y is the user.id record representing that lab facility, and the _ is a divider.
-    $facility = explode("_", $facilityID);
+    $facility = explode("_", (string) $facilityID);
 
     if (count($facility) > 1) {
         $query = "SELECT `title`, `fname`, `lname`, `street`, `city`, `state`, `zip`, `organization`, `phone` FROM `users` WHERE `id` = ?";
@@ -170,11 +170,11 @@ function getFacilityInfo($facilityID): bool|array
 
 function formatPhone($phone): array|string|null
 {
-    $phone = preg_replace("/[^0-9]/", "", $phone);
-    if (strlen($phone) == 7) {
-        return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $phone);
-    } elseif (strlen($phone) == 10) {
-        return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $phone);
+    $phone = preg_replace("/[^0-9]/", "", (string) $phone);
+    if (strlen((string) $phone) == 7) {
+        return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", (string) $phone);
+    } elseif (strlen((string) $phone) == 10) {
+        return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", (string) $phone);
     } else {
         return $phone;
     }

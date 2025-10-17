@@ -78,18 +78,18 @@ class NumberToText
 
         //$negative = ($number < 0); // check for negative
         //$number = abs($number); // make sure we have a +ve number
-        if (str_starts_with($number, "-")) {
+        if (str_starts_with((string) $number, "-")) {
             $negative = true;
-            $number = substr($number, 1); // abs()
+            $number = substr((string) $number, 1); // abs()
         } else {
             $negative = false;
         }
 
         // get the integer and decimal parts
         //$int_o = $int = floor($number); // store into two vars
-        if ($pos = strpos($number, ".")) {
-            $int_o = $int = substr($number, 0, $pos);
-            $decimal_o = $decimal = substr($number, $pos + 1);
+        if ($pos = strpos((string) $number, ".")) {
+            $int_o = $int = substr((string) $number, 0, $pos);
+            $decimal_o = $decimal = substr((string) $number, $pos + 1);
         } else {
             $int_o = $int = $number;
             $decimal_o = $decimal = 0;
@@ -112,12 +112,12 @@ class NumberToText
             } else {
                 // we can handle it
 
-                if (strlen($int) < 3) {
+                if (strlen((string) $int) < 3) {
                       $convert = $int;
                       $int = 0;
                 } else {
-                      $convert = substr($int, -3); // grab the last 3 digits
-                      $int = substr($int, 0, -1 * strlen($convert));
+                      $convert = substr((string) $int, -3); // grab the last 3 digits
+                      $int = substr((string) $int, 0, -1 * strlen($convert));
                 }
 
                 if ($convert > 0) {
@@ -175,10 +175,10 @@ class NumberToText
         // capitalize words
         if ($capitalize) {
             // easier to capitalize all words then un-capitalize "and"
-            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
+            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords((string) $text));
         }
 
-        return trim($text);
+        return trim((string) $text);
     }
 
     /** This is a utility function of n2t. It converts a 3-digit number

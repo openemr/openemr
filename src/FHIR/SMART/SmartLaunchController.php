@@ -45,7 +45,7 @@ class SmartLaunchController
 
     public function registerContextEvents()
     {
-        $this->dispatcher->addListener(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, [$this, 'renderPatientSmartLaunchSection']);
+        $this->dispatcher->addListener(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, $this->renderPatientSmartLaunchSection(...));
     }
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
@@ -97,7 +97,7 @@ class SmartLaunchController
     public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, $launchText = "Launch")
     {
         $launchCode = $launchToken->serialize();
-        $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $launchParams = "?launch=" . urlencode((string) $launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
         ?>
         <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
                             data-intent="<?php echo attr(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG); ?>"
@@ -157,7 +157,7 @@ class SmartLaunchController
             $launchCode->setAppointmentUuid($appointmentUuid);
         }
         $serializedCode = $launchCode->serialize();
-        $launchParams = "?launch=" . urlencode($serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $launchParams = "?launch=" . urlencode((string) $serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
         $redirectUrl = $client->getLaunchUri($launchParams);
         header("Location: " . $redirectUrl);
         exit;

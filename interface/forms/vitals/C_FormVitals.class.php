@@ -108,7 +108,7 @@ class C_FormVitals
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
         $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
-        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', $patient_age)));
+        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)));
         $vitalFields = [
             [
                 'type' => 'textbox_conversion'
@@ -352,7 +352,7 @@ class C_FormVitals
             ,'VIEW' => true
             ,'patient_age' => $patient_age
             ,'patient_dob' => $patient_dob
-            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', $patient_age)))
+            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
         ];
         $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
@@ -444,9 +444,9 @@ class C_FormVitals
 
         // so we can get rid of smarty we are going to bring this from the controller class in here
         foreach ($_POST as $varname => $var) {
-            $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
+            $varname = preg_replace("/[^A-Za-z0-9_]/", "", (string) $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable([$obj,$func])) {
+            if ((!(str_starts_with("_", (string) $varname))) && is_callable([$obj,$func])) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);

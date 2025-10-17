@@ -121,7 +121,7 @@ class GenerateAccessTokenTestCommand extends Command implements IGlobalsAwareCom
             $scopeIdentifiers = $client->getScopes();
             // if we have been given specific resources then we will limit the scopes to those resources
             if (!empty($input->getOption('resources'))) {
-                $requestedResources = array_map('trim', explode(',', $input->getOption('resources')));
+                $requestedResources = array_map('trim', explode(',', (string) $input->getOption('resources')));
                 $fhirScopes = array_map(fn($resource): string => "user/{$resource}.rs", $requestedResources);
                 $scopeList = new ServerScopeListEntity();
 

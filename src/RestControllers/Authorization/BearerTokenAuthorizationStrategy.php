@@ -377,17 +377,17 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public static function is_api_request($resource): bool
     {
-        return stripos(strtolower($resource), "/api/") !== false;
+        return stripos(strtolower((string) $resource), "/api/") !== false;
     }
 
     public static function is_portal_request($resource): bool
     {
-        return stripos(strtolower($resource), "/portal/") !== false;
+        return stripos(strtolower((string) $resource), "/portal/") !== false;
     }
 
     public static function is_fhir_request($resource): bool
     {
-        return stripos(strtolower($resource), "/fhir/") !== false;
+        return stripos(strtolower((string) $resource), "/fhir/") !== false;
     }
 
     public function setUserService(UserService $userService)

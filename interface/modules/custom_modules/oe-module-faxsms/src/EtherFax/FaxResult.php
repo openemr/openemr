@@ -61,7 +61,7 @@ class FaxResult
     public static function getFaxResult($result)
     {
         if (self::$_constants == null) {
-            $c = new ReflectionClass('OpenEMR\Modules\FaxSMS\EtherFax\FaxResult');
+            $c = new ReflectionClass(\OpenEMR\Modules\FaxSMS\EtherFax\FaxResult::class);
             self::$_constants = $c->getConstants();
         }
 

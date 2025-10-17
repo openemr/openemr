@@ -640,7 +640,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
 
     foreach ($grouplist as $groupname => $list) {
         print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
-        text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
+        text(substr((string) $list, 0, strlen((string) $list) - 2)) . "</span><br />\n";
     }
 }
 ?>

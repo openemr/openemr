@@ -245,7 +245,7 @@ if (!empty($_POST['form_refresh'])) {
  &nbsp;<?php echo text($invnumber); ?></a>
 </td>
 <td class="detail">
- &nbsp;<?php echo text(oeFormatShortDate(substr($row['date'], 0, 10))); ?>
+ &nbsp;<?php echo text(oeFormatShortDate(substr((string) $row['date'], 0, 10))); ?>
 </td>
 <td class="detail">
  &nbsp;<?php echo text(oeFormatShortDate($inv_duedate)); ?>

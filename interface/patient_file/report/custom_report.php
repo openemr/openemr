@@ -99,8 +99,8 @@ function getContent()
     $content = ob_get_clean();
     // Fix a nasty mPDF bug - it ignores document root!
     $i = 0;
-    $wrlen = strlen($web_root);
-    $wsrlen = strlen($webserver_root);
+    $wrlen = strlen((string) $web_root);
+    $wsrlen = strlen((string) $webserver_root);
     while (true) {
         $i = stripos($content, " src='/", $i + 1);
         if ($i === false) {
@@ -163,9 +163,9 @@ function zip_content($source, $destination, $content = '', $create = true)
     }
 
     if (is_file($source) === true) {
-        $zip->addFromString(basename($source), file_get_contents($source));
+        $zip->addFromString(basename((string) $source), file_get_contents($source));
     } elseif (!empty($content)) {
-        $zip->addFromString(basename($source), $content);
+        $zip->addFromString(basename((string) $source), $content);
     }
 
     return $zip->close();
@@ -248,7 +248,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 $logo = "";
                 if (file_exists($practice_logo)) {
-                    $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
+                    $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename((string) $practice_logo);
                 }
 
                 echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo); ?>
@@ -285,7 +285,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 }
 
                                 if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
-                                    preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
+                                    preg_match('/^(.*)_(\d+)$/', (string) $key_search, $res_search);
                                     $form_id_arr[] = add_escape_custom($res_search[2] ?? '');
                                     $form_dir_arr[] = add_escape_custom($res_search[1] ?? '');
                                 }
@@ -345,7 +345,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 // These are the top checkboxes (demographics, allergies, etc.).
                 //
-                if (stristr($key, "include_")) {
+                if (stristr((string) $key, "include_")) {
                     if ($val == "recurring_days") {
                         /// label/header for recurring days
                         echo "<hr />";
@@ -436,7 +436,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             $total = 0.00;
                             $copays = 0.00;
                             foreach ($ar['newpatient'] as $be) {
-                                $ta = explode(":", $be);
+                                $ta = explode(":", (string) $be);
                                 $billing = getPatientBillingEncounter($pid, $ta[1]);
                                 $billings[] = $billing;
                                 foreach ($billing as $b) {
@@ -542,7 +542,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             $d = new Document($document_id);
-                            $fname = basename($d->get_name());
+                            $fname = basename((string) $d->get_name());
                             //  Extract the extension by the mime/type and not the file name extension
                             // -There is an exception. Need to manually see if it a pdf since
                             //  the image_type_to_extension() is not working to identify pdf.
@@ -632,13 +632,13 @@ function zip_content($source, $destination, $content = '', $create = true)
                                             $itpl = $pdf->importPage($i + 1);
                                             $pdf->useTemplate($itpl);
                                         }
-                                    } catch (Exception $e) {
+                                    } catch (Exception) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
                                         //
                                         unlink($from_file_tmp_name);
                                         $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
-                                        $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
+                                        $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp);
                                         $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                                         $pdf->writeHTML($err);
                                         $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
@@ -696,7 +696,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
                             echo "</div>";
                         }
-                    } elseif (str_starts_with($key, "issue_")) {
+                    } elseif (str_starts_with((string) $key, "issue_")) {
                         // display patient Issues
                         if ($first_issue) {
                             $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
@@ -705,7 +705,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             echo "<h4>" . xlt("Issues") . "</h4>";
                         }
 
-                        preg_match('/^(.*)_(\d+)$/', $key, $res);
+                        preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
                         $rowid = $res[2];
                         $irow = sqlQuery("SELECT lists.type, lists.title, lists.comments, lists.diagnosis, " .
                             "lists.udi_data, medications.drug_dosage_instructions FROM lists LEFT JOIN " .
@@ -737,7 +737,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         if ($diagnosis) {
                             echo "<div class='text issue_diag'>";
                             echo "[" . xlt('Diagnosis') . "]<br />";
-                            $dcodes = explode(";", $diagnosis);
+                            $dcodes = explode(";", (string) $diagnosis);
                             foreach ($dcodes as $dcode) {
                                 echo "<span class='italic'>" . text($dcode) . "</span>: ";
                                 echo text(lookup_code_descriptions($dcode)) . "<br />\n";
@@ -768,7 +768,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
                             $form_encounter = $val;
-                            preg_match('/^(.*)_(\d+)$/', $key, $res);
+                            preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
                             $form_id = $res[2];
                             $formres = getFormNameByFormdirAndFormid($res[1], $form_id);
                             $dateres = getEncounterDateByEncounter($form_encounter);
@@ -783,7 +783,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
                             if (!empty($dateres['date'])) {
                             // show the encounter's date
-                                echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
+                                echo "(" . text(oeFormatSDFT(strtotime((string) $dateres["date"]))) . ") ";
                             }
                             if ($res[1] == 'newpatient') {
                                 // display the provider info
@@ -852,11 +852,11 @@ function zip_content($source, $destination, $content = '', $create = true)
         $content = getContent();
         $ptd = report_basename($pid);
         $fn = $ptd['base'] . ".pdf";
-        $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
-        $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+        $pdf->SetTitle(ucfirst((string) $ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
+        $isit_utf8 = preg_match('//u', (string) $content); // quick check for invalid encoding
         if (!$isit_utf8) {
             if (function_exists('iconv')) { // if we can lets save the report
-                $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+                $content = iconv("UTF-8", "UTF-8//IGNORE", (string) $content);
             } else { // no sense going on.
                 $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
                 die($die_str);
@@ -914,7 +914,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 'message' => xl('Please see the attached PDF.'),
                 'filename' => 'report.pdf',
                 'mimetype' => 'application/pdf',
-                'contents' => base64_encode($contents)
+                'contents' => base64_encode((string) $contents)
             ]);
             if ($result['errmsg']) {
                 die(text($result['errmsg']));

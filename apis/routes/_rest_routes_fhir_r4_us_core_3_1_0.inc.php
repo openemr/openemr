@@ -4534,17 +4534,20 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Patient" => function (HttpRestRequest $request) {
+    "GET /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $params = $request->getQueryParams();
+        // we could set the fhir version here if we want... but the controller is already doing that
+        $controller = new FhirPatientRestController();
+        $controller->setOEGlobals($globalsBag);
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             //  Note in Patient context still have to return a bundle even if it is just one resource. (ie.
             //   need to use getAll rather than getOne)
             $params['_id'] = $request->getPatientUUIDString();
-            $return = (new FhirPatientRestController())->getAll($params, $request->getPatientUUIDString());
+            $return = $controller->getAll($params, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "patients", "demo");
-            $return = (new FhirPatientRestController())->getAll($params);
+            $return = $controller->getAll($params);
         }
 
         return $return;

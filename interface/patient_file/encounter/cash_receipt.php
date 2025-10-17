@@ -68,8 +68,8 @@ if (file_exists($practice_logo)) {
 <tr><td><?php echo xlt('Generated on'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
 <?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter=? and pid=?", [$encounter, $pid])) {
-    $encounter_date = date("D F jS", strtotime($date_result["date"]));
-    $raw_encounter_date = date("Y-m-d", strtotime($date_result["date"]));
+    $encounter_date = date("D F jS", strtotime((string) $date_result["date"]));
+    $raw_encounter_date = date("Y-m-d", strtotime((string) $date_result["date"]));
 }
 ?>
 <tr><td><?php echo xlt('Date Of Service'); ?>: </td><td> <?php print text(oeFormatShortDate($raw_encounter_date));?></td></tr>
@@ -129,7 +129,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 . "</td><td>" . text(oeFormatMoney($iter['fee'])) . "</td></tr>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $total += $iter['fee'];
-            $js = explode(":", $iter['justify']);
+            $js = explode(":", (string) $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if (!empty($j)) {

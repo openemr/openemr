@@ -84,13 +84,13 @@ class RequestUtil
     {
         $uri =  [];
         if (isset($_SERVER ["REQUEST_URI"])) {
-            $uri = parse_url($_SERVER ["REQUEST_URI"]);
+            $uri = parse_url((string) $_SERVER ["REQUEST_URI"]);
         } elseif (isset($_SERVER ["QUERY_STRING"])) {
             $uri ['query'] = $_SERVER ["QUERY_STRING"];
         }
 
         if (isset($uri ['query'])) {
-            $parts = explode("&", $uri ['query']);
+            $parts = explode("&", (string) $uri ['query']);
             foreach ($parts as $part) {
                 $keyval = explode("=", $part, 2);
                 $_REQUEST [$keyval [0]] = isset($keyval [1]) ? urldecode($keyval [1]) : "";
@@ -202,8 +202,8 @@ class RequestUtil
 
         $headers =  [];
         foreach ($_SERVER as $k => $v) {
-            if (str_starts_with($k, "HTTP_")) {
-                $k = str_replace('_', ' ', substr($k, 5));
+            if (str_starts_with((string) $k, "HTTP_")) {
+                $k = str_replace('_', ' ', substr((string) $k, 5));
                 $k = str_replace(' ', '-', ucwords(strtolower($k)));
                 $headers [$k] = $v;
             }
@@ -266,11 +266,11 @@ class RequestUtil
 
             $headers =  [];
             foreach ($_SERVER as $key => $value) {
-                if (!str_starts_with($key, 'HTTP_')) {
+                if (!str_starts_with((string) $key, 'HTTP_')) {
                     continue;
                 }
 
-                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr((string) $key, 5)))));
                 $headers [$header] = $value;
             }
         }
@@ -298,10 +298,10 @@ class RequestUtil
         $http_host = $_SERVER ["HTTP_HOST"] ?? "";
         $server_port = $_SERVER ["SERVER_PORT"] ?? "";
 
-        $protocol = substr($server_protocol, 0, strpos($server_protocol, "/")) . (self::IsSSL() ? "S" : "");
+        $protocol = substr((string) $server_protocol, 0, strpos((string) $server_protocol, "/")) . (self::IsSSL() ? "S" : "");
         $port = "";
 
-        $domainport = explode(":", $http_host);
+        $domainport = explode(":", (string) $http_host);
         $domain = $domainport [0];
 
 
@@ -313,7 +313,7 @@ class RequestUtil
         if (isset($_SERVER ['REQUEST_URI'])) {
             // REQUEST_URI is more accurate but isn't always defined on windows
             // in particular for the format http://www.domain.com/?var=val
-            $pq = explode("?", $_SERVER ['REQUEST_URI'], 2);
+            $pq = explode("?", (string) $_SERVER ['REQUEST_URI'], 2);
             $path = $pq [0];
             $qs = isset($pq [1]) ? "?" . $pq [1] : "";
         } else {
@@ -393,7 +393,7 @@ class RequestUtil
 
         // get the filename and Extension
         $tmp_path = $upload ['tmp_name'];
-        $info = pathinfo($upload ['name']);
+        $info = pathinfo((string) $upload ['name']);
 
         require_once("FileUpload.php");
         $fupload = new FileUpload();
@@ -492,7 +492,7 @@ class RequestUtil
         }
 
         if ($escape) {
-            $val = htmlspecialchars($val, ENT_COMPAT, null, false);
+            $val = htmlspecialchars((string) $val, ENT_COMPAT, null, false);
         }
 
         if (self::$ENCODE_NON_ASCII) {
@@ -585,7 +585,7 @@ class RequestUtil
                     $returnVal .= " " . $hour . ":" . $minute . ":" . "00";
                 }
 
-                return date("Y-m-d H:i:s", strtotime($returnVal));
+                return date("Y-m-d H:i:s", strtotime((string) $returnVal));
             } else {
                 return date("Y-m-d", strtotime($returnVal));
             }

@@ -440,10 +440,10 @@ if (empty($row)) {
     <tr rowspan=2>
         <td>&nbsp;</td>
         <td><span class="text"><?php echo xlt('Begin Date'); ?></span>
-        <input type="text" size="10" class="datepicker" name="begin_date" id="begin_date" value="<?php echo $viewmode ? attr(substr($result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
+        <input type="text" size="10" class="datepicker" name="begin_date" id="begin_date" value="<?php echo $viewmode ? attr(substr((string) $result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
         </td>
         <td><span class="text"><?php xl('End Date', 'e'); ?></span>
-        <input type="text" size="10" class="datepicker" name="end_date" id="end_date" value="<?php echo $viewmode ? attr(substr($result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
+        <input type="text" size="10" class="datepicker" name="end_date" id="end_date" value="<?php echo $viewmode ? attr(substr((string) $result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
         </td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>

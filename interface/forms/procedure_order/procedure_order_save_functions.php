@@ -83,9 +83,9 @@ function saveProcedureOrderCodes($formid, $postData): array
         }
 
         $orderCodeData = [
-            'diagnoses' => trim($postData['form_proc_type_diag'][$i]),
-            'procedure_order_title' => trim($postData['form_proc_order_title'][$i]),
-            'transport' => trim($postData['form_transport'][$i]),
+            'diagnoses' => trim((string) $postData['form_proc_type_diag'][$i]),
+            'procedure_order_title' => trim((string) $postData['form_proc_order_title'][$i]),
+            'transport' => trim((string) $postData['form_transport'][$i]),
             'procedure_type' => trim($postData['form_procedure_type'][$i] ?: $postData['procedure_type_names'] ?? ''),
             'reason_code' => $reason_code,
             'reason_description' => $reason_description,
@@ -607,8 +607,8 @@ function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
     );
 
     while ($qrow = sqlFetchArray($qres)) {
-        $qcode = trim($qrow['question_code']);
-        $pcode = trim($qrow['procedure_code']);
+        $qcode = trim((string) $qrow['question_code']);
+        $pcode = trim((string) $qrow['procedure_code']);
         $fldtype = $qrow['fldtype'];
         $data = '';
 
@@ -647,7 +647,7 @@ function saveProcedureAnswers($formid, $poseq, $ptid, $postData, $index): void
                  answer_seq = ?,
                  answer = ?,
                  procedure_code = ?",
-                [$formid, $poseq, $qcode, $answer_seq['increment'], trim($datum), $pcode]
+                [$formid, $poseq, $qcode, $answer_seq['increment'], trim((string) $datum), $pcode]
             );
             sqlCommitTrans();
         }

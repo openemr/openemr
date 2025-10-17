@@ -48,7 +48,7 @@ class ModuleconfigForm extends Form
         * Automatic Tranfer settings
         */
         $this->add([
-            'type' => 'Laminas\Form\Element\Checkbox',
+            'type' => \Laminas\Form\Element\Checkbox::class,
                 'name' => 'hie_auto_send_id',
                 'attributes'    => [
                         'id'        => 'hie_auto_send_id'
@@ -65,7 +65,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'  => 'hie_author_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -84,7 +84,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'      => 'hie_data_enterer_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -103,7 +103,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'  => 'hie_informant_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -136,7 +136,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'  => 'hie_custodian_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -155,7 +155,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'  => 'hie_legal_authenticator_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -174,7 +174,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'  => 'hie_authenticator_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -193,7 +193,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
                 'name'  => 'hie_primary_care_provider_id',
-                'type'      => 'Laminas\Form\Element\Select',
+                'type'      => \Laminas\Form\Element\Select::class,
                 'attributes' => [
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -207,7 +207,7 @@ class ModuleconfigForm extends Form
                 ],
             ]);
         $this->add([
-            'type' => 'Laminas\Form\Element\Checkbox',
+            'type' => \Laminas\Form\Element\Checkbox::class,
             'name' => 'hie_force_latest_encounter_provenance_date',
             'attributes'    => [
                 'id'        => 'hie_force_latest_encounter_provenance_date'
@@ -221,7 +221,7 @@ class ModuleconfigForm extends Form
         $this->add([
 
             'name' => 'hie_author_date',
-            'type' => 'Laminas\Form\Element\DateTimeLocal',
+            'type' => \Laminas\Form\Element\DateTimeLocal::class,
             'attributes' => [
                 //'min' => '2000-01-01T00:00Z',
                 //'max' => '2030-01-01T00:00:00Z',
@@ -239,7 +239,7 @@ class ModuleconfigForm extends Form
         */
         $this->add([
             'name'  => 'hie_office_contact',
-            'type'      => 'Laminas\Form\Element\Select',
+            'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
                 'class'     => '',
                 'data-options'  => 'required:true',

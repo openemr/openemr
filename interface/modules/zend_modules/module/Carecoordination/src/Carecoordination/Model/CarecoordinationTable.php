@@ -331,39 +331,39 @@ class CarecoordinationTable extends AbstractTableGateway
         if (is_array($xml['recordTarget']['patientRole']['telecom'][0] ?? null)) {
             foreach ($xml['recordTarget']['patientRole']['telecom'] as $tel) {
                 if (($tel['use'] ?? '') == 'MC') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (($tel['use'] ?? '') == 'HP') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (($tel['use'] ?? '') == 'WP') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (($tel['use'] ?? '') == 'EC') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif (stripos($tel['value'], 'mailto:') !== false) {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
+                } elseif (stripos((string) $tel['value'], 'mailto:') !== false) {
                     $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
-                    $mail = explode('mailto:', ($tel['value'] ?? null));
+                    $mail = explode('mailto:', ((string) ($tel['value'] ?? null)));
                     $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
                     if (!empty($mail[1])) {
                         $mailto = preg_replace($regex, '\\1@\\2.\\3', $mail[1]);
                         $this->documentData['field_name_value_array']['patient_data'][1]['email'] = $mailto;
                     }
                 } else {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 }
             }
         } else {
             $tel = $xml['recordTarget']['patientRole']['telecom'] ?? '';
             if (!empty($tel)) {
                 if (($tel['use'] ?? '') == 'MC') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (($tel['use'] ?? '') == 'HP') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (($tel['use'] ?? '') == 'WP') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (($tel['use'] ?? '') == 'EC') {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ((string) ($tel['value'] ?? null)));
                 } elseif (stripos($tel['value'] ?? '', 'mailto:') !== false) {
                     $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
-                    $mail = explode('mailto:', ($tel['value'] ?? null));
+                    $mail = explode('mailto:', ((string) ($tel['value'] ?? null)));
                     $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
                     if (!empty($mail[1])) {
                         $mailto = preg_replace($regex, '\\1@\\2.\\3', $mail[1]);
@@ -393,7 +393,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = $ecode ?: $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? null;
 
-        $patient_language = substr(($xml['recordTarget']['patientRole']['patient']['languageCommunication']['languageCode']['code'] ?? null), 0, 2);
+        $patient_language = substr(((string) ($xml['recordTarget']['patientRole']['patient']['languageCommunication']['languageCode']['code'] ?? null)), 0, 2);
         $patient_language = sqlQuery("SELECT `option_id`  FROM `list_options` WHERE `list_id` = 'language' And `notes` = ?", [$patient_language])['option_id'];
         $this->documentData['field_name_value_array']['patient_data'][1]['language'] = $patient_language ?: '';
 
@@ -467,7 +467,7 @@ class CarecoordinationTable extends AbstractTableGateway
             foreach ($components[2]["section"]["entry"] as $entry_search) {
                 if (($entry_search["observation"]["value"]["code"] ?? null) == '419099009') {
                     $deceased_date = $entry_search["observation"]["effectiveTime"]["low"]["value"];
-                    $this->documentData['field_name_value_array']['patient_data'][1]['deceased_date'] = date('Y-m-d H:i:s', strtotime($deceased_date));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['deceased_date'] = date('Y-m-d H:i:s', strtotime((string) $deceased_date));
                     $this->documentData['field_name_value_array']['patient_data'][1]['deceased_reason'] = 'SNOMED-CT:419099009';
                     break;
                 }
@@ -543,7 +543,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $tableName = $subKey;
                 foreach ($subArray as $subsubKey => $subsubArray) {
                     $entryIdentification = $subsubKey;
-                    $res[] = ['table_name' => trim($tableName), 'entry_identification' => trim($entryIdentification)];
+                    $res[] = ['table_name' => trim((string) $tableName), 'entry_identification' => trim((string) $entryIdentification)];
                 }
             }
         }
@@ -572,7 +572,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     } else {
                         $item = trim($item ?? '');
                     }
-                    $resfield[] = ['table_name' => trim($row['table_name']), 'field_name' => trim($itemKey), 'field_value' => $item, 'entry_identification' => trim($row['entry_identification'])];
+                    $resfield[] = ['table_name' => trim($row['table_name']), 'field_name' => trim((string) $itemKey), 'field_value' => $item, 'entry_identification' => trim($row['entry_identification'])];
                 }
             }
             $table = $row['table_name'];
@@ -633,7 +633,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $createFlag = true;
                 if (!empty($newdata['patient_data']['referrerID'])) {
                     // patient UUID from exported
-                    $uuid = trim($newdata['patient_data']['referrerID']);
+                    $uuid = trim((string) $newdata['patient_data']['referrerID']);
                     // have we already imported for this UUID?
                     $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", [$uuid])['pid'] ?? '';
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
@@ -1008,9 +1008,9 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function formatDate($unformatted_date, $ymd = 1)
     {
-        $day = substr($unformatted_date, 6, 2);
-        $month = substr($unformatted_date, 4, 2);
-        $year = substr($unformatted_date, 0, 4);
+        $day = substr((string) $unformatted_date, 6, 2);
+        $month = substr((string) $unformatted_date, 4, 2);
+        $year = substr((string) $unformatted_date, 0, 4);
         $formatted_date = $ymd == 1 ? $year . "/" . $month . "/" . $day : $day . "/" . $month . "/" . $year;
 
         return $formatted_date;
@@ -1093,7 +1093,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         $groupResults = [];
         foreach ($lab_array as $result) {
-            $formattedDate = date('Y-m-d H:i:s', strtotime($result['date']));
+            $formattedDate = date('Y-m-d H:i:s', strtotime((string) $result['date']));
             if (!isset($groupResults[$formattedDate])) {
                 // Initialize a new group for this date
                 $groupResults[$formattedDate] = [
@@ -1474,8 +1474,8 @@ class CarecoordinationTable extends AbstractTableGateway
     public function createAuditArray($am_id, $table_name): array
     {
         $appTable = new ApplicationTable();
-        if (strpos($table_name, ',')) {
-            $tables = explode(',', $table_name);
+        if (strpos((string) $table_name, ',')) {
+            $tables = explode(',', (string) $table_name);
             $arr = [$am_id];
             $table_qry = "";
             for ($i = 0, $iMax = count($tables); $i < $iMax; $i++) {
@@ -1555,11 +1555,11 @@ class CarecoordinationTable extends AbstractTableGateway
         $m3_arr = explode('||', $data['med3check'] ?? '');
 
         foreach ($data as $key => $val) {
-            if (str_ends_with($key, '-sel')) {
+            if (str_ends_with((string) $key, '-sel')) {
                 if (is_array($val)) {
                     for ($i = 0, $iMax = count($val); $i < $iMax; $i++) {
                         if ($val[$i] == 'insert') {
-                            if (substr($key, 0, -4) == 'immunization') {
+                            if (substr((string) $key, 0, -4) == 'immunization') {
                                 $arr_immunization['immunization'][$a]['extension'] = $data['immunization-extension'][$i];
                                 $arr_immunization['immunization'][$a]['root'] = $data['immunization-root'][$i];
                                 $arr_immunization['immunization'][$a]['administered_date'] = $data['immunization-administered_date'][$i];
@@ -1584,7 +1584,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_immunization['immunization'][$a]['represented_organization'] = $data['immunization-represented_organization'][$i];
                                 $arr_immunization['immunization'][$a]['represented_organization_tele'] = $data['immunization-represented_organization_tele'][$i];
                                 $a++;
-                            } elseif (substr($key, 0, -4) == 'lists3') {
+                            } elseif (substr((string) $key, 0, -4) == 'lists3') {
                                 $arr_prescriptions['lists3'][$b]['extension'] = $data['lists3-extension'][$i];
                                 $arr_prescriptions['lists3'][$b]['root'] = $data['lists3-root'][$i];
                                 $arr_prescriptions['lists3'][$b]['begdate'] = $data['lists3-date_added'][$i];
@@ -1612,7 +1612,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_prescriptions['lists3'][$b]['provider_state'] = $data['lists3-provider_state'][$i];
                                 $arr_prescriptions['lists3'][$b]['provider_root'] = $data['lists3-provider_root'][$i];
                                 $b++;
-                            } elseif (substr($key, 0, -4) == 'lists2') {
+                            } elseif (substr((string) $key, 0, -4) == 'lists2') {
                                 $arr_allergies['lists2'][$c]['extension'] = $data['lists2-extension'][$i];
                                 $arr_allergies['lists2'][$c]['begdate'] = $data['lists2-begdate'][$i];
                                 $arr_allergies['lists2'][$c]['enddate'] = $data['lists2-enddate'][$i];
@@ -1626,7 +1626,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_allergies['lists2'][$c]['outcome'] = $data['lists2-outcome'][$i];
                                 $arr_allergies['lists2'][$c]['resolved'] = $a3_arr[$i];
                                 $c++;
-                            } elseif (substr($key, 0, -4) == 'lists1') {
+                            } elseif (substr((string) $key, 0, -4) == 'lists1') {
                                 $arr_med_pblm['lists1'][$d]['extension'] = $data['lists1-extension'][$i];
                                 $arr_med_pblm['lists1'][$d]['root'] = $data['lists1-root'][$i];
                                 $arr_med_pblm['lists1'][$d]['begdate'] = $data['lists1-begdate'][$i];
@@ -1638,7 +1638,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_med_pblm['lists1'][$d]['observation'] = $data['lists1-observation'][$i];
                                 $arr_med_pblm['lists1'][$d]['resolved'] = $p3_arr[$i];
                                 $d++;
-                            } elseif (substr($key, 0, -4) == 'vital_sign') {
+                            } elseif (substr((string) $key, 0, -4) == 'vital_sign') {
                                 $arr_vitals['vitals'][$q]['extension'] = $data['vital_sign-extension'][$i];
                                 $arr_vitals['vitals'][$q]['date'] = $data['vital_sign-date'][$i];
                                 $arr_vitals['vitals'][$q]['temperature'] = $data['vital_sign-temp'][$i];
@@ -1651,7 +1651,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_vitals['vitals'][$q]['respiration'] = $data['vital_sign-resp'][$i];
                                 $arr_vitals['vitals'][$q]['weight'] = $data['vital_sign-weight'][$i];
                                 $q++;
-                            } elseif (substr($key, 0, -4) == 'social_history') {
+                            } elseif (substr((string) $key, 0, -4) == 'social_history') {
                                 $tobacco = $data['social_history-tobacco_note'][$i] . "|" .
                                     $data['social_history-tobacco_status'][$i] . "|" .
                                     ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
@@ -1675,7 +1675,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $tobacco,
                                     $alcohol,
                                     date('Y-m-d H:i:s')]);
-                            } elseif (substr($key, 0, -4) == 'encounter') {
+                            } elseif (substr((string) $key, 0, -4) == 'encounter') {
                                 $arr_encounter['encounter'][$k]['extension'] = $data['encounter-extension'][$i];
                                 $arr_encounter['encounter'][$k]['root'] = $data['encounter-root'][$i];
                                 $arr_encounter['encounter'][$k]['date'] = $data['encounter-date'][$i];
@@ -1701,7 +1701,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $data['encounter-encounter_diagnosis_issue'][$i];
                                 $arr_encounter['encounter'][$k]['encounter_discharge_code'] = $data['encounter-encounter_discharge_code'][$i] ?? '';
                                 $k++;
-                            } elseif (substr($key, 0, -4) == 'procedure_result') {
+                            } elseif (substr((string) $key, 0, -4) == 'procedure_result') {
                                 $arr_procedure_res['procedure_result'][$j]['proc_text'] = $data['procedure_result-proc_text'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['proc_code'] = $data['procedure_result-proc_code'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['extension'] = $data['procedure_result-extension'][$i];
@@ -1714,7 +1714,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_procedure_res['procedure_result'][$j]['results_date'] = $data['procedure_result-result_date'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['results_unit'] = $data['procedure_result-result_unit'][$i];
                                 $j++;
-                            } elseif (substr($key, 0, -4) == 'procedure') {
+                            } elseif (substr((string) $key, 0, -4) == 'procedure') {
                                 $arr_procedures['procedure'][$y]['extension'] = $data['procedures-extension'][$i];
                                 $arr_procedures['procedure'][$y]['root'] = $data['procedures-root'][$i];
                                 $arr_procedures['procedure'][$y]['codeSystemName'] = $data['procedures-codeSystemName'][$i];
@@ -1737,7 +1737,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_procedures['procedure'][$y]['represented_organization_postalcode2'] = $data['procedures-represented_organization_postalcode2'][$i];
                                 $arr_procedures['procedure'][$y]['represented_organization_country2'] = $data['procedures-represented_organization_country2'][$i];
                                 $y++;
-                            } elseif (substr($key, 0, -4) == 'care_plan') {
+                            } elseif (substr((string) $key, 0, -4) == 'care_plan') {
                                 $arr_care_plan['care_plan'][$e]['extension'] = $data['care_plan-extension'][$i];
                                 $arr_care_plan['care_plan'][$e]['root'] = $data['care_plan-root'][$i];
                                 $arr_care_plan['care_plan'][$e]['text'] = $data['care_plan-text'][$i];
@@ -1745,7 +1745,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_care_plan['care_plan'][$e]['description'] = $data['care_plan-description'][$i];
                                 $arr_care_plan['care_plan'][$e]['plan_type'] = $data['care_plan']['plan_type'][$i];
                                 $e++;
-                            } elseif (substr($key, 0, -4) == 'functional_cognitive_status') {
+                            } elseif (substr((string) $key, 0, -4) == 'functional_cognitive_status') {
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $data['functional_cognitive_status-extension'][$i];
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $data['functional_cognitive_status-root'][$i];
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $data['functional_cognitive_status-text'][$i];
@@ -1753,13 +1753,13 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['date'] = $data['functional_cognitive_status-date'][$i];
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['description'] = $data['functional_cognitive_status-description'][$i];
                                 $f++;
-                            } elseif (substr($key, 0, -4) == 'referral') {
+                            } elseif (substr((string) $key, 0, -4) == 'referral') {
                                 $arr_referral['referral'][$g]['body'] = $data['referral-body'][$i];
                                 $arr_referral['referral'][$g]['root'] = $data['referral-root'][$i];
                                 $g++;
                             }
                         } elseif ($val[$i] == 'update') {
-                            if (substr($key, 0, -4) == 'lists1-con') {
+                            if (substr((string) $key, 0, -4) == 'lists1-con') {
                                 if ($data['lists1-activity-con'][$i] == 'Active') {
                                     $activity = 1;
                                 } elseif ($data['lists1-activity-con'][$i] == 'Inactive') {
@@ -1808,7 +1808,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
                             }
 
-                            if (substr($key, 0, -4) == 'lists1_exist') {
+                            if (substr((string) $key, 0, -4) == 'lists1_exist') {
                                 if ($p2_arr[$i] == 1) {
                                     $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query4, [date('Y-m-d'), $data['pid'], $data['lists1_exist-list_id'][$i]]);
@@ -1816,7 +1816,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query4, [(null), $data['pid'], $data['lists1_exist-list_id'][$i]]);
                                 }
-                            } elseif (substr($key, 0, -4) == 'lists2-con') {
+                            } elseif (substr((string) $key, 0, -4) == 'lists2-con') {
                                 if (!empty($data['lists2-begdate-con'][$i])) {
                                     $allergy_begdate_value = ApplicationTable::fixDate($data['lists2-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
                                 } elseif (empty($data['lists2-begdate-con'][$i])) {
@@ -1907,7 +1907,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
                             }
 
-                            if (substr($key, 0, -4) == 'lists2_exist') {
+                            if (substr((string) $key, 0, -4) == 'lists2_exist') {
                                 if ($a2_arr[$i] == 1) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query5, [date('Y-m-d'), $data['pid'], $data['lists2_exist-list_id'][$i]]);
@@ -1915,7 +1915,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query5, [(null), $data['pid'], $data['lists2_exist-list_id'][$i]]);
                                 }
-                            } elseif (substr($key, 0, -4) == 'lists3-con') {
+                            } elseif (substr((string) $key, 0, -4) == 'lists3-con') {
                                 $oid_route = $unit_option_id = $oidu_unit = '';
                                 //provider
                                 $query_sel_users = "SELECT *
@@ -2035,7 +2035,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
                             }
 
-                            if (substr($key, 0, -4) == 'lists3_exist') {
+                            if (substr((string) $key, 0, -4) == 'lists3_exist') {
                                 if ($m2_arr[$i] == 1) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
                                     $appTable->zQuery($query6, [date('Y-m-d'), '-1', $data['pid'], $data['lists3_exist-id'][$i]]);
@@ -2046,9 +2046,9 @@ class CarecoordinationTable extends AbstractTableGateway
                             }
                         }
                     }
-                } elseif (str_starts_with($key, 'patient_data')) {
+                } elseif (str_starts_with((string) $key, 'patient_data')) {
                     if ($val == 'update') {
-                        $var_name = substr($key, 0, -4);
+                        $var_name = substr((string) $key, 0, -4);
                         $field_name = substr($var_name, 13);
                         $patient_data_fields .= $field_name . '=?,';
                         array_push($patient_data_values, $data[$var_name]);
@@ -2123,7 +2123,7 @@ class CarecoordinationTable extends AbstractTableGateway
         if (is_file($res_cur['url'])) {
             unlink($res_cur['url']);
         }
-        $file_c = pathinfo($res_cur['url']);
+        $file_c = pathinfo((string) $res_cur['url']);
         if (is_dir($file_c['dirname'])) {
             rmdir($file_c['dirname']);
         }
@@ -2249,7 +2249,7 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getMonthString($m)
     {
-        $m = trim($m);
+        $m = trim((string) $m);
         if ($m == '01') {
             return "Jan";
         } elseif ($m == '02') {
@@ -2324,7 +2324,7 @@ class CarecoordinationTable extends AbstractTableGateway
         } else {
             $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '\n', $xmlContent); // Replace <br/> with newline
         }
-        $xmlContent = preg_replace('/\xC2\xA0/', '', $xmlContent);
+        $xmlContent = preg_replace('/\xC2\xA0/', '', (string) $xmlContent);
         $xmlContent = str_replace('Â', '', $xmlContent);
 
         // Load the raw XML into DOMDocument for further cleaning

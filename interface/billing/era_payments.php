@@ -51,8 +51,8 @@ function era_callback(&$out): void
 {
     global $where, $eracount, $eraname;
     ++$eracount;
-    $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
-    '_' . ltrim($out['payer_id'], '0');
+    $eraname = $out['gs_date'] . '_' . ltrim((string) $out['isa_control_number'], '0') .
+    '_' . ltrim((string) $out['payer_id'], '0');
     [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
     if ($pid && $encounter) {
         if ($where) {
@@ -70,9 +70,9 @@ if (!empty($_FILES['form_erafile']['size'])) {
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'];
     // Handle .zip extension if present.  Probably won't work on Windows.
-    if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+    if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
         rename($tmp_name, "$tmp_name.zip");
-        exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
+        exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg((string) $tmp_name));
         unlink("$tmp_name.zip");
     }
     $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');

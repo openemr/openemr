@@ -102,11 +102,11 @@ function decorateString($fmt, $str)
 {
     $res = '';
     while ($fmt) {
-        $fc = substr($fmt, 0, 1);
-        $fmt = substr($fmt, 1);
+        $fc = substr((string) $fmt, 0, 1);
+        $fmt = substr((string) $fmt, 1);
         if ($fc == '.') {
-            $res .= substr($str, 0, 1);
-            $str = substr($str, 1);
+            $res .= substr((string) $str, 0, 1);
+            $str = substr((string) $str, 1);
         } else {
             $res .= $fc;
         }
@@ -124,7 +124,7 @@ function calcTaxes($row, $amount)
         return $total;
     }
 
-    $arates = explode(':', $row['taxrates']);
+    $arates = explode(':', (string) $row['taxrates']);
     if (empty($arates)) {
         return $total;
     }
@@ -171,7 +171,7 @@ if (!empty($_POST['form_save'])) {
     }
 
     $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
+    $form_method = trim((string) $_POST['form_method']);
     $form_source = trim($_POST['form_source'] ?? ''); // check number not always entered
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
@@ -421,7 +421,7 @@ if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
 
     // Create key for deleting, just in case.
     $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp) . '.' . $ref_id;
+    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
 
     if ($_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         // get facility from encounter
@@ -622,7 +622,7 @@ function toencounter(enc, datestr, topframe) {
                             </tr>
                             <tr class="text-center">
                                 <td class="text-center"><?php echo text($invoice_refno); ?></td>
-                                <td class="text-center"><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))); ?></td>
+                                <td class="text-center"><?php echo text(oeFormatSDFT(strtotime((string) $payrow['dtime']))); ?></td>
                             </tr>
                         </table>
                     </div>
@@ -1310,7 +1310,7 @@ function make_insurance() {
                                 //Bringing on top the Today always
                                 foreach ($encs as $value) {
                                     $dispdate = $value['date'];
-                                    if (strcmp($dispdate, $today) == 0 && !$gottoday) {
+                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
                                         $gottoday = true;
                                         break;
                                     }
@@ -1327,7 +1327,7 @@ function make_insurance() {
                                 foreach ($encs as $value) {
                                     $enc = $value['encounter'];
                                     $dispdate = $value['date'];
-                                    if (strcmp($dispdate, $today) == 0 && !$gottoday) {
+                                    if (strcmp((string) $dispdate, $today) == 0 && !$gottoday) {
                                         $dispdate = date("Y-m-d");
                                         $gottoday = true;
                                     }

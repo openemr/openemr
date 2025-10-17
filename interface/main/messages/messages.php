@@ -51,7 +51,7 @@ if ($GLOBALS['medex_enable'] == '1') {
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 //use $uspfx as the first variable for page/script specific user settings instead of '' (which is like a global but you have to request it).
-$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
+$uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
@@ -287,8 +287,8 @@ if (!empty($_REQUEST['go'])) { ?>
                             $noteid = $_POST['noteid'];
                             $form_note_type = $_POST['form_note_type'];
                             $form_message_status = $_POST['form_message_status'];
-                            $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
-                            $assigned_to_list = explode(';', $_POST['assigned_to']);
+                            $reply_to = explode(';', rtrim((string) $_POST['reply_to'], ';'));
+                            $assigned_to_list = explode(';', (string) $_POST['assigned_to']);
                             $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
@@ -430,7 +430,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div class="col-6 col-md-4">
                                                 <?php
                                                 if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                    <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                    <a class="patLink" onclick="goPid('<?php echo attr(addslashes((string) $result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
                                                     <?php
                                                 } else { ?>
                                                     <span class='<?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
@@ -537,8 +537,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <div class='col-12'>
                                         <?php
                                         if ($noteid) {
-                                            $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                                            $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
+                                            $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', (string) $body);
+                                            $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', (string) $body);
                                             $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                             echo "<div style='height: 120px; resize: vertical;' class='border overflow-auto text text-light bg-dark oe-margin-t-3 p-2 mb-2 w-100'>" . $body . "</div>";
                                         }

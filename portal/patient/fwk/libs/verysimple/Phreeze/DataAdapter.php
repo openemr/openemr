@@ -114,7 +114,7 @@ class DataAdapter implements IObservable
                         Includer::IncludeFile("verysimple/DB/DataDriver/" . $this->ConnectionSetting->Type . ".php");
                         $classname = "DataDriver" . $this->ConnectionSetting->Type;
                         $this->_driver = new $classname();
-                    } catch (IncludeException $ex) {
+                    } catch (IncludeException) {
                         throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
                     }
                     break;
@@ -380,7 +380,7 @@ class DataAdapter implements IObservable
     public function IsCommunicationError($error)
     {
         $msg = is_a($error, 'Exception') ? $error->getMessage() : $error;
-        return str_contains(strtolower($msg), 'lost connection');
+        return str_contains(strtolower((string) $msg), 'lost connection');
     }
 
     /**

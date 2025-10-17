@@ -70,7 +70,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         // why was this the exact same query? not sure but it was.
         $vitals = ProcedureSqlStatements::getVitals($porow['pid'], $porow['encounter']);
 
-        $bill_type = strtoupper(substr($porow['billing_type'], 0, 1));
+        $bill_type = strtoupper(substr((string) $porow['billing_type'], 0, 1));
 
         $out .= $this->createMsh($porow['send_app_id'], $porow['send_fac_id'], $porow['recv_app_id'], $porow['recv_fac_id'], date('YmdHisO', $today), "", $orderid, "T", "", "", "AL", "NE", "", "", "", "");
 
@@ -140,8 +140,8 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         $cntDx = 0;
-        $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
-        $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+        $vvalue = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+        $isFasting = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         // $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
         $lb = floor((float)$vitals['weight']);
         $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
@@ -179,7 +179,7 @@ class DornGenHl7Order extends GenHl7OrderBase
 
             // this gets the order default primary Dx codes from one place
             // saves from having to populate a Dx for each test order which is not required.
-            $defaultCodes = explode(';', $porow['order_diagnosis']);
+            $defaultCodes = explode(';', (string) $porow['order_diagnosis']);
             $defaultCodes = array_unique($defaultCodes);
             if (!$dxFlag && !empty($defaultCodes[0] ?? '')) {
                 foreach ($defaultCodes as $codestring) {
@@ -199,7 +199,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             // now get Dx's from this ordered test.
             foreach ($pdrows as $pdrow) {
                 if (!empty($pdrow['diagnoses'])) {
-                    $relcodes = explode(';', $pdrow['diagnoses']);
+                    $relcodes = explode(';', (string) $pdrow['diagnoses']);
                     foreach ($relcodes as $codestring) {
                         if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
@@ -225,8 +225,8 @@ class DornGenHl7Order extends GenHl7OrderBase
             while ($qrow = sqlFetchArray($qres)) {
                 // Formatting of these answer values may be lab-specific and we'll figure
                 // out how to deal with that as more labs are supported.
-                $answer = trim($qrow['answer']);
-                $qcode = trim($qrow['question_code']);
+                $answer = trim((string) $qrow['answer']);
+                $qcode = trim((string) $qrow['question_code']);
                 $fldtype = $qrow['fldtype'];
                 $datatype = 'ST';
                 if ($qcode == 'FASTIN') {
@@ -244,7 +244,7 @@ class DornGenHl7Order extends GenHl7OrderBase
                 $out .= $this->createObx(++$cntDx, $datatype, $qrow['tips'], $answer, "", "", "F", "", "", "");
             }
 
-            $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
+            $vvalue = strtoupper((string) $_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
             $C[24] = $vvalue === "Y" ? ($vvalue . '12') : $vvalue;
             $T[$setid] = $this->hl7Text($pcrow['procedure_code']);
             if ($vvalue === "Y" && $fastflag === false) {

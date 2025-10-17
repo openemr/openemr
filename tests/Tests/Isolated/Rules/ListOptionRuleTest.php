@@ -111,7 +111,6 @@ class ListOptionRuleTest extends TestCase
         // Use reflection to test the protected method
         $reflection = new \ReflectionClass($rule);
         $method = $reflection->getMethod('getMessageParameters');
-        $method->setAccessible(true);
 
         $parameters = $method->invoke($rule);
 
@@ -191,7 +190,6 @@ class ListOptionRuleTest extends TestCase
         // Use reflection to check that message templates are defined
         $reflection = new \ReflectionClass($rule);
         $property = $reflection->getProperty('messageTemplates');
-        $property->setAccessible(true);
         $templates = $property->getValue($rule);
 
         $this->assertIsArray($templates);
@@ -222,9 +220,8 @@ class ListOptionRuleTest extends TestCase
 
         // Use reflection to verify the listId property is set correctly
         // Check parent class since stub might not have the property
-        $reflection = new \ReflectionClass('OpenEMR\Validators\Rules\ListOptionRule');
+        $reflection = new \ReflectionClass(\OpenEMR\Validators\Rules\ListOptionRule::class);
         $property = $reflection->getProperty('listId');
-        $property->setAccessible(true);
         $storedListId = $property->getValue($rule);
 
         $this->assertEquals($listId, $storedListId);

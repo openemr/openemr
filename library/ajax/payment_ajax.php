@@ -67,7 +67,7 @@ function AjaxDropDownCode(): void
         }
 
         $StringForAjax .= "</table></div>";
-        echo text(strlen($_POST['insurance_text_ajax'])) . '~`~`' . $StringForAjax;
+        echo text(strlen((string) $_POST['insurance_text_ajax'])) . '~`~`' . $StringForAjax;
         die;
     }
 
@@ -145,7 +145,7 @@ function AjaxDropDownCode(): void
         }
 
         $StringForAjax .= "</table></div>";
-        echo text(strlen($patient_code_complete)) . '~`~`' . $StringForAjax;
+        echo text(strlen((string) $patient_code_complete)) . '~`~`' . $StringForAjax;
         die;
     }
 
@@ -179,7 +179,7 @@ function AjaxDropDownCode(): void
 
                 $CountIndex++;
                 $Date = $row['date'];
-                $Date = explode(' ', $Date);
+                $Date = explode(' ', (string) $Date);
                 $Date = oeFormatShortDate($Date[0]);
                 $Encounter = $row['encounter'];
                 $StringForAjax .= "<tr class='text'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"

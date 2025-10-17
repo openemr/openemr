@@ -49,6 +49,6 @@ class ObserveToSmarty implements IObserver
                 break;
         }
 
-        $this->_smarty->assign(str_pad($this->_counter++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
+        $this->_smarty->assign(str_pad((string) $this->_counter++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
     }
 }

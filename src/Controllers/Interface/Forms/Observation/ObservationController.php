@@ -264,7 +264,7 @@ class ObservationController
             // we have to keep id as the formId due to backwards compatibility
             return $this->createRedirectResponse(
                 $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id="
-                . urlencode($observation['form_id'])
+                . urlencode((string) $observation['form_id'])
                 . "&status=saved"
             );
         } catch (\Exception $e) {
@@ -399,7 +399,7 @@ class ObservationController
             // Parse questionnaire_response JSON for additional details
             $questionnaireData = null;
             if (!empty($response['questionnaire_response'])) {
-                $questionnaireData = json_decode($response['questionnaire_response'], true);
+                $questionnaireData = json_decode((string) $response['questionnaire_response'], true);
             }
 
             return [

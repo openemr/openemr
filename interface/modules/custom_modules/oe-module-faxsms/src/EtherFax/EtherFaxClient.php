@@ -194,7 +194,7 @@ class EtherFaxClient
         // create post array/items
         $post = [
             'DialNumber' => $number,
-            'FaxImage' => base64_encode($data),
+            'FaxImage' => base64_encode((string) $data),
             'TotalPages' => $pages,
             'TimeZoneOffset' => $tz
         ];

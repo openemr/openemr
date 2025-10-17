@@ -1050,7 +1050,7 @@ if (!isset($_GET["mode"])) {
                             if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') { ?>
                                 <tr>
                                     <td class='text text-center' width='70'>
-                                        <?php echo text(date("Y-m-d", strtotime($iter['date']))); ?>
+                                        <?php echo text(date("Y-m-d", strtotime((string) $iter['date']))); ?>
                                     </td>
                                     <td class='text text-center' width='50'>
                                         <?php echo text($iter['pid']); ?>
@@ -1157,7 +1157,7 @@ if (!isset($_GET["mode"])) {
                                     <?php if ($iter['fee'] != 0) {
                                         $line_total += $iter['fee']; ?>
                                         <td class='text' width='70'>
-                                            <?php echo text(date("Y-m-d", strtotime($iter['date']))); ?>
+                                            <?php echo text(date("Y-m-d", strtotime((string) $iter['date']))); ?>
                                         </td>
                                         <td class='text' width='50'>
                                             <?php echo text($iter['pid']); ?>
@@ -1168,11 +1168,11 @@ if (!isset($_GET["mode"])) {
 
                                         <?php if ($GLOBALS['language_default'] === 'English (Standard)') { ?>
                                             <td class='text' width='100'>
-                                                <?php echo text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))); ?>
+                                                <?php echo text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 25)))); ?>
                                             </td>
                                         <?php } else { ?>
                                             <td class='text' width='100'>
-                                                <?php echo text(substr($iter['code_text'], 0, 25)); ?>
+                                                <?php echo text(substr((string) $iter['code_text'], 0, 25)); ?>
                                             </td>
                                         <?php } ?>
 
@@ -1180,7 +1180,7 @@ if (!isset($_GET["mode"])) {
                                             <?php echo text($iter['code']); ?>
                                         </td>
                                         <td class='small' width='100'>
-                                            <?php echo text(substr($iter['justify'], 5, 3)); ?>
+                                            <?php echo text(substr((string) $iter['justify'], 5, 3)); ?>
                                         </td>
                                         <td class='small' width='100'>
                                             <?php echo text($iter['fee']); ?>
@@ -1703,8 +1703,8 @@ if (!isset($_GET["mode"])) {
             }
 
             if ($totals_only === 1) {
-                $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
-                $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));?>
+                $from_date = oeFormatShortDate(substr((string) $query_part_day, 37, 10));
+                $to_date = oeFormatShortDate(substr((string) $query_part_day, 63, 10));?>
                 <br />
                 <br />
                 <p><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></p>

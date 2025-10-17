@@ -25,18 +25,18 @@ class EligibilityInquiryRequest
 
     public function __construct(public $subscriber, public $patient, $relationship, $payerResponsibility)
     {
-        if (strtolower($payerResponsibility) == "primary") {
+        if (strtolower((string) $payerResponsibility) == "primary") {
             $this->payerResponsibility = "p";
-        } elseif (strtolower($payerResponsibility) == "secondary") {
+        } elseif (strtolower((string) $payerResponsibility) == "secondary") {
             $this->payerResponsibility = "s";
-        } elseif (strtolower($payerResponsibility) == "tertiary") {
+        } elseif (strtolower((string) $payerResponsibility) == "tertiary") {
             $this->payerResponsibility = "t";
         }
 
 
-        if (strtolower($relationship) == "spouse") {
+        if (strtolower((string) $relationship) == "spouse") {
             $this->relationship = "01";
-        } elseif (strtolower($relationship) == "child") {
+        } elseif (strtolower((string) $relationship) == "child") {
             $this->relationship = "19";
         } else {
             $this->relationship = "34";

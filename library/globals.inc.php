@@ -80,6 +80,7 @@ use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -3273,42 +3274,42 @@ $GLOBALS_METADATA = [
     //
     'Connectors' => [
 
-        'site_addr_oath' => [
+        GlobalConnectorsEnum::SITE_ADDRESS_OAUTH->value => [
             xl('Site Address Override (if needed for OAuth2, FHIR, CCDA, or Payment Processing)'),
             'text',
             '',
             xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR, CCDA, or Payment Processing. Example is') . ' https://localhost:8300 .'
         ],
 
-        'rest_fhir_api' => [
+        GlobalConnectorsEnum::REST_FHIR_API->value => [
             xl('Enable OpenEMR Standard FHIR REST API'),
             'bool',
             '0',
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ],
 
-        'rest_system_scopes_api' => [
+        GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => [
             xl('Enable OpenEMR FHIR System Scopes (Turn on only if you know what you are doing)'),
             'bool',
             '0',
             xl('Enable OpenEMR FHIR System Scopes.')
         ],
 
-        'rest_api' => [
+        GlobalConnectorsEnum::REST_API->value => [
             xl('Enable OpenEMR Standard REST API'),
             'bool',
             '0',
             xl('Enable OpenEMR Standard RESTful API.')
         ],
 
-        'rest_portal_api' => [
+        GlobalConnectorsEnum::REST_PORTAL_API->value => [
             xl('Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)'),
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ],
 
-        'oauth_password_grant' => [
+        GlobalConnectorsEnum::OAUTH_PASSWORD_GRANT->value => [
             xl('Enable OAuth2 Password Grant (Not considered secure)'),
             [
                 0 => xl('Off (Recommended setting)'),
@@ -3319,7 +3320,7 @@ $GLOBALS_METADATA = [
             '0',
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ],
-        'oauth_app_manual_approval' => [
+        GlobalConnectorsEnum::OAUTH_APP_MANUAL_APPROVAL->value => [
             xl('OAuth2 App Manual Approval Settings'),
             [
                 0 => xl('Patient standalone apps Auto Approved, EHR-Launch,Provider&System Apps require manual approval')
@@ -3329,13 +3330,22 @@ $GLOBALS_METADATA = [
             '0',
             xl('Approval settings for 3rd party app/api access')
         ],
-        'oauth_ehr_launch_authorization_flow_skip' => [
+        GlobalConnectorsEnum::OAUTH_EHR_LAUNCH_AUTHORIZATION_FLOW_SKIP->value => [
             xl('OAuth2 EHR-Launch Authorization Flow Skip Enable App Setting'),
             'bool',
             '1',
             xl('Enable an OAuth2 Client application to be configured to skip the login screen and the scope authorization screen if the user is already logged into the EHR.')
         ],
-
+        GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value => [
+            xl('Maximum supported version for US Core FHIR Implementation Guide -- note if a resource/profile is forwards compatible it will still be supported'),
+            [
+                '3.1.1' => 'US Core 3.1.1',
+                '7.0.0' => 'US Core 7.0.0',
+                '8.0.0' => 'US Core 8.0.0',
+            ],
+            '8.0.0',
+            xl('Set the maximum compatability version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
+        ],
         'cc_front_payments' => [
             xl('Accept Credit Card transactions from Front Payments'),
             'bool',

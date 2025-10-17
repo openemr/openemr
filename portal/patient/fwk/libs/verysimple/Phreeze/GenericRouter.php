@@ -82,7 +82,7 @@ class GenericRouter implements IRouter
             // literal match check
         if (isset($this->routeMap [$uri])) {
             // expects mapped values to be in the form: Controller.Model
-            [$controller, $method] = explode(".", $this->routeMap [$uri] ["route"]);
+            [$controller, $method] = explode(".", (string) $this->routeMap [$uri] ["route"]);
 
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 // p_acl check
@@ -124,7 +124,7 @@ class GenericRouter implements IRouter
             $key = str_replace(':num', '[0-9]+', $key);
 
             // check for RegEx match
-            if (preg_match('#^' . $key . '$#', $uri, $match)) {
+            if (preg_match('#^' . $key . '$#', (string) $uri, $match)) {
                 if (!empty($GLOBALS['bootstrap_pid'])) {
                     // p_acl check
                     $p_acl = $this->routeMap[$unalteredKey]["p_acl"];
@@ -154,7 +154,7 @@ class GenericRouter implements IRouter
                 ];
 
                 // expects mapped values to be in the form: Controller.Model
-                [$controller, $method] = explode(".", $value ["route"]);
+                [$controller, $method] = explode(".", (string) $value ["route"]);
                 return  [
                         $controller,
                         $method
@@ -185,14 +185,14 @@ class GenericRouter implements IRouter
             // if a root folder was provided, then we need to strip that out as well
             if ($this->appRootUrl) {
                 $prefix = str_replace(RequestUtil::GetServerRootUrl(), '/', $this->appRootUrl);
-                if (str_starts_with($this->uri, $prefix)) {
-                    $this->uri = substr($this->uri, strlen($prefix));
+                if (str_starts_with((string) $this->uri, $prefix)) {
+                    $this->uri = substr((string) $this->uri, strlen($prefix));
                 }
             }
 
             // strip trailing slash
-            while (str_ends_with($this->uri, '/')) {
-                $this->uri = substr($this->uri, 0, - 1);
+            while (str_ends_with((string) $this->uri, '/')) {
+                $this->uri = substr((string) $this->uri, 0, - 1);
             }
         }
 
@@ -219,9 +219,9 @@ class GenericRouter implements IRouter
 
         // enumerate all of the routes in the map and look for the first one that matches
         foreach ($this->routeMap as $key => $value) {
-            [$routeController, $routeMethod] = explode(".", $value ["route"]);
+            [$routeController, $routeMethod] = explode(".", (string) $value ["route"]);
 
-            $routeRequestMethodArr = explode(":", $key, 2);
+            $routeRequestMethodArr = explode(":", (string) $key, 2);
             $routeRequestMethod = $routeRequestMethodArr [0];
 
             // In order to match a route it needs to meet 3 conditions:
@@ -229,7 +229,7 @@ class GenericRouter implements IRouter
             // 2. the requestMethod is either a match or one or the other is a wildcard
             // 3. the number of parameters is equal
             if ($routeController == $controller && $routeMethod == $method && ($requestMethod == "" || $routeRequestMethod == "*" || $routeRequestMethod == $requestMethod) && (! array_key_exists("params", $value) || count($params) == count($value ["params"]))) {
-                $keyArr = explode('/', $key);
+                $keyArr = explode('/', (string) $key);
 
                 // strip the request method off the key:
                 $reqMethodAndController = explode(":", $keyArr [0]);

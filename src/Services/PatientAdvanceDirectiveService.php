@@ -120,7 +120,7 @@ class PatientAdvanceDirectiveService
                 'name' => $row['name'],
                 'type' => $docType,
                 'status' => $this->determineDocumentStatus($row),
-                'effective_date' => $row['docdate'] ?: substr($row['date'], 0, 10),
+                'effective_date' => $row['docdate'] ?: substr((string) $row['date'], 0, 10),
                 'location' => $row['url'] ?: 'Electronic Health Record',
                 'mimetype' => $row['mimetype'],
                 'hash' => $row['hash'],
@@ -712,12 +712,12 @@ class PatientAdvanceDirectiveService
         try {
             $dateTime = new \DateTime($date);
             return $dateTime->format('Y-m-d\TH:i:s\Z');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // If it's just a date, format as date only
             try {
                 $dateTime = new \DateTime($date);
                 return $dateTime->format('Y-m-d');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return $date; // Return as-is if can't parse
             }
         }

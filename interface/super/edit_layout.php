@@ -98,7 +98,7 @@ function genGroupSelector($name, $layout_id, $default = '')
         $thisid = $row['grp_group_id'];
         $i = 0;
       // Compute number of initial matching groups.
-        while ($i < strlen($thisid) && $i < strlen($arrid) && $thisid[$i] == $arrid[$i]) {
+        while ($i < strlen((string) $thisid) && $i < strlen($arrid) && $thisid[$i] == $arrid[$i]) {
             ++$i;
         }
         $arr = array_slice($arr, 0, $i); // discard the rest
@@ -140,7 +140,7 @@ function genGroupId($parent)
     );
     $maxnum = '1';
     while ($result = sqlFetchArray($results)) {
-        $tmp = substr($result['grp_group_id'], strlen($parent), 1);
+        $tmp = substr((string) $result['grp_group_id'], strlen((string) $parent), 1);
         if ($tmp >= $maxnum) {
             $maxnum = nextGroupOrder($tmp);
         }
@@ -158,11 +158,11 @@ function fuzzyRename($from, $to): void
 
     $query = "UPDATE layout_options SET group_id = concat(?, substr(group_id, ?)) " .
     "WHERE form_id = ? AND group_id LIKE ?";
-    sqlStatement($query, [$to, strlen($from) + 1, $layout_id, "$from%"]);
+    sqlStatement($query, [$to, strlen((string) $from) + 1, $layout_id, "$from%"]);
 
     $query = "UPDATE layout_group_properties SET grp_group_id = concat(?, substr(grp_group_id, ?)) " .
     "WHERE grp_form_id = ? AND grp_group_id LIKE ?";
-    sqlStatement($query, [$to, strlen($from) + 1, $layout_id, "$from%"]);
+    sqlStatement($query, [$to, strlen((string) $from) + 1, $layout_id, "$from%"]);
 
     setLayoutTimestamp($layout_id);
 }
@@ -173,14 +173,14 @@ function fuzzyRename($from, $to): void
 function swapGroups($id1, $id2): void
 {
     $i = 0;
-    while ($i < strlen($id1) && $i < strlen($id2) && $id1[$i] == $id2[$i]) {
+    while ($i < strlen((string) $id1) && $i < strlen((string) $id2) && $id1[$i] == $id2[$i]) {
         ++$i;
     }
   // $i is now the number of matching characters/levels.
-    if ($i < strlen($id1) && $i < strlen($id2)) {
-        $common = substr($id1, 0, $i);
-        $pfx1   = substr($id1, $i, 1);
-        $pfx2   = substr($id2, $i, 1);
+    if ($i < strlen((string) $id1) && $i < strlen((string) $id2)) {
+        $common = substr((string) $id1, 0, $i);
+        $pfx1   = substr((string) $id1, $i, 1);
+        $pfx2   = substr((string) $id2, $i, 1);
         $tmpname = $common . '#';
       // To avoid collision use 3 renames.
         fuzzyRename($common . $pfx1, $common . '#');
@@ -192,12 +192,12 @@ function swapGroups($id1, $id2): void
 function tableNameFromLayout($layout_id)
 {
     // Skip layouts that store data in vertical tables.
-    if (str_starts_with($layout_id, 'LBF') || str_starts_with($layout_id, 'LBT') || $layout_id == "FACUSR") {
+    if (str_starts_with((string) $layout_id, 'LBF') || str_starts_with((string) $layout_id, 'LBT') || $layout_id == "FACUSR") {
         return '';
     }
     if ($layout_id == "DEM") {
         $tablename = "patient_data";
-    } elseif (str_starts_with($layout_id, "HIS")) {
+    } elseif (str_starts_with((string) $layout_id, "HIS")) {
         $tablename = "history_data";
     } elseif ($layout_id == "SRH") {
         $tablename = "lists_ippf_srh";
@@ -308,7 +308,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
             $lotmp = [];
             // For History layouts do not delete a field name duplicated in another History layout
             // (should not happen, but a bug allowed it).
-            if (str_starts_with($layout_id, 'HIS')) {
+            if (str_starts_with((string) $layout_id, 'HIS')) {
                 $lotmp = sqlQuery(
                     "SELECT COUNT(*) AS count FROM layout_options WHERE " .
                     "form_id LIKE 'HIS%' AND form_id != ? AND field_id = ?",
@@ -406,7 +406,7 @@ $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 $layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
-$lbfonly = str_starts_with($layout_id, 'LBF') ? "" : "style='display:none;'";
+$lbfonly = str_starts_with((string) $layout_id, 'LBF') ? "" : "style='display:none;'";
 
 // Handle the Form actions
 
@@ -418,10 +418,10 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     $fld = $_POST['fld'];
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
-        $field_id = trim($iter['id']);
-        $field_id_original = trim($iter['originalid']);
-        $data_type = trim($iter['datatype']);
-        $listval = $data_type == 34 ? trim($iter['contextName']) : trim($iter['list_id']);
+        $field_id = trim((string) $iter['id']);
+        $field_id_original = trim((string) $iter['originalid']);
+        $data_type = trim((string) $iter['datatype']);
+        $listval = $data_type == 34 ? trim((string) $iter['contextName']) : trim((string) $iter['list_id']);
         $action = $iter['action'];
         if ($action == 'value' || $action == 'hsval') {
             $action .= '=' . $iter['value'];
@@ -449,25 +449,25 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
             }
             sqlStatement("UPDATE layout_options SET " .
                 "field_id = '"      . add_escape_custom($field_id)      . "', " .
-                "source = '"        . add_escape_custom(trim($iter['source']))    . "', " .
+                "source = '"        . add_escape_custom(trim((string) $iter['source']))    . "', " .
                 "title = '"         . add_escape_custom($iter['title'])     . "', " .
-                "group_id = '"    . add_escape_custom(trim($iter['group']))     . "', " .
-                "seq = '"           . add_escape_custom(trim($iter['seq']))      . "', " .
-                "uor = '"           . add_escape_custom(trim($iter['uor']))       . "', " .
-                "fld_length = '"    . add_escape_custom(trim($iter['lengthWidth']))    . "', " .
-                "fld_rows = '"    . add_escape_custom(trim($iter['lengthHeight']))    . "', " .
-                "max_length = '"    . add_escape_custom(trim($iter['maxSize']))    . "', "                             .
-                "titlecols = '"     . add_escape_custom(trim($iter['titlecols'])) . "', " .
-                "datacols = '"      . add_escape_custom(trim($iter['datacols']))  . "', " .
+                "group_id = '"    . add_escape_custom(trim((string) $iter['group']))     . "', " .
+                "seq = '"           . add_escape_custom(trim((string) $iter['seq']))      . "', " .
+                "uor = '"           . add_escape_custom(trim((string) $iter['uor']))       . "', " .
+                "fld_length = '"    . add_escape_custom(trim((string) $iter['lengthWidth']))    . "', " .
+                "fld_rows = '"    . add_escape_custom(trim((string) $iter['lengthHeight']))    . "', " .
+                "max_length = '"    . add_escape_custom(trim((string) $iter['maxSize']))    . "', "                             .
+                "titlecols = '"     . add_escape_custom(trim((string) $iter['titlecols'])) . "', " .
+                "datacols = '"      . add_escape_custom(trim((string) $iter['datacols']))  . "', " .
                 "data_type= '" . add_escape_custom($data_type) . "', "                                .
                 "list_id= '"        . add_escape_custom($listval)   . "', " .
-                "list_backup_id= '"        . add_escape_custom(trim($iter['list_backup_id']))   . "', " .
+                "list_backup_id= '"        . add_escape_custom(trim((string) $iter['list_backup_id']))   . "', " .
                 "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'] ?? null)) . "', " .
-                "default_value = '" . add_escape_custom(trim($iter['default']))   . "', " .
-                "description = '"   . add_escape_custom(trim($iter['desc']))      . "', " .
-                "codes = '"   . add_escape_custom(trim($iter['codes']))      . "', " .
+                "default_value = '" . add_escape_custom(trim((string) $iter['default']))   . "', " .
+                "description = '"   . add_escape_custom(trim((string) $iter['desc']))      . "', " .
+                "codes = '"   . add_escape_custom(trim((string) $iter['codes']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . add_escape_custom(trim($iter['validation']))   . "' " .
+                "validation = '"   . add_escape_custom(trim((string) $iter['validation']))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
 
               setLayoutTimestamp($layout_id);
@@ -478,35 +478,35 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         CsrfUtils::csrfNotVerified();
     }
     // Add a new field to a specific group
-    $data_type = trim($_POST['newdatatype']);
+    $data_type = trim((string) $_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
-    $listval = $data_type == 34 ? trim($_POST['contextName']) : trim($_POST['newlistid']);
+    $listval = $data_type == 34 ? trim((string) $_POST['contextName']) : trim((string) $_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
-      "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newsource'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newid'])) . "'" .
+      "'"  . add_escape_custom(trim((string) $_POST['layout_id'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newsource'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newid'])) . "'" .
       ",'" . add_escape_custom($_POST['newtitle']) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newfieldgroupid'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newseq'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newuor'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newtitlecols'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newdatacols'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newfieldgroupid'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newseq'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newuor'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newlengthWidth'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newlengthHeight'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newtitlecols'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newdatacols'])) . "'" .
       ",'" . add_escape_custom($data_type) . "'"                                  .
         ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newdefault'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newcodes'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newdesc'])) . "'" .
-      ",'"    . add_escape_custom(trim($_POST['newmaxSize']))    . "'"  .
+      ",'" . add_escape_custom(trim((string) $_POST['newdefault'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newcodes'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newdesc'])) . "'" .
+      ",'"    . add_escape_custom(trim((string) $_POST['newmaxSize']))    . "'"  .
       ",'" . add_escape_custom($listval) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newbackuplistid'])) . "'" .
+      ",'" . add_escape_custom(trim((string) $_POST['newbackuplistid'])) . "'" .
       " )");
-    addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
+    addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -519,7 +519,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
                 " AND field_id IN (";
     $comma = "";
-    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+    foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
         $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
         $comma = ", ";
     }
@@ -532,7 +532,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     // It's important to skip any duplicate field names.
     $tlayout = $_POST['targetlayout'];
     $tgroup  = $_POST['targetgroup'];
-    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+    foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
         $srow = sqlQuery(
             "SELECT * FROM layout_options WHERE " .
             "form_id = ? AND field_id = ? LIMIT 1",
@@ -574,7 +574,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 " AND field_id IN (";
     $comma = "";
     $cntr = 0;
-    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+    foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
         if (!isColumnReserved(tableNameFromLayout($_POST['layout_id']), $onefield)) {
             $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
             $comma = ", ";
@@ -584,7 +584,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     $sqlstmt .= ")";
     if (!empty($cntr)) {
         sqlStatement($sqlstmt);
-        foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+        foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
             addOrDeleteColumn($layout_id, $onefield, false);
         }
         setLayoutTimestamp($layout_id);
@@ -663,7 +663,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     }
     $newparent = $_POST['renamegroupparent'];  // this is an ID
     $oldid     = $_POST['renameoldgroupname']; // this is an ID
-    $oldparent = substr($oldid, 0, -1);
+    $oldparent = substr((string) $oldid, 0, -1);
     $newid = $oldid;
     if ($newparent != $oldparent) {
       // Different parent, generate a new child prefix character.
@@ -898,7 +898,7 @@ function writeFieldLine($linedata): void
          attr($linedata['datacols']) . "' size='3' maxlength='10' class='form-control form-control-sm optin' />";
     echo "</td>\n";
     /* Below for compatibility with existing string modifiers. */
-    if (!str_contains($linedata['edit_options'], ',') && isset($linedata['edit_options'])) {
+    if (!str_contains((string) $linedata['edit_options'], ',') && isset($linedata['edit_options'])) {
         $t = json_decode($linedata['edit_options']);
         if (json_last_error() !== JSON_ERROR_NONE || $t === 0) { // hopefully string of characters and 0 handled.
             $t = str_split(trim($linedata['edit_options']));
@@ -907,7 +907,7 @@ function writeFieldLine($linedata): void
     }
     echo "  <td class='text-center optcell' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
     echo "<select id='fld[" . attr($fld_line_no) . "][edit_options]' name='fld[" . attr($fld_line_no) . "][edit_options][]' class='typeAddons optin' size='3' multiple data-set='" .
-    attr(trim($linedata['edit_options'])) . "' ></select></td>\n";
+    attr(trim((string) $linedata['edit_options'])) . "' ></select></td>\n";
 
     if ($linedata['data_type'] == 31) {
         echo "  <td class='text-center optcell'>";
@@ -952,8 +952,8 @@ function writeFieldLine($linedata): void
     $action = empty($conditions['action']) ? 'skip' : $conditions['action'];
     $action_value = '';
     if ($action != 'skip') {
-        $action_value = substr($action, 6);
-        $action = substr($action, 0, 5); // "value" or "hsval"
+        $action_value = substr((string) $action, 6);
+        $action = substr((string) $action, 0, 5); // "value" or "hsval"
     }
     //
     $extra_html .= "<div id='ext_" . attr($fld_line_no) . "' " .
@@ -1567,11 +1567,11 @@ if ($layout_id) {
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
-            for ($i = 1; $i <= strlen($group_id); ++$i) {
+            for ($i = 1; $i <= strlen((string) $group_id); ++$i) {
                 if ($gdispname) {
                     $gdispname .= ' / ';
                 }
-                $gdispname .= $grparr[substr($group_id, 0, $i)]['grp_title'];
+                $gdispname .= $grparr[substr((string) $group_id, 0, $i)]['grp_title'];
             }
             $gmyname = $grparr[$group_id]['grp_title'];
 
@@ -2294,7 +2294,7 @@ function elemFromPart(part) {
 }
 
 function FieldIDClicked(elem) {
-<?php if (str_starts_with($layout_id, 'LBF')) { ?>
+<?php if (str_starts_with((string) $layout_id, 'LBF')) { ?>
   fieldselectfield = elem;
   var srcval = elemFromPart('source').value;
   // If the field ID is for the local form, allow direct entry.

@@ -415,7 +415,7 @@ if (!empty($_POST['form_refresh'])) {
 
                         $query .= " LIMIT 1";
                         $tmp = sqlQuery($query, $sqlBindArray);
-                        $relcodes = explode(';', $tmp['related_code']);
+                        $relcodes = explode(';', (string) $tmp['related_code']);
                         foreach ($relcodes as $codestring) {
                             if ($codestring === '') {
                                 continue;
@@ -505,9 +505,9 @@ if (!empty($_POST['form_refresh'])) {
          }
          *****************************************************************/
         if (empty($row['pc_eventDate'])) {
-            echo text(oeFormatShortDate(substr($row['encdate'], 0, 10)));
+            echo text(oeFormatShortDate(substr((string) $row['encdate'], 0, 10)));
         } else {
-            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr($row['pc_startTime'], 0, 5));
+            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr((string) $row['pc_startTime'], 0, 5));
         }
         ?>
          </td>

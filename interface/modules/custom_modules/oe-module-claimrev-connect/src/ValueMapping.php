@@ -16,14 +16,14 @@ class ValueMapping
 {
     public static function mapPayerResponsibility($payerResponsibility)
     {
-        if (strtolower($payerResponsibility) == "primary") {
+        if (strtolower((string) $payerResponsibility) == "primary") {
             return "p";
-        } elseif (strtolower($payerResponsibility) == "secondary") {
+        } elseif (strtolower((string) $payerResponsibility) == "secondary") {
             return "s";
-        } elseif (strtolower($payerResponsibility) == "tertiary") {
+        } elseif (strtolower((string) $payerResponsibility) == "tertiary") {
             return"t";
         } else {
-            return substr($payerResponsibility, 0, 1);
+            return substr((string) $payerResponsibility, 0, 1);
         }
     }
 }

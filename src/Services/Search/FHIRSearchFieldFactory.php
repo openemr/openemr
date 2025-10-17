@@ -120,7 +120,7 @@ class FHIRSearchFieldFactory
      */
     private function extractSearchFieldName($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         return $fieldName;
     }
@@ -186,7 +186,7 @@ class FHIRSearchFieldFactory
 
         $normalizedValues = [];
         foreach ($values as $searchValue) {
-            if (str_contains($searchValue, '://')) {
+            if (str_contains((string) $searchValue, '://')) {
                 $url = $this->resolveReferenceRelativeUrl($searchValue);
                 $normalizedValues[] = $url;
             } else {
@@ -249,7 +249,7 @@ class FHIRSearchFieldFactory
      */
     private function extractFieldModifiers($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         array_shift($fieldNameWithModifiers); // grab our modifiers
         return $fieldNameWithModifiers;

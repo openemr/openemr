@@ -86,7 +86,7 @@ $BTN_TEXT_LOG = xl('Backup/Delete Log Data');
 // ViSolve: Create Log  Backup button
 $BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 
-$form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
+$form_step   = isset($_POST['form_step']) ? trim((string) $_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
 
 if (!empty($_POST['form_export'])) {
@@ -263,7 +263,7 @@ if ($form_step == 102.2) {
                     $xtitle = '';
                 }
                 $xdesc = $row['description'];
-                if (!str_starts_with($xdesc, '<')) {
+                if (!str_starts_with((string) $xdesc, '<')) {
                     $xdesc = xl_layout_label($xdesc);
                 }
                 if ($xdesc === $row['description']) {
@@ -520,22 +520,22 @@ if ($form_step == 1) {
 
     if ($GLOBALS['include_de_identification'] == 1) {
         //include routines during backup when de-identification is enabled
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-        " -p" . escapeshellarg($sqlconf["pass"]) .
-        " -h " . escapeshellarg($sqlconf["host"]) .
-        " --port=" . escapeshellarg($sqlconf["port"]) .
+        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+        " -h " . escapeshellarg((string) $sqlconf["host"]) .
+        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
         " --routines" .
         " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
         " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg($sqlconf["dbase"]);
+        escapeshellarg((string) $sqlconf["dbase"]);
     } else {
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-        " -p" . escapeshellarg($sqlconf["pass"]) .
-        " -h " . escapeshellarg($sqlconf["host"]) .
-        " --port=" . escapeshellarg($sqlconf["port"]) .
+        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+        " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+        " -h " . escapeshellarg((string) $sqlconf["host"]) .
+        " --port=" . escapeshellarg((string) $sqlconf["port"]) .
         " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
         " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg($sqlconf["dbase"]);
+        escapeshellarg((string) $sqlconf["dbase"]);
     }
 
     $auto_continue = true;
@@ -716,21 +716,21 @@ if ($form_step == 102) {
 
         if ($tables) {
             if (IS_WINDOWS) {
-                $cmd .= escapeshellcmd('"' . $mysql_dump_cmd . '"') . " -u " . escapeshellarg($sqlconf["login"]) .
-                    " -p" . escapeshellarg($sqlconf["pass"]) .
-                    " -h " . escapeshellarg($sqlconf["host"]) .
-                    " --port=" . escapeshellarg($sqlconf["port"]) .
+                $cmd .= escapeshellcmd('"' . $mysql_dump_cmd . '"') . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+                    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+                    " -h " . escapeshellarg((string) $sqlconf["host"]) .
+                    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
                     " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
-                    escapeshellarg($sqlconf["dbase"]) . " $tables";
+                    escapeshellarg((string) $sqlconf["dbase"]) . " $tables";
             } else {
-                $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-                    " -p" . escapeshellarg($sqlconf["pass"]) .
-                    " -h " . escapeshellarg($sqlconf["host"]) .
-                    " --port=" . escapeshellarg($sqlconf["port"]) .
+                $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+                    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+                    " -h " . escapeshellarg((string) $sqlconf["host"]) .
+                    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
                     " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
-                    escapeshellarg($sqlconf["dbase"]) . " $tables";
+                    escapeshellarg((string) $sqlconf["dbase"]) . " $tables";
             }
             if (IS_WINDOWS) {
                 # The Perl script differs in windows also.
@@ -742,10 +742,10 @@ if ($form_step == 102) {
             }
         }
 
-        $dumppfx = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-                 " -p" . escapeshellarg($sqlconf["pass"]) .
-                 " -h " . escapeshellarg($sqlconf["host"]) .
-                 " --port=" . escapeshellarg($sqlconf["port"]) .
+        $dumppfx = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+                 " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+                 " -h " . escapeshellarg((string) $sqlconf["host"]) .
+                 " --port=" . escapeshellarg((string) $sqlconf["port"]) .
                  " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                  " --hex-blob --skip-opt --quote-names --no-tablespaces --complete-insert" .
                  " --no-create-info --skip-comments $mysql_ssl";
@@ -772,7 +772,7 @@ if ($form_step == 102) {
         if (!empty($form_sel_lists)) {
             foreach ($form_sel_lists as $listid) {
                 // skip if have backtic(s)
-                if (str_contains($listid, '`')) {
+                if (str_contains((string) $listid, '`')) {
                     echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
                     continue;
                 }
@@ -789,7 +789,7 @@ if ($form_step == 102) {
                     # windows uses the & to join statements.
                     $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
                         "ORDER BY list_id != 'lists', seq, title\" " .
-                        escapeshellarg($sqlconf["dbase"]) . " list_options";
+                        escapeshellarg((string) $sqlconf["dbase"]) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
                     $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
@@ -799,7 +799,7 @@ if ($form_step == 102) {
                         $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
                         add_escape_custom($listid) . "\" OR list_id = \"" .
                         add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
-                        escapeshellarg($sqlconf["dbase"]) . " list_options" .
+                        escapeshellarg((string) $sqlconf["dbase"]) . " list_options" .
                         " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
             }
@@ -811,7 +811,7 @@ if ($form_step == 102) {
             $do_demographics_repair = false;
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
                 // skip if have backtic(s)
-                if (str_contains($layoutid, '`')) {
+                if (str_contains((string) $layoutid, '`')) {
                     echo xlt("Skipping illegal layout name") . ": " . text($layoutid) . "<br>";
                     continue;
                 }
@@ -838,24 +838,24 @@ if ($form_step == 102) {
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
                     $cmd .= $dumppfx . ' --where="grp_form_id = \'' . add_escape_custom($layoutid) . "'\" " .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_group_properties";
+                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                     $cmd .= $dumppfx . ' --where="form_id = \'' . add_escape_custom($layoutid) . '\' ORDER BY group_id, seq, title" '  .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_options" ;
+                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
                     $cmd .= $dumppfx . " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_group_properties";
+                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                     $cmd .= $dumppfx . " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_options" ;
+                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 // History and demographics exports will get special treatment.
-                if (str_starts_with($layoutid, 'HIS')) {
+                if (str_starts_with((string) $layoutid, 'HIS')) {
                     $do_history_repair = true;
                 }
-                if (str_starts_with($layoutid, 'DEM')) {
+                if (str_starts_with((string) $layoutid, 'DEM')) {
                     $do_demographics_repair = true;
                 }
             }
@@ -953,12 +953,12 @@ if ($form_step == 202) {
         if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
             $form_status .= xl('Applying') . "...||br-placeholder||";
             echo brCustomPlaceholder(text($form_status));
-            $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-            " -p" . escapeshellarg($sqlconf["pass"]) .
-            " -h " . escapeshellarg($sqlconf["host"]) .
-            " --port=" . escapeshellarg($sqlconf["port"]) .
+            $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+            " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+            " -h " . escapeshellarg((string) $sqlconf["host"]) .
+            " --port=" . escapeshellarg((string) $sqlconf["port"]) .
             " $mysql_ssl " .
-            escapeshellarg($sqlconf["dbase"]) .
+            escapeshellarg((string) $sqlconf["dbase"]) .
             " < " . escapeshellarg($EXPORT_FILE);
         } else {
             echo xlt('Internal error accessing uploaded file!');
@@ -1000,13 +1000,13 @@ if ($form_step == 301) {
     $res = sqlStatement("create table if not exists api_log_new like api_log");
     $res = sqlStatement("rename table api_log to api_log_backup, api_log_new to api_log");
     echo "<br />";
-    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-    " -p" . escapeshellarg($sqlconf["pass"]) .
-    " -h " . escapeshellarg($sqlconf["host"]) .
-    " --port=" . escapeshellarg($sqlconf["port"]) .
+    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
+    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
+    " -h " . escapeshellarg((string) $sqlconf["host"]) .
+    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
     " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
     " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
-    escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
+    escapeshellarg((string) $sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
 # Set Eventlog Flag when it is done
     $eventlog = 1;
 // 301 If ends here.

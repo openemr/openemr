@@ -151,7 +151,7 @@ if (isset($_POST['new_login_session_management'])) {
         $registrationAttempt = true;
         if ($row1['method'] == 'U2F') {
             $isU2F = true;
-            $regobj = json_decode($row1['var1']);
+            $regobj = json_decode((string) $row1['var1']);
             $regs[json_encode($regobj->keyHandle)] = $row1['name'];
             $registrations[] = $regobj;
         } else { // $row1['method'] == 'TOTP'
@@ -231,9 +231,9 @@ if (isset($_POST['new_login_session_management'])) {
                 $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", [$userid]);
                 try {
                     $registration = $u2f->doAuthenticate(
-                        json_decode($tmprow['login_work_area']), // these are the original challenge requests
+                        json_decode((string) $tmprow['login_work_area']), // these are the original challenge requests
                         $registrations,
-                        json_decode($_POST['form_response'])
+                        json_decode((string) $_POST['form_response'])
                     );
                     // Stored registration data needs to be updated because the usage count has changed.
                     // We have to use the matching registered key.
@@ -401,7 +401,7 @@ if ($GLOBALS['login_into_facility']) {
     $_SESSION['facilityId'] = $facility_id;
     if ($GLOBALS['set_facility_cookie']) {
         // set cookie with facility for the calender screens
-        setcookie("pc_facility", $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
+        setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
     }
 }
 

@@ -66,7 +66,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $hlCount = 1;
         $segs = explode(
             "~\n",
-            X125010837P::genX12837P(
+            (string) X125010837P::genX12837P(
                 $claim->getPid(),
                 $claim->getEncounter(),
                 $claim->getPartner(),

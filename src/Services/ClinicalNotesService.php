@@ -331,7 +331,7 @@ class ClinicalNotesService extends BaseService
     public function isValidClinicalNoteCode($code)
     {
         // make it a LOINC code
-        if (!str_contains($code, ":")) {
+        if (!str_contains((string) $code, ":")) {
             $code = "LOINC:" . $code;
         }
         $listService = new ListService();

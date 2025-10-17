@@ -13,7 +13,9 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
+use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
@@ -66,6 +68,7 @@ class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 
         // test that an inserted questionnaire form will retrieve the questionnaire via the service
         $service = new FhirQuestionnaireFormService();
+        $service->setSystemLogger(new SystemLogger(Level::Critical));
         $processingResult = $service->getOne($uuid);
 
         $this->assertTrue($processingResult->isValid(), "Processing Result was valid for retrieval");

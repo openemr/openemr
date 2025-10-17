@@ -39,22 +39,22 @@ class BillingReport
         if (isset($_REQUEST['final_this_page_criteria'])) {
             foreach ($_REQUEST['final_this_page_criteria'] as $criteria_value) {
                 //---------------------------------------------------------
-                if (str_contains($criteria_value, "billing.billed|=|1")) {
+                if (str_contains((string) $criteria_value, "billing.billed|=|1")) {
                     $billstring .= ' AND ' . "billing.billed = '1'";
-                } elseif (str_contains($criteria_value, "billing.billed|=|0")) {
+                } elseif (str_contains((string) $criteria_value, "billing.billed|=|0")) {
                     //3 is an error condition
                     $billstring .= ' AND ' . "(billing.billed = '0' OR billing.billed IS NULL OR (billing.billed = '1' AND billing.bill_process = '3'))";
-                } elseif (str_contains($criteria_value, "billing.billed|=|7")) {
+                } elseif (str_contains((string) $criteria_value, "billing.billed|=|7")) {
                     $billstring .= ' AND ' . "billing.bill_process = '7'";
-                } elseif (str_contains($criteria_value, "billing.id|=|null")) {
+                } elseif (str_contains((string) $criteria_value, "billing.id|=|null")) {
                     $billstring .= ' AND ' . "billing.id is null";
-                } elseif (str_contains($criteria_value, "billing.id|=|not null")) {
+                } elseif (str_contains((string) $criteria_value, "billing.id|=|not null")) {
                     $billstring .= ' AND ' . "billing.id is not null";
-                } elseif (str_contains($criteria_value, "patient_data.fname|like|")) {
-                    $elements = explode('|', $criteria_value);
+                } elseif (str_contains((string) $criteria_value, "patient_data.fname|like|")) {
+                    $elements = explode('|', (string) $criteria_value);
                     $query_part .= " AND (patient_data.fname like '" . add_escape_custom($elements[2]) . "' or patient_data.lname like '" . add_escape_custom($elements[2]) . "')";
-                } elseif (str_contains($criteria_value, "form_encounter.pid|=|")) {//comes like '781,780'
-                    $elements = explode('|', $criteria_value);
+                } elseif (str_contains((string) $criteria_value, "form_encounter.pid|=|")) {//comes like '781,780'
+                    $elements = explode('|', (string) $criteria_value);
                     $patients = explode(',', $elements[2]);
                     $sanitizedPatients = '';
                     foreach ($patients as $patient) {
@@ -63,8 +63,8 @@ class BillingReport
                     $sanitizedPatients = substr($sanitizedPatients, 0, -1);
                     $query_part .= ' AND form_encounter.pid in (' . $sanitizedPatients . ')';
                     $query_part2 .= ' AND pid in (' . $sanitizedPatients . ')';
-                } elseif (str_contains($criteria_value, "form_encounter.encounter|=|")) {//comes like '781,780'
-                    $elements = explode('|', $criteria_value);
+                } elseif (str_contains((string) $criteria_value, "form_encounter.encounter|=|")) {//comes like '781,780'
+                    $elements = explode('|', (string) $criteria_value);
                     $encounters = explode(',', $elements[2]);
                     $sanitizedEncounters = '';
                     foreach ($encounters as $encounter) {
@@ -72,33 +72,33 @@ class BillingReport
                     }
                     $sanitizedEncounters = substr($sanitizedEncounters, 0, -1);
                     $query_part .= ' AND form_encounter.encounter in (' . $sanitizedEncounters . ')';
-                } elseif (str_contains($criteria_value, "insurance_data.provider|=|1")) {
+                } elseif (str_contains((string) $criteria_value, "insurance_data.provider|=|1")) {
                     $query_part .= ' AND ' . "insurance_data.provider > '0' and (insurance_data.date <= form_encounter.date OR insurance_data.date IS NULL)";
-                } elseif (str_contains($criteria_value, "insurance_data.provider|=|0")) {
+                } elseif (str_contains((string) $criteria_value, "insurance_data.provider|=|0")) {
                     $query_part .= ' AND ' . "(insurance_data.provider = '0' or insurance_data.date > form_encounter.date)";
-                } elseif (str_contains($criteria_value, "form_encounter.date|between|")) {
-                    $elements = explode('|', $criteria_value);
+                } elseif (str_contains((string) $criteria_value, "form_encounter.date|between|")) {
+                    $elements = explode('|', (string) $criteria_value);
                     $query_part .= ' AND ' . "(form_encounter.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                     if ($daysheet) {
                         $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                         $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                     }
-                } elseif (str_contains($criteria_value, "billing.date|between|")) {
-                    $elements = explode('|', $criteria_value);
+                } elseif (str_contains((string) $criteria_value, "billing.date|between|")) {
+                    $elements = explode('|', (string) $criteria_value);
                     $query_part .= ' AND ' . "(billing.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                     if ($daysheet) {
                         $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                         $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                     }
-                } elseif (str_contains($criteria_value, "claims.process_time|between|")) {
-                    $elements = explode('|', $criteria_value);
+                } elseif (str_contains((string) $criteria_value, "claims.process_time|between|")) {
+                    $elements = explode('|', (string) $criteria_value);
                     $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                     if ($daysheet) {
                         $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                         $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                     }
                 } else {
-                    $elements = explode('|', $criteria_value);
+                    $elements = explode('|', (string) $criteria_value);
                     $criteriaItemsWhitelist = [
                         'claims.target',
                         'claims.payer_id',
@@ -113,7 +113,7 @@ class BillingReport
                     ];
                     $query_part .= ' AND ' . escape_identifier($elements[0], $criteriaItemsWhitelist, true) . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
 
-                    if (str_starts_with($criteria_value, 'billing.user') && ($daysheet)) {
+                    if (str_starts_with((string) $criteria_value, 'billing.user') && ($daysheet)) {
                         $query_part_day .=  ' AND ' . 'ar_activity.post_user' . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
                     }
                 }

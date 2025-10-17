@@ -251,7 +251,7 @@ class ClientRepository implements ClientRepositoryInterface
         $pipedValues = ['contacts', 'redirect_uri', 'request_uri', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'];
         foreach ($pipedValues as $value) {
             if (!empty($client_record[$value])) {
-                $client_record[$value] = explode('|', $client_record[$value]);
+                $client_record[$value] = explode('|', (string) $client_record[$value]);
             }
         }
         $client = new ClientEntity();

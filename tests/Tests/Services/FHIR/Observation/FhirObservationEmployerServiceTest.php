@@ -248,7 +248,7 @@ class FhirObservationEmployerServiceTest extends TestCase
         $profiles = $occupationObs->getMeta()->getProfile();
         $hasOccupationProfile = false;
         foreach ($profiles as $profile) {
-            if (str_contains($profile->getValue(), 'us-core-observation-occupation')) {
+            if (str_contains((string) $profile->getValue(), 'us-core-observation-occupation')) {
                 $hasOccupationProfile = true;
                 break;
             }

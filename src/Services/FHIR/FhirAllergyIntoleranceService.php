@@ -199,7 +199,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 $reactionCoding->setCode($code);
                 $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
-                $reactionCoding->setDisplay(trim($display));
+                $reactionCoding->setDisplay(trim((string) $display));
                 // @see http://hl7.org/fhir/R4/valueset-clinical-findings.html
                 $reactionCoding->setSystem($codeValues['system']);
                 $reactionConcept->addCoding($reactionCoding);
@@ -224,7 +224,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 // if we have no display value we will just show the code value here
                 $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
-                $diagnosisCoding->setDisplay(trim($display));
+                $diagnosisCoding->setDisplay(trim((string) $display));
                 $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }

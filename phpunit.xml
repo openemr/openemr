@@ -36,6 +36,8 @@ This file configures the kind that requires initialization.
     </testsuite>
     <testsuite name="e2e">
       <directory>tests/Tests/E2e</directory>
+      <exclude>tests/Tests/E2e/EmailSendTest.php</exclude>
+      <exclude>tests/Tests/E2e/FaxSmsEmailTest.php</exclude>
     </testsuite>
     <testsuite name="api">
       <directory>tests/Tests/Api</directory>

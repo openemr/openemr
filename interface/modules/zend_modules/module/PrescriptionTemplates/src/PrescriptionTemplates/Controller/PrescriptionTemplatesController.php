@@ -31,7 +31,7 @@ class PrescriptionTemplatesController extends AbstractActionController
      */
     protected function getDefaultTemplate($id)
     {
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         $prescriptions = [];
         foreach ($ids as $id) {
             $p = new \Prescription($id);

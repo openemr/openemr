@@ -37,15 +37,15 @@ function smarty_function_pc_filter($args, &$smarty): void
 
     $Date = postcalendar_getDate();
     if (!isset($y)) {
-        $y = substr($Date, 0, 4);
+        $y = substr((string) $Date, 0, 4);
     }
 
     if (!isset($m)) {
-        $m = substr($Date, 4, 2);
+        $m = substr((string) $Date, 4, 2);
     }
 
     if (!isset($d)) {
-        $d = substr($Date, 6, 2);
+        $d = substr((string) $Date, 6, 2);
     }
 
     $tplview = pnVarCleanFromInput('tplview');
@@ -56,7 +56,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $viewtype = _SETTING_DEFAULT_VIEW;
     }
 
-    $types = explode(',', $type);
+    $types = explode(',', (string) $type);
     $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -105,7 +105,7 @@ function smarty_function_pc_filter($args, &$smarty): void
         $catoptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_CATEGORY . "</option>";
         foreach ($categories as $c) {
             $sel = $category == $c['id'] ? 'selected="selected"' : '';
-            $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c[name]) . "</option>";
+            $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c['name']) . "</option>";
         }
 
         $catoptions .= '</select>';

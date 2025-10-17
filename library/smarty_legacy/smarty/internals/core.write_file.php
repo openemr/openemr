@@ -15,7 +15,7 @@
  */
 function smarty_core_write_file($params, &$smarty)
 {
-    $_dirname = dirname($params['filename']);
+    $_dirname = dirname((string) $params['filename']);
 
     if ($params['create_dirs']) {
         $_params = ['dir' => $_dirname];
@@ -34,7 +34,7 @@ function smarty_core_write_file($params, &$smarty)
         }
     }
 
-    fwrite($fd, $params['contents']);
+    fwrite($fd, (string) $params['contents']);
     fclose($fd);
 
     if (DIRECTORY_SEPARATOR == '\\' || !@rename($_tmp_file, $params['filename'])) {

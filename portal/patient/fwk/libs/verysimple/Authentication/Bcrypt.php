@@ -50,7 +50,7 @@ class Bcrypt
      */
     public function hash($input)
     {
-        $hash = crypt($input, $this->getSalt());
+        $hash = crypt((string) $input, (string) $this->getSalt());
 
         if (strlen($hash) > 13) {
             return $hash;
@@ -69,7 +69,7 @@ class Bcrypt
      */
     public function verify($input, $existingHash)
     {
-        $hash = crypt($input, $existingHash);
+        $hash = crypt((string) $input, (string) $existingHash);
 
         return $hash === $existingHash;
     }

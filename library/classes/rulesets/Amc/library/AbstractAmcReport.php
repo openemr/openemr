@@ -75,7 +75,7 @@ abstract class AbstractAmcReport implements RsReportIF
         // require all .php files in the report's sub-folder
         // TODO: This really needs to be moved to using our namespace autoloader... no point in doing a file stat check
         // for every single rule we have, over and over again every time the rule is instantiated.
-        $className = $this::class;
+        $className = static::class;
         foreach (glob(__DIR__ . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
@@ -104,7 +104,7 @@ abstract class AbstractAmcReport implements RsReportIF
             $this->_aggregator = new AMCItemSkipTracker();
         }
         $this->logger = new SystemLogger();
-        $this->logger->debug($this::class . "->__construct() finished", ['patients' => $patientIdArray]);
+        $this->logger->debug(static::class . "->__construct() finished", ['patients' => $patientIdArray]);
 
         $this->_billingFacilityId = $options['billing_facility_id'] ?? null;
         $this->_providerId = $options['provider_id'] ?? null;
@@ -132,7 +132,7 @@ abstract class AbstractAmcReport implements RsReportIF
     public function execute()
     {
 
-        $this->logger->debug($this::class . "->execute() starting function");
+        $this->logger->debug(static::class . "->execute() starting function");
 
         // If itemization is turned on, then iterate the rule id iterator
         //
@@ -162,7 +162,7 @@ abstract class AbstractAmcReport implements RsReportIF
             $object_to_count = "patients";
         }
 
-        $this->logger->debug($this::class . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
+        $this->logger->debug(static::class . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
 
         $numeratorObjects = 0;
         $denominatorObjects = 0;
@@ -172,7 +172,7 @@ abstract class AbstractAmcReport implements RsReportIF
             // not sure how we account for individual reporting here.
             $denominatorObjects = $this->_manualLabNumber;
             $this->logger->debug(
-                $this::class . "->execute() manual labs processed",
+                static::class . "->execute() manual labs processed",
                 ['numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -189,7 +189,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
         $this->_resultsArray[] = &$result;
-        $this->logger->debug($this::class . "->execute() leaving rule");
+        $this->logger->debug(static::class . "->execute() leaving rule");
     }
 
     private function executeForPatients($numerator, $denominator, &$numeratorObjects, &$denominatorObjects)
@@ -236,7 +236,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 $denominatorResultItemDetails
             );
             $this->logger->debug(
-                $this::class . "->execute() patient processed",
+                static::class . "->execute() patient processed",
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
@@ -296,7 +296,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 }
             }
             $this->logger->debug(
-                $this::class . "->execute() patient processed",
+                static::class . "->execute() patient processed",
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }

@@ -36,7 +36,7 @@ SessionUtil::portalSessionStart();
 //
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
@@ -65,7 +65,7 @@ $input_catid = $_REQUEST['catid'];
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
-    $udate = strtotime($starttime, $udate);
+    $udate = strtotime((string) $starttime, $udate);
     if ($udate < $slotstime) {
         return;
     }
@@ -135,7 +135,7 @@ if (!empty($_REQUEST['startdate'])) {
 }
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches);
 $edate = date(
     "Y-m-d",
     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])

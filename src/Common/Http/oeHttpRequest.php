@@ -141,7 +141,7 @@ class oeHttpRequest extends oeHttp
 
     public function usingBaseUri($baseUri)
     {
-        $baseUri = str_ends_with($baseUri, '/') ? $baseUri : $baseUri . '/';
+        $baseUri = str_ends_with((string) $baseUri, '/') ? $baseUri : $baseUri . '/';
         return $this->tap($this, fn($request): array => $this->options = array_merge($this->options, [
             'base_uri' => $baseUri,
         ]));
@@ -176,7 +176,7 @@ class oeHttpRequest extends oeHttp
     protected function parseQueryParams($url)
     {
         return $this->tap([], function (&$query) use ($url): void {
-            parse_str(parse_url($url, PHP_URL_QUERY), $query);
+            parse_str(parse_url((string) $url, PHP_URL_QUERY), $query);
         });
     }
 

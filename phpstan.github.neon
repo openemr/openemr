@@ -2340,18 +2340,6 @@ parameters:
     identifier: variable.undefined
     count: 17
     path: interface/billing/print_daysheet_report_num1.php
-  - message: '#^Constant asc not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant fulname not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant pid not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num2.php
   - message: '#^Variable \$catch_user might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -2876,38 +2864,6 @@ parameters:
     identifier: variable.undefined
     count: 11
     path: interface/billing/print_daysheet_report_num2.php
-  - message: '#^Constant asc not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant fee not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant fulname not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant insadj not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant inspay not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant patadj not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant patpay not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
-  - message: '#^Constant pid not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/billing/print_daysheet_report_num3.php
   - message: '#^Variable \$catch_user might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -3856,10 +3812,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/CAMOS/print.php
-  - message: '#^Constant sigline not found\.$#'
-    identifier: constant.notFound
-    count: 4
-    path: interface/forms/CAMOS/rx_print.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -7204,10 +7156,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: interface/forms/eye_mag/report.php
-  - message: '#^Constant enddate not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/forms/eye_mag/save.php
   - message: '#^Variable \$DOCS might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -10204,10 +10152,6 @@ parameters:
     identifier: constant.notFound
     count: 1
     path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
-  - message: '#^Constant name not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php
   - message: '#^Variable \$catoptions might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -11636,10 +11580,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 2
     path: interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php
-  - message: '#^Parameter \$parser of method Composer\\InstalledVersions\:\:satisfies\(\) has invalid type Composer\\Semver\\VersionParser\.$#'
-    identifier: class.notFound
-    count: 1
-    path: interface/modules/custom_modules/oe-module-prior-authorizations/vendor/composer/InstalledVersions.php
   - message: '#^Variable \$classLoader might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -12791,10 +12731,6 @@ parameters:
   - message: '#^Variable \$ISSUE_TYPES might not be defined\.$#'
     identifier: variable.undefined
     count: 1
-    path: interface/patient_file/problem_encounter.php
-  - message: '#^Variable \$pid might not be defined\.$#'
-    identifier: variable.undefined
-    count: 6
     path: interface/patient_file/problem_encounter.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
@@ -14431,10 +14367,6 @@ parameters:
   - message: '#^Class MedExApi\\Base referenced with incorrect case\: MedExApi\\base\.$#'
     identifier: class.nameCase
     count: 2
-    path: library/MedEx/API.php
-  - message: '#^Function dirname invoked with 3 parameters, 1\-2 required\.$#'
-    identifier: arguments.count
-    count: 1
     path: library/MedEx/API.php
   - message: '#^Instantiated class MedExApi\\DateTime not found\.$#'
     identifier: class.notFound
@@ -17012,10 +16944,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: sites/default/LBF/LBFvbf.plugin.php
-  - message: '#^Constant umname not found\.$#'
-    identifier: constant.notFound
-    count: 3
-    path: sites/default/statement.inc.php
   - message: '#^Variable \$desc might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -17936,10 +17864,6 @@ parameters:
     identifier: arguments.count
     count: 2
     path: tests/Tests/Fixtures/FacilityFixtureManager.php
-  - message: '#^Function file_exists invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: tests/Tests/Services/DocumentTest.php
   - message: '#^Class OpenEMR\\ClinicalDecisionRules\\Interface\\ActionRouter constructor invoked with 3 parameters, 2 required\.$#'
     identifier: arguments.count
     count: 3

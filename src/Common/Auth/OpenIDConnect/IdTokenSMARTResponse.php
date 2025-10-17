@@ -149,7 +149,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
             // it won't allow custom scope permissions even though this is valid per Open ID Connect spec
             // so we will just skip listing in the 'scopes' response that is sent back to
             // the client.
-            if (!str_contains($scopeId, ':')) {
+            if (!str_contains((string) $scopeId, ':')) {
                 $scopeList[] = $scopeId;
             }
         }

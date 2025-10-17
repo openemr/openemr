@@ -86,7 +86,7 @@ class DocumentsController extends AbstractActionController
             foreach ($_FILES as $file) {
                 $i++;
                 $dateStamp = date('Y-m-d-H-i-s');
-                $file_name = $dateStamp . "_" . basename($file["name"]);
+                $file_name = $dateStamp . "_" . basename((string) $file["name"]);
                 $file["name"] = $file_name;
 
                 if ($file['type'] != 'text/xml' && $file['type'] != 'application/xml') {
@@ -160,7 +160,7 @@ class DocumentsController extends AbstractActionController
         $document = $this->Documents()->getDocument($documentId, $doEncryption, $encryptionKey);
         $categoryIds = $this->getDocumentsTable()->getCategoryIDs(['CCD', 'CCR', 'CCDA']);
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml' && !$doEncryption) {
-            $xml = simplexml_load_string($document);
+            $xml = simplexml_load_string((string) $document);
             $xsl = new DomDocument();
             $qrda = $xml->templateId[2]['root'];
             switch ($result['category_id']) {
@@ -204,7 +204,7 @@ class DocumentsController extends AbstractActionController
             $headers->clearHeaders()
                 ->addHeaderLine('Content-Type', $contentType)
                 ->addHeaderLine('Content-Disposition', $type . '; filename="' . $result['name'] . '"')
-                ->addHeaderLine('Content-Length', strlen($document));
+                ->addHeaderLine('Content-Length', strlen((string) $document));
             $response->setHeaders($headers);
             return $this->response;
         }

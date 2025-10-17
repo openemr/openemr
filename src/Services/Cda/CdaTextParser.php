@@ -80,7 +80,7 @@ class CdaTextParser
 
         foreach ($item->childNodes as $child) {
             if ($child->nodeType === XML_TEXT_NODE) {
-                $text = trim(preg_replace('/\s+/', ' ', $child->nodeValue)); // Normalize spaces
+                $text = trim((string) preg_replace('/\s+/', ' ', (string) $child->nodeValue)); // Normalize spaces
                 if ($text !== '') {
                     $contentLines[] = $indent . $text;
                 }
@@ -94,7 +94,7 @@ class CdaTextParser
                         }
                     }
                 } else {
-                    $text = trim(preg_replace('/\s+/', ' ', $child->textContent)); // Normalize spaces
+                    $text = trim((string) preg_replace('/\s+/', ' ', $child->textContent)); // Normalize spaces
                     if ($text !== '') {
                         $contentLines[] = $indent . $text;
                     }

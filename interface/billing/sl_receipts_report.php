@@ -49,9 +49,9 @@ if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep
 function is_clinic($code)
 {
     global $bcodes;
-    $i = strpos($code, ':');
+    $i = strpos((string) $code, ':');
     if ($i) {
-        $code = substr($code, 0, $i);
+        $code = substr((string) $code, 0, $i);
     }
 
     return (
@@ -426,7 +426,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $res = sqlStatement($query, $sqlBindArray);
                             while ($row = sqlFetchArray($res)) {
                                 $trans_id = $row['trans_id'];
-                                $thedate = substr($row['date'], 0, 10);
+                                $thedate = substr((string) $row['date'], 0, 10);
                                 $patient_id = $row['pid'];
                                 $encounter_id = $row['encounter'];
                             //
@@ -549,14 +549,14 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             //
 
                             if (empty($form_use_edate)) {
-                                $thedate = !empty($row['deposit_date']) ? $row['deposit_date'] : substr($row['post_time'], 0, 10);
+                                $thedate = !empty($row['deposit_date']) ? $row['deposit_date'] : substr((string) $row['post_time'], 0, 10);
                             } elseif ($form_use_edate == 1) {
-                                $thedate = substr($row['date'], 0, 10);
+                                $thedate = substr((string) $row['date'], 0, 10);
                             } elseif ($form_use_edate == 2) {
-                                $thedate = substr($row['post_time'], 0, 10);
+                                $thedate = substr((string) $row['post_time'], 0, 10);
                             }
 
-                            if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) {
+                            if (strcmp((string) $thedate, (string) $form_from_date) < 0 || strcmp((string) $thedate, (string) $form_to_date) > 0) {
                                 continue;
                             }
 

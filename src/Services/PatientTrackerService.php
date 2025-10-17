@@ -38,7 +38,7 @@ class PatientTrackerService extends BaseService
     public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
     {
 
-        $tracker_time_calc = strtotime($tracker_to_time) - strtotime($tracker_from_time);
+        $tracker_time_calc = strtotime((string) $tracker_to_time) - strtotime((string) $tracker_from_time);
 
         $tracker_time = "";
         if ($tracker_time_calc > 60 * 60 * 24) {
@@ -291,7 +291,7 @@ class PatientTrackerService extends BaseService
             return $option;
         }
 
-        [$color_settings['color'], $color_settings['time_alert']] = explode("|", $row['notes']);
+        [$color_settings['color'], $color_settings['time_alert']] = explode("|", (string) $row['notes']);
         return $color_settings;
     }
 

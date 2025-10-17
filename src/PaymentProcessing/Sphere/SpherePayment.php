@@ -71,9 +71,9 @@ class SpherePayment
         $this->serverSite = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'];
 
         // Calculate the $mainUrl
-        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken('sphere'));
+        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode((string) CsrfUtils::collectCsrfToken('sphere'));
         if ($this->front == 'clinic') {
-            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken('sphere'));
+            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode((string) CsrfUtils::collectCsrfToken('sphere'));
         }
 
         if ($this->front == 'patient') {

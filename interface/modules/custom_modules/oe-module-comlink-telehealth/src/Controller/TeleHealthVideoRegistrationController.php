@@ -56,10 +56,10 @@ class TeleHealthVideoRegistrationController
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)
     {
-        $eventDispatcher->addListener(PatientCreatedEvent::EVENT_HANDLE, [$this, 'onPatientCreatedEvent']);
-        $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, [$this, 'onPatientUpdatedEvent']);
-        $eventDispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, [$this, 'onUserCreatedEvent']);
-        $eventDispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, [$this, 'onUserUpdatedEvent']);
+        $eventDispatcher->addListener(PatientCreatedEvent::EVENT_HANDLE, $this->onPatientCreatedEvent(...));
+        $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, $this->onPatientUpdatedEvent(...));
+        $eventDispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, $this->onUserCreatedEvent(...));
+        $eventDispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, $this->onUserUpdatedEvent(...));
     }
 
     public function getUserRepository()

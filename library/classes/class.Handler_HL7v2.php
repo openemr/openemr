@@ -22,8 +22,8 @@ class Handler_HL7v2
     function _StripToNumeric($string)
     {
         $target = '';
-        for ($pos = 0; $pos < strlen($string); $pos++) {
-            switch (substr($string, $pos, 1)) {
+        for ($pos = 0; $pos < strlen((string) $string); $pos++) {
+            switch (substr((string) $string, $pos, 1)) {
                 case '0':
                 case '1':
                 case '2':
@@ -34,7 +34,7 @@ class Handler_HL7v2
                 case '7':
                 case '8':
                 case '9':
-                                                                $target .= substr($string, $pos, 1);
+                                                                $target .= substr((string) $string, $pos, 1);
                     break;
                 default: // do nothing
                     break;

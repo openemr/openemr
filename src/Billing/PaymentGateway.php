@@ -135,7 +135,7 @@ class PaymentGateway
         if (isset($this->gateway)) {
             unset($this->gateway);
         }
-        if (stripos($which, "stripe") !== false) {
+        if (stripos((string) $which, "stripe") !== false) {
             $gatewayName = 'Stripe';
             $this->gateway = Omnipay::create($gatewayName);
             $this->gateway->setApiKey($this->apiKey);
