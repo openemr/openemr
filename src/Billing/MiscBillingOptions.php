@@ -12,7 +12,7 @@
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -78,7 +78,7 @@ class MiscBillingOptions
 
     public function getReferringProviders()
     {
-        $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' ORDER BY lname, fname";
+        $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' AND npi IS NOT NULL ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
 

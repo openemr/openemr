@@ -58,10 +58,8 @@ if (!$encounter) { // comes from globals.php
 //only one misc billing form per encounter so grab if exists
 $formid = (int) ($_GET['id'] ?? 0);
 if (empty($formid)) {
-    $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
-                          INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
-                          `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
-                          `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$encounter]);
+    $mboquery = sqlquery("SELECT `id` FROM `form_misc_billing_options` WHERE
+                          `encounter` = ?", [$encounter]);
     if (!empty($mboquery['id'])) {
         $formid = (int) $mboquery['id'];
     }
@@ -97,7 +95,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
-/* ai generated code by google-labs-jules starts */
+<!-- ai generated code by google-labs-jules starts -->
                         <span class="text"><?php echo xlt('Select Yes/No where appropriate'); ?><br /><br /></span>
                         <div class="form-group">
                             <label for="employment_related"><?php echo xlt('Box 10 A. Employment related'); ?>:</label>
@@ -118,11 +116,11 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                                 }
                                 ?>><?php echo xlt('No'); ?></option>
                             </select>
-/* ai gen'ed code ends */
+<!-- ai gen'ed code ends -->
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-/* ai generated code by google-labs-jules starts */
+<!-- ai generated code by google-labs-jules starts -->
                                 <label for="auto_accident"><?php echo xlt('Box 10 B. Auto Accident'); ?>:</label>
                                 <select name="auto_accident" id="auto_accident" class="form-control">
                                     <option value="" <?php
@@ -144,13 +142,13 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                             </div>
                             <div class="col-md">
                                 <label for="box10bstate"><?php echo xlt('State'); ?>:</label>
-/* ai gen'ed code ends */
+<!-- ai gen'ed code ends -->
                                 <input type="text" class="form-control" name="accident_state" id="box10bstate" size="1"
                                     value="<?php echo attr($obj["accident_state"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-group">
-/* ai generated code by google-labs-jules starts */
+<!-- ai generated code by google-labs-jules starts -->
                             <label for="other_accident"><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
                             <select name="other_accident" id="other_accident" class="form-control">
                                 <option value="" <?php
@@ -173,7 +171,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         <div class="form-row mt-3">
                             <div class="col-md">
                                 <label for="box10d"><?php echo xlt('Box 10 D. Claim Codes (Designated by NUCC)'); ?></label>
-/* ai gen'ed code ends */
+<!-- ai gen'ed code ends -->
                                 <input type="text" class="form-control" name="medicaid_referral_code" id="box10d"
                                     value="<?php echo attr($obj["medicaid_referral_code"] ?? ''); ?>" />
                             </div>
@@ -247,9 +245,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
-/* ai generated code by google-labs-jules starts */
+<!-- ai generated code by google-labs-jules starts -->
                             <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), xlt('Provider Qualifier Code'), ' ', '', '', '', null, false, '', true); ?>
-/* ai gen'ed code ends */
+<!-- ai gen'ed code ends -->
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
@@ -277,7 +275,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-/* ai generated code by google-labs-jules starts */
+<!-- ai generated code by google-labs-jules starts -->
                                 <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
                                 <select name="outside_lab" id="outside_lab" class="form-control">
                                     <option value="" <?php
@@ -306,7 +304,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         <div class="form-row mt-3">
                             <div class="col-md">
                                 <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
-/* ai gen'ed code ends */
+<!-- ai gen'ed code ends -->
                                 <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
                                     value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
                             </div>
