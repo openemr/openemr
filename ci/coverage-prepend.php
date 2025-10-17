@@ -10,11 +10,11 @@
 $marker = '/var/www/localhost/htdocs/openemr/coverage/PREPEND_EXECUTED';
 $data = date('Y-m-d H:i:s') . " - prepend executed\n";
 if (file_put_contents($marker, $data, FILE_APPEND | LOCK_EX) === false) {
-    error_log("COVERAGE DEBUG: Failed to write prepend marker to $marker");
+    throw new RuntimeException("COVERAGE DEBUG: Failed to write prepend marker to $marker");
 }
 
 if (!function_exists('xdebug_start_code_coverage')) {
-    return;
+    throw new RuntimeException("Prepend: Required function xdebug_get_code_coverage is missing");
 }
 
 // Start code coverage with path coverage enabled

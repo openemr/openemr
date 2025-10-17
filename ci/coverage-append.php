@@ -14,17 +14,18 @@ define('E2E_COVERAGE_DIR', COVERAGE_DIR . '/e2e');
 $marker = COVERAGE_DIR . '/APPEND_EXECUTED';
 $data = date('Y-m-d H:i:s') . " - append executed\n";
 if (file_put_contents($marker, $data, FILE_APPEND | LOCK_EX) === false) {
-    error_log("COVERAGE DEBUG: Failed to write append marker to $marker");
+    throw new RuntimeException("COVERAGE DEBUG: Failed to write append marker to $marker");
 }
 
 if (!function_exists('xdebug_get_code_coverage')) {
-    return;
+    throw new RuntimeException("Append: Required function xdebug_get_code_coverage is missing");
 }
 
 $coverage = xdebug_get_code_coverage();
 xdebug_stop_code_coverage();
 
 if (empty($coverage)) {
+    throw new RuntimeException("Coverage is unexpectedly empty");
     return;
 }
 
