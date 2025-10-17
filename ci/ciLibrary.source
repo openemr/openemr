@@ -183,7 +183,7 @@ enable_e2e_coverage() {
     echo 'Checking marker files after web request:'
     _exec sh -c 'ls -la ./coverage/PREPEND_EXECUTED ./coverage/APPEND_EXECUTED 2>&1 || echo "Marker files missing!"'
     echo 'Checking error log for coverage debug messages:'
-    _exec find /var/log
+    _exec tail -n25 -f '/var/log/apache2/*error.log'
 }
 
 disable_e2e_coverage() {
