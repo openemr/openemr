@@ -926,8 +926,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param ISearchField[] openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
