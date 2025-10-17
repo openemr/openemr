@@ -168,6 +168,8 @@ $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
+// initialize $form_pid
+$form_pid = "0";
 if (!empty($_POST['form_save'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
