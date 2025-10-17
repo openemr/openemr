@@ -141,12 +141,12 @@ enable_e2e_coverage() {
 
     # Detect the PHP configuration scan directory dynamically
     local php_scan_dir
-    php_scan_dir=$(_exec php -r "echo ini_get('cfg_file_path') ?: dirname(php_ini_loaded_file());" 2>/dev/null)
+    php_scan_dir=$(_exec php -r "echo ini_get('scan.directory') ?: (dirname(php_ini_loaded_file()) . '/conf.d');" 2>/dev/null)
     if [[ -z "${php_scan_dir}" ]]; then
-        echo "Error: Could not detect PHP configuration directory"
+        echo "Error: Could not detect PHP configuration scan directory"
         return 1
     fi
-    echo "Detected PHP config directory: ${php_scan_dir}"
+    echo "Detected PHP config scan directory: ${php_scan_dir}"
 
     # Configure PHP to use auto_prepend and auto_append for coverage
     _exec sh -c "cat > ${php_scan_dir}/conf.d/coverage.ini <<'EOF'
