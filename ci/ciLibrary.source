@@ -249,6 +249,8 @@ build_test_e2e() {
         disable_e2e_coverage
 
         echo 'Merging E2E coverage files…'
+        pwd
+        find .
         # Check if E2E coverage files exist and merge them
         shopt -s nullglob
         e2e_coverage_files=( ./coverage/e2e/*.cov )
@@ -257,6 +259,9 @@ build_test_e2e() {
             return 1
         fi
         phpcov merge coverage/e2e --cov coverage/coverage.e2e.cov
+
+        echo 'Generating E2E clover report…'
+        phpcov merge coverage/e2e --clover coverage.e2e.clover.xml
     fi
 
     # Stop selenium and video containers if they were started and extract videos
