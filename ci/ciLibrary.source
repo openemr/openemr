@@ -167,17 +167,8 @@ enable_e2e_coverage() {
     dc cp coverage.ini "openemr:${php_scan_dir}/coverage.ini"
 
     echo 'Restarting services to pick up the new PHP configuration'
-    _exec sh -xc '
-        if command -v apachectl > /dev/null 2>&1; then
-            echo restarting apache
-            apachectl graceful
-        elif command -v nginx > /dev/null 2>&1; then
-            echo restarting nginx
-            pkill -USR2 php-fpm
-        else
-            echo warning: did not restart apache or nginx >&2
-        fi
-    '
+    dc restart openemr
+    dockers_env_start
 
     # Verify the configuration was applied correctly
     echo 'Verifying E2E coverage configuration…'
