@@ -1430,6 +1430,7 @@ CREATE TABLE `drug_inventory` (
 
 DROP TABLE IF EXISTS `drug_sales`;
 CREATE TABLE `drug_sales` (
+  `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this drug sales record, for data exchange purposes',
   `sale_id` int(11) NOT NULL auto_increment,
   `drug_id` int(11) NOT NULL,
   `inventory_id` int(11) NOT NULL,

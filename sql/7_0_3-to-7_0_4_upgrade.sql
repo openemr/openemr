@@ -1477,3 +1477,8 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','interpreter_needed',@group_id,'Interpreter',@seq_add_to+5,1,1,20,0,'yes_no_unknown',1,1,'UNK','interpreter_needed',"Interpreter needed?",1,'','','',0,'');
 #Endif
+
+#IfMissingColumn drug_sales uuid
+ALTER TABLE `drug_sales` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this drug sales record, for data exchange purposes';
+ALTER TABLE `drug_sales` ADD UNIQUE KEY `uuid_unique` (`uuid`);
+#EndIf

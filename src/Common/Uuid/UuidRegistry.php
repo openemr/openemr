@@ -42,6 +42,7 @@ class UuidRegistry
         'ccda' => ['table_name' => 'ccda'],
         'documents' => ['table_name' => 'documents'],
         'drugs' => ['table_name' => 'drugs', 'table_id' => 'drug_id'],
+        'drug_sales' => ['table_name' => 'drug_sales', 'table_id' => 'sale_id'],
         'facility' => ['table_name' => 'facility'],
         'facility_user_ids' => ['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']],
         'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],

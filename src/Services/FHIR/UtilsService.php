@@ -111,13 +111,14 @@ class UtilsService
         return $uuid;
     }
 
-    public static function createQuantity($value, $unit, $code)
+    public static function createQuantity($value, $unit, $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
         $quantity->setCode($code);
         $quantity->setValue($value);
         $quantity->setUnit($unit);
         $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+        return $quantity;
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
