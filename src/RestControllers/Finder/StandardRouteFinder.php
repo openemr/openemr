@@ -26,11 +26,14 @@ class StandardRouteFinder implements IRouteFinder
     {
         /**
          * @see apis/routes/_rest_routes_standard.inc.php
-         * @see apis/routes/_rest_routes_standard_user.inc.php
+         * @see apis/routes/_rest_routes_admin_user.inc.php
+         * @see apis/routes/_rest_routes_admin_acl_group.inc.php
          */
         $routes = array_merge(
             include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php',
-            include __DIR__ . '/../../../apis/routes/_rest_routes_standard_user.inc.php',
+            include __DIR__ . '/../../../apis/routes/_rest_routes_standard_user.inc.php', // @todo Decide
+            include __DIR__ . '/../../../apis/routes/_rest_routes_admin_user.inc.php',
+            include __DIR__ . '/../../../apis/routes/_rest_routes_admin_acl_group.inc.php',
         );
 
         // This method is intended to handle the request and extend routes.
