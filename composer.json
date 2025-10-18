@@ -1,14 +1,14 @@
 {
     "name": "openemr/openemr",
-    "version": "7.0.4",
     "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
     "license": "GPL",
+    "version": "7.0.4",
     "support": {
-        "website": "https://www.open-emr.org/",
         "issues": "https://github.com/openemr/openemr/issues",
         "forum": "https://community.open-emr.org/",
         "wiki": "https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
-        "source": "https://github.com/openemr/openemr"
+        "source": "https://github.com/openemr/openemr",
+        "website": "https://www.open-emr.org/"
     },
     "require": {
         "php": ">=8.2.0",
@@ -53,8 +53,8 @@
         "knplabs/knp-snappy": "1.5.1",
         "laminas/laminas-config": "3.10.1",
         "laminas/laminas-db": "2.20.0",
-        "laminas/laminas-eventmanager": "3.14.0",
         "laminas/laminas-escaper": "2.17.0",
+        "laminas/laminas-eventmanager": "3.14.0",
         "laminas/laminas-filter": "2.41.0",
         "laminas/laminas-form": "3.21.0",
         "laminas/laminas-inputfilter": "2.33.0",
@@ -79,11 +79,11 @@
         "openemr/mustache": "2.15.2",
         "particle/validator": "2.3.5",
         "pear/archive_tar": "1.6.0",
+        "php-http/discovery": "1.20.0",
+        "php81_bc/strftime": "0.7.6",
         "phpmailer/phpmailer": "6.10.0",
         "phpoffice/phpspreadsheet": "5.1.0",
         "phpseclib/phpseclib": "3.0.46",
-        "php81_bc/strftime": "0.7.6",
-        "php-http/discovery": "1.20.0",
         "predis/predis": "3.2.0",
         "psr/log": "3.0.2",
         "ramsey/uuid": "4.9.1",
@@ -97,21 +97,76 @@
         "symfony/console": "6.4.25",
         "symfony/dependency-injection": "6.4.25",
         "symfony/event-dispatcher": "6.4.25",
-        "symfony/finder": "6.4.24",
         "symfony/filesystem": "6.4.24",
+        "symfony/finder": "6.4.24",
         "symfony/http-client": "6.4.25",
         "symfony/http-foundation": "6.4.25",
         "symfony/psr-http-message-bridge": "6.4.24",
         "symfony/yaml": "6.4.25",
         "twig/twig": "3.21.1",
+        "twilio/sdk": "8.8.1",
         "vlucas/phpdotenv": "5.6.2",
         "waryway/php-traits-library": "1.0.4",
-        "yubico/u2flib-server": "1.0.2",
-        "twilio/sdk": "8.8.1"
+        "yubico/u2flib-server": "1.0.2"
+    },
+    "require-dev": {
+        "ergebnis/composer-normalize": "^2.48",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/php-code-coverage": "^11.0",
+        "phpunit/phpunit": "^11.0",
+        "rector/rector": "^2.1",
+        "squizlabs/php_codesniffer": "^4.0",
+        "symfony/panther": "^2.0",
+        "zircote/swagger-php": "^3.0"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/openemr/wkhtmltopdf-openemr"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/openemr/oe-module-cqm"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\": "src"
+        },
+        "classmap": [
+            "library/classes"
+        ],
+        "files": [
+            "library/htmlspecialchars.inc.php",
+            "library/formdata.inc.php",
+            "library/sanitize.inc.php",
+            "library/formatting.inc.php",
+            "library/date_functions.php",
+            "library/validation/validate_core.php",
+            "library/translation.inc.php"
+        ],
+        "exclude-from-classmap": [
+            "src/Common/Compatibility/Checker.php",
+            "library/classes/ClinicalTypes/",
+            "library/classes/rulesets/",
+            "library/classes/smtp/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OpenEMR\\Tests\\": "tests\\Tests"
+        }
     },
     "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true,
+            "openemr/oe-module-installer-plugin": true,
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true
+        },
         "platform": {
-            "php": "8.2",
             "ext-calendar": "8.2",
             "ext-ctype": "8.2",
             "ext-curl": "8.2",
@@ -138,61 +193,20 @@
             "ext-xmlwriter": "8.2",
             "ext-xsl": "8.2",
             "ext-zip": "8.2",
-            "ext-zlib": "8.2"
-        },
-        "allow-plugins": {
-            "openemr/oe-module-installer-plugin": true,
-            "php-http/discovery": false,
-            "phpstan/extension-installer": true
+            "ext-zlib": "8.2",
+            "php": "8.2"
         }
     },
-    "require-dev": {
-        "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan": "^2.1",
-        "phpstan/phpstan-phpunit": "^2.0",
-	"phpunit/php-code-coverage": "^11.0",
-        "phpunit/phpunit": "11.*",
-        "rector/rector": "^2.1",
-        "squizlabs/php_codesniffer": "^4.0",
-        "symfony/panther": "2.*",
-        "zircote/swagger-php": "3.*"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/openemr/wkhtmltopdf-openemr"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/openemr/oe-module-cqm"
-        }
-    ],
-    "autoload": {
-        "exclude-from-classmap": [
-            "src/Common/Compatibility/Checker.php",
-            "library/classes/ClinicalTypes/",
-            "library/classes/rulesets/",
-            "library/classes/smtp/"
-        ],
-        "classmap": [
-            "library/classes"
-        ],
-        "files": [
-            "library/htmlspecialchars.inc.php",
-            "library/formdata.inc.php",
-            "library/sanitize.inc.php",
-            "library/formatting.inc.php",
-            "library/date_functions.php",
-            "library/validation/validate_core.php",
-            "library/translation.inc.php"
-        ],
-        "psr-4": {
-            "OpenEMR\\": "src"
+    "extra": {
+        "composer-normalize": {
+            "indent-size": 4,
+            "indent-style": "space"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "OpenEMR\\Tests\\": "tests\\Tests"
-        }
+    "scripts": {
+        "checks": [
+            "composer validate",
+            "composer normalize --dry-run"
+        ]
     }
 }
