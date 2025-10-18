@@ -153,7 +153,7 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *              "user/practitioner.crus": "Create,Read,Update,Search practitioners the user has access to (api:oemr)",
  *              "user/prescription.rs": "Read,Search prescriptions the user has access to (api:oemr)",
  *              "user/procedure.rs": "Read,Search procedures the user has access to (api:oemr)",
-*               "user/product.s": "Search the email registration status of OpenEMR (api:oemr)",
+ *              "user/product.s": "Search the email registration status of OpenEMR (api:oemr)",
  *              "user/soap_note.crus": "Create,Read,Update,Search soap notes the user has access to (api:oemr)",
  *              "user/surgery.cruds": "Create,Read,Update,Delete,Search surgeries the user has access to (api:oemr)",
  *              "user/transaction.cuds": "Create,Update,Delete,Search transactions the user has access to (api:oemr)",
