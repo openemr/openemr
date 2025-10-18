@@ -137,7 +137,7 @@ class CareTeamService extends BaseService
         if (empty($careTeamUuid) && !empty($row['team_name']) && !empty($row['pid'])) {
             // Generate a deterministic UUID based on patient and team name
             $careTeamUuid = UuidRegistry::uuidToBytes(
-                (new UuidRegistry)->createUuid()
+                (new UuidRegistry())->createUuid()
             );
         }
 

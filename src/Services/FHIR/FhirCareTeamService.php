@@ -302,7 +302,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             ];
 
             // Validate the code is numeric and looks like SNOMED
-            if (!preg_match('/^\d+$/', $code)) {
+            if (!preg_match('/^\d+$/', (string) $code)) {
                 $codes['code'] = $defaultCode;
             }
         } else {
