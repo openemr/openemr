@@ -75,6 +75,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Returns an array mapping FHIR CareTeam Resource search parameters to OpenEMR CareTeam search parameters
+     *
      * @return array The search parameters
      */
     protected function loadSearchParameters()
@@ -96,8 +97,8 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * Parses an OpenEMR careTeam record, returning the equivalent FHIR CareTeam Resource
      * Compliant with US Core 8.0 and USCDI v5 requirements
      *
-     * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param array   $dataRecord The source OpenEMR data record
+     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCareTeam
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -261,7 +262,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
         // Try to map role to SNOMED CT code
         if (!empty($dataRecordProvider['role'])) {
-            $role = strtolower($dataRecordProvider['role']);
+            $role = strtolower((string)$dataRecordProvider['role']);
             if (isset($roleMapping[$role])) {
                 $codes = [
                     'code' => $roleMapping[$role],
@@ -292,7 +293,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
         if (!empty($dataRecordFacility['facility_taxonomy'])) {
             // Ensure we're using clean SNOMED codes without prefixes
-            $code = preg_replace('/^SNOMED-CT:/', '', $dataRecordFacility['facility_taxonomy']);
+            $code = preg_replace('/^SNOMED-CT:/', '', (string)$dataRecordFacility['facility_taxonomy']);
 
             $codes = [
                 'code' => $code,

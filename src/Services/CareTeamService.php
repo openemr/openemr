@@ -90,9 +90,9 @@ class CareTeamService extends BaseService
     /**
      * Returns a list of careTeams matching optional search criteria.
      *
-     * @param  $search search array parameters
+     * @param  $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
     public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
@@ -127,9 +127,6 @@ class CareTeamService extends BaseService
 
     public function createResultRecordFromDatabaseResult($row)
     {
-        // Get all members for this care team
-        $memberIds = explode(',', $row['member_ids']);
-
         // Fetch detailed information for all team members
         $providers = $this->getCareTeamProviders($row['pid'], $row['team_name'] ?? '');
         $facilities = $this->getCareTeamFacilities($row['pid'], $row['team_name'] ?? '');
@@ -140,7 +137,7 @@ class CareTeamService extends BaseService
         if (empty($careTeamUuid) && !empty($row['team_name']) && !empty($row['pid'])) {
             // Generate a deterministic UUID based on patient and team name
             $careTeamUuid = UuidRegistry::uuidToBytes(
-                UuidRegistry::generateUuidV5($row['puuid'] . $row['team_name'])
+                (new UuidRegistry)->createUuid()
             );
         }
 
@@ -188,7 +185,7 @@ class CareTeamService extends BaseService
 
         while ($row = sqlFetchArray($result)) {
             if (!empty($row['physician_type_codes'])) {
-                $row['physician_type_codes'] = preg_replace('/^SNOMED-CT:/', '', $row['physician_type_codes']);
+                $row['physician_type_codes'] = preg_replace('/^SNOMED-CT:/', '', (string) $row['physician_type_codes']);
             }
             // Group by provider to handle multiple facilities
             $providerId = $row['user_id'];
@@ -251,7 +248,8 @@ class CareTeamService extends BaseService
 
     /**
      * Returns a single careTeam record by id.
-     * @param $uuid - The careTeam uuid identifier in string format.
+     *
+     * @param $uuid      - The careTeam uuid identifier in string format.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
@@ -337,6 +335,7 @@ class CareTeamService extends BaseService
 
         return sqlStatement($sql, [$status, $pid, $teamName]);
     }
+
     /**
      * Legacy
      * Create care team history record
