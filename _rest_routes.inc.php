@@ -148,7 +148,7 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *              "user/practitioner.write": "Write practitioners the user has access to (api:oemr)",
  *              "user/prescription.read": "Read prescriptions the user has access to (api:oemr)",
  *              "user/procedure.read": "Read procedures the user has access to (api:oemr)",
-*               "user/product.read": "Read the email registration status of OpenEMR (api:oemr)",
+ *              "user/product.read": "Read the email registration status of OpenEMR (api:oemr)",
  *              "user/soap_note.read": "Read soap notes the user has access to (api:oemr)",
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
