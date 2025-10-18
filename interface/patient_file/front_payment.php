@@ -25,6 +25,7 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -51,6 +52,8 @@ if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
 $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
+
+$cryptoGen = new CryptoGen();
 
 ?>
 <!DOCTYPE html>
@@ -581,6 +584,11 @@ function toencounter(enc, datestr, topframe) {
                             <?php echo text("[Phone]" . $frow['phone']) ?><br />
                             <?php echo text("[Email] " . $frow['email']) ?><br />
 
+                            <br />
+                            <bold class="bg-color"><?php echo xlt('Patient Information'); ?></bold> <br /> <br />
+                            <?php echo xlt('Name'); ?>: <?php echo text($patdata['fname'] . ' ' . ($patdata['mname'] ? $patdata['mname'] . ' ' : '') . $patdata['lname']) ?><br />
+                            <?php echo xlt('Chart Number'); ?>: <?php echo text($patdata['pubpid']) ?><br />
+                            <?php echo xlt('Patient ID'); ?>: <?php echo text($form_pid) ?><br />
 
                             <br />
                             <?php echo xlt('How Paid'); ?>:
@@ -1106,7 +1114,7 @@ function make_insurance() {
 }
 </style>
 <title><?php echo xlt('Record Payment'); ?></title>
-    <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
+    <?php $NameNew = $patdata['fname'] . " " . $patdata['mname'] . " " . $patdata['lname']; ?>
     <?php
     $arrOeUiSettings = [
     'heading_title' => xl('Accept Payment'),
