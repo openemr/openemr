@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
- * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +16,6 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
@@ -28,7 +29,8 @@ class CareTeamService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
-    private const PATIENT_HISTORY_TABLE = "patient_history";
+    private const PATIENT_HISTORY_TABLE = "patient_history"; //Legacy
+    private const CARE_TEAMS_TABLE = "care_teams";
     public const MAPPING_RESOURCE_NAME = "CareTeam";
 
     /**
@@ -36,70 +38,48 @@ class CareTeamService extends BaseService
      */
     public function __construct()
     {
-        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE, self::PATIENT_HISTORY_TABLE]);
-        parent::__construct(self::PATIENT_HISTORY_TABLE);
+        UuidRegistry::createMissingUuidsForTables([
+            self::PATIENT_TABLE,
+            self::PRACTITIONER_TABLE,
+            self::FACILITY_TABLE,
+            self::CARE_TEAMS_TABLE
+        ]);
+        parent::__construct(self::CARE_TEAMS_TABLE);
     }
 
     public function search($search, $isAndCondition = true)
     {
-        // we inner join on status in case we ever decide to add a status property (and layers above this one can rely
-        // on the property without changing code).
-        $sql = "SELECT
-                    careteam_mapping.puuid,
-                    careteam_mapping.uuid,
-                    careteam_mapping.care_team_provider as providers,
-                    careteam_mapping.care_team_facility as facilities,
-                    careteam_mapping.care_team_status,
-                    careteam_mapping.date,
-                    care_team_status_title
-                FROM (
-                    SELECT
-                        uuid_mapping.target_uuid AS puuid
-                        ,uuid_mapping.uuid
-                        ,patient_data.care_team_provider
-                        ,patient_data.care_team_facility
-                        ,patient_data.care_team_status
-                        ,patient_data.date
-                    FROM
-                        uuid_mapping
-                    -- we join on this to make sure we've got data integrity since we don't actually use foreign keys right now
-                    JOIN
-                        patient_data ON uuid_mapping.target_uuid = patient_data.uuid
-                    WHERE
-                        uuid_mapping.resource='CareTeam'
-                    UNION
-                    SELECT
-                        patient_data.uuid AS puuid
-                        ,patient_history.uuid
-                        ,patient_history.care_team_provider
-                        ,patient_history.care_team_facility
-                        ,'inactive' AS care_team_status
-                        ,patient_history.date
-                    FROM
-                        patient_history
-                    JOIN patient_data ON patient_history.pid = patient_data.pid
-                    WHERE patient_history.history_type_key = 'care_team_history'
-                ) careteam_mapping
+        // Build the base query for care teams
+        $sql = "SELECT 
+                    ct.uuid,
+                    ct.team_name,
+                    ct.status as care_team_status,
+                    ct.date_updated as date,
+                    pd.uuid as puuid,
+                    pd.pid,
+                    GROUP_CONCAT(DISTINCT ct.id) as member_ids,
+                    lo.title as care_team_status_title
+                FROM
+                    care_teams ct
+                JOIN
+                    patient_data pd ON ct.pid = pd.pid
                 LEFT JOIN
-                    (
-                        select
-                            option_id
-                            ,list_id
-                            ,title AS care_team_status_title
-                        FROM list_options
-                        WHERE list_id = 'Care_Team_Status'
-                ) care_team_statii ON care_team_statii.option_id = careteam_mapping.care_team_status";
+                    list_options lo ON lo.option_id = ct.status AND lo.list_id = 'Care_Team_Status'";
 
+        // Add search conditions
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
-
         $sql .= $whereClause->getFragment();
+
+        // Group by team to get unique care teams
+        $sql .= " GROUP BY ct.pid, ct.team_name, ct.status";
+
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
-            // if we couldn't retrieve any providers / facilities we will ignore the care team.
+            // Only include if we have valid data
             if (!empty($resultRecord['providers']) || !empty($resultRecord['facilities'])) {
                 $processingResult->addData($resultRecord);
             }
@@ -109,19 +89,15 @@ class CareTeamService extends BaseService
 
     /**
      * Returns a list of careTeams matching optional search criteria.
-     * Search criteria is conveyed by array where key = field/column name, value = field value.
-     * If no search criteria is provided, all records are returned.
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
     public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
-            // code to support patient binding
             $isValidPatient = BaseValidator::validateId(
                 'uuid',
                 self::PATIENT_TABLE,
@@ -142,7 +118,6 @@ class CareTeamService extends BaseService
             }
         }
 
-        // override puuid, this replaces anything in search if it is already specified.
         if (isset($puuidBind)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
@@ -152,44 +127,133 @@ class CareTeamService extends BaseService
 
     public function createResultRecordFromDatabaseResult($row)
     {
-        /**
-         * Note this has the pretty poor performance as we are fetching P providers + F facilities for N records
-         * Runtime is O(N*(P+F))
-         * TODO: at some point the DB table should be normalized so we could do a single DB fetch...
-         */
-        $row['providers'] = $this->getProvidersWithType($row['providers']);
-        $row['facilities'] = $this->getFacilities($row['facilities']);
-        $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-        $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-        return $row;
+        // Get all members for this care team
+        $memberIds = explode(',', $row['member_ids']);
+
+        // Fetch detailed information for all team members
+        $providers = $this->getCareTeamProviders($row['pid'], $row['team_name'] ?? '');
+        $facilities = $this->getCareTeamFacilities($row['pid'], $row['team_name'] ?? '');
+
+        // Generate a unique UUID for this care team instance
+        // If team_name is present, use it; otherwise use the first member's UUID
+        $careTeamUuid = $row['uuid'] ?? null;
+        if (empty($careTeamUuid) && !empty($row['team_name']) && !empty($row['pid'])) {
+            // Generate a deterministic UUID based on patient and team name
+            $careTeamUuid = UuidRegistry::uuidToBytes(
+                UuidRegistry::generateUuidV5($row['puuid'] . $row['team_name'])
+            );
+        }
+
+        return [
+            'uuid' => UuidRegistry::uuidToString($careTeamUuid),
+            'puuid' => UuidRegistry::uuidToString($row['puuid']),
+            'team_name' => $row['team_name'] ?? '',
+            'care_team_status' => $row['care_team_status'] ?? 'active',
+            'care_team_status_title' => $row['care_team_status_title'] ?? '',
+            'date' => $row['date'] ?? null,
+            'providers' => $providers,
+            'facilities' => $facilities
+        ];
     }
 
-    private function getFacilities($facilities)
+    private function getCareTeamProviders($pid, $teamName = '')
     {
-        $facilityIds = explode(",", (string) $facilities);
-        $service = new FacilityService();
-        $result = $service->getAllWithIds($facilityIds);
-        $providers = $result->getData() ?? [];
-        return $providers;
+        // physician_type_code is not stored in users; derive from list_options.
+
+
+        $selectColumns = "ct.user_id, ct.role, ct.facility_id, ct.provider_since, ct.status, ct.note,
+                         u.uuid as provider_uuid, u.fname, u.lname, u.physician_type,
+                         lo1.title as role_title, lo2.title as physician_type_title,
+                         f.uuid as facility_uuid, f.name as facility_name, lo2.codes as physician_type_codes";
+
+        // physician_type_codes now always provided by lo2.codes
+
+        $sql = "SELECT DISTINCT $selectColumns
+                FROM care_teams ct
+                JOIN users u ON ct.user_id = u.id
+                LEFT JOIN facility f ON ct.facility_id = f.id
+                LEFT JOIN list_options lo1 ON lo1.option_id = ct.role AND lo1.list_id = 'care_team_roles'
+                LEFT JOIN list_options lo2 ON lo2.option_id = u.physician_type AND lo2.list_id = 'physician_type'
+                WHERE ct.pid = ?";
+
+        $params = [$pid];
+
+        if (!empty($teamName)) {
+            $sql .= " AND ct.team_name = ?";
+            $params[] = $teamName;
+        }
+
+        $result = sqlStatement($sql, $params);
+        $providers = [];
+
+        while ($row = sqlFetchArray($result)) {
+            if (!empty($row['physician_type_codes'])) {
+                $row['physician_type_codes'] = preg_replace('/^SNOMED-CT:/', '', $row['physician_type_codes']);
+            }
+            // Group by provider to handle multiple facilities
+            $providerId = $row['user_id'];
+            if (!isset($providers[$providerId])) {
+                $providers[$providerId] = [];
+            }
+
+            $providers[$providerId][] = [
+                'provider_uuid' => UuidRegistry::uuidToString($row['provider_uuid']),
+                'provider_name' => $row['fname'] . ' ' . $row['lname'],
+                'role' => $row['role'],
+                'role_title' => $row['role_title'] ?? $row['role'],
+                'physician_type' => $row['physician_type'] ?? '',
+                'physician_type_codes' => $row['physician_type_codes'] ?? '',
+                'physician_type_title' => $row['physician_type_title'] ?? '',
+                'facility_uuid' => $row['facility_uuid'] ? UuidRegistry::uuidToString($row['facility_uuid']) : null,
+                'facility_name' => $row['facility_name'] ?? '',
+                'provider_since' => $row['provider_since'],
+                'status' => $row['status'],
+                'note' => $row['note']
+            ];
+        }
+
+        return array_values($providers);
     }
 
-    private function getProvidersWithType($providers)
+    private function getCareTeamFacilities($pid, $teamName = '')
     {
-        $providers = explode("|", (string) $providers);
+        $sql = "SELECT DISTINCT
+                    f.id,
+                    f.uuid,
+                    f.name,
+                    f.facility_npi,
+                    f.facility_taxonomy
+                FROM care_teams ct
+                JOIN facility f ON ct.facility_id = f.id
+                WHERE ct.pid = ? AND ct.facility_id IS NOT NULL AND ct.facility_id != 0";
 
-        $practitionerRoleService = new PractitionerRoleService();
-        $result = $practitionerRoleService->getAllByPractitioners($providers);
+        $params = [$pid];
 
-        $providers = $result->getData() ?? [];
-        return $providers;
+        if (!empty($teamName)) {
+            $sql .= " AND ct.team_name = ?";
+            $params[] = $teamName;
+        }
+
+        $result = sqlStatement($sql, $params);
+        $facilities = [];
+
+        while ($row = sqlFetchArray($result)) {
+            $facilities[] = [
+                'uuid' => UuidRegistry::uuidToString($row['uuid']),
+                'name' => $row['name'],
+                'facility_npi' => $row['facility_npi'],
+                'facility_taxonomy' => $row['facility_taxonomy']
+            ];
+        }
+
+        return $facilities;
     }
 
     /**
      * Returns a single careTeam record by id.
      * @param $uuid - The careTeam uuid identifier in string format.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
     public function getOne($uuid, $puuidBind = null)
     {
@@ -197,7 +261,7 @@ class CareTeamService extends BaseService
 
         $isValid = BaseValidator::validateId(
             "uuid",
-            "uuid_mapping",
+            self::CARE_TEAMS_TABLE,
             $uuid,
             true
         );
@@ -210,7 +274,6 @@ class CareTeamService extends BaseService
         }
 
         if (!empty($puuidBind)) {
-            // code to support patient binding
             $isValid = BaseValidator::validateId(
                 "uuid",
                 self::PATIENT_TABLE,
@@ -226,16 +289,58 @@ class CareTeamService extends BaseService
             }
         }
 
-
+        $search = [];
         if (isset($puuidBind)) {
             $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
-
         $search['uuid'] = new TokenSearchField('uuid', $uuid, true);
 
         return $this->search($search);
     }
 
+    /**
+     * Create care team members
+     */
+    public function createCareTeamMembers($pid, $teamName, $members)
+    {
+        $createdBy = $_SESSION['authUserID'] ?? null;
+
+        foreach ($members as $member) {
+            $insertData = [
+                'uuid' => UuidRegistry::getRegistryForTable(self::CARE_TEAMS_TABLE)->createUuid(),
+                'pid' => $pid,
+                'team_name' => $teamName,
+                'user_id' => $member['user_id'],
+                'role' => $member['role'] ?? null,
+                'facility_id' => $member['facility_id'] ?? null,
+                'provider_since' => $member['provider_since'] ?? null,
+                'status' => $member['status'] ?? 'active',
+                'note' => $member['note'] ?? null
+            ];
+
+            $insert = $this->buildInsertColumns($insertData);
+            $sql = "INSERT INTO " . self::CARE_TEAMS_TABLE . " SET " . $insert['set'];
+            QueryUtils::sqlInsert($sql, $insert['bind']);
+        }
+
+        return true;
+    }
+
+    /**
+     * Update care team status (for deactivation/reactivation)
+     */
+    public function updateCareTeamStatus($pid, $teamName, $status)
+    {
+        $sql = "UPDATE " . self::CARE_TEAMS_TABLE . " 
+                SET status = ?, date_updated = NOW() 
+                WHERE pid = ? AND team_name = ?";
+
+        return sqlStatement($sql, [$status, $pid, $teamName]);
+    }
+    /**
+     * Legacy
+     * Create care team history record
+     */
     public function createCareTeamHistory($pid, $oldProviders, $oldFacilities)
     {
         // we should never be null here but for legacy reasons we are going to default to this
