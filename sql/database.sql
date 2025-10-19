@@ -14446,14 +14446,22 @@ CREATE TABLE `care_teams` (
 --
 
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
-    ('care_team_roles', 'primary_care_provider', 'Primary Care Provider', 10, 'SNOMED-CT:62247001', ''),
+    ('care_team_roles', 'family_medicine_specialist', 'Family Medicine Specialist', 10, 'SNOMED-CT:62247001', ''),
     ('care_team_roles', 'case_manager', 'Case Manager', 20, 'SNOMED-CT:133932002', ''),
     ('care_team_roles', 'caregiver', 'Caregiver', 30, 'SNOMED-CT:224931005', ''),
     ('care_team_roles', 'nurse', 'Nurse', 40, 'SNOMED-CT:224565007', ''),
     ('care_team_roles', 'social_worker', 'Social Worker', 50, 'SNOMED-CT:159033005', ''),
     ('care_team_roles', 'pharmacist', 'Pharmacist', 60, 'SNOMED-CT:46255001', ''),
     ('care_team_roles', 'specialist', 'Specialist', 70, 'SNOMED-CT:419772000', ''),
-    ('care_team_roles', 'other', 'Other', 80, 'SNOMED-CT:106292003', '');
+    ('care_team_roles', 'other', 'Other', 80, 'SNOMED-CT:106292003', ''),
+    ('care_team_roles','physician','Physician',90,'SNOMED-CT:158965000', ''),
+    ('care_team_roles','nurse_practitioner','Nurse Practitioner',100,'SNOMED-CT:224571005', ''),
+    ('care_team_roles','physician_assistant','Physician Assistant',110,'SNOMED-CT:449161006', ''),
+    ('care_team_roles','therapist','Clinical Therapist',120,'SNOMED-CT:224538006', ''),
+    ('care_team_roles','primary_care','Primary Care Provider',130,'SNOMED-CT:446050000', ''),
+    ('care_team_roles','dietitian','Dietitian',140,'SNOMED-CT:159033005', ''),
+    ('care_team_roles','mental_health','Mental Health Professional',150,'SNOMED-CT:224597008', ''),
+    ('care_team_roles','healthcare_professional','Healthcare Professional',160,'SNOMED-CT:223366009', '');
 
 -- ---------------------------------------------------------------------------------------------------------------------------------
 --
