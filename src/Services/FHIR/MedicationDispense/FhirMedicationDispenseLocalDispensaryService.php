@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\MedicationDispense;
 
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
