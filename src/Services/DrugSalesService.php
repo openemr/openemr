@@ -71,6 +71,7 @@ class DrugSalesService extends BaseService
                     fe.encounter_uuid,
                     pr.prescription_uuid,
                     pr.dosage,
+                    pr.prescription_drug_size,
                     pr.drug_dosage_instructions,
                     pr.prescription_route,
                     pr.prescription_interval,
@@ -84,8 +85,13 @@ class DrugSalesService extends BaseService
                     ,units_list.unit_title
                     ,units_list.unit_codes
 
+                    ,units_list.unit_id
+                    ,units_list.unit_title
+                    ,units_list.unit_codes
+
                     ,intervals_list.interval_id
                     ,intervals_list.interval_title
+                    ,intervals_list.interval_notes
                     ,intervals_list.interval_codes
                 FROM drug_sales ds
                 LEFT JOIN (
@@ -109,6 +115,7 @@ class DrugSalesService extends BaseService
                         id AS presc_id,
                         dosage,
                         drug_dosage_instructions,
+                        size AS prescription_drug_size,
                         route as prescription_route,
                         `interval` as prescription_interval,
                         refills,
@@ -155,6 +162,7 @@ class DrugSalesService extends BaseService
                     option_id AS interval_id
                     ,title AS interval_title
                     ,codes AS interval_codes
+                    ,notes AS interval_notes
                   FROM list_options
                   WHERE list_id='drug_interval'
                 ) intervals_list ON intervals_list.interval_id = pr.prescription_interval

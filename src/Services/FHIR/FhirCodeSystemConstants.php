@@ -124,4 +124,6 @@ class FhirCodeSystemConstants
 
     // NCI 2025-04 release of NCI Thesaurus
     const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';
+
+    const HL7_TIMING_ABBREVIATION = 'http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation';
 }

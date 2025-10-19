@@ -21,10 +21,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMedicationDispenseStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationDispense\FHIRMedicationDispensePerformer;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
@@ -43,9 +40,9 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate;
 
 /**
  * FHIR MedicationDispense Local Dispensary Service
@@ -415,9 +412,30 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         $dosage = new OpenEMRFHIRDosage();
         // need to support text 0..1, timing 0..1, route 0..1, doseAndRate 0..*
 
-        // Text instruction
-        if (!empty($dataRecord['dosage'])) {
+        // Text instruction (prescription will set dosage to be a single numeric value even though its a textfield)
+        // simple prescriptions will put the entire SIG in the dosage field
+        if (!empty($dataRecord['dosage']) && !is_numeric($dataRecord['dosage'])) {
             $dosage->setText($dataRecord['dosage']);
+        }
+        // Dose and Rate
+        if (!empty($dataRecord['interval_codes'])) {
+            $intervalConcept = UtilsService::createCodeableConcept([
+                $dataRecord['interval_codes'] => [
+                    'code' => $dataRecord['interval_codes'],
+                    'description' => $dataRecord['interval_notes'],
+                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION
+                ]
+            ]);
+            $intervalConcept->setText($dataRecord['interval_notes'] ?? $dataRecord['interval_title']);
+            $dosage->setTiming($intervalConcept);
+        }
+
+        // TODO: @adunsulag we really need dosage to be a numeric quantity this feels like a hack
+        if (!empty($dataRecord['prescription_drug_size'])) { // amount of units per dose
+            $doseQuantity = UtilsService::createQuantity($dataRecord['prescription_drug_size'], $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
+            $doseAndRate = new FHIRDosageDoseAndRate();
+            $doseAndRate->setDoseQuantity($doseQuantity);
+            $dosage->addDoseAndRate($doseAndRate);
         }
 
         // Route if available
