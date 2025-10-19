@@ -435,8 +435,9 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $dosage->setTiming($intervalConcept);
         }
 
-        if (!empty($dataRecord['prescription_drug_size'])) { // amount of units per dose
-            $doseQuantity = UtilsService::createQuantity($dataRecord['prescription_drug_size'], $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
+        if (!empty($dataRecord['prescription_drug_size']) && is_numeric($dataRecord['prescription_drug_size'])) {
+            $quantity = intval($dataRecord['prescription_drug_size']); // should be an integer value for dosage
+            $doseQuantity = UtilsService::createQuantity($quantity, $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
             $doseAndRate = new FHIRDosageDoseAndRate();
             $doseAndRate->setDoseQuantity($doseQuantity);
             $dosage->addDoseAndRate($doseAndRate);
