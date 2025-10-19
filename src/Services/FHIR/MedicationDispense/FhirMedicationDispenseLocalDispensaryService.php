@@ -151,14 +151,14 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                 $instructions = [];
                 foreach ($fhirResource->getDosageInstruction() as $fhirDosage) {
                     $dosageText = $fhirDosage->getText();
-                    if (empty($dosageText)) {
+                    if ($dosageText !== null) {
                         $dosageText = 'Dose: ';
                         $doseQuantity = $fhirDosage->getDoseAndRate()[0]->getDoseQuantity();
                         if ($doseQuantity) {
                             $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
                         }
                         $timing = $fhirDosage->getTiming();
-                        if ($timing) {
+                        if ($timing !== null) {
                             $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
                         }
                         $route = $fhirDosage->getRoute();
@@ -383,7 +383,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $codedesc = !empty($codedesc) ? $codedesc : $dataRecord['drug_name'];
             // per spec coding is not allowed to be empty
             if (!empty($codedesc)) {
-                $coding = UtilsService::createCoding($dataRecord['ndc_number'], $codedesc ?? '', FhirCodeSystemConstants::NDC);
+                $coding = UtilsService::createCoding($dataRecord['ndc_number'], $codedesc, FhirCodeSystemConstants::NDC);
                 $medicationConcept->addCoding($coding);
             }
         }
