@@ -13,7 +13,7 @@ namespace OpenEMR\Services\Globals;
 
 enum GlobalFeaturesEnum: string
 {
-    const INHOUSE_PHARMACY = 'inhouse_pharmacy';
+    case INHOUSE_PHARMACY = 'inhouse_pharmacy';
 
     // TODO: move the rest of the Connectors settings from globals.inc.php into this file
 

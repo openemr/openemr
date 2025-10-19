@@ -13,7 +13,7 @@ namespace OpenEMR\Services\Globals;
 
 enum GlobalAppearanceEnum: string
 {
-    const SIMPLIFIED_PRESCRIPTIONS = 'simplified_prescriptions';
+    case SIMPLIFIED_PRESCRIPTIONS = 'simplified_prescriptions';
 
     // TODO: move the rest of the Connectors settings from globals.inc.php into this file
 
