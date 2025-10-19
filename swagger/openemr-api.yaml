@@ -6,6 +6,355 @@ servers:
   -
     url: /apis/default/
 paths:
+  /api/admin/group:
+    get:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Retrieves a list of groups'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Creates a new group'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_group_request'
+      responses:
+        '200':
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { parent_id: { description: 'Parent Group ID', type: integer }, name: { description: 'Group Name', type: string }, value: { description: 'Group Value', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  internalErrors: []
+                  data: { parent_id: 10, name: Testers, value: testers }
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/admin/group/{id}':
+    get:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Retrieves a single Group by ID'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Delete a Group by ID'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  /api/user:
+    get:
+      tags:
+        - standard
+        - user
+      description: 'Retrieves a list of users'
+      parameters:
+        -
+          name: id
+          in: query
+          description: 'The id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: title
+          in: query
+          description: 'The title for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: fname
+          in: query
+          description: 'The first name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: lname
+          in: query
+          description: 'The last name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: mname
+          in: query
+          description: 'The middle name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: federaltaxid
+          in: query
+          description: 'The federal tax id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: federaldrugid
+          in: query
+          description: 'The federal drug id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: upin
+          in: query
+          description: 'The upin for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: facility_id
+          in: query
+          description: 'The facility id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: facility
+          in: query
+          description: 'The facility for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: npi
+          in: query
+          description: 'The npi for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: email
+          in: query
+          description: 'The email for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: specialty
+          in: query
+          description: 'The specialty for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: billname
+          in: query
+          description: 'The billname for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: url
+          in: query
+          description: 'The url for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: assistant
+          in: query
+          description: 'The assistant for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: organization
+          in: query
+          description: 'The organization for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: valedictory
+          in: query
+          description: 'The valedictory for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: street
+          in: query
+          description: 'The street for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: streetb
+          in: query
+          description: 'The street (line 2) for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: city
+          in: query
+          description: 'The city for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: state
+          in: query
+          description: 'The state for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: zip
+          in: query
+          description: 'The zip for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phone
+          in: query
+          description: 'The phone for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: fax
+          in: query
+          description: 'The fax for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phonew1
+          in: query
+          description: 'The phonew1 for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phonecell
+          in: query
+          description: 'The phonecell for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: notes
+          in: query
+          description: 'The notes for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: state_license_number2
+          in: query
+          description: 'The state license number for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: username
+          in: query
+          description: 'The username for the user.'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/user/{uuid}':
+    get:
+      tags:
+        - standard
+        - user
+      description: 'Retrieves a single user by their uuid'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the user.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   /portal/patient:
     get:
       tags:
@@ -2761,255 +3110,6 @@ paths:
       security:
         -
           openemr_auth: []
-  /api/user:
-    get:
-      tags:
-        - standard
-      description: 'Retrieves a list of users'
-      parameters:
-        -
-          name: id
-          in: query
-          description: 'The id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: title
-          in: query
-          description: 'The title for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: fname
-          in: query
-          description: 'The first name for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: lname
-          in: query
-          description: 'The last name for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: mname
-          in: query
-          description: 'The middle name for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: federaltaxid
-          in: query
-          description: 'The federal tax id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: federaldrugid
-          in: query
-          description: 'The federal drug id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: upin
-          in: query
-          description: 'The upin for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: facility_id
-          in: query
-          description: 'The facility id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: facility
-          in: query
-          description: 'The facility for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: npi
-          in: query
-          description: 'The npi for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: email
-          in: query
-          description: 'The email for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: specialty
-          in: query
-          description: 'The specialty for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: billname
-          in: query
-          description: 'The billname for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: url
-          in: query
-          description: 'The url for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: assistant
-          in: query
-          description: 'The assistant for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: organization
-          in: query
-          description: 'The organization for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: valedictory
-          in: query
-          description: 'The valedictory for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: street
-          in: query
-          description: 'The street for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: streetb
-          in: query
-          description: 'The street (line 2) for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: city
-          in: query
-          description: 'The city for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: state
-          in: query
-          description: 'The state for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: zip
-          in: query
-          description: 'The zip for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: phone
-          in: query
-          description: 'The phone for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: fax
-          in: query
-          description: 'The fax for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: phonew1
-          in: query
-          description: 'The phonew1 for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: phonecell
-          in: query
-          description: 'The phonecell for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: notes
-          in: query
-          description: 'The notes for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: state_license_number2
-          in: query
-          description: 'The state license number for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: username
-          in: query
-          description: 'The username for the user.'
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: []
-  '/api/user/{uuid}':
-    get:
-      tags:
-        - standard
-      description: 'Retrieves a single user by their uuid'
-      parameters:
-        -
-          name: uuid
-          in: path
-          description: 'The uuid for the user.'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: []
   /api/version:
     get:
       tags:
@@ -3923,6 +4023,311 @@ paths:
           name: uuid
           in: path
           description: 'The uuid for the prescription.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  /api/admin/user:
+    get:
+      tags:
+        - standard
+        - admin
+      description: 'Retrieves a list of users'
+      parameters:
+        -
+          name: id
+          in: query
+          description: 'The id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: title
+          in: query
+          description: 'The title for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: fname
+          in: query
+          description: 'The first name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: lname
+          in: query
+          description: 'The last name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: mname
+          in: query
+          description: 'The middle name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: federaltaxid
+          in: query
+          description: 'The federal tax id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: federaldrugid
+          in: query
+          description: 'The federal drug id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: upin
+          in: query
+          description: 'The upin for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: facility_id
+          in: query
+          description: 'The facility id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: facility
+          in: query
+          description: 'The facility for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: npi
+          in: query
+          description: 'The npi for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: email
+          in: query
+          description: 'The email for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: specialty
+          in: query
+          description: 'The specialty for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: billname
+          in: query
+          description: 'The billname for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: url
+          in: query
+          description: 'The url for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: assistant
+          in: query
+          description: 'The assistant for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: organization
+          in: query
+          description: 'The organization for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: valedictory
+          in: query
+          description: 'The valedictory for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: street
+          in: query
+          description: 'The street for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: streetb
+          in: query
+          description: 'The street (line 2) for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: city
+          in: query
+          description: 'The city for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: state
+          in: query
+          description: 'The state for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: zip
+          in: query
+          description: 'The zip for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phone
+          in: query
+          description: 'The phone for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: fax
+          in: query
+          description: 'The fax for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phonew1
+          in: query
+          description: 'The phonew1 for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phonecell
+          in: query
+          description: 'The phonecell for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: notes
+          in: query
+          description: 'The notes for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: state_license_number2
+          in: query
+          description: 'The state license number for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: username
+          in: query
+          description: 'The username for the user.'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+        - admin
+      description: 'Creates a new user'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_user_request'
+      responses:
+        '200':
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { id: { description: 'User id', type: integer }, uuid: { description: UUID, type: string }, password: { description: 'Password (autogenerated when not passed)', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  internalErrors: []
+                  data: { id: 1, uuid: A00D22861FA74F8793AF450D6552932C, password: 55006c9b20ba100a }
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/admin/user/{uuid}':
+    get:
+      tags:
+        - standard
+        - admin
+      description: 'Retrieves a single user by uuid'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the user.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+        - admin
+      description: 'Delete an user'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the user.'
           required: true
           schema:
             type: string
@@ -7436,6 +7841,134 @@ paths:
           openemr_auth: []
 components:
   schemas:
+    api_group_request:
+      description: 'Schema for the group request'
+      required:
+        - name
+        - value
+      properties:
+        parent_id:
+          description: 'Parent Group ID. Fallbacks to Root Group ID if not provided.'
+          type: string
+        name:
+          description: 'Group Name.'
+          type: string
+        value:
+          description: 'Group Value.'
+          type: string
+      type: object
+      example:
+        parent_id: 10
+        name: Testers
+        value: testers
+    api_user_request:
+      description: 'Schema for the user request'
+      required:
+        - fname
+        - lname
+        - username
+      properties:
+        title:
+          description: 'The title for the user.'
+          type: string
+        fname:
+          description: 'The first name for the user.'
+          type: string
+        lname:
+          description: 'The last name for the user.'
+          type: string
+        mname:
+          description: 'The middle name for the user.'
+          type: string
+        federaltaxid:
+          description: 'The federal tax id for the user.'
+          type: string
+        federaldrugid:
+          description: 'The federal drug id for the user.'
+          type: string
+        upin:
+          description: 'The upin for the user.'
+          type: string
+        facility_id:
+          description: 'The facility id for the user.'
+          type: string
+        facility:
+          description: 'The facility for the user.'
+          type: string
+        npi:
+          description: 'The npi for the user.'
+          type: string
+        email:
+          description: 'The email for the user.'
+          type: string
+        specialty:
+          description: 'The specialty for the user.'
+          type: string
+        billname:
+          description: 'The billname for the user.'
+          type: string
+        url:
+          description: 'The url for the user.'
+          type: string
+        assistant:
+          description: 'The assistant for the user.'
+          type: string
+        organization:
+          description: 'The organization for the user.'
+          type: string
+        valedictory:
+          description: 'The valedictory for the user.'
+          type: string
+        street:
+          description: 'The street for the user.'
+          type: string
+        streetb:
+          description: 'The street (line 2) for the user.'
+          type: string
+        city:
+          description: 'The city for the user.'
+          type: string
+        state:
+          description: 'The state for the user.'
+          type: string
+        zip:
+          description: 'The zip for the user.'
+          type: string
+        phone:
+          description: 'The phone for the user.'
+          type: string
+        fax:
+          description: 'The fax for the user.'
+          type: string
+        phonew1:
+          description: 'The phonew1 for the user.'
+          type: string
+        phonecell:
+          description: 'The phonecell for the user.'
+          type: string
+        notes:
+          description: 'The notes for the user.'
+          type: string
+        state_license_number2:
+          description: 'The state license number for the user.'
+          type: string
+        username:
+          description: 'The username for the user.'
+          type: string
+        password:
+          description: 'The password for the user.'
+          type: string
+        acl_group_ids:
+          description: 'ACL groups IDs to add user to'
+          type: string
+      type: object
+      example:
+        title: Mr
+        fname: Foo
+        mname: ''
+        lname: Bar
+        username: foobar
+        password: foobarpassword
     api_patient_request:
       description: 'Schema for the patient request'
       required:
@@ -8522,6 +9055,9 @@ components:
             user/transaction.read: 'Read transactions the user has access to (api:oemr)'
             user/transaction.write: 'Write transactions the user has access to (api:oemr)'
             user/user.read: 'Read users the current user has access to (api:oemr)'
+            user/user.write: 'Write users the current user has access to (api:oemr)'
+            user/group.read: 'Read ACL groups the current user has access to (api:oemr)'
+            user/group.write: 'Write ACL groups the current user has access to (api:oemr)'
             user/vital.read: 'Read vitals the user has access to (api:oemr)'
             user/vital.write: 'Write vitals the user has access to (api:oemr)'
             'api:port': 'Standard Patient Portal OpenEMR API'
@@ -8535,6 +9071,12 @@ tags:
   -
     name: standard
     description: 'Standard OpenEMR API'
+  -
+    name: admin
+    description: 'Standard OpenEMR Admin API'
+  -
+    name: ACL
+    description: 'Standard OpenEMR Admin ACL API'
   -
     name: standard-patient
     description: 'Standard Patient Portal OpenEMR API'
