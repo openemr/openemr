@@ -25,12 +25,12 @@ class FhirMedicationDispenseRestController
     /**
      * @var FhirMedicationDispenseService
      */
-    private FhirMedicationDispenseService $fhirMedicationDispenseService;
+    private readonly FhirMedicationDispenseService $fhirMedicationDispenseService;
 
     /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct()
     {
@@ -56,7 +56,7 @@ class FhirMedicationDispenseRestController
         $fhirSearchResult = $this->fhirMedicationDispenseService->getAll($searchParams, $puuidBind);
         $bundleEntries = [];
 
-        foreach ($fhirSearchResult->getData() as $index => $searchResult) {
+        foreach ($fhirSearchResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' => $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
