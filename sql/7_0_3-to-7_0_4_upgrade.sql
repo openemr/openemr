@@ -1545,3 +1545,19 @@ UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C28161" WHERE list_id='drug_rout
 UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38216" WHERE list_id='drug_route' AND option_id="inhale";
 UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38288" WHERE list_id='drug_route' AND option_id="bymouth";
 #EndIf
+
+#IfMissingColumn drug_sales last_updated
+ALTER TABLE `drug_sales` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn drug_sales date_created
+ALTER TABLE `drug_sales` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn drug_sales updated_by
+ALTER TABLE `drug_sales` ADD `updated_by` BIGINT(20) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn drug_sales created_by
+ALTER TABLE `drug_sales` ADD `created_by` BIGINT(20) DEFAULT NULL;
+#EndIf

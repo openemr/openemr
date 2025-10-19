@@ -30,7 +30,7 @@ class DrugSalesService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'patient_uuid', 'prescription_uuid','encounter_uuid'];
+        return ['uuid', 'patient_uuid', 'prescription_uuid','encounter_uuid', 'dispenser_uuid'];
     }
 
     /**
@@ -49,6 +49,7 @@ class DrugSalesService extends BaseService
                     ds.pid as patient_id,
                     ds.encounter,
                     ds.user,
+                    dispenser.dispenser_uuid,
                     ds.sale_date,
                     ds.quantity,
                     ds.fee,
@@ -122,6 +123,16 @@ class DrugSalesService extends BaseService
                     FROM
                         patient_data
                 ) pd ON ds.pid = pd.patient_id
+                LEFT JOIN (
+                    SELECT
+                        id AS dispenser_user_id
+                        ,uuid AS dispenser_uuid
+                        ,username AS dispenser_username
+                    FROM
+                        users
+                    WHERE
+                        npi IS NOT NULL AND npi != ''
+                ) dispenser ON ds.user = dispenser.dispenser_username
                 LEFT JOIN (
                     SELECT
                         encounter,
@@ -198,6 +209,14 @@ class DrugSalesService extends BaseService
 
         if (empty($user)) {
             $user         = $_SESSION['authUser'];
+            $userId       = $_SESSION['authUserID'];
+        } else {
+            $userService = new UserService();
+            $userRecord = $userService->getUserByUsername($user);
+            if (empty($userRecord)) {
+                throw new InvalidArgumentException(xl('The specified user does not exist') . ": " . $user);
+            }
+            $userId = $userRecord['id'];
         }
 
         // error_log("quantity = '$quantity'"); // debugging
@@ -242,9 +261,9 @@ class DrugSalesService extends BaseService
             $sale_id = QueryUtils::sqlInsert(
                 "INSERT INTO drug_sales ( " .
                 "uuid, drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-                "sale_date, quantity, fee ) VALUES ( " .
-                "?, ?, 0, ?, ?, ?, ?, ?, ?, ?)",
-                [$uuid, $drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee]
+                "sale_date, quantity, fee, created_by, updated_by ) VALUES ( " .
+                "?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [$uuid, $drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee, $userId, $userId]
             );
             return $sale_id;
         }
@@ -398,14 +417,16 @@ class DrugSalesService extends BaseService
             $uuid = UuidRegistry::getRegistryForTable(self::TABLE_NAME)->createUuid();
             $sale_id = QueryUtils::sqlInsert(
                 "INSERT INTO drug_sales ( " .
-                "uuid, drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector ) " .
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "uuid, drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector, created_by, updated_by ) " .
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [$uuid, $drug_id, $inventory_id, $prescription_id, $patient_id, $encounter_id, $user,
                     $sale_date,
                     $thisqty,
                     $thisfee,
                     $pricelevel,
-                    $selector]
+                    $selector,
+                    $userId,
+                    $userId]
             );
 
             // If this sale exhausted the lot then auto-destroy it if that is wanted.

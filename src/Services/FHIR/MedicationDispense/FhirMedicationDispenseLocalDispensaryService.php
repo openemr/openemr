@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationDispense\FHIRMedicationDispensePerformer;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
@@ -262,6 +263,14 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         // Context (mustSupport) - reference to encounter
         if (!empty($dataRecord['encounter_uuid'])) {
             $medicationDispenseResource->setContext(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter_uuid']));
+        }
+
+        // performer (mustSupport) - who dispensed the medication
+        if (!empty($dataRecord['dispenser_uuid'])) {
+            $performerReference = UtilsService::createRelativeReference('Practitioner', $dataRecord['dispenser_uuid']);
+            $performer = new FHIRMedicationDispensePerformer();
+            $performer->setActor($performerReference);
+            $medicationDispenseResource->addPerformer($performer);
         }
 
         // AuthorizingPrescription (mustSupport) - reference to prescription
