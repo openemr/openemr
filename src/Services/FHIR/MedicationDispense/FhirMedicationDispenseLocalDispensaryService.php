@@ -402,7 +402,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             return null;
         }
 
-        $dosage = new FHIRDosage();
+        $dosage = new OpenEMRFHIRDosage();
         // need to support text 0..1, timing 0..1, route 0..1, doseAndRate 0..*
 
         // Text instruction
