@@ -57,24 +57,24 @@ class DrugSalesService extends BaseService
                     ds.notes,
                     ds.bill_date,
                     ds.selector,
-                    d.name as drug_name,
+                    d.drug_name,
                     d.ndc_number,
-                    d.drug_code as rxnorm_code,
-                    d.form as drug_form,
-                    d.size as drug_size,
-                    d.unit as drug_unit,
-                    d.route as drug_route,
+                    d.rxnorm_code,
+                    d.drug_form,
+                    d.drug_size,
+                    d.drug_unit,
+                    d.drug_route,
                     di.lot_number,
                     di.expiration,
-                    p.prescription_uuid,
                     pd.patient_uuid,
                     fe.encounter_uuid,
+                    pr.prescription_uuid,
                     pr.dosage,
                     pr.drug_dosage_instructions,
-                    pr.route as prescription_route,
-                    pr.interval as prescription_interval,
+                    pr.prescription_route,
+                    pr.prescription_interval,
                     pr.refills,
-                    pr.note as prescription_note
+                    pr.prescription_note
                     ,routes_list.route_id
                     ,routes_list.route_title
                     ,routes_list.route_codes
@@ -87,14 +87,34 @@ class DrugSalesService extends BaseService
                     ,intervals_list.interval_title
                     ,intervals_list.interval_codes
                 FROM drug_sales ds
-                LEFT JOIN drugs d ON ds.drug_id = d.drug_id
+                LEFT JOIN (
+                    SELECT
+                        drug_id,
+                        uuid AS drug_uuid,
+                        name as drug_name,
+                        ndc_number,
+                        drug_code as rxnorm_code,
+                        form as drug_form,
+                        size as drug_size,
+                        unit as drug_unit,
+                        route as drug_route
+                    FROM
+                        drugs
+                ) d ON ds.drug_id = d.drug_id
                 LEFT JOIN drug_inventory di ON ds.inventory_id = di.inventory_id
                 LEFT JOIN (
                     SELECT
-                        p.uuid as prescription_uuid,
-                        p.id AS presc_id
-                        FROM prescriptions p
-                ) p ON ds.prescription_id = p.presc_id
+                        uuid as prescription_uuid,
+                        id AS presc_id,
+                        dosage,
+                        drug_dosage_instructions,
+                        route as prescription_route,
+                        `interval` as prescription_interval,
+                        refills,
+                        unit AS prescription_unit,
+                        note as prescription_note
+                        FROM prescriptions
+                ) pr ON ds.prescription_id = pr.presc_id
                 LEFT JOIN (
                     SELECT
                         pid AS patient_id,
@@ -109,7 +129,6 @@ class DrugSalesService extends BaseService
                     FROM
                         form_encounter
                 ) fe ON ds.encounter = fe.encounter
-                LEFT JOIN prescriptions pr ON ds.prescription_id = pr.id
                 LEFT JOIN
                 (
                   SELECT
@@ -118,7 +137,7 @@ class DrugSalesService extends BaseService
                     ,codes AS route_codes
                   FROM list_options
                   WHERE list_id='drug_route'
-                ) routes_list ON routes_list.route_id = pr.route
+                ) routes_list ON routes_list.route_id = pr.prescription_route
                 LEFT JOIN
                 (
                   SELECT
@@ -127,7 +146,7 @@ class DrugSalesService extends BaseService
                     ,codes AS interval_codes
                   FROM list_options
                   WHERE list_id='drug_interval'
-                ) intervals_list ON intervals_list.interval_id = pr.interval
+                ) intervals_list ON intervals_list.interval_id = pr.prescription_interval
                 LEFT JOIN
                 (
                   SELECT
@@ -136,7 +155,7 @@ class DrugSalesService extends BaseService
                     ,codes AS unit_codes
                   FROM list_options
                   WHERE list_id='drug_units'
-                ) units_list ON units_list.unit_id = pr.unit"; // Only include sales, returns, transfers, adjustments
+                ) units_list ON units_list.unit_id = pr.prescription_unit"; // Only include sales, returns, transfers, adjustments
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search);
         $sql .= $whereClause->getFragment();
