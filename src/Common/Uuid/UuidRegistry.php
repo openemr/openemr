@@ -50,6 +50,7 @@ class UuidRegistry
         'form_vitals_calculation' => ['table_name' => 'form_vitals_calculation'],
         'form_observation' => ['table_name' => 'form_observation'],
         'history_data' => ['table_name' => 'history_data'],
+        'issue_encounter' => ['table_name' => 'issue_encounter'],
         'immunizations' => ['table_name' => 'immunizations'],
         'insurance_companies' => ['table_name' => 'insurance_companies'],
         'insurance_data' => ['table_name' => 'insurance_data'],
@@ -137,7 +138,7 @@ class UuidRegistry
         self::appendPopulateLog('uuid_registry', $mappedRegistryUuidCounter, $logEntryComment);
 
         if (!empty($logEntryComment)) {
-            $logEntryComment = rtrim($logEntryComment, ', ');
+            $logEntryComment = rtrim((string) $logEntryComment, ', ');
         }
 
         // log it

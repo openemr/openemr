@@ -78,7 +78,7 @@ $ccdata = [];
 $invdata = [];
 if ($edata) {
     $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
-    $invdata = json_decode($edata['table_args'], true);
+    $invdata = json_decode((string) $edata['table_args'], true);
     echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
 
@@ -123,11 +123,11 @@ function decorateString($fmt, $str)
 {
     $res = '';
     while ($fmt) {
-        $fc = substr($fmt, 0, 1);
-        $fmt = substr($fmt, 1);
+        $fc = substr((string) $fmt, 0, 1);
+        $fmt = substr((string) $fmt, 1);
         if ($fc == '.') {
-            $res .= substr($str, 0, 1);
-            $str = substr($str, 1);
+            $res .= substr((string) $str, 0, 1);
+            $str = substr((string) $str, 1);
         } else {
             $res .= $fc;
         }
@@ -145,7 +145,7 @@ function calcTaxes($row, $amount)
         return $total;
     }
 
-    $arates = explode(':', $row['taxrates']);
+    $arates = explode(':', (string) $row['taxrates']);
     if (empty($arates)) {
         return $total;
     }
@@ -182,8 +182,8 @@ $alertmsg = ''; // anything here pops up in an alert box
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
     $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
+    $form_method = trim((string) $_POST['form_method']);
+    $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
@@ -409,7 +409,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
 // Create key for deleting, just in case.
     $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp) . '.' . $ref_id;
+    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
 
 // get facility from encounter
     $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);
@@ -474,7 +474,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             <table border='0' cellspacing='8' class="text-center" style="margin: auto;">
                 <tr>
                     <td><?php echo xlt('Date'); ?>:</td>
-                    <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>
+                    <td><?php echo text(oeFormatSDFT(strtotime((string) $payrow['dtime']))) ?></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Patient'); ?>:</td>
@@ -1245,7 +1245,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
             echo text($ccdata["cardNumber"]) . "</span><br />";
         } elseif (strlen($ccdata["cardNumber"] ?? '') > 4) {
-            echo "**********  " . text(substr($ccdata["cardNumber"], -4)) . "</span><br />";
+            echo "**********  " . text(substr((string) $ccdata["cardNumber"], -4)) . "</span><br />";
         }
         ?>
         <?php

@@ -305,7 +305,7 @@ class AclExtended
                     if (!empty($arr_admin)) {
                         foreach ($arr_admin as $value3) {
                             $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
-                            if (strcmp($arr_admin_data[2], 'admin') == 0) {
+                            if (strcmp((string) $arr_admin_data[2], 'admin') == 0) {
                                 $boolean_admin = 1;
                             }
                         }

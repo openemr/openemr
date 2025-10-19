@@ -76,10 +76,10 @@ if (isset($_POST["mode"])) {
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
         //===============================================================================
-        if (trim($_POST['type_name']) == 'insurance') {
+        if (trim((string) $_POST['type_name']) == 'insurance') {
             $QueryPart = "payer_id = '" . trim(formData('hidden_type_code')) .
                 "', patient_id = '" . 0;
-        } elseif (trim($_POST['type_name']) == 'patient') {
+        } elseif (trim((string) $_POST['type_name']) == 'patient') {
             $QueryPart = "payer_id = '" . 0 .
                 "', patient_id = '" . trim(formData('hidden_type_code'));
         }
@@ -141,17 +141,17 @@ if (isset($_POST["mode"])) {
 
                 $where = "$where1 AND pay_amount > 0";
                 if (!empty($_POST["Payment$CountRow"])) {
-                    if (trim($_POST['type_name']) == 'insurance') {
-                        if (trim($_POST["HiddenIns$CountRow"]) == 1) {
+                    if (trim((string) $_POST['type_name']) == 'insurance') {
+                        if (trim((string) $_POST["HiddenIns$CountRow"]) == 1) {
                             $AccountCode = "IPP";
                         }
-                        if (trim($_POST["HiddenIns$CountRow"]) == 2) {
+                        if (trim((string) $_POST["HiddenIns$CountRow"]) == 2) {
                             $AccountCode = "ISP";
                         }
-                        if (trim($_POST["HiddenIns$CountRow"]) == 3) {
+                        if (trim((string) $_POST["HiddenIns$CountRow"]) == 3) {
                             $AccountCode = "ITP";
                         }
-                    } elseif (trim($_POST['type_name']) == 'patient') {
+                    } elseif (trim((string) $_POST['type_name']) == 'patient') {
                         $AccountCode = "PP";
                     }
                     $resPayment = sqlStatement("SELECT * from ar_activity $where");
@@ -188,10 +188,10 @@ if (isset($_POST["mode"])) {
 
                 $where = "$where1 AND adj_amount != 0";
                 if (!empty($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
-                    if (trim($_POST['type_name']) == 'insurance') {
-                        $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
+                    if (trim((string) $_POST['type_name']) == 'insurance') {
+                        $AdjustString = "Ins adjust Ins" . trim((string) $_POST["HiddenIns$CountRow"]);
                         $AccountCode = "IA";
-                    } elseif (trim($_POST['type_name']) == 'patient') {
+                    } elseif (trim((string) $_POST['type_name']) == 'patient') {
                         $AdjustString = "Pt adjust";
                         $AccountCode = "PA";
                     }
@@ -721,7 +721,7 @@ $ResultSearchSub = sqlStatement(
                                 while ($RowSearch = sqlFetchArray($ResultSearch)) {
                                     $CountIndex++;
                                     $CountIndexAbove++;
-                                    $ServiceDateArray = explode(' ', $RowSearch['date']);
+                                    $ServiceDateArray = explode(' ', (string) $RowSearch['date']);
                                     $ServiceDate = oeFormatShortDate($ServiceDateArray[0]);
                                     $Codetype = $RowSearch['code_type'];
                                     $Code = $RowSearch['code'];

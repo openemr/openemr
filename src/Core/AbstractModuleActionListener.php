@@ -150,7 +150,7 @@ abstract class AbstractModuleActionListener
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
         $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
         }
 
         return $registry;

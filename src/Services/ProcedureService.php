@@ -102,9 +102,6 @@ class ProcedureService extends BaseService
         ,porder.performer_type
         ,porder.order_intent
         ,porder.location_id
-        ,porder.specimen_type
-        ,porder.specimen_location
-        ,porder.specimen_volume
         ,porder.specimen_fasting
 
         ,preport.report_date
@@ -182,9 +179,6 @@ class ProcedureService extends BaseService
             ,performer_type
             ,order_intent
             ,location_id
-            ,specimen_type
-            ,specimen_location
-            ,specimen_volume
             ,specimen_fasting
         FROM procedure_order
         WHERE activity = 1
@@ -310,7 +304,13 @@ class ProcedureService extends BaseService
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
+        $r = sqlStatement("select uuid, pid as id from patient_data where pid > 0");
+        foreach ($r as $row) {
+            error_log($row['id'] . ' = ' . UuidRegistry::uuidToString($row['uuid']));
+        }
+
         $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+
         return $processingResult;
     }
 
@@ -361,9 +361,6 @@ class ProcedureService extends BaseService
                     ,'scheduled_end' => $record['scheduled_end'] ?? null
                     ,'performer_type' => $record['performer_type'] ?? null
                     ,'order_intent' => $record['order_intent'] ?? null
-                    ,'specimen_type' => $record['specimen_type'] ?? null
-                    ,'specimen_location' => $record['specimen_location'] ?? null
-                    ,'specimen_volume' => $record['specimen_volume'] ?? null
                     ,'specimen_fasting' => $record['specimen_fasting'] ?? null
                     ,'reports' => []
                 ];
@@ -952,7 +949,7 @@ class ProcedureService extends BaseService
     public function addDiagnosis($data): array
     {
         $diagnosisArray = [];
-        $dataArray = explode(";", $data);
+        $dataArray = explode(";", (string) $data);
         foreach ($dataArray as $diagnosis) {
             $diagnosisSplit = explode(":", $diagnosis);
             array_push($diagnosisArray, $diagnosisSplit);
@@ -961,15 +958,6 @@ class ProcedureService extends BaseService
     }
 
 
-
-    /**
-     *
-     * @package   OpenEMR
-     * @link      http://www.open-emr.org
-     * @author    Jerry Padgett <sjpadgett@gmail.com>
-     * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
-     * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-     */
 
 // Add these methods to the ProcedureService class
 

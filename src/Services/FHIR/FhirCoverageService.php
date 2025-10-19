@@ -127,7 +127,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param  array openEMRSearchParameters OpenEMR search fields
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult

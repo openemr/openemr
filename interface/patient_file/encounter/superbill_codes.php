@@ -34,9 +34,9 @@ if (isset($mode)) {
     }
 
     if ($mode == "add") {
-        if (strtolower($type) == "copay") {
+        if (strtolower((string) $type) == "copay") {
             BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
-        } elseif (strtolower($type) == "other") {
+        } elseif (strtolower((string) $type) == "other") {
             BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
         } else {
             BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);

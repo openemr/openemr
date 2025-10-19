@@ -653,6 +653,48 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
+            } elseif (preg_match('/^#IfMBOEncounterNeeded/', $line)) {
+                    $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
+                if (sqlNumRows($emptyMBOEncounters) > 0) {
+                    $this->echo("<p class='text-info'>Linking encounters to misc billing options forms.</p>\n");
+                    $this->flush_echo();
+                    $pids = [];
+                    while ($mBORow = sqlFetchArray($emptyMBOEncounters)) {
+                        $pids[] = $mBORow['pid'];
+                    }
+                    $batchSize = 100;
+                    $pidChunks = array_chunk($pids, $batchSize);
+                    try {
+                        QueryUtils::startTransaction();
+                        foreach ($pidChunks as $chunk) {
+                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map('intval', $chunk)) . ")";
+                            $encounters = sqlStatementNoLog($encStatement);
+
+                            while ($row = sqlFetchArray($encounters)) {
+                                $mboquery = sqlQueryNoLog("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
+                                INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
+                                `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
+                                `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$row['encounter']]);
+                                if (!empty($mboquery['id'])) {
+                                    $formid = (int) $mboquery['id'];
+                                    QueryUtils::sqlStatementThrowException("UPDATE `form_misc_billing_options` SET `encounter` = ? WHERE `id` = ? AND `encounter` IS NULL", [$row['encounter'], $formid], true);
+                                }
+                            }
+                        }
+                        QueryUtils::commitTransaction();
+                        $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
+                    } catch (\Exception) {
+                        QueryUtils::rollbackTransaction();
+                        $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
+                    }
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
             } elseif (preg_match('/^#IfEyeFormLaserCategoriesNeeded/', $line)) {
                 $eyeFormCategoryParent = sqlQueryNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Module'");
                 $eyeFormAntSegLaser = sqlQueryNoLog("SELECT `id` FROM `categories` WHERE `name` = 'AntSeg Laser - Eye'");
@@ -701,6 +743,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             } elseif (preg_match('/^#EndIf/', $line)) {
                 $skipping = false;
             }
+
             if (preg_match('/^#SpecialSql/', $line)) {
                 $special = true;
                 $line = " ";
@@ -842,7 +885,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return true;
         }
 
-        return (strcasecmp($row['Type'], $coltype) == 0);
+        return (strcasecmp((string) $row['Type'], $coltype) == 0);
     }
 
 
@@ -863,7 +906,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
 
         // Check if the type matches
-        if (strcasecmp($row['Type'], $coltype) != 0) {
+        if (strcasecmp((string) $row['Type'], $coltype) != 0) {
             return false;
         }
 
@@ -878,7 +921,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return (!empty($row));
         } else {
             // Standard case when checking if default is neither NULL or ""(blank)
-            return (strcasecmp($row['Default'], $coldefault) == 0);
+            return (strcasecmp((string) $row['Default'], $coldefault) == 0);
         }
     }
 
@@ -1216,7 +1259,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (str_starts_with($form_id, 'LBF')) {
+            if (str_starts_with((string) $form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1227,7 +1270,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (str_starts_with($form_id, 'LBT')) {
+            } elseif (str_starts_with((string) $form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]
@@ -1261,7 +1304,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 "grp_repeats = ?";
             $sqlvars = [$form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']];
             if ($props['notes']) {
-                $jobj = json_decode($props['notes'], true);
+                $jobj = json_decode((string) $props['notes'], true);
                 if (isset($jobj['columns'])) {
                     $query .= ", grp_columns = ?";
                     $sqlvars[] = $jobj['columns'];
@@ -1306,7 +1349,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 $group_name = $grow['group_name'];
                 $group_id = '';
                 $title = '';
-                $a = explode('|', $group_name);
+                $a = explode('|', (string) $group_name);
                 foreach ($a as $tmp) {
                     $group_id .= substr($tmp, 0, 1);
                     $title = substr($tmp, 1);
@@ -1359,10 +1402,10 @@ class SQLUpgradeService implements ISQLUpgradeService
         try {
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
-                    $options = json_decode($row['edit_options'], true) ?? [];
-                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
+                    $options = json_decode((string) $row['edit_options'], true) ?? [];
+                    if (!in_array($add_option, $options) && stripos((string) $mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos((string) $mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {

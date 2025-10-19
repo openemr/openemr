@@ -69,13 +69,13 @@ class TeleHealthCalendarController
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)
     {
-        $eventDispatcher->addListener(CalendarUserGetEventsFilter::EVENT_NAME, [$this, 'filterTelehealthCalendarEvents']);
-        $eventDispatcher->addListener(ScriptFilterEvent::EVENT_NAME, [$this, 'addCalendarJavascript']);
-        $eventDispatcher->addListener(StyleFilterEvent::EVENT_NAME, [$this, 'addCalendarStylesheet']);
+        $eventDispatcher->addListener(CalendarUserGetEventsFilter::EVENT_NAME, $this->filterTelehealthCalendarEvents(...));
+        $eventDispatcher->addListener(ScriptFilterEvent::EVENT_NAME, $this->addCalendarJavascript(...));
+        $eventDispatcher->addListener(StyleFilterEvent::EVENT_NAME, $this->addCalendarStylesheet(...));
 
-        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_JAVASCRIPT, [$this, 'renderAppointmentJavascript']);
-        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderPatientValidationDiv']);
-        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderAppointmentsLaunchSessionButton']);
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_JAVASCRIPT, $this->renderAppointmentJavascript(...));
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, $this->renderPatientValidationDiv(...));
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, $this->renderAppointmentsLaunchSessionButton(...));
     }
 
     public function getAppointmentService()
@@ -236,7 +236,7 @@ class TeleHealthCalendarController
     private function isAppointmentPageInclude($pageName, $scriptPath)
     {
         // make sure our script path is in calendar
-        return $pageName == "add_edit_event.php" && basename(dirname($scriptPath)) == 'calendar';
+        return $pageName == "add_edit_event.php" && basename(dirname((string) $scriptPath)) == 'calendar';
     }
 
     private function isCalendarPageInclude($pageName)

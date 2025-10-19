@@ -3,12 +3,12 @@
 /**
  * FhirProcedureOEProcedureService.php
  *
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @package    openemr
+ * @link       http://www.open-emr.org
+ * @author     Stephen Nielson <stephen@nielson.org>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,6 +34,7 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -72,7 +73,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [
+        return [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['procedure_code', 'standard_code']),
@@ -83,6 +84,9 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         ];
     }
 
+    /**
+     * @return FhirSearchParameterDefinition|null
+     */
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
@@ -90,9 +94,9 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     *
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -114,8 +118,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
     /**
      * Parses an OpenEMR procedure record, returning the equivalent FHIR Procedure Resource
      *
-     * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param array   $dataRecord The source OpenEMR data record
+     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRProcedure
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -167,7 +171,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
         $codesService = new CodeTypesService();
         if (!empty($dataRecord['diagnosis'])) {
-            $codes = explode(";", $dataRecord['diagnosis']);
+            $codes = explode(";", (string) $dataRecord['diagnosis']);
             foreach ($codes as $code) {
                 $codeParts = $codesService->parseCode($code);
                 $codeParts['description'] = $codesService->lookup_code_description($code) ?? '';
@@ -257,6 +261,19 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             );
         }
 
+        // Add UsedReference for specimen reference support
+        // Both per US Core 8.0
+        if (!empty($report['specimens'])) {
+            foreach ($report['specimens'] as $specimen) {
+                // Only include non-deleted specimens (deleted flag = 0)
+                if (!empty($specimen['uuid']) && ($specimen['deleted'] ?? '0') == '0') {
+                    $procedureResource->addUsedReference(
+                        UtilsService::createRelativeReference('Specimen', $specimen['uuid'])
+                    );
+                }
+            }
+        }
+
         // Add reasonReference support (in addition to reasonCode)
         // Both per US Core 8.0
         if (!empty($dataRecord['reason_reference_uuid'])) {
@@ -276,7 +293,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @param $encode     Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
     public function createProvenanceResource($dataRecord, $encode = false)
@@ -298,6 +315,10 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         }
     }
 
+    /**
+     * @param string|null $hint
+     * @return string|null
+     */
     private function normalizeProcedureCodingSystem(?string $hint): ?string
     {
         if (!$hint) {

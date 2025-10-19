@@ -322,7 +322,7 @@ function postcalendar_user_search()
         }
 
         if ($searchargs['end'] == "//") {
-            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime($searchargs['start'])));
+            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime((string) $searchargs['start'])));
         }
 
         //print_r($searchargs);

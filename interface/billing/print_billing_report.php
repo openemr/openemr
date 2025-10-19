@@ -150,7 +150,7 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
             $old_pid = $iter["pid"];
         }
 
-        print "<td width='100'><span class='text'>" . text($iter["code_type"]) . ": </span></td><td width='100'><span class='text'>" . text($iter["code"]) . "</span></td><td width='100'><span class='small'>(" . text(date("Y-m-d", strtotime($iter["date"]))) . ")</span></td>\n";
+        print "<td width='100'><span class='text'>" . text($iter["code_type"]) . ": </span></td><td width='100'><span class='text'>" . text($iter["code"]) . "</span></td><td width='100'><span class='small'>(" . text(date("Y-m-d", strtotime((string) $iter["date"]))) . ")</span></td>\n";
         $res_count++;
         if ($res_count == $N) {
             print "</tr><tr>\n";

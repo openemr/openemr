@@ -203,9 +203,9 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     // for both REST API and browser access we can't proceed unless we have a valid site id.
     // since this is user provided content we need to escape the value but we use htmlspecialchars instead
     // of text() as our helper functions are loaded in later on in this file.
-    if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
+    if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', (string) $tmp)) {
         echo "Invalid URL";
-        error_log("Request with site id '" . htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
+        error_log("Request with site id '" . htmlspecialchars((string) $tmp, ENT_QUOTES) . "' contains invalid characters.");
         die();
     }
 
@@ -214,10 +214,10 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         session_unset(); // clear session, clean logout
         if (isset($landingpage) && !empty($landingpage)) {
           // OpenEMR Patient Portal use
-            header('Location: index.php?site=' . urlencode($tmp));
+            header('Location: index.php?site=' . urlencode((string) $tmp));
         } else {
           // Main OpenEMR use
-            header('Location: ../login/login.php?site=' . urlencode($tmp)); // Assuming in the interface/main directory
+            header('Location: ../login/login.php?site=' . urlencode((string) $tmp)); // Assuming in the interface/main directory
         }
 
         exit;
@@ -390,7 +390,7 @@ if (!empty($glrow)) {
         );
         for ($iter = 0; $row = sqlFetchArray($glres_user); $iter++) {
           //remove global_ prefix from label
-            $row['setting_label'] = substr($row['setting_label'], 7);
+            $row['setting_label'] = substr((string) $row['setting_label'], 7);
             $gl_user[$iter] = $row;
         }
     }
@@ -441,7 +441,7 @@ if (!empty($glrow)) {
             $portal_css_header = $GLOBALS[$gl_name];
             $portal_temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
-            $globalsBag->set($gl_name, explode(',', $gl_value));
+            $globalsBag->set($gl_name, explode(',', (string) $gl_value));
         } elseif ($gl_name == 'specific_application') {
             if ($gl_value == '2') {
                 $globalsBag->set('ippf_specific', true);
@@ -497,7 +497,7 @@ if (!empty($glrow)) {
     if (isset($_SESSION['language_direction']) && empty($_SESSION['patient_portal_onsite_two'])) {
         if (
             $_SESSION['language_direction'] == 'rtl' &&
-            !strpos($globalsBag->get('css_header', ''), 'rtl')
+            !strpos((string) $globalsBag->get('css_header', ''), 'rtl')
         ) {
             // the $css_header_value is set above
             $rtl_override = true;
@@ -507,7 +507,7 @@ if (!empty($glrow)) {
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
         if (
             $_SESSION['language_direction'] == 'rtl' &&
-            !strpos($globalsBag->get('portal_css_header', ''), 'rtl')
+            !strpos((string) $globalsBag->get('portal_css_header', ''), 'rtl')
         ) {
             // the $css_header_value is set above
             $rtl_portal_override = true;
@@ -516,7 +516,7 @@ if (!empty($glrow)) {
         //$_SESSION['language_direction'] is not set, so will use the default language
         $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', [$GLOBALS['language_default'] ?? '']);
         $globalsBag->set('default_lang_id', $default_lang_id);
-        if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) {
+        if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos((string) $GLOBALS['css_header'], 'rtl')) {
 // @todo eliminate 1 SQL query
             $rtl_override = true;
         }
@@ -602,7 +602,7 @@ if (empty($globalsBag->getString('site_addr_oath'))) {
 if (empty($globalsBag->getString('qualified_site_addr'))) {
     $globalsBag->set(
         'qualified_site_addr',
-        rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
+        rtrim($globalsBag->getString('site_addr_oath') . trim((string) $globalsBag->getString('webroot')), "/")
     );
 }
 
@@ -747,8 +747,8 @@ $globalsBag->set('groupname', $groupname);
 // global interface function to format text length using ellipses
 function strterm($string, $length)
 {
-    if (strlen($string) >= ($length - 3)) {
-        return substr($string, 0, $length - 3) . "...";
+    if (strlen((string) $string) >= ($length - 3)) {
+        return substr((string) $string, 0, $length - 3) . "...";
     } else {
         return $string;
     }

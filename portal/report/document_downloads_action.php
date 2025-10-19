@@ -66,7 +66,7 @@ foreach ($documentIds as $documentId) {
     $obj->onReturnRetrieveKey();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
-        $pos = strpos(substr($file['name'], -5), '.');
+        $pos = strpos(substr((string) $file['name'], -5), '.');
         // Check if has an extension or find it from the mimetype
         if ($pos === false) {
             $file['name'] .= get_extension($file['mimetype']);
@@ -101,8 +101,8 @@ unlink($tmp . "/" . $pid . '.zip');
 
 function recursive_remove_directory($directory, $empty = false)
 {
-    if (str_ends_with($directory, '/')) {
-        $directory = substr($directory, 0, -1);
+    if (str_ends_with((string) $directory, '/')) {
+        $directory = substr((string) $directory, 0, -1);
     }
 
     if (!file_exists($directory) || !is_dir($directory)) {

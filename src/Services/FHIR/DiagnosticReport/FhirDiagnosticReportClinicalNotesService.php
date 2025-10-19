@@ -134,7 +134,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         if (!empty($dataRecord['description'])) {
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setData(base64_encode((string) $dataRecord['description']));
             $report->addPresentedForm($attachment);
         } else {
             // need to support data missing if its not there.
@@ -177,18 +177,17 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['code']->transformValues([$this, 'addLOINCPrefix']);
+            $openEMRSearchParameters['code']->transformValues($this->addLOINCPrefix(...));
         }
 
         if (isset($openEMRSearchParameters['category_code']) && $openEMRSearchParameters['category_code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['category_code']->transformValues([$this, 'addLOINCPrefix']);
+            $openEMRSearchParameters['category_code']->transformValues($this->addLOINCPrefix(...));
         } else {
             // we need to make sure we only include things with a category code in our clinical notes
             $openEMRSearchParameters['category_code'] = new TokenSearchField('category_code', [new TokenSearchValue(false)]);

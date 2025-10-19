@@ -231,8 +231,8 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             </div>
         </form>
         <?php
-        $fmtStartDate = date('Y-m-d', strtotime($startDate));
-        $fmtEndDate = date('Y-m-d', strtotime($endDate));
+        $fmtStartDate = date('Y-m-d', strtotime((string) $startDate));
+        $fmtEndDate = date('Y-m-d', strtotime((string) $endDate));
 
         if (isset($_GET['search'])) {
             if ($fmtStartDate > $fmtEndDate) {

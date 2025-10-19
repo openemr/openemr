@@ -76,7 +76,7 @@ class OnsiteActivityViewController extends AppBasePortalController
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
-                $prop_normal = ucfirst($prop);
+                $prop_normal = ucfirst((string) $prop);
                 $prop_equals = $prop_normal . '_Equals';
 
                 if (property_exists($criteria, $prop_normal)) {

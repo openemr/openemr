@@ -133,11 +133,11 @@ function PrintEncHeader($dt, $rsn, $dr): void
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
     echo "<tr class='bg-white'>";
-    if (strlen($rsn) > 50) {
-        $rsn = substr($rsn, 0, 50) . '...';
+    if (strlen((string) $rsn) > 50) {
+        $rsn = substr((string) $rsn, 0, 50) . '...';
     }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
+    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr((string) $dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
     echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
@@ -204,7 +204,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false): void
         $print .= "<td class='detail' colspan='2'>" .
             text($description) . "</td>";
         $payer = ($pmt['name'] == '') ? xl('Patient') : $pmt['name'];
-        $pmt_date = $unassigned ? substr($pmt['post_to_date'], 0, 10) : substr($pmt['post_time'], 0, 10);
+        $pmt_date = $unassigned ? substr((string) $pmt['post_to_date'], 0, 10) : substr((string) $pmt['post_time'], 0, 10);
 
         $print .= "<td class='detail'>" .
             text($pmt_date) . "/" . text($payer) . "</td>";
@@ -280,14 +280,14 @@ if (!isset($_REQUEST['form_refresh'])) {
     $_REQUEST['form_refresh'] = '';
 }
 
-if (str_starts_with($GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with($GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
+    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -523,8 +523,8 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                         }
 
                         $code_desc = $erow['code_text'];
-                        if (strlen($code_desc) > 50) {
-                            $code_desc = substr($code_desc, 0, 50) . '...';
+                        if (strlen((string) $code_desc) > 50) {
+                            $code_desc = substr((string) $code_desc, 0, 50) . '...';
                         }
 
                         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -532,7 +532,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                         $print .= "<td class='detail'>" . text($erow['code']) . "</td>";
                         $print .= "<td class='detail' colspan='2'>" . text($code_desc) . "</td>";
                         $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
-                        $bill = substr($erow['bill_date'], 0, 10);
+                        $bill = substr((string) $erow['bill_date'], 0, 10);
                         if ($bill == '') {
                             $bill = 'unbilled';
                         }
@@ -610,8 +610,8 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                         $current_date2 = date('Y-m-d', $next_day);
                         $events = fetchNextXAppts($current_date2, $pid);
                         $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-                        $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-                        if (strlen($events[0]['umname']) != 0) {
+                        $next_appoint_time = substr((string) $events[0]['pc_startTime'], 0, 5);
+                        if (strlen((string) $events[0]['umname']) != 0) {
                             $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' . $events[0]['ulname'];
                         } else {
                             $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['ulname'];

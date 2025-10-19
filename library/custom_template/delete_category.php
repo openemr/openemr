@@ -52,7 +52,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
                      source: "delete_full_category"
                 },
                 success: function(thedata){
-                            alert("<?php echo addslashes(xl('Deleted Successfully.'));?>");
+                            alert("<?php echo addslashes((string) xl('Deleted Successfully.'));?>");
                             document.location.reload();
                             },
                 error:function(){
@@ -62,7 +62,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         }
         function delete_category(id){
             top.restoreSession();
-            if(confirm("<?php echo addslashes(xl('Do you want to delete?'));?>")){
+            if(confirm("<?php echo addslashes((string) xl('Do you want to delete?'));?>")){
                 $.ajax({
                 type: "POST",
                 url: "ajax_code.php",
@@ -93,10 +93,10 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         <table align="center">
             <tr class="text reportTableHeadRow">
                 <th><?php echo htmlspecialchars('Sl.No', ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars(xl('Category'), ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars(xl('Context'), ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars(xl('Creator'), ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars(xl('Delete'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars((string) xl('Category'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars((string) xl('Context'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars((string) xl('Creator'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars((string) xl('Delete'), ENT_QUOTES);?></th>
             </tr>
     <?php
     $i = 0;
@@ -106,11 +106,11 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         $class = (($class ?? '') == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
         echo "<tr class='text " . htmlspecialchars($class, ENT_QUOTES) . "'>";
         echo "<td>" . $i . "</td>";
-        echo "<td>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</td>";
-        echo "<td>" . htmlspecialchars($context['cl_list_item_long'], ENT_QUOTES) . "</td>";
+        echo "<td>" . htmlspecialchars((string) $row['cl_list_item_long'], ENT_QUOTES) . "</td>";
+        echo "<td>" . htmlspecialchars((string) $context['cl_list_item_long'], ENT_QUOTES) . "</td>";
         echo "<td>" . htmlspecialchars($row['fname'] . " " . $row['mname'] . " " . $row['lname'], ENT_QUOTES) . "</td>";
         echo "<td><a href=#>";
-        echo "<img src='../../interface/pic/Delete.gif' border=0 title='Delete This Row' onclick=delete_category('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
+        echo "<img src='../../interface/pic/Delete.gif' border=0 title='Delete This Row' onclick=delete_category('" . htmlspecialchars((string) $row['cl_list_slno'], ENT_QUOTES) . "')>";
         echo "</a></td>";
         echo "</tr>";
     }

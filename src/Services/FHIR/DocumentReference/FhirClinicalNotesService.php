@@ -139,7 +139,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setData(base64_encode((string) $dataRecord['description']));
             $content->setAttachment($attachment);
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
             $contentCoding = UtilsService::createCoding(
@@ -200,9 +200,8 @@ class FhirClinicalNotesService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {

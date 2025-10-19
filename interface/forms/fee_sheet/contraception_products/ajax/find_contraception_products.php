@@ -18,7 +18,7 @@ function find_contraceptive_methods($contraceptive_code)
         if (!isProductSelectable($row['drug_id'])) {
             continue;
         }
-        $rel_codes = explode(";", $row['related_code']);
+        $rel_codes = explode(";", (string) $row['related_code']);
         $match = false;
         foreach ($rel_codes as $cur_code) {
             if ($cur_code === $code) {

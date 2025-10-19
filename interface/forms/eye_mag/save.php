@@ -45,6 +45,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\PatientIssuesService;
 
 $returnurl = 'encounter_top.php';
 
@@ -420,7 +421,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     // Store the IMPPLAN area.  This is separate from the rest of the form
     // It is in a separate table due to its one-to-many relationship with the form_id.
     if (($_REQUEST['action'] ?? '') == "store_IMPPLAN") {
-        $IMPPLAN = json_decode($_REQUEST['parameter'], true);
+        $IMPPLAN = json_decode((string) $_REQUEST['parameter'], true);
         //remove what is there and replace it with this data.
         $query = "DELETE from form_" . $form_folder . "_impplan where form_id=? and pid=?";
         sqlQuery($query, [$form_id, $pid]);
@@ -684,7 +685,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 }
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
-                    // TODO: @adunsulag do we need to have the eye-form use the PatientIssuesService?
+                    // TODO: @adunsulag at some point update eye_mag to use PatientIssuesService for all lists management
                     $query = "UPDATE lists SET " .
                         "type = '" . add_escape_custom($form_type) . "', " .
                         "title = '" . add_escape_custom($_REQUEST['form_title']) . "', " .
@@ -712,7 +713,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         sqlStatement('UPDATE prescriptions SET '
                             . 'medication = 0 where patient_id = ? '
                             . " and upper(trim(drug)) = ? "
-                            . ' and medication = 1', [$pid, strtoupper($_REQUEST['form_title'])]);
+                            . ' and medication = 1', [$pid, strtoupper((string) $_REQUEST['form_title'])]);
                     }
                 } else {
                     $query = "INSERT INTO lists ( " .
@@ -735,10 +736,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     // If requested, link the issue to a specified encounter.
                     // we always link them, automatically.
                     if ($encounter) {
-                        $query = "INSERT INTO issue_encounter ( " .
-                            "pid, list_id, encounter " .
-                            ") VALUES ( ?,?,? )";
-                        sqlStatement($query, [$pid, $issue, $encounter]);
+                        $patientIssuesService = new PatientIssuesService();
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter, $issue, $_SESSION['authUserID']);
                     }
                 }
 
@@ -760,7 +759,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     }
 
     if (($_REQUEST['action'] ?? '') == 'code_visit') {
-        $CODING = json_decode($_REQUEST['parameter'], true);
+        $CODING = json_decode((string) $_REQUEST['parameter'], true);
         $query = "delete from billing where encounter =?";
         sqlStatement($query, [$encounter]);
         foreach ($CODING as $item) { //need toremove duplicate codes
@@ -837,7 +836,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['IOPTIME'] = date('H:i:s');
     }
 
-    $_POST['IOPTIME'] = date('H:i:s', strtotime($_POST['IOPTIME']));
+    $_POST['IOPTIME'] = date('H:i:s', strtotime((string) $_POST['IOPTIME']));
     // orders are checkboxes created from a user defined list in the PLAN area and stored as item1|item2|item3
     // if there are any, create the $field['PLAN'] value.
     // Remember --  If you uncheck a box, it won't be sent!
@@ -908,7 +907,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     }
 
     if ($_POST['DIL_MEDS']) {
-        $_POST['IOPPOSTTIME'] =  date('H:i:s', strtotime($_POST['DIL_MEDS']));
+        $_POST['IOPPOSTTIME'] =  date('H:i:s', strtotime((string) $_POST['DIL_MEDS']));
     }
 
     if (!($_POST['ATROPINE'] ?? '')) {
@@ -1199,7 +1198,7 @@ if ($_REQUEST['canvas'] ?? '') {
     $sql = "SELECT * from documents where documents.name like ?";
     $ans1 = sqlQuery($sql, ['%' . $base_name . '%']);
     if ($ans1['id'] ?? '') {  //it is new, add it
-        $file = substr($ans1['url'], 7);
+        $file = substr((string) $ans1['url'], 7);
         foreach (glob($file) as $file_to_delete) {
             unlink($file_to_delete);
         }
@@ -1216,7 +1215,7 @@ if ($_REQUEST['canvas'] ?? '') {
 
     $type = "image/jpeg"; // all our canvases are this type
     $data = $_POST["imgBase64"];
-    $data = substr($data, strpos($data, ",") + 1);
+    $data = substr((string) $data, strpos((string) $data, ",") + 1);
     $data = base64_decode($data);
     $size = strlen($data);
 
@@ -1269,7 +1268,7 @@ function row_delete($table, $where): void
                 $logstring .= " ";
             }
 
-            $logstring .= $key . "='" . addslashes($value) . "'";
+            $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
         EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");

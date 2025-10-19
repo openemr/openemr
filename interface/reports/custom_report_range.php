@@ -332,13 +332,13 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = 0.00;
             //foreach ($patient as $be) {
 
-            $ta = explode(":", $patient);
+            $ta = explode(":", (string) $patient);
             $billing = getPatientBillingEncounter($pids[$iCounter], $ta[1]);
 
             $billings[] = $billing;
             foreach ($billing as $b) {
                 // grab the date to reformat it in the output
-                $bdate = strtotime($b['date']);
+                $bdate = strtotime((string) $b['date']);
 
                 echo "<tr>\n";
                 echo "<td class='text' style='font-size: 0.8em'>" . text(oeFormatShortDate(date("Y-m-d", $bdate))) . "<BR>" . date("h:i a", $bdate) . "</td>";

@@ -133,7 +133,7 @@ class FhirEncounterService extends FhirServiceBase implements
         $identifier = new FHIRIdentifier();
         $identifier->setValue($dataRecord['euuid']);
         // the system is a unique urn
-        $identifier->setSystem("urn:uuid:" . strtolower($dataRecord['euuid']));
+        $identifier->setSystem("urn:uuid:" . strtolower((string) $dataRecord['euuid']));
         $encounterResource->addIdentifier($identifier);
 
         // status - required
@@ -235,7 +235,7 @@ class FhirEncounterService extends FhirServiceBase implements
             // (beware of link rot)
             $reason = new FHIRCodeableConcept();
             $reasonText = $dataRecord['reason'] ?? "";
-            $reason->setText(trim($reasonText));
+            $reason->setText(trim((string) $reasonText));
             $encounterResource->addReasonCode($reason);
         }
         // hospitalization - must support
@@ -309,13 +309,12 @@ class FhirEncounterService extends FhirServiceBase implements
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($searchParam): ProcessingResult
     {
-        return $this->encounterService->search($searchParam, true, $puuidBind);
+        return $this->encounterService->search($searchParam, true);
     }
 
     /**

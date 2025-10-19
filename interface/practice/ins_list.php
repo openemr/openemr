@@ -63,7 +63,7 @@ $digits = null;
 if (
     preg_match(
         "/(\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -75,7 +75,7 @@ if (
 if (
     preg_match(
         "/\d\d\d\D*(\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {
@@ -87,7 +87,7 @@ if (
 if (
     preg_match(
         "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-        $_GET['form_phone'],
+        (string) $_GET['form_phone'],
         $phone_parts
     )
 ) {

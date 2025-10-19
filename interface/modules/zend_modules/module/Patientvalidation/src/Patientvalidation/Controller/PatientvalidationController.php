@@ -49,7 +49,7 @@ class PatientvalidationController extends BaseController
 
         //clean the mf_
         foreach ($patientParams as $key => $item) {
-                $keyArr = explode("mf_", $key);
+                $keyArr = explode("mf_", (string) $key);
                 $patientParams[$keyArr[1]] = $item;
                 unset($patientParams[$key]);
         }

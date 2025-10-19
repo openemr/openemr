@@ -45,7 +45,7 @@ class MfaUtils
             if ($row['method'] == 'U2F') {
                 $this->types[] = 'U2F';
                 $this->var1U2F = $row['var1'];
-                $regobj = json_decode($row['var1']);
+                $regobj = json_decode((string) $row['var1']);
                 $this->regs[json_encode($regobj->keyHandle)] = $row['name'];
                 $this->registrations[] = $regobj;
             } elseif ($row['method'] == 'TOTP') {
@@ -187,9 +187,9 @@ class MfaUtils
         $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", [$this->uid]);
         try {
             $registration = $u2f->doAuthenticate(
-                json_decode($tmprow['login_work_area']), // these are the original challenge requests
+                json_decode((string) $tmprow['login_work_area']), // these are the original challenge requests
                 $this->registrations,
-                json_decode($token)
+                json_decode((string) $token)
             );
             // Stored registration data needs to be updated because the usage count has changed.
             // We have to use the matching registered key.
@@ -221,7 +221,7 @@ class MfaUtils
     private function validateToken($token, $type)
     {
         return match ($type) {
-            'TOTP' => strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
             // todo - USF string validation
             'U2F' => true,
             default => throw new \Exception('MFA type do not supported'),

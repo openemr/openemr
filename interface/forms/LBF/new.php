@@ -168,7 +168,7 @@ if (!empty($lobj['grp_issue_type'])) {
     $LBF_ISSUE_TYPE = $lobj['grp_issue_type'];
 }
 if (!empty($lobj['grp_aco_spec'])) {
-    $LBF_ACO = explode('|', $lobj['grp_aco_spec']);
+    $LBF_ACO = explode('|', (string) $lobj['grp_aco_spec']);
 }
 if ($lobj['grp_services']) {
     $LBF_SERVICES_SECTION = $lobj['grp_services'] == '*' ? '' : $lobj['grp_services'];
@@ -279,8 +279,8 @@ if (
                 // Do not call updateHistoryData() here! That would create multiple rows
                 // in the history_data table for a single form save.
                 $newhistorydata[$field_id] = $value;
-            } elseif (str_starts_with($field_id, 'em_')) {
-                $field_id = substr($field_id, 3);
+            } elseif (str_starts_with((string) $field_id, 'em_')) {
+                $field_id = substr((string) $field_id, 3);
                 $new = [$field_id => $value];
                 updateEmployerData($pid, $new);
             } else {
@@ -722,7 +722,7 @@ if (
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
                 "<select class='form-control' name='form_fs_bill[" + lino + "][provid]'>" +
-                "<?php echo addslashes($fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
+                "<?php echo addslashes((string) $fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
                 "</select>&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
@@ -1101,14 +1101,14 @@ if (
 
                     $this_levels = $this_group;
                     $i = 0;
-                    $mincount = min(strlen($this_levels), strlen($group_levels));
+                    $mincount = min(strlen((string) $this_levels), strlen($group_levels));
                     while ($i < $mincount && $this_levels[$i] == $group_levels[$i]) {
                         ++$i;
                     }
                     // $i is now the number of initial matching levels.
 
                     // If ending a group or starting a subgroup, terminate the current row and its table.
-                    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen($this_levels))) {
+                    if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
                         end_row();
                         echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                         $group_table_active = false;
@@ -1119,13 +1119,13 @@ if (
                         $gname = $grparr[$group_levels]['grp_title'];
                         $group_levels = substr($group_levels, 0, -1); // remove last character
                         // No div for an empty group name.
-                        if (strlen($gname)) {
+                        if (strlen((string) $gname)) {
                             echo "</div>\n";
                         }
                     }
 
                     // If there are any new groups, open them.
-                    while ($i < strlen($this_levels)) {
+                    while ($i < strlen((string) $this_levels)) {
                         end_row();
                         if ($group_table_active) {
                             echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
@@ -1142,7 +1142,7 @@ if (
                         $display_style = $grouprow['grp_init_open'] ? 'block' : 'none';
 
                         // If group name is blank, no checkbox or div.
-                        if (strlen($gname)) {
+                        if (strlen((string) $gname)) {
                             // <label> was inheriting .justify-content-center from .form-inline,
                             // dunno why but we fix that here.
                             echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
@@ -1182,7 +1182,7 @@ if (
                                 echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>";
                                 if (empty($is_lbf)) {
                                     // Including actual date per IPPF request 2012-08-23.
-                                    echo text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
+                                    echo text(oeFormatShortDate(substr((string) $enrow['date'], 0, 10)));
                                     echo ' (' . xlt('Current') . ')';
                                 }
 
@@ -1202,7 +1202,7 @@ if (
                                 // at some point we may wish to show also the data entry date/time.
                                 while ($hrow = sqlFetchArray($hres)) {
                                     echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>&nbsp;" .
-                                        text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
+                                        text(oeFormatShortDate(substr((string) $hrow['date'], 0, 10))) . "</td>\n";
                                     $historical_ids[$hrow['form_id']] = '';
                                 }
 
@@ -1293,7 +1293,7 @@ if (
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
+                        if (!str_contains('?!.,:-=', substr((string) $tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -1359,7 +1359,7 @@ if (
                     $gname = $grparr[$group_levels]['grp_title'];
                     $group_levels = substr($group_levels, 0, -1); // remove last character
                     // No div for an empty group name.
-                    if (strlen($gname)) {
+                    if (strlen((string) $gname)) {
                         echo "</div>\n";
                     }
                 }
@@ -1388,7 +1388,7 @@ if (
                         $cols = 3;
                         $tdpct = (int)(100 / $cols);
                         $count = 0;
-                        $relcodes = explode(';', $LBF_SERVICES_SECTION);
+                        $relcodes = explode(';', (string) $LBF_SERVICES_SECTION);
                         foreach ($relcodes as $codestring) {
                             if ($codestring === '') {
                                 continue;
@@ -1437,10 +1437,10 @@ if (
                                 if ($last_category) {
                                     echo " </optgroup>\n";
                                 }
-                                echo " <optgroup label='" . xla(substr($fs_category, 1)) . "'>\n";
+                                echo " <optgroup label='" . xla(substr((string) $fs_category, 1)) . "'>\n";
                                 $last_category = $fs_category;
                             }
-                            echo " <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, 1)) . "</option>\n";
+                            echo " <option value='" . attr($fs_codes) . "'>" . xlt(substr((string) $fs_option, 1)) . "</option>\n";
                         }
                         if ($last_category) {
                             echo " </optgroup>\n";
@@ -1518,7 +1518,7 @@ if (
                         $cols = 3;
                         $tdpct = (int)(100 / $cols);
                         $count = 0;
-                        $relcodes = explode(';', $LBF_PRODUCTS_SECTION);
+                        $relcodes = explode(';', (string) $LBF_PRODUCTS_SECTION);
                         foreach ($relcodes as $codestring) {
                             if ($codestring === '') {
                                 continue;
@@ -1612,7 +1612,7 @@ if (
                         $cols = 3;
                         $tdpct = (int)(100 / $cols);
                         $count = 0;
-                        $relcodes = explode(';', $LBF_DIAGS_SECTION);
+                        $relcodes = explode(';', (string) $LBF_DIAGS_SECTION);
                         foreach ($relcodes as $codestring) {
                             if ($codestring === '') {
                                 continue;
@@ -1732,7 +1732,7 @@ if (
                         $svcstring = '';
                         if (!empty($refrow['refer_related_code'])) {
                             // Get referred services.
-                            $relcodes = explode(';', $refrow['refer_related_code']);
+                            $relcodes = explode(';', (string) $refrow['refer_related_code']);
                             foreach ($relcodes as $codestring) {
                                 if ($codestring === '') {
                                     continue;

@@ -35,9 +35,9 @@ class Utils_Verification implements VerificationIF
 
         if ($algo == 'sha1') {
             // support backward compatibility of prior hashes in sha1
-            $hash = sha1($string);
+            $hash = sha1((string) $string);
         } else {
-            $hash = hash('sha3-512', $string);
+            $hash = hash('sha3-512', (string) $string);
         }
         return $hash;
     }
@@ -58,7 +58,7 @@ class Utils_Verification implements VerificationIF
 
     public function verify($data, $hash)
     {
-        if (strlen($hash) < 50) {
+        if (strlen((string) $hash) < 50) {
             // support backward compatibility of prior hashes in sha1
             $currentHash = $this->hash($data, 'sha1');
         } else {

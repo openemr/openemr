@@ -16,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -114,7 +115,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
         // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
-        if (empty(trim($narrativeText))) {
+        if (empty(trim((string) $narrativeText))) {
             $practitionerResource->addName(UtilsService::createDataMissingExtension());
         } else {
             $text = [
@@ -299,11 +300,10 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, true);
     }

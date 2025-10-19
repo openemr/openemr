@@ -42,7 +42,7 @@ class TokenSearchValue implements \Stringable
     public static function buildFromFHIRString($codeSystemValue, $isUuid = false)
     {
         $code = $codeSystemValue;
-        $valueParts = explode("|", $codeSystemValue);
+        $valueParts = explode("|", (string) $codeSystemValue);
         if (count($valueParts) == 1) {
             $system = null;
         } else {

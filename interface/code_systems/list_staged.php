@@ -42,7 +42,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $db = $_GET['db'] ?? '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower(check_file_dir_name($db));
+$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) check_file_dir_name($db));
 $file_checksum = "";
 
 //
@@ -226,7 +226,7 @@ if (is_dir($mainPATH)) {
                 } else {
                     // nothing
                 }
-            } elseif (is_numeric(strpos($db, "ICD"))) {
+            } elseif (is_numeric(strpos((string) $db, "ICD"))) {
                 $qry_str = "SELECT `load_checksum`,`load_source`,`load_release_date` FROM `supported_external_dataloads` WHERE `load_type` = ? and `load_filename` = ? and `load_checksum` = ? ORDER BY `load_release_date` DESC";
 
                 // this query determines whether you can load the data into openEMR. you must have the correct
@@ -390,7 +390,7 @@ if ($supported_file === 1) {
                 <div class="error_msg"><?php echo xlt("The installed International SNOMED version is not compatible with the staged US Extension SNOMED package."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
                 <?php
-            } elseif (($current_name == "SNOMED" && $current_version == "International:English" && $file_revision == "US Extension") && ((strtotime($current_revision . " +6 month") < strtotime($file_revision_date)) || (strtotime($current_revision . " -6 month") > strtotime($file_revision_date)))) {
+            } elseif (($current_name == "SNOMED" && $current_version == "International:English" && $file_revision == "US Extension") && ((strtotime($current_revision . " +6 month") < strtotime((string) $file_revision_date)) || (strtotime($current_revision . " -6 month") > strtotime((string) $file_revision_date)))) {
                 // The Staged US Extension SNOMED file is not compatible with the current SNOMED International Package (ie. the International package is outdated)
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
                 // a complete SNOMED pacakge.
@@ -406,7 +406,7 @@ if ($supported_file === 1) {
                 <div class="stg"><?php echo text(basename($file_revision_path)); ?> <?php echo xlt("is an extension of the following database") . ": " . text($db); ?></div>
                 <?php
                 $action = xl("UPGRADE");
-            } elseif ((strtotime($current_revision) == strtotime($file_revision_date))) {
+            } elseif ((strtotime((string) $current_revision) == strtotime((string) $file_revision_date))) {
                 // Note the exception here when installing US Extension
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
                 // a complete SNOMED pacakge.
@@ -414,7 +414,7 @@ if ($supported_file === 1) {
             <div class="error_msg"><?php echo xlt("The installed version and the staged files are the same."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
                 <?php
-            } elseif (strtotime($current_revision) > strtotime($file_revision_date)) {
+            } elseif (strtotime((string) $current_revision) > strtotime((string) $file_revision_date)) {
                 // Note the exception here when installing US Extension
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
                 // a complete SNOMED pacakge.
@@ -444,7 +444,7 @@ if ($supported_file === 1) {
             }
         }
 
-        if (strlen($action) > 0) {
+        if (strlen((string) $action) > 0) {
             $rf = "rf1";
             if (!empty($rf2)) {
                 $rf = "rf2";

@@ -22,8 +22,8 @@ class OFX
         $string = $this->_ofx_header() . "\n";
         $trns = [];
         $sum = 0.00;
-        $date_start = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));
-        $date_end = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));
+        $date_start = date("YmdHis", strtotime((string) $this->billing_array[0]['bill_date']));
+        $date_end = date("YmdHis", strtotime((string) $this->billing_array[0]['bill_date']));
         foreach ($this->billing_array as $bill) {
             $key = $bill['pid'] . "-" . $bill['encounter'];
             if ($bill['code_type'] != "ICD9" && $bill['code_type'] != "COPAY") {
@@ -32,14 +32,14 @@ class OFX
                 $trns[$key]['memo'] .= $bill['code'] . " ";
                 $trns[$key]['payeeid'] = $bill['pid'];
                 $trns[$key]['name'] = $bill['name'];
-                if ($date_start > date("YmdHis", strtotime($trns[$key]['date']))) {
+                if ($date_start > date("YmdHis", strtotime((string) $trns[$key]['date']))) {
                     //echo "\nsd: $date_start < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
-                    $date_start = date("YmdHis", strtotime($trns[$key]['date']));
+                    $date_start = date("YmdHis", strtotime((string) $trns[$key]['date']));
                 }
 
-                if ($date_end < date("YmdHis", strtotime($trns[$key]['date']))) {
+                if ($date_end < date("YmdHis", strtotime((string) $trns[$key]['date']))) {
                     //echo "\ned: $date_end < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
-                    $date_end = date("YmdHis", strtotime($trns[$key]['date']));
+                    $date_end = date("YmdHis", strtotime((string) $trns[$key]['date']));
                 }
             }
         }
@@ -52,7 +52,7 @@ class OFX
         foreach ($trns as $key => $trn) {
             $string .= "<STMTTRN>\n";
             $string .= "<TRNTYPE>CREDIT\n";
-            $string .= "<DTPOSTED>" . date("YmdHis", strtotime($trn['date'])) . "\n";
+            $string .= "<DTPOSTED>" . date("YmdHis", strtotime((string) $trn['date'])) . "\n";
             $string .= "<TRNAMT>" . sprintf("%0.2f", $trn['amount']) . "\n";
             $string .= "<FITID>" . $key . "\n";
             $string .= "<NAME>" . $trn['name'] . "\n";

@@ -208,7 +208,7 @@ function printPatientNotes($pid): void
   // exclude ALL deleted notes
     $res = sqlStatement("select * from pnotes where pid = ? and deleted != 1 and activity = 1 order by date", [$pid]);
     while ($result = sqlFetchArray($res)) {
-        print "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) .
+        print "<span class='bold'>" . text(oeFormatSDFT(strtotime((string) $result["date"]))) .
         ":</span><span class='text'> " .
             nl2br(text(oeFormatPatientNote($result['body']))) . "</span><br />\n";
     }
@@ -248,7 +248,7 @@ function lbt_report($id, $formname): void
             continue;
         }
 
-        $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+        $arr[$field_id] = wordwrap((string) $currvalue, 30, "\n", true);
     }
 
     echo "<table>\n";
@@ -263,7 +263,7 @@ function printPatientTransactions($pid): void
     $res = sqlStatement("SELECT * FROM transactions WHERE pid = ? ORDER BY date", [$pid]);
     while ($row = sqlFetchArray($res)) {
         echo "<p><span class='bold'>" .
-        text(oeFormatSDFT(strtotime($row['date']))) .
+        text(oeFormatSDFT(strtotime((string) $row['date']))) .
         " (" .
         generate_display_field(['data_type' => '1','list_id' => 'transactions'], $row['title']) .
         ")</span><br />\n";
@@ -276,7 +276,7 @@ function printPatientBilling($pid): void
 {
     $res = sqlStatement("select * from billing where pid=? and activity = '1' order by date", [$pid]);
     while ($result = sqlFetchArray($res)) {
-        echo "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
+        echo "<span class='bold'>" . text(oeFormatSDFT(strtotime((string) $result["date"]))) . " : </span>";
         echo "<span class='text'>(" . text($result["code_type"]) . ") ";
         echo $result['code_type'] == 'COPAY' ? text(FormatMoney::getFormattedMoney($result['code'])) : (text($result['code']) . ":" . text($result['modifier']));
         echo " - " . wordwrap(text($result['code_text']), 70, "\n", true) . "</span>";
@@ -338,7 +338,7 @@ function printPatientForms($pid, $cols): void
             echo "<h1>" . text($result["form_name"]) . "</h1>";
         }
 
-        echo "(" . text(oeFormatSDFT(strtotime($result["date"]))) . ") ";
+        echo "(" . text(oeFormatSDFT(strtotime((string) $result["date"]))) . ") ";
 
         if (AclMain::aclCheckCore('acct', 'rep') || AclMain::aclCheckCore('acct', 'eob') || AclMain::aclCheckCore('acct', 'bill')) {
             if ($result["form_name"] == "New Patient Encounter") {
@@ -514,7 +514,7 @@ function printData($retar, $key, $sep, $date_format): void
         $length = count($retar[$key]);
         for ($iter = $length; $iter >= 1; $iter--) {
             if ($retar[$key][$iter]["value"] != "0000-00-00 00:00:00") {
-                print text($retar[$key][$iter]["value"]) . " (" . text(oeFormatSDFT(strtotime($retar[$key][$iter]["date"]))) . ")$sep";
+                print text($retar[$key][$iter]["value"]) . " (" . text(oeFormatSDFT(strtotime((string) $retar[$key][$iter]["date"]))) . ")$sep";
             }
         }
     }
@@ -556,7 +556,7 @@ function printDataOne($retar, $key, $sep, $date_format): void
         $length = count($retar[$key]);
         if ($retar[$key][$length]["value"] != "0000-00-00 00:00:00") {
             $tmp = $retar[$key][$length]["value"];
-            if (strstr($key, 'DOB')) {
+            if (strstr((string) $key, 'DOB')) {
                 $tmp = oeFormatShortDate($tmp);
             }
 

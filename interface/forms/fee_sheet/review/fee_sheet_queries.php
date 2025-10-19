@@ -16,6 +16,8 @@ require_once("$srcdir/../custom/code_types.inc.php");
 require_once("$srcdir/../library/lists.inc.php");
 require_once("code_check.php");
 
+use OpenEMR\Services\PatientIssuesService;
+
 /**
  * update issues from list of diagnosis
  *
@@ -57,7 +59,7 @@ function update_issues($pid, $encounter, $diags): void
     array_push($encounter_params, $pid, $encounter);
     array_push($encounter_params, "");
 
-    $sqlCreateIssueEncounter = " INSERT into issue_encounter(pid,list_id,encounter)values (?,?,?) ";
+    $patientIssuesService = new PatientIssuesService();
 
     $sqlCreateProblem = " INSERT into lists(date,begdate,type,occurrence,classification,pid,diagnosis,title,modifydate) values(?,?,'medical_problem',0,0,?,?,?,NOW())";
     $idx_list_id = count($encounter_params) - 1;
@@ -84,11 +86,8 @@ function update_issues($pid, $encounter, $diags): void
         if (!($list_id == null)) {
             // We found a problem corresponding to this diagnosis
             $encounter_params[$idx_list_id] = $list_id;
-            $issue_encounter = sqlStatement($sqlFindIssueEncounter, $encounter_params);
-            if (sqlNumRows($issue_encounter) == 0) {
-                // An issue encounter entry didn't exist, so create it
-                sqlStatement($sqlCreateIssueEncounter, [$pid,$list_id,$encounter]);
-            }
+            // link the issue, Idempotent if its already linked
+            $patientIssuesService->linkIssueToEncounter($pid, $encounter, $list_id, $_SESSION['authUserID']);
 
             // Check the description in the problem
             sqlStatement($sqlUpdateIssueDescription, [$diags->description,$list_id,$diags->description]);
@@ -102,7 +101,7 @@ function update_issues($pid, $encounter, $diags): void
                 if (sqlNumRows($newProblem) > 0) {
                     $list_id = $newProblem->fields['id'];
                     if ($list_id > 0) {
-                        sqlStatement($sqlCreateIssueEncounter, [$pid,$list_id,$encounter]);
+                        $patientIssuesService->linkIssueToEncounter($pid, $list_id, $encounter, $_SESSION['authUserID']);
                     }
                 }
 
@@ -228,7 +227,7 @@ function issue_diagnoses($pid, $encounter)
     while ($res = sqlFetchArray($results)) {
         $title = $res['title'];
         $db_id = $res['id'];
-        $codes = explode(";", $res['diagnosis']);
+        $codes = explode(";", (string) $res['diagnosis']);
         foreach ($codes as $code_key) {
             $diagnosis = explode(":", $code_key);
             $code = $diagnosis[1] ?? '';

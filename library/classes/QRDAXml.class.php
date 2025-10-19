@@ -484,7 +484,7 @@ class QRDAXml extends XmlWriterOemr
 
     function innerContent($arr = [])
     {
-        $this->xml .= '<content styleCode="Bold">' . $arr['name'] . '</content>:' . trim($arr['value']);
+        $this->xml .= '<content styleCode="Bold">' . $arr['name'] . '</content>:' . trim((string) $arr['value']);
     }
 
     function self_customTag($tag, $arr)

@@ -23,7 +23,7 @@ class Module
             'Llaminas\Loader\ClassMapAutoloader' => [
                 __DIR__ . '/autoload_classmap.php',
             ],
-            'Laminas\Loader\StandardAutoloader' => [
+            \Laminas\Loader\StandardAutoloader::class => [
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
@@ -57,7 +57,7 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // listen for view events for routes in zend_modules
-        $oemrDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, [$this, 'addRestAPIRouteToMap']);
+        $oemrDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, $this->addRestAPIRouteToMap(...));
     }
 
     /*

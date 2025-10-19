@@ -36,6 +36,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -167,7 +168,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         // will have to be covered by a different service to support that functionality.
         try {
             // parse the json data in dataRecord questionnaire
-            $innerData = json_decode($dataRecord['questionnaire_response'], true, 512, JSON_THROW_ON_ERROR);
+            $innerData = json_decode((string) $dataRecord['questionnaire_response'], true, 512, JSON_THROW_ON_ERROR);
             if (!isset($innerData['_questionnaire']) && isset($dataRecord['questionnaire_name'])) {
                 // if we don't have an US Core 8.0 compliant questionnaire response then we will fallback on the questionnaire_title if we have one
                 $innerData['_questionnaire'] = [
@@ -290,6 +291,10 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         ];
     }
 
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->service->search($openEMRSearchParameters);

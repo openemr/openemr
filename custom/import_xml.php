@@ -81,11 +81,11 @@ if (!empty($_POST['form_import'])) {
     xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
     $xml = [];
 
-    if (xml_parse_into_struct($parser, $_POST['form_import_data'], $xml)) {
+    if (xml_parse_into_struct($parser, (string) $_POST['form_import_data'], $xml)) {
         foreach ($xml as $taginfo) {
-            $tag = strtolower($taginfo['tag']);
+            $tag = strtolower((string) $taginfo['tag']);
             $tagtype = $taginfo['type'];
-            $tagval = addslashes($taginfo['value']);
+            $tagval = addslashes((string) $taginfo['value']);
 
             if ($tagtype == 'open') {
                 ++$probeix;
@@ -193,7 +193,7 @@ if (!empty($_POST['form_import'])) {
 
     echo "<html>\n<body>\n<script>\n";
     if ($alertmsg) {
-        echo " alert('" . addslashes($alertmsg) . "');\n";
+        echo " alert('" . addslashes((string) $alertmsg) . "');\n";
     }
 
     echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";

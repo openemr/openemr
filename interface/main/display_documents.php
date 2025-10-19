@@ -214,18 +214,18 @@ $display_div = "style='display:block;'";
                         $notes = [];
                         $note = '';
                         if ($row['docNotes']) {
-                            $notes = explode("|", $row['docNotes']);
-                            $dates = explode("|", $row['docDates']);
+                            $notes = explode("|", (string) $row['docNotes']);
+                            $dates = explode("|", (string) $row['docDates']);
                         }
 
                         for ($i = 0; $i < count($notes); $i++) {
-                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime($dates[$i])))) . " : " . text($notes[$i]) . "<br />";
+                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime((string) $dates[$i])))) . " : " . text($notes[$i]) . "<br />";
                         }
                         ?>
                         <tr class="text">
-                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))); ?> </td>
+                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])))); ?> </td>
                             <td class="linkcell">
-                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
+                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename((string) $row['url'])); ?></a>
                             </td>
                             <td><?php echo text($row['pname']); ?> </td>
                             <td><?php echo $note; ?> &nbsp;</td>

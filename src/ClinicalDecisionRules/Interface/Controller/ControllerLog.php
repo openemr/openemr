@@ -95,8 +95,8 @@ class ControllerLog extends BaseController
             }
 
             //Prepare the targets
-            $all_alerts = json_decode($row['value'], true);
-            $new_alerts = !empty($row['new_value']) ? json_decode($row['new_value'], true) : [];
+            $all_alerts = json_decode((string) $row['value'], true);
+            $new_alerts = !empty($row['new_value']) ? json_decode((string) $row['new_value'], true) : [];
             $row['category_title'] = $category_title;
             $row['all_alerts'] = $all_alerts;
             $row['new_alerts'] = $new_alerts;
@@ -114,7 +114,7 @@ class ControllerLog extends BaseController
         foreach ($alerts as $targetInfo => $alert) {
             if (($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup')) {
                 $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
-                $catAndTarget = explode(':', $targetInfo);
+                $catAndTarget = explode(':', (string) $targetInfo);
                 $category = $catAndTarget[0];
                 $target = $catAndTarget[1];
                 $formattedAlerts[] = [

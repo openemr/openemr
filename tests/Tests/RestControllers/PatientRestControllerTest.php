@@ -120,7 +120,7 @@ class PatientRestControllerTest extends TestCase
     {
         $response = $this->patientController->getOne("not-a-uuid", $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals([], $actualResult["data"]);
@@ -137,7 +137,7 @@ class PatientRestControllerTest extends TestCase
         // confirm the pid matches what was requested
         $response = $this->patientController->getOne($postedUuid, $this->createMock(HttpRestRequest::class));
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $actualResult = json_decode($response->getBody(), true);
+        $actualResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
@@ -151,7 +151,7 @@ class PatientRestControllerTest extends TestCase
         $response = $this->patientController->getAll($restRequest, ["postal_code" => "90210"], new SearchQueryConfig());
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $searchResult = json_decode($response->getBody(), true);
+        $searchResult = json_decode((string) $response->getBody(), true);
         $this->assertEquals(0, count($searchResult["validationErrors"]));
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));

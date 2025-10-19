@@ -63,7 +63,7 @@ class SetupController extends AbstractActionController
         $action     = $request->getPost('save');
         $tosave     = $request->getPost('tosave');
 
-        $components = explode('|***|', $tosave);
+        $components = explode('|***|', (string) $tosave);
         foreach ($components as $value) {
             $sections       = explode('|**|', $value);
             $component_name     = array_shift($sections);
@@ -84,8 +84,8 @@ class SetupController extends AbstractActionController
                         $form_type  = 1;
                     } elseif (substr($value_2, 0, 1) == 2) {
                         $value_2    = preg_replace('/^2\|/', '', $value_2);
-                        if (strpos($value_2, '|')) {
-                            $temp_1     = explode('|', $value_2);
+                        if (strpos((string) $value_2, '|')) {
+                            $temp_1     = explode('|', (string) $value_2);
                             $form_table = $form_dir = $temp_1[0];
                             $sub_id     = $temp_1[1];
                         } else {
@@ -95,8 +95,8 @@ class SetupController extends AbstractActionController
                         $form_type  = 2;
                     } elseif (substr($value_2, 0, 1) == 3) {
                         $value_2 = preg_replace('/^3\|/', '', $value_2);
-                        if (strpos($value_2, '|')) {
-                            $temp_1     = explode('|', $value_2);
+                        if (strpos((string) $value_2, '|')) {
+                            $temp_1     = explode('|', (string) $value_2);
                             $form_table = $form_dir = $temp_1[0];
                             $sub_id     = $temp_1[1];
                         } else {
@@ -110,7 +110,7 @@ class SetupController extends AbstractActionController
                         $form_type  = 3;
                     }
 
-                    $insert_id = $this->getSetupTable()->insertMaster([trim($component_name), trim($section_name), trim($form_dir), trim($form_type), trim($form_table), '1']);
+                    $insert_id = $this->getSetupTable()->insertMaster([trim($component_name), trim($section_name), trim((string) $form_dir), trim((string) $form_type), trim($form_table), '1']);
                     if ($sub_id) {
                         $this->getSetupTable()->insertChild([$insert_id,trim($sub_id)]);
                     }

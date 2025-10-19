@@ -188,7 +188,7 @@ function auto_populate_employer_address(){
 </tr>
 <tr>
 <td><span class='text'><?php echo xlt('Zip Code'); ?>:</span></td>
-<td><span class='text'><?php echo htmlspecialchars($result3['subscriber_postal_code']);?></span></td>
+<td><span class='text'><?php echo htmlspecialchars((string) $result3['subscriber_postal_code']);?></span></td>
 </tr>
 <tr>
 <td><span class='text'><?php echo xlt('Country'); ?>:</span></td>

@@ -54,7 +54,7 @@ if ($_POST['export']) {
                     $tmp = $result3['item'];
                     $tmp = "<item>$tmp</item>" . "\n";
                     fwrite($temp, $tmp);
-                    $tmp = preg_replace(["/\n/","/\r/"], ["\\\\n","\\\\r"], $result3['content']);
+                    $tmp = preg_replace(["/\n/","/\r/"], ["\\\\n","\\\\r"], (string) $result3['content']);
                     $tmp = "<content>$tmp</content>" . "\n";
                     fwrite($temp, $tmp);
                 }

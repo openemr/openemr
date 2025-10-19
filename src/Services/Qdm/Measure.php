@@ -94,15 +94,15 @@ class Measure extends AbstractType
         // refactored to be more generic across all measures years
         // need to look into this more
         if (
-            str_starts_with($measure['cms_id'], 'CMS69') ||
-            str_starts_with($measure['cms_id'], 'CMS122') ||
-            str_starts_with($measure['cms_id'], 'CMS124') ||
-            str_starts_with($measure['cms_id'], 'CMS125') ||
-            str_starts_with($measure['cms_id'], 'CMS127') ||
-            str_starts_with($measure['cms_id'], 'CMS130') ||
-            str_starts_with($measure['cms_id'], 'CMS138') ||
-            str_starts_with($measure['cms_id'], 'CMS147') ||
-            str_starts_with($measure['cms_id'], 'CMS165')
+            str_starts_with((string) $measure['cms_id'], 'CMS69') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS122') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS124') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS125') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS127') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS130') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS138') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS147') ||
+            str_starts_with((string) $measure['cms_id'], 'CMS165')
         ) {
             $this->calculation_method = 'PATIENT';
         }

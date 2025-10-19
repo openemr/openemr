@@ -58,7 +58,7 @@ class C_PatientFinder extends Controller
         //get the db connection and pass it to the helper functions
         $sql = "SELECT CONCAT(lname, ' ', fname, ' ', mname) as name, DOB, pubpid, pid FROM patient_data";
         //parse search_string to determine what type of search we have
-        $pos = strpos($search_string, ',');
+        $pos = strpos((string) $search_string, ',');
 
         // get result set into array and pass to array
         $result_array = [];

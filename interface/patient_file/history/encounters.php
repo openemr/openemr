@@ -109,7 +109,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             $noteResultSet = sqlStatement($queryString, [$documentrow['id']]);
             $note = '';
             while ($row = sqlFetchArray($noteResultSet)) {
-                $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . $row['note'] . "\n";
+                $note .= oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date']))) . " : " . $row['note'] . "\n";
             }
             $docTitle = $note ?: xl("View document");
 
@@ -440,12 +440,12 @@ window.onload = function() {
 
 
             if (($pagesize > 0) && ($pagestart > 0)) {
-                generatePageElement($pagestart - $pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars(xl("Prev"), ENT_NOQUOTES) . " ");
+                generatePageElement($pagestart - $pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars((string) xl("Prev"), ENT_NOQUOTES) . " ");
             }
-            echo (($pagesize > 0) ? ($pagestart + 1) : "1") . "-" . $upper . " " . htmlspecialchars(xl('of'), ENT_NOQUOTES) . " " . $numRes;
+            echo (($pagesize > 0) ? ($pagestart + 1) : "1") . "-" . $upper . " " . htmlspecialchars((string) xl('of'), ENT_NOQUOTES) . " " . $numRes;
 
             if (($pagesize > 0) && ($pagestart + $pagesize <= $numRes)) {
-                generatePageElement($pagestart + $pagesize, $pagesize, $billing_view, $issue, " " . htmlspecialchars(xl("Next"), ENT_NOQUOTES) . "&rArr;");
+                generatePageElement($pagestart + $pagesize, $pagesize, $billing_view, $issue, " " . htmlspecialchars((string) xl("Next"), ENT_NOQUOTES) . "&rArr;");
             }
 
 
@@ -459,13 +459,13 @@ window.onload = function() {
 
                     $raw_encounter_date = '';
 
-                    $raw_encounter_date = date("Y-m-d", strtotime($result4["date"]));
-                    $encounter_date = date("D F jS", strtotime($result4["date"]));
+                    $raw_encounter_date = date("Y-m-d", strtotime((string) $result4["date"]));
+                    $encounter_date = date("D F jS", strtotime((string) $result4["date"]));
 
                     //fetch acl for given pc_catid
                     $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($result4['pc_catid']);
                 if ($postCalendarCategoryACO) {
-                    $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                    $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                     $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
                 } else { // if no aco is set for category
                     $authPostCalendarCategory = true;
@@ -635,7 +635,7 @@ window.onload = function() {
                         // for therapy group view
                     } else {
                         $counselors = '';
-                        foreach (explode(',', $result4['counselors']) as $userId) {
+                        foreach (explode(',', (string) $result4['counselors']) as $userId) {
                             $counselors .= getUserNameById($userId) . ', ';
                         }
                         $counselors = rtrim($counselors, ", ");

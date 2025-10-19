@@ -55,14 +55,14 @@ function displayRow($row, $pid = ''): void
     $first_time = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
     $phones = [];
-    if (trim($row['phone_home'])) {
-        $phones[] = trim($row['phone_home']);
+    if (trim((string) $row['phone_home'])) {
+        $phones[] = trim((string) $row['phone_home']);
     }
-    if (trim($row['phone_biz'])) {
-        $phones[] = trim($row['phone_biz']);
+    if (trim((string) $row['phone_biz'])) {
+        $phones[] = trim((string) $row['phone_biz']);
     }
-    if (trim($row['phone_cell'])) {
-        $phones[] = trim($row['phone_cell']);
+    if (trim((string) $row['phone_cell'])) {
+        $phones[] = trim((string) $row['phone_cell']);
     }
     $phones = implode(', ', $phones);
     $fac_name = '';

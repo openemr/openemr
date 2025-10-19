@@ -107,12 +107,12 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 
     $camos_content = [];
     foreach ($_POST as $key => $val) {
-        if (str_starts_with($key, 'ch_')) {
-            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr($key, 3)]);
+        if (str_starts_with((string) $key, 'ch_')) {
+            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr((string) $key, 3)]);
             if ($result = sqlFetchArray($query)) {
                 if ($_POST['print_html']) { //do this change to formatting only for html output
                             $content = preg_replace('|\n|', '<br/>', text($result['content']));
-                            $content = preg_replace('|<br/><br/>|', '<br/>', $content);
+                            $content = preg_replace('|<br/><br/>|', '<br/>', (string) $content);
                 } else {
                         $content = $result['content'];
                 }
@@ -121,8 +121,8 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             }
         }
 
-        if (str_starts_with($key, 'chrx_')) {
-            $rx = new Prescription(substr($key, 5));
+        if (str_starts_with((string) $key, 'chrx_')) {
+            $rx = new Prescription(substr((string) $key, 5));
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
             $content = ''
             . text($rx->drug) . ' '
@@ -307,7 +307,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 </html>
         <?php
     } elseif ($_GET['letterhead']) { // end of printing to rx not letterhead. OPTION print to letterhead
-        $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
+        $content = preg_replace('/PATIENTNAME/i', $patient_name, (string) $camos_content[0]);
         if ($_POST['print_html']) { // print letterhead to html
             ?>
         <html>

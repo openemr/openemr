@@ -23,7 +23,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated

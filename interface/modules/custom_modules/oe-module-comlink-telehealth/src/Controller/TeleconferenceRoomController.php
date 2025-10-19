@@ -1028,7 +1028,7 @@ class TeleconferenceRoomController
             $jsonData = [
                 'selectedEncounter' => [
                     'id' => $encounter['eid']
-                    , 'dateStr' => date("Y-m-d", strtotime($encounter['date']))
+                    , 'dateStr' => date("Y-m-d", strtotime((string) $encounter['date']))
                 ]
                 , 'encounterList' => $encountersList
                 , 'patient' => [

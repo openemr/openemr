@@ -85,7 +85,7 @@ class PractitionerApiTest extends TestCase
         );
 
         $this->assertEquals(400, $actualResponse->getStatusCode());
-        $responseBody = json_decode($actualResponse->getBody(), true);
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(1, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals(0, count($responseBody["data"]));
@@ -103,7 +103,7 @@ class PractitionerApiTest extends TestCase
         $actualResponse = $this->testClient->put(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid, $this->practitionerRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
-        $responseBody = json_decode($actualResponse->getBody(), true);
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
 
@@ -117,7 +117,7 @@ class PractitionerApiTest extends TestCase
         $actualResponse = $this->testClient->getOne(self::PRACTITIONER_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
 
-        $responseBody = json_decode($actualResponse->getBody(), true);
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(1, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals(0, count($responseBody["data"]));
@@ -135,7 +135,7 @@ class PractitionerApiTest extends TestCase
         $actualResponse = $this->testClient->getOne(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
-        $responseBody = json_decode($actualResponse->getBody(), true);
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals($practitionerUuid, $responseBody["data"]["uuid"]);
@@ -150,7 +150,7 @@ class PractitionerApiTest extends TestCase
         $actualResponse = $this->testClient->get(self::PRACTITIONER_API_ENDPOINT, ["npi" => "0123456789"]);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
-        $responseBody = json_decode($actualResponse->getBody(), true);
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
 

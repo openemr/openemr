@@ -27,12 +27,12 @@ session_regenerate_id(true);
 //
 
 // landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+$landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? $_GET['site'] ?? 'default'));
 //
 
 if (!empty($_REQUEST['redirect'])) {
     // let's add the redirect back in case there are any errors or other problems.
-    $landingpage .= "&redirect=" . urlencode($_REQUEST['redirect']);
+    $landingpage .= "&redirect=" . urlencode((string) $_REQUEST['redirect']);
 }
 
 // checking whether the request comes from index.php
@@ -112,7 +112,7 @@ if ($password_update === 2 && !empty($_SESSION['pin'])) {
         // remove the token from database
         privStatement("UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_ONETIME . "=NULL WHERE BINARY " . COL_POR_ONETIME . " = ?", [$auth['portal_onetime']]);
         // validation
-        $validate = substr($auth[COL_POR_ONETIME], 32, 6);
+        $validate = substr((string) $auth[COL_POR_ONETIME], 32, 6);
         if (!empty($validate) && !empty($_POST['token_pin'])) {
             if ($_SESSION['pin'] !== $_POST['token_pin']) {
                 $auth = false;

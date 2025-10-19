@@ -180,7 +180,7 @@ setencounter($encounter);
 // Update the list of issues associated with this encounter.
 // always delete the issues for this encounter
 $patientIssueService = new PatientIssuesService();
-$patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? []);
+$patientIssueService->replaceIssuesForEncounter($pid, $encounter, $_POST['issues'] ?? [], $_SESSION['authUserID']);
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
@@ -197,7 +197,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
             while ($rowresult4 = sqlFetchArray($result4)) {
                 ?>
         EncounterIdArray[Count] =<?php echo js_escape($rowresult4['encounter']); ?>;
-        EncounterDateArray[Count] =<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+        EncounterDateArray[Count] =<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
         CalendarCategoryArray[Count] =<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
         Count++;
                 <?php

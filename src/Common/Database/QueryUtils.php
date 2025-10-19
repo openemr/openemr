@@ -171,7 +171,7 @@ class QueryUtils
     {
 
         try {
-            if (preg_match("/^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$/", $tableName) === false) {
+            if (preg_match("/^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$/", (string) $tableName) === false) {
                 return false; // don't allow invalid table names
             }
             // escape table name just DIES if the table name is not valid so we need to handle that here

@@ -27,7 +27,7 @@ if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
 	$object_type = $_POST['object_type'];
 }
 
-switch(strtolower(trim($object_type))) {
+switch(strtolower(trim((string) $object_type))) {
     case 'aco':
         $object_type = 'aco';
 		$object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';

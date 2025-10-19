@@ -14,7 +14,7 @@
 function smarty_core_process_cached_inserts($params, &$smarty)
 {
     preg_match_all('!'.$smarty->_smarty_md5.'{insert_cache (.*)}'.$smarty->_smarty_md5.'!Uis',
-                   $params['results'], $match);
+                   (string) $params['results'], $match);
     [$cached_inserts, $insert_args] = $match;
 
     for ($i = 0, $for_max = count($cached_inserts); $i < $for_max; $i++) {
@@ -52,7 +52,7 @@ function smarty_core_process_cached_inserts($params, &$smarty)
             $replace = '';
         }
 
-        $params['results'] = substr_replace($params['results'], $replace, strpos($params['results'], $cached_inserts[$i]), strlen($cached_inserts[$i]));
+        $params['results'] = substr_replace($params['results'], $replace, strpos((string) $params['results'], $cached_inserts[$i]), strlen($cached_inserts[$i]));
         if ($smarty->debugging) {
             $_params = [];
             require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');

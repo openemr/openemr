@@ -434,7 +434,7 @@ trait FhirObservationTrait
                     }
                 }
                 $comp->setValueQuantity($valueQuantity);
-            } else if (!empty($component['value_code_description']) && str_contains($component['value'], ':')) {
+            } else if (!empty($component['value_code_description']) && str_contains((string) $component['value'], ':')) {
                 $parsedCode = $this->getCodeTypesService()->parseCode($component['value']);
                 $code = $parsedCode['code'];
                 $comp->setValueCodeableConcept(UtilsService::createCodeableConcept([
@@ -660,7 +660,7 @@ trait FhirObservationTrait
     protected function getCodeFromResourcePath($resourcePath)
     {
         $query_vars = [];
-        parse_str($resourcePath, $query_vars);
+        parse_str((string) $resourcePath, $query_vars);
         return $query_vars['code'] ?? null;
     }
 }

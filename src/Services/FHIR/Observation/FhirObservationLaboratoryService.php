@@ -33,6 +33,7 @@ use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -86,7 +87,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     public function getCodeFromResourcePath($resourcePath)
     {
         $query_vars = [];
-        parse_str($resourcePath, $query_vars);
+        parse_str((string) $resourcePath, $query_vars);
         return $query_vars['code'] ?? null;
     }
 
@@ -127,7 +128,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param openEMRSearchParameters OpenEMR search fields
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult

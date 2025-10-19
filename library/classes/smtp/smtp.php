@@ -47,20 +47,20 @@ class smtp_class
 
 	Function Tokenize($string,$separator="")
 	{
-		if(!strcmp($separator,""))
+		if(!strcmp((string) $separator,""))
 		{
 			$separator=$string;
 			$string=$this->next_token;
 		}
-		for($character=0;$character<strlen($separator);$character++)
+		for($character=0;$character<strlen((string) $separator);$character++)
 		{
-			if(GetType($position=strpos($string,(string) $separator[$character]))=="integer")
+			if(GetType($position=strpos((string) $string,(string) $separator[$character]))=="integer")
 				$found=(IsSet($found) ? min($found,$position) : $position);
 		}
 		if(IsSet($found))
 		{
-			$this->next_token=substr($string,$found+1);
-			return(substr($string,0,$found));
+			$this->next_token=substr((string) $string,$found+1);
+			return(substr((string) $string,0,$found));
 		}
 		else
 		{
@@ -136,11 +136,11 @@ class smtp_class
 
 	Function PutData(&$data)
 	{
-		if(strlen($data))
+		if(strlen((string) $data))
 		{
 			if($this->debug)
 				$this->OutputDebug("C $data");
-			if(!@fwrite($this->connection,$data))
+			if(!@fwrite($this->connection,(string) $data))
 			{
 				$this->SetDataAccessError("it was not possible to send data to the SMTP server");
 				return(0);
@@ -153,11 +153,11 @@ class smtp_class
 	{
 		$responses=[];
 		Unset($this->result_code);
-		while(strlen($line=$this->GetLine($this->connection)))
+		while(strlen((string) $line=$this->GetLine($this->connection)))
 		{
 			if(IsSet($this->result_code))
 			{
-				if(strcmp($this->Tokenize($line," -"),$this->result_code))
+				if(strcmp((string) $this->Tokenize($line," -"),$this->result_code))
 				{
 					$this->error=$line;
 					return(0);
@@ -168,7 +168,7 @@ class smtp_class
 				$this->result_code=$this->Tokenize($line," -");
 				if(GetType($code)=="array")
 				{
-					for($codes=0;$codes<count($code) && strcmp($this->result_code,$code[$codes]);$codes++);
+					for($codes=0;$codes<count($code) && strcmp((string) $this->result_code,(string) $code[$codes]);$codes++);
 					if($codes>=count($code))
 					{
 						$this->error=$line;
@@ -177,7 +177,7 @@ class smtp_class
 				}
 				else
 				{
-					if(strcmp($this->result_code,$code))
+					if(strcmp((string) $this->result_code,(string) $code))
 					{
 						$this->error=$line;
 						return(0);
@@ -185,7 +185,7 @@ class smtp_class
 				}
 			}
 			$responses[]=$this->Tokenize("");
-			if(!strcmp($this->result_code,$this->Tokenize($line," ")))
+			if(!strcmp((string) $this->result_code,(string) $this->Tokenize($line," ")))
 				return(1);
 		}
 		return(-1);
@@ -219,17 +219,17 @@ class smtp_class
 			|| !extension_loaded("openssl"))
 				return("establishing SSL connections requires the OpenSSL extension enabled");
 		}
-		if(preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',$domain))
+		if(preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',(string) $domain))
 			$ip=$domain;
 		else
 		{
 			if($this->debug)
 				$this->OutputDebug($resolve_message);
-			if(!strcmp($ip=@gethostbyname($domain),$domain))
+			if(!strcmp($ip=@gethostbyname($domain),(string) $domain))
 				return("could not resolve host \"".$domain."\"");
 		}
-		if(strlen($this->exclude_address)
-		&& !strcmp(@gethostbyname($this->exclude_address),$ip))
+		if(strlen((string) $this->exclude_address)
+		&& !strcmp(@gethostbyname($this->exclude_address),(string) $ip))
 			return("domain \"".$domain."\" resolved to an address excluded to be valid");
 		if($this->debug)
 			$this->OutputDebug("Connecting to host address \"".$ip."\" port ".$port."...");
@@ -274,7 +274,7 @@ class smtp_class
 			case SASL_CONTINUE:
 				break;
 			case SASL_NOMECH:
-				if(strlen($this->authentication_mechanism))
+				if(strlen((string) $this->authentication_mechanism))
 				{
 					$this->error="authenticated mechanism ".$this->authentication_mechanism." may not be used: ".$sasl->error;
 					return(0);
@@ -284,7 +284,7 @@ class smtp_class
 				$this->error="Could not start the SASL authentication client: ".$sasl->error;
 				return(0);
 		}
-		if(strlen($mechanism=$sasl->mechanism))
+		if(strlen((string) $mechanism=$sasl->mechanism))
 		{
 			if($this->PutLine("AUTH ".$sasl->mechanism.(IsSet($message) ? " ".base64_encode($message) : ""))==0)
 			{
@@ -300,7 +300,7 @@ class smtp_class
 					$authenticated=1;
 					break;
 				case "334":
-					$response=base64_decode($responses[0]);
+					$response=base64_decode((string) $responses[0]);
 					break;
 				default:
 					$this->error="Authentication error: ".$responses[0];
@@ -316,7 +316,7 @@ class smtp_class
 				switch($status)
 				{
 					case SASL_CONTINUE:
-						if($this->PutLine(base64_encode($message))==0)
+						if($this->PutLine(base64_encode((string) $message))==0)
 						{
 							$this->error="Could not send the authentication step message";
 							return(0);
@@ -330,7 +330,7 @@ class smtp_class
 								$authenticated=1;
 								break;
 							case "334":
-								$response=base64_decode($responses[0]);
+								$response=base64_decode((string) $responses[0]);
 								break;
 							default:
 								$this->error="Authentication error: ".$responses[0];
@@ -350,7 +350,7 @@ class smtp_class
 
 	Function Connect($domain="")
 	{
-		if(strcmp($this->state,"Disconnected"))
+		if(strcmp((string) $this->state,"Disconnected"))
 		{
 			$this->error="connection is already established";
 			return(0);
@@ -362,7 +362,7 @@ class smtp_class
 		$hosts=[];
 		if($this->direct_delivery)
 		{
-			if(strlen($domain)==0)
+			if(strlen((string) $domain)==0)
 				return(1);
 			$hosts=$weights=$mxhosts=[];
 			$getmxrr=$this->getmxrr;
@@ -377,51 +377,51 @@ class smtp_class
 			}
 			else
 			{
-				if(strcmp(@gethostbyname($domain),$domain)!=0)
+				if(strcmp(@gethostbyname($domain),(string) $domain)!=0)
 					$hosts[]=$domain;
 			}
 		}
 		else
 		{
-			if(strlen($this->host_name))
+			if(strlen((string) $this->host_name))
 				$hosts[]=$this->host_name;
-			if(strlen($this->pop3_auth_host))
+			if(strlen((string) $this->pop3_auth_host))
 			{
 				$user=$this->user;
-				if(strlen($user)==0)
+				if(strlen((string) $user)==0)
 				{
 					$this->error="it was not specified the POP3 authentication user";
 					return(0);
 				}
 				$password=$this->password;
-				if(strlen($password)==0)
+				if(strlen((string) $password)==0)
 				{
 					$this->error="it was not specified the POP3 authentication password";
 					return(0);
 				}
 				$domain=$this->pop3_auth_host;
 				$this->error=$this->ConnectToHost($domain, $this->pop3_auth_port, "Resolving POP3 authentication host \"".$domain."\"...");
-				if(strlen($this->error))
+				if(strlen((string) $this->error))
 					return(0);
-				if(strlen($response=$this->GetLine())==0)
+				if(strlen((string) $response=$this->GetLine())==0)
 					return(0);
-				if(strcmp($this->Tokenize($response," "),"+OK"))
+				if(strcmp((string) $this->Tokenize($response," "),"+OK"))
 				{
 					$this->error="POP3 authentication server greeting was not found";
 					return(0);
 				}
 				if(!$this->PutLine("USER ".$this->user)
-				|| strlen($response=$this->GetLine())==0)
+				|| strlen((string) $response=$this->GetLine())==0)
 					return(0);
-				if(strcmp($this->Tokenize($response," "),"+OK"))
+				if(strcmp((string) $this->Tokenize($response," "),"+OK"))
 				{
 					$this->error="POP3 authentication user was not accepted: ".$this->Tokenize("\r\n");
 					return(0);
 				}
 				if(!$this->PutLine("PASS ".$password)
-				|| strlen($response=$this->GetLine())==0)
+				|| strlen((string) $response=$this->GetLine())==0)
 					return(0);
-				if(strcmp($this->Tokenize($response," "),"+OK"))
+				if(strcmp((string) $this->Tokenize($response," "),"+OK"))
 				{
 					$this->error="POP3 authentication password was not accepted: ".$this->Tokenize("\r\n");
 					return(0);
@@ -435,12 +435,12 @@ class smtp_class
 			$this->error="could not determine the SMTP to connect";
 			return(0);
 		}
-		for($host=0, $error="not connected";strlen($error) && $host<count($hosts);$host++)
+		for($host=0, $error="not connected";strlen((string) $error) && $host<count($hosts);$host++)
 		{
 			$domain=$hosts[$host];
 			$error=$this->ConnectToHost($domain, $this->host_port, "Resolving SMTP server domain \"$domain\"...");
 		}
-		if(strlen($error))
+		if(strlen((string) $error))
 		{
 			$this->error=$error;
 			return(0);
@@ -451,7 +451,7 @@ class smtp_class
 			socket_set_timeout($this->connection,$timeout,0);
 		if($this->debug)
 			$this->OutputDebug("Connected to SMTP server \"".$domain."\".");
-		if(!strcmp($localhost=$this->localhost,"")
+		if(!strcmp((string) $localhost=$this->localhost,"")
 		&& !strcmp($localhost=getenv("SERVER_NAME"),"")
 		&& !strcmp($localhost=getenv("HOST"),""))
 			$localhost="localhost";
@@ -460,7 +460,7 @@ class smtp_class
 		{
 			$fallback=1;
 			if($this->esmtp
-			|| strlen($this->user))
+			|| strlen((string) $this->user))
 			{
 				if($this->PutLine("EHLO $localhost"))
 				{
@@ -469,7 +469,7 @@ class smtp_class
 						$this->esmtp_host=$this->Tokenize($responses[0]," ");
 						for($response=1;$response<count($responses);$response++)
 						{
-							$extension=strtoupper($this->Tokenize($responses[$response]," "));
+							$extension=strtoupper((string) $this->Tokenize($responses[$response]," "));
 							$this->esmtp_extensions[$extension]=$this->Tokenize("");
 						}
 						$success=1;
@@ -499,8 +499,8 @@ class smtp_class
 					$success=1;
 			}
 			if($success
-			&& strlen($this->user)
-			&& strlen($this->pop3_auth_host)==0)
+			&& strlen((string) $this->user)
+			&& strlen((string) $this->pop3_auth_host)==0)
 			{
 				if(!IsSet($this->esmtp_extensions["AUTH"]))
 				{
@@ -509,25 +509,25 @@ class smtp_class
 				}
 				else
 				{
-					if(strlen($this->authentication_mechanism))
+					if(strlen((string) $this->authentication_mechanism))
 						$mechanisms=[$this->authentication_mechanism];
 					else
 					{
 						$mechanisms=[];
-						for($authentication=$this->Tokenize($this->esmtp_extensions["AUTH"]," ");strlen($authentication);$authentication=$this->Tokenize(" "))
+						for($authentication=$this->Tokenize($this->esmtp_extensions["AUTH"]," ");strlen((string) $authentication);$authentication=$this->Tokenize(" "))
 							$mechanisms[]=$authentication;
 					}
 					$credentials=[
 						"user"=>$this->user,
 						"password"=>$this->password
 					];
-					if(strlen($this->realm))
+					if(strlen((string) $this->realm))
 						$credentials["realm"]=$this->realm;
-					if(strlen($this->workstation))
+					if(strlen((string) $this->workstation))
 						$credentials["workstation"]=$this->workstation;
 					$success=$this->SASLAuthenticate($mechanisms,$credentials,$authenticated,$mechanism);
 					if(!$success
-					&& !strcmp($mechanism,"PLAIN"))
+					&& !strcmp((string) $mechanism,"PLAIN"))
 					{
 						/*
 						 * Author:  Russell Robinson, 25 May 2003, http://www.tectite.com/
@@ -538,7 +538,7 @@ class smtp_class
 							"user"=>$this->user,
 							"password"=>$this->password
 						];
-						if(strlen($this->realm))
+						if(strlen((string) $this->realm))
 						{
 							/*
 							 * According to: http://www.sendmail.org/~ca/email/authrealms.html#authpwcheck_method
@@ -566,7 +566,7 @@ class smtp_class
 						}
 					}
 					if($success
-					&& strlen($mechanism)==0)
+					&& strlen((string) $mechanism)==0)
 					{
 						$this->error="it is not supported any of the authentication mechanisms required by the server";
 						$success=0;
@@ -606,7 +606,7 @@ class smtp_class
 		}
 		else
 		{
-			if(strcmp($this->state,"Connected"))
+			if(strcmp((string) $this->state,"Connected"))
 			{
 				$this->error="connection is not in the initial state";
 				return(0);
@@ -629,9 +629,9 @@ class smtp_class
 	{
 		if($this->direct_delivery)
 		{
-			if(GetType($at=strrpos($recipient,"@"))!="integer")
+			if(GetType($at=strrpos((string) $recipient,"@"))!="integer")
 				return("it was not specified a valid direct recipient");
-			$domain=substr($recipient,$at+1);
+			$domain=substr((string) $recipient,$at+1);
 			switch($this->state)
 			{
 				case "Disconnected":
@@ -647,7 +647,7 @@ class smtp_class
 					break;
 				case "SenderSet":
 				case "RecipientSet":
-					if(strcmp($this->connected_domain,$domain))
+					if(strcmp((string) $this->connected_domain,$domain))
 					{
 						$this->error="it is not possible to deliver directly to recipients of different domains";
 						return(0);
@@ -693,7 +693,7 @@ class smtp_class
 
 	Function StartData()
 	{
-		if(strcmp($this->state,"RecipientSet"))
+		if(strcmp((string) $this->state,"RecipientSet"))
 		{
 			$this->error="connection is not in the start sending data state";
 			return(0);
@@ -716,14 +716,14 @@ class smtp_class
 	{
 		if($preg
 		&& function_exists("preg_replace"))
-			$output=preg_replace(["/\n\n|\r\r/","/(^|[^\r])\n/","/\r([^\n]|\$)/D","/(^|\n)\\./"],["\r\n\r\n","\\1\r\n","\r\n\\1","\\1.."],$data);
+			$output=preg_replace(["/\n\n|\r\r/","/(^|[^\r])\n/","/\r([^\n]|\$)/D","/(^|\n)\\./"],["\r\n\r\n","\\1\r\n","\r\n\\1","\\1.."],(string) $data);
 		else
-			$output=preg_replace("#(^|\n)\\.#m","\\1..",preg_replace("#\r([^\n]|\$)#m","\r\n\\1",preg_replace("#(^|[^\r])\n#m","\\1\r\n",preg_replace("#\n\n|\r\r#m","\r\n\r\n",$data))));
+			$output=preg_replace("#(^|\n)\\.#m","\\1..",(string) preg_replace("#\r([^\n]|\$)#m","\r\n\\1",(string) preg_replace("#(^|[^\r])\n#m","\\1\r\n",(string) preg_replace("#\n\n|\r\r#m","\r\n\r\n",(string) $data))));
 	}
 
 	Function SendData($data)
 	{
-		if(strcmp($this->state,"SendingData"))
+		if(strcmp((string) $this->state,"SendingData"))
 		{
 			$this->error="connection is not in the sending data state";
 			return(0);
@@ -734,7 +734,7 @@ class smtp_class
 
 	Function EndSendingData()
 	{
-		if(strcmp($this->state,"SendingData"))
+		if(strcmp((string) $this->state,"SendingData"))
 		{
 			$this->error="connection is not in the sending data state";
 			return(0);
@@ -770,13 +770,13 @@ class smtp_class
 
 	Function Disconnect($quit=1)
 	{
-		if(!strcmp($this->state,"Disconnected"))
+		if(!strcmp((string) $this->state,"Disconnected"))
 		{
 			$this->error="it was not previously established a SMTP connection";
 			return(0);
 		}
 		$this->error="";
-		if(!strcmp($this->state,"Connected")
+		if(!strcmp((string) $this->state,"Connected")
 		&& $quit
 		&& (!$this->PutLine("QUIT")
 		|| ($this->VerifyResultLines("221",$responses)<=0

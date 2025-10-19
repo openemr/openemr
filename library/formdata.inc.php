@@ -106,7 +106,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     if (is_array($s)) {
         $multiple_columns = [];
         foreach ($s as $column) {
-            $multiple_columns[] = escape_sql_column_name(trim($column), $tables);
+            $multiple_columns[] = escape_sql_column_name(trim((string) $column), $tables);
         }
         return implode(", ", $multiple_columns);
     }

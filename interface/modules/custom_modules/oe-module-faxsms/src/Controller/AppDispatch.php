@@ -657,8 +657,8 @@ abstract class AppDispatch
     public function formatPhoneForSave($number): string
     {
         // this is U.S. only. need E-164
-        $n = preg_replace('/[^0-9]/', '', $number);
-        $n = stripos($n, '1') === 0 ? '+' . $n : '+1' . $n;
+        $n = preg_replace('/[^0-9]/', '', (string) $number);
+        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
         return $n;
     }
 

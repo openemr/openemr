@@ -257,7 +257,7 @@ class parseCSV
         }
 
         $mode = ($append) ? 'at' : 'wt';
-        $is_php = (preg_match('/\.php$/i', $file)) ? true : false;
+        $is_php = (preg_match('/\.php$/i', (string) $file)) ? true : false;
         return $this->_wfile($file, $this->unparse($data, $fields, $append, $is_php), $mode);
     }
 
@@ -360,7 +360,7 @@ class parseCSV
         }
 
         $chars =  [];
-        $strlen = strlen($data);
+        $strlen = strlen((string) $data);
         $enclosed = false;
         $n = 1;
         $to_end = true;
@@ -390,7 +390,7 @@ class parseCSV
 
                 // count character
             } elseif (! $enclosed) {
-                if (! preg_match('/[' . preg_quote($this->auto_non_chars, '/') . ']/i', $ch)) {
+                if (! preg_match('/[' . preg_quote((string) $this->auto_non_chars, '/') . ']/i', (string) $ch)) {
                     if (! isset($chars [$ch] [$n])) {
                         $chars [$ch] [$n] = 1;
                     } else {
@@ -472,7 +472,7 @@ class parseCSV
         $col = 0;
         $enclosed = false;
         $was_enclosed = false;
-        $strlen = strlen($data);
+        $strlen = strlen((string) $data);
 
         // walk through each character
         for ($i = 0; $i < $strlen; $i++) {
@@ -687,15 +687,15 @@ class parseCSV
                 $this->file = $file;
             }
 
-            if (preg_match('/\.php$/i', $file) && preg_match('/<\?.*?\?>(.*)/ims', $data, $strip)) {
+            if (preg_match('/\.php$/i', (string) $file) && preg_match('/<\?.*?\?>(.*)/ims', (string) $data, $strip)) {
                 $data = ltrim($strip [1]);
             }
 
             if ($this->convert_encoding) {
-                $data = iconv($this->input_encoding, $this->output_encoding, $data);
+                $data = iconv((string) $this->input_encoding, (string) $this->output_encoding, (string) $data);
             }
 
-            if (!str_ends_with($data, "\n")) {
+            if (!str_ends_with((string) $data, "\n")) {
                 $data .= "\n";
             }
 
@@ -723,13 +723,13 @@ class parseCSV
     {
         if (! empty($row)) {
             if (! empty($conditions)) {
-                $conditions = (str_contains($conditions, ' OR ')) ? explode(' OR ', $conditions) :  [
+                $conditions = (str_contains((string) $conditions, ' OR ')) ? explode(' OR ', (string) $conditions) :  [
                         $conditions
                 ];
                 $or = '';
                 foreach ($conditions as $value) {
-                    if (str_contains($value, ' AND ')) {
-                        $value = explode(' AND ', $value);
+                    if (str_contains((string) $value, ' AND ')) {
+                        $value = explode(' AND ', (string) $value);
                         $and = '';
                         foreach ($value as $v) {
                             $and .= $this->_validate_row_condition($row, $v);
@@ -784,7 +784,7 @@ class parseCSV
         }
 
         $operators_regex = implode('|', $operators_regex);
-        if (preg_match('/^(.+) (' . $operators_regex . ') (.+)$/i', trim($condition), $capture)) {
+        if (preg_match('/^(.+) (' . $operators_regex . ') (.+)$/i', trim((string) $condition), $capture)) {
             $field = $capture [1];
             $op = $capture [2];
             $value = $capture [3];
@@ -811,9 +811,9 @@ class parseCSV
                     return '1';
                 } elseif (($op == '>=' || $op == 'is greater than or equals') && $row [$field] >= $value) {
                     return '1';
-                } elseif ($op == 'contains' && preg_match('/' . preg_quote($value, '/') . '/i', $row [$field])) {
+                } elseif ($op == 'contains' && preg_match('/' . preg_quote($value, '/') . '/i', (string) $row [$field])) {
                     return '1';
-                } elseif ($op == 'does not contain' && ! preg_match('/' . preg_quote($value, '/') . '/i', $row [$field])) {
+                } elseif ($op == 'does not contain' && ! preg_match('/' . preg_quote($value, '/') . '/i', (string) $row [$field])) {
                     return '1';
                 } else {
                     return '0';
@@ -851,9 +851,9 @@ class parseCSV
     function _enclose_value($value = null)
     {
         if ($value !== null && $value != '') {
-            $delimiter = preg_quote($this->delimiter, '/');
-            $enclosure = preg_quote($this->enclosure, '/');
-            if (preg_match("/" . $delimiter . "|" . $enclosure . "|\n|\r/i", $value) || ($value [0] == ' ' || str_ends_with($value, ' '))) {
+            $delimiter = preg_quote((string) $this->delimiter, '/');
+            $enclosure = preg_quote((string) $this->enclosure, '/');
+            if (preg_match("/" . $delimiter . "|" . $enclosure . "|\n|\r/i", (string) $value) || ($value [0] == ' ' || str_ends_with((string) $value, ' '))) {
                 $value = str_replace($this->enclosure, $this->enclosure . $this->enclosure, $value);
                 $value = $this->enclosure . $value . $this->enclosure;
             }
@@ -909,9 +909,9 @@ class parseCSV
 
             if ($equal) {
                 $match = ($almost) ? 2 : 1;
-                $pref = strpos($preferred, (string) $char);
+                $pref = strpos((string) $preferred, (string) $char);
                 $pref = ($pref !== false) ? str_pad($pref, 3, '0', STR_PAD_LEFT) : '999';
-                return $pref . $match . '.' . (99999 - str_pad($first, 5, '0', STR_PAD_LEFT));
+                return $pref . $match . '.' . (99999 - str_pad((string) $first, 5, '0', STR_PAD_LEFT));
             } else {
                 return false;
             }
@@ -957,7 +957,7 @@ class parseCSV
     {
         if ($fp = fopen($file, $mode)) {
             flock($fp, $lock);
-            $re = fwrite($fp, $string);
+            $re = fwrite($fp, (string) $string);
             $re2 = fclose($fp);
             if ($re != false && $re2 != false) {
                 return true;

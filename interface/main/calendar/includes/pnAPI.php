@@ -316,7 +316,7 @@ function pnDBInit()
     $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
     // force oracle to a consistent date format for comparison methods later on
-    if (strcmp($dbtype, 'oci8') == 0) {
+    if (strcmp((string) $dbtype, 'oci8') == 0) {
         $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
     }
 
@@ -492,10 +492,10 @@ function pnVarPrepHTMLDisplay()
     $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Preparse var to mark the HTML that we want
-        $ourvar = preg_replace($allowedhtml, "\022\\1\024", $ourvar);
+        $ourvar = preg_replace($allowedhtml, "\022\\1\024", (string) $ourvar);
 
         // Prepare var
-        $ourvar = htmlspecialchars($ourvar);
+        $ourvar = htmlspecialchars((string) $ourvar);
         $ourvar = preg_replace_callback(
             $search,
             fn($matches): string => "&#" .
@@ -509,12 +509,12 @@ function pnVarPrepHTMLDisplay()
         $ourvar = preg_replace_callback(
             '/\022([^\024]*)\024/',
             fn($matches): string => '<' . strtr("$matches[1]", ['&gt;' => '>', '&lt;' => '<', '&quot;' => '\"']) . '>',
-            $ourvar
+            (string) $ourvar
         );
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
-            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", $ourvar);
+            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", (string) $ourvar);
         }
 
         // Add to array
@@ -578,6 +578,7 @@ function pnVarPrepForOS()
                            '!/!si',     // Forward slash (directory traversal)
                            '!\\\\!si']; // Backslash (directory traversal)
 
+    /** @var array $replace */
     static $replace = ['',
                             '',
                             '_',
@@ -586,10 +587,10 @@ function pnVarPrepForOS()
     $resarray = [];
     foreach (func_get_args() as $ourvar) {
         // Parse out bad things
-        $ourvar = preg_replace($search, $replace, $ourvar);
+        $ourvar = preg_replace($search, $replace, (string) $ourvar);
 
         // Prepare var
-        $ourvar = addslashes($ourvar);
+        $ourvar = addslashes((string) $ourvar);
 
         // Add to array
         array_push($resarray, $ourvar);
@@ -614,7 +615,7 @@ function pnGetBaseURI(): string
     // Start of with REQUEST_URI
     $path = $_SERVER['REQUEST_URI'] ?? getenv('REQUEST_URI');
 
-    if (empty($path) || str_ends_with($path, '/')) {
+    if (empty($path) || str_ends_with((string) $path, '/')) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
         $path = getenv('PATH_INFO');
@@ -625,8 +626,8 @@ function pnGetBaseURI(): string
         }
     }
 
-    $path = preg_replace('/[#\?].*/', '', $path);
-    $path = dirname($path);
+    $path = preg_replace('/[#\?].*/', '', (string) $path);
+    $path = dirname((string) $path);
 
     if (preg_match('!^[/\\\]*$!', $path)) {
         $path = '';

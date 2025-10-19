@@ -60,7 +60,7 @@ if ($task == 'update') {
 
     $diags = [];
     if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode($_REQUEST['diags']);
+        $json_diags = json_decode((string) $_REQUEST['diags']);
     }
 
     foreach ($json_diags as $diag) {

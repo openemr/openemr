@@ -45,7 +45,7 @@ $input_catid = $_REQUEST['catid'];
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
-    $udate = strtotime($starttime, $udate);
+    $udate = strtotime((string) $starttime, $udate);
     if ($udate < $slotstime) {
         return;
     }
@@ -112,7 +112,7 @@ if (!empty($_REQUEST['searchdays'])) {
 $sdate = ($_REQUEST['startdate']) ? DateToYYYYMMDD($_REQUEST['startdate']) : date("Y-m-d");
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches);
 $edate = date(
     "Y-m-d",
     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])

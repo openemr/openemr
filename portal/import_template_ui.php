@@ -583,7 +583,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                     foreach ($category_list as $option_category) {
-                        if (stripos($option_category['option_id'], 'repository') !== false) {
+                        if (stripos((string) $option_category['option_id'], 'repository') !== false) {
                             continue;
                         }
                         if ($category === $option_category['option_id']) {
@@ -626,7 +626,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         }
                         $auth = '';
                         if (!empty($_REQUEST['persist_checks'])) {
-                            $persist_checks = json_decode($_REQUEST['persist_checks'], true);
+                            $persist_checks = json_decode((string) $_REQUEST['persist_checks'], true);
                             if (is_array($persist_checks)) {
                                 foreach ($persist_checks as $pt) {
                                     foreach ($ppt as $k => $pc) {
@@ -767,7 +767,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $notify_flag = false;
                             $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                             foreach ($category_list as $option_category) {
-                                if (stripos($option_category['option_id'], 'repository') !== false) {
+                                if (stripos((string) $option_category['option_id'], 'repository') !== false) {
                                     continue;
                                 }
                                 if ($this_cat === $option_category['option_id']) {
@@ -799,7 +799,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                             echo "</td>";
                             echo "<td>" . text($file['size']) . "</td>";
-                            echo "<td>" . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . "</td>";
+                            echo "<td>" . text(date('m/d/Y H:i:s', strtotime((string) $file['modified_date']))) . "</td>";
                             echo "</tr>";
                             ?>
                             <?php
@@ -908,7 +908,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $template_id = $file['id'];
                             echo '<tr>';
                             /*echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";*/
-                            echo '<td>' . text(ucwords($cat)) . '</td><td>';
+                            echo '<td>' . text(ucwords((string) $cat)) . '</td><td>';
                             echo '<button id="templateEdit' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . '</button>';
                             if ($authUploadTemplates) {
@@ -916,7 +916,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                     '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt('Delete') . '</button>';
                             }
                             echo '<td>' . text($file['size']) . '</td>';
-                            echo '<td>' . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . '</td>';
+                            echo '<td>' . text(date('m/d/Y H:i:s', strtotime((string) $file['modified_date']))) . '</td>';
                             echo '</tr>';
                             ?>
                             <?php
@@ -1009,7 +1009,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
                                     $next_due = xl('Active');
                                 }
-                                echo '<tr><td>' . text(ucwords($cat)) . '</td>';
+                                echo '<tr><td>' . text(ucwords((string) $cat)) . '</td>';
                                 echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
                                 echo '<td>' .
                                     '<button type="button" id="patientEdit' . attr($template_id) .

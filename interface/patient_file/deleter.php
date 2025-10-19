@@ -98,11 +98,11 @@ function decorateString($fmt, $str)
 {
     $res = '';
     while ($fmt) {
-        $fc = substr($fmt, 0, 1);
-        $fmt = substr($fmt, 1);
+        $fc = substr((string) $fmt, 0, 1);
+        $fmt = substr((string) $fmt, 1);
         if ($fc == '.') {
-            $res .= substr($str, 0, 1);
-            $str = substr($str, 1);
+            $res .= substr((string) $str, 0, 1);
+            $str = substr((string) $str, 1);
         } else {
             $res .= $fc;
         }
@@ -134,7 +134,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id): void
 {
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
-    if (str_starts_with($formdir, 'LBF')) {
+    if (str_starts_with((string) $formdir, 'LBF')) {
         row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
         // Delete the visit's "source=visit" attributes that are not used by any other form.
         $where = "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .
@@ -282,7 +282,7 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                $ids = explode(",", $issue);
+                $ids = explode(",", (string) $issue);
                 foreach ($ids as $id) {
                     row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
                     row_delete("lists_medication", "list_id = '" . add_escape_custom($id) . "'");
@@ -302,7 +302,7 @@ function popup_close() {
                     }
                 }
 
-                [$patient_id, $timestamp, $ref_id] = explode(".", $payment);
+                [$patient_id, $timestamp, $ref_id] = explode(".", (string) $payment);
                 // if (empty($ref_id)) $ref_id = -1;
                 $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
                 $payres = sqlStatement("SELECT * FROM payments WHERE " .
@@ -383,7 +383,7 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                [$patient_id, $encounter_id] = explode(".", $billing);
+                [$patient_id, $encounter_id] = explode(".", (string) $billing);
 
                 row_modify(
                     "ar_activity",
@@ -492,7 +492,7 @@ function popup_close() {
                 $type = 'transaction';
             }
 
-            $ids = explode(",", $id);
+            $ids = explode(",", (string) $id);
             if (count($ids) > 1) {
                 $type .= 's';
             }

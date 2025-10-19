@@ -460,7 +460,7 @@ class RuleManager
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $amount = $row['value'];
             $unit = TimeUnit::from($row['method_detail']);
-            $methodParts = explode('_', $row['method']);
+            $methodParts = explode('_', (string) $row['method']);
             $type = ReminderIntervalType::from($methodParts[0]);
             $range = ReminderIntervalRange::from($methodParts[2]);
             if (!is_null($type) && !is_null($range) && !is_null($unit)) {

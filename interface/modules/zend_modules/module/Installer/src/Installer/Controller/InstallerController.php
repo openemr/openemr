@@ -269,7 +269,7 @@ class InstallerController extends AbstractActionController
         $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
         $moduleClassPath = $modPath . '/ModuleManagerListener.php';
         $className = 'ModuleManagerListener';
-        $action = trim($action);
+        $action = trim((string) $action);
 
         // Check if the module class file exists
         if (!file_exists($moduleClassPath)) {
@@ -300,7 +300,7 @@ class InstallerController extends AbstractActionController
                 // Call the module manager action method and return the result
                 // This method is expected to return the current status of the module unless module wishes to override it.
                 // In that case, new text of result will display as alert in UI.
-                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId, $currentStatus);
+                return call_user_func($instance->moduleManagerAction(...), $methodName, $modId, $currentStatus);
             } catch (Exception $e) {
                 error_log('Error calling module manager action: ' . $e->getMessage());
                 return $currentStatus;
@@ -519,7 +519,7 @@ class InstallerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;
-        echo $this->InstallerTable->validateNickName(trim($nickname));
+        echo $this->InstallerTable->validateNickName(trim((string) $nickname));
         exit(0);
     }
 
@@ -905,7 +905,7 @@ class InstallerController extends AbstractActionController
             $div[] = ob_get_contents();
             ob_end_clean();
 
-            if (strlen($version) > 0) {
+            if (strlen((string) $version) > 0) {
                 $values = [$Module->mod_nick_name, $Module->mod_enc_menu];
                 $values[2] = $Module->sql_version;
                 $values[3] = $this->getModuleVersionFromFile($modId);

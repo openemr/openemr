@@ -241,8 +241,8 @@ class ApplicationTable
     public function errorHandler($e, $sql, $binds = '')
     {
         $trace = $e->getTraceAsString();
-        $nLast = strpos($trace, '[internal function]');
-        $trace = substr($trace, 0, ( $nLast - 3 ));
+        $nLast = strpos((string) $trace, '[internal function]');
+        $trace = substr((string) $trace, 0, ( $nLast - 3 ));
         $logMsg = '';
         do {
             $logMsg .= "\r Exception: " . self::escapeHtml($e->getMessage());
@@ -285,7 +285,7 @@ class ApplicationTable
     }
     public function escapeHtml($string)
     {
-        return htmlspecialchars($string, ENT_QUOTES);
+        return htmlspecialchars((string) $string, ENT_QUOTES);
     }
     /*
      * Retrieve the data format from GLOBALS
@@ -323,19 +323,19 @@ class ApplicationTable
 
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
 
-        $temp = explode(' ', $input_date); // split using space and consider the first portion, in case of date with time
+        $temp = explode(' ', (string) $input_date); // split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
 
         $output_format = ApplicationTable::dateFormat($output_format);
         $input_format = ApplicationTable::dateFormat($input_format);
 
-        preg_match("/[^ymd]/", $output_format, $date_seperator_output);
+        preg_match("/[^ymd]/", (string) $output_format, $date_seperator_output);
         $seperator_output = $date_seperator_output[0];
-        $output_date_arr = explode($seperator_output, $output_format);
+        $output_date_arr = explode($seperator_output, (string) $output_format);
 
-        preg_match("/[^ymd]/", $input_format, $date_seperator_input);
+        preg_match("/[^ymd]/", (string) $input_format, $date_seperator_input);
         $seperator_input = $date_seperator_input[0];
-        $input_date_array = explode($seperator_input, $input_format);
+        $input_date_array = explode($seperator_input, (string) $input_format);
 
         preg_match("/[^1234567890]/", $input_date, $date_seperator_input);
         $seperator_input = $date_seperator_input[0];

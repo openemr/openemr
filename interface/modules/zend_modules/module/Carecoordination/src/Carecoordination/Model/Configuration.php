@@ -35,7 +35,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     * Automatic Tranfer settings
     */
         $this->add([
-        'type' => 'Laminas\Form\Element\Checkbox',
+        'type' => \Laminas\Form\Element\Checkbox::class,
             'name' => 'hie_auto_send_id',
             'attributes'    => [
                     'id'        => 'hie_auto_send_id'
@@ -52,7 +52,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_author_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -71,7 +71,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_data_enterer_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -90,7 +90,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_informant_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -123,7 +123,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_custodian_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -142,7 +142,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_recipient_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -161,7 +161,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_legal_authenticator_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -180,7 +180,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_authenticator_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -199,7 +199,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_primary_care_provider_id',
-        'type'      => 'Laminas\Form\Element\Select',
+        'type'      => \Laminas\Form\Element\Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
