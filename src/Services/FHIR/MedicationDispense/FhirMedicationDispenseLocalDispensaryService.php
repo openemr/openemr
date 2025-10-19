@@ -106,7 +106,8 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         $this->codeTypesService = $service;
     }
 
-    public function getFhirOrganizationService(): FhirOrganizationService {
+    public function getFhirOrganizationService(): FhirOrganizationService
+    {
         if (!isset($this->fhirOrganizationService)) {
             $this->fhirOrganizationService = new FhirOrganizationService();
         }

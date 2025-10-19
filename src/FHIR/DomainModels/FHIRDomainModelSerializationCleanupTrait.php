@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FHIRDomainModelSerializationCleanupTrait.php
  * @package openemr
@@ -10,8 +11,8 @@
 
 namespace OpenEMR\FHIR\DomainModels;
 
-trait FHIRDomainModelSerializationCleanupTrait {
-
+trait FHIRDomainModelSerializationCleanupTrait
+{
     public function jsonSerialize(): array
     {
         $json = parent::jsonSerialize();

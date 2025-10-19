@@ -1,4 +1,5 @@
 <?php
+
 /*
  * OpenEMRFHIRDosage.php  Extends FHIRDosage to cleanup the resource type on serialization
  * as it doesn't conform to the FHIR spec to have resourceType in in this object
@@ -14,8 +15,8 @@ namespace OpenEMR\FHIR\DomainModels;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 
-class OpenEMRFHIRTiming extends FHIRTiming {
-
+class OpenEMRFHIRTiming extends FHIRTiming
+{
     use FHIRDomainModelSerializationCleanupTrait;
 
     public function __construct($data = [])

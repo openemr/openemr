@@ -78,8 +78,21 @@ function sellDrug(
     $selector = ''
 ) {
     $drugSalesService = new DrugSalesService();
-    return $drugSalesService->sellDrug($drug_id, $quantity, $fee, $patient_id, $encounter_id, $prescription_id
-        , $sale_date, $user, $default_warehouse,$testonly, $expiredlots, $pricelevel, $selector);
+    return $drugSalesService->sellDrug(
+        $drug_id,
+        $quantity,
+        $fee,
+        $patient_id,
+        $encounter_id,
+        $prescription_id,
+        $sale_date,
+        $user,
+        $default_warehouse,
+        $testonly,
+        $expiredlots,
+        $pricelevel,
+        $selector
+    );
 }
 
 // Determine if facility and warehouse restrictions are applicable for this user.
