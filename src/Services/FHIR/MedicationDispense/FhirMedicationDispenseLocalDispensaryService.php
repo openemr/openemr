@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\MedicationDispense;
 
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -23,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationDispense\FHIRMedicationDispensePerformer;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
@@ -291,7 +293,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         if (!empty($primaryBusinessEntity)) {
             $performer = new FHIRMedicationDispensePerformer();
             $performer->setActor($primaryBusinessEntity);
-            $medicationDispenseResource->addPerformer($primaryBusinessEntity);
+            $medicationDispenseResource->addPerformer($performer);
         }
 
         // AuthorizingPrescription (mustSupport) - reference to prescription
@@ -366,15 +368,23 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $parsedCode = $codeTypesService->parseCode($dataRecord['rxnorm_code']);
             $system = $codeTypesService->getSystemForCodeType($parsedCode['code_type']);
             $codedesc = $codeTypesService->lookup_code_description($dataRecord['rxnorm_code']);
-            $coding = UtilsService::createCoding($parsedCode['code'], $codedesc, $system);
-            $medicationConcept->addCoding($coding);
+            $codedesc = !empty($codedesc) ? $codedesc : $dataRecord['drug_name'];
+            // per spec coding is not allowed to be empty
+            if (!empty($codedesc)) {
+                $coding = UtilsService::createCoding($parsedCode['code'], $codedesc, $system);
+                $medicationConcept->addCoding($coding);
+            }
         }
         // ndc_number does not have the NDC prefix
         if (!empty($dataRecord['ndc_number'])) {
             // if we have the NDC database installed we'll use the code description from there
             $codedesc = $codeTypesService->lookup_code_description(CodeTypesService::CODE_TYPE_NDC . ":" . $dataRecord['ndc_number']);
-            $coding = UtilsService::createCoding($dataRecord['ndc_number'], $codedesc ?? '', FhirCodeSystemConstants::NDC);
-            $medicationConcept->addCoding($coding);
+            $codedesc = !empty($codedesc) ? $codedesc : $dataRecord['drug_name'];
+            // per spec coding is not allowed to be empty
+            if (!empty($codedesc)) {
+                $coding = UtilsService::createCoding($dataRecord['ndc_number'], $codedesc ?? '', FhirCodeSystemConstants::NDC);
+                $medicationConcept->addCoding($coding);
+            }
         }
         // if we have no concepts or a name... bad data and we'll create a DataAbsentUnknown
         if (empty($medicationConcept->getCoding())) {
@@ -453,12 +463,16 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                 ]
             ]);
             $intervalConcept->setText($dataRecord['interval_notes'] ?? $dataRecord['interval_title']);
-            $dosage->setTiming($intervalConcept);
+            $fhirTiming = new OpenEMRFHIRTiming();
+            $fhirTiming->setCode($intervalConcept);
+            $dosage->setTiming($fhirTiming);
         } else if (!empty($dataRecord['interval_notes'])) {
             // if we have notes but no corresponding code, just set the text
             $intervalConcept = new FHIRCodeableConcept();
             $intervalConcept->setText($dataRecord['interval_notes']);
-            $dosage->setTiming($intervalConcept);
+            $fhirTiming = new OpenEMRFHIRTiming();
+            $fhirTiming->setCode($intervalConcept);
+            $dosage->setTiming($fhirTiming);
         }
 
         if (!empty($dataRecord['prescription_drug_size']) && is_numeric($dataRecord['prescription_drug_size'])) {

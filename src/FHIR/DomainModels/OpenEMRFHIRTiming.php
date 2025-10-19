@@ -12,8 +12,9 @@
 namespace OpenEMR\FHIR\DomainModels;
 
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 
-class OpenEMRFHIRDosage extends FHIRDosage {
+class OpenEMRFHIRTiming extends FHIRTiming {
 
     use FHIRDomainModelSerializationCleanupTrait;
 
