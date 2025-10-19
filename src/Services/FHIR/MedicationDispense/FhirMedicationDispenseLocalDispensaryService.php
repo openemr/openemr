@@ -428,9 +428,13 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             ]);
             $intervalConcept->setText($dataRecord['interval_notes'] ?? $dataRecord['interval_title']);
             $dosage->setTiming($intervalConcept);
+        } else if (!empty($dataRecord['interval_notes'])) {
+            // if we have notes but no corresponding code, just set the text
+            $intervalConcept = new FHIRCodeableConcept();
+            $intervalConcept->setText($dataRecord['interval_notes']);
+            $dosage->setTiming($intervalConcept);
         }
 
-        // TODO: @adunsulag we really need dosage to be a numeric quantity this feels like a hack
         if (!empty($dataRecord['prescription_drug_size'])) { // amount of units per dose
             $doseQuantity = UtilsService::createQuantity($dataRecord['prescription_drug_size'], $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
             $doseAndRate = new FHIRDosageDoseAndRate();
