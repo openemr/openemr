@@ -452,6 +452,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         // simple prescriptions will put the entire SIG in the dosage field
         if (!empty($dataRecord['dosage']) && !is_numeric($dataRecord['dosage'])) {
             $dosage->setText($dataRecord['dosage']);
+            // TODO: @adunsulag if we have a SIG text should we just return it even if we might have some structured data?
         }
         // Dose and Rate
         if (!empty($dataRecord['interval_codes'])) {

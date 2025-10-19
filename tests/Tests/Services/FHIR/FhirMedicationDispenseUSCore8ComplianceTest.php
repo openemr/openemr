@@ -21,6 +21,7 @@ use OpenEMR\Services\FHIR\FhirMedicationDispenseService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Tests\Fixtures\MedicationDispenseFixtureManager;
 use PHPUnit\Framework\TestCase;
@@ -300,11 +301,8 @@ class FhirMedicationDispenseUSCore8ComplianceTest extends TestCase
         $dateTimeValue = $whenHandedOver->getValue();
         $this->assertNotEmpty($dateTimeValue);
 
-        // Should be valid ISO 8601 format
-        $this->assertMatchesRegularExpression(
-            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(\+00:00|Z)$/',
-            $dateTimeValue
-        );
+        $dateTime = \DateTime::createFromFormat(DATE_ATOM, $dateTimeValue);
+        $this->assertNotFalse($dateTime, "whenHandedOver should be valid FHIR dateTime format");
     }
 
 //    /**
