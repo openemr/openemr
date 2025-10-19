@@ -26,6 +26,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationDispense\FHIRMedicationDispensePe
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
@@ -63,6 +64,9 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     private DrugSalesService $drugSalesService;
 
     private CodeTypesService $codeTypesService;
+
+    private FhirOrganizationService $fhirOrganizationService;
+
     // Status mapping from drug_sales trans_type
     const STATUS_MAPPING = [
         1 => 'completed',      // sale
@@ -98,6 +102,18 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     public function setCodeTypesService(CodeTypesService $service): void
     {
         $this->codeTypesService = $service;
+    }
+
+    public function getFhirOrganizationService(): FhirOrganizationService {
+        if (!isset($this->fhirOrganizationService)) {
+            $this->fhirOrganizationService = new FhirOrganizationService();
+        }
+        return $this->fhirOrganizationService;
+    }
+
+    public function setFhirOrganizationService(FhirOrganizationService $service): void
+    {
+        $this->fhirOrganizationService = $service;
     }
 
     public function getDrugSalesService(): DrugSalesService
@@ -243,7 +259,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         $status = $this->mapStatus($dataRecord['trans_type']);
         $medicationDispenseResource->setStatus($status);
 
-        // TODO: @adunsulag I think we want to point this to the Medication resource
+        // TODO: @adunsulag I think we may want to point this to the Medication resource
         // Medication (required) - prefer RxNorm, fallback to NDC, then text
         $medication = $this->mapMedication($dataRecord);
         $medicationDispenseResource->setMedicationCodeableConcept($medication);
@@ -268,6 +284,14 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $performer = new FHIRMedicationDispensePerformer();
             $performer->setActor($performerReference);
             $medicationDispenseResource->addPerformer($performer);
+        }
+
+        $fhirOrganizationService = $this->getFhirOrganizationService();
+        $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
+        if (!empty($primaryBusinessEntity)) {
+            $performer = new FHIRMedicationDispensePerformer();
+            $performer->setActor($primaryBusinessEntity);
+            $medicationDispenseResource->addPerformer($primaryBusinessEntity);
         }
 
         // AuthorizingPrescription (mustSupport) - reference to prescription
@@ -337,17 +361,19 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         $codeTypesService = $this->getCodeTypesService();
 
         // RxNorm should come first
-        $drugCodes = ['rxnorm_code', 'ndc_number'];
-        foreach ($drugCodes as $drugCode) {
-            if (empty($dataRecord[$drugCode])) {
-                continue;
-            }
-            $parsedCode = $codeTypesService->parseCode($dataRecord[$drugCode]);
+        if (!empty($dataRecord['rxnorm_code'])) {
+            // rxnorm_code will have the RXCUI prefix
+            $parsedCode = $codeTypesService->parseCode($dataRecord['rxnorm_code']);
             $system = $codeTypesService->getSystemForCodeType($parsedCode['code_type']);
-            $coding = new FHIRCoding();
-            $coding->setSystem($system);
-            $coding->setCode($parsedCode['code']);
-            $coding->setDisplay($dataRecord['drug_name']);
+            $codedesc = $codeTypesService->lookup_code_description($dataRecord['rxnorm_code']);
+            $coding = UtilsService::createCoding($parsedCode['code'], $codedesc, $system);
+            $medicationConcept->addCoding($coding);
+        }
+        // ndc_number does not have the NDC prefix
+        if (!empty($dataRecord['ndc_number'])) {
+            // if we have the NDC database installed we'll use the code description from there
+            $codedesc = $codeTypesService->lookup_code_description(CodeTypesService::CODE_TYPE_NDC . ":" . $dataRecord['ndc_number']);
+            $coding = UtilsService::createCoding($dataRecord['ndc_number'], $codedesc ?? '', FhirCodeSystemConstants::NDC);
             $medicationConcept->addCoding($coding);
         }
         // if we have no concepts or a name... bad data and we'll create a DataAbsentUnknown
