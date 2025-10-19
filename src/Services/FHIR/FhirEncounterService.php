@@ -309,13 +309,12 @@ class FhirEncounterService extends FhirServiceBase implements
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($searchParam): ProcessingResult
     {
-        return $this->encounterService->search($searchParam, true, $puuidBind);
+        return $this->encounterService->search($searchParam, true);
     }
 
     /**

@@ -29,6 +29,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -142,6 +143,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {

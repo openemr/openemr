@@ -22,6 +22,7 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
@@ -147,6 +148,10 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
     // patient_data observations currently are the following:
     // occupation, industry
     // sexual_orientation
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
 
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {

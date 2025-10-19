@@ -121,16 +121,11 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param ISearchField $openEMRSearchParameters OpenEMR search fields
-     * @param string|null $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult OpenEMR records
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, ?string $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        if (!empty($puuidBind)) {
-            $puuidSearch = $this->getPatientContextSearchField();
-            $openEMRSearchParameters[$puuidSearch->getName()] = $puuidSearch;
-        }
         // we grab the records and grab any children records and populate them if we have them.
         return $this->observationService->searchAndPopulateChildObservations($openEMRSearchParameters);
     }

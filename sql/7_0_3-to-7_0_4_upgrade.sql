@@ -109,6 +109,10 @@
 --    desc: Change date from zeroes to date of vitals form creation.
 --    arguments: none
 
+--  #IfMBOEncounterNeeded
+--    desc: Add encounter to the form_misc_billing_options table
+--    arguments: none
+
 #IfMissingColumn onetime_auth scope
 ALTER TABLE `onetime_auth` ADD `scope` tinytext COMMENT 'context scope for this token';
 #EndIf
@@ -1415,7 +1419,6 @@ ALTER TABLE `issue_encounter` ADD COLUMN `created_at` DATETIME DEFAULT CURRENT_T
 ALTER TABLE `issue_encounter` ADD COLUMN `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated';
 #EndIf
 
-
 #IfNotRow list_options list_id administrative_sex
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','administrative_sex','Administrative Sex',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1021.121 (expansive)',1);
@@ -1477,6 +1480,17 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','interpreter_needed',@group_id,'Interpreter',@seq_add_to+5,1,1,20,0,'yes_no_unknown',1,1,'UNK','interpreter_needed',"Interpreter needed?",1,'','','',0,'');
 #Endif
+
+#IfMissingColumn form_misc_billing_options encounter
+ALTER TABLE `form_misc_billing_options` ADD `encounter` BIGINT(20) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex form_misc_billing_options encounter
+ALTER TABLE `form_misc_billing_options` ADD UNIQUE `encounter` (`encounter`);
+#EndIf
+
+#IfMBOEncounterNeeded
+#EndIf
 
 #IfMissingColumn drug_sales uuid
 ALTER TABLE `drug_sales` ADD COLUMN `uuid` binary(16) DEFAULT NULL COMMENT 'UUID for this drug sales record, for data exchange purposes';

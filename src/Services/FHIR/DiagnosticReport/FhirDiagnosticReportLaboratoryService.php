@@ -191,9 +191,8 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {

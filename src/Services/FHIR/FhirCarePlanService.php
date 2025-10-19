@@ -143,13 +143,12 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->service->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->service->search($openEMRSearchParameters, true);
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)

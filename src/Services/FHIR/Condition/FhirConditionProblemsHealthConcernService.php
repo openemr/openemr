@@ -28,6 +28,7 @@ use OpenEMR\Services\FHIR\Traits\MappedServiceCategoryTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -119,11 +120,10 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
      * Searches for OpenEMR records using OpenEMR search parameters
      * This handles problem list items and health concerns (NOT linked to specific encounters)
      *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         // This query finds conditions that are NOT linked to specific encounters via issue_encounter
         // These represent ongoing problems/health concerns rather than encounter-specific diagnoses
