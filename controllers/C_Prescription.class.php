@@ -16,6 +16,7 @@
 
 require_once($GLOBALS['fileroot'] . "/library/registry.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
+require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -40,7 +41,7 @@ class C_Prescription extends Controller
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
-        $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
+        $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions'] === '1');
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
         $this->RxList = new RxList();
         // test if rxnorm available for lookups.
@@ -92,9 +93,13 @@ class C_Prescription extends Controller
                     js_escape($row['drug_code'])  . "]";    //  11 rxnorm drug code
             }
 
+            $this->assign("dispenseEnabled", true);
+            $this->assign("defaultPharmacySupplyType", "FF");
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
             $this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);
             $this->assign("DRUG_ATTRIBUTES", $drug_attributes);
+
+            // add in the pharmacy dispense type
         }
     }
 
@@ -133,6 +138,13 @@ class C_Prescription extends Controller
         // default value.
         if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
+        }
+        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $_SESSION['encounter'] ?? '';
+        $this->assign("defaultEncounterId", $defaultEncounterId);
+
+        // if we are no a prescription with a drug id, disable the dispense button
+        if (empty($this->prescriptions[0]->get_drug_id())) {
+            $this->assign("dispenseEnabled", false);
         }
 
         $this->default_action();
@@ -293,18 +305,6 @@ class C_Prescription extends Controller
         $_POST['process'] = "";
 
         $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
-
-        // If the "Prescribe and Dispense" button was clicked, then
-        // redisplay as in edit_action() but also replicate the fee and
-        // include a piece of javascript to call dispense().
-        //
-        if (!empty($_POST['disp_button'])) {
-            $this->assign("DISP_QUANTITY", $_POST['disp_quantity']);
-            $this->assign("DISP_FEE", $_POST['disp_fee']);
-            $this->assign("ENDING_JAVASCRIPT", "dispense();");
-            $this->_state = false;
-            return $this->edit_action($this->prescriptions[0]->id);
-        }
 
     // Set the AMC reporting flag (to record percentage of prescriptions that
     // are set as e-prescriptions)

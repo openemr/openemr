@@ -138,7 +138,7 @@ class FhirMedicationDispenseUSCore8ComplianceTest extends TestCase
     {
         // Test RxNorm coding
         $testRecord = $this->fixtureManager->createDrugSaleDispense([
-            'rxnorm_code' => '308192',
+            'rxnorm_code' => 'RXCUI:308192',
             'drug_name' => 'Amoxicillin 500mg'
         ]);
 

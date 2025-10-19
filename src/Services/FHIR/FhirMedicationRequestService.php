@@ -319,68 +319,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     private function populateRouteOptions($dataRecord, FHIRDosage $dosage)
     {
-        // the route information isn't populated via the e-perscribe option or medication list anywhere as far
-        // as I can tell and the FHIR code was using drug route options from the National Cancer Institute which
-        // FHIR US-Core suggests we use SNOMED-CT values found here: http://hl7.org/fhir/R4/valueset-route-codes.html
-        // if we end up needing these for certification / testing I've left the SQL that would need to be populated
-        // here as well as the FHIR code
-        /**
-         * UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38288" WHERE list_id='drug_route' AND option_id=1;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38288" WHERE list_id='drug_route' AND option_id=6;
-
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C3829" WHERE list_id='drug_route' AND option_id=2;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38675" WHERE list_id='drug_route' AND option_id=3;
-
-        -- it looks like 4,7,17,and 21 are empty... not sure why
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38300" WHERE list_id='drug_route' AND option_id=5;
-        -- again  7 is empty, not sure why
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38287" WHERE list_id='drug_route' AND option_id=8;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38299" WHERE list_id='drug_route' AND option_id=9;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C28161" WHERE list_id='drug_route' AND option_id=10;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38276" WHERE list_id='drug_route' AND option_id=11;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38284" WHERE list_id='drug_route' AND option_id=12;
-        -- Not sure why 13,14,15 are duplicates
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38192" WHERE list_id='drug_route' AND option_id=13;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38192" WHERE list_id='drug_route' AND option_id=14;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38192" WHERE list_id='drug_route' AND option_id=15;
-
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38238" WHERE list_id='drug_route' AND option_id=16;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38290" WHERE list_id='drug_route' AND option_id=18;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38305" WHERE list_id='drug_route' AND option_id=19;
-        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C28161" WHERE list_id='drug_route' AND option_id=20;
-         */
-//            if (!empty($dataRecord['route'])) {
-//
-//                list($routeValue, $routeCode) = [
-//                    '0' => ['', ''],
-//                    '1' => ['ORAL', 'C38288'],
-//                    '2' => ['RECTAL', 'C38295'],
-//                    '3' => ['CUTANEOUS', 'C38675'],
-//                    '4' => ['To Affected Area', ''],
-//                    '5' => ['SUBLINGUAL', 'C38300'],
-//                    '6' => ['ORAL', 'C38288'],
-//                    '7' => ['OD', ''],
-//                    '8' => ['OPHTHALMIC', 'C38287'],
-//                    '9' => ['SUBCUTANEOUS', 'C38299'],
-//                    '10' => ['INTRAMUSCULAR', 'C28161'],
-//                    '11' => ['INTRAVENOUS', 'C38276'],
-//                    '12' => ['NASAL', 'C38284'],
-//                    '13' => ['AURICULAR (OTIC)', 'C38192'],
-//                    '14' => ['AURICULAR (OTIC)', 'C38192'],
-//                    '15' => ['AURICULAR (OTIC)', 'C38192'],
-//                    '16' => ['INTRADERMAL', 'C38238'],
-//                    '18' => ['OTHER', 'C38290'],
-//                    '19' => ['TRANSDERMAL', 'C38305'],
-//                    '20' => ['INTRAMUSCULAR', 'C28161'],
-//                ][$dataRecord['route']] ?? ['', ''];
-//                $route = new FHIRCodeableConcept();
-//                $routeCoding = new FHIRCoding();
-//                $routeCoding->setSystem(FhirCodeSystemConstants::NCIMETA_NCI_NIH);
-//                $routeCoding->setCode($routeCode);
-//                $routeCoding->setDisplay($routeValue);
-//                $route->addCoding($routeCoding);
-//                $dosage->setRoute($route);
-//            }
+        // TODO: populate this in next PR
     }
 
     /**

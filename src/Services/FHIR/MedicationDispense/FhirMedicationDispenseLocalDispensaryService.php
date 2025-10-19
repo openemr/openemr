@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\MedicationDispense;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
@@ -19,9 +20,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMedicationDispenseStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -38,6 +42,7 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -56,6 +61,9 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
 
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationdispense";
 
+    private DrugSalesService $drugSalesService;
+
+    private CodeTypesService $codeTypesService;
     // Status mapping from drug_sales trans_type
     const STATUS_MAPPING = [
         1 => 'completed',      // sale
@@ -80,6 +88,104 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         parent::__construct();
     }
 
+    public function getCodeTypesService(): CodeTypesService
+    {
+        if (!isset($this->codeTypesService)) {
+            $this->codeTypesService = new CodeTypesService();
+        }
+        return $this->codeTypesService;
+    }
+
+    public function setCodeTypesService(CodeTypesService $service): void
+    {
+        $this->codeTypesService = $service;
+    }
+
+    public function getDrugSalesService(): DrugSalesService
+    {
+        if (!isset($this->drugSalesService)) {
+            $this->drugSalesService = new DrugSalesService();
+        }
+        return $this->drugSalesService;
+    }
+
+    public function setDrugSalesService(DrugSalesService $service): void
+    {
+        $this->drugSalesService = $service;
+    }
+
+    public function getDispensedMedicationSummaryForEncounter(string $patientUuid, string $encounterUuid): array
+    {
+        $medications = [];
+        $meds = $this->getAll(['patient' => $patientUuid, 'context' => $encounterUuid]);
+        if ($meds->hasData()) {
+            /**
+             * @var FHIRMedicationDispense $fhirResource
+             */
+            foreach ($meds->getData() as $fhirResource) {
+                /**
+                 * @var \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense $fhirResource
+                 */
+                // dosageInstructions may be text or coded, so we will try to get text first
+                // and if not present, look for coded dosage instruction
+                // for coded we will create a text narrative
+                // Dose: {value} {unit} {timing} {route} {additionalInstructions}
+                $instructions = [];
+                foreach ($fhirResource->getDosageInstruction() as $fhirDosage) {
+                    $dosageText = $fhirDosage->getText();
+                    if (empty($dosageText)) {
+                        $dosageText = 'Dose: ';
+                        $doseQuantity = $fhirDosage->getDoseAndRate()[0]->getDoseQuantity();
+                        if ($doseQuantity) {
+                            $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
+                        }
+                        $timing = $fhirDosage->getTiming();
+                        if ($timing) {
+                            $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
+                        }
+                        $route = $fhirDosage->getRoute();
+                        if ($route) {
+                            $dosageText .= ' via ' . $route->getCoding()[0]->getDisplay() . ' ';
+                        }
+                        $additionalInstructions = $fhirDosage->getAdditionalInstruction();
+                        if ($additionalInstructions) {
+                            $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
+                        }
+                    }
+                    $instructions[] = trim($dosageText);
+                }
+
+                $medicationName = $fhirResource->getMedicationCodeableConcept()->getText() ?? xl("Unknown Medication");
+                $quantity = $fhirResource->getQuantity()->getValue();
+                $quantityUnits = $fhirResource->getQuantity()->getUnit();
+                $dosageInstructions = implode("\n", $instructions);
+                $medications[] = [
+                    'medicationName' => $medicationName,
+                    'quantity' => $quantity,
+                    'quantityUnits' => $quantityUnits,
+                    'dispensedDate' => $fhirResource->getWhenHandedOver()->getValue(),
+                    'supplyType' => $fhirResource->getType() ? $fhirResource->getType()->getCoding()[0]->getDisplay() : '',
+                    'dosageInstructions' => $dosageInstructions,
+                    'status' => $fhirResource->getStatus() ?? 'unknown'
+                ];
+            }
+        } else {
+            if (!empty($meds->getValidationMessages())) {
+                // log validation messages
+                $this->getSystemLogger()->warning("FhirMedicationDispenseLocalDispensaryService->getDispensedMedicationSummaryForEncounter() validation messages", [
+                    'messages' => $meds->getValidationMessages()
+                ]);
+            }
+            if ($meds->getInternalErrors()) {
+                // log internal errors
+                $this->getSystemLogger()->error("FhirMedicationDispenseLocalDispensaryService->getDispensedMedicationSummaryForEncounter() internal errors", [
+                    'errors' => $meds->getInternalErrors()
+                ]);
+            }
+        }
+        return $medications;
+    }
+
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
@@ -89,9 +195,16 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             'patient' => $this->getPatientContextSearchField(),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['status']),
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['type']),
+            // 'encounter' search parameter, not part of US-Core but used internally
+            'context' => new FhirSearchParameterDefinition('context', SearchFieldType::TOKEN, [new ServiceField('encounter_uuid', ServiceField::TYPE_UUID)]),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('patient_uuid', ServiceField::TYPE_UUID)]);
     }
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
@@ -104,77 +217,15 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        $sql = "SELECT
-                    ds.uuid,
-                    ds.sale_id,
-                    ds.drug_id,
-                    ds.inventory_id,
-                    ds.prescription_id,
-                    ds.pid as patient_id,
-                    ds.encounter,
-                    ds.user,
-                    ds.sale_date,
-                    ds.quantity,
-                    ds.fee,
-                    ds.billed,
-                    ds.trans_type,
-                    ds.notes,
-                    ds.bill_date,
-                    ds.selector,
-                    d.name as drug_name,
-                    d.ndc_number,
-                    d.drug_code as rxnorm_code,
-                    d.form as drug_form,
-                    d.size as drug_size,
-                    d.unit as drug_unit,
-                    d.route as drug_route,
-                    di.lot_number,
-                    di.expiration,
-                    p.uuid as prescription_uuid,
-                    pd.uuid as patient_uuid,
-                    fe.uuid as encounter_uuid,
-                    pr.dosage,
-                    pr.route as prescription_route,
-                    pr.interval as prescription_interval,
-                    pr.refills,
-                    pr.note as prescription_note
-                FROM drug_sales ds
-                LEFT JOIN drugs d ON ds.drug_id = d.drug_id
-                LEFT JOIN drug_inventory di ON ds.inventory_id = di.inventory_id
-                LEFT JOIN prescriptions p ON ds.prescription_id = p.id
-                LEFT JOIN patient_data pd ON ds.pid = pd.pid
-                LEFT JOIN form_encounter fe ON ds.encounter = fe.encounter
-                LEFT JOIN prescriptions pr ON ds.prescription_id = pr.id
-                WHERE ds.trans_type IN (1, 3, 4, 5)"; // Only include sales, returns, transfers, adjustments
-
-        $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters);
-        $sql .= $whereClause->getFragment();
-        $sqlBindArray = $whereClause->getBoundValues();
-
-        $sql .= " ORDER BY ds.sale_date DESC";
-
-        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-        $processingResult = new ProcessingResult();
-        while ($row = QueryUtils::fetchArrayFromResultSet($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $row['patient_uuid'] = UuidRegistry::uuidToString($row['patient_uuid']);
-            if ($row['prescription_uuid']) {
-                $row['prescription_uuid'] = UuidRegistry::uuidToString($row['prescription_uuid']);
-            }
-            if ($row['encounter_uuid']) {
-                $row['encounter_uuid'] = UuidRegistry::uuidToString($row['encounter_uuid']);
-            }
-
-            $processingResult->addData($row);
-        }
-
-        return $processingResult;
+        // we only want sales transactions (which in this case is a dispense event)
+        $openEMRSearchParameters['trans_type'] = new TokenSearchField("trans_type", ["1"]);
+        return $this->getDrugSalesService()->search($openEMRSearchParameters);
     }
 
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR MedicationDispense Resource
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRMedicationDispense|string
     {
         $medicationDispenseResource = new FHIRMedicationDispense();
 
@@ -223,8 +274,9 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         $medicationDispenseResource->setType($type);
 
         // Quantity (mustSupport)
+        $unit = $dataRecord['unit_title'] ?? '';
         if (!empty($dataRecord['quantity'])) {
-            $quantity = UtilsService::createQuantity($dataRecord['quantity'], $dataRecord['drug_unit'] ?? 'unit', $dataRecord['drug_unit'] ?? 'unit');
+            $quantity = UtilsService::createQuantity($dataRecord['quantity'], $unit, $unit);
             $medicationDispenseResource->setQuantity($quantity);
         }
 
@@ -236,6 +288,10 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         }
 
         // Dosage instructions if available
+        // text -> prescription.drug_dosage_instructions
+        // route -> prescription.prescription_route || drug.drug_route
+        // timing -> prescription.interval (list_options)
+        // doseAndRate -> prescription.dosage
         if (!empty($dataRecord['dosage']) || !empty($dataRecord['prescription_route'])) {
             $dosage = $this->mapDosageInstruction($dataRecord);
             if ($dosage) {
@@ -245,7 +301,8 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
 
         // Note if available
         if (!empty($dataRecord['notes'])) {
-            $note = UtilsService::createAnnotation($dataRecord['notes']);
+            $note = new FHIRAnnotation();
+            $note->setText($dataRecord['note']);
             $medicationDispenseResource->addNote($note);
         }
 
@@ -270,25 +327,31 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     private function mapMedication(array $dataRecord): FHIRCodeableConcept
     {
         $medicationConcept = new FHIRCodeableConcept();
+        $codeTypesService = $this->getCodeTypesService();
 
-        // Prefer RxNorm code
-        if (!empty($dataRecord['rxnorm_code'])) {
-            $rxnormCoding = new FHIRCoding();
-            $rxnormCoding->setSystem(FhirCodeSystemConstants::RXNORM);
-            $rxnormCoding->setCode($dataRecord['rxnorm_code']);
-            $rxnormCoding->setDisplay($dataRecord['drug_name']);
-            $medicationConcept->addCoding($rxnormCoding);
+        // RxNorm should come first
+        $drugCodes = ['rxnorm_code', 'ndc_number'];
+        foreach ($drugCodes as $drugCode) {
+            if (empty($dataRecord[$drugCode])) {
+                continue;
+            }
+            $parsedCode = $codeTypesService->parseCode($dataRecord[$drugCode]);
+            $system = $codeTypesService->getSystemForCodeType($parsedCode['code_type']);
+            $coding = new FHIRCoding();
+            $coding->setSystem($system);
+            $coding->setCode($parsedCode['code']);
+            $coding->setDisplay($dataRecord['drug_name']);
+            $medicationConcept->addCoding($coding);
         }
-
-        // Add NDC code if available
-        if (!empty($dataRecord['ndc_number'])) {
-            $ndcCoding = new FHIRCoding();
-            $ndcCoding->setSystem('http://hl7.org/fhir/sid/ndc');
-            $ndcCoding->setCode($dataRecord['ndc_number']);
-            $ndcCoding->setDisplay($dataRecord['drug_name']);
-            $medicationConcept->addCoding($ndcCoding);
+        // if we have no concepts or a name... bad data and we'll create a DataAbsentUnknown
+        if (empty($medicationConcept->getCoding())) {
+            // No codes found, use the title with no coding
+            if (!empty($dataRecord['drug_name'])) {
+                $medicationConcept->setText($dataRecord['drug_name']);
+            } else {
+                $medicationConcept = UtilsService::createDataAbsentUnknownCodeableConcept();
+            }
         }
-
         // Always include text description
         if (!empty($dataRecord['drug_name'])) {
             $medicationConcept->setText($dataRecord['drug_name']);
@@ -304,15 +367,8 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     {
         $typeConcept = new FHIRCodeableConcept();
 
-        // Default to Final Fill if no specific type
+        // Default to First Fill if no specific type
         $typeCode = 'FF';
-
-        // Could be extracted from selector field or other business logic
-        if (!empty($dataRecord['selector'])) {
-            // Parse selector for type information if needed
-            $typeCode = 'FF'; // Default for now
-        }
-
         $typeCoding = new FHIRCoding();
         $typeCoding->setSystem('http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType');
         $typeCoding->setCode($typeCode);
@@ -328,15 +384,13 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     private function getTypeDisplay(string $code): string
     {
         $displays = [
-            'FF' => 'Final Fill',
-            'PF' => 'Partial Fill',
+            'FF' => 'First Fill',
             'EM' => 'Emergency Fill',
             'TF' => 'Trial Fill',
-            'RF' => 'Refill',
-            'DF' => 'Default Fill'
+            'RF' => 'Refill'
         ];
 
-        return $displays[$code] ?? 'Final Fill';
+        return $displays[$code] ?? 'First Fille';
     }
 
     /**
@@ -349,6 +403,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         }
 
         $dosage = new FHIRDosage();
+        // need to support text 0..1, timing 0..1, route 0..1, doseAndRate 0..*
 
         // Text instruction
         if (!empty($dataRecord['dosage'])) {
@@ -356,12 +411,15 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         }
 
         // Route if available
-        if (!empty($dataRecord['prescription_route']) || !empty($dataRecord['drug_route'])) {
-            $route = $dataRecord['prescription_route'] ?? $dataRecord['drug_route'];
-            $routeConcept = new FHIRCodeableConcept();
-            $routeConcept->setText($route);
-            $dosage->setRoute($routeConcept);
+        if (!empty($dataRecord['route_codes'])) {
+            $codeTypesService = $this->getCodeTypesService();
+            $parsedCodes = $codeTypesService->parseCodesIntoCodeableConcepts($dataRecord['route_codes']);
+            $route = UtilsService::createCodeableConcept($parsedCodes);
+        } else {
+            $route = new FHIRCodeableConcept();
         }
+        $route->setText($dataRecord['route_title']);
+        $dosage->setRoute($route);
 
         return $dosage;
     }

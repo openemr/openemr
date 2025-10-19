@@ -193,6 +193,7 @@ class Prescription extends ORDataObject
             $this->created_by = $_SESSION['authUserID'];
             $this->updated_by = $_SESSION['authUserID'];
             $this->per_refill = 0;
+            $this->encounter = $_SESSION['encounter'];
             $this->note = "";
 
             $this->drug_id = 0;
@@ -279,7 +280,10 @@ class Prescription extends ORDataObject
 
     function get_encounter()
     {
-        return $_SESSION['encounter'];
+        // this originally was the $_SESSION['encounter'] which seems really dangerous if a prescription is created when
+        // one encounter is open in the session and then the prescription has any updates to the original prescription when another encounter is open in the session
+        // so this value is now going to be set when the prescription is created and then remain static for that prescription
+        return $this->encounter;
     }
 
     function get_unit_display($display_form = "")
@@ -636,6 +640,12 @@ class Prescription extends ORDataObject
     {
         $this->note = $note;
     }
+
+    public function set_drug_dosage_instructions(?string $instructions): void
+    {
+        $this->note = $instructions;
+    }
+
     function get_note()
     {
         return $this->note;

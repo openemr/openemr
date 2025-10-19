@@ -25,6 +25,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\OeUI\RenderFormFieldHelper;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -126,6 +127,45 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     $include_inactive = array_key_exists('include_inactive', $opts) ? $opts['include_inactive'] : '';
                     $tabIndex = array_key_exists('tabIndex', $opts) ? $opts['tabIndex'] : false;
                     return generate_select_list($name, $list, $value, $title, $empty_name, $class, $onchange, $tag_id, $custom_attributes, $multiple, $backup_list, $ignore_default, $include_inactive, $tabIndex);
+                }
+            ),
+
+            new TwigFunction(
+                'encounterSelectList',
+                function ($name, $pid, $selectedValue = '', $title = '', $opts = []) {
+                    // Return empty string if no patient ID provided
+                    if (empty($pid)) {
+                        return '';
+                    }
+
+                    // Get encounters for the patient
+                    $encounterService = new EncounterService();
+                    $encounters = $encounterService->getPatientEncounterListWithCategories($pid);
+                    $count = count($encounters);
+
+                    // Build the options list
+                    $optionsList = [];
+                    // go in reverse order so most recent encounter is first
+                    for ($i = $count - 1; $i >= 0; $i--) {
+                        // Create display text: "2024-01-15 14:30 - Office Visit"
+                        $displayText = $encounters['dates'][$i] . ' - ' . $encounters['categories'][$i];
+                        $optionValue = $encounters['ids'][$i];
+                        // Only add if we have a valid option value
+                        if (!empty($optionValue)) {
+                            $optionsList[$optionValue] = $displayText;
+                        }
+                    }
+                    $html = [];
+                    $html[] = "<select class=\"form-control\" name=\"" . attr($name) . "\" id=\"" . attr($name) . "\" title=\"" . attr($title) . "\">";
+                    if (!empty($opts['empty_name'])) {
+                        $html[] = "<option value=\"\">" . text($opts['empty_name']) . "</option>";
+                    }
+                    foreach ($optionsList as $value => $text) {
+                        $selected = ($value == $selectedValue) ? ' selected' : '';
+                        $html[] = "<option value=\"" . attr($value) . "\"" . $selected . ">" . text($text) . "</option>";
+                    }
+                    $html[] = "</select>";
+                    return implode("", $html);
                 }
             ),
 

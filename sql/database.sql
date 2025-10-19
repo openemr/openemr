@@ -4189,23 +4189,24 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_units','9','mL' ,9,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_route', '0',''                 , 0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route', '1','Per Oris'         , 1,0, 'PO', 'NCI-CONCEPT-ID:C38288');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '2','Per Rectum'       , 2,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '3','To Skin'          , 3,0, 'OTH');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '2','Per Rectum'       , 2,0, 'OTH', 'NCI-CONCEPT-ID:C38295');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '3','To Skin'          , 3,0, 'OTH', 'NCI-CONCEPT-ID:C38675');
+-- there isn't really an NCI code for affected area as it depends on what area it is, so this code is unmapeable
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '4','To Affected Area' , 4,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '5','Sublingual'       , 5,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '6','Left Eye'         , 6,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '7','Right Eye'        , 7,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '8','Each Eye'         , 8,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '9','Subcutaneous'     , 9,0, 'OTH');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '5','Sublingual'       , 5,0, 'OTH', 'NCI-CONCEPT-ID:C38300');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '6','Left Eye'         , 6,0, 'OTH','NCI-CONCEPT-ID:C38300');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '7','Right Eye'        , 7,0, 'OTH','NCI-CONCEPT-ID:C38300');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '8','Each Eye'         , 8,0, 'OTH', 'NCI-CONCEPT-ID:C38276');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '9','Subcutaneous'     , 9,0, 'OTH', 'NCI-CONCEPT-ID:C38299');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','10','IM'               ,10,0, 'IM', 'NCI-CONCEPT-ID:C28161');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','11','IV'               ,11,0, 'IV');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','12','Per Nostril'      ,12,0, 'NS');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','13','Both Ears',13,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','14','Left Ear' ,14,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','15','Right Ear',15,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'intradermal', 'Intradermal', 16, 0, 'ID');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'other', 'Other/Miscellaneous', 18, 0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'transdermal', 'Transdermal', 19, 0, 'TD');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','11','IV'               ,11,0, 'IV', 'NCI-CONCEPT-ID:C38276');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','12','Per Nostril'      ,12,0, 'NS', 'NCI-CONCEPT-ID:C38284');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','13','Both Ears',13,0, 'OTH', 'NCI-CONCEPT-ID:C38192');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','14','Left Ear' ,14,0, 'OTH', 'NCI-CONCEPT-ID:C38192');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','15','Right Ear',15,0, 'OTH', 'NCI-CONCEPT-ID:C38192');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'intradermal', 'Intradermal', 16, 0, 'ID', 'NCI-CONCEPT-ID:C38238');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'other', 'Other/Miscellaneous', 18, 0, 'OTH', 'NCI-CONCEPT-ID:C38290');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'transdermal', 'Transdermal', 19, 0, 'TD', 'NCI-CONCEPT-ID:C38305');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','intramuscular','Intramuscular' ,20, 0, 'IM', 'NCI-CONCEPT-ID:C28161');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','inhale','Inhale' ,16, 0, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route', 'bymouth', 'By Mouth', 1, 0, 'PO', 'NCI-CONCEPT-ID:C38288');
@@ -7300,6 +7301,37 @@ VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248152002', ''),
        ('administrative_sex', 'asked-declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined', ''),
        ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
 
+-- Add v3-ActPharmacySupplyType for tracking the supply type of drug dispensing
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','act_pharmacy_supply_type','Act Pharmacy Supply Type',0,0,0,'Codeset from valueset http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType (HL7 v3 ActCode)',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
+VALUES ('act_pharmacy_supply_type', 'DF', 'Daily Fill', 10, 'DF', 'A fill providing sufficient supply for one day'),
+       ('act_pharmacy_supply_type', 'EM', 'Emergency Supply', 20, 'EM', 'A supply action where there is no valid order for the supplied medication'),
+       ('act_pharmacy_supply_type', 'SO', 'Script Owing', 30, 'SO', 'An emergency supply where the expectation is that a formal order authorizing the supply will be provided at a later date'),
+       ('act_pharmacy_supply_type', 'FF', 'First Fill', 40, 'FF', 'The initial fill against an order'),
+       ('act_pharmacy_supply_type', 'FFS', 'Fee for Service', 50, 'FFS', 'A billing arrangement where a Provider charges a separate fee for each intervention/procedure/event or product'),
+       ('act_pharmacy_supply_type', 'FPFF', 'First Fill - Part Fill', 60, 'FPFF', 'A first fill where the quantity supplied is less than one full repetition of the ordered amount'),
+       ('act_pharmacy_supply_type', 'FFCS', 'First Fill Complete, Sub', 70, 'FFCS', 'A first fill where the quantity supplied is equal to one full repetition and strength supplied is less than ordered'),
+       ('act_pharmacy_supply_type', 'TFS', 'Trial Fill Partial', 80, 'TFS', 'A fill where a small portion is provided to allow for determination of therapy effectiveness and patient tolerance'),
+       ('act_pharmacy_supply_type', 'FFC', 'First Fill Complete', 90, 'FFC', 'A first fill where the quantity supplied is equal to one full repetition of the ordered amount'),
+       ('act_pharmacy_supply_type', 'FFP', 'First Fill, Part Fill', 100, 'FFP', 'A first fill where the quantity supplied is less than one full repetition of the ordered amount'),
+       ('act_pharmacy_supply_type', 'FFSS', 'First Fill, Partial Strength', 110, 'FFSS', 'A first fill where the strength supplied is less than the ordered strength'),
+       ('act_pharmacy_supply_type', 'TF', 'Trial Fill', 120, 'TF', 'A fill where a small portion is provided to allow for determination of therapy effectiveness and patient tolerance'),
+       ('act_pharmacy_supply_type', 'FS', 'Floor stock', 130, 'FS', 'A supply action to restock a smaller more local dispensary'),
+       ('act_pharmacy_supply_type', 'MS', 'Manufacturer Sample', 140, 'MS', 'A supply of a manufacturer sample'),
+       ('act_pharmacy_supply_type', 'RF', 'Refill', 150, 'RF', 'A fill against an order that has already been filled at least once'),
+       ('act_pharmacy_supply_type', 'UD', 'Unit Dose', 160, 'UD', 'A supply action that provides sufficient material for a single dose'),
+       ('act_pharmacy_supply_type', 'RFC', 'Refill - Complete', 170, 'RFC', 'A refill where the quantity supplied is equal to one full repetition of the ordered amount'),
+       ('act_pharmacy_supply_type', 'RFCS', 'Refill Complete, Partial Strength', 180, 'RFCS', 'A refill complete fill where the strength supplied is less than the ordered strength'),
+       ('act_pharmacy_supply_type', 'RFF', 'Refill First Fill this Facility', 190, 'RFF', 'The first fill against an order that has already been filled at least once at another facility'),
+       ('act_pharmacy_supply_type', 'RFFS', 'Refill First Fill, Partial Strength', 200, 'RFFS', 'The first fill at another facility where the strength supplied is less than ordered'),
+       ('act_pharmacy_supply_type', 'RFP', 'Refill with Partial Fill', 210, 'RFP', 'A refill where the quantity supplied is less than one full repetition of the ordered amount'),
+       ('act_pharmacy_supply_type', 'RFPS', 'Refill Partial Fill, Partial Strength', 220, 'RFPS', 'A refill partial fill where the strength supplied is less than the ordered strength'),
+       ('act_pharmacy_supply_type', 'RFS', 'Refill partial strength', 230, 'RFS', 'A refill where the strength supplied is less than the ordered strength'),
+       ('act_pharmacy_supply_type', 'TB', 'Trial Balance', 240, 'TB', 'A fill where the remainder of a complete fill is provided after a trial fill'),
+       ('act_pharmacy_supply_type', 'TBS', 'Trial Balance Partial Strength', 250, 'TBS', 'A fill where the remainder is provided after a trial fill and strength is less than ordered'),
+       ('act_pharmacy_supply_type', 'UDE', 'Unit Dose Equivalent', 260, 'UDE', 'A supply action that provides sufficient material for a single dose via multiple products');
 --
 -- Table structure for table `lists`
 --

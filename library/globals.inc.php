@@ -81,6 +81,8 @@ use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use OpenEMR\Services\Globals\GlobalAppearanceEnum;
+use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -298,7 +300,7 @@ $GLOBALS_METADATA = [
             xl('Navigation area includes encounter forms')
         ],
 
-        'simplified_prescriptions' => [
+        GlobalAppearanceEnum::SIMPLIFIED_PRESCRIPTIONS->value  => [
             xl('Simplified Prescriptions'),
             'bool',                           // data type
             '0',                              // default = false
@@ -858,7 +860,7 @@ $GLOBALS_METADATA = [
             xl('Indicator for specialized usage')
         ],
 
-        'inhouse_pharmacy' => [
+        GlobalFeaturesEnum::INHOUSE_PHARMACY->value => [
             xl('Drugs and Products'),
             [
                 '0' => xl('Do not inventory and sell any products'),

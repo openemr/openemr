@@ -37,6 +37,7 @@ use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
 use OpenEMR\RestControllers\FHIR\FhirGroupRestController;
 use OpenEMR\RestControllers\FHIR\FhirLocationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
+use OpenEMR\RestControllers\FHIR\FhirMedicationDispenseRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;

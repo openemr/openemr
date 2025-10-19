@@ -67,6 +67,9 @@ class FhirCodeSystemConstants
 
     const RXNORM = "http://www.nlm.nih.gov/research/umls/rxnorm";
 
+    // TODO: this is referenced a few places in HL7 as the NDC system, but does not appear to be officially documented
+    const NDC = "http://hl7.org/fhir/sid/ndc";
+
     const HL7_MEDICATION_REQUEST_CATEGORY = "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
     public const NCIMETA_NCI_NIH = "http://ncimeta.nci.nih.gov";
 
@@ -118,4 +121,7 @@ class FhirCodeSystemConstants
     const SPECIMEN_STATUS = "http://hl7.org/fhir/specimen-status";
 
     const HL7_CONDITION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/condition-category';
+
+    // NCI 2025-04 release of NCI Thesaurus
+    const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';
 }
