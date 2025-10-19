@@ -281,7 +281,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         $medicationDispenseResource->setType($type);
 
         // Quantity (mustSupport)
-        $unit = $dataRecord['unit_title'] ?? '';
+        $unit = $dataRecord['drug_form_title'] ?? '';
         if (!empty($dataRecord['quantity'])) {
             $quantity = UtilsService::createQuantity($dataRecord['quantity'], $unit, $unit);
             $medicationDispenseResource->setQuantity($quantity);

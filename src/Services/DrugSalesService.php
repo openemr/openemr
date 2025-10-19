@@ -93,6 +93,8 @@ class DrugSalesService extends BaseService
                     ,intervals_list.interval_title
                     ,intervals_list.interval_notes
                     ,intervals_list.interval_codes
+                    ,drug_forms.drug_form_title
+                    ,drug_forms.drug_form_codes
                 FROM drug_sales ds
                 LEFT JOIN (
                     SELECT
@@ -174,7 +176,16 @@ class DrugSalesService extends BaseService
                     ,codes AS unit_codes
                   FROM list_options
                   WHERE list_id='drug_units'
-                ) units_list ON units_list.unit_id = pr.prescription_unit"; // Only include sales, returns, transfers, adjustments
+                ) units_list ON units_list.unit_id = pr.prescription_unit
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS drug_form_id
+                    ,title AS drug_form_title
+                    ,codes AS drug_form_codes
+                  FROM list_options
+                  WHERE list_id='drug_form'
+                ) drug_forms ON drug_forms.drug_form_id = d.drug_form"; // Only include sales, returns, transfers, adjustments
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search);
         $sql .= $whereClause->getFragment();
