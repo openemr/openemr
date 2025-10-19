@@ -1598,11 +1598,11 @@ UPDATE `list_options` SET codes='Q1H', notes='Every 1 hour - Administer medicati
 -- Bedtime
 UPDATE `list_options` SET codes='HS', notes='At bedtime (hora somni) - Administer at bedtime or hour of sleep' WHERE list_id='drug_interval' AND option_id='16';
 
--- As needed
-UPDATE `list_options` SET codes='PRN', notes='As needed (pro re nata) - Take medication when necessary or as required' WHERE list_id='drug_interval' AND option_id='17';
+-- As needed (should be PRN, but nothing in FHIR)
+UPDATE `list_options` SET codes='', notes='As needed (pro re nata) - Take medication when necessary or as required' WHERE list_id='drug_interval' AND option_id='17';
 
--- Immediately
-UPDATE `list_options` SET codes='STAT', notes='Immediately (statim) - Administer medication immediately' WHERE list_id='drug_interval' AND option_id='18';
+-- Immediately (should be STAT but nothing in FHIR)
+UPDATE `list_options` SET codes='', notes='Immediately (statim) - Administer medication immediately' WHERE list_id='drug_interval' AND option_id='18';
 
 -- Extended intervals
 UPDATE `list_options` SET codes='WK', notes='Weekly - Once per week' WHERE list_id='drug_interval' AND option_id='19';
