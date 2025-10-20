@@ -75,7 +75,7 @@
     "backbone": "1.6.1",
     "bootstrap": "4.6.2",
     "bootswatch": "4.6.2",
-    "chart.js": "4.5.0",
+    "chart.js": "4.5.1",
     "chartjs-adapter-date-fns": "3.0.0",
     "checklist-model": "1.0.0",
     "ckeditor5": "46.1.1",
