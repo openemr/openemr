@@ -20,6 +20,7 @@
  */
 
 use OpenEMR\RestControllers\Config\RestConfig;
+use OpenApi\Annotations as OA;
 
 /**
  *  @OA\Info(title="OpenEMR API", version="7.0.4")
@@ -148,7 +149,7 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *              "user/practitioner.write": "Write practitioners the user has access to (api:oemr)",
  *              "user/prescription.read": "Read prescriptions the user has access to (api:oemr)",
  *              "user/procedure.read": "Read procedures the user has access to (api:oemr)",
-*               "user/product.read": "Read the email registration status of OpenEMR (api:oemr)",
+ *              "user/product.read": "Read the email registration status of OpenEMR (api:oemr)",
  *              "user/soap_note.read": "Read soap notes the user has access to (api:oemr)",
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
@@ -156,6 +157,9 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
  *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
  *              "user/user.read": "Read users the current user has access to (api:oemr)",
+ *              "user/user.write": "Write users the current user has access to (api:oemr)",
+ *              "user/group.read": "Read ACL groups the current user has access to (api:oemr)",
+ *              "user/group.write": "Write ACL groups the current user has access to (api:oemr)",
  *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
@@ -172,6 +176,14 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *  @OA\Tag(
  *      name="standard",
  *      description="Standard OpenEMR API"
+ *  )
+ *  @OA\Tag(
+ *      name="admin",
+ *      description="Standard OpenEMR Admin API"
+ *  )
+ *  @OA\Tag(
+ *      name="ACL",
+ *      description="Standard OpenEMR Admin ACL API"
  *  )
  *  @OA\Tag(
  *      name="standard-patient",
@@ -315,7 +327,13 @@ use OpenEMR\RestControllers\Config\RestConfig;
 
 // Note that the api route is only for users role
 //  (there is a mechanism in place to ensure only user role can access the api route)
-RestConfig::$ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php";
+
+RestConfig::$ROUTE_MAP = array_merge(
+    require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php",
+    require_once __DIR__ . '/apis/routes/_rest_routes_standard_user.inc.php', // @todo Decide
+    require_once __DIR__ . '/apis/routes/_rest_routes_admin_user.inc.php',
+    require_once __DIR__ . '/apis/routes/_rest_routes_admin_acl_group.inc.php',
+);
 
 RestConfig::$FHIR_ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
 

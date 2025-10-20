@@ -64,7 +64,6 @@ class AuthorizationGrantFlowTest extends TestCase
         $serverScopes = new ServerScopeListEntity();
         $scopes = $serverScopes->getAllSupportedScopesList();
         $scopesString = implode(" ", $scopes);
-//        $scopesString = ApiTestClient::ALL_SCOPES;
         $redirectUri = "http://localhost:8080/oauth2/callback";
         $dispatcher = new EventDispatcher();
         $controller = $this->createMock(ControllerResolverInterface::class);
