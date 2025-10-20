@@ -177,7 +177,7 @@ jobs:
           ${{ runner.os }}-composer-
 
     - name: Install npm package
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.configurations.node_version }}
 

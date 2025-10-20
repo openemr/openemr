@@ -195,6 +195,9 @@ CREATE TABLE `care_teams` (
 ) ENGINE=InnoDB;
 #EndIf
 
+#IfNotRow2D list_options list_id lists option_id care_team_roles
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','care_team_roles','Care Team Roles');
+#EndIf
 #IfNotRow list_options list_id care_team_roles
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
    ('care_team_roles', 'primary_care_provider', 'Primary Care Provider', 10, 'SNOMED-CT:62247001', ''),
@@ -206,7 +209,6 @@ INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
    ('care_team_roles', 'specialist', 'Specialist', 70, 'SNOMED-CT:419772000', ''),
    ('care_team_roles', 'other', 'Other', 80, 'SNOMED-CT:106292003', '');
 #EndIf
-
 
 -- ---------------------------------------------------------------------------------------------------------------------------------
 --
@@ -1490,6 +1492,27 @@ ALTER TABLE `form_misc_billing_options` ADD UNIQUE `encounter` (`encounter`);
 #EndIf
 
 #IfMBOEncounterNeeded
+#EndIf
+-- ------------------------------------------------------------------- 10-17-2025 sjp -----------------------------------------------------------------------------
+-- Care Team Roles: parent list entry --Bug fix
+-- Care Team Roles: add if missing
+
+UPDATE `list_options` SET option_id = 'family_medicine_specialist', title = 'Family Medicine Specialist'
+WHERE list_id = 'care_team_roles' AND option_id = 'primary_care_provider' AND codes = 'SNOMED-CT:62247001';
+
+#IfNotRow2D list_options list_id lists option_id care_team_roles
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','care_team_roles','Care Team Roles');
+#EndIf
+#IfNotRow2D list_options list_id care_team_roles option_id healthcare_professional
+INSERT IGNORE INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`codes`,`activity`) VALUES
+     ('care_team_roles','physician','Physician',90,0,'SNOMED-CT:158965000',1),
+     ('care_team_roles','nurse_practitioner','Nurse Practitioner',100,0,'SNOMED-CT:224571005',1),
+     ('care_team_roles','physician_assistant','Physician Assistant',110,0,'SNOMED-CT:449161006',1),
+     ('care_team_roles','therapist','Clinical Therapist',120,0,'SNOMED-CT:224538006',1),
+     ('care_team_roles','primary_care_provider','Primary Care Provider',130,0,'SNOMED-CT:446050000',1),
+     ('care_team_roles','dietitian','Dietitian',140,0,'SNOMED-CT:159033005',1),
+     ('care_team_roles','mental_health','Mental Health Professional',150,0,'SNOMED-CT:224597008',1),
+     ('care_team_roles','healthcare_professional','Healthcare Professional',160,0,'SNOMED-CT:223366009',1);
 #EndIf
 
 #IfNotTable form_vitals_calculation
