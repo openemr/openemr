@@ -55,11 +55,13 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * Returns an array mapping FHIR CarePlan Resource search parameters to OpenEMR CarePlan search parameters
      * @return array The search parameters
      */
+    // In FhirCarePlanService.php - Update loadSearchParameters()
     protected function loadSearchParameters()
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['careplan_category']),
+            // Map to the REAL column, not the derived alias
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['care_plan_type']),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['plan_status']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
@@ -481,6 +483,35 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        // Translate FHIR category codes to OpenEMR care_plan_type values
+        if (isset($openEMRSearchParameters['care_plan_type'])) {
+            $categoryField = $openEMRSearchParameters['care_plan_type'];
+            if ($categoryField instanceof \OpenEMR\Services\Search\TokenSearchField) {
+                $translatedValues = [];
+                foreach ($categoryField->getValues() as $value) {
+                    if ($value instanceof \OpenEMR\Services\Search\TokenSearchValue) {
+                        $fhirCode = $value->getCode();
+                        // Map FHIR category to OpenEMR care_plan_type
+                        $openEmrType = match ($fhirCode) {
+                            'assess-plan' => 'plan_of_care',
+                            'goal' => 'goal',
+                            default => $fhirCode // Pass through if unknown
+                        };
+                        // Create new TokenSearchValue with translated code
+                        // Constructor: TokenSearchValue($code, $system, $exact)
+                        $translatedValues[] = new \OpenEMR\Services\Search\TokenSearchValue(
+                            $openEmrType,
+                            $value->getSystem(),
+                            false  // exact match flag
+                        );
+                    }
+                }
+                if (!empty($translatedValues)) {
+                    $categoryField->setValues($translatedValues);
+                }
+            }
+        }
+
         return $this->service->search($openEMRSearchParameters, true);
     }
 
