@@ -33,8 +33,7 @@ use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-
+use OpenEMR\Services\LogoService;
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -54,6 +53,8 @@ $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_c
 $facilityService = new FacilityService();
 
 $cryptoGen = new CryptoGen();
+
+$logo = (new LogoService())->getLogo('core/menu/primary');
 
 ?>
 <!DOCTYPE html>
@@ -163,8 +164,6 @@ $patdata = sqlQuery("SELECT " .
     "i.pid = p.pid AND i.type = 'primary' " .
     "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
 
-$invoice_refno = BillingUtilities::updateInvoiceRefNumber();
-
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
@@ -182,6 +181,7 @@ if (!empty($_POST['form_save'])) {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     //Update the invoice_refno
+    $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
     sqlStatement(
         "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
         [$invoice_refno, $encounter, $form_pid]
@@ -621,10 +621,7 @@ function toencounter(enc, datestr, topframe) {
 
                     </div>
                     <div class="section-1">
-                        <?php if (file_exists($GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png")) { ?>
-                            <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
-                        <?php } ?>
-
+                        <img src=<?php echo $logo ?> alt="facility_logo" class="img-fluid">
                         <table class="mini_table text-center">
                             <tr>
                                 <th><?php echo xlt('Invoice No.'); ?></th>
@@ -1879,5 +1876,6 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php
+$GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
 </html>

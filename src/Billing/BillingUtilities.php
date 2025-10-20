@@ -1,13 +1,21 @@
 <?php
 
 /*
- * The functions of this class support the billing process like the script billing_process.php.
+ * Billing Utilities Class
+ *
+ * This class provides constants and utility functions to support the billing process,
+ * including claim status codes, adjustment reason codes, and remittance advice remark codes
+ * used in healthcare billing transactions such as X12 835 remittance advice processing.
+ *
+ * The class primarily contains standardized code sets defined by the Washington Publishing Company (WPC)
+ * and adopted by the Health Insurance Portability and Accountability Act (HIPAA) for electronic
+ * data interchange (EDI) in healthcare billing.
  *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2011-2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,6 +24,22 @@ namespace OpenEMR\Billing;
 
 class BillingUtilities
 {
+    /**
+     * Claim Status Codes (CLP02 Segment)
+     *
+     * Standardized codes used in the CLP02 segment of X12 835 Electronic Remittance Advice (ERA)
+     * to indicate the overall status of a claim after adjudication. These codes represent the
+     * disposition of the claim from the payer's perspective.
+     *
+     * Common usage scenarios:
+     * - Code '1', '2', '3': Claim was processed and paid at primary, secondary, or tertiary level
+     * - Code '4': Claim was denied
+     * - Code '5': Claim is pending additional review
+     * - Code '22': Previous payment is being reversed
+     *
+     * @var array<string, string> Associative array mapping claim status codes to their descriptions
+     * @see https://www.wpc-edi.com/reference/codelists/healthcare/claim-status-category-codes/
+     */
     public const CLAIM_STATUS_CODES_CLP02 = [
         '1'  => 'Processed as Primary',
         '2'  => 'Processed as Secondary',
@@ -1416,6 +1440,14 @@ class BillingUtilities
         'N885' => 'Alert: This claim was not processed in accordance with the No Surprises Act cost-sharing or out-of-network payment requirements. The payer disagrees with your determination that those requirements apply. You may contact the payer to find out why it disagrees. You may appeal this adverse determination on behalf of the patient through the payer’s internal appeals and external review processes.',
     ];
 
+    /**
+     * Retrieves billing records for a specific encounter
+     *
+     * @param int $pid Patient identifier
+     * @param int $encounter Encounter identifier
+     * @param string $cols Comma-separated list of column names to retrieve (default: "code_type, code, code_text")
+     * @return array Array of billing records matching the encounter, ordered by code_type and date
+     */
     public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
     {
         $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['billing']) . " from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", [$encounter, $pid]);
@@ -1428,6 +1460,29 @@ class BillingUtilities
         return $all;
     }
 
+    /**
+     * Adds a new billing record to the database
+     *
+     * @param int $encounter_id Encounter identifier
+     * @param string $code_type Type of code (e.g., 'CPT4', 'ICD10')
+     * @param string $code The procedure or diagnosis code
+     * @param string $code_text Description of the code
+     * @param int $pid Patient identifier
+     * @param string|null $authorized Authorization status ('0' or '1', defaults to '0' if null)
+     * @param int $provider Provider identifier
+     * @param string $modifier Code modifier (optional)
+     * @param string $units Number of units (optional)
+     * @param string $fee Fee amount (default: '0.00')
+     * @param string $ndc_info National Drug Code information (optional)
+     * @param string $justify Justification/diagnosis codes (optional)
+     * @param int $billed Billing status (default: 0)
+     * @param string $notecodes Note codes (optional)
+     * @param string $pricelevel Price level (optional)
+     * @param string $revenue_code Revenue code (optional)
+     * @param string $payer_id Payer identifier (optional)
+     * @return int|false ID of the inserted record, or false on failure
+     * @throws Exception If the referenced encounter does not exist
+     */
     public static function addBilling(
         $encounter_id,
         $code_type,
@@ -1446,7 +1501,7 @@ class BillingUtilities
         $pricelevel = '',
         $revenue_code = "",
         $payer_id = ""
-    ) {
+    ): ?int {
         if (!$authorized) {
             $authorized = "0";
         }
@@ -1470,51 +1525,97 @@ class BillingUtilities
             $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code, $payer_id]);
     }
 
-    public static function authorizeBilling($id, $authorized = "1")
+    /**
+     * Updates the authorization status of a billing record
+     *
+     * @param int $id Billing record identifier
+     * @param string $authorized Authorization status (default: '1')
+     * @return void
+     */
+    public static function authorizeBilling($id, $authorized = "1"): void
     {
         sqlQuery("update billing set authorized = ? where id = ?", [$authorized, $id]);
     }
 
-    public static function deleteBilling($id)
+    /**
+     * Soft deletes a billing record by setting its activity flag to 0
+     *
+     * @param int $id Billing record identifier
+     * @return void
+     */
+    public static function deleteBilling($id): void
     {
         sqlStatement("update billing set activity = 0 where id = ?", [$id]);
     }
 
-    public static function clearBilling($id)
+    /**
+     * Clears the justification field for a billing record
+     *
+     * @param int $id Billing record identifier
+     * @return void
+     */
+    public static function clearBilling($id): void
     {
         sqlStatement("update billing set justify = '' where id = ?", [$id]);
     }
 
-    // This function supports the Billing page (billing_process.php),
-    // and initiation of secondary processing (\OpenEMR\Billing\SLEOB.php).
-    // It is called in the following situations:
-    //
-    // * billing_process.php sets bill_time, bill_process, payer and target on
-    //   queueing a claim for processing.  Create claims row.
-    // * billing_process.php sets claim status to 2, and payer, on marking a
-    //   claim as billed without actually generating any billing.  Create a
-    //   claims row.  In this case bill_process will remain at 0 and process_time
-    //   and process_file will not be set.
-    // * billing_process.php sets bill_process, payer, target and x12 partner
-    //   before calling genX12837P.  Create a claims row.
-    // * billing_process.php sets claim status to 2 (billed), bill_process to 2,
-    //   process_time and process_file after calling genX12837P.  Claims row
-    //   already exists.
-    // * billing_process.php sets claim status to 2 (billed) after creating
-    //   an electronic batch (hcfa-only with recent changes).  Claims
-    //   row already exists.
-    // * EOB posting updates claim status to mark a payer as done.  Claims row
-    //   already exists.
-    // * EOB posting reopens an encounter for billing a secondary payer.  Create
-    //   a claims row.
-    //
-    // $newversion should be passed to us to indicate if a new claims row
-    // is to be generated, otherwise one must already exist.  The payer, if
-    // passed in for the latter case, must match the existing claim.
-    //
-    // Currently on the billing page the user can select any of the patient's
-    // payers.  That logic will tailor the payer choices to the encounter date.
-    //
+    /**
+    * Updates or creates a claim record for an encounter
+    *
+    * This function handles various billing scenarios including queuing claims for processing,
+    * marking claims as billed, processing electronic batches, and EOB posting. It manages
+    * both creation of new claim versions and updates to existing claims.
+    *
+    * This function supports the Billing page (billing_process.php),
+    * and initiation of secondary processing (\OpenEMR\Billing\SLEOB.php).
+    * It is called in the following situations:
+    *
+    * billing_process.php sets bill_time, bill_process, payer and target on
+    * queueing a claim for processing.  Create claims row.
+    *
+    * billing_process.php sets claim status to 2, and payer, on marking a
+    * claim as billed without actually generating any billing.  Create a
+    * claims row.  In this case bill_process will remain at 0 and process_time
+    * and process_file will not be set.
+    *
+    * billing_process.php sets bill_process, payer, target and x12 partner
+    * before calling genX12837P.  Create a claims row.
+    *
+    * billing_process.php sets claim status to 2 (billed), bill_process to 2,
+    * process_time and process_file after calling genX12837P.  Claims row
+    * already exists.
+    *
+    * billing_process.php sets claim status to 2 (billed) after creating
+    * an electronic batch (hcfa-only with recent changes).  Claims
+    * row already exists.
+    *
+    * EOB posting updates claim status to mark a payer as done.  Claims row
+    * already exists.
+    *
+    * EOB posting reopens an encounter for billing a secondary payer.  Create
+    * a claims row.
+    *
+    * $newversion should be passed to us to indicate if a new claims row
+    * is to be generated, otherwise one must already exist.  The payer, if
+    * passed in for the latter case, must match the existing claim.
+    *
+    * Currently on the billing page the user can select any of the patient's
+    * payers.  That logic will tailor the payer choices to the encounter date.
+    *
+    * @param bool $newversion True to create a new claim version, false to update existing
+    * @param int $patient_id Patient identifier
+    * @param int $encounter_id Encounter identifier
+    * @param int $payer_id Payer identifier (default: -1 to use existing or 0)
+    * @param int $payer_type Type of payer (primary=1, secondary=2, tertiary=3; default: -1 to use existing)
+    * @param int $status Claim status (default: -1 to use existing; 2=billed, 7=denied)
+    * @param int $bill_process Billing process status (default: -1 to use existing)
+    * @param string $process_file Processing file name or denial reason code (optional)
+    * @param string $target Target destination for claim (optional)
+    * @param int $partner_id X12 partner identifier (default: -1 to use existing)
+    * @param int $crossover Crossover claim indicator (default: 0)
+    * @param string $submitted_claim Submitted claim data (optional)
+    * @return int 1 on success, 0 if no existing claim found when updating
+    */
     public static function updateClaim(
         $newversion,
         $patient_id,
@@ -1528,7 +1629,7 @@ class BillingUtilities
         $partner_id = -1,
         $crossover = 0,
         $submitted_claim = ''
-    ) {
+    ): int {
 
         $sqlBindArray = [];
         if (!$newversion) {
@@ -1648,9 +1749,8 @@ class BillingUtilities
         $claimset .= ", submitted_claim = ?";
         $sqlBindClaimset[] = $submitted_claim;
         // If a new claim version is requested, insert its row.
-        //
         if ($newversion) {
-            /****
+            /**
              * $payer_id = ($payer_id < 0) ? $row['payer_id'] : $payer_id;
              * $bill_process = ($bill_process < 0) ? $row['bill_process'] : $bill_process;
              * $process_file = ($process_file) ? $row['process_file'] : $process_file;
@@ -1668,7 +1768,7 @@ class BillingUtilities
              * "process_file = '$process_file', " .
              * "target = '$target', " .
              * "x12_partner_id = '$partner_id'";
-             ****/
+             */
             sqlBeginTrans();
             $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", [$patient_id, $encounter_id]);
 
@@ -1718,7 +1818,17 @@ class BillingUtilities
     // Determine if the encounter is billed.  It is considered billed if it
     // has at least one chargeable item, and all of them are billed.
     //
-    public static function isEncounterBilled($pid, $encounter)
+    /**
+     * Determines if an encounter has been fully billed
+     *
+     * An encounter is considered billed if it has at least one chargeable item
+     * and all chargeable items have been billed.
+     *
+     * @param int $pid Patient identifier
+     * @param int $encounter Encounter identifier
+     * @return int 1 if all items are billed, 0 if any items are unbilled, -1 if no chargeable services exist
+     */
+    public static function isEncounterBilled($pid, $encounter): int
     {
         $billed = -1; // no chargeable services yet
 
@@ -1750,9 +1860,16 @@ class BillingUtilities
         return $billed > 0;
     }
 
-    // Get the co-pay amount that is effective on the given date.
-    // Or if no insurance on that date, return -1.
-    //
+    /**
+     * Retrieves the co-pay amount effective on a given date
+     *
+     * Returns the co-pay amount from the patient's primary insurance that is
+     * active on the specified encounter date.
+     *
+     * @param int $patient_id Patient identifier
+     * @param string $encdate Encounter date (YYYY-MM-DD format)
+     * @return float|int Co-pay amount formatted to 2 decimal places, or 0 if no insurance found
+     */
     public static function getCopay($patient_id, $encdate)
     {
         $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
@@ -1765,7 +1882,16 @@ class BillingUtilities
         return 0;
     }
 
-    // Get the total co-pay amount paid by the patient for an encounter
+    /**
+     * Calculates the total co-pay amount paid by the patient for an encounter
+     *
+     * Retrieves the sum of all patient payments with account code 'PCP' (Primary Care Provider)
+     * for the specified encounter.
+     *
+     * @param int $patient_id Patient identifier
+     * @param int $encounter Encounter identifier
+     * @return float Total copay amount paid by patient (returned as positive value)
+     */
     public static function getPatientCopay($patient_id, $encounter)
     {
         $resMoneyGot = sqlStatement(
@@ -1779,47 +1905,93 @@ class BillingUtilities
         return $Copay * -1;
     }
 
-    // Get the "next invoice reference number" from this user's pool of reference numbers.
-    //
-    public static function getInvoiceRefNumber()
+    /**
+     * Retrieves the invoice reference number pool identifier for the current user
+     *
+     * Gets the option_id of the invoice reference number pool assigned to the current
+     * user from their user profile. If no pool is assigned or the pool is inactive,
+     * returns 'main' as the default pool identifier.
+     *
+     * @return string|null The user's invoice reference number pool option_id, 'main' if not found, or null if no user session
+     */
+    public static function getIrnPoolForUser(): ?string
     {
         $trow = sqlQuery(
-            "SELECT lo.notes " .
+            "SELECT lo.option_id " .
             "FROM users AS u, list_options AS lo " .
             "WHERE u.username = ? AND " .
             "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
             [$_SESSION['authUser']]
         );
-        return empty($trow['notes']) ? '' : $trow['notes'];
+
+        return $trow['option_id'] ?? 'main';
     }
 
-    // Increment the "next invoice reference number" of this user's pool.
-    // This identifies the "digits" portion of that number and adds 1 to it.
-    // If it contains more than one string of digits, the last is used.
-    //
-    public static function updateInvoiceRefNumber()
+    /**
+     * Increments the next invoice reference number in the current user's pool
+     *
+     * Identifies the numeric portion of the invoice reference number and increments it by 1.
+     * If multiple numeric sequences exist, the last one is incremented. Leading zeros are preserved.
+     *
+     * @return string The current invoice reference number (before incrementing)
+     */
+    public static function getInvoiceRefNumber(): string
+    {
+        $irnPoolForUser = self::getIrnPoolForUser();
+
+        $trow = sqlQuery(
+            "SELECT lo.notes " .
+                "FROM list_options AS lo " .
+                "WHERE lo.list_id = 'irnpool' AND lo.option_id = ? AND lo.activity = 1 LIMIT 1",
+            [$irnPoolForUser]
+        );
+        return $trow['notes'];
+    }
+
+    /**
+     * Increments the next invoice reference number in the current user's pool
+     *
+     * Identifies the numeric portion of the invoice reference number and increments it by 1.
+     * If multiple numeric sequences exist, the last one is incremented. Leading zeros are preserved.
+     *
+     * @return string The current invoice reference number (before incrementing)
+     */
+    public static function updateInvoiceRefNumber(): string
     {
         $irnumber = self::getInvoiceRefNumber();
+        $irnPoolForUser = self::getIrnPoolForUser();
+
         // Here "?" specifies a minimal match, to get the most digits possible:
         if (preg_match('/^(.*?)(\d+)(\D*)$/', (string) $irnumber, $matches)) {
             $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
             $newnumber = $matches[1] . $newdigs . $matches[3];
             sqlStatement(
                 "UPDATE users AS u, list_options AS lo " .
-                "SET lo.notes = ? WHERE " .
-                "u.username = ? AND " .
-                "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool",
-                [$newnumber, $_SESSION['authUser']]
+                    "SET lo.notes = ? WHERE " .
+                    "lo.list_id = 'irnpool' AND lo.option_id = ?",
+                [$newnumber, $irnPoolForUser]
             );
         }
 
-        return $irnumber;
+        return $newnumber;
     }
 
-    // Common function for voiding a receipt or checkout.  When voiding a checkout you can specify
-    // $time as a timestamp (yyyy-mm-dd hh:mm:ss) or 'all'; default is the last checkout.
-    //
-    public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = '')
+    /**
+     * Voids a receipt or checkout transaction for an encounter
+     *
+     * This function can void the last checkout, a specific checkout by timestamp, or all
+     * transactions for an encounter. When purging a checkout, it deletes payments/adjustments
+     * and re-opens the visit for billing.
+     *
+     * @param int $patient_id Patient identifier
+     * @param int $encounter_id Encounter identifier
+     * @param bool $purge If true, delete transactions and re-open encounter; if false, just assign new invoice number (default: false)
+     * @param string $time Timestamp for specific checkout ('YYYY-MM-DD HH:MM:SS'), 'all' for all transactions, or empty for last checkout (default: '')
+     * @param string $reason Reason for voiding (optional)
+     * @param string $notes Additional notes about the void (optional)
+     * @return void
+     */
+    public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = ''): void
     {
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
@@ -1961,8 +2133,17 @@ class BillingUtilities
         }
     }
 
-    // Common function for re-opening an encounter
-    public static function reOpenEncounterForBilling($patient_id, $encounter_id)
+    /**
+     * Re-opens an encounter for billing by resetting billing-related flags
+     *
+     * Resets billing status, dates, and level information to allow the encounter
+     * to be billed again.
+     *
+     * @param int $patient_id Patient identifier
+     * @param int $encounter_id Encounter identifier
+     * @return void
+     */
+    public static function reOpenEncounterForBilling($patient_id, $encounter_id): void
     {
         sqlStatement(
             "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
