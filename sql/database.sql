@@ -13833,6 +13833,48 @@ KEY `fk_form_id` (`form_id`),
 KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
 ) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
 
+DROP TABLE IF EXISTS `form_vitals_calculation`;
+CREATE TABLE `form_vitals_calculation` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `uuid` binary(16) DEFAULT NULL,
+   `encounter` bigint(20) DEFAULT NULL COMMENT 'fk to form_encounter.id',
+   `pid` bigint(20) NOT NULL COMMENT 'fk to patient_data.pid',
+   `date_start` datetime DEFAULT NULL,
+   `date_end` datetime DEFAULT NULL,
+   `created_at` datetime DEFAULT NULL,
+   `updated_at` datetime DEFAULT NULL,
+   `created_by` bigint(20) DEFAULT NULL,
+   `updated_by` bigint(20) DEFAULT NULL,
+   `calculation_id` varchar(64) DEFAULT NULL COMMENT 'application identifier representing calculation e.g., bp-MeanLast5, bp-Mean3Day, bp-MeanEncounter',
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `unq_uuid` (`uuid`),
+   KEY `idx_pid` (`pid`),
+   KEY `idx_encounter` (`encounter`),
+   KEY `idx_calculation_id` (`calculation_id`)
+) ENGINE=InnoDB COMMENT = 'Main calculation records - one per logical calculation (e.g., average BP)';
+
+DROP TABLE IF EXISTS `form_vitals_calculation_components`;
+CREATE TABLE `form_vitals_calculation_components` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
+    `vitals_column` varchar(64) NOT NULL COMMENT 'Component type: bps, bpd, pulse, etc.',
+    `value` DECIMAL(12,6) DEFAULT NULL COMMENT 'Calculated numeric component value',
+    `value_string` varchar(255) DEFAULT NULL COMMENT 'Calculated non-numeric component value',
+    `value_unit` varchar(16) DEFAULT NULL COMMENT 'Unit for this component value',
+    `component_order` int NOT NULL DEFAULT 0 COMMENT 'Display order for components',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unq_fvc_component` (`fvc_uuid`, `vitals_column`),
+    KEY `idx_vitals_column` (`vitals_column`),
+    KEY `idx_component_order` (`fvc_uuid`, `component_order`)
+) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
+
+DROP TABLE IF EXISTS `form_vitals_calculation_form_vitals`;
+CREATE TABLE `form_vitals_calculation_form_vitals` (
+   `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
+   `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
+   PRIMARY KEY (`fvc_uuid`, `vitals_id`)
+) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
+
 DROP TABLE IF EXISTS `jwt_grant_history`;
 CREATE TABLE `jwt_grant_history` (
 `id` INT NOT NULL AUTO_INCREMENT
