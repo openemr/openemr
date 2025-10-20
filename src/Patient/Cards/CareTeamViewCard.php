@@ -13,8 +13,10 @@ namespace OpenEMR\Patient\Cards;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use OpenEMR\Services\CareTeamService;
 
 class CareTeamViewCard extends CardModel
 {
@@ -22,10 +24,18 @@ class CareTeamViewCard extends CardModel
     private const CARD_ID_EXPAND = 'careteam_ps_expand';
     private const CARD_ID = 'care_team';
 
+    /**
+     * @var CareTeamService
+     */
+    private $careTeamService;
+
     public function __construct(private $pid, array $opts = [])
     {
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
+
+        // Initialize the Care Team Service
+        $this->careTeamService = new CareTeamService();
 
         // Handle form submission if this is a POST request
         $this->handleFormSubmission();
@@ -64,7 +74,7 @@ class CareTeamViewCard extends CardModel
             ]
         ];
 
-        return $newOpts; //array_merge($opts, $newOpts);
+        return $newOpts;
     }
 
     public function getTemplateVariables(): array
@@ -100,10 +110,20 @@ class CareTeamViewCard extends CardModel
 
     private function saveCareTeam($teamName, $team)
     {
-        // Delete existing care team members
-        sqlStatement("DELETE FROM care_teams WHERE pid = ?", [$this->pid]);
+        // Create UUIDs for the table if not already present
+        UuidRegistry::createMissingUuidsForTables(['care_teams']);
 
-        // Insert new care team members
+        // Get existing care team to compare
+        $existingMembers = $this->getExistingCareTeamMembers($this->pid, $teamName);
+
+        // Delete existing care team members for this team
+        sqlStatement(
+            "DELETE FROM care_teams WHERE pid = ? AND (team_name = ? OR team_name IS NULL OR team_name = '')",
+            [$this->pid, $teamName]
+        );
+
+        // Insert new care team members with proper UUID handling
+        $members = [];
         foreach ($team as $entry) {
             $userId = intval($entry['user_id'] ?? 0);
             $role = trim($entry['role'] ?? '');
@@ -113,67 +133,143 @@ class CareTeamViewCard extends CardModel
             $note = trim($entry['note'] ?? '');
 
             if ($userId) {
+                // Generate UUID for each care team member
+                $uuid = UuidRegistry::getRegistryForTable('care_teams')->createUuid();
+
                 sqlInsert(
                     "INSERT INTO care_teams
-                    (pid, user_id, role, facility_id, provider_since, status, note, team_name)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    [$this->pid, $userId, $role, $facilityId, $providerSince, $status, $note, $teamName]
+                    (uuid, pid, user_id, role, facility_id, provider_since, status, note, team_name, date_created)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+                    [
+                        $uuid,
+                        $this->pid,
+                        $userId,
+                        $role,
+                        $facilityId ?: null,
+                        $providerSince ?: null,
+                        $status,
+                        $note,
+                        $teamName
+                    ]
                 );
+
+                $members[] = [
+                    'user_id' => $userId,
+                    'role' => $role,
+                    'facility_id' => $facilityId,
+                    'provider_since' => $providerSince,
+                    'status' => $status,
+                    'note' => $note
+                ];
             }
         }
+
+        // Trigger care team update event for FHIR sync if needed
+        $this->triggerCareTeamUpdateEvent($this->pid, $teamName, $members);
+    }
+
+    private function getExistingCareTeamMembers($pid, $teamName)
+    {
+        $result = sqlStatement(
+            "SELECT * FROM care_teams WHERE pid = ? AND team_name = ?",
+            [$pid, $teamName]
+        );
+
+        $members = [];
+        while ($row = sqlFetchArray($result)) {
+            $members[] = $row;
+        }
+        return $members;
+    }
+
+    private function triggerCareTeamUpdateEvent($pid, $teamName, $members)
+    {
+        // This would trigger an event for FHIR resource update
+        // You can implement event dispatching here if needed
+        // Example:
+        // $this->getEventDispatcher()->dispatch(
+        //     new CareTeamUpdateEvent($pid, $teamName, $members),
+        //     CareTeamUpdateEvent::EVENT_HANDLE
+        // );
     }
 
     private function getCareTeamData()
     {
+        // physician_type_code comes from list_options;
+        $selectColumns = "ct.*, u.fname, u.lname, u.username, u.physician_type, 
+                     f.name as facility_name, f.facility_npi,
+                     lo1.title as role_title, lo2.title as status_title,
+                     lo3.title as physician_type_title, lo3.codes as physician_type_code";
+
         $careTeamResult = sqlStatement(
-            "SELECT ct.*, u.fname, u.lname, f.name as facility_name,
-                    lo1.title as role_title, lo2.title as status_title
-             FROM care_teams ct
-             LEFT JOIN users u ON ct.user_id = u.id
-             LEFT JOIN facility f ON ct.facility_id = f.id
-             LEFT JOIN list_options lo1 ON lo1.option_id = ct.role AND lo1.list_id = 'care_team_roles'
-             LEFT JOIN list_options lo2 ON lo2.option_id = ct.status AND lo2.list_id = 'Care_Team_Status'
-             WHERE ct.pid = ?
-             ORDER BY ct.id ASC",
+            "SELECT $selectColumns
+         FROM care_teams ct
+         LEFT JOIN users u ON ct.user_id = u.id
+         LEFT JOIN facility f ON ct.facility_id = f.id
+         LEFT JOIN list_options lo1 ON lo1.option_id = ct.role AND lo1.list_id = 'care_team_roles'
+         LEFT JOIN list_options lo2 ON lo2.option_id = ct.status AND lo2.list_id = 'Care_Team_Status'
+         LEFT JOIN list_options lo3 ON lo3.option_id = u.physician_type AND lo3.list_id = 'physician_type'
+         WHERE ct.pid = ?
+         ORDER BY ct.team_name, ct.date_created ASC",
             [$this->pid]
         );
 
-        $careTeamMembers = [];
-        $teamName = '';
+        $careTeams = [];
+        $currentTeamName = null;
 
         while ($member = sqlFetchArray($careTeamResult)) {
-            $careTeamMembers[] = [
+            $teamName = $member['team_name'] ?? 'default';
+
+            if (!isset($careTeams[$teamName])) {
+                $careTeams[$teamName] = [
+                    'team_name' => $teamName,
+                    'members' => [],
+                    'member_count' => 0
+                ];
+            }
+
+            $careTeams[$teamName]['members'][] = [
                 'id' => $member['id'],
+                'uuid' => !empty($member['uuid']) ? UuidRegistry::uuidToString($member['uuid']) : '',
                 'user_id' => $member['user_id'],
                 'user_name' => trim(($member['fname'] ?? '') . ' ' . ($member['lname'] ?? '')),
+                'username' => $member['username'],
                 'role' => $member['role'],
                 'role_title' => $member['role_title'] ?? $member['role'],
+                'physician_type' => $member['physician_type'] ?? '',
+                'physician_type_code' => $member['physician_type_code'] ?? '',
+                'physician_type_title' => $member['physician_type_title'] ?? '',
                 'facility_id' => $member['facility_id'],
                 'facility_name' => $member['facility_name'] ?? '',
+                'facility_npi' => $member['facility_npi'] ?? '',
                 'provider_since' => $member['provider_since'],
                 'provider_since_formatted' => !empty($member['provider_since']) ? oeFormatShortDate($member['provider_since']) : '',
                 'status' => $member['status'],
                 'status_title' => $member['status_title'] ?? $member['status'],
                 'note' => $member['note'] ?? '',
-                'team_name' => $member['team_name'] ?? ''
+                'date_created' => $member['date_created'],
+                'date_updated' => $member['date_updated']
             ];
 
-            if (empty($teamName) && !empty($member['team_name'])) {
-                $teamName = $member['team_name'];
-            }
+            $careTeams[$teamName]['member_count']++;
+        }
+
+        // Return the primary team or create empty structure
+        if (!empty($careTeams)) {
+            return reset($careTeams); // Get first team
         }
 
         return [
-            'team_name' => $teamName,
-            'members' => $careTeamMembers,
-            'member_count' => count($careTeamMembers)
+            'team_name' => '',
+            'members' => [],
+            'member_count' => 0
         ];
     }
 
     private function hasActiveCareTeam()
     {
         $result = sqlQuery(
-            "SELECT COUNT(*) as count FROM care_teams WHERE pid = ? AND status != 'inactive'",
+            "SELECT COUNT(*) as count FROM care_teams WHERE pid = ? AND (status = 'active' OR status IS NULL)",
             [$this->pid]
         );
 
@@ -187,40 +283,70 @@ class CareTeamViewCard extends CardModel
 
     /**
      * Static method to get form management data for the care team edit page
+     * Enhanced for USCDI v5 compliance
      */
     public static function getFormManagementData($pid)
     {
-        // Get users
-        $usersResult = sqlStatement("SELECT id, username, fname, lname FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL ORDER BY lname, fname");
+        // Get users with physician type information for role mapping
+        $usersResult = sqlStatement(
+            "SELECT u.id, u.username, u.fname, u.lname, u.physician_type, lo.codes AS physician_type_code FROM users u LEFT JOIN list_options lo ON lo.list_id='physician_type' AND lo.option_id=u.physician_type WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL 
+             ORDER BY lname, fname"
+        );
+
         $templateData['users'] = [];
         while ($user = sqlFetchArray($usersResult)) {
             $templateData['users'][] = [
                 'id' => $user['id'],
                 'name' => $user['lname'] . ", " . $user['fname'],
-                'username' => $user['username']
+                'username' => $user['username'],
+                'physician_type' => $user['physician_type'],
+                'physician_type_code' => $user['physician_type_code']
             ];
         }
 
-        // Get facilities
-        $facilitiesResult = sqlStatement("SELECT id, name FROM facility ORDER BY name");
+        // Get facilities with NPI for organization identification
+        $facilitiesResult = sqlStatement(
+            "SELECT id, name, facility_npi, facility_taxonomy 
+             FROM facility 
+             WHERE service_location = 1 OR billing_location = 1
+             ORDER BY name"
+        );
+
         $templateData['facilities'] = [];
         while ($facility = sqlFetchArray($facilitiesResult)) {
             $templateData['facilities'][] = [
                 'id' => $facility['id'],
-                'name' => $facility['name']
+                'name' => $facility['name'],
+                'npi' => $facility['facility_npi'],
+                'taxonomy' => $facility['facility_taxonomy']
             ];
         }
-        // Get roles
-        $rolesResult = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'care_team_roles' AND activity = 1 ORDER BY is_default, seq, title");
+
+        // Get roles - ensure we have USCDI v5 compatible roles
+        $rolesResult = sqlStatement(
+            "SELECT option_id, title, codes 
+             FROM list_options 
+             WHERE list_id = 'care_team_roles' AND activity = 1 
+             ORDER BY is_default DESC, seq, title"
+        );
+
         $templateData['roles'] = [];
         while ($role = sqlFetchArray($rolesResult)) {
             $templateData['roles'][] = [
                 'id' => $role['option_id'],
-                'title' => $role['title']
+                'title' => $role['title'],
+                'codes' => $role['codes'] // SNOMED CT codes for USCDI v5
             ];
         }
-        // Get statuses
-        $statusesResult = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'Care_Team_Status' AND activity = 1 ORDER BY is_default DESC, seq, title");
+
+        // Get statuses - ensure we have FHIR-compatible statuses
+        $statusesResult = sqlStatement(
+            "SELECT option_id, title 
+             FROM list_options 
+             WHERE list_id = 'Care_Team_Status' AND activity = 1 
+             ORDER BY is_default DESC, seq, title"
+        );
+
         $templateData['statuses'] = [];
         while ($status = sqlFetchArray($statusesResult)) {
             $templateData['statuses'][] = [
@@ -228,57 +354,79 @@ class CareTeamViewCard extends CardModel
                 'title' => $status['title']
             ];
         }
-        // Get existing care team
+
+        // Get existing care teams (support multiple teams)
         $careTeamResult = sqlStatement(
-            "SELECT ct.*, u.fname, u.lname FROM care_teams ct
-             LEFT JOIN users u ON ct.user_id = u.id
-             WHERE ct.pid = ?
-             ORDER BY ct.id ASC",
+            "SELECT ct.*, u.fname, u.lname, u.username, u.physician_type, lo.codes AS physician_type_code
+                 FROM care_teams ct
+                 LEFT JOIN users u ON ct.user_id = u.id
+                 LEFT JOIN list_options lo ON lo.option_id = u.physician_type AND lo.list_id = 'physician_type'
+                 WHERE ct.pid = ?
+                 ORDER BY ct.team_name, ct.date_created ASC",
             [$pid]
         );
 
         $existingCareTeam = [];
-        $teamName = '';
+        $teamNames = [];
+
         while ($member = sqlFetchArray($careTeamResult)) {
+            $teamName = $member['team_name'] ?? 'default';
+
+            if (!in_array($teamName, $teamNames)) {
+                $teamNames[] = $teamName;
+            }
+
             $existingCareTeam[] = [
+                'team_name' => $teamName,
                 'user_id' => $member['user_id'],
                 'role' => $member['role'],
                 'facility_id' => $member['facility_id'],
                 'provider_since' => $member['provider_since'],
                 'status' => $member['status'],
                 'note' => $member['note'],
-                'user_name' => trim(($member['lname'] ?? '') . ", " . ($member['fname'] ?? ''))
+                'user_name' => trim(($member['lname'] ?? '') . ", " . ($member['fname'] ?? '')),
+                'physician_type' => $member['physician_type'],
+                'physician_type_code' => $member['physician_type_code']
             ];
-
-            if (empty($teamName) && !empty($member['team_name'])) {
-                $teamName = $member['team_name'];
-            }
         }
 
+        // Build option strings
         $templateData['user_options'] = "<option value=''></option>";
-        foreach ($templateData['users'] as $users) {
-            $templateData['user_options'] .= "<option value='" . attr($users['id']) . "'>" . text($users['name']) . "</option>";
+        foreach ($templateData['users'] as $user) {
+            $extra = $user['physician_type'] ? " (" . text($user['physician_type']) . ")" : "";
+            $templateData['user_options'] .= "<option value='" . attr($user['id']) . "' "
+                . "data-physician-type='" . attr($user['physician_type']) . "' "
+                . "data-physician-code='" . attr($user['physician_type_code']) . "'>"
+                . text($user['name'] . $extra) . "</option>";
         }
 
         $templateData['facility_options'] = "<option value=''></option>";
-        ;
-        foreach ($templateData['facilities'] as $facilities) {
-            $templateData['facility_options'] .= "<option value='" . attr($facilities['id']) . "'>" . text($facilities['name']) . "</option>";
+        foreach ($templateData['facilities'] as $facility) {
+            $extra = $facility['npi'] ? " (NPI: " . text($facility['npi']) . ")" : "";
+            $templateData['facility_options'] .= "<option value='" . attr($facility['id']) . "' "
+                . "data-npi='" . attr($facility['npi']) . "' "
+                . "data-taxonomy='" . attr($facility['taxonomy']) . "'>"
+                . text($facility['name'] . $extra) . "</option>";
         }
 
-        $templateData['role_options'] = '';
-        foreach ($templateData['roles'] as $roles) {
-            $templateData['role_options'] .= "<option value='" . attr($roles['id']) . "'>" . text($roles['title']) . "</option>";
+        $templateData['role_options'] = "<option value=''></option>";
+        foreach ($templateData['roles'] as $role) {
+            $templateData['role_options'] .= "<option value='" . attr($role['id']) . "' "
+                . "data-codes='" . attr($role['codes']) . "'>"
+                . text($role['title']) . "</option>";
         }
 
         $templateData['status_options'] = '';
-        foreach ($templateData['statuses'] as $statuses) {
-            $templateData['status_options'] .= "<option value='" . attr($statuses['id']) . "'>" . text($statuses['title']) . "</option>";
+        foreach ($templateData['statuses'] as $status) {
+            $selected = ($status['id'] == 'active') ? 'selected' : '';
+            $templateData['status_options'] .= "<option value='" . attr($status['id']) . "' $selected>"
+                . text($status['title']) . "</option>";
         }
 
         return [
             'pid' => $pid,
-            'team_name' => $teamName,
+            'team_names' => $teamNames,
+            'team_name' => !empty($teamNames) ? $teamNames[0] : '',
             'user_options' => $templateData['user_options'],
             'facility_options' => $templateData['facility_options'],
             'role_options' => $templateData['role_options'],
@@ -304,7 +452,11 @@ class CareTeamViewCard extends CardModel
             'add_team_member' => xl("Add Team Member"),
             'save_care_team' => xl("Save Care Team"),
             'save_care_team_confirm' => xl('Save care team?'),
-            'cancel' => xl('Cancel')
+            'cancel' => xl('Cancel'),
+            'physician_type' => xl('Provider Type'),
+            'npi' => xl('NPI'),
+            'active_members' => xl('Active Members'),
+            'inactive_members' => xl('Inactive Members')
         ];
     }
 }
