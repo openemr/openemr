@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Encounter form for entering procedure orders.
+ * Encounter form for entering procedure orders
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -10,10 +10,12 @@
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +28,7 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Services\DornLabEvent;
@@ -359,24 +362,35 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
                 $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
             } else {
-                if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
-                    require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
-                    $alertmsg = gen_hl7_order($formid, $hl7);
-                } elseif ($gbl_lab === 'labcorp') {
-                    error_log("in the labcorp");
-                    require_once(__DIR__ . "/../../procedure_tools/labcorp/ereq_form.php");
-                    require_once(__DIR__ . "/../../procedure_tools/labcorp/gen_hl7_order.inc.php");
-                    $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
-                } elseif ($gbl_lab === 'quest') {
-                    error_log("in the quest");
-                    require_once(__DIR__ . "/../../procedure_tools/quest/gen_hl7_order.inc.php");
-                    $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
-                } else {
-                    // Default lab. Add more labs here.
-                    error_log("in the default lab");
-                    require_once(__DIR__ . "/../../procedure_tools/ereqs/ereq_universal_form.php");
-                    require_once(__DIR__ . "/../../orders/gen_hl7_order.inc.php");
-                    $alertmsg = gen_hl7_order($formid, $hl7);
+                // Lab-specific configuration: maps lab identifier to required files
+                $interfaceDir = realpath(dirname(__DIR__, 2));
+                $procToolsDir = $interfaceDir . DIRECTORY_SEPARATOR . 'procedure_tools';
+                $labConfigs = [
+                    'ammon' => ["{$procToolsDir}/gen_universal_hl7/gen_hl7_order.inc.php"],
+                    'clarity' => ["{$procToolsDir}/gen_universal_hl7/gen_hl7_order.inc.php"],
+                    'labcorp' => [
+                        "{$procToolsDir}/labcorp/ereq_form.php",
+                        "{$procToolsDir}/labcorp/gen_hl7_order.inc.php",
+                    ],
+                    'quest' => ["{$procToolsDir}/quest/gen_hl7_order.inc.php"],
+                    'default' => [
+                        "{$procToolsDir}/ereqs/ereq_universal_form.php",
+                        "{$interfaceDir}/orders/gen_hl7_order.inc.php",
+                    ],
+                ];
+                // Load the appropriate implementation files
+                $requiredFiles = $labConfigs[$gbl_lab] ?? $labConfigs['default'];
+                foreach ($requiredFiles as $file) {
+                    require_once($file);
+                }
+
+                try {
+                    // Generate the HL7 order
+                    $result = gen_hl7_order($formid);
+                    $hl7 = $result->hl7;
+                    $reqStr = $result->requisitionData;
+                } catch (Hl7OrderGenerationException $e) {
+                    $alertmsg = $e->getMessage();
                 }
             }
 

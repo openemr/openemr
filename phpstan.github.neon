@@ -9192,10 +9192,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/prior_auth/view.php
-  - message: '#^Function gen_hl7_order invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/forms/procedure_order/common.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 1

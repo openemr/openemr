@@ -1,24 +1,16 @@
 <?php
 
 /**
-* Functions to support HL7 order generation.
-*
-* Copyright (C) 2012-2013 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
+ * Functions to support HL7 order generation
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 /*
 * A bit of documentation that will need to go into the manual:
@@ -38,6 +30,8 @@
 require_once("$webserver_root/custom/code_types.inc.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderResult;
 
 function hl7Text($s)
 {
@@ -165,11 +159,11 @@ function loadPayerInfo($pid, $date = '')
 /**
  * Generate HL7 for the specified procedure order.
  *
- * @param  integer $orderid  Procedure order ID.
- * @param  string  &$out     Container for target HL7 text.
- * @return string            Error text, or empty if no errors.
+ * @param  int   $orderid  Procedure order ID.
+ * @return Hl7OrderResult  Result object containing HL7 text and optional lab-specific requisition data.
+ * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order($orderid, &$out)
+function gen_hl7_order(int $orderid): Hl7OrderResult
 {
 
   // Delimiters
@@ -199,7 +193,7 @@ function gen_hl7_order($orderid, &$out)
         [$orderid]
     );
     if (empty($porow)) {
-        return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+        throw new Hl7OrderGenerationException("Procedure order, ordering provider or lab is missing for order ID '$orderid'");
     }
 
     $pcres = sqlStatement(
@@ -333,7 +327,7 @@ function gen_hl7_order($orderid, &$out)
             }
         }
         if ($setid === 0) {
-            return "\nInsurance is being billed but patient does not have any payers on record!";
+            throw new Hl7OrderGenerationException("Insurance is being billed but patient does not have any payers on record!");
         }
     } else { // no insurance record
         ++$setid;
@@ -473,7 +467,7 @@ function gen_hl7_order($orderid, &$out)
         }
     }
 
-    return '';
+    return new Hl7OrderResult($out);
 }
 
 /**

@@ -3,16 +3,18 @@
 /**
  * List procedure orders and reports, and fetch new reports and their results.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Tyler Wrenn <tyler@tylerwrenn.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $orphanLog = '';
@@ -27,6 +29,7 @@ require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
@@ -89,10 +92,12 @@ if (!empty($_POST['form_xmit'])) {
     foreach ($_POST['form_cb'] as $formid) {
         $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", [$formid]);
         $ppid = (int)$row['lab_id'];
-        $hl7 = '';
-        $errmsg = gen_hl7_order($formid, $hl7);
-        if (empty($errmsg)) {
-            $errmsg = send_hl7_order($ppid, $hl7);
+        $errmsg = '';
+        try {
+            $result = gen_hl7_order($formid);
+            $errmsg = send_hl7_order($ppid, $result->hl7);
+        } catch (Hl7OrderGenerationException $e) {
+            $errmsg = $e->getMessage();
         }
 
         if ($errmsg) {
