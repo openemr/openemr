@@ -41,6 +41,13 @@ class CodeTypesService
 
     const CODE_TYPE_DATE_ABSENT_REASON = 'DataAbsentReason';
     const CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY = "2.16.840.1.114222.4.11.1066";
+
+    const CODE_TYPE_HL7_ROLE_CODE = 'RoleCode';
+
+    const CODE_TYPE_HL7_PARTICIPATION_FUNCTION = 'ParticipationFunction';
+
+    const CODE_TYPE_HSOC = 'HSOC';
+
     const CODE_TYPE_OID = [
         '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
         '2.16.840.1.113883.6.12' => self::CODE_TYPE_CPT4,
@@ -280,6 +287,9 @@ class CodeTypesService
                 self::CODE_TYPE_CPT4, self::CODE_TYPE_CPT => FhirCodeSystemConstants::AMA_CPT,
                 self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10,
                 self::CODE_TYPE_DATE_ABSENT_REASON => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM,
+                self::CODE_TYPE_HL7_ROLE_CODE => FHIRCodeSystemConstants::HL7_ROLE_CODE,
+                self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION => FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE,
+                self::CODE_TYPE_HSOC => FHIRCodeSystemConstants::HSOC,
                 default => null,
             };
         }

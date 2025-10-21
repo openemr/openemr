@@ -102,6 +102,7 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.drug_dosage_instructions
                 ,combined_prescriptions.date_added
                 ,combined_prescriptions.date_modified
+                ,combined_prescriptions.medication_adherence_date_asserted
                 ,patient.puuid
                 ,encounter.euuid
                 ,practitioner.pruuid
@@ -118,7 +119,15 @@ class PrescriptionService extends BaseService
                 ,intervals_list.interval_id
                 ,intervals_list.interval_title
                 ,intervals_list.interval_codes
+                ,intervals_list.interval_notes
 
+                ,combined_prescriptions.medication_adherence
+                ,med_adherence.medication_adherence_title
+                ,med_adherence.medication_adherence_codes
+
+                ,combined_prescriptions.medication_adherence_information_source
+                ,med_adherence_source.medication_adherence_information_source_title
+                ,med_adherence_source.medication_adherence_information_source_codes
                 FROM (
                       SELECT
                              prescriptions.uuid
@@ -139,12 +148,16 @@ class PrescriptionService extends BaseService
                             ,COALESCE(prescriptions.unit,drugs.unit) AS unit
                             ,prescriptions.`interval`
                             ,COALESCE(prescriptions.`route`,drugs.`route`) AS 'route'
+                            ,prescriptions.size AS prescription_drug_size
                             ,prescriptions.`note`
                             ,patient_id
                             ,encounter
                             ,provider_id
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
+                            ,NULL AS medication_adherence_date_asserted
+                            ,NULL AS medication_adherence
+                            ,NULL AS medication_adherence_information_source
                             ,CASE
                                 WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
                                 WHEN prescriptions.active = '1' THEN 'active'
@@ -173,12 +186,16 @@ class PrescriptionService extends BaseService
                         ,NULL as unit
                         ,NULL as 'interval'
                         ,NULL as `route`
+                        ,NULL as `prescription_drug_size`
                         ,lists.comments as 'note'
                         ,pid AS patient_id
                         ,issues_encounter.issues_encounter_encounter as encounter
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
                         ,lists_medication.drug_dosage_instructions
+                        ,lists_medication.medication_adherence_date_asserted
+                        ,lists_medication.medication_adherence
+                        ,lists_medication.medication_adherence_information_source
                         ,CASE
                                 WHEN lists.enddate IS NOT NULL AND lists.activity = 1 THEN 'completed'
                                 WHEN lists.activity = 1 THEN 'active'
@@ -217,6 +234,7 @@ class PrescriptionService extends BaseService
                     option_id AS interval_id
                     ,title AS interval_title
                     ,codes AS interval_codes
+                    ,notes AS interval_notes
                   FROM list_options
                   WHERE list_id='drug_interval'
                 ) intervals_list ON intervals_list.interval_id = combined_prescriptions.interval
@@ -229,6 +247,24 @@ class PrescriptionService extends BaseService
                   FROM list_options
                   WHERE list_id='drug_units'
                 ) units_list ON units_list.unit_id = combined_prescriptions.unit
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS medication_adherence_id
+                    ,title AS medication_adherence_title
+                    ,codes AS medication_adherence_codes
+                  FROM list_options
+                  WHERE list_id='medication_adherence'
+                ) med_adherence ON med_adherence.medication_adherence_id = combined_prescriptions.medication_adherence
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS medication_adherence_information_source_id
+                    ,title AS medication_adherence_information_source_title
+                    ,codes AS medication_adherence_information_source_codes
+                  FROM list_options
+                  WHERE list_id='medication_adherence'
+                ) med_adherence_source ON med_adherence_source.medication_adherence_information_source_id = combined_prescriptions.medication_adherence_information_source
                 LEFT JOIN (
                     select uuid AS puuid
                     ,pid
