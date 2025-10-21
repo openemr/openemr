@@ -12,6 +12,9 @@
 
 set -xeuo pipefail
 
+readonly PHPCOV_VERSION=11.0.2
+
+
 coverage_args=(
     --coverage-filter apis
     --coverage-filter gacl
@@ -104,15 +107,15 @@ ccda_build() (
 )
 
 configure_coverage() {
-    _exec sh -c '
+    _exec sh -c "
       XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh
       mkdir -p ./coverage
-      curl -sSLO https://phar.phpunit.de/phpcov-11.0.0.phar
-    '
+      curl -sSLO 'https://phar.phpunit.de/phpcov-${PHPCOV_VERSION}.phar'
+    "
 }
 
 phpcov() {
-    _exec php -d memory_limit=8G phpcov-11.0.0.phar "$@"
+    _exec php -d memory_limit=8G "phpcov-${PHPCOV_VERSION}.phar" "$@"
 }
 
 install_configure() {
