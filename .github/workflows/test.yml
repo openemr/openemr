@@ -277,6 +277,8 @@ jobs:
 
     - name: Api testing
       if: ${{ success() || failure() }}
+      env:
+        ENABLE_COVERAGE: 'false'
       run: |
         . ci/ciLibrary.source
         build_test api
@@ -437,6 +439,7 @@ jobs:
       env:
         # Change this to just 'selenium' to disable video recording.
         COMPOSE_PROFILES: video-recording
+        ENABLE_COVERAGE: 'false'
       run: |
         . ci/ciLibrary.source
         build_test e2e
