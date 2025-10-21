@@ -132,6 +132,73 @@ install_configure() {
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
 }
 
+##
+# Add a php auto prepend file we can use for telemetry
+# and measuring code coverage.
+# Arguments:
+#   $1 - webserver type (apache or nginx)
+setup_e2e_bookends() {
+    local webserver="${1:-apache}"
+    local php_scan_dir
+    local prepend_file='ci/e2e_prepend.php'
+    local prepend_marker='openemr-e2e-PREPEND_EXECUTED'
+    local shutdown_marker='openemr-e2e-SHUTDOWN_EXECUTED'
+    local webserver_host
+
+    # Map webserver types to their hostnames
+    declare -A webserver_hosts=(
+        [apache]='localhost'
+        [nginx]='nginx'
+    )
+
+    webserver_host="${webserver_hosts[${webserver}]}"
+    if [[ -z "${webserver_host}" ]]; then
+        echo "Error: Unknown webserver type '${webserver}'"
+        return 1
+    fi
+
+    php_scan_dir=$(_exec php -r "echo ini_get('scan.directory') ?: (dirname(php_ini_loaded_file()) . '/conf.d');" 2>/dev/null)
+    if [[ -z "${php_scan_dir}" ]]; then
+        echo "Error: Could not detect PHP configuration scan directory"
+        return 1
+    fi
+    echo "Detected PHP config scan directory: ${php_scan_dir}"
+
+    echo 'Confirming prepend file is present'
+    _exec sh -xc "
+        if [[ ! -f ${OPENEMR_DIR}/${prepend_file} ]]; then
+            echo '${OPENEMR_DIR}/${prepend_file} is missing'
+            exit 1
+        fi
+    "
+
+    echo 'Configuring PHP to use auto_prepend'
+    {
+        echo "auto_prepend_file=${OPENEMR_DIR}/${prepend_file}"
+    } > php_prepend.ini
+    dc cp php_prepend.ini "openemr:${php_scan_dir}/php_prepend.ini"
+
+    echo 'Restarting services to pick up the new PHP configuration'
+    dc restart openemr
+    dockers_env_start
+
+    echo 'Testing prepend/shutdown behavior…'
+    _exec rm -f "${prepend_marker}" "${shutdown_marker}"
+
+    echo "Verifying E2E prepend configuration via web server (${webserver} at ${webserver_host})…"
+    _exec sh -c "curl -fsSL http://${webserver_host}/ci/phpinfo.php | grep -E auto_prepend_file"
+
+    sleep 1  # Give filesystem time to flush
+
+    _exec sh -c 'ls /tmp/openemr-e2e-*_EXECUTED'
+
+    echo 'Checking prepend marker file after web request:'
+    _exec sh -c "cat '/tmp/${prepend_marker}'"
+
+    echo 'Checking shutdown marker file after web request:'
+    _exec sh -c "cat '/tmp/${shutdown_marker}'"
+}
+
 enable_e2e_coverage() {
     echo 'not implemented' >&2
     false
