@@ -18,14 +18,13 @@ use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Common\Twig\TwigContainer;
 
-$pid = $_SESSION['pid'] ?? null;
 
 // Initialize services
 $contactService = new ContactService();
 $contactAddressService = new ContactAddressService();
 
 // Get contact for patient
-$contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+$contact = $contactService->getOrCreateForEntity($foreign_table_name, $foreign_id);
 $addresses = [];
 
 if ($contact) {
@@ -35,7 +34,7 @@ if ($contact) {
     // Transform to display format
     foreach ($addressRecords as $record) {
         $addresses[] = [
-            'id' => $record['id'],
+            'contact_address_id' => $record['contact_address_id'],
             'use' => $record['use'],
             'type' => $record['type'],
             'line1' => $record['line1'] ?? '',
@@ -63,6 +62,7 @@ $table_id = uniqid("table_text_addresses_");
 
 // Prepare template variables
 $templateVars = [
+    'foreign_table_name' => $foreign_table_name,
     'table_id' => $table_id,
     'addresses' => $addresses,
     'list_address_types' => $list_address_types,

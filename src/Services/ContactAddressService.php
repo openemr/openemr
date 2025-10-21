@@ -26,7 +26,7 @@ class ContactAddressService extends BaseService
     /**
      * Save addresses for any contact using form data structure
      * Works with data from get_layout_form_value() and any entity type
-     * 
+     *
      * @param int $contactId The contact ID to save addresses for
      * @param array $addressData Address data from form (with data_action, line_1, city, etc as parallel arrays)
      * @return array Array of saved ContactAddress objects
@@ -47,7 +47,7 @@ class ContactAddressService extends BaseService
 
             $savedRecords = [];
             $count = count($addressData['data_action'] ?? []);
-            
+
             if ($count <= 0) {
                 return $savedRecords;
             }
@@ -57,16 +57,16 @@ class ContactAddressService extends BaseService
 
             for ($i = 0; $i < $count; $i++) {
                 $action = $addressData['data_action'][$i] ?? '';
-                
+
                 // Skip empty actions
                 if (empty($action)) {
                     continue;
                 }
 
-                $addressId = $addressData['id'][$i] ?? null;
-                
+                $contactAddressId = $addressData['contact_address_id'][$i] ?? null;
+
                 // Skip if no ID and not ADD
-                if ($action != 'ADD' && empty($addressId)) {
+                if ($action != 'ADD' && empty($contactAddressId)) {
                     $this->getLogger()->warning("Skipping non-ADD action without ID", [
                         'action' => $action,
                         'index' => $i
@@ -78,30 +78,30 @@ class ContactAddressService extends BaseService
                 $this->getLogger()->debug("Processing address", [
                     'index' => $i,
                     'action' => $action,
-                    'id' => $addressId,
+                    'id' => $contactAddressId,
                     'line1' => $addressData['line_1'][$i] ?? 'N/A'
                 ]);
 
                 // Handle INACTIVATE/DELETE
                 if ($action == 'INACTIVATE' || $action == 'DELETE') {
-                    if (!empty($addressId)) {
-                        $contactAddress = new ContactAddress($addressId);
+                    if (!empty($contactAddressId)) {
+                        $contactAddress = new ContactAddress($contactAddressId);
                         if (!empty($contactAddress->get_id())) {
                             $contactAddress->deactivate();
                             if ($contactAddress->persist()) {
                                 $savedRecords[] = $contactAddress;
                                 $this->getLogger()->info("Address inactivated", [
                                     'contact_id' => $contactId,
-                                    'address_id' => $contactAddress->get_id()
+                                    'contact_address_id' => $contactAddress->get_id()
                                 ]);
                             } else {
                                 $this->getLogger()->error("Failed to persist inactivated address", [
-                                    'address_id' => $addressId
+                                    'contact_address_id' => $contactAddressId
                                 ]);
                             }
                         } else {
                             $this->getLogger()->error("Address not found for inactivation", [
-                                'address_id' => $addressId
+                                'contact_address_id' => $contactAddressId
                             ]);
                         }
                     }
@@ -110,12 +110,12 @@ class ContactAddressService extends BaseService
 
                 // Handle ADD and UPDATE
                 // For UPDATE, load existing; for ADD, create new
-                $contactAddress = new ContactAddress($addressId);
-                
+                $contactAddress = new ContactAddress($contactAddressId);
+
                 // Verify for UPDATE that we loaded an existing record
                 if ($action == 'UPDATE' && empty($contactAddress->get_id())) {
                     $this->getLogger()->error("UPDATE action but address not found, treating as ADD", [
-                        'address_id' => $addressId,
+                        'contac_address_id' => $contactAddressId,
                         'index' => $i
                     ]);
                     // Create a new one instead
@@ -173,13 +173,13 @@ class ContactAddressService extends BaseService
                 $address->set_district($addressData['district'][$i] ?? '');
                 $address->set_state($addressData['state'][$i] ?? '');
                 $address->set_country($addressData['country'][$i] ?? '');
-                
+
                 // Handle postal code - check both field names
                 $postalcode = $addressData['postalcode'][$i] ?? $addressData['postal_code'][$i] ?? $addressData['zip'][$i] ?? '';
                 if (!empty($postalcode)) {
                     $address->set_postalcode($postalcode);
                 }
-                
+
                 $address->set_foreign_id(null);
 
                 // Set the contact (use existing contact)
@@ -192,7 +192,7 @@ class ContactAddressService extends BaseService
                         'contact_id' => $contactId,
                         'address_id' => $contactAddress->get_id(),
                         'action' => $action,
-                        'is_new' => empty($addressId)
+                        'is_new' => empty($contactAddressId)
                     ]);
                 } else {
                     $this->getLogger()->error("Failed to persist address", [
@@ -222,7 +222,7 @@ class ContactAddressService extends BaseService
 
     /**
      * Get addresses for a contact
-     * 
+     *
      * @param int $contactId The contact ID
      * @param bool $includeInactive Include inactive addresses
      * @return array Array of address records with merged contact_address and address data
@@ -394,7 +394,12 @@ class ContactAddressService extends BaseService
      */
     public function getAddressesForContact(int $contactId, bool $includeInactive = false): array
     {
-        $sql = "SELECT ca.*, a.* FROM contact_address ca
+        $sql = "SELECT
+                    ca.id AS contact_address_id,
+                    ca.*,
+                    a.id AS addresses_id,
+                    a.*
+                FROM contact_address ca
                 JOIN addresses a ON ca.address_id = a.id
                 WHERE ca.contact_id = ?";
 

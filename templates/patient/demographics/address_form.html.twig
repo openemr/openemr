@@ -21,8 +21,14 @@
     <div class="table_edit_addresses col-12">
         <div class="display_addresses_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
             <div style="display: flex; align-items: center;">
-                <div class="label_custom mb-0">{{ 'Additional Addresses'|xlt }}</div>
-                <div class="fas fa-plus-square text-primary pl-3 pb-1" style="display: inline-block; line-height: 1.5; cursor: pointer;" onclick="addAddress(event);return false"></div>
+                <div class="label_custom mb-0">
+                    {% if foreign_table_name == 'patient_data' %}
+                        {{ 'Additional Addresses'|xlt }}
+                    {% else %}
+                        {{ 'Addresses'|xlt }}
+                    {% endif %}
+                </div>
+                <div class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;" onclick="addAddress(event);return false"></div>
             </div>
             <div class="form-check mr-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_addresses_{{ table_id|attr }}" onchange="toggleInactiveAddresses('{{ table_id|attr }}')">
@@ -43,6 +49,14 @@
         {% for address in addresses %}
         {% set is_inactive = address.status != 'A' %}
         <div class="addresses_group col-12 pl-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}">
+
+            {# CRITICAL: Hidden fields OUTSIDE hideable sections - always submitted #}
+            <input type="hidden" class="form_addresses_data_action" name="{{ name_field_id|attr }}[data_action][]" value="NO CHANGE" />
+            <input type="hidden" class="form_addresses_contact_address_id" name="{{ name_field_id|attr }}[contact_address_id][]" value="{{ address.contact_address_id|attr }}" />
+            <input type="hidden" class="form_addresses_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ address.contact_id|attr }}" />
+            <input type="hidden" class="form_addresses_addresses_id" name="{{ name_field_id|attr }}[addresses_id][]" value="{{ address.addresses_id|attr }}" />
+            <input type="hidden" class="form_addresses_status" name="{{ name_field_id|attr }}[status][]" value="{{ address.status|attr }}" />
+
             <div class="display_addresses form-row no-gutters justify-content-between pl-1">
                 <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                     <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
@@ -55,19 +69,27 @@
                 </div>
 
                 <div class="col-6 px-0">
-                    <span class="display_addresses_full_address label_custom" style="vertical-align: -0.1rem;">
+                    <span class="display_addresses_full_address label_custom" style="vertical-align: 0.1rem;">
                         {% set full_addr = [] %}
                         {% if address.line1 %}{% set full_addr = full_addr|merge([address.line1]) %}{% endif %}
                         {% if address.line2 %}{% set full_addr = full_addr|merge([address.line2]) %}{% endif %}
                         {% if address.city %}{% set full_addr = full_addr|merge([address.city]) %}{% endif %}
-                        {% if address.state %}{% set full_addr = full_addr|merge([address.state]) %}{% endif %}
-                        {% if address.postalcode %}{% set full_addr = full_addr|merge([address.postalcode]) %}{% endif %}
+                        {% if address.state or address.zip %}
+                            {% set state_zip = [] %}
+                            {% if address.state %}
+                                {% set state_zip = state_zip|merge([address.state]) %}
+                            {% endif %}
+                            {% if address.zip %}
+                                {% set state_zip = state_zip|merge([address.zip]) %}
+                            {% endif %}
+                            {% set full_addr = full_addr|merge([state_zip|join(' ')]) %}
+                        {% endif %}
                         {{ full_addr|join(', ')|text }}
                     </span>
                 </div>
 
                 <div class="col-3 display_addresses_period_column px-0">
-                    <span class="display_addresses_period label_custom" style="vertical-align: -0.1rem;">
+                    <span class="display_addresses_period label_custom" style="vertical-align: 0.1rem;">
                         {% if address.period_start or address.period_end %}
                             {% if address.period_start and not address.period_end %}
                                 {{ address.period_start|shortDate }} {{ 'to'|xlt }} {{ 'Current'|xlt }}
@@ -79,17 +101,15 @@
                         {% endif %}
                     </span>
                 </div>
-
-                <div class="fas fa-fw fa-trash-alt text-danger btn-delete-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer;"></div>
+                {% if is_inactive %}
+                    <div class="fas fa-fw fa-solid fa-house-circle-check text-success btn-activate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                {% else %}
+                    <div class="fas fa-fw fa-solid fa-house-circle-xmark text-danger btn-inactivate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                {% endif %}
             </div>
 
             <div class='d-none form_addresses form-row mx-3 my-2'>
-                <input type="hidden" class="form_addresses_data_action" name="{{ name_field_id|attr }}[data_action][]" value="UPDATE" />
-                <input type="hidden" class="form_addresses_id" name="{{ name_field_id|attr }}[id][]" value="{{ address.id|attr }}" />
-                <input type="hidden" class="form_addresses_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ address.contact_id|attr }}" />
-                <input type="hidden" class="form_addresses_address_id" name="{{ name_field_id|attr }}[address_id][]" value="{{ address.address_id|attr }}" />
-                <input type="hidden" class="form_addresses_status" name="{{ name_field_id|attr }}[status][]" value="{{ address.status|attr }}" />
-
+                {# Only editable fields here - hidden fields are above #}
                 {% include 'patient/demographics/address_form_fields.html.twig' with {
                     'address': address,
                     'is_new': false
@@ -104,6 +124,14 @@
 {# Template for adding new addresses #}
 <template class="template_add_address">
     <div class="addresses_group col-12 pl-0" data-status="A">
+
+        {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
+        <input type="hidden" class="form_addresses_data_action" name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
+        <input type="hidden" class="form_addresses_id" name="{{ name_field_id|attr }}[id][]" value="" />
+        <input type="hidden" class="form_addresses_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ contact_id|attr }}" />
+        <input type="hidden" class="form_addresses_address_id" name="{{ name_field_id|attr }}[address_id][]" value="" />
+        <input type="hidden" class="form_addresses_status" name="{{ name_field_id|attr }}[status][]" value="A" />
+
         <div class="display_addresses form-row no-gutters justify-content-between pl-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                 <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
@@ -111,23 +139,19 @@
             </div>
 
             <div class="col-6 px-0">
-                <span class="display_addresses_full_address label_custom" style="vertical-align: -0.1rem;"></span>
+                <span class="display_addresses_full_address label_custom" style="vertical-align: 0.1rem;"></span>
             </div>
 
             <div class="col-3 display_addresses_period_column px-0">
-                <span class="display_addresses_period label_custom" style="vertical-align: -0.1rem;"></span>
+                <span class="display_addresses_period label_custom" style="vertical-align: 0.1rem;"></span>
             </div>
 
-            <div class="fas fa-fw fa-trash-alt text-danger btn-delete-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer;"></div>
+            <div class="fas fa-fw fa-solid fa-house-circle-xmark text-danger btn-inactivate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+
         </div>
 
         <div class='form_addresses form-row mx-3 my-2'>
-            <input type="hidden" class="form_addresses_data_action" name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
-            <input type="hidden" class="form_addresses_id" name="{{ name_field_id|attr }}[id][]" value="" />
-            <input type="hidden" class="form_addresses_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ contact_id|attr }}" />
-            <input type="hidden" class="form_addresses_address_id" name="{{ name_field_id|attr }}[address_id][]" value="" />
-            <input type="hidden" class="form_addresses_status" name="{{ name_field_id|attr }}[status][]" value="A" />
-
+            {# Only editable fields here - hidden fields are above #}
             {% include 'patient/demographics/address_form_fields.html.twig' with {
                 'address': {
                     'use': 'home',
@@ -145,7 +169,7 @@
 <script type="text/javascript">
     let addressWidgets = [];
     let ADDRESS_ACTION_VALUES = {
-        'DELETE': 'INACTIVATE',
+        'INACTIVATE': 'INACTIVATE',
         'ADD': 'ADD',
         'UPDATE': 'UPDATE'
     };
@@ -186,8 +210,11 @@
         document.getElementById(tableId).addEventListener('mouseup', changeEdit);
         document.getElementById(tableId).addEventListener('touchend', changeEdit);
 
+        document.getElementById(tableId).addEventListener('input', addressUpdated);
+        document.getElementById(tableId).addEventListener('change', addressUpdated);
+
         // Setup existing address buttons and datepickers
-        document.querySelectorAll('.display_addresses').forEach(function(row) {
+        document.querySelectorAll('#' + tableId + ' .addresses_group .display_addresses').forEach(function(row) {
             setupAddressesRowButtonEventListeners(row);
         });
 
@@ -200,7 +227,7 @@
     function toggleInactiveAddresses(tableId) {
         const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
         const inactiveAddresses = document.querySelectorAll('#' + tableId + ' .address-inactive');
-        
+
         inactiveAddresses.forEach(function(address) {
             if (checkbox.checked) {
                 address.classList.remove('d-none');
@@ -239,12 +266,18 @@
         }
     }
 
-    function changeEdit() {
+    function changeEdit(event) {
         var row_form_addresses = event.target.closest('.form_addresses');
         if (!row_form_addresses) {
             return;
         }
-        var row_display_addresses = row_form_addresses.previousElementSibling;
+
+        // Find the parent addresses_group, then find display_addresses within it
+        var addresses_group = row_form_addresses.closest('.addresses_group');
+        if (!addresses_group) {
+            return;
+        }
+        var row_display_addresses = addresses_group.querySelector('.display_addresses');
         if (!row_display_addresses) {
             return;
         }
@@ -259,9 +292,9 @@
         row_display_addresses.querySelector(".display_addresses_period").innerText = period;
     }
 
-    function editAddress(evt) {
-        evt.preventDefault();
-        let element = evt.currentTarget;
+    function editAddress(event) {
+        event.preventDefault();
+        let element = event.currentTarget;
         let toggleElement = element.closest('.addresses_group').querySelector('.form_addresses');
 
         if (element.className.includes("fa-caret-right")) {
@@ -273,21 +306,21 @@
         }
     }
 
-    function deleteAddress(evt) {
-        evt.preventDefault();
-        var row_display_addresses = evt.currentTarget.closest('.display_addresses');
+    function changeAddressStatus(event) {
+        event.preventDefault();
+        var row_display_addresses = event.currentTarget.closest('.display_addresses');
         if (!row_display_addresses) {
             return;
         }
-        var row_form_addresses = row_display_addresses.nextElementSibling;
-        if (!row_form_addresses) {
-            return;
-        }
-        
+
         var addresses_group = row_display_addresses.closest('.addresses_group');
         var currentStatus = addresses_group.getAttribute('data-status');
-        var deleteIcon = evt.currentTarget;
-        
+        var inactivateIcon = event.currentTarget;
+
+        // Get the hidden status input from addresses_group
+        var statusInput = addresses_group.querySelector('input.form_addresses_status');
+        var actionInput = addresses_group.querySelector('input.form_addresses_data_action');
+
         // Check if this is currently inactive (reactivate) or active (inactivate)
         if (currentStatus === 'I') {
             // REACTIVATE
@@ -296,31 +329,28 @@
                 // Remove inactive styling
                 addresses_group.classList.remove('address-inactive');
                 addresses_group.setAttribute('data-status', 'A');
-                
+
                 // Remove inactive badge from display
                 var useSpan = row_display_addresses.querySelector('.display_addresses_use');
                 var badge = useSpan.querySelector('.badge');
                 if (badge) {
                     badge.remove();
                 }
-                
+
                 // Change icon back to trash
-                deleteIcon.classList.remove('fa-trash-restore', 'text-success');
-                deleteIcon.classList.add('fa-trash-alt', 'text-danger');
-                deleteIcon.setAttribute('title', window.xl('Inactivate Address'));
-                
+                inactivateIcon.classList.remove('fa-house-circle-check', 'text-success');
+                inactivateIcon.classList.add('fa-house-circle-xmark', 'text-danger');
+                inactivateIcon.setAttribute('title', window.xl('Inactivate Address'));
+
                 // Set action to UPDATE and status to A
-                let actionInput = row_form_addresses.querySelector('input.form_addresses_data_action');
-                let statusInput = row_form_addresses.querySelector('input.form_addresses_status');
-                
                 if (actionInput) {
                     actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
                 }
                 if (statusInput) {
                     statusInput.value = 'A';
                 }
-                
-                console.log('Reactivated address:', row_form_addresses.querySelector('input.form_addresses_id')?.value);
+
+                console.log('Reactivated address:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
             }
         } else {
             // INACTIVATE
@@ -329,7 +359,7 @@
                 // Mark as inactive
                 addresses_group.classList.add('address-inactive');
                 addresses_group.setAttribute('data-status', 'I');
-                
+
                 // Add inactive badge to display
                 var useSpan = row_display_addresses.querySelector('.display_addresses_use');
                 if (!useSpan.querySelector('.badge')) {
@@ -339,38 +369,47 @@
                     badge.textContent = window.xl('Inactive');
                     useSpan.appendChild(badge);
                 }
-                
+
                 // Change icon to restore icon
-                deleteIcon.classList.remove('fa-trash-alt', 'text-danger');
-                deleteIcon.classList.add('fa-trash-restore', 'text-success');
-                deleteIcon.setAttribute('title', window.xl('Reactivate Address'));
-                
+                inactivateIcon.classList.remove('fa-house-circle-xmark', 'text-danger');
+                inactivateIcon.classList.add('fa-house-circle-check', 'text-success');
+                inactivateIcon.setAttribute('title', window.xl('Reactivate Address'));
+
                 // Set action to INACTIVATE
-                let actionInput = row_form_addresses.querySelector('input.form_addresses_data_action');
-                let statusInput = row_form_addresses.querySelector('input.form_addresses_status');
-                
                 if (actionInput) {
-                    actionInput.value = ADDRESS_ACTION_VALUES.DELETE;
+                    actionInput.value = ADDRESS_ACTION_VALUES.INACTIVATE;
                 }
                 if (statusInput) {
                     statusInput.value = 'I';
                 }
-                
+
                 // Hide if "Show Inactive" is not checked
                 const tableId = addresses_group.closest('[id^="table_edit_addresses_"]').id;
                 const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
                 if (!checkbox || !checkbox.checked) {
                     addresses_group.classList.add('d-none');
                 }
-                
-                console.log('Marked address as inactive:', row_form_addresses.querySelector('input.form_addresses_id')?.value);
+
+                console.log('Marked address as inactive:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
             }
         }
     }
 
     function setupAddressesRowButtonEventListeners(row) {
-        row.querySelector(".btn-edit-address").addEventListener('click', editAddress);
-        row.querySelector(".btn-delete-address").addEventListener('click', deleteAddress);
+        let buttonEdit = row.querySelector(".btn-edit-address");
+        if (buttonEdit) {
+            buttonEdit.addEventListener('click', editAddress);
+        }
+
+        let buttonInactivate = row.querySelector(".btn-inactivate-address");
+        if (buttonInactivate) {
+            buttonInactivate.addEventListener('click', changeAddressStatus);
+        }
+
+        let buttonActivate = row.querySelector(".btn-activate-address");
+        if (buttonActivate) {
+            buttonActivate.addEventListener('click', changeAddressStatus);
+        }
     }
 
     function setupContainerDatePickers(container) {
@@ -380,8 +419,8 @@
 
     function setupContainerListAddButtons(container) {
         if (window.oeUI && window.oeUI.optionWidgets) {
-            $(container).find(".addtolist").on("click", function (evt) {
-                window.oeUI.optionWidgets.AddToList(this, evt);
+            $(container).find(".addtolist").on("click", function (event) {
+                window.oeUI.optionWidgets.AddToList(this, event);
             });
         }
     }
@@ -463,4 +502,38 @@
     function showElement(element) {
         element.classList.remove('d-none');
     }
+
+    function addressUpdated(event) {
+        // Check if the changed element is within a form_addresses div
+        const formAddresses = event.target.closest('.form_addresses');
+        if (!formAddresses) {
+            return;
+        }
+
+        // Get the parent addresses_group
+        const addressesGroup = formAddresses.closest('.addresses_group');
+        if (!addressesGroup) {
+            return;
+        }
+
+        // Get the data_action input
+        const actionInput = addressesGroup.querySelector('input.form_addresses_data_action');
+        if (!actionInput) {
+            return;
+        }
+
+        // Only change to UPDATE if it's not already ADD or INACTIVATE
+        const currentAction = actionInput.value;
+        if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+            // Don't change these states
+            return;
+        }
+
+        // Change NO CHANGE to UPDATE
+        if (currentAction === 'NO CHANGE') {
+            actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+            console.log('Changed action to UPDATE for address:', addressesGroup.querySelector('input.form_addresses_contact_address_id')?.value);
+        }
+    }
+
 </script>

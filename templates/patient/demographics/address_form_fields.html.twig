@@ -1,4 +1,4 @@
-{# 
+{#
   Address Form Fields Template
   Reusable form fields for address editing
 #}
@@ -137,9 +137,9 @@
         <div class="col-3">
             {{ generateFormField({
                 'data_type': widget_constants.textbox,
-                'field_id': field_id_esc ~ '[postalcode][]',
+                'field_id': field_id_esc ~ '[zip][]',
                 'smallform': smallform ~ ' form_addresses_postalcode'
-            }, address.postalcode|default('')) }}
+            }, address.zip|default('')) }}
         </div>
         <div class="col-3">
             {{ generateFormField({
@@ -168,8 +168,8 @@
     </div>
     <div class="form-row">
         <div class="col-12">
-            <textarea class="form-control form_addresses_notes" 
-                      name="{{ name_field_id|attr }}[notes][]" 
+            <textarea class="form-control form_addresses_notes"
+                      name="{{ name_field_id|attr }}[notes][]"
                       rows="2">{{ address.notes|default('')|text }}</textarea>
         </div>
     </div>
