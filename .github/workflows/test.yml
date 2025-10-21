@@ -443,6 +443,14 @@ jobs:
         flags: email,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
 
     ##
+    # Activate prepend and shutdown code for webserver for e2e tests
+    - name: E2e setup
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        setup_e2e_bookends ${{ matrix.configurations.webserver }}
+
+    ##
     # To skip E2E tests for specific docker directories,
     # rename the docker directory to end with "_no-e2e".
     - name: E2e testing
