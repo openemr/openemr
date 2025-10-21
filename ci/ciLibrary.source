@@ -59,7 +59,7 @@ _exec() {
 }
 
 dockers_env_start() {
-    dc up --detach --wait --wait-timeout 300
+    dc up --detach --quiet-pull --wait --wait-timeout 300
 }
 
 selenium_video_start() {
@@ -70,8 +70,6 @@ selenium_video_start() {
 
 selenium_video_stop() {
     dc stop selenium video
-    dc logs selenium
-    dc logs video
 }
 
 actions_chmod() {
@@ -194,6 +192,23 @@ build_test_e2e() {
     fi
 
     return "${status}"
+}
+
+##
+# Print the webserver error log
+dump_error_log() {
+    case "$1" in
+        apache)
+            _exec sh -c 'test -r /var/log/apache2/error.log && cat /var/log/apache2/error.log'
+            ;;
+        nginx)
+            echo 'php-fpm logs are in the container logs'
+            ;;
+        *)
+            echo "Webserver '$1' not known."
+            exit 255
+            ;;
+    esac
 }
 
 ##

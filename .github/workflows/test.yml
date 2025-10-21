@@ -441,6 +441,33 @@ jobs:
         . ci/ciLibrary.source
         build_test e2e
 
+    ##
+    # The logs for the e2e run are directly in the container logs for nginx/php-fpm
+    # but in /var/log/apache2/error.log for apache.
+    - name: E2e container logs
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs openemr
+
+    - name: E2e error logs
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' && matrix.configurations.webserver == 'apache' }}
+      run: |
+        . ci/ciLibrary.source
+        dump_error_log ${{ matrix.configurations.webserver }}
+
+    - name: E2e selenium logs
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs selenium
+
+    - name: E2e video logs
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs video
+
     - name: Upload e2e test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
       uses: codecov/test-results-action@v1
